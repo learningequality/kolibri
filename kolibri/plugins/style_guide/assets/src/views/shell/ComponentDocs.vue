@@ -143,6 +143,9 @@
         return escodegen.generate(propRequired);
       },
       parsePropDefault(propType, propDefault) {
+        if (propDefault && propDefault.type === 'ArrowFunctionExpression') {
+          return escodegen.generate(propDefault);
+        }
         const stringfiedDefault = JSON.stringify(propDefault);
         if (stringfiedDefault) {
           return stringfiedDefault;

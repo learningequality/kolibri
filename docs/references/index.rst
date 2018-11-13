@@ -6,7 +6,5 @@ References
 
   development_workflow
   release_process
-  conventions
   i18n
   manual_testing
-

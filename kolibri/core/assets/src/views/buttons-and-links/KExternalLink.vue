@@ -5,6 +5,7 @@
     :class="buttonClasses"
     :href="href"
     :download="download"
+    :target="download ? '_self' : '_blank'"
     dir="auto"
   >
     {{ text }}

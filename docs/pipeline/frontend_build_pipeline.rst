@@ -3,7 +3,7 @@ Frontend build pipeline
 
 Asset pipelining is done using Webpack - this allows the use of require to import modules - as such all written code should be highly modular, individual files should be responsible for exporting a single function or object.
 
-There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django (and also facilitates building of that code into compiled assets with Webpack) and a Kolibri Module (a subclass of ``KolibriModule``) on the JavaScript side (see :doc:`/architecture/frontend_architecture`).
+There are two distinct entities that control this behaviour - a Kolibri Hook on the Python side, which manages the registration of the frontend code within Django (and also facilitates building of that code into compiled assets with Webpack) and a Kolibri Module (a subclass of ``KolibriModule``) on the JavaScript side (see :doc:`/architecture/frontend_architecture/index`).
 
 Kolibri has a system for synchronously and asynchronously loading these bundled JavaScript modules which is mediated by a small core JavaScript app, ``kolibriGlobal``. Kolibri Modules define to which events they subscribe, and asynchronously registered Kolibri Modules are loaded by ``kolibriGlobal`` only when those events are triggered. For example if the Video Viewer's Kolibri Module subscribes to the *content_loaded:video* event, then when that event is triggered on ``kolibriGlobal`` it will asynchronously load the Video Viewer module and re-trigger the *content_loaded:video* event on the object the module returns.
 
@@ -18,7 +18,3 @@ The second way is if a Kolibri Module needs to load in the template defined by a
 This relies on the following function to collect all registered Kolibri Modules and load them synchronously: ``kolibri.core.webpack.utils.webpack_asset_render``
 
 Asynchronous loading can also, analogously, be done in two ways. Asynchronous loading registers a Kolibri Module against ``kolibriGlobal`` on the frontend at page load, but does not load, or execute any of the code until the events that the Kolibri Module specifies are triggered. When these are triggered, the ``kolibriGlobal`` will load the Kolibri Module and pass on any callbacks once it has initialized. Asynchronous loading can be done either explicitly with a template tag that directly imports a single Kolibri Module using ``webpack_base_async_assets``.
-
-
-
-

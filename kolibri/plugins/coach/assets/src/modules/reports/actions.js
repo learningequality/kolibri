@@ -66,7 +66,7 @@ export function setChannelsTableData(store, params) {
       force: true,
     });
   });
-  return Promise.all(promises).then(([contentSummaries]) => {
+  return Promise.all(promises).then(contentSummaries => {
     if (isSamePage()) {
       store.commit('SET_REPORT_TABLE_DATA', [...contentSummaries]);
     }

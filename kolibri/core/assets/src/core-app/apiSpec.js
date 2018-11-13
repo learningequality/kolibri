@@ -96,6 +96,7 @@ import KCircularLoader from '../views/KCircularLoader';
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
+import KTooltip from '../views/KTooltip';
 import * as client from './client';
 import urls from './urls';
 
@@ -169,6 +170,7 @@ export default {
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
+      KTooltip,
     },
     router,
     mixins: {
