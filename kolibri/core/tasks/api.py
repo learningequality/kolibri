@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
@@ -334,8 +335,43 @@ class TasksViewSet(viewsets.ViewSet):
 
         return Response(out)
 
+    @list_route(methods=["post"])
+    def startexportlogcsv(self, request):
+        '''
+        Dumps in csv format the required logs.
+        By default it will be dump contentsummarylog.
 
-def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=None, node_ids=None, exclude_node_ids=None, extra_metadata=None):
+        :param: filepath Filepath where the dump is saved
+        :param: logtype: Kind of log to dump, summary or session
+        :returns: An object with the job information plus the filepath
+
+        '''
+        filepath = request.data.get('filepath', None)
+        if not filepath:
+            _, filepath = tempfile.mkstemp(suffix='.csv')
+        log_type = request.data.get('logtype', 'summary')
+        job_metadata = {
+            "type": "EXPORTLOGCSV",
+            "started_by": request.user.pk,
+        }
+
+        job_id = get_client().schedule(
+            call_command,
+            "export_log_csv",
+            log_type=log_type,
+            output_file=filepath,
+            extra_metadata=job_metadata,
+            track_progress=True,
+        )
+
+        resp = _job_to_response(get_client().status(job_id))
+        resp['filepath'] = filepath
+
+        return Response(resp)
+
+
+def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=None, node_ids=None, exclude_node_ids=None,
+                 extra_metadata=None):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
 
