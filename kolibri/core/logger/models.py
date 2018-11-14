@@ -73,7 +73,7 @@ class BaseLogModel(AbstractFacilityDataModel):
 
     def infer_dataset(self, *args, **kwargs):
         if self.user_id:
-            return self.cache_related_dataset_lookup('user')
+            return self.cached_related_dataset_lookup('user')
         elif self.dataset_id:
             # confirm that there exists a facility with that dataset_id
             try:
@@ -199,7 +199,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.cache_related_dataset_lookup('user')
+        return self.cached_related_dataset_lookup('user')
 
     def calculate_source_id(self):
         return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
