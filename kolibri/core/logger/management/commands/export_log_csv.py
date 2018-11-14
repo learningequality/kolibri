@@ -1,6 +1,6 @@
 import logging
 import os
-import tempfile
+import sys
 
 from rest_framework import serializers
 
@@ -64,26 +64,33 @@ class Command(AsyncCommand):
 
         return True
 
-    def _create_file(self, buffer, filename=None):
-        if filename:
-            self.filepath = os.path.join(os.getcwd(), filename)
-        else:
-            _, self.filepath = tempfile.mkstemp(suffix='.csv')
+    def _create_file(self, buffer):
         try:
-            with open(self.filepath, "w") as f:
+            with open(self.filepath, 'w') as f:
                 f.write(buffer)
-                logger.info("Creating csv file {filename}".format(filename=self.filepath))
-        except IOError:
-            logger.error("Error trying to write csv file")
+                logger.info('Creating csv file {filename}'.format(filename=self.filepath))
+        except IOError as e:
+            logger.error('Error trying to write csv file: {}'.format(e.strerror))
+            sys.exit(1)
 
     def handle_async(self, *args, **options):
-        export_classes = {
-            'summary': ContentSessionLogCSVExportViewSet,
-            'session': ContentSummaryLogCSVExportViewSet,
+        classes_info = {
+            'summary': (ContentSessionLogCSVExportViewSet, 'content_session_logs.csv'),
+            'session': (ContentSummaryLogCSVExportViewSet, 'content_summary_logs.csv')
         }
-        csv_set = export_classes[options['log_type']]()
+        if options['output_file'] is None:
+            filename = classes_info[options['log_type']][1]
+        else:
+            filename = options['output_file']
+
+        self.filepath = os.path.join(os.getcwd(), filename)
+
+        if os.path.exists(self.filepath):
+            logger.error('{} already exists in your directory'.format(filename))
+            sys.exit(1)
+        csv_set = classes_info[options['log_type']][0]()
         # Here is where 99% of the time is spent:
         buffer = self._data(csv_set)
         # Considering insignificant (in relation to the time needed to serialize the table)
         # the time spent in saving the file:
-        self._create_file(buffer, options['output_file'])
+        self._create_file(buffer)

@@ -16,31 +16,27 @@ from kolibri.core.content.models import ContentNode
 
 def cache_channel_name(channel_id):
         key = '{id}_ChannelMetadata_name'.format(id=channel_id)
-        cached_value = cache.get(key)
-        if cached_value is not None:
-            return cached_value
-        else:
+        channel_name = cache.get(key)
+        if channel_name is None:
             try:
                 channel_name = ChannelMetadata.objects.get(id=channel_id)
             except ChannelMetadata.DoesNotExist:
                 channel_name = ""
             cache.set(key, channel_name, 60 * 10)
-            return channel_name
+        return channel_name
 
 
 def cache_content_title(content_id):
         key = '{id}_ContentNode_title'.format(id=content_id)
-        cached_value = cache.get(key)
-        if cached_value is not None:
-            return cached_value
-        else:
+        title = cache.get(key)
+        if title is None:
             node = ContentNode.objects.filter(content_id=content_id).first()
             if node:
                 title = node.title
             else:
                 title = ""
             cache.set(key, title, 60 * 10)
-            return title
+        return title
 
 
 class LogCSVSerializerBase(serializers.ModelSerializer):
