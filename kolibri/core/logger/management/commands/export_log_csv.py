@@ -78,8 +78,13 @@ class Command(AsyncCommand):
             'summary': (ContentSessionLogCSVExportViewSet, 'content_summary_logs.csv'),
             'session': (ContentSummaryLogCSVExportViewSet, 'content_session_logs.csv')
         }
+        log_type = options['log_type']
+        if log_type not in ('summary', 'session'):
+            logger.error('Impossible to create a csv export file for {}'.format(log_type))
+            sys.exit(1)
+
         if options['output_file'] is None:
-            filename = classes_info[options['log_type']][1]
+            filename = classes_info[log_type][1]
         else:
             filename = options['output_file']
 
@@ -88,7 +93,7 @@ class Command(AsyncCommand):
         if os.path.exists(self.filepath):
             logger.error('{} already exists in your directory'.format(filename))
             sys.exit(1)
-        csv_set = classes_info[options['log_type']][0]()
+        csv_set = classes_info[log_type][0]()
         # Here is where 99% of the time is spent:
         buffer = self._data(csv_set)
         # Considering insignificant (in relation to the time needed to serialize the table)
