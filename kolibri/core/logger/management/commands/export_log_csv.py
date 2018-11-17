@@ -75,8 +75,8 @@ class Command(AsyncCommand):
 
     def handle_async(self, *args, **options):
         classes_info = {
-            'summary': (ContentSessionLogCSVExportViewSet, 'content_session_logs.csv'),
-            'session': (ContentSummaryLogCSVExportViewSet, 'content_summary_logs.csv')
+            'summary': (ContentSessionLogCSVExportViewSet, 'content_summary_logs.csv'),
+            'session': (ContentSummaryLogCSVExportViewSet, 'content_session_logs.csv')
         }
         if options['output_file'] is None:
             filename = classes_info[options['log_type']][1]

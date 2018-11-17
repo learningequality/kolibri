@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 
 import math
+import os
 
 from django.core.cache import cache
+from django.http import Http404
+from django.http.response import FileResponse
 from rest_framework import serializers
 
 from .models import ContentSessionLog
@@ -37,6 +40,35 @@ def cache_content_title(content_id):
                 title = ""
             cache.set(key, title, 60 * 10)
         return title
+
+
+def download_csv_file(request, log_type):
+    if hasattr(request, 'session'):
+        filepath = request.session.get('csv_file_{}'.format(log_type), None)
+    else:
+        filepath = None
+    # if the file does not exist on disk, return a 404
+    if filepath is None or not os.path.exists(filepath):
+        raise Http404('There is no csv export file for {} available'.format(log_type))
+
+    # generate a file response
+    response = FileResponse(open(filepath, 'rb'))
+
+    # set the content-type by guessing from the filename
+    response['Content-Type'] = 'text/csv'
+
+    csv_export_filenames = {
+        'session': 'content_session_logs.csv',
+        'summary': 'content_summary_logs.csv'
+    }
+
+    # set the content-disposition as attachment to force download
+    response['Content-Disposition'] = 'attachment; filename={}'.format(csv_export_filenames[log_type])
+
+    # set the content-length to the file size
+    response['Content-Length'] = os.path.getsize(filepath)
+
+    return response
 
 
 class LogCSVSerializerBase(serializers.ModelSerializer):

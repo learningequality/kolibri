@@ -341,14 +341,13 @@ class TasksViewSet(viewsets.ViewSet):
         Dumps in csv format the required logs.
         By default it will be dump contentsummarylog.
 
-        :param: filepath Filepath where the dump is saved
         :param: logtype: Kind of log to dump, summary or session
         :returns: An object with the job information plus the filepath
 
         '''
-        filepath = request.data.get('filepath', None)
-        if not filepath:
-            _, filepath = tempfile.mkstemp(suffix='.csv')
+        # ensure the file is not actually created. It has to be created by the command
+        with tempfile.NamedTemporaryFile(suffix='.csv') as tmp:
+            filepath = tmp.name
         log_type = request.data.get('logtype', 'summary')
         job_metadata = {
             "type": "EXPORTLOGCSV",
@@ -363,6 +362,8 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=job_metadata,
             track_progress=True,
         )
+        if hasattr(request, 'session'):
+            request.session['csv_file_{}'.format(log_type)] = filepath
 
         resp = _job_to_response(get_client().status(job_id))
         resp['filepath'] = filepath
