@@ -46,3 +46,18 @@ export const pageNameToModuleMap = {
   [PageNames.USER_MGMT_PAGE]: 'userManagement',
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
 };
+
+export const TaskTypes = {
+  EXPORTSESSIONLOGCSV: 'EXPORTSESSIONLOGCSV',
+  EXPORTSUMMARYLOGCSV: 'EXPORTSUMMARYLOGCSV',
+};
+
+export const TaskStatuses = {
+  IN_PROGRESS: 'INPROGRESS',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  QUEUED: 'QUEUED',
+  SCHEDULED: 'SCHEDULED',
+};

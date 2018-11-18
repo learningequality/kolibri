@@ -353,8 +353,10 @@ class TasksViewSet(viewsets.ViewSet):
         if log_type not in ('summary', 'session'):
             raise Http404('Impossible to create a csv export file for {}'.format(log_type))
 
+        job_type = "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
+
         job_metadata = {
-            "type": "EXPORTLOGCSV",
+            "type": job_type,
             "started_by": request.user.pk,
         }
 
