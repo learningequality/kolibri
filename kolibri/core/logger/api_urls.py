@@ -1,5 +1,3 @@
-from csv import download_csv_file
-
 from django.conf.urls import url
 from rest_framework import routers
 
@@ -11,6 +9,7 @@ from .api import ExamLogViewSet
 from .api import MasteryLogViewSet
 from .api import TotalContentProgressViewSet
 from .api import UserSessionLogViewSet
+from .csv import download_csv_file
 # from .csv import ContentSessionLogCSVExportViewSet
 # from .csv import ContentSummaryLogCSVExportViewSet
 router = routers.SimpleRouter()
