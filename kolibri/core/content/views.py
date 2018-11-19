@@ -2,11 +2,13 @@ import mimetypes
 import os
 import zipfile
 
+from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
 from django.urls import reverse
+from django.template import loader
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
@@ -104,6 +106,15 @@ class ZipContentView(View):
                 info = zf.getinfo(embedded_filepath)
             except KeyError:
                 raise Http404('"{}" does not exist inside "{}"'.format(embedded_filepath, zipped_filename))
+
+            if 'HashiRequest' not in request.GET and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
+                cache_key = 'hashi_bootstrap_html'
+                bootstrap_content = cache.get(cache_key)
+                if bootstrap_content is None:
+                    template = loader.get_template('content/hashi.html')
+                    bootstrap_content = template.render({}, request)
+                    cache.set(cache_key, bootstrap_content)
+                return HttpResponse(bootstrap_content)
 
             # try to guess the MIME type of the embedded file being referenced
             content_type = mimetypes.guess_type(embedded_filepath)[0] or 'application/octet-stream'

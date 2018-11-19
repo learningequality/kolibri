@@ -35,6 +35,7 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import Hashi from '../../../../../../packages/hashi';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -61,45 +62,27 @@
       },
     },
     mounted() {
-      this.iframeMessageReceived = this.iframeMessageReceived.bind(this);
-      window.addEventListener('message', this.iframeMessageReceived, true);
+      this.hashi = new Hashi(this.$refs.iframe);
+      this.hashi.on(this.hashi.events.READY, () => {
+        if (
+          this.extraFields &&
+          this.extraFields.contentState &&
+          this.extraFields.contentState.localStorage
+        ) {
+          this.hashi.localStorage.setData(this.extraFields.contentState.localStorage);
+        }
+        this.hashi.sync();
+      });
+      this.hashi.localStorage.on(this.hashi.localStorage.events.UPDATE, data => {
+        this.$emit('updateContentState', { localStorage: data });
+      });
       this.$emit('startTracking');
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', 1);
-      }, 15000);
     },
     beforeDestroy() {
-      window.removeEventListener('message', this.iframeMessageReceived);
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-    },
-    methods: {
-      iframeMessageReceived(event) {
-        if (!event) {
-          return;
-        }
-        const message = JSON.parse(event.data);
-        if (message.action === 'stateUpdated') {
-          this.$emit('updateContentState', message.params);
-        } else if (message.action === 'hashiInitialized') {
-          const iframe = this.$refs.iframe.contentWindow;
-
-          // On guest access, the user will be signed out, so just return
-          // an empty key value store in that case.
-          let contentState = {};
-          if (this.extraFields && this.extraFields.contentState) {
-            contentState = this.extraFields.contentState;
-          }
-          const data = {
-            action: 'kolibriDataLoaded',
-            params: { data: contentState },
-          };
-          iframe.postMessage(JSON.stringify(data), '*');
-        }
-      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
