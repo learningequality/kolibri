@@ -19,8 +19,14 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
-   start/index
-   architecture/index
-   references/index
+   getting_started
+   contributing/index
+   stack
+   frontend_architecture/index
+   backend_architecture/index
+   development_workflow
+   release_process
+   i18n
+   manual_testing
    pipeline/index
    changelog

@@ -462,7 +462,7 @@ All changes should be thoroughly tested and vetted before being merged in. Our p
  * Localization
  * Consistency
 
-For more information, see the next section on :doc:`/references/manual_testing`.
+For more information, see the next section on :doc:`/manual_testing`.
 
 
 Submitting a pull request
@@ -485,4 +485,4 @@ After making changes to the code, commit and push them to a branch on your fork:
 
 Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`__, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the applicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
-Learn more about our :ref:`release_process`
+Learn more about our :ref:`dev_workflow` and :ref:`release_process`
