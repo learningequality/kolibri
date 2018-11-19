@@ -1,11 +1,13 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
-  entry: './src/storage.js',
+  entry: path.resolve(__dirname, './src/iframeClient.js'),
+  mode: 'production',
   output: {
-    filename: 'hashi.js',
-    path: path.resolve(__dirname, 'dist'),
-    library: 'hashi'
+    filename: 'hashiframe.js',
+    path: path.resolve(__dirname, '../../kolibri/core/content/static/content'),
+    libraryExport: 'default',
+    library: 'Hashi',
   },
   module: {
     rules: [
@@ -14,9 +16,9 @@ module.exports = {
         loader: 'buble-loader',
         include: path.join(__dirname, 'src'),
         options: {
-          objectAssign: 'Object.assign'
-        }
-      }
-    ]
-  }
-}
+          objectAssign: 'Object.assign',
+        },
+      },
+    ],
+  },
+};
