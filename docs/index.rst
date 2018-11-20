@@ -19,8 +19,8 @@ Table of contents
 .. toctree::
   :maxdepth: 2
 
-  getting_started
   contributing/index
+  getting_started
   stack
   frontend_architecture/index
   backend_architecture/index
