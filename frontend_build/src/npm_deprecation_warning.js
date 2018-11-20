@@ -1,4 +1,4 @@
-if (process.env.npm_execpath.indexOf('npm') > -1) {
+if (!process.env.npm_execpath.endsWith('yarn.js')) {
   console.error(
     'ERROR: Please use yarn to manage frontend dependencies, see Kolibri documentation for details'
   );
