@@ -16,7 +16,23 @@
         {{ $tr('detailsSubHeading') }}
       </p>
       <div>
-        <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSessionLog" />
+
+        <TaskProgress
+          v-if="inSessionCSVCreation"
+          id="generatingsessionlogcsv"
+          type="EXPORTSESSIONLOGCSV"
+          status="QUEUED"
+          :percentage="0"
+          :showButtons="true"
+          :cancellable="false"
+        />
+
+        <KButton
+          v-else
+          :text="$tr('generate')"
+          :disabled="cannotDownload"
+          @click="generateSessionLog"
+        />
         <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
@@ -30,13 +46,28 @@
         {{ $tr('summarySubHeading') }}
       </p>
       <div>
-        <KButton :text="$tr('download')" :disabled="cannotDownload" @click="downloadSummaryLog" />
+        <TaskProgress
+          v-if="inSummaryCSVCreation"
+          id="generatingummarylogcsv"
+          type="EXPORTSUMMARYLOGCSV"
+          status="QUEUED"
+          :percentage="0"
+          :showButtons="true"
+          :cancellable="false"
+        />
+        <KButton
+          v-else
+          :text="$tr('generate')"
+          :disabled="cannotDownload"
+          @click="generateSummaryLog"
+        />
         <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
       </p>
     </KGridItem>
+
 
   </KGrid>
 
@@ -45,23 +76,31 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import TaskProgress from './TaskProgress';
 
   export default {
     name: 'DataPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       KButton,
       KGrid,
       KGridItem,
+      TaskProgress,
+    },
+    data() {
+      return {
+        // showGeneratingSessionLog: false,
+        // showGeneratingSummaryLog: false,
+      };
+    },
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
     },
     $trs: {
       pageHeading: 'Export usage data',
@@ -75,22 +114,25 @@
         'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
       summaryInfo:
         'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
-      download: 'Download',
+      generate: 'Generate',
       note: 'Note',
       noDownload: 'Download is not supported on Android',
       documentTitle: 'Manage Data',
     },
     computed: {
+      ...mapGetters('manageCSV', ['inSessionCSVCreation', 'inSummaryCSVCreation']),
+      ...mapState('manageCSV', ['taskList']),
       cannotDownload() {
         return isAndroidWebView();
       },
     },
     methods: {
-      downloadSessionLog() {
-        window.open(urls['kolibri:core:contentsessionlogcsv-list'](), '_blank');
+      ...mapActions('manageCSV', ['startSummaryCSVExport', 'startSessionCSVExport']),
+      generateSessionLog() {
+        this.startSessionCSVExport();
       },
-      downloadSummaryLog() {
-        window.open(urls['kolibri:core:contentsummarylogcsv-list'](), '_blank');
+      generateSummaryLog() {
+        this.startSummaryCSVExport();
       },
     },
   };

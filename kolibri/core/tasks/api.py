@@ -349,7 +349,6 @@ class TasksViewSet(viewsets.ViewSet):
         with tempfile.NamedTemporaryFile(suffix='.csv') as tmp:
             filepath = tmp.name
         log_type = request.data.get('logtype', 'summary')
-
         if log_type not in ('summary', 'session'):
             raise Http404('Impossible to create a csv export file for {}'.format(log_type))
 

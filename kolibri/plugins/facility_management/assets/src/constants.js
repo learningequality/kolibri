@@ -61,3 +61,9 @@ export const TaskStatuses = {
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
 };
+
+export const CSVGenerationStatuses = {
+  NO_LOGS_CREATED: 'NOLOGSCREATED',
+  GENERATING: 'GENERATING',
+  AVAILABLE: 'AVAILABLE',
+};
