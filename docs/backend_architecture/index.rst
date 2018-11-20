@@ -1,4 +1,4 @@
-Backend Architecture
+Backend architecture
 ====================
 
 .. toctree::
