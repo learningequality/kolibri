@@ -17,16 +17,17 @@ Table of contents
 =================
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-   getting_started
-   contributing/index
-   stack
-   frontend_architecture/index
-   backend_architecture/index
-   development_workflow
-   release_process
-   i18n
-   manual_testing
-   pipeline/index
-   changelog
+  getting_started
+  contributing/index
+  stack
+  frontend_architecture/index
+  backend_architecture/index
+  dataflow/index
+  development_workflow
+  release_process
+  i18n
+  manual_testing
+  pipeline/index
+  changelog
