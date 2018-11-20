@@ -48,4 +48,4 @@ An initial version of Kolibri is `now available for download! <https://learninge
 How can I contribute?
 ---------------------
 
-Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`__ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`__.
+Thanks for your interest! Please see the 'contributing' section of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`__.
