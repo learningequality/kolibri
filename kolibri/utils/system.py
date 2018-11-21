@@ -158,9 +158,17 @@ def get_free_space(path=KOLIBRI_HOME):
         # space. If we're somehow getting here on non-android, we've got a problem.
         try:
             from jnius import autoclass
-            File = autoclass('java.io.File')
+            StatFs = autoclass('android.os.StatFs')
 
-            return File(path).getUsableSpace()
+            st = StatFs(KOLIBRI_HOME)
+
+            try:
+                # for api version 18+
+                result = st.getFreeBlocksLong() * st.getBlockSizeLong()
+            except Exception as e:
+                # for api versions < 18
+                result = st.getFreeBlocks() * st.getBlockSize()
+
         except Exception as e:
             raise e
     else:
