@@ -1,11 +1,11 @@
 import os
 import re
 import subprocess
-import datetime
+from datetime import datetime
 from string import Template
 
 
-def get_kolibri_major_minor_version():
+def kolibri_version():
     """
     Returns the major.minor version of Kolibri if it exists
     """
@@ -18,7 +18,7 @@ def get_kolibri_major_minor_version():
     except Exception as e:
         raise e
 
-def get_kolibri_android_commit_count():
+def num_commits():
     """
     Returns the number of commits of the Kolibri Android repo. Returns 0 if something fails.
     """
@@ -40,22 +40,19 @@ def get_kolibri_android_commit_count():
         return 0
 
 
-def get_current_time():
+def current_time():
     """
     Returns the current timestamp.
     """
-    return datetime.datetime.now().strftime('%y%m%d%H%M')
+    return datetime.now().strftime('%y%m%d%H%M')
 
 
-def get_kolibri_android_version():
+def apk_version():
     """
     Returns the version to be used for the Kolibri Android app.
     Schema: [kolibri major minor version].[kolibri android repo # commits].[timestamp]
     """
-    kolibri_major_minor_version = str(get_kolibri_major_minor_version())
-    kolibri_kivy_commit_count = str(get_kolibri_android_commit_count())
-
-    return '.'.join([kolibri_major_minor_version, kolibri_kivy_commit_count, get_current_time()])
+    return '{}.{}.{}'.format(kolibri_version(), num_commits(), current_time())
 
 def create_project_info():
     """
@@ -63,7 +60,7 @@ def create_project_info():
     """
     with open('project_info.template', 'r') as pi_template_file, open('project_info.json', 'w') as pi_file:
         pi_template = Template(pi_template_file.read())
-        pi = pi_template.substitute(apk_version=get_kolibri_android_version())
+        pi = pi_template.substitute(apk_version=apk_version())
         pi_file.write(pi)
 
 # create_kolibri_android_version_file()
