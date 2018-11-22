@@ -1,7 +1,7 @@
 import logger from 'kolibri.lib.logging';
-import isEqual from 'lodash/isEqual';
-import pick from 'lodash/fp/pick';
+import filter from 'lodash/filter';
 import { TaskResource } from 'kolibri.resources';
+import { TaskStatuses } from '../../constants';
 
 const logging = logger.getLogger(__filename);
 
@@ -12,14 +12,10 @@ function startSummaryCSVExport(store) {
   if (!store.getters.inSummaryCSVCreation) {
     let promise = TaskResource.startexportlogcsv(params);
 
-    return promise
-      .then(task => {
-        store.commit('START_SUMMARY_CSV_EXPORT', task.entity.id);
-        return task.entity.id;
-      })
-      .then(completedTask => {
-        updateStatuses(store, completedTask);
-      });
+    return promise.then(task => {
+      store.commit('START_SUMMARY_CSV_EXPORT', task.entity.id);
+      return task.entity.id;
+    });
   }
 }
 
@@ -30,37 +26,41 @@ function startSessionCSVExport(store) {
   if (!store.getters.inSessionCSVCreation) {
     let promise = TaskResource.startexportlogcsv(params);
 
-    return promise
-      .then(task => {
-        store.commit('START_SESSION_CSV_EXPORT', task.entity.id);
-        return task.entity.id;
-      })
-      .then(completedTask => {
-        updateStatuses(store, completedTask);
-      });
+    return promise.then(task => {
+      store.commit('START_SESSION_CSV_EXPORT', task.entity.id);
+      return task.entity.id;
+    });
   }
 }
 
-function updateTasks(store, tasks) {
-  store.commit('SET_TASK_LIST', tasks);
-}
-
-function updateStatuses(store, task_id) {
-  if (task_id === store.getters.summaryTaskId) store.commit('SET_FINISHED_SUMMARY_CSV_CREATION');
-  else if (task_id === store.getters.sessionTaskId)
-    store.commit('SET_FINISHED_SESSION_CSV_CREATION');
-}
-
-function _taskListShouldUpdate(state, newTasks) {
-  const oldTasks = state.taskList;
-  return oldTasks && !isEqual(oldTasks.map(simplifyTask), newTasks.map(simplifyTask));
-}
-
 function refreshTaskList(store) {
-  return TaskResource.fetchCollection({ force: true })
+  return TaskResource.fetchCollection({
+    force: true,
+  })
     .then(newTasks => {
-      if (_taskListShouldUpdate(store.state, newTasks)) {
-        updateTasks(store, newTasks);
+      if (store.getters.sessionTaskId) {
+        const sessionCompleted = filter(newTasks, {
+          id: store.getters.sessionTaskId,
+        });
+        if (sessionCompleted.length > 0) {
+          const task = sessionCompleted[0];
+          if (task.status === TaskStatuses.COMPLETED)
+            store.commit('SET_FINISHED_SESSION_CSV_CREATION');
+          else if (task.status === TaskStatuses.RUNNING)
+            store.commit('SET_SESSION_PERCENTAGE', task.percentage);
+        }
+      }
+      if (store.getters.summaryTaskId) {
+        const summaryCompleted = filter(newTasks, {
+          id: store.getters.summaryTaskId,
+        });
+        if (summaryCompleted.length > 0) {
+          const task = summaryCompleted[0];
+          if (task.status === TaskStatuses.COMPLETED)
+            store.commit('SET_FINISHED_SUMMARY_CSV_CREATION');
+          else if (task.status === TaskStatuses.RUNNING)
+            store.commit('SET_SUMMARY_PERCENTAGE', task.percentage);
+        }
       }
     })
     .catch(error => {
@@ -68,12 +68,8 @@ function refreshTaskList(store) {
     });
 }
 
-const simplifyTask = pick(['id', 'status', 'percentage']);
-
 export default {
   refreshTaskList,
   startSummaryCSVExport,
   startSessionCSVExport,
-  updateTasks,
-  simplifyTask,
 };

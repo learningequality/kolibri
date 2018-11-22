@@ -5,8 +5,10 @@ function defaultState() {
   return {
     summaryLogStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
     summaryTaskId: '',
+    summaryPercentage: 0,
     sessionLogStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
     sessionTaskId: '',
+    sessionPercentage: 0,
   };
 }
 
@@ -38,6 +40,8 @@ export default {
     availableSummaryCSVLog(state) {
       return state.summaryLogStatus === CSVGenerationStatuses.AVAILABLE;
     },
+    sessionPercentage: state => state.sessionPercentage,
+    summaryPercentage: state => state.summaryPercentage,
   },
   mutations: {
     SET_STATE(state, payload) {
@@ -57,10 +61,18 @@ export default {
     SET_FINISHED_SUMMARY_CSV_CREATION(state) {
       state.summaryLogStatus = CSVGenerationStatuses.AVAILABLE;
       state.summaryTaskId = '';
+      state.summaryPercentage = 0;
     },
     SET_FINISHED_SESSION_CSV_CREATION(state) {
       state.sessionLogStatus = CSVGenerationStatuses.AVAILABLE;
       state.sessionTaskId = '';
+      state.sessionPercentage = 0;
+    },
+    SET_SESSION_PERCENTAGE(state, payload) {
+      state.sessionPercentage = payload;
+    },
+    SET_SUMMARY_PERCENTAGE(state, payload) {
+      state.summaryPercentage = payload;
     },
   },
   actions,

@@ -26,7 +26,7 @@
           id="generatingsessionlogcsv"
           type="EXPORTSESSIONLOGCSV"
           status="QUEUED"
-          :percentage="0"
+          :percentage="sessionPercentage"
           :showButtons="true"
           :cancellable="false"
         />
@@ -62,7 +62,7 @@
           id="generatingummarylogcsv"
           type="EXPORTSUMMARYLOGCSV"
           status="QUEUED"
-          :percentage="0"
+          :percentage="summaryPercentage"
           :showButtons="true"
           :cancellable="false"
         />
@@ -143,6 +143,8 @@
         'noSummaryLogs',
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
+        'summaryPercentage',
+        'sessionPercentage',
       ]),
       ...mapState('manageCSV', ['taskList']),
       cannotDownload() {
