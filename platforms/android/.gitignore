@@ -5,3 +5,4 @@ bin/
 *.apk
 *.whl
 ANDROID_VERSION
+project_info.json

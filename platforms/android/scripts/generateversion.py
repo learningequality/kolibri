@@ -2,16 +2,21 @@ import os
 import re
 import subprocess
 import datetime
+from string import Template
 
 
 def get_kolibri_major_minor_version():
     """
-    Returns the major.minor version of Kolibri.
+    Returns the major.minor version of Kolibri if it exists
     """
-    full_version = open('./src/kolibri/VERSION', 'r').read()
-    major_minor_version = re.search(r'(\d+\.\d+)', full_version).group(1)
-    return major_minor_version
-
+    try: # kolibri whl is unpacked
+        with open('./src/kolibri/VERSION', 'r') as version_file:
+            # p4a only likes digits and decimals
+            return re.search(r'(\d+\.\d+)', version_file.read()).group(1)
+    except IOError: # file not available. Helpful for docker caching
+        return '0.0'
+    except Exception as e:
+        raise e
 
 def get_kolibri_android_commit_count():
     """
@@ -52,14 +57,14 @@ def get_kolibri_android_version():
 
     return '.'.join([kolibri_major_minor_version, kolibri_kivy_commit_count, get_current_time()])
 
-
-def create_kolibri_android_version_file():
+def create_project_info():
     """
-    Prints the Kolibri Android app version to a file ANDROID_VERSION.
+    Generates project_info.json based on project_info.template
     """
-    version_file = open('ANDROID_VERSION', 'w')
-    version_file.write(get_kolibri_android_version())
-    version_file.close()
+    with open('project_info.template', 'r') as pi_template_file, open('project_info.json', 'w') as pi_file:
+        pi_template = Template(pi_template_file.read())
+        pi = pi_template.substitute(apk_version=get_kolibri_android_version())
+        pi_file.write(pi)
 
-
-create_kolibri_android_version_file()
+# create_kolibri_android_version_file()
+create_project_info()
