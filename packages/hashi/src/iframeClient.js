@@ -1,5 +1,6 @@
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
+import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
 import { events, nameSpace } from './hashiBase';
 
@@ -13,6 +14,10 @@ export default class Hashi {
 
     // Initialize the local storage
     this.localStorage.iframeInitialize();
+
+    this.sessionStorage = new SessionStorage(this.mediator);
+
+    this.sessionStorage.iframeInitialize();
 
     this.cookie = new Cookie(this.mediator);
 
