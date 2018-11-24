@@ -10,6 +10,7 @@ from django.http.response import HttpResponseNotModified
 from django.urls import reverse
 from django.template import loader
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import View
 from le_utils.constants import exercises
 from six.moves.urllib.parse import urlparse
@@ -63,6 +64,13 @@ def get_host(request):
     return host.strip("/")
 
 
+def _add_content_security_policy_header(request, response):
+    # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
+    # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
+    host = get_host(request)
+    response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
+
+
 class ZipContentView(View):
 
     @xframe_options_exempt
@@ -74,6 +82,7 @@ class ZipContentView(View):
         _add_access_control_headers(request, response)
         return response
 
+    @vary_on_headers('X-Requested-With')
     @cache_forever
     @xframe_options_exempt
     def get(self, request, zipped_filename, embedded_filepath):
@@ -107,14 +116,17 @@ class ZipContentView(View):
             except KeyError:
                 raise Http404('"{}" does not exist inside "{}"'.format(embedded_filepath, zipped_filename))
 
-            if 'HashiRequest' not in request.GET and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
+            if (not request.is_ajax()) and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
                 cache_key = 'hashi_bootstrap_html'
                 bootstrap_content = cache.get(cache_key)
                 if bootstrap_content is None:
                     template = loader.get_template('content/hashi.html')
                     bootstrap_content = template.render({}, request)
                     cache.set(cache_key, bootstrap_content)
-                return HttpResponse(bootstrap_content)
+                response = HttpResponse(bootstrap_content)
+                _add_access_control_headers(request, response)
+                _add_content_security_policy_header(request, response)
+                return response
 
             # try to guess the MIME type of the embedded file being referenced
             content_type = mimetypes.guess_type(embedded_filepath)[0] or 'application/octet-stream'
@@ -141,11 +153,7 @@ class ZipContentView(View):
 
         # add headers to ensure AJAX requests will be permitted for these files, even from a null origin
         _add_access_control_headers(request, response)
-
-        # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
-        # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-        host = get_host(request)
-        response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
+        _add_content_security_policy_header(request, response)
 
         return response
 
