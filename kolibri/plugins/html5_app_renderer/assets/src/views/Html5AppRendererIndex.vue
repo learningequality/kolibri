@@ -33,6 +33,7 @@
 
   import { mapGetters } from 'vuex';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import { now } from 'kolibri.utils.serverClock';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from '../../../../../../packages/hashi';
@@ -62,20 +63,11 @@
       },
     },
     mounted() {
-      this.hashi = new Hashi(this.$refs.iframe);
-      this.hashi.on(this.hashi.events.READY, () => {
-        if (
-          this.extraFields &&
-          this.extraFields.contentState &&
-          this.extraFields.contentState.localStorage
-        ) {
-          this.hashi.localStorage.setData(this.extraFields.contentState.localStorage);
-        }
-        this.hashi.sync();
+      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
+      this.hashi.onStateUpdate(data => {
+        this.$emit('updateContentState', data);
       });
-      this.hashi.localStorage.on(this.hashi.localStorage.events.UPDATE, data => {
-        this.$emit('updateContentState', { localStorage: data });
-      });
+      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
     },
     beforeDestroy() {

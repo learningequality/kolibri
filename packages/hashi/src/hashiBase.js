@@ -1,5 +1,5 @@
 export const events = {
-  SYNCED: 'synced',
+  READYCHECK: 'readycheck',
   READY: 'ready',
   STATEUPDATE: 'stateupdate',
 };

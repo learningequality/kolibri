@@ -9,59 +9,59 @@ import BaseShim from './baseShim';
 export default class LocalStorage extends BaseShim {
   constructor(mediator) {
     super(mediator);
-    this.events = {
-      UPDATE: 'update',
-    };
     this.nameSpace = 'localStorage';
     this.webApis = ['localStorage', 'sessionStorage'];
-    this.data = {};
-    this.setData = this.setData.bind(this);
-    this.on(this.events.UPDATE, this.setData);
+    this.__data = {};
+    this.__setData = this.__setData.bind(this);
+    this.on(this.events.STATEUPDATE, this.__setData);
+  }
+
+  __setData(data = {}) {
+    this.__data = data;
   }
 
   iframeInitialize() {
     this.webApis.forEach(webApi => {
-      Object.defineProperty(window, webApi, { value: this });
+      Object.defineProperty(window, webApi, { value: this.__getShimInterface() });
     });
   }
 
-  setData(data = {}) {
-    this.data = data;
-    this.stateUpdated();
+  get data() {
+    return this.__data;
   }
 
-  get length() {
-    return Object.keys(this.data).length;
-  }
+  __getShimInterface() {
+    const self = this;
+    return {
+      get length() {
+        return Object.keys(self.data).length;
+      },
 
-  key(index) {
-    return Object.keys(this.data)[index];
-  }
+      key(index) {
+        return Object.keys(self.data)[index];
+      },
 
-  getItem(keyName) {
-    return this.data[keyName];
-  }
+      getItem(keyName) {
+        return self.__data[keyName];
+      },
 
-  setItem(keyName, value) {
-    this.data[keyName] = value;
-    this.stateUpdated();
-  }
+      setItem(keyName, value) {
+        // Can only store strings in localStorage
+        // by default everything is coerced to a string
+        // We follow the API to spec
+        self.__data[keyName] = String(value);
+        self.stateUpdated();
+      },
 
-  removeItem(keyName) {
-    delete this.data[keyName];
-    this.stateUpdated();
-  }
+      removeItem(keyName) {
+        delete self.__data[keyName];
+        self.stateUpdated();
+      },
 
-  clear() {
-    this.data = {};
-    this.stateUpdated();
-  }
-
-  stateUpdated() {
-    this.sendMessage(this.events.UPDATE, this.data);
-  }
-
-  sync() {
-    this.stateUpdated();
+      clear() {
+        self.__data = {};
+        self.stateUpdated();
+      },
+    };
   }
 }
