@@ -1,13 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: path.resolve(__dirname, './src/iframeClient.js'),
-  mode: 'production',
+  entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
     filename: 'hashiframe.js',
     path: path.resolve(__dirname, '../../kolibri/core/content/static/content'),
-    libraryExport: 'default',
-    library: 'Hashi',
   },
   module: {
     rules: [
