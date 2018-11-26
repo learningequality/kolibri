@@ -9,8 +9,6 @@ from .api import ExamLogViewSet
 from .api import MasteryLogViewSet
 from .api import TotalContentProgressViewSet
 from .api import UserSessionLogViewSet
-from .csv import ContentSessionLogCSVExportViewSet
-from .csv import ContentSummaryLogCSVExportViewSet
 from .csv import download_csv_file
 router = routers.SimpleRouter()
 
@@ -23,8 +21,6 @@ router.register(r'examlog', ExamLogViewSet, base_name='examlog')
 router.register(r'examattemptlog', ExamAttemptLogViewSet, base_name='examattemptlog')
 router.register(r'userprogress', TotalContentProgressViewSet, base_name='userprogress')
 
-router.register(r'contentsummarylogcsv', ContentSummaryLogCSVExportViewSet, base_name='contentsummarylogcsv')
-router.register(r'contentsessionlogcsv', ContentSessionLogCSVExportViewSet, base_name='contentsessionlogcsv')
 router.urls.append(url(r'^downloadcsvfile/(?P<log_type>.*)/$',
                        download_csv_file, name='download_csv_file'))
 
