@@ -1,3 +1,4 @@
+.PHONY: clean project_info.json
 
 # Clear out apks
 clean:
@@ -5,6 +6,7 @@ clean:
 	mkdir -p bin
 	rm -f bin/*.apk 2> /dev/null
 	rm -rf ./src/kolibri 2> /dev/null
+	rm project_info.json
 
 # Replace the default loading page, so that it will be replaced with our own version
 replaceloadingpage:
@@ -13,12 +15,12 @@ replaceloadingpage:
 	cp ./assets/loading-spinner.gif .buildozer/android/platform/build/dists/kolibri/webview_includes/
 
 # Extract the whl file
-extractkolibriwhl:
+src/kolibri:
 	unzip -q "src/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
-# Generate the andoid version
-generateversion:
-	python ./scripts/generateversion.py
+# Generate the project info file
+project_info.json:
+	python ./scripts/create_project_info.py
 
 # Buld the debug version of the apk
 builddebugapk:
@@ -26,18 +28,18 @@ builddebugapk:
 
 # DOCKER BUILD
 
-# Build the docker image
-builddocker:
+builddocker: project_info.json
 	docker build -t kolibrikivy .
 
-# Run the docker image
+# Run the docker image.
+# TODO Would be better to just specify the file here?
 rundocker: clean builddocker
 	./scripts/rundocker.sh
 
 # NON DOCKER BUILD
 
 # Build non-docker local apk
-buildapklocally: clean replaceloadingpage extractkolibriwhl generateversion builddebugapk
+buildapklocally: clean replaceloadingpage src/kolibri generateversion builddebugapk
 
 # Deploys the apk on a device
 installapk:
