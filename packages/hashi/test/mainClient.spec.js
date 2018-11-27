@@ -55,6 +55,23 @@ describe('Hashi mainClient', () => {
         expect(hashi.__setData).toHaveBeenCalledWith(data);
       });
     });
+    it('should call __setData once a second ready event is fired, even if ready was already set to true by the first', () => {
+      const data = {};
+      hashi.mediator.sendMessage = jest.fn();
+      hashi.ready = true;
+      hashi.initialize(data);
+      return new Promise(resolve => {
+        hashi.__setData = jest.fn();
+        hashi.mediator.sendMessage = jest.fn();
+        expect(hashi.__setData).not.toHaveBeenCalled();
+        hashi.on(events.READY, () => {
+          resolve();
+        });
+        hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY, data: true });
+      }).then(() => {
+        expect(hashi.__setData).toHaveBeenCalledWith(data);
+      });
+    });
   });
   describe('__setData method', () => {
     it('should call setData on each storage object', () => {

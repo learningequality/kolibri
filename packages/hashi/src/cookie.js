@@ -106,6 +106,13 @@ export default class Cookie extends BaseShim {
     return this.__removeExpiredCookies(data);
   }
 
+  // Because we are persisting data across multiple client devices
+  // it can be helpful to have a single source of truth for timestamps
+  // that we persist. As such, we allow the setting of a time difference
+  // to allow our Hashi internal timestamps to be set relative to the
+  // current time on the Kolibri server.
+  // This may be no more accurate than the time on the client device,
+  // but at least it is consistent across client devices.
   __now() {
     return new Date(Date.now() + this.__nowDiff);
   }

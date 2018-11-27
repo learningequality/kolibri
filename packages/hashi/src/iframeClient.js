@@ -4,7 +4,14 @@ import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
 import { events, nameSpace } from './hashiBase';
 
-export default class Hashi {
+/*
+ * This class is initialized inside the context of a sandboxed iframe.
+ * It provides shims for various APIs that would otherwise be blocked
+ * inside a sandboxed iframe context, and communicates persistent data
+ * via window.postMessage, to allow for persistence between sessions
+ * without violating Same-Origin policies.
+ */
+export default class SandboxEnvironment {
   constructor() {
     // Initialize the Mediator to listen to send messages on the parent of
     // this window (i.e. the iframe parent)

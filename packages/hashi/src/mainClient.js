@@ -3,7 +3,15 @@ import LocalStorage from './localStorage';
 import Cookie from './cookie';
 import { events, nameSpace } from './hashiBase';
 
-export default class Hashi {
+/*
+ * This is the main entry point for interacting with the Hashi library.
+ * Import this client in order to wrap an iframe that has an instance of
+ * the 'SandboxEnvironment' class (found inside iframeClient.js) inside of it.
+ * When an iframe has been wrapped, then this class can be initialized to set initial
+ * data, and allow the iframe to setup its own environment and start running
+ * a contained HTML5 app.
+ */
+export default class MainClient {
   constructor({ iframe, now } = {}) {
     this.events = events;
     this.iframe = iframe;
@@ -24,12 +32,16 @@ export default class Hashi {
     // Can do this as all data that is coming in should be JSON
     // compatible in the first place, if not, we have other problems.
     data = JSON.parse(JSON.stringify(data || {}));
+    // Set this here, regardless of whether it is already ready or not
+    // in case the page inside the iframe navigates to a new page
+    // and hence has to reset its local state and reinitialize its
+    // SandboxEnvironment.
+    this.on(this.events.READY, () => {
+      this.__setData(data);
+    });
     if (this.ready) {
       this.__setData(data);
     } else {
-      this.on(this.events.READY, () => {
-        this.__setData(data);
-      });
       this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
     }
   }
