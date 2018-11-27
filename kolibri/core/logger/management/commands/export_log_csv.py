@@ -66,7 +66,7 @@ class Command(AsyncCommand):
 
     def _create_file(self, buffer):
         try:
-            with open(self.filepath, 'w') as f:
+            with open(self.filepath, 'wb') as f:
                 f.write(buffer)
                 logger.info('Creating csv file {filename}'.format(filename=self.filepath))
         except IOError as e:

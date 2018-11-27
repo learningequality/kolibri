@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import math
 import os
+from io import open
 
 from django.core.cache import cache
 from django.http import Http404
@@ -53,7 +54,6 @@ def download_csv_file(request, log_type):
 
     # generate a file response
     response = FileResponse(open(filepath, 'rb'))
-
     # set the content-type by guessing from the filename
     response['Content-Type'] = 'text/csv'
 
