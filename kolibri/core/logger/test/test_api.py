@@ -333,24 +333,24 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
-    @patch('kolibri.core.logger.management.commands.export_log_csv.AsyncListSerializer.data')
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
     @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
-    @patch('kolibri.core.logger.management.commands.export_log_csv.Command._create_file')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
     def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
         data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
         get_queryset_mock.return_value = ContentSummaryLog.objects
-        call_command("export_log_csv", log_type="summary", output_file='/my/path/not/exists')
+        call_command("exportlogs", log_type="summary", output_file='/my/path/not/exists')
         response = _create_file_mock.call_args[0][0]
         results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    @patch('kolibri.core.logger.management.commands.export_log_csv.AsyncListSerializer.data')
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
     @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
-    @patch('kolibri.core.logger.management.commands.export_log_csv.Command._create_file')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
     def test_csv_download_deleted_content(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
@@ -358,7 +358,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ChannelMetadata.objects.all().delete()
         data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
         get_queryset_mock.return_value = ContentSummaryLog.objects
-        call_command("export_log_csv", log_type="summary", output_file='/my/path/not/exists')
+        call_command("exportlogs", log_type="summary", output_file='/my/path/not/exists')
         response = _create_file_mock.call_args[0][0]
         results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
@@ -383,24 +383,24 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
-    @patch('kolibri.core.logger.management.commands.export_log_csv.AsyncListSerializer.data')
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
     @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
-    @patch('kolibri.core.logger.management.commands.export_log_csv.Command._create_file')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
     def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSessionLog.objects.count()
         data_mock.__iter__.return_value = ContentSessionLog.objects.all()
         get_queryset_mock.return_value = ContentSessionLog.objects
-        call_command("export_log_csv", log_type="session", output_file='/my/path/not/exists')
+        call_command("exportlogs", log_type="session", output_file='/my/path/not/exists')
         response = _create_file_mock.call_args[0][0]
         results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    @patch('kolibri.core.logger.management.commands.export_log_csv.AsyncListSerializer.data')
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
     @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
-    @patch('kolibri.core.logger.management.commands.export_log_csv.Command._create_file')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
     def test_csv_download_deleted_content(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSessionLog.objects.count()
@@ -408,7 +408,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ChannelMetadata.objects.all().delete()
         data_mock.__iter__.return_value = ContentSessionLog.objects.all()
         get_queryset_mock.return_value = ContentSessionLog.objects
-        call_command("export_log_csv", log_type="session", output_file='/my/path/not/exists')
+        call_command("exportlogs", log_type="session", output_file='/my/path/not/exists')
         response = _create_file_mock.call_args[0][0]
         results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:

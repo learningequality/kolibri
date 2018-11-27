@@ -361,7 +361,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_id = get_client().schedule(
             call_command,
-            "export_log_csv",
+            "exportlogs",
             log_type=log_type,
             output_file=filepath,
             extra_metadata=job_metadata,
