@@ -121,7 +121,7 @@ class ZipContentView(View):
                 bootstrap_content = cache.get(cache_key)
                 if bootstrap_content is None:
                     template = loader.get_template('content/hashi.html')
-                    bootstrap_content = template.render({}, request)
+                    bootstrap_content = template.render({}, None)
                     cache.set(cache_key, bootstrap_content)
                 response = HttpResponse(bootstrap_content)
                 _add_access_control_headers(request, response)

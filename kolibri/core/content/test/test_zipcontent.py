@@ -3,6 +3,7 @@ import os
 import tempfile
 import zipfile
 
+from django.template import loader
 from django.test import Client
 from django.test import TestCase
 from le_utils.constants import exercises
@@ -19,6 +20,10 @@ class ZipContentTestCase(TestCase):
     Testcase for zipcontent endpoint
     """
 
+    index_name = "index.html"
+    index_str = "<html></html>"
+    other_name = "other.html"
+    other_str = "<html></html>"
     test_name_1 = "testfile1.txt"
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
@@ -28,7 +33,8 @@ class ZipContentTestCase(TestCase):
 
     def setUp(self):
 
-        self.client = Client()
+        # Fetch with this header by default to run through non-hashi related behaviour.
+        self.client = Client(HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
         provision_device()
 
@@ -42,6 +48,8 @@ class ZipContentTestCase(TestCase):
             os.makedirs(zip_path_dir)
 
         with zipfile.ZipFile(self.zip_path, "w") as zf:
+            zf.writestr(self.index_name, self.index_str)
+            zf.writestr(self.other_name, self.other_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
             zf.writestr(self.test_name_3, self.test_str_3)
@@ -120,3 +128,60 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(
             response.content.decode('utf-8'),
             self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name.replace('http:', '') + self.zip_file_base_url)).strip("/"))
+
+    def test_non_xhr_request_for_html_return_hashi(self):
+        client = Client()
+        response = client.get(self.zip_file_base_url)
+        template = loader.get_template('content/hashi.html')
+        hashi_snippet = template.render({}, None)
+        self.assertEqual(response.content.decode(), hashi_snippet)
+
+    def test_xhr_request_for_html_return_html(self):
+        response = self.client.get(self.zip_file_base_url)
+        self.assertEqual(b"".join(response.streaming_content).decode(), self.index_str)
+
+    def test_non_xhr_nonexistent_zip_file_access(self):
+        client = Client()
+        bad_base_url = self.zip_file_base_url.replace(self.zip_file_base_url[20:25], "aaaaa")
+        response = client.get(bad_base_url + self.test_name_1)
+        self.assertEqual(response.status_code, 404)
+
+    def test_non_xhr_zip_file_nonexistent_internal_file_access(self):
+        client = Client()
+        response = client.get(self.zip_file_base_url + "qqq" + self.index_name)
+        self.assertEqual(response.status_code, 404)
+
+    def test_non_xhr_not_modified_response_when_if_modified_since_header_set_index_file(self):
+        caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
+        response = caching_client.get(self.zip_file_base_url)
+        self.assertEqual(response.status_code, 304)
+
+    def test_non_xhr_not_modified_response_when_if_modified_since_header_set_other_html_file(self):
+        caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
+        response = caching_client.get(self.zip_file_base_url + self.other_name)
+        self.assertEqual(response.status_code, 304)
+
+    def test_non_xhr_content_security_policy_header(self):
+        client = Client()
+        response = client.get(self.zip_file_base_url + self.index_name)
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
+
+    def test_non_xhr_access_control_allow_origin_header(self):
+        client = Client()
+        response = client.get(self.zip_file_base_url + self.index_name)
+        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
+        response = client.options(self.zip_file_base_url + self.index_name)
+        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
+
+    def test_non_xhr_x_frame_options_header(self):
+        client = Client()
+        response = client.get(self.zip_file_base_url + self.index_name)
+        self.assertEqual(response.get("X-Frame-Options", ""), "")
+
+    def test_non_xhr_access_control_allow_headers(self):
+        client = Client()
+        headerval = "X-Penguin-Dance-Party"
+        response = client.options(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
+        response = client.get(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
