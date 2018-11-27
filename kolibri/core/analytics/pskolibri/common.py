@@ -7,10 +7,16 @@ import os
 import sys
 from collections import namedtuple
 
+# Android is based on the Linux kernel, but due to security issues, we cannot
+# run the /proc command there, so we need a way to distinguish between the two.
+# Python for Android always sets some Android environment variables, so we check
+# for one of them to differentiate. This is how Kivy detects Android as well.
+ANDROID = "ANDROID_APP_PATH" in os.environ
+
 PY3 = sys.version_info[0] == 3
 POSIX = os.name == "posix"
 WINDOWS = os.name == "nt"
-LINUX = sys.platform.startswith("linux")
+LINUX = sys.platform.startswith("linux") and not ANDROID
 MACOS = sys.platform.startswith("darwin")
 
 if PY3:
