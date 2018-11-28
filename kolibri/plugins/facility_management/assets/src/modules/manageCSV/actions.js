@@ -53,53 +53,48 @@ function startSessionCSVExport(store) {
   }
 }
 
+function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
+  if (taskId) {
+    const completed = filter(newTasks, {
+      id: taskId,
+    });
+    if (completed.length > 0) {
+      const task = completed[0];
+      if (task.status === TaskStatuses.COMPLETED) store.commit(commitFinish, new Date());
+    }
+  } else {
+    const running = filter(newTasks, function(task) {
+      return (
+        task.type === taskType &&
+        task.status !== TaskStatuses.COMPLETED &&
+        task.status !== TaskStatuses.FAILED
+      );
+    });
+    if (running.length > 0) store.commit(commitStart, running[0].id);
+  }
+}
+
 function refreshTaskList(store) {
   return TaskResource.fetchCollection({
     force: true,
   })
     .then(newTasks => {
-      // Identify if some of the generation scripts are running:
-      if (!store.getters.sessionTaskId) {
-        const sessionRunning = filter(newTasks, function(task) {
-          return (
-            task.type === TaskTypes.EXPORTSESSIONLOGCSV &&
-            task.status !== TaskStatuses.COMPLETED &&
-            task.status !== TaskStatuses.FAILED
-          );
-        });
-        if (sessionRunning.length > 0)
-          store.commit('START_SESSION_CSV_EXPORT', sessionRunning[0].id);
-      } else {
-        const sessionCompleted = filter(newTasks, {
-          id: store.getters.sessionTaskId,
-        });
-        if (sessionCompleted.length > 0) {
-          const task = sessionCompleted[0];
-          if (task.status === TaskStatuses.COMPLETED)
-            store.commit('SET_FINISHED_SESSION_CSV_CREATION', new Date());
-        }
-      }
-
-      if (!store.getters.summaryTaskId) {
-        const summaryRunning = filter(newTasks, function(task) {
-          return (
-            task.type === TaskTypes.EXPORTSUMMARYLOGCSV &&
-            task.status !== TaskStatuses.COMPLETED &&
-            task.status !== TaskStatuses.FAILED
-          );
-        });
-        if (summaryRunning.length > 0)
-          store.commit('START_SUMMARY_CSV_EXPORT', summaryRunning[0].id);
-      } else {
-        const summaryCompleted = filter(newTasks, {
-          id: store.getters.summaryTaskId,
-        });
-        if (summaryCompleted.length > 0) {
-          const task = summaryCompleted[0];
-          if (task.status === TaskStatuses.COMPLETED)
-            store.commit('SET_FINISHED_SUMMARY_CSV_CREATION', new Date());
-        }
-      }
+      checkTaskStatus(
+        store,
+        newTasks,
+        TaskTypes.EXPORTSESSIONLOGCSV,
+        store.getters.sessionTaskId,
+        'START_SESSION_CSV_EXPORT',
+        'SET_FINISHED_SESSION_CSV_CREATION'
+      );
+      checkTaskStatus(
+        store,
+        newTasks,
+        TaskTypes.EXPORTSUMMARYLOGCSV,
+        store.getters.summaryTaskId,
+        'START_SUMMARY_CSV_EXPORT',
+        'SET_FINISHED_SUMMARY_CSV_CREATION'
+      );
     })
     .catch(error => {
       logging.error('There was an error while fetching the task list: ', error);
