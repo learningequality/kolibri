@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 
+import json
 import math
 import os
 from io import open
 
 from django.core.cache import cache
 from django.http import Http404
+from django.http import HttpResponse
 from django.http.response import FileResponse
 from rest_framework import serializers
 
@@ -16,6 +18,7 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.utils import conf
 
 
 def cache_channel_name(channel_id):
@@ -43,11 +46,39 @@ def cache_content_title(content_id):
         return title
 
 
+def exported_logs_info(request):
+    '''
+    Get the last modification timestamp of the summary logs exported
+
+    :returns: An object with the files informatin
+    '''
+
+    logs_dir = os.path.join(conf.KOLIBRI_HOME, 'log_export')
+    csv_statuses = {}
+    csv_export_filenames = {
+        'session': 'content_session_logs.csv',
+        'summary': 'content_summary_logs.csv'
+    }
+    for log_type in csv_export_filenames.keys():
+        log_path = os.path.join(logs_dir, csv_export_filenames[log_type])
+        if os.path.exists(log_path):
+            csv_statuses[log_type] = os.path.getmtime(log_path)
+        else:
+            csv_statuses[log_type] = None
+
+    return HttpResponse(json.dumps(csv_statuses), content_type='application/json')
+
+
 def download_csv_file(request, log_type):
-    if hasattr(request, 'session'):
-        filepath = request.session.get('csv_file_{}'.format(log_type), None)
+    csv_export_filenames = {
+        'session': 'content_session_logs.csv',
+        'summary': 'content_summary_logs.csv'
+    }
+    if log_type in csv_export_filenames.keys():
+        filepath = os.path.join(conf.KOLIBRI_HOME, 'log_export', csv_export_filenames[log_type])
     else:
         filepath = None
+
     # if the file does not exist on disk, return a 404
     if filepath is None or not os.path.exists(filepath):
         raise Http404('There is no csv export file for {} available'.format(log_type))
@@ -56,11 +87,6 @@ def download_csv_file(request, log_type):
     response = FileResponse(open(filepath, 'rb'))
     # set the content-type by guessing from the filename
     response['Content-Type'] = 'text/csv'
-
-    csv_export_filenames = {
-        'session': 'content_session_logs.csv',
-        'summary': 'content_summary_logs.csv'
-    }
 
     # set the content-disposition as attachment to force download
     response['Content-Disposition'] = 'attachment; filename={}'.format(csv_export_filenames[log_type])

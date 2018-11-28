@@ -1,5 +1,4 @@
 import os
-import tempfile
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
@@ -342,15 +341,21 @@ class TasksViewSet(viewsets.ViewSet):
         By default it will be dump contentsummarylog.
 
         :param: logtype: Kind of log to dump, summary or session
-        :returns: An object with the job information plus the filepath
+        :returns: An object with the job information
 
         '''
-        # ensure the file is not actually created. It has to be created by the command
-        with tempfile.NamedTemporaryFile(suffix='.csv') as tmp:
-            filepath = tmp.name
+        csv_export_filenames = {
+            'session': 'content_session_logs.csv',
+            'summary': 'content_summary_logs.csv'
+        }
         log_type = request.data.get('logtype', 'summary')
-        if log_type not in ('summary', 'session'):
+        if log_type in csv_export_filenames.keys():
+            logs_dir = os.path.join(conf.KOLIBRI_HOME, 'log_export')
+            filepath = os.path.join(logs_dir, csv_export_filenames[log_type])
+        else:
             raise Http404('Impossible to create a csv export file for {}'.format(log_type))
+        if not os.path.isdir(logs_dir):
+            os.mkdir(logs_dir)
 
         job_type = "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
 
@@ -364,14 +369,12 @@ class TasksViewSet(viewsets.ViewSet):
             "exportlogs",
             log_type=log_type,
             output_file=filepath,
+            overwrite="true",
             extra_metadata=job_metadata,
             track_progress=True,
         )
-        if hasattr(request, 'session'):
-            request.session['csv_file_{}'.format(log_type)] = filepath
 
         resp = _job_to_response(get_client().status(job_id))
-        resp['filepath'] = filepath
 
         return Response(resp)
 

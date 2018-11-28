@@ -38,6 +38,10 @@ class Command(AsyncCommand):
                             action='store', dest='log_type', default="session", choices=['summary', 'session'],
                             help='Log type to be exported. Valid values are "session" and "summary".'
                             )
+        parser.add_argument('-w', '--overwrite',
+                            action='store', dest='overwrite', default=False, type=bool,
+                            help='Allows overwritten of the exported file in case it exists'
+                            )
 
     def _data(self, csv_set):
         queryset = csv_set.get_queryset()
@@ -90,9 +94,10 @@ class Command(AsyncCommand):
 
         self.filepath = os.path.join(os.getcwd(), filename)
 
-        if os.path.exists(self.filepath):
-            logger.error('{} already exists in your directory'.format(filename))
-            sys.exit(1)
+        if not options['overwrite']:
+            if os.path.exists(self.filepath):
+                logger.error('{} already exists in your directory'.format(filename))
+                sys.exit(1)
         csv_set = classes_info[log_type][0]()
         # Here is where 99% of the time is spent:
         buffer = self._data(csv_set)

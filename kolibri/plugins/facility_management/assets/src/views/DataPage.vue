@@ -25,21 +25,23 @@
           v-if="inSessionCSVCreation"
           id="generatingsessionlogcsv"
           type="EXPORTSESSIONLOGCSV"
-          status="QUEUED"
-          :percentage="sessionPercentage"
-          :showButtons="true"
-          :cancellable="false"
         />
         <span v-else>
           <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }}</span>
+          <span v-else>
+            {{ $tr('generated') }}
+            <ElapsedTime
+              :date="sessionDateCreated"
+            />.
+          </span>
           <KButton
             appearance="basic-link"
-            :text="$tr('generate')"
+            :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
             :disabled="cannotDownload"
             @click="generateSessionLog"
           />
+          <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
         </span>
-        <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
@@ -61,21 +63,23 @@
           v-if="inSummaryCSVCreation"
           id="generatingummarylogcsv"
           type="EXPORTSUMMARYLOGCSV"
-          status="QUEUED"
-          :percentage="summaryPercentage"
-          :showButtons="true"
-          :cancellable="false"
         />
         <span v-else>
           <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }}</span>
+          <span v-else>
+            {{ $tr('generated') }}
+            <ElapsedTime
+              :date="summaryDateCreated"
+            />.
+          </span>
           <KButton
             appearance="basic-link"
-            :text="$tr('generate')"
+            :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
             :disabled="cannotDownload"
             @click="generateSummaryLog"
           />
+          <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
         </span>
-        <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
       </div>
       <p class="infobox">
         <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
@@ -92,15 +96,18 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { isAndroidWebView } from 'kolibri.utils.browser';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KButton from 'kolibri.coreVue.components.KButton';
   import urls from 'kolibri.urls';
+  import { PageNames } from '../constants';
   import TaskProgress from './TaskProgress';
 
   export default {
     name: 'DataPage',
     components: {
+      ElapsedTime,
       KButton,
       KGrid,
       KGridItem,
@@ -128,7 +135,9 @@
         'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
       summaryInfo:
         'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
-      generate: 'Generate log file',
+      generated: 'Generated ',
+      generateLog: 'Generate log file',
+      regenerateLog: 'Regenerate log file',
       noLogsYet: 'No logs are available to download yet.',
       download: 'Download',
       note: 'Note',
@@ -143,24 +152,26 @@
         'noSummaryLogs',
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
-        'summaryPercentage',
-        'sessionPercentage',
       ]),
-      ...mapState('manageCSV', ['taskList']),
+      ...mapState(['pageName']),
+      ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isAndroidWebView();
       },
       generatingCSVFile() {
         return this.inSummaryCSVCreation || this.inSessionCSVCreation;
       },
+      inDataExportPage() {
+        return this.pageName === PageNames.DATA_EXPORT_PAGE;
+      },
     },
     watch: {
-      generatingCSVFile(val) {
+      inDataExportPage(val) {
         return val ? this.startTaskPolling() : this.stopTaskPolling();
       },
     },
     mounted() {
-      this.generatingCSVFile && this.startTaskPolling();
+      this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
     },
     destroyed() {
       this.stopTaskPolling();
@@ -170,6 +181,7 @@
         'startSummaryCSVExport',
         'startSessionCSVExport',
         'refreshTaskList',
+        'getExportedLogsInfo',
       ]),
       generateSessionLog() {
         this.startSessionCSVExport();
@@ -178,6 +190,7 @@
         this.startSummaryCSVExport();
       },
       startTaskPolling() {
+        this.getExportedLogsInfo();
         if (!this.intervalId) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);
         }

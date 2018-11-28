@@ -10,6 +10,7 @@ from .api import MasteryLogViewSet
 from .api import TotalContentProgressViewSet
 from .api import UserSessionLogViewSet
 from .csv import download_csv_file
+from .csv import exported_logs_info
 router = routers.SimpleRouter()
 
 router.register(r'contentsessionlog', ContentSessionLogViewSet, base_name='contentsessionlog')
@@ -23,5 +24,8 @@ router.register(r'userprogress', TotalContentProgressViewSet, base_name='userpro
 
 router.urls.append(url(r'^downloadcsvfile/(?P<log_type>.*)/$',
                        download_csv_file, name='download_csv_file'))
+
+router.urls.append(url(r'^exportedlogsinfo/$',
+                       exported_logs_info, name='exportedlogsinfo'))
 
 urlpatterns = router.urls
