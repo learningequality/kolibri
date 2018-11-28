@@ -7,18 +7,35 @@ import { TaskStatuses, TaskTypes } from '../../constants';
 
 const logging = logger.getLogger(__filename);
 
-function startSummaryCSVExport(store) {
+function startCSVExport(store, logtype, creating, commitStart) {
   const params = {
-    logtype: 'summary',
+    logtype: logtype,
   };
-  if (!store.getters.inSummaryCSVCreation) {
+  if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
-
     return promise.then(task => {
-      store.commit('START_SUMMARY_CSV_EXPORT', task.entity.id);
+      store.commit(commitStart, task.entity.id);
       return task.entity.id;
     });
   }
+}
+
+function startSummaryCSVExport(store) {
+  return startCSVExport(
+    store,
+    'summary',
+    store.getters.inSummaryCSVCreation,
+    'START_SUMMARY_CSV_EXPORT'
+  );
+}
+
+function startSessionCSVExport(store) {
+  return startCSVExport(
+    store,
+    'session',
+    store.getters.inSessionCSVCreation,
+    'START_SESSION_CSV_EXPORT'
+  );
 }
 
 function getExportedLogsInfo(store) {
@@ -37,20 +54,6 @@ function getExportedLogsInfo(store) {
       store.commit('SET_FINISHED_SUMMARY_CSV_CREATION', summaryTimeStamp);
     }
   });
-}
-
-function startSessionCSVExport(store) {
-  const params = {
-    logtype: 'session',
-  };
-  if (!store.getters.inSessionCSVCreation) {
-    let promise = TaskResource.startexportlogcsv(params);
-
-    return promise.then(task => {
-      store.commit('START_SESSION_CSV_EXPORT', task.entity.id);
-      return task.entity.id;
-    });
-  }
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
