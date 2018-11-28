@@ -10,6 +10,7 @@ import Vuex from 'vuex';
 import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
+import VueAphrodite from './vueAphrodite';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -51,6 +52,7 @@ export default class CoreApp {
     Vue.use(Vuex);
     Vue.use(VueRouter);
     Vue.use(VueMeta);
+    Vue.use(VueAphrodite);
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {

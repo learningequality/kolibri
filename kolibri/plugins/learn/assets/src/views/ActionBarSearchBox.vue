@@ -6,7 +6,7 @@
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
         type="primary"
-        color="primary"
+        color="clear"
         :disableRipple="true"
         @click="toggleDropdownSearchBox"
       >

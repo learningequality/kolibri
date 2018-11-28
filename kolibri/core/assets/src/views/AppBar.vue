@@ -1,9 +1,9 @@
 <template>
 
-  <div class="wrapper">
+  <div :style="{ backgroundColor: $coreActionNormal }">
     <UiToolbar
       :title="title"
-      type="colored"
+      type="clear"
       textColor="white"
       class="app-bar"
       :style="{ height: height + 'px' }"
@@ -32,7 +32,7 @@
         <UiButton
           ref="userMenuButton"
           type="primary"
-          color="primary"
+          color="clear"
           class="user-menu-button"
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
@@ -87,7 +87,7 @@
 
         <LanguageSwitcherModal
           v-if="showLanguageModal"
-          class="override-ui-toolbar"
+          :style="{ color: $coreTextDefault }"
           @close="showLanguageModal = false"
         />
       </div>
@@ -151,7 +151,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind', '$coreActionNormal', '$coreTextDefault']),
       ...mapState({
         username: state => state.core.session.username,
       }),
@@ -186,16 +186,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  /deep/ .override-ui-toolbar {
-    color: $core-text-default;
-  }
-
-  .wrapper {
-    background-color: $core-action-normal;
-  }
 
   .app-bar {
     overflow: hidden;

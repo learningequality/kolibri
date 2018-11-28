@@ -2,7 +2,7 @@
 
   <li class="list-item">
     <router-link
-      class="tab"
+      :class="[ 'tab', $pseudoClass(tab) ]"
       :to="link"
     >
       <div class="tab-icon">
@@ -26,6 +26,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -52,14 +53,25 @@
         validator: validateLinkObject,
       },
     },
+    computed: {
+      ...mapGetters(['$coreActionLight', '$coreActionDark']),
+      tab() {
+        const hoverAndFocus = {
+          'background-color': this.$coreActionDark,
+        };
+        return {
+          color: this.$coreActionLight,
+          ':hover': hoverAndFocus,
+          ':focus': hoverAndFocus,
+        };
+      },
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .list-item {
     display: inline-block;
@@ -74,13 +86,11 @@
     padding-bottom: 3px;
     margin: 0;
     font-size: 14px;
-    color: $core-action-light;
     text-decoration: none;
     border: 0;
     border-radius: 0;
     &:hover,
     &:focus {
-      background-color: $core-action-dark;
       outline: none;
     }
   }
