@@ -2,7 +2,7 @@
 
   <li class="list-item">
     <router-link
-      :class="[ 'tab', $pseudoClass(tab) ]"
+      :class="[ 'tab', $computedClass(tab) ]"
       :to="link"
     >
       <div class="tab-icon">

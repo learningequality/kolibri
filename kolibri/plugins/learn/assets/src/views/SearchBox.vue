@@ -12,7 +12,7 @@
         ref="searchInput"
         v-model.trim="searchQuery"
         type="search"
-        :class="[ 'search-input', $pseudoClass(searchInputStyle) ]"
+        :class="[ 'search-input', $computedClass(searchInputStyle) ]"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >

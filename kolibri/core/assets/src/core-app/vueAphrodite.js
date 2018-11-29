@@ -3,26 +3,6 @@ import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
 
-function hashObj(obj) {
-  /*
-   * vendored copy of https://github.com/darkskyapp/string-hash/blob/master/index.js
-   * Modified to hash any arbitrary object.
-   * No updates in two years, and a tiny function, so no need to add a dependency.
-   */
-  const str = JSON.stringify(obj);
-  let hash = 5381;
-  let i = str.length;
-
-  while (i) {
-    hash = (hash * 33) ^ str.charCodeAt(--i);
-  }
-
-  /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
-   * integers. Since we want the results to be always positive, convert the
-   * signed int to an unsigned by doing an unsigned bitshift. */
-  return (hash >>> 0).toString(36);
-}
-
 /**
  * Plugin install function.
  * @param {Function} Vue - the Vue constructor.
@@ -33,7 +13,7 @@ export default function VueAphrodite(Vue) {
   const __classNameCache = {};
   function generateClassName(value, component) {
     const componentName = component.$options.name;
-    const cacheKey = `${componentName}:${hashObj(value)}`;
+    const cacheKey = `${componentName}:${JSON.stringify(value)}`;
     if (!__classNameCache[cacheKey]) {
       if (!Array.isArray(value)) {
         value = [value];
@@ -44,7 +24,7 @@ export default function VueAphrodite(Vue) {
           if (typeof Object.keys(val).find(key => key.indexOf(':') === 0) === 'undefined') {
             logging.warn(
               `
-              Used the $pseudoClass method for a class definition without any pseudo selectors:
+              Used the $computedClass method for a class definition without any pseudo selectors:
               Found in component: ${componentName}
               Please use a v-bind:style directive instead.
             `
@@ -70,7 +50,7 @@ export default function VueAphrodite(Vue) {
     return __classNameCache[cacheKey];
   }
 
-  Vue.prototype.$pseudoClass = function(style) {
+  Vue.prototype.$computedClass = function(style) {
     return generateClassName(style, this);
   };
 }

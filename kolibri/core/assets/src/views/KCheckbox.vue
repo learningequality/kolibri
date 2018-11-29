@@ -47,7 +47,8 @@
         dir="auto"
         class="k-checkbox-label"
         :for="id"
-        :class="[ !showLabel ? 'visuallyhidden' : '', $pseudoClass(labelStyle) ]"
+        :class="{ 'visuallyhidden' : !showLabel }"
+        :style="labelStyle"
         @click.prevent
       >
         {{ label }}

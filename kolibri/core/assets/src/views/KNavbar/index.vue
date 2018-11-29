@@ -31,7 +31,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
-        :class="$pseudoClass(scrollButton)"
+        :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
         <mat-svg
