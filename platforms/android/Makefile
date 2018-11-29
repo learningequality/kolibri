@@ -1,4 +1,4 @@
-.PHONY: clean project_info.json
+.PHONY: clean dummy_project_info
 
 # Clear out apks
 clean:
@@ -6,7 +6,8 @@ clean:
 	mkdir -p bin
 	rm -f bin/*.apk 2> /dev/null
 	rm -rf ./src/kolibri 2> /dev/null
-	rm project_info.json
+	rm -rf dummy
+	rm -f project_info.json
 
 # Replace the default loading page, so that it will be replaced with our own version
 replaceloadingpage:
@@ -19,11 +20,15 @@ src/kolibri:
 	unzip -q "src/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
 # Generate the project info file
-project_info.json:
+project_info.json: project_info.template src/kolibri
 	python ./scripts/create_project_info.py
 
+# Generate the dummy project info file, no unpack required
+dummy_project_info: project_info.template clean
+	python ./scripts/create_dummy_project_info.py
+
 # Buld the debug version of the apk
-builddebugapk:
+dist/android/kolibri*.apk: project_info.json
 	pew build android
 
 # DOCKER BUILD
@@ -37,9 +42,6 @@ rundocker: clean builddocker
 	./scripts/rundocker.sh
 
 # NON DOCKER BUILD
-
-# Build non-docker local apk
-buildapklocally: clean replaceloadingpage src/kolibri generateversion builddebugapk
 
 # Deploys the apk on a device
 installapk:

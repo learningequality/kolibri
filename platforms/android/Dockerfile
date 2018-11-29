@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as build
 LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -46,20 +46,18 @@ USER kivy:kivy
 WORKDIR /home/kivy
 
 # Needed to setup & install necessary p4a environment
-COPY whitelist.txt project_info.template Makefile ./
-COPY scripts scripts
+COPY --chown=kivy:kivy whitelist.txt Makefile project_info.template ./
+COPY --chown=kivy:kivy scripts scripts
 
 # Makes a dummy project_info, pretty mutch just ot get pew init to run
 # Downlads p4a and all python dependencies for packaging in android
-RUN make project_info.json && pew init android
+RUN make dummy_project_info && pew init android
 
+COPY --chown=kivy:kivy assets assets
+COPY --chown=kivy:kivy src src
 
-# Must be explicit, since * only gets files and COPY empties dirs
-COPY icons icons
-COPY assets assets
-COPY src src
+# Could probably include this earlier on
+COPY --chown=kivy:kivy icon.png .
 
 # Extract .whl files and build the apk
-RUN make src/kolibri && \
-    make project_info.json && \
-    make builddebugapk
+RUN make dist/android/kolibri*.apk
