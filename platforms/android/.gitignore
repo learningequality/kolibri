@@ -1,7 +1,14 @@
-src/kolibri
-src/*.dist-info
-bin/
-dist/
-*.whl
-project_info.json
+# Whl files go here for build
+src/
+!src/main.py
+
+# File format for signing key
 *.jks
+
+# Generated for pew
+project_info.json
+# pew output folder
+dist/
+
+*.pyc
+bin/
