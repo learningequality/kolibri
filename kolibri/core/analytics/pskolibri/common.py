@@ -11,7 +11,7 @@ from collections import namedtuple
 # run the /proc command there, so we need a way to distinguish between the two.
 # Python for Android always sets some Android environment variables, so we check
 # for one of them to differentiate. This is how Kivy detects Android as well.
-ANDROID = "ANDROID_APP_PATH" in os.environ
+ANDROID = "ANDROID_ARGUMENT" in os.environ
 
 PY3 = sys.version_info[0] == 3
 POSIX = os.name == "posix"
