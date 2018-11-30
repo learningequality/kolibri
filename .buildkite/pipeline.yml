@@ -42,3 +42,7 @@ steps:
      - mkdir -p dist
      - buildkite-agent artifact download 'dist/*.deb' dist/
      - make docker-deb-test
+
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
