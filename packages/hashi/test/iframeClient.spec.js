@@ -4,7 +4,6 @@ import { events, nameSpace } from '../src/hashiBase';
 describe('Hashi iframeClient', () => {
   let hashi;
   let mockXHR;
-  let xhrOpen;
   beforeEach(() => {
     class mockXHRClass {
       constructor() {
@@ -18,7 +17,6 @@ describe('Hashi iframeClient', () => {
     mockXHRClass.prototype.addEventListener = jest.fn();
     mockXHRClass.prototype.setRequestHeader = jest.fn();
     window.XMLHttpRequest = mockXHRClass;
-    xhrOpen = window.XMLHttpRequest.prototype.open;
     hashi = new Hashi();
   });
   describe('constructor method', () => {
@@ -60,9 +58,6 @@ describe('Hashi iframeClient', () => {
       }).then(() => {
         expect(loadPageMock).toHaveBeenCalled();
       });
-    });
-    it('should override the prototype of the XMLHttpRequest', () => {
-      expect(window.XMLHttpRequest.prototype.open).not.toBe(xhrOpen);
     });
   });
   describe('loadPage method', () => {
