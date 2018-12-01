@@ -26,7 +26,7 @@ const devServerConfig = {
   },
 };
 
-function webpackConfig(pluginData) {
+function webpackConfig(pluginData, hot) {
   const pluginBundle = webpackBaseConfig(pluginData);
 
   pluginBundle.devtool = '#cheap-module-source-map';
@@ -37,9 +37,13 @@ function webpackConfig(pluginData) {
         NODE_ENV: '"debug"',
       },
     }),
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
   ]);
+  if (hot) {
+    pluginBundle.plugins = pluginBundle.plugins.concat([
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NamedModulesPlugin(),  // show correct file names in console on update
+    ]);
+  }
   pluginBundle.output.path = path.resolve(path.join('./', devServerConfig.basePath));
   return pluginBundle;
 }
@@ -52,7 +56,7 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   const hot = options.hot;
 
   // webpack config for this bundle
-  const bundleConfig = webpackConfig(data);
+  const bundleConfig = webpackConfig(data, hot);
   bundleConfig.output.publicPath = publicPath;
 
   // for hot module reload
