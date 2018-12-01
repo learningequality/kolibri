@@ -74,6 +74,7 @@ program
     []
   )
   .option('-m, --multi', 'Run using multiple cores to improve build speed', false)
+  .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .action(function(mode, options) {
     const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
@@ -110,13 +111,21 @@ program
       process.exit(1);
     }
     const multi = options.multi || process.env.KOLIBRI_BUILD_MULTI;
+
+    if (options.hot && mode != modes.DEV) {
+      cliLogging.error("Hot module reloading can only be used in dev mode.");
+      process.exit(1);
+    }
+
+    const buildOptions = { hot: options.hot };
+
     const bundleData = readWebpackJson({
       pluginFile: options.file,
       plugins: options.plugins,
       pluginPaths: options.pluginPaths,
     });
     if (!bundleData.length) {
-      cliLogging.log('No valid bundle data was returned from the plugins specified');
+      cliLogging.error('No valid bundle data was returned from the plugins specified');
       process.exit(1);
     }
     const buildModule = {
@@ -150,10 +159,12 @@ program
       for (let index = 0; index < numberOfBundles; index++) {
         if (multi) {
           const data = JSON.stringify(bundleData[index]);
+          const options_data = JSON.stringify(buildOptions);
           const childProcess = fork(modulePath, {
             env: {
               data,
               index,
+              options: options_data,
             },
             stdio: 'inherit',
           });
@@ -175,7 +186,13 @@ program
           });
         } else {
           const buildFunction = require(modulePath);
-          buildFunction(bundleData[index], index, startCallback, doneCallback);
+          buildFunction(
+            bundleData[index],
+            index,
+            startCallback,
+            doneCallback,
+            buildOptions,
+          );
         }
       }
     }

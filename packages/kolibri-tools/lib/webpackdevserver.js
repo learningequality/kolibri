@@ -44,23 +44,29 @@ function webpackConfig(pluginData) {
   return pluginBundle;
 }
 
-function buildWebpack(data, index, startCallback, doneCallback) {
+function buildWebpack(data, index, startCallback, doneCallback, options) {
   const port = devServerConfig.port + index;
   const address = devServerConfig.address;
   const basePath = devServerConfig.basePath;
   const publicPath = `http://${address}:${port}/` + (basePath ? basePath + '/' : '');
+  const hot = options.hot;
 
   // webpack config for this bundle
   const bundleConfig = webpackConfig(data);
   bundleConfig.output.publicPath = publicPath;
 
   // for hot module reload
-  bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]]
-  bundleConfig.entry[data.name].unshift(`webpack-dev-server/client?http://${address}:${port}/`, "webpack/hot/dev-server");
+  if (hot) {
+    bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]]
+    bundleConfig.entry[data.name].unshift(
+      `webpack-dev-server/client?http://${address}:${port}/`,
+      "webpack/hot/dev-server"
+    );
+  }
 
   const compiler = webpack(bundleConfig);
   const devServerOptions = {
-    hot: true,
+    hot,
     host: devServerConfig.host,
     watchOptions: {
       aggregateTimeout: 300,
@@ -74,7 +80,9 @@ function buildWebpack(data, index, startCallback, doneCallback) {
   };
 
   // for hot module reload
-  WebpackDevServer.addDevServerEntrypoints(bundleConfig, devServerOptions);
+  if (hot) {
+    WebpackDevServer.addDevServerEntrypoints(bundleConfig, devServerOptions);
+  }
 
   const server = new WebpackDevServer(compiler, devServerOptions);
   compiler.hooks.compile.tap('Process', startCallback);
@@ -89,6 +97,7 @@ function buildWebpack(data, index, startCallback, doneCallback) {
 if (require.main === module) {
   const data = JSON.parse(process.env.data);
   const index = JSON.parse(process.env.index);
+  const options = JSON.parse(process.env.options);
   buildWebpack(
     data,
     index,
@@ -97,7 +106,8 @@ if (require.main === module) {
     },
     () => {
       process.send('done');
-    }
+    },
+    options,
   );
 }
 

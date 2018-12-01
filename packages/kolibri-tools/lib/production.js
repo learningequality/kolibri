@@ -22,7 +22,7 @@ function webpackConfig(pluginData) {
 
 const buildLogging = logger.getLogger('Kolibri Production Build');
 
-function buildWebpack(data, index, startCallback, doneCallback) {
+function buildWebpack(data, index, startCallback, doneCallback, options) {
   const bundle = webpackConfig(data);
   const compiler = webpack(bundle, (err, stats) => {
     if (stats.hasErrors()) {
