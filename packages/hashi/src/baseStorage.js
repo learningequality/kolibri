@@ -6,48 +6,138 @@
  */
 import BaseShim from './baseShim';
 
+// List out all the keys that exist on the shim itself to
+// prevent accidental overwriting.
+// We need to set data on the shim object to allow checks
+// of object membership with 'in'
+const internalKeys = ['length', 'key', 'getItem', 'setItem', 'removeItem', 'clear'];
+
 export default class BaseStorage extends BaseShim {
   constructor(mediator) {
     super(mediator);
-    this.__data = {};
+    this.data = {};
+  }
+
+  __setData(data = {}) {
+    this.data = data;
+    this.setDataToShim();
+  }
+
+  /*
+   * Method to check any changes
+   * in shim properties, due to direct property setting
+   * deletion, etc. that has not gone through setItem or removeItem
+   */
+  setDataFromShim() {
+    const updatedData = Object.assign({}, this.data);
+    let updated = false;
+    const shimKeys = Object.keys(this.shim);
+    // Won't include the object methods
+    shimKeys.forEach(key => {
+      // Ignore internal keys
+      if (!internalKeys.includes(key)) {
+        const value = String(this.shim[key]);
+        if (this.data[key] !== value) {
+          updatedData[key] = value;
+          updated = true;
+        }
+      }
+    });
+    Object.keys(this.data).forEach(key => {
+      if (!shimKeys.includes(key) && !internalKeys.includes(key)) {
+        delete updatedData[key];
+        updated = true;
+      }
+    });
+    if (updated) {
+      this.__setData(updatedData);
+      this.stateUpdated();
+    }
+  }
+
+  setDataToShim() {
+    if (this.shim) {
+      // Assign all data that is not keyed by
+      // one of our built in object keys
+      // onto our shim object.
+      Object.assign(
+        this.shim,
+        ...Object.entries(this.data)
+          .filter(entry => !internalKeys.includes(entry[0]))
+          .map(entry => ({ [entry[0]]: entry[1] }))
+      );
+      // Now remove any keys on the shim that shouldn't be there now.
+      const shimProps = Object.keys(this.shim);
+      shimProps.forEach(prop => {
+        if (!this.data[prop]) {
+          delete this.shim[prop];
+        }
+      });
+    }
   }
 
   iframeInitialize() {
-    Object.defineProperty(window, this.nameSpace, { value: this.__getShimInterface() });
+    this.__setShimInterface();
+    Object.defineProperty(window, this.nameSpace, {
+      value: this.shim,
+      configurable: true,
+    });
   }
 
-  __getShimInterface() {
+  __setShimInterface() {
     const self = this;
-    return {
+
+    class Shim {
       get length() {
+        self.setDataFromShim();
         return Object.keys(self.data).length;
-      },
+      }
 
       key(index) {
-        return Object.keys(self.data)[index];
-      },
+        self.setDataFromShim();
+        // Return null if no key defined, as per storage spec.
+        return Object.keys(self.data)[index] || null;
+      }
 
       getItem(keyName) {
-        return self.__data[keyName];
-      },
+        self.setDataFromShim();
+        // Return null if no key defined, as per storage spec.
+        return self.data[keyName] || null;
+      }
 
       setItem(keyName, value) {
         // Can only store strings in localStorage
         // by default everything is coerced to a string
         // We follow the API to spec
-        self.__data[keyName] = String(value);
+        value = String(value);
+        self.data[keyName] = value;
+        // Also store the value on the instance itself,
+        // unless it would overwrite a method.
+        if (!internalKeys.includes(keyName)) {
+          this[keyName] = value;
+        }
         self.stateUpdated();
-      },
+      }
 
       removeItem(keyName) {
-        delete self.__data[keyName];
+        delete self.data[keyName];
+        // Also delete the key on the instance itself,
+        // unless it would overwrite a method.
+        if (!internalKeys.includes(keyName)) {
+          delete this[keyName];
+        }
         self.stateUpdated();
-      },
+      }
 
       clear() {
-        self.__data = {};
+        self.data = {};
         self.stateUpdated();
-      },
-    };
+      }
+    }
+    this.shim = new Shim();
+
+    this.setDataToShim();
+
+    return this.shim;
   }
 }

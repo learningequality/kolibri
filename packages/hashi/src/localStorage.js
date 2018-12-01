@@ -15,12 +15,4 @@ export default class LocalStorage extends BaseStorage {
     this.__setData = this.__setData.bind(this);
     this.on(this.events.STATEUPDATE, this.__setData);
   }
-
-  __setData(data = {}) {
-    this.__data = data;
-  }
-
-  get data() {
-    return this.__data;
-  }
 }
