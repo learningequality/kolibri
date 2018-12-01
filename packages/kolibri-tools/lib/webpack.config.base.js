@@ -26,6 +26,8 @@ const { kolibriName } = require('./kolibriName');
 
 const production = process.env.NODE_ENV === 'production';
 
+const cssInsertionLoader = production ? MiniCssExtractPlugin.loader : 'style-loader'
+
 const base_dir = path.join(__dirname, '..');
 
 const postCSSLoader = {
@@ -43,7 +45,7 @@ const cssLoader = {
 
 // for scss blocks
 const sassLoaders = [
-  MiniCssExtractPlugin.loader,
+  cssInsertionLoader,
   cssLoader,
   postCSSLoader,
   {
@@ -135,7 +137,7 @@ module.exports = data => {
         },
         {
           test: /\.css$/,
-          use: [MiniCssExtractPlugin.loader, cssLoader, postCSSLoader],
+          use: [cssInsertionLoader, cssLoader, postCSSLoader],
         },
         {
           test: /\.s[a|c]ss$/,

@@ -37,49 +37,52 @@ function webpackConfig(pluginData) {
         NODE_ENV: '"debug"',
       },
     }),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
   ]);
   pluginBundle.output.path = path.resolve(path.join('./', devServerConfig.basePath));
   return pluginBundle;
 }
 
 function buildWebpack(data, index, startCallback, doneCallback) {
-  const bundle = webpackConfig(data);
   const port = devServerConfig.port + index;
   const address = devServerConfig.address;
   const basePath = devServerConfig.basePath;
-  const publicPath = 'http://' + address + ':' + port + '/' + (basePath ? basePath + '/' : '');
-  bundle.output.publicPath = publicPath;
-  const compiler = webpack(bundle);
-  const server = new WebpackDevServer(compiler, {
-    // webpack-dev-server options
+  const publicPath = `http://${address}:${port}/` + (basePath ? basePath + '/' : '');
 
-    // contentBase: "http://localhost:3000/",
-    // Can also be an array, or: contentBase: "http://localhost/",
+  // webpack config for this bundle
+  const bundleConfig = webpackConfig(data);
+  bundleConfig.output.publicPath = publicPath;
 
-    // Set this as true if you want to access dev server from arbitrary url.
-    // This is handy if you are using a html5 router.
-    historyApiFallback: false,
+  // for hot module reload
+  bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]]
+  bundleConfig.entry[data.name].unshift(`webpack-dev-server/client?http://${address}:${port}/`, "webpack/hot/dev-server");
 
-    // Set this if you want to enable gzip compression for assets
-    compress: true,
-
-    // webpack-dev-middleware options
+  const compiler = webpack(bundleConfig);
+  const devServerOptions = {
+    hot: true,
+    host: devServerConfig.host,
     watchOptions: {
       aggregateTimeout: 300,
       poll: 1000,
     },
-    // It's a required option.
     publicPath,
     stats: 'minimal',
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-  });
+  };
+
+  // for hot module reload
+  WebpackDevServer.addDevServerEntrypoints(bundleConfig, devServerOptions);
+
+  const server = new WebpackDevServer(compiler, devServerOptions);
   compiler.hooks.compile.tap('Process', startCallback);
   compiler.hooks.done.tap('Process', doneCallback);
   server.use('/__open-in-editor', openInEditor());
-
-  server.listen(port, devServerConfig.host, function() {});
+  server.listen(port, devServerConfig.host, () => {
+    console.log(`webpack dev server listening on port ${port}`);
+  });
   return compiler;
 }
 
