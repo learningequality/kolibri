@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid>
+  <KGrid :gutter="48">
 
     <KGridItem size="100" percentage>
       <h1>{{ $tr('pageHeading') }}</h1>
@@ -12,80 +12,57 @@
 
     <KGridItem sizes="100, 50, 50" percentage>
       <h2>{{ $tr('detailsHeading') }}</h2>
+      <p>{{ $tr('detailsSubHeading') }}</p>
       <p>
-        {{ $tr('detailsSubHeading') }}
-      </p>
-      <div>
         <KButton
           :text="$tr('download')"
           :disabled="!availableSessionCSVLog"
           @click="downloadSessionLog"
+          class="download-button"
         />
-        <TaskProgress
-          v-if="inSessionCSVCreation"
-          id="generatingsessionlogcsv"
-          type="EXPORTSESSIONLOGCSV"
+      </p>
+      <p v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</p>
+      <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
+      <p v-else>
+        <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
+        <GeneratedElapsedTime v-else :date="sessionDateCreated"/>
+        <KButton
+          appearance="basic-link"
+          :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
+          @click="generateSessionLog"
         />
-        <span v-else>
-          <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }}</span>
-          <span v-else>
-            {{ $tr('generated') }}
-            <ElapsedTime
-              :date="sessionDateCreated"
-            />.
-          </span>
-          <KButton
-            appearance="basic-link"
-            :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
-            :disabled="cannotDownload"
-            @click="generateSessionLog"
-          />
-          <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
-        </span>
-      </div>
+      </p>
       <p class="infobox">
-        <b>{{ $tr('note') }}</b>: {{ $tr('detailsInfo') }}
+        <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
       </p>
     </KGridItem>
 
     <KGridItem sizes="100, 50, 50" percentage>
       <h2>{{ $tr('summaryHeading') }}</h2>
+      <p>{{ $tr('summarySubHeading') }}</p>
       <p>
-        {{ $tr('summarySubHeading') }}
-      </p>
-      <div>
         <KButton
           :text="$tr('download')"
           :disabled="!availableSummaryCSVLog"
           @click="downloadSummaryLog"
+          class="download-button"
         />
-        <TaskProgress
-          v-if="inSummaryCSVCreation"
-          id="generatingummarylogcsv"
-          type="EXPORTSUMMARYLOGCSV"
+      </p>
+      <p v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</p>
+      <p v-else-if="inSummaryCSVCreation"><DataPageTaskProgress /></p>
+      <p v-else>
+        <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
+        <GeneratedElapsedTime v-else :date="summaryDateCreated" />
+        <KButton
+          appearance="basic-link"
+          :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
+          @click="generateSummaryLog"
         />
-        <span v-else>
-          <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }}</span>
-          <span v-else>
-            {{ $tr('generated') }}
-            <ElapsedTime
-              :date="summaryDateCreated"
-            />.
-          </span>
-          <KButton
-            appearance="basic-link"
-            :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
-            :disabled="cannotDownload"
-            @click="generateSummaryLog"
-          />
-          <span v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</span>
-        </span>
-      </div>
+      </p>
       <p class="infobox">
-        <b>{{ $tr('note') }}</b>: {{ $tr('summaryInfo') }}
+        <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
       </p>
     </KGridItem>
-
 
   </KGrid>
 
@@ -96,22 +73,22 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KButton from 'kolibri.coreVue.components.KButton';
   import urls from 'kolibri.urls';
-  import { PageNames } from '../constants';
-  import TaskProgress from './TaskProgress';
+  import { PageNames } from '../../constants';
+  import GeneratedElapsedTime from './GeneratedElapsedTime';
+  import DataPageTaskProgress from './DataPageTaskProgress';
 
   export default {
     name: 'DataPage',
     components: {
-      ElapsedTime,
+      GeneratedElapsedTime,
       KButton,
       KGrid,
       KGridItem,
-      TaskProgress,
+      DataPageTaskProgress,
     },
     data() {
       return {
@@ -135,12 +112,11 @@
         'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
       summaryInfo:
         'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
-      generated: 'Generated ',
       generateLog: 'Generate log file',
-      regenerateLog: 'Regenerate log file',
-      noLogsYet: 'No logs are available to download yet.',
+      regenerateLog: 'Generate a new log file',
+      noLogsYet: 'No logs are available to download.',
       download: 'Download',
-      note: 'Note',
+      note: 'Note:',
       noDownload: 'Download is not supported on Android',
       documentTitle: 'Manage Data',
     },
@@ -221,12 +197,16 @@
     font-size: 0.8em;
     background-color: $core-bg-warning;
     border-radius: $radius;
+    margin-left: -8px;
+    margin-right: -8px;
   }
 
   .no-dl {
-    display: inline-block;
-    font-size: 0.8em;
     color: $core-text-annotation;
+  }
+
+  .download-button {
+    margin-left: 0;
   }
 
 </style>

@@ -3,6 +3,7 @@
   <UiProgressCircular
     class="k-circular-loader"
     :class="{ delay }"
+    :size="size"
   />
 
 </template>
@@ -26,7 +27,11 @@
        */
       delay: {
         type: Boolean,
-        required: true,
+        default: false,
+      },
+      size: {
+        type: Number,
+        default: 32,
       },
     },
   };

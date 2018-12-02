@@ -1,6 +1,7 @@
 <template>
 
-  <button
+  <component
+    :is="htmlTag"
     ref="button"
     dir="auto"
     :class="buttonClasses"
@@ -9,16 +10,14 @@
     @click="handleClick"
   >
     <slot v-if="$slots.default"></slot>
-    <template v-else>
-      {{ text }}
-    </template>
+    <template v-else>{{ text }}</template>
     <mat-svg
       v-if="hasDropdown"
       category="navigation"
       name="arrow_drop_down"
       class="dropdown-arrow"
     />
-  </button>
+  </component>
 
 </template>
 
@@ -87,6 +86,16 @@
          * Emitted when the button is triggered
          */
         this.$emit('click', event);
+      },
+    },
+    computed: {
+      htmlTag() {
+        // Necessary to allow basic links to be rendered as 'inline' instead of
+        // 'inline-block': https://stackoverflow.com/a/27770128
+        if (this.appearance === 'basic-link') {
+          return 'a';
+        }
+        return 'button';
       },
     },
   };
