@@ -26,7 +26,7 @@ const { kolibriName } = require('./kolibriName');
 
 const production = process.env.NODE_ENV === 'production';
 
-const cssInsertionLoader = production ? MiniCssExtractPlugin.loader : 'style-loader'
+const cssInsertionLoader = production ? MiniCssExtractPlugin.loader : 'style-loader';
 
 const base_dir = path.join(__dirname, '..');
 

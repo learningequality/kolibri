@@ -17,10 +17,7 @@ function webpackConfig(pluginData) {
       debug: false,
     }),
     // requires >= v3.0.0, which is specified in the kolibri-core yarn workspace
-    new webpack.NormalModuleReplacementPlugin(
-      /^vue-intl$/,
-      'vue-intl/dist/vue-intl.prod.min.js'
-    ),
+    new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js'),
   ]);
   return pluginBundle;
 }

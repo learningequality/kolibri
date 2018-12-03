@@ -113,7 +113,7 @@ program
     const multi = options.multi || process.env.KOLIBRI_BUILD_MULTI;
 
     if (options.hot && mode != modes.DEV) {
-      cliLogging.error("Hot module reloading can only be used in dev mode.");
+      cliLogging.error('Hot module reloading can only be used in dev mode.');
       process.exit(1);
     }
 
@@ -186,13 +186,7 @@ program
           });
         } else {
           const buildFunction = require(modulePath);
-          buildFunction(
-            bundleData[index],
-            index,
-            startCallback,
-            doneCallback,
-            buildOptions,
-          );
+          buildFunction(bundleData[index], index, startCallback, doneCallback, buildOptions);
         }
       }
     }
