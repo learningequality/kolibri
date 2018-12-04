@@ -38,8 +38,9 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   pip install cython && \
   # get kevin's custom packages
   git clone -b dev https://github.com/kollivier/pyeverywhere && \
-  git clone -b webview_plus https://github.com/kollivier/python-for-android && \
-  pip install -e ./pyeverywhere ./python-for-android && \
+  git clone -b webview_plus https://github.com/dxcanas/python-for-android && \
+  pip install -e ./pyeverywhere && \
+  pip install -e ./python-for-android && \
   useradd -lm kivy
 
 USER kivy:kivy
