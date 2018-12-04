@@ -32,7 +32,7 @@ Kolibri*.apk: project_info.json
 
 # Build the docker image. Should only ever need to be rebuilt if project requirements change.
 # Makes dummy file
-build_docker: project_info.template
+build_docker: project_info.template Dockerfile
 	docker build -t android_kolibri .
 	touch build_docker
 
