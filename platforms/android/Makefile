@@ -1,13 +1,9 @@
+VPATH = ./dist/android/
 .PHONY: clean dummy_project_info
 
 # Clear out apks
 clean:
-	# Make bin directory, where APK is held. Empty if it exists.
-	mkdir -p bin
-	rm -f bin/*.apk 2> /dev/null
-	rm -rf ./src/kolibri 2> /dev/null
-	rm -rf dummy
-	rm -f project_info.json
+	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
 
 # Replace the default loading page, so that it will be replaced with our own version
 replaceloadingpage:
@@ -23,34 +19,24 @@ src/kolibri:
 project_info.json: project_info.template src/kolibri
 	python ./scripts/create_project_info.py
 
+# PHONY
 # Generate the dummy project info file, no unpack required
-dummy_project_info: project_info.template clean
+dummy_project_info.json: project_info.template clean
 	python ./scripts/create_dummy_project_info.py
 
 # Buld the debug version of the apk
-dist/android/kolibri*.apk: project_info.json
+Kolibri*.apk: project_info.json
 	pew build android
 
 # DOCKER BUILD
 
-builddocker: project_info.json
-	docker build -t kolibrikivy .
+# Build the docker image. Should only ever need to be rebuilt if project requirements change.
+# Makes dummy file
+build_docker: project_info.template
+	docker build -t android_kolibri .
+	touch build_docker
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?
-rundocker: clean builddocker
+run_docker: build_docker clean
 	./scripts/rundocker.sh
-
-# NON DOCKER BUILD
-
-# Deploys the apk on a device
-installapk:
-	buildozer android deploy
-
-# Run apk on device
-runapk:
-	buildozer android run
-	buildozer android adb -- logcat | grep -i python
-
-uninstallapk:
-	adb uninstall org.le.kolibri

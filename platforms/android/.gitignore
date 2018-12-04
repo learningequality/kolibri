@@ -11,4 +11,5 @@ project_info.json
 dist/
 
 *.pyc
+build_docker
 bin/

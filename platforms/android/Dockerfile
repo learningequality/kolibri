@@ -48,11 +48,11 @@ WORKDIR /home/kivy
 
 # Needed to setup & install necessary p4a environment
 COPY --chown=kivy:kivy whitelist.txt Makefile project_info.template ./
-COPY --chown=kivy:kivy scripts scripts
+COPY --chown=kivy:kivy scripts/version_utils.py scripts/create_dummy_project_info.py scripts/
 
 # Makes a dummy project_info, pretty mutch just ot get pew init to run
 # Downlads p4a and all python dependencies for packaging in android
-RUN make dummy_project_info && pew init android
+RUN make dummy_project_info.json && pew init android
 
 COPY --chown=kivy:kivy assets assets
 COPY --chown=kivy:kivy src src
@@ -61,4 +61,4 @@ COPY --chown=kivy:kivy src src
 COPY --chown=kivy:kivy icon.png .
 
 # Extract .whl files and build the apk
-RUN make dist/android/kolibri*.apk
+CMD make Kolibri*.apk
