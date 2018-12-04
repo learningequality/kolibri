@@ -35,7 +35,7 @@ RUN dpkg --add-architecture i386 && \
 # install python dependencies
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python get-pip.py && \
-  pip install cython && \
+  pip install cython virtualenv && \
   # get kevin's custom packages
   git clone -b dev https://github.com/kollivier/pyeverywhere && \
   git clone -b webview_plus https://github.com/dxcanas/python-for-android && \

@@ -26,7 +26,7 @@ fi
 
 # run the container, generating the apk
 echo "Starting ${CONTAINER_NAME}"
-docker start -a ${CONTAINER_NAME} | grep -v "Copying /"
+docker start -i ${CONTAINER_NAME} | grep -v "Copying /"
 
 # copy the apk to our host. Handles permissions.
 echo -e "Coping APK \n\t From ${CONTAINER_NAME}:${CONTAINER_HOME}/dist/ to ${PWD}"
