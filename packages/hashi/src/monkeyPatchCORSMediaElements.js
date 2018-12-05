@@ -17,18 +17,4 @@ export default function() {
   }
 
   document.createElement = createElement.bind(document);
-
-  const OriginalImage = window.Image;
-  window.Image = function() {
-    const image = new OriginalImage(arguments);
-    setCrossOrigin(image);
-    return image;
-  };
-
-  const OriginalAudio = window.Audio;
-  window.Audio = function() {
-    const audio = new OriginalAudio(arguments);
-    setCrossOrigin(audio);
-    return audio;
-  };
 }
