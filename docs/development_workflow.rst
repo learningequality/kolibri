@@ -15,7 +15,7 @@ At a high level, we follow the 'Gitflow' model. Some helpful references:
 Pull requests
 -------------
 
-Be sure to follow the instructions in the Github PR template.
+Be sure to follow the `instructions <https://github.com/learningequality/kolibri/blob/develop/.github/PULL_REQUEST_TEMPLATE.md>`__ shown in the Github PR template when you `create a new PR <https://github.com/learningequality/kolibri/compare>`__.
 
 Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
 
