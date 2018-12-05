@@ -16,13 +16,15 @@ function webpackConfig(pluginData) {
       minimize: true,
       debug: false,
     }),
+    // requires >= v3.0.0, which is specified in the kolibri-core yarn workspace
+    new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js'),
   ]);
   return pluginBundle;
 }
 
 const buildLogging = logger.getLogger('Kolibri Production Build');
 
-function buildWebpack(data, index, startCallback, doneCallback) {
+function buildWebpack(data, index, startCallback, doneCallback, options) {
   const bundle = webpackConfig(data);
   const compiler = webpack(bundle, (err, stats) => {
     if (stats.hasErrors()) {

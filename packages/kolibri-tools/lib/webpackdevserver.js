@@ -13,22 +13,25 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
 const webpackBaseConfig = require('./webpack.config.base');
+const logger = require('./logging');
 
-const devServerConfig = {
+function genPublicPath(address, port, basePath) {
+  const baseURL = `http://${address}:${port}/`;
+  if (basePath) {
+    return baseURL + basePath + '/';
+  }
+  return baseURL;
+}
+
+const CONFIG = {
   address: 'localhost',
   port: 3000,
   host: '0.0.0.0',
   basePath: 'js-dist',
-  get publicPath() {
-    return (
-      'http://' + this.address + ':' + this.port + '/' + (this.basePath ? this.basePath + '/' : '')
-    );
-  },
 };
 
-function webpackConfig(pluginData) {
+function webpackConfig(pluginData, hot) {
   const pluginBundle = webpackBaseConfig(pluginData);
-
   pluginBundle.devtool = '#cheap-module-source-map';
   pluginBundle.mode = 'development';
   pluginBundle.plugins = pluginBundle.plugins.concat([
@@ -38,54 +41,75 @@ function webpackConfig(pluginData) {
       },
     }),
   ]);
-  pluginBundle.output.path = path.resolve(path.join('./', devServerConfig.basePath));
+  if (hot) {
+    pluginBundle.plugins = pluginBundle.plugins.concat([
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NamedModulesPlugin(), // show correct file names in console on update
+    ]);
+  }
+  pluginBundle.output.path = path.resolve(path.join('./', CONFIG.basePath));
   return pluginBundle;
 }
 
-function buildWebpack(data, index, startCallback, doneCallback) {
-  const bundle = webpackConfig(data);
-  const port = devServerConfig.port + index;
-  const address = devServerConfig.address;
-  const basePath = devServerConfig.basePath;
-  const publicPath = 'http://' + address + ':' + port + '/' + (basePath ? basePath + '/' : '');
-  bundle.output.publicPath = publicPath;
-  const compiler = webpack(bundle);
-  const server = new WebpackDevServer(compiler, {
-    // webpack-dev-server options
+function buildWebpack(data, index, startCallback, doneCallback, options) {
+  const port = CONFIG.port + index;
+  const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
+  const hot = options.hot;
 
-    // contentBase: "http://localhost:3000/",
-    // Can also be an array, or: contentBase: "http://localhost/",
+  // webpack config for this bundle
+  const bundleConfig = webpackConfig(data, hot);
+  bundleConfig.output.publicPath = publicPath;
 
-    // Set this as true if you want to access dev server from arbitrary url.
-    // This is handy if you are using a html5 router.
-    historyApiFallback: false,
+  // Add entry points for hot module reloading
+  // The standard strategy (addDevServerEntrypoints) doesn't work for us. See:
+  //   https://github.com/webpack/webpack-dev-server/issues/1051#issuecomment-443794959
+  if (hot) {
+    // First, turn entry points into an array if it's currently a string:
+    if (typeof bundleConfig.entry[data.name] === 'string') {
+      bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]];
+    } else if (!Array.isArray(bundleConfig.entry[data.name])) {
+      logger.error('Unhandled data type for bundle entries');
+      process.exit(1);
+    }
+    // Next, prepend two hot-reload-related entry points to the config:
+    bundleConfig.entry[data.name].unshift(
+      `webpack-dev-server/client?http://${CONFIG.address}:${port}/`,
+      'webpack/hot/dev-server'
+    );
+  }
 
-    // Set this if you want to enable gzip compression for assets
-    compress: true,
-
-    // webpack-dev-middleware options
+  const compiler = webpack(bundleConfig);
+  const devServerOptions = {
+    hot,
+    host: CONFIG.host,
+    port,
     watchOptions: {
       aggregateTimeout: 300,
       poll: 1000,
     },
-    // It's a required option.
     publicPath,
     stats: 'minimal',
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-  });
+  };
+
+  const server = new WebpackDevServer(compiler, devServerOptions);
+
   compiler.hooks.compile.tap('Process', startCallback);
   compiler.hooks.done.tap('Process', doneCallback);
   server.use('/__open-in-editor', openInEditor());
+  server.listen(port, CONFIG.host, () => {
+    logger.info(`webpack dev server listening on port ${port}`);
+  });
 
-  server.listen(port, devServerConfig.host, function() {});
   return compiler;
 }
 
 if (require.main === module) {
   const data = JSON.parse(process.env.data);
   const index = JSON.parse(process.env.index);
+  const options = JSON.parse(process.env.options);
   buildWebpack(
     data,
     index,
@@ -94,7 +118,8 @@ if (require.main === module) {
     },
     () => {
       process.send('done');
-    }
+    },
+    options
   );
 }
 
