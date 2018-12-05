@@ -42,12 +42,12 @@ PR process:
 - [ ] PR has 'needs review' or 'work-in-progress' label
 - [ ] If PR is ready for review, a reviewer has been added. (Don't use 'Assignees')
 - [ ] If this is an important user-facing change, PR or related issue has a 'changelog' label
+- [ ] If this includes an internal dependency change, a link to the diff is provided
 
 Testing:
 
 - [ ] Contributor has fully tested the PR manually
 - [ ] If there are any front-end changes, before/after screenshots are included
-- [ ] If this includes an internal dependency change, a link to the diff is provided
 - [ ] Gherkin stories have been updated
 - [ ] Unit tests have been updated
 
