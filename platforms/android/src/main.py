@@ -99,9 +99,13 @@ class Application(pew.ui.PEWApp):
     def wait_for_server(self):
         from kolibri.utils import server
         running = False
+        saved_state = self.webview.get_view_state()
+        home_url = 'http://localhost:5000'
         while not running:
             try:
-                url = 'http://localhost:5000'
+                url = home_url
+                if "URL" in saved_state and saved_state["URL"].startswith(home_url):
+                    url = saved_state["URL"]
                 result = urllib2.urlopen(url)
                 running = True
                 pew.ui.run_on_main_thread(self.webview.load_url(url))
