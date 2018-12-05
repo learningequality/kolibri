@@ -6,7 +6,7 @@ CONTAINER_NAME=android_container
 # create the container to be used throughout the script
 echo -ne "Creating container ${CONTAINER_NAME} \n\t id: "
 docker create -t --name ${CONTAINER_NAME} \
-  --mount type=bind,src=${PWD}/src,dst=${CONTAINER_HOME}/src \
+  --mount type=bind,src=${PWD}/whl,dst=${CONTAINER_HOME}/whl \
   --mount type=bind,src=${PWD}/scripts,dst=${CONTAINER_HOME}/scripts \
   --env P4A_RELEASE_KEYSTORE=${CONTAINER_HOME} \
   --env P4A_RELEASE_KEYALIAS=${P4A_RELEASE_KEYALIAS} \
