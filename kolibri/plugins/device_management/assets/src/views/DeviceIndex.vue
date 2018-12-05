@@ -4,8 +4,9 @@
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
     :immersivePagePrimary="true"
-    :immersivePageRoute="exitWizardLink"
-    :toolbarTitle="toolbarTitle"
+    :immersivePageRoute="immersivePageRoute"
+    :immersivePageIcon="immersivePageIcon"
+    :toolbarTitle="currentPageAppBarTitle"
     :showSubNav="canManageContent && !currentPageIsImmersive"
   >
     <DeviceTopNav slot="sub-nav" />
@@ -28,7 +29,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
@@ -59,37 +59,29 @@
     computed: {
       ...mapGetters(['canManageContent']),
       ...mapState(['pageName', 'welcomeModalVisible']),
-      ...mapState('manageContent', ['toolbarTitle']),
-      inContentManagementPage() {
-        return [
-          ContentWizardPages.AVAILABLE_CHANNELS,
-          ContentWizardPages.SELECT_CONTENT,
-          PageNames.MANAGE_CONTENT_PAGE,
-        ].includes(this.pageName);
-      },
-      DEVICE: () => TopLevelPageNames.DEVICE,
+      ...mapState('coreBase', ['appBarTitle']),
+      ...mapGetters('coreBase', [
+        'currentPageIsImmersive',
+        'immersivePageIcon',
+        'immersivePageRoute',
+        'inContentManagementPage',
+      ]),
       currentPage() {
         return pageNameComponentMap[this.pageName];
       },
-      currentPageIsImmersive() {
-        // TODO make user-permissions-page immersive too
-        return (
-          this.pageName === ContentWizardPages.AVAILABLE_CHANNELS ||
-          this.pageName === ContentWizardPages.SELECT_CONTENT
-        );
-      },
       currentPageAppBarTitle() {
-        return this.toolbarTitle || this.$tr('deviceManagementTitle');
-      },
-      exitWizardLink() {
-        return {
-          name: PageNames.MANAGE_CONTENT_PAGE,
-        };
+        return this.appBarTitle || this.$tr('deviceManagementTitle');
       },
     },
     watch: {
       inContentManagementPage(val) {
         return val ? this.startTaskPolling() : this.stopTaskPolling();
+      },
+      currentPageIsImmersive(val) {
+        // If going to a non-immersive page, reset the state to show normal Toolbar
+        if (!val) {
+          this.$store.commit('coreBase/SET_APP_BAR_TITLE', '');
+        }
       },
     },
     mounted() {

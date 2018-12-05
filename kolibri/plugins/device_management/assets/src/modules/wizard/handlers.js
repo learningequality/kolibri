@@ -165,7 +165,7 @@ export function showSelectContentPage(store, params) {
   store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('manageContent/SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
+  store.commit('coreBase/SET_APP_BAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
