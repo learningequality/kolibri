@@ -11,6 +11,7 @@ Frontend architecture
   vuex
   dependencies
   unit_testing
+  frontend_build_pipeline
 
 
 apps

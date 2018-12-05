@@ -24,5 +24,4 @@ Table of contents
   release_process
   i18n
   manual_testing
-  pipeline/index
   changelog
