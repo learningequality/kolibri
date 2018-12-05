@@ -34,6 +34,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "kolibri-tools": "0.12.0-dev.1"
+    "kolibri-tools": "0.12.0-dev.1",
+    "responselike": "^1.0.2"
   }
 }

@@ -6,9 +6,6 @@
   "author": "Learning Equality",
   "license": "MIT",
   "private": false,
-  "scripts": {
-    "build": "node ./build/index.js"
-  },
   "dependencies": {
     "clipboard": "^2.0.1",
     "css-element-queries": "1.0.1",

@@ -73,7 +73,7 @@ program
     list,
     []
   )
-  .option('-m, --multi', 'Run using multiple cores to improve build speed', false)
+  .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .action(function(mode, options) {
     const { fork } = require('child_process');
@@ -110,7 +110,7 @@ program
       program.help();
       process.exit(1);
     }
-    const multi = options.multi || process.env.KOLIBRI_BUILD_MULTI;
+    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE;
 
     if (options.hot && mode != modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
@@ -133,6 +133,7 @@ program
       [modes.DEV]: 'webpackdevserver.js',
       [modes.I18N]: 'i18n.js',
       [modes.STATS]: 'bundleStats.js',
+      [modes.CLEAN]: 'clean.js',
     }[mode];
 
     const modulePath = path.resolve(__dirname, buildModule);
@@ -192,7 +193,7 @@ program
     }
 
     if (mode === modes.CLEAN) {
-      const clean = require('./clean');
+      const clean = require(modulePath);
       clean(bundleData);
     } else if (mode === modes.STATS) {
       spawnWebpackProcesses({

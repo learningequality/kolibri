@@ -17,12 +17,12 @@ const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
-const WebpackMessages = require('webpack-messages');
 const extract$trs = require('./extract_$trs');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
 const { kolibriName } = require('./kolibriName');
+const WebpackMessages = require('./webpackMessages');
 
 const production = process.env.NODE_ENV === 'production';
 

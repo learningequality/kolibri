@@ -1,4 +1,5 @@
 /* These units were not available in the default Pure grids */
+/* stylelint-disable number-no-trailing-zeros */
 
 .pure-u-1-7,
 .pure-u-2-7,
@@ -76,8 +77,9 @@
   *width: 85.6832%;
 }
 
+/* prettier-ignore */
 .pure-u-7-7 {
-  width: 100%;
+  width: 100.0%;
   *width: 99.969%;
 }
 
@@ -121,58 +123,69 @@
   *width: 88.8578%;
 }
 
+/* prettier-ignore */
 .pure-u-9-9 {
-  width: 100%;
+  width: 100.0%;
   *width: 99.969%;
 }
 
+/* prettier-ignore */
 .pure-u-1-10 {
-  width: 10%;
+  width: 10.0%;
   *width: 9.969%;
 }
 
+/* prettier-ignore */
 .pure-u-2-10 {
-  width: 20%;
+  width: 20.0%;
   *width: 19.969%;
 }
 
+/* prettier-ignore */
 .pure-u-3-10 {
-  width: 30%;
+  width: 30.0%;
   *width: 29.969%;
 }
 
+/* prettier-ignore */
 .pure-u-4-10 {
-  width: 40%;
+  width: 40.0%;
   *width: 39.969%;
 }
 
+/* prettier-ignore */
 .pure-u-5-10 {
-  width: 50%;
+  width: 50.0%;
   *width: 49.969%;
 }
 
+/* prettier-ignore */
 .pure-u-6-10 {
-  width: 60%;
+  width: 60.0%;
   *width: 59.969%;
 }
 
+/* prettier-ignore */
 .pure-u-7-10 {
-  width: 70%;
+  width: 70.0%;
   *width: 69.969%;
 }
 
+/* prettier-ignore */
 .pure-u-8-10 {
-  width: 80%;
+  width: 80.0%;
   *width: 79.969%;
 }
 
+/* prettier-ignore */
 .pure-u-9-10 {
-  width: 90%;
+  width: 90.0%;
   *width: 89.969%;
 }
 
+/* prettier-ignore */
 .pure-u-10-10 {
-  width: 100%;
+  width: 100.0%;
   *width: 99.969%;
 }
 
@@ -221,12 +234,15 @@
   *width: 81.7871%;
 }
 
+/* prettier-ignore */
 .pure-u-10-11 {
-  width: 90.909%;
-  *width: 90.878%;
+  width: 90.9090%;
+  *width: 90.8780%;
 }
 
+/* prettier-ignore */
 .pure-u-11-11 {
-  width: 100%;
+  width: 100.0%;
   *width: 99.969%;
 }
+/* stylelint-enable */

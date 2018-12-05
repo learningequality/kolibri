@@ -1,7 +1,0 @@
-{
-  "name": "demo_server",
-  "version": "0.0.1",
-  "description": "Kolibri's plugin for demo server functionality",
-  "private": true,
-  "dependencies": {}
-}

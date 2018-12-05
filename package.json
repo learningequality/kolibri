@@ -26,9 +26,8 @@
     "lint:fix": "yarn run lint -w",
     "lint:watch": "yarn lint:fix -m",
     "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",
-    "build-kolibri": "yarn workspace kolibri run build",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build",
-    "build-packages": "npm-run-all build-kolibri build-kolibri-tools",
+    "build-packages": "yarn run build-kolibri-tools",
     "publish-packages": "node ./packages/publish.js"
   },
   "repository": {
@@ -44,8 +43,6 @@
   "dependencies": {},
   "devDependencies": {
     "kolibri-tools": "0.12.0-dev.1",
-    "responselike": "^1.0.2",
-    "stylelint-scss": "^3.3.2",
     "yarn-run-all": "^3.1.1"
   },
   "optionalDependencies": {

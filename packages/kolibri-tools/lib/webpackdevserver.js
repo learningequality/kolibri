@@ -88,7 +88,8 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
       poll: 1000,
     },
     publicPath,
-    stats: 'minimal',
+    stats: 'none',
+    quiet: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

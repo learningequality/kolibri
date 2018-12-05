@@ -1,8 +1,7 @@
-/* Build file for kolibri-tools */
+/* Build file for kolibri-tools and kolibri */
 const path = require('path');
 const { __buildKolibriName } = require('./lib/kolibriName');
 const { __builder } = require('./lib/apiSpecExportTools');
-const versionTools = require('./lib/version');
 
 /*
  * Step 1: Generate a local copy of the KOLIBRI_CORE_JS_NAME file
@@ -15,3 +14,9 @@ __buildKolibriName();
  */
 
 __builder.buildApiSpec();
+
+/*
+ * Step 3: Generate the exported copy of the Core API itself, to constitute the `kolibri` package.
+ */
+
+__builder.exportApiSpec(path.resolve(__dirname, '../kolibri'));
