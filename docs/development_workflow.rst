@@ -84,39 +84,10 @@ Within the learning equality repository:
 If a change needs to be introduced to an older release, target the oldest release branch that we want the change made in. Then that change will need to be merged into all subsequent releases, one-at-a-time, until it eventually gets back to ``develop``.
 
 
-Github Labels
+Github labels
 -------------
 
 We use a `wide range of labels <https://github.com/learningequality/kolibri/labels>`__ to help organize issues and pull requests in the Kolibri repo.
-
-Changelog
-~~~~~~~~~
-
-The **changelog** label is used on PRs or issues to generate 'more details' links in the :ref:`changelog`.
-
-
-PR Lifecycle
-~~~~~~~~~~~~
-
-These labels help coordinate code reviews and our pull-request workflow. A PR should always have exactly one of these labels:
-
-* **PR: needs review**
-* **PR: needs updates**
-* **PR: work-in-progress**
-
-
-Development Category
-~~~~~~~~~~~~~~~~~~~~
-
-Used to help organize issues and sometimes PRs by area of responsibility or scope of domain knowledge necessary. They are not mutually exclusive.
-
-* **DEV: backend**
-* **DEV: content renderers**
-* **DEV: content**
-* **DEV: dev-ops**
-* **DEV: distributions**
-* **DEV: frontend**
-* **DEV: performance**
 
 
 Priority
@@ -132,29 +103,31 @@ Only 'critical' items are strictly blockers for a release, but typically all imp
 * **P3 - low**
 
 
-Task types
-~~~~~~~~~~
+Changelog
+~~~~~~~~~
 
-These labels are generally used to categorize issues by the *outcome* of closing the issue. They are not necessarily mutually exclusive, but often are.
-
-* **TASK: bug fix**
-* **TASK: gherkin update**
-* **TASK: new feature**
-* **TASK: style guide update**
-* **TASK: tech update**
-* **TASK: update dev docs**
-* **TASK: ux update**
+The **changelog** label is used on PRs or issues to generate 'more details' links in the :ref:`changelog`.
 
 
-General-purpose Tags
+Work-in-progress
+~~~~~~~~~~~~~~~~
+
+The **work-in-progress** label is helpful if you have a PR open that's not ready for review yet.
+
+
+Development category
 ~~~~~~~~~~~~~~~~~~~~
 
-These tags can be applied to either issues or PRs to help with general organization
+Labels prefixed with **DEV:** are used to help organize issues (and sometimes PRs) by area of responsibility or scope of domain knowledge necessary.
 
-* **TAG: beginner issue**
-* **TAG: dev experience**
-* **TAG: needs design**
-* **TAG: needs details**
-* **TAG: tech debt**
-* **TAG: user strings**
 
+TODO items
+~~~~~~~~~~
+
+Labels prefixed with  **TODO:** help flag items that need some action before the issue or PR can be fully resolved.
+
+
+Organizational Tags
+~~~~~~~~~~~~~~~~~~~
+
+Labels prefixed with **TAG:** are general-purpose, and are used to help organize issues and PRs.
