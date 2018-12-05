@@ -3,7 +3,7 @@ Single-page Apps
 
 The Kolibri frontend is made of a few high-level "app" plugins, which are single-page JS applications (conventionally *app.js*) with their own base URL and a single root Vue.js component. Examples of apps are 'Learn' and 'User Management'. Apps are independent of each other, and can only reference components and styles from within themselves and from core.
 
-Each app is implemented as a Kolibri plugin (see :doc:`/architecture/plugins`), and is defined in a subdirectory of *kolibri/plugins*.
+Each app is implemented as a Kolibri plugin (see :doc:`/backend_architecture/plugins`), and is defined in a subdirectory of *kolibri/plugins*.
 
 On the Server-side, the ``kolibri_plugin.py`` file describes most of the configuration for the single-page app. In particular, this includes the base Django HTML template to return (with an empty ``<body>``), the URL at which the app is exposed, and the javascript entry file which is run on load.
 
