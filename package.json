@@ -23,6 +23,7 @@
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
     "lint": "kolibri-tools lint",
+    "lint-all": "yarn run lint '{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}' -i '**/node_modules/**','**/static/**','**/packages/kolibri/**'",
     "lint:fix": "yarn run lint -w",
     "lint:watch": "yarn lint:fix -m",
     "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",

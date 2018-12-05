@@ -7,7 +7,6 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import merge from 'lodash/merge';
 import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';

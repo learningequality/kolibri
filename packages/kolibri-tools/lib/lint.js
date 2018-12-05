@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const prettier = require('prettier');
 const compiler = require('vue-template-compiler');
-const ESLinter = require('eslint').Linter;
+const ESLintCLIEngine = require('eslint').CLIEngine;
 const HTMLHint = require('htmlhint').HTMLHint;
 const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
@@ -19,7 +19,10 @@ require('./htmlhint_custom');
 
 const logging = logger.getLogger('Kolibri linter');
 
-const esLinter = new ESLinter();
+const esLinter = new ESLintCLIEngine({
+  baseConfig: esLintConfig,
+  fix: true,
+});
 
 // Initialize a stylelint linter for each style file type that we support
 // Create them here so that we can reuse, rather than creating many many objects.
@@ -38,17 +41,21 @@ const noChange = 0;
   Surround style and script blocks by 2 new lines and ident.
 */
 function indentAndAddNewLines(str) {
-  str = str.replace(/^(\n)*/, '\n\n');
-  str = str.replace(/(\n)*$/, '\n\n');
-  str = str.replace(/(.*\S.*)/g, '  $1');
-  return str;
+  if (str) {
+    str = str.replace(/^(\n)*/, '\n\n');
+    str = str.replace(/(\n)*$/, '\n\n');
+    str = str.replace(/(.*\S.*)/g, '  $1');
+    return str;
+  }
 }
 
 function insertContent(source, block, formatted) {
-  const start = block.start;
-  const end = block.end;
-  const indented = indentAndAddNewLines(formatted);
-  return source.replace(source.slice(start, end), indented);
+  if (source) {
+    const start = block.start;
+    const end = block.end;
+    const indented = indentAndAddNewLines(formatted);
+    return source.replace(source.slice(start, end), indented);
+  }
 }
 
 function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
@@ -64,7 +71,16 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
       let promises = []; // Array of promises that we need to let resolve before finishing up.
       let notSoPretty = false;
       let lineOffset;
-      const options = (parser, vue = false) => {
+      function eslint(code) {
+        const esLintOutput = esLinter.executeOnText(code, file);
+        const result = esLintOutput.results[0];
+        if (result && result.messages.length) {
+          result.filePath = file;
+          messages.push(esLintFormatter([result]));
+        }
+        return (result && result.output) || code;
+      }
+      function prettierFormat(code, parser, vue = false) {
         const options = Object.assign(
           {
             filepath: file,
@@ -79,18 +95,20 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           // components. So here we account for those 2 spaces that will be added.
           options.printWidth -= 2;
         }
-        return options;
-      };
-      function eslint(code) {
-        const esLintOutput = esLinter.verifyAndFix(code, esLintConfig, { filename: file });
-        let linted = esLintOutput.output;
-        if (esLintOutput.messages.length) {
-          messages.push(esLintFormatter([esLintOutput]));
+        let linted = code;
+        try {
+          linted = prettier.format(code, options);
+        } catch (e) {
+          messages.push(
+            `${colors.underline(file)}\n${colors.red(
+              'Parsing error during prettier formatting:'
+            )}\n${e.message}`
+          );
         }
         return linted;
       }
       function lintStyle(code, style, { lineOffset = 0, vue = false } = {}) {
-        let linted = prettier.format(code, options(style));
+        let linted = prettierFormat(code, style, vue);
         if (linted.trim() !== code.trim()) {
           notSoPretty = true;
         }
@@ -126,7 +144,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         }
         // Raw JS
         if (extension === 'js') {
-          formatted = prettier.format(source, options('babylon'));
+          formatted = prettierFormat(source, 'babylon');
           if (formatted !== source) {
             notSoPretty = true;
           }
@@ -151,7 +169,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
             block = vueComponent.script;
 
             const js = block.content;
-            let formattedJs = prettier.format(js, options('babylon', true));
+            let formattedJs = prettierFormat(js, 'babylon', true);
             formatted = insertContent(formatted, block, formattedJs);
             if (formattedJs.trim() !== js.trim()) {
               notSoPretty = true;

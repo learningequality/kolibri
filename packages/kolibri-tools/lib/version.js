@@ -10,19 +10,20 @@ function getVersion(prompt = false) {
 
   // Extract the relevant version information from the Python code.
 
-  // For reasons unknown, there is an extra /usr/bin injected into PATH while running execSync, which
-  // by-passes the virtualenv!
+  // For reasons unknown, there is an extra /usr/bin injected into PATH while
+  // running execSync, which by-passes the virtualenv!
 
   // Refs: https://github.com/yarnpkg/yarn/issues/5874
   // See PR: https://github.com/learningequality/kolibri/pull/3777
 
   // You can debug it like this:
   //     execSync("PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')\":/usr/bin\" which python >&2 && exit 1", {env: process.env});
-  // ..hence, we have manipulated the path in the shell command to remove Node's unwanted manipulation
+  // ..hence, we have manipulated the path in the shell command to remove Node's
+  // unwanted manipulation
   const command = `python -c "import kolibri; print(kolibri.__version__)" > ${filename}`;
 
   if (process.platform !== 'win32') {
-    execSync(`PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')\":/usr/bin\" ${command}`);
+    execSync(`PATH=$(echo $PATH | sed 's/\\/usr\\/bin://g')":/usr/bin" ${command}`);
   } else {
     execSync(command);
   }

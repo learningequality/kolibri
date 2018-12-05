@@ -91,7 +91,6 @@
     "npm": ">= 3"
   },
   "devDependencies": {
-    "gitignore-parser": "^0.0.2",
     "readline-sync": "^1.4.9"
   }
 }

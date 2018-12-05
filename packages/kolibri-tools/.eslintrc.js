@@ -18,9 +18,6 @@ module.exports = {
         node: true,
         jest: true,
       },
-      parserOptions: {
-        ecmaVersion: 8,
-      },
     },
   ],
   parserOptions: {
@@ -34,6 +31,7 @@ module.exports = {
     __version: true,
     __filename: true,
     __copyrightYear: true,
+    __kolibriModuleName: true,
   },
   extends: [
     'eslint:recommended',

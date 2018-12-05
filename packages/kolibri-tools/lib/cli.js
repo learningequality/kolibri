@@ -217,10 +217,7 @@ program
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [
-    '**/node_modules/**',
-    '**/static/**',
-  ])
+  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
   .action(function(args, options) {
     const files = [];
     if (!(args instanceof program.Command)) {
@@ -229,7 +226,8 @@ program
       options = args;
     }
     if (!files.length) {
-      files.push('{kolibri*/**/assets,packages}/**/*.{js,vue,scss,less,css}');
+      cliLogging.error('Must specify files or glob patterns to lint!');
+      process.exit(1);
     }
     const glob = require('glob');
     const { logging, lint, noChange } = require('./lint');
@@ -258,6 +256,7 @@ program
                     return formatted.code;
                   })
                   .catch(error => {
+                    logging.error(`Error processing file: ${globbedFile}`);
                     logging.error(error.error ? error.error : error);
                     return error.code;
                   });

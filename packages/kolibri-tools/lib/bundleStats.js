@@ -8,7 +8,7 @@ const buildLogging = logger.getLogger('Kolibri Build Stats');
 
 const basePort = 8889;
 
-function buildWebpack(data, index, startCallback, doneCallback, options) {
+function buildWebpack(data, index, startCallback, doneCallback) {
   const bundle = webpackConfig(data);
   const compiler = webpack(bundle, (err, stats) => {
     if (stats.hasErrors()) {

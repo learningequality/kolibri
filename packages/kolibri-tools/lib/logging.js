@@ -15,6 +15,7 @@ var logging = {
    */
   prefix: 'Kolibri: ',
   log(msg, color, prefixed = true) {
+    /* eslint-disable no-console */
     if (color && prefixed) {
       console.log(color(this.prefix + msg));
     } else if (color) {
@@ -22,6 +23,7 @@ var logging = {
     } else {
       console.log(msg);
     }
+    /* eslint-enable no-console */
   },
   /** Warn logging. */
   warn(msg) {
