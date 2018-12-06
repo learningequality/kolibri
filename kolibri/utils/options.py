@@ -130,6 +130,7 @@ def get_logger(KOLIBRI_HOME):
             'kolibri': {
                 'handlers': ['console', 'file'],
                 'level': 'INFO',
+                'propagate': False,
             },
         }
     }

@@ -1,12 +1,12 @@
-Architecture
-============
+Backend architecture
+====================
 
 .. toctree::
   :maxdepth: 1
 
-  frontend_architecture/index
-  dataflow/index
   content/index
   uap/index
   logger/index
   plugins
+  dist_build_pipeline
+  upgrade

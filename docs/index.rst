@@ -2,13 +2,8 @@
 Developer Guide
 ===============
 
-First of all, please read :ref:`our getting started guide <getting_started>`
-to learn about :ref:`setting up your development environment <dev_env_intro>`,
-:ref:`a nice development workflow <workflow_intro>` and
-:ref:`our tech stack <stack>`.
-
-If you are looking for help installing, configuring and using Kolibri,
-please refer to the `Kolibri User Guide <https://kolibri.rtfd.io>`__.
+These docs are for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri,
+please refer to the `User Guide <https://kolibri.readthedocs.io/>`__.
 
 .. include:: ../README.rst
 
@@ -17,10 +12,16 @@ Table of contents
 =================
 
 .. toctree::
-   :maxdepth: 2
+  :maxdepth: 2
 
-   start/index
-   architecture/index
-   references/index
-   pipeline/index
-   changelog
+  contributing/index
+  getting_started
+  stack
+  frontend_architecture/index
+  backend_architecture/index
+  dataflow/index
+  development_workflow
+  release_process
+  i18n
+  manual_testing
+  changelog

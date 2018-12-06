@@ -46,7 +46,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
@@ -175,7 +174,6 @@
         examPreviewCompletionData: state => state.preview.completionData,
       }),
 
-      topLevelPageName: () => TopLevelPageNames.COACH,
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
       },

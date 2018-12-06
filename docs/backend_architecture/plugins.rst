@@ -23,7 +23,7 @@ Kolibri Javascript code. Each of these Javascript plugins are defined in the `ko
 ``KolibriFrontEndPluginBase`` class to define each frontend Kolibri module. This defines the base Javascript file that
 defines the Kolibri module. In addition, this Plugin object within the app will automatically add these Kolibri modules
 to an internal frontend asset registry for loading in the front end. For more information on developing frontend code
-for Kolibri please see :doc:`/architecture/frontend_architecture/index`.
+for Kolibri please see :doc:`/frontend_architecture/index`.
 
 Plugins can be standalone Django apps in their own right, meaning they can define templates, models, new urls, and
 views just like any other app. However the API for all of this hasn't yet been determined... Coming soon!
