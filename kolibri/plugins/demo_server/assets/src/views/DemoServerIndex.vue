@@ -110,6 +110,7 @@
     margin: 0 auto;
     overflow-y: auto;
     background: $core-bg-light;
+    box-shadow: 0 2px 50px rgba(0, 0, 0, 1);
   }
 
   .banner-inner {
