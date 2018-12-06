@@ -1,5 +1,5 @@
 import Store from 'kolibri.coreVue.vuex.store';
-import { Resource } from '../api-resource';
+import { Resource } from 'kolibri.lib.apiResource';
 
 /**
  * TODO

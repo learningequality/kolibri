@@ -7,7 +7,6 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import merge from 'lodash/merge';
 import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
@@ -43,10 +42,6 @@ export default class CoreApp {
   constructor() {
     // Assign API spec
     Object.assign(this, apiSpec);
-
-    // Assign any overridden core API elements here
-    // Use the default object if it has been specified using an ES6 default export.
-    merge(this, __coreAPISpec.default || __coreAPISpec);
 
     const mediator = new Mediator();
 

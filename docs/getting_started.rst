@@ -163,11 +163,17 @@ To start up the development server and build the client-side dependencies, use t
 
   (kolibri)$ yarn run devserver
 
+Alternatively, you can run the devserver with `hot reload <https://vue-loader.vuejs.org/guide/hot-reload.html>`__ enabled using:
+
+.. code-block:: bash
+
+  (kolibri)$ yarn run devserver-hot
+
 If this does not work, you should run the commands it is invoking in two separate terminal windows, the first runs the django development server:
 
 .. code-block:: bash
 
-  (kolibri)$ kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev
+  (kolibri)$ kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
 
 The second runs the webpack build process for frontend assets in 'watch' mode, meaning they will be automatically rebuilt if you modify them.
 

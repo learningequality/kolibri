@@ -158,9 +158,14 @@ def kolibri_set_urls(context):
     js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
     js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
     js = (js_reverse_inline(context) +
-          "Object.assign({0}.urls, {1}.{2})".format(conf.KOLIBRI_CORE_JS_NAME,
-                                                    js_global_object_name,
-                                                    js_var_name))
+          """
+          Object.assign({kolibri}.urls, {global_object}.{js_var});
+          {kolibri}.urls.__staticURL = '{static_url}';
+          """.format(
+        kolibri=conf.KOLIBRI_CORE_JS_NAME,
+        global_object=js_global_object_name,
+        js_var=js_var_name,
+        static_url=settings.STATIC_URL))
     return mark_safe(js)
 
 

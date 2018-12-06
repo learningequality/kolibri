@@ -1,4 +1,5 @@
 import * as Resources from '../src/api-resource';
+
 jest.mock('kolibri.urls');
 
 describe('Resource', function() {

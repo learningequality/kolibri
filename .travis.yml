@@ -55,13 +55,13 @@ matrix:
         - TOX_ENV=py3.6
     - python: "2.7"
       env:
-        - TOX_ENV=node6.x
+        - TOX_ENV=node10.x
     - python: "3.5"
       env:
         - TOX_ENV=postgres
     - python: "2.7"
       env:
-        - TOX_ENV=npmbuild
+        - TOX_ENV=frontendlint
     - python: "2.7"
       env:
         - TOX_ENV=nocext
@@ -81,8 +81,8 @@ before_install:
   - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
   - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
-  - nvm install 6
-  - nvm use 6
+  - nvm install 10
+  - nvm use 10
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 

@@ -7,7 +7,7 @@ describe('ConditionalPromise', () => {
       const promise = new ConditionalPromise(resolve => {
         resolve();
       });
-      promise.then(fn1).then(() => {
+      return promise.then(fn1).then(() => {
         expect(fn1).toHaveBeenCalled();
       });
     });
@@ -16,7 +16,7 @@ describe('ConditionalPromise', () => {
       const promise = new ConditionalPromise(reject => {
         reject();
       });
-      promise.then(fn1).catch(() => {
+      return promise.then(fn1).catch(() => {
         expect(fn1).not.toHaveBeenCalled();
       });
     });
@@ -25,22 +25,22 @@ describe('ConditionalPromise', () => {
       const promise = new ConditionalPromise(resolve => {
         resolve();
       });
-      promise.only(() => false, fn1).then(() => {
+      return promise.only(() => false, fn1).then(() => {
         expect(fn1).not.toHaveBeenCalled();
       });
     });
-    it('should not execute a subsequent then if a previous only check fails', () => {
+    it('should execute a subsequent then if a previous only check fails', () => {
       const fn1 = jest.fn();
       const fn2 = jest.fn();
       const promise = new ConditionalPromise(resolve => {
         resolve();
       });
-      promise
+      return promise
         .only(() => false, fn1)
         .then(fn2)
         .then(() => {
           expect(fn1).not.toHaveBeenCalled();
-          expect(fn2).not.toHaveBeenCalled();
+          expect(fn2).toHaveBeenCalled();
         });
     });
   });
