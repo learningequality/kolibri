@@ -77,7 +77,7 @@
       demoServerP2:
         'This online demo site includes the features and functionalities of the latest version, but only holds a sample of the content that has been made available for offline use in Kolibri. It is intended for demonstration purposes and any user data on here may be cleared periodically.',
       demoServerP3:
-        'To learn more about using Kolibri, take a look at our and better understand the platform in an offline context:',
+        'To learn more about using Kolibri in an offline context and better understand the platform:',
       demoServerA1: 'Read the documentation',
       demoServerA2: 'Download and install the latest release',
     },
