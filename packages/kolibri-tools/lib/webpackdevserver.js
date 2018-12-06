@@ -52,7 +52,7 @@ function webpackConfig(pluginData, hot) {
 }
 
 function buildWebpack(data, index, startCallback, doneCallback, options) {
-  const port = CONFIG.port + index;
+  const port = (options.port || CONFIG.port) + index;
   const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
   const hot = options.hot;
 

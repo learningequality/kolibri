@@ -18,11 +18,11 @@ function list(val) {
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
-function statsCompletionCallback(bundleData) {
+function statsCompletionCallback(bundleData, options) {
   const express = require('express');
   const http = require('http');
   const host = '127.0.0.1';
-  const rootPort = 8888;
+  const rootPort = options.port || 8888;
   if (bundleData.length > 1) {
     const app = express();
     let response = `<html>
@@ -75,6 +75,7 @@ program
   )
   .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
+  .option('-p, --port', 'Set a port number to start devservers or bundle stats servers on')
   .action(function(mode, options) {
     const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
@@ -112,12 +113,17 @@ program
     }
     const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE;
 
-    if (options.hot && mode != modes.DEV) {
+    if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
       process.exit(1);
     }
 
-    const buildOptions = { hot: options.hot };
+    if (options.port && mode !== modes.DEV && mode !== modes.STATS) {
+      cliLogging.error('Port setting is only used in dev or stats mode');
+      process.exit(1);
+    }
+
+    const buildOptions = { hot: options.hot, port: options.port };
 
     const bundleData = readWebpackJson({
       pluginFile: options.file,
@@ -152,7 +158,7 @@ program
         if (currentlyCompiling === 0) {
           buildLogging.info('All builds complete!');
           if (completionCallback) {
-            completionCallback(bundleData);
+            completionCallback(bundleData, buildOptions);
           }
         }
       }
