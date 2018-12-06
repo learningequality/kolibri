@@ -15,6 +15,8 @@ At a high level, we follow the 'Gitflow' model. Some helpful references:
 Pull requests
 -------------
 
+Be sure to follow the `instructions <https://github.com/learningequality/kolibri/blob/develop/.github/PULL_REQUEST_TEMPLATE.md>`__ shown in the Github PR template when you `create a new PR <https://github.com/learningequality/kolibri/compare>`__.
+
 Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
 
 Every pull request (with a couple minor exceptions) requires testing, code review, automated tests, and potentially UI design review. Developers must fully test their own code before requesting a review, and then closely follow the template and checklist that appears in the PR description. All automated tests must pass.
@@ -82,3 +84,50 @@ Within the learning equality repository:
 If a change needs to be introduced to an older release, target the oldest release branch that we want the change made in. Then that change will need to be merged into all subsequent releases, one-at-a-time, until it eventually gets back to ``develop``.
 
 
+Github labels
+-------------
+
+We use a `wide range of labels <https://github.com/learningequality/kolibri/labels>`__ to help organize issues and pull requests in the Kolibri repo.
+
+
+Priority
+~~~~~~~~
+
+These are used to sort issues and sometimes PRs by priority if *and only if* the item is assigned a milestone. Every issue in a milestone ought to have a priority label.
+
+Only 'critical' items are strictly blockers for a release, but typically all important items should be expected to make it in, too. Priority within a release is generally assigned by a core Learning Equality team member.
+
+* **P0 - critical**
+* **P1 - important**
+* **P2 - normal**
+* **P3 - low**
+
+
+Changelog
+~~~~~~~~~
+
+The **changelog** label is used on PRs or issues to generate 'more details' links in the :ref:`changelog`.
+
+
+Work-in-progress
+~~~~~~~~~~~~~~~~
+
+The **work-in-progress** label is helpful if you have a PR open that's not ready for review yet.
+
+
+Development category
+~~~~~~~~~~~~~~~~~~~~
+
+Labels prefixed with **DEV:** are used to help organize issues (and sometimes PRs) by area of responsibility or scope of domain knowledge necessary.
+
+
+TODO items
+~~~~~~~~~~
+
+Labels prefixed with  **TODO:** help flag items that need some action before the issue or PR can be fully resolved.
+
+
+Organizational Tags
+~~~~~~~~~~~~~~~~~~~
+
+Labels prefixed with **TAG:** are general-purpose, and are used to help organize issues and PRs.
