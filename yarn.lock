@@ -2606,11 +2606,6 @@ console-browserify@1.1.x, console-browserify@^1.1.0:
   dependencies:
     date-now "^0.1.4"
 
-console-clear@^1.0.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/console-clear/-/console-clear-1.1.1.tgz#995e20cbfbf14dd792b672cde387bd128d674bf7"
-  integrity sha512-pMD+MVR538ipqkG5JXeOEbKWS5um1H4LUUccUQG68qpeqBYbzYy79Gh55jkd2TtPdRfUaLWdv6LPP//5Zt0aPQ==
-
 console-control-strings@^1.0.0, console-control-strings@~1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/console-control-strings/-/console-control-strings-1.1.0.tgz#3d7cf4464db6446ea644bf4b39507f9851008e8e"
@@ -4561,11 +4556,6 @@ github-username@^4.0.0:
   dependencies:
     gh-got "^6.0.0"
 
-gitignore-parser@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/gitignore-parser/-/gitignore-parser-0.0.2.tgz#f61259b985dd91414b9a7168faef9171c2eec5df"
-  integrity sha1-9hJZuYXdkUFLmnFo+u+RccLuxd8=
-
 glob-all@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/glob-all/-/glob-all-3.1.0.tgz#8913ddfb5ee1ac7812656241b03d5217c64b02ab"
@@ -5207,6 +5197,11 @@ ignore@^4.0.0, ignore@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
+
+ignore@^5.0.4:
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.0.4.tgz#33168af4a21e99b00c5d41cbadb6a6cb49903a45"
+  integrity sha512-WLsTMEhsQuXpCiG173+f3aymI43SXa+fB1rSfbzyP4GkPP+ZFVuO0/3sFUGNBtifisPeDcl/uD/Y2NxZ7xFq4g==
 
 immediate@~3.0.5:
   version "3.0.6"
@@ -6623,6 +6618,11 @@ kleur@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-2.0.2.tgz#b704f4944d95e255d038f0cb05fb8a602c55a300"
   integrity sha512-77XF9iTllATmG9lSlIv0qdQ2BQ/h9t0bJllHlbvsQ0zUWfU7Yi0S8L5JXzPZgkefIiajLmBJJ4BsMJmqcf7oxQ==
+
+known-css-properties@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.10.0.tgz#8378a8921e6c815ecc47095744a8900af63d577d"
+  integrity sha512-OMPb86bpVbnKN/2VJw1Ggs1Hw/FNGwEL1QYiNIEHaB5FSLybJ4QD7My5Hm9yDhgpRrRnnOgu0oKeuuABzASeBw==
 
 known-css-properties@^0.9.0:
   version "0.9.0"
@@ -8555,6 +8555,13 @@ postcss-less@^3.0.1:
   dependencies:
     postcss "^7.0.3"
 
+postcss-less@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/postcss-less/-/postcss-less-3.1.0.tgz#0e14a80206b452f44d3a09d082fa72645e8168cc"
+  integrity sha512-+fDH2A9zV8B4gFu3Idhq8ma09/mMBXXc03T2lL9CHjBQqKrfUit+TrQrnojc6Y4k7N4E+tyE1Uj5U1tcoKtXLQ==
+  dependencies:
+    postcss "^7.0.3"
+
 postcss-load-config@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/postcss-load-config/-/postcss-load-config-2.0.0.tgz#f1312ddbf5912cd747177083c5ef7a19d62ee484"
@@ -8761,6 +8768,14 @@ postcss-sass@^0.3.0:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/postcss-sass/-/postcss-sass-0.3.3.tgz#bec188ac285d21ac8feba194c2f327fdda31e671"
   integrity sha512-uoRhfwZJHDRI8p2KQniTx4UwzYwKgQUhmFNJ7aysL3+tgFUfmv5TPX8UPnlE5gfrq6KHUUwPJ/nISFtzwxr7iQ==
+  dependencies:
+    gonzales-pe "^4.2.3"
+    postcss "^7.0.1"
+
+postcss-sass@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/postcss-sass/-/postcss-sass-0.3.5.tgz#6d3e39f101a53d2efa091f953493116d32beb68c"
+  integrity sha512-B5z2Kob4xBxFjcufFnhQ2HqJQ2y/Zs/ic5EZbCywCkxKd756Q40cIQ/veRDwSrw1BF6+4wUgmpm0sBASqVi65A==
   dependencies:
     gonzales-pe "^4.2.3"
     postcss "^7.0.1"
@@ -10129,6 +10144,11 @@ slash@^1.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
   integrity sha1-xB8vbDn8FtHNF61LXYlhFK5HDVU=
 
+slash@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/slash/-/slash-2.0.0.tgz#de552851a1759df3a8f206535442f5ec4ddeab44"
+  integrity sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==
+
 slice-ansi@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/slice-ansi/-/slice-ansi-0.0.4.tgz#edbf8903f66f7ce2f8eafd6ceed65e264c831b35"
@@ -10680,7 +10700,7 @@ stylelint-scss@^3.0.0, stylelint-scss@^3.3.2:
     postcss-selector-parser "^4.0.0"
     postcss-value-parser "^3.3.0"
 
-stylelint@^9.1.1, stylelint@^9.6.0:
+stylelint@^9.1.1:
   version "9.7.0"
   resolved "https://registry.yarnpkg.com/stylelint/-/stylelint-9.7.0.tgz#d43de95ff5f875facfa31f811ea7b749020f1620"
   integrity sha512-3PxEZ/8HKpKvdWWIeFSZ0gdTz1eEHo2IgLcliN7RJtXxCIHdyI44ffaRgxCyQN3sAGWJO41UXOIFyJxfwznIBA==
@@ -10726,6 +10746,60 @@ stylelint@^9.1.1, stylelint@^9.6.0:
     postcss-value-parser "^3.3.0"
     resolve-from "^4.0.0"
     signal-exit "^3.0.2"
+    specificity "^0.4.1"
+    string-width "^2.1.0"
+    style-search "^0.1.0"
+    sugarss "^2.0.0"
+    svg-tags "^1.0.0"
+    table "^5.0.0"
+
+stylelint@^9.9.0:
+  version "9.9.0"
+  resolved "https://registry.yarnpkg.com/stylelint/-/stylelint-9.9.0.tgz#dde466e9b049e0bd30e912ad280f1a2ecf6efdf8"
+  integrity sha512-kIuX0/9/I2mZeHz6EoFt7UpLt7Mz+ic9/PmFwKMdq4BkQHikg3FkcgAElLdAmaI8Au1JEUOS996ZFE+mwXytmA==
+  dependencies:
+    autoprefixer "^9.0.0"
+    balanced-match "^1.0.0"
+    chalk "^2.4.1"
+    cosmiconfig "^5.0.0"
+    debug "^4.0.0"
+    execall "^1.0.0"
+    file-entry-cache "^2.0.0"
+    get-stdin "^6.0.0"
+    global-modules "^1.0.0"
+    globby "^8.0.0"
+    globjoin "^0.1.4"
+    html-tags "^2.0.0"
+    ignore "^5.0.4"
+    import-lazy "^3.1.0"
+    imurmurhash "^0.1.4"
+    known-css-properties "^0.10.0"
+    leven "^2.1.0"
+    lodash "^4.17.4"
+    log-symbols "^2.0.0"
+    mathml-tag-names "^2.0.1"
+    meow "^5.0.0"
+    micromatch "^3.1.10"
+    normalize-selector "^0.2.0"
+    pify "^4.0.0"
+    postcss "^7.0.0"
+    postcss-html "^0.34.0"
+    postcss-jsx "^0.35.0"
+    postcss-less "^3.1.0"
+    postcss-markdown "^0.34.0"
+    postcss-media-query-parser "^0.2.3"
+    postcss-reporter "^6.0.0"
+    postcss-resolve-nested-selector "^0.1.1"
+    postcss-safe-parser "^4.0.0"
+    postcss-sass "^0.3.5"
+    postcss-scss "^2.0.0"
+    postcss-selector-parser "^3.1.0"
+    postcss-styled "^0.34.0"
+    postcss-syntax "^0.34.0"
+    postcss-value-parser "^3.3.0"
+    resolve-from "^4.0.0"
+    signal-exit "^3.0.2"
+    slash "^2.0.0"
     specificity "^0.4.1"
     string-width "^2.1.0"
     style-search "^0.1.0"
@@ -11599,10 +11673,10 @@ vue-html-loader@^1.2.3:
     loader-utils "^1.0.2"
     object-assign "^4.1.0"
 
-vue-intl@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-2.1.1.tgz#ab476d8fdb747ea7c615a0b69c7e3db6e8a5e39f"
-  integrity sha1-q0dtj9t0fqfGFaC2nH49tuil458=
+vue-intl@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-3.0.0.tgz#821cca8d97d7d9451cc2644eb72bf396741c6231"
+  integrity sha512-RdajLjcbTKXgxttQwAiBu7nr8DMJnhjYKqCzhauoY1IxY9vTJT3GbS4lGSzDS8HQdKdIaWNfLnI4dHuj0H0Seg==
   dependencies:
     babel-runtime "^6.26.0"
     intl-format-cache "^2.0.5"
@@ -11905,13 +11979,6 @@ webpack-dev-server@3.1.3:
     webpack-log "^1.1.2"
     yargs "11.0.0"
 
-webpack-format-messages@^2.0.0:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/webpack-format-messages/-/webpack-format-messages-2.0.3.tgz#5a9eebae91a91962c3d1f5d515497e0701532df2"
-  integrity sha512-NjIB6eC3PBz6q7FTxMZ15339LWjyvLHeuJ17HTSV/syLZq71O7p6NS4qDaazUr0Qf8ZnzyVapg49Nxssi/dxcg==
-  dependencies:
-    kleur "^2.0.1"
-
 webpack-hot-middleware@2.12.1:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.12.1.tgz#4257f965e68a6b81da5bdddbd61f89fa9075ef4c"
@@ -11946,15 +12013,6 @@ webpack-merge@^4.1.0:
   integrity sha512-TmSe1HZKeOPey3oy1Ov2iS3guIZjWvMT2BBJDzzT5jScHTjVC3mpjJofgueEzaEd6ibhxRDD6MIblDr8tzh8iQ==
   dependencies:
     lodash "^4.17.5"
-
-webpack-messages@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/webpack-messages/-/webpack-messages-2.0.3.tgz#79b0b39f3d4cedd8459b1747b5db1c8d79c52e22"
-  integrity sha512-yjmuQEhMmDCs33nkY1l+WkfiW1HZikVLut5BiXlUNf9wipeeGHqCIQiFLNZ6rd4ZXGYowSBaHPP5Bu6jM+PoDw==
-  dependencies:
-    console-clear "^1.0.0"
-    kleur "^2.0.1"
-    webpack-format-messages "^2.0.0"
 
 webpack-rtl-plugin@^1.7.0:
   version "1.7.0"

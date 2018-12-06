@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
 const prettier = require('prettier');
@@ -30,7 +29,10 @@ const styleLangs = ['scss', 'css', 'less'];
 const styleLinters = {};
 styleLangs.forEach(lang => {
   styleLinters[lang] = stylelint.createLinter({
-    config: Object.assign({}, stylelintConfig, { syntax: lang }),
+    config: stylelintConfig,
+    syntax: lang,
+    fix: true,
+    configBasedir: path.resolve(__dirname, '..'),
   });
 });
 
@@ -68,7 +70,11 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
       const source = buffer.toString();
       let formatted;
       let messages = [];
-      let promises = []; // Array of promises that we need to let resolve before finishing up.
+      // Array of promises that we need to let resolve before finishing up.
+      let promises = [];
+      // Array of callbacks to call to apply changes to style blocks.
+      // Store for application after linting has completed to prevent race conditions.
+      let styleCodeUpdates = [];
       let notSoPretty = false;
       let lineOffset;
       function eslint(code) {
@@ -107,7 +113,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         }
         return linted;
       }
-      function lintStyle(code, style, { lineOffset = 0, vue = false } = {}) {
+      function lintStyle(code, style, callback, { lineOffset = 0, vue = false } = {}) {
         let linted = prettierFormat(code, style, vue);
         if (linted.trim() !== code.trim()) {
           notSoPretty = true;
@@ -115,12 +121,21 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         // Stylelint's `_lintSource` method requires an absolute path for the codeFilename arg
         const codeFilename = !path.isAbsolute(file) ? path.join(process.cwd(), file) : file;
         promises.push(
-          styleLinters[style]
-            ._lintSource({
+          stylelint
+            .lint({
               code: linted,
               codeFilename,
+              config: stylelintConfig,
+              // For reasons beyond my ken, stylint borks on css files
+              // Fortunately, scss is a superset of css, so this works.
+              syntax: style === 'css' ? 'scss' : style,
+              fix: true,
+              configBasedir: path.resolve(__dirname, '..'),
             })
             .then(output => {
+              if (output.output.trim() !== code.trim()) {
+                styleCodeUpdates.push(() => callback(output.output));
+              }
               if (output.results) {
                 messages.push(
                   stylelintFormatter(
@@ -133,6 +148,9 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
                   )
                 );
               }
+            })
+            .catch(err => {
+              messages.push(err.toString());
             })
         );
         return linted;
@@ -151,7 +169,9 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           formatted = eslint(formatted);
           // Recognized style file
         } else if (styleLangs.some(lang => lang === extension)) {
-          formatted = lintStyle(source, extension);
+          lintStyle(source, extension, updatedCode => {
+            formatted = updatedCode;
+          });
         } else if (extension === 'vue') {
           let block;
           // First lint the whole vue component with eslint
@@ -187,8 +207,12 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (block.content.trim().length > 0) {
                 const start = block.start;
                 lineOffset = formatted.slice(0, start).match(/\n/g || []).length;
-                let formattedScss = lintStyle(block.content, block.lang, { lineOffset, vue: true });
-                formatted = insertContent(formatted, block, formattedScss);
+                const index = i;
+                const callback = updatedCode => {
+                  const block = compiler.parseComponent(formatted).styles[index];
+                  formatted = insertContent(formatted, block, updatedCode);
+                };
+                lintStyle(block.content, block.lang, callback, { lineOffset, vue: true });
               }
             }
           }
@@ -206,6 +230,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           // Get rid of any empty messages
           messages = messages.filter(msg => msg.trim());
           // Wait until any asynchronous tasks have finished
+          styleCodeUpdates.forEach(update => update());
           if ((!formatted || formatted === source) && !messages.length) {
             // Nothing to lint, return the source to be safe.
             resolve({ code: noChange });
@@ -234,7 +259,6 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           }
         })
         .catch(err => {
-          console.log(err);
           // Something went wrong, return the source to be safe.
           reject({ error: err, code: errorOrChange });
           return;
