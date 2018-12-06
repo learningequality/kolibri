@@ -68,7 +68,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         return;
       }
       const source = buffer.toString();
-      let formatted;
+      let formatted = source;
       let messages = [];
       // Array of promises that we need to let resolve before finishing up.
       let promises = [];
@@ -114,16 +114,12 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
         return linted;
       }
       function lintStyle(code, style, callback, { lineOffset = 0, vue = false } = {}) {
-        let linted = prettierFormat(code, style, vue);
-        if (linted.trim() !== code.trim()) {
-          notSoPretty = true;
-        }
-        // Stylelint's `_lintSource` method requires an absolute path for the codeFilename arg
+        // Stylelint's `lint` method requires an absolute path for the codeFilename arg
         const codeFilename = !path.isAbsolute(file) ? path.join(process.cwd(), file) : file;
         promises.push(
           stylelint
             .lint({
-              code: linted,
+              code,
               codeFilename,
               config: stylelintConfig,
               // For reasons beyond my ken, stylint borks on css files
@@ -133,10 +129,8 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               configBasedir: path.resolve(__dirname, '..'),
             })
             .then(output => {
-              if (output.output.trim() !== code.trim()) {
-                styleCodeUpdates.push(() => callback(output.output));
-              }
-              if (output.results) {
+              let stylinted;
+              if (output.results && output.results.length) {
                 messages.push(
                   stylelintFormatter(
                     output.results.map(message => {
@@ -147,13 +141,28 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
                     })
                   )
                 );
+                // There should only be one result, because we have only
+                // passed it a single file, this seems to be the only way
+                // to check if the `output` property of the output object has been set
+                // to valid style code, as opposed to a serialized copy of the formatted
+                // errors.
+                if (output.results[0]._postcssResult) {
+                  stylinted = output.output;
+                }
+              }
+              let linted = prettierFormat(stylinted || code, style, vue);
+
+              if (linted.trim() !== (stylinted || code).trim()) {
+                notSoPretty = true;
+              }
+              if (linted.trim() !== code.trim()) {
+                styleCodeUpdates.push(() => callback(linted));
               }
             })
             .catch(err => {
               messages.push(err.toString());
             })
         );
-        return linted;
       }
       try {
         let extension = path.extname(file);
