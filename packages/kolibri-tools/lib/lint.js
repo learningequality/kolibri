@@ -146,7 +146,12 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
                 // to check if the `output` property of the output object has been set
                 // to valid style code, as opposed to a serialized copy of the formatted
                 // errors.
-                if (output.results[0]._postcssResult) {
+                // We are doing a parallel of the check being done here:
+                // https://github.com/stylelint/stylelint/blob/master/lib/standalone.js#L159
+                if (
+                  output.results[0]._postcssResult &&
+                  !output.results[0]._postcssResult.stylelint.ignored
+                ) {
                   stylinted = output.output;
                 }
               }
