@@ -39,6 +39,11 @@ export const RecentReports = [
   PageNames.RECENT_LEARNER_ITEM_DETAILS,
 ];
 
+// modal names
+export const Modals = {
+  COACH_CREATE_USER: 'COACH_CREATE_USER',
+};
+
 export const TopicReports = [
   PageNames.TOPIC_CHANNELS,
   PageNames.TOPIC_CHANNEL_ROOT,
