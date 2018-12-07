@@ -1,3 +1,4 @@
+import userManagement from '../../../../facility_management/assets/src/modules/userManagement';
 import getters from './coreCoach/getters';
 import * as actions from './coreCoach/actions';
 import examCreation from './examCreation';
@@ -54,6 +55,7 @@ export default {
     lessonResourceUserSummary,
     lessonSummary,
     lessonsRoot,
+    userManagement,
     reports,
   },
 };
