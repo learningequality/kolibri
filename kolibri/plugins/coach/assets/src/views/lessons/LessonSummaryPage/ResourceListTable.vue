@@ -1,42 +1,32 @@
 <template>
 
-  <CoreTable>
-    <thead slot="thead">
-      <tr>
-        <th class="core-table-icon-col">
-          <span class="visuallyhidden">
-            {{ $tr('resourceReorderColumnHeaderForTable') }}
-          </span>
-        </th>
-        <td class="core-table-icon-col">
-          <span class="visuallyhidden">
-            {{ $tr('resourceTypeColumnHeaderForTable') }}
-          </span>
-        </td>
-
-        <th class="core-table-main-col">
-          {{ $tr('lessonTitleColumnHeaderForTable') }}
-        </th>
-        <th>
-          {{ $tr('resourceProgressColumnHeaderForTable') }}
-        </th>
-        <th>
-          <span class="visuallyhidden">
-            {{ $tr('resourceRemovalColumnHeaderForTable') }}
-          </span>
-        </th>
-      </tr>
-    </thead>
+  <div>
+    <KGrid class="headers">
+      <KGridItem size="1">
+        <span class="visuallyhidden">
+          {{ $tr('resourceReorderColumnHeaderForTable') }}
+        </span>
+      </KGridItem>
+      <KGridItem size="6">
+        {{ $tr('lessonTitleColumnHeaderForTable') }}
+      </KGridItem>
+      <KGridItem size="3">
+        {{ $tr('resourceProgressColumnHeaderForTable') }}
+      </KGridItem>
+      <KGridItem size="2">
+        <span class="visuallyhidden">
+          {{ $tr('resourceRemovalColumnHeaderForTable') }}
+        </span>
+      </KGridItem>
+    </KGrid>
     <transition-group
-      slot="tbody"
       name="resource-reorder"
-      tag="tbody"
     >
-      <tr
+      <KGrid
         v-for="(resourceId, index) in workingResources"
         :key="resourceId"
       >
-        <td class="core-table-icon-col">
+        <KGridItem size="1" class="relative">
           <UiIconButton
             type="flat"
             :ariaLabel="$tr('moveResourceUpButtonDescription')"
@@ -55,11 +45,9 @@
           >
             <mat-svg name="keyboard_arrow_down" category="hardware" />
           </UiIconButton>
-        </td>
-        <td class="core-table-icon-col">
-          <ContentIcon :kind="resourceKind(resourceId)" />
-        </td>
-        <td>
+          <ContentIcon :kind="resourceKind(resourceId)" class="type-icon" />
+        </KGridItem>
+        <KGridItem size="6">
           <div class="resource-title">
             <KRouterLink
               :to="resourceUserSummaryLink(resourceId)"
@@ -75,8 +63,8 @@
             :value="getCachedResource(resourceId).num_coach_contents"
             :isTopic="false"
           />
-        </td>
-        <td>
+        </KGridItem>
+        <KGridItem size="3">
           <ProgressBar
             v-if="resourceProgress(resourceId)!==null"
             class="resource-progress-bar"
@@ -87,17 +75,18 @@
           <span class="progress-message">
             {{ resourceProgressMessage(resourceId) }}
           </span>
-        </td>
-        <td>
+
+        </KGridItem>
+        <KGridItem size="2" alignment="right">
           <KButton
             :text="$tr('resourceRemovalButtonLabel')"
             appearance="flat-button"
             @click="removeResource(resourceId)"
           />
-        </td>
-      </tr>
+        </KGridItem>
+      </KGrid>
     </transition-group>
-  </CoreTable>
+  </div>
 
 </template>
 
@@ -107,9 +96,10 @@
   import { mapActions, mapState, mapMutations } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
@@ -122,9 +112,10 @@
       CoachContentLabel,
       UiIconButton,
       KButton,
+      KGrid,
+      KGridItem,
       KRouterLink,
       ProgressBar,
-      CoreTable,
       ContentIcon,
     },
     data() {
@@ -280,6 +271,24 @@
 
   @import '~kolibri.styles.definitions';
 
+  .relative {
+    position: relative;
+  }
+
+  .type-icon {
+    position: absolute;
+    top: 25px;
+    right: 10px;
+  }
+
+  .headers {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    font-size: smaller;
+    font-weight: bold;
+    color: $core-text-annotation;
+  }
+
   .resource-title {
     display: inline-block;
     max-width: 75%;
@@ -299,10 +308,6 @@
   .resource-reorder-move {
     background-color: $core-bg-canvas; // duping color set in core-table for selected
     transition: transform 0.5s;
-  }
-
-  .lesson-summary {
-    margin-bottom: 30px;
   }
 
   .progress-message {
