@@ -19,73 +19,76 @@
         </span>
       </KGridItem>
     </KGrid>
-    <transition-group
-      name="resource-reorder"
+    <Draggable
+      :value="workingResources"
+      @input="handleDrag($event)"
     >
-      <KGrid
-        v-for="(resourceId, index) in workingResources"
-        :key="resourceId"
-      >
-        <KGridItem size="1" class="relative">
-          <UiIconButton
-            type="flat"
-            :ariaLabel="$tr('moveResourceUpButtonDescription')"
-            :disabled="index === 0"
-            class="position-adjustment-button"
-            @click="moveUpOne(index)"
-          >
-            <mat-svg name="keyboard_arrow_up" category="hardware" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
-            :ariaLabel="$tr('moveResourceDownButtonDescription')"
-            :disabled="index === (workingResources.length - 1)"
-            class="position-adjustment-button"
-            @click="moveDownOne(index)"
-          >
-            <mat-svg name="keyboard_arrow_down" category="hardware" />
-          </UiIconButton>
-          <ContentIcon :kind="resourceKind(resourceId)" class="type-icon" />
-        </KGridItem>
-        <KGridItem size="6">
-          <div class="resource-title">
-            <KRouterLink
-              :to="resourceUserSummaryLink(resourceId)"
-              :text="resourceTitle(resourceId)"
+      <transition-group name="resource-reorder">
+        <KGrid
+          v-for="(resourceId, index) in workingResources"
+          :key="resourceId"
+        >
+          <KGridItem size="1" class="relative">
+            <UiIconButton
+              type="flat"
+              :ariaLabel="$tr('moveResourceUpButtonDescription')"
+              :disabled="index === 0"
+              class="position-adjustment-button"
+              @click="moveUpOne(index)"
+            >
+              <mat-svg name="keyboard_arrow_up" category="hardware" />
+            </UiIconButton>
+            <UiIconButton
+              type="flat"
+              :ariaLabel="$tr('moveResourceDownButtonDescription')"
+              :disabled="index === (workingResources.length - 1)"
+              class="position-adjustment-button"
+              @click="moveDownOne(index)"
+            >
+              <mat-svg name="keyboard_arrow_down" category="hardware" />
+            </UiIconButton>
+            <ContentIcon :kind="resourceKind(resourceId)" class="type-icon" />
+          </KGridItem>
+          <KGridItem size="6">
+            <div class="resource-title">
+              <KRouterLink
+                :to="resourceUserSummaryLink(resourceId)"
+                :text="resourceTitle(resourceId)"
+              />
+              <p dir="auto" class="channel-title">
+                <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+                {{ resourceChannelTitle(resourceId) }}
+              </p>
+            </div>
+            <CoachContentLabel
+              class="coach-content-label"
+              :value="getCachedResource(resourceId).num_coach_contents"
+              :isTopic="false"
             />
-            <p dir="auto" class="channel-title">
-              <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-              {{ resourceChannelTitle(resourceId) }}
-            </p>
-          </div>
-          <CoachContentLabel
-            class="coach-content-label"
-            :value="getCachedResource(resourceId).num_coach_contents"
-            :isTopic="false"
-          />
-        </KGridItem>
-        <KGridItem size="3">
-          <ProgressBar
-            v-if="resourceProgress(resourceId)!==null"
-            class="resource-progress-bar"
-            :progress="resourceProgress(resourceId)"
-            :showPercentage="false"
-          />
-          <!-- could just use progress bar's? -->
-          <span class="progress-message">
-            {{ resourceProgressMessage(resourceId) }}
-          </span>
+          </KGridItem>
+          <KGridItem size="3">
+            <ProgressBar
+              v-if="resourceProgress(resourceId)!==null"
+              class="resource-progress-bar"
+              :progress="resourceProgress(resourceId)"
+              :showPercentage="false"
+            />
+            <!-- could just use progress bar's? -->
+            <span class="progress-message">
+              {{ resourceProgressMessage(resourceId) }}
+            </span>
 
-        </KGridItem>
-        <KGridItem size="2" alignment="right">
-          <KButton
-            :text="$tr('resourceRemovalButtonLabel')"
-            appearance="flat-button"
-            @click="removeResource(resourceId)"
-          />
-        </KGridItem>
-      </KGrid>
-    </transition-group>
+          </KGridItem>
+          <KGridItem size="2" alignment="right">
+            <KButton
+              :text="$tr('resourceRemovalButtonLabel')"
+              appearance="flat-button"
+              @click="removeResource(resourceId)"
+            />
+          </KGridItem>
+        </KGrid>
+      </transition-group>
+    </Draggable>
   </div>
 
 </template>
@@ -95,6 +98,7 @@
 
   import { mapActions, mapState, mapMutations } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
+  import Draggable from 'vuedraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -109,6 +113,7 @@
   export default {
     name: 'ResourceListTable',
     components: {
+      Draggable,
       CoachContentLabel,
       UiIconButton,
       KButton,
@@ -229,6 +234,14 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
+        this.createSnackbar({
+          text: this.$tr('resourceReorderConfirmationMessage'),
+          autoDismiss: true,
+        });
+      },
+      handleDrag(resources) {
+        this.setWorkingResources(resources);
+        this.autoSave(this.lessonId, resources);
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
           autoDismiss: true,
