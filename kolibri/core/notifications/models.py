@@ -79,10 +79,12 @@ class KolibriNotification(models.Model):
     id = UUIDField(primary_key=True)
     notification_type = models.CharField(max_length=200, choices=[(t, t.value) for t in NotificationType], blank=True)
     user_id = UUIDField()
-    lesson_id = UUIDField(null=True)
     classroom_id = UUIDField()
     contentnode_id = UUIDField(null=True)
     channel_id = UUIDField(null=True)
+    contentnode_id = UUIDField(null=True)
+    lesson_id = UUIDField(null=True)
+    quiz_id = UUIDField(null=True)
     reason = models.CharField(max_length=200, choices=[(r, r.value) for r in HelpReason], blank=True)
     timestamp = DateTimeTzField(default=local_now)
 
