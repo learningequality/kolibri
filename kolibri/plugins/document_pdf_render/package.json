@@ -1,0 +1,11 @@
+{
+  "name": "kolibri-document-pdf-render-plugin",
+  "description": "Document/PDF Render Plugin for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "pdfjs-dist": "^1.9.426",
+    "intersection-observer": "0.5.0",
+    "vue-virtual-scroller": "0.12.0"
+  }
+}

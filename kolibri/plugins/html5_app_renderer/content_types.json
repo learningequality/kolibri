@@ -1,0 +1,10 @@
+{
+  "kinds": [
+    {
+    "name": "html5",
+    "extensions": [
+        "zip"
+      ]
+    }
+  ]
+}

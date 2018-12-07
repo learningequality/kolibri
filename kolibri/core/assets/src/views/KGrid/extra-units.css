@@ -1,0 +1,248 @@
+/* These units were not available in the default Pure grids */
+/* stylelint-disable number-no-trailing-zeros */
+
+.pure-u-1-7,
+.pure-u-2-7,
+.pure-u-3-7,
+.pure-u-4-7,
+.pure-u-5-7,
+.pure-u-6-7,
+.pure-u-7-7,
+.pure-u-1-9,
+.pure-u-2-9,
+.pure-u-3-9,
+.pure-u-4-9,
+.pure-u-5-9,
+.pure-u-6-9,
+.pure-u-7-9,
+.pure-u-8-9,
+.pure-u-9-9,
+.pure-u-1-10,
+.pure-u-2-10,
+.pure-u-3-10,
+.pure-u-4-10,
+.pure-u-5-10,
+.pure-u-6-10,
+.pure-u-7-10,
+.pure-u-8-10,
+.pure-u-9-10,
+.pure-u-10-10,
+.pure-u-1-11,
+.pure-u-2-11,
+.pure-u-3-11,
+.pure-u-4-11,
+.pure-u-5-11,
+.pure-u-6-11,
+.pure-u-7-11,
+.pure-u-8-11,
+.pure-u-9-11,
+.pure-u-10-11,
+.pure-u-11-11 {
+  display: inline-block;
+  *display: inline;
+  letter-spacing: normal;
+  vertical-align: top;
+  zoom: 1;
+  word-spacing: normal;
+  text-rendering: auto;
+}
+
+.pure-u-1-7 {
+  width: 14.2857%;
+  *width: 14.2547%;
+}
+
+.pure-u-2-7 {
+  width: 28.5714%;
+  *width: 28.5404%;
+}
+
+.pure-u-3-7 {
+  width: 42.8571%;
+  *width: 42.8261%;
+}
+
+.pure-u-4-7 {
+  width: 57.1428%;
+  *width: 57.1118%;
+}
+
+.pure-u-5-7 {
+  width: 71.4285%;
+  *width: 71.3975%;
+}
+
+.pure-u-6-7 {
+  width: 85.7142%;
+  *width: 85.6832%;
+}
+
+/* prettier-ignore */
+.pure-u-7-7 {
+  width: 100.0%;
+  *width: 99.969%;
+}
+
+.pure-u-1-9 {
+  width: 11.1111%;
+  *width: 11.0801%;
+}
+
+.pure-u-2-9 {
+  width: 22.2222%;
+  *width: 22.1912%;
+}
+
+.pure-u-3-9 {
+  width: 33.3333%;
+  *width: 33.3023%;
+}
+
+.pure-u-4-9 {
+  width: 44.4444%;
+  *width: 44.4134%;
+}
+
+.pure-u-5-9 {
+  width: 55.5555%;
+  *width: 55.5245%;
+}
+
+.pure-u-6-9 {
+  width: 66.6666%;
+  *width: 66.6356%;
+}
+
+.pure-u-7-9 {
+  width: 77.7777%;
+  *width: 77.7467%;
+}
+
+.pure-u-8-9 {
+  width: 88.8888%;
+  *width: 88.8578%;
+}
+
+/* prettier-ignore */
+.pure-u-9-9 {
+  width: 100.0%;
+  *width: 99.969%;
+}
+
+/* prettier-ignore */
+.pure-u-1-10 {
+  width: 10.0%;
+  *width: 9.969%;
+}
+
+/* prettier-ignore */
+.pure-u-2-10 {
+  width: 20.0%;
+  *width: 19.969%;
+}
+
+/* prettier-ignore */
+.pure-u-3-10 {
+  width: 30.0%;
+  *width: 29.969%;
+}
+
+/* prettier-ignore */
+.pure-u-4-10 {
+  width: 40.0%;
+  *width: 39.969%;
+}
+
+/* prettier-ignore */
+.pure-u-5-10 {
+  width: 50.0%;
+  *width: 49.969%;
+}
+
+/* prettier-ignore */
+.pure-u-6-10 {
+  width: 60.0%;
+  *width: 59.969%;
+}
+
+/* prettier-ignore */
+.pure-u-7-10 {
+  width: 70.0%;
+  *width: 69.969%;
+}
+
+/* prettier-ignore */
+.pure-u-8-10 {
+  width: 80.0%;
+  *width: 79.969%;
+}
+
+/* prettier-ignore */
+.pure-u-9-10 {
+  width: 90.0%;
+  *width: 89.969%;
+}
+
+/* prettier-ignore */
+.pure-u-10-10 {
+  width: 100.0%;
+  *width: 99.969%;
+}
+
+.pure-u-1-11 {
+  width: 9.0909%;
+  *width: 9.0599%;
+}
+
+.pure-u-2-11 {
+  width: 18.1818%;
+  *width: 18.1508%;
+}
+
+.pure-u-3-11 {
+  width: 27.2727%;
+  *width: 27.2417%;
+}
+
+.pure-u-4-11 {
+  width: 36.3636%;
+  *width: 36.3326%;
+}
+
+.pure-u-5-11 {
+  width: 45.4545%;
+  *width: 45.4235%;
+}
+
+.pure-u-6-11 {
+  width: 54.5454%;
+  *width: 54.5144%;
+}
+
+.pure-u-7-11 {
+  width: 63.6363%;
+  *width: 63.6053%;
+}
+
+.pure-u-8-11 {
+  width: 72.7272%;
+  *width: 72.6962%;
+}
+
+.pure-u-9-11 {
+  width: 81.8181%;
+  *width: 81.7871%;
+}
+
+/* prettier-ignore */
+.pure-u-10-11 {
+  width: 90.9090%;
+  *width: 90.8780%;
+}
+
+/* prettier-ignore */
+.pure-u-11-11 {
+  width: 100.0%;
+  *width: 99.969%;
+}
+/* stylelint-enable */

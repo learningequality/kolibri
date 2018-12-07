@@ -1,0 +1,9 @@
+# Browsers that we support.
+
+# This file is used by the css autoprefixer
+# see https://github.com/ai/browserslist#config-file
+
+> 0.1%
+last 2 versions
+ie >= 9
+Firefox ESR

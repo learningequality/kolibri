@@ -1,0 +1,9 @@
+{% extends "kolibri/base.html" %}
+{% load user_tags %}
+{% load kolibri_tags %}
+{% load cache %}
+{% block content %}
+  {% kolibri_bootstrap_collection 'facility' 'FacilityResource' %}
+  {% user_async_assets %}
+  {% user_assets %}
+{% endblock %}

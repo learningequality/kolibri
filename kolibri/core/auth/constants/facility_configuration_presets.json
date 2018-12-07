@@ -1,0 +1,39 @@
+{
+  "formal": {
+    "mappings": {
+      "learner_can_edit_username": false,
+      "learner_can_edit_name": false,
+      "learner_can_edit_password": false,
+      "learner_can_sign_up": false,
+      "learner_can_delete_account": false,
+      "learner_can_login_with_no_password": true,
+      "show_download_button_in_learn": false,
+      "allow_guest_access": false
+    }
+  },
+  "nonformal": {
+    "default": true,
+    "mappings": {
+      "learner_can_edit_username": true,
+      "learner_can_edit_name": true,
+      "learner_can_edit_password": true,
+      "learner_can_sign_up": true,
+      "learner_can_delete_account": true,
+      "learner_can_login_with_no_password": false,
+      "show_download_button_in_learn": true,
+      "allow_guest_access": true
+    }
+  },
+  "informal": {
+    "mappings": {
+      "learner_can_edit_username": true,
+      "learner_can_edit_name": true,
+      "learner_can_edit_password": true,
+      "learner_can_sign_up": false,
+      "learner_can_delete_account": true,
+      "learner_can_login_with_no_password": false,
+      "show_download_button_in_learn": true,
+      "allow_guest_access": true
+    }
+  }
+}

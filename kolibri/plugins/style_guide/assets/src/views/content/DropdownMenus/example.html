@@ -1,0 +1,34 @@
+<template>
+
+  <div>
+    <k-dropdown-menu
+      text="Actions"
+      :options="options"
+    >
+    </k-dropdown-menu>
+
+    <k-dropdown-menu
+      text="Actions"
+      :options="options"
+      appearance="flat-button"
+      :primary="true"
+    >
+    </k-dropdown-menu>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      options: [
+        { label: "fly", value: "fly" },
+        { label: "walk", value: "walk" },
+        { label: "chill", value: "chill" }
+      ]
+    }),
+  };
+
+</script>

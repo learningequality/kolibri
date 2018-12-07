@@ -1,0 +1,4 @@
+# These are unique requirements for C extensions, but the
+# ones that don't need to be shipped in one version per
+# arch/OS/pyVesion
+pyOpenSSL==18.0.0

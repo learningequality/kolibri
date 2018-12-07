@@ -1,0 +1,82 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-25 15:19-0700\n"
+"PO-Revision-Date: 2018-10-29 23:39\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Chewa\n"
+"Language: ny_MW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: ny\n"
+"X-Crowdin-File: /privacy-info/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:14
+msgid "Facility"
+msgstr "Bungwe"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "Kalasi"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "Gulu lophunzirira pamodzi"
+
+#: kolibri/core/content/api.py:131
+msgid "Content"
+msgstr "Zimene zilipo"
+
+#: kolibri/core/content/api.py:715
+msgid "The requested channel does not exist on the content server"
+msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
+
+#: kolibri/core/content/models.py:278
+msgid "Unknown format"
+msgstr "Fomati yosadziwika"
+
+#: kolibri/core/device/serializers.py:50
+msgid "Language is not supported by Kolibri"
+msgstr "Chilankhulo chimenechi sichili pa Kolibri"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "Panali vuto la netiweki."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "Panali vuto potsekula disiki."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "Panali vuto losadziwika bwino."
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "Bulawuza imeneyi ndi yosagwirizana ndi Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "Pepani, bulawuza imeneyi ndi yosagwirizana ndi Kolibri."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Kuti muthe kugwiritsa ntchito Kolibri, mufunika kugwiritsa ntchito Firefox kapena Chrome."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "Mungayesenso kupanga apudeti bulawuza imene mukugwiritsa ntchito panopo."
+
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Palibe tsamba limene latseguka. N'kutheka kuti simunaike bwino Kolibri"
+

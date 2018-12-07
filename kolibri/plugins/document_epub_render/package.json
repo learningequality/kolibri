@@ -1,0 +1,11 @@
+{
+  "name": "kolibri-document-epub-render-plugin",
+  "description": "Document/EPUB Render Plugin for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "epubjs": "https://github.com/futurepress/epub.js#edf3f2ef7970f42349f2b42544ce0bcb4a160b7e",
+    "mark.js": "^8.11.1",
+    "vue-focus-lock": "^1.2.0"
+  }
+}

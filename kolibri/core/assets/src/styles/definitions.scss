@@ -1,0 +1,57 @@
+/*
+  Define any scss constants or functions to be used across the app.
+  Items defined here are not meant to be themed - put those in core-theme.scss.
+
+  Concrete styles should not be defined here because they will be copied into
+  almost every component.
+
+  To reference these values (and those defined in the theme), add the following
+  line to your comonent's scss block:
+
+    @require '~kolibri.styles.definitions'
+*/
+
+// Also include values defined in the theme. These can be overridden.
+@import '~kolibri.styles.theme';
+
+$radius: 4px;
+$core-time: 0.25s;
+$login-overlay: #201a21;
+
+// from http://nicolasgallagher.com/micro-clearfix-hack/
+@mixin clearfix() {
+  zoom: 1;
+  &::after,
+  &::before {
+    display: table;
+    content: '';
+  }
+  &::after {
+    clear: both;
+  }
+}
+
+$core-outline: $core-action-light 2px solid;
+
+/*
+  Mixins for font-family to ensure that the full fonts are not referenced until they've
+  been loaded using the FontFaceObserver in i18n.js.
+
+  Even though partials are loaded immediately, we need the 'partial-fonts-loaded' class
+  for CSS specificity purposes.
+*/
+@mixin font-family-noto {
+  .partial-fonts-loaded & {
+    font-family: 'noto-subset', 'noto-common', sans-serif;
+  }
+  .full-fonts-loaded & {
+    // Continue to include the common and subset font subsets since they may contain
+    // glyphs not available in the language's default font.
+    font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
+  }
+}
+
+// Matches the Keen-UI/UiToolbar box-shadow property
+%ui-toolbar-box-shadow {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}

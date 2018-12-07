@@ -1,0 +1,50 @@
+<template>
+
+  <div>
+    <k-radio-button
+      label="Radio 1"
+      :value="1"
+      v-model="model1"
+    >
+    </k-radio-button>
+    <k-radio-button
+      label="Radio 2"
+      :value="2"
+      v-model="model1"
+    >
+    </k-radio-button>
+    <k-radio-button
+      label="Radio 3"
+      :value="3"
+      v-model="model1"
+    >
+    </k-radio-button>
+    <k-radio-button
+      label="Radio 4 Disabled"
+      :value="4"
+      :disabled="true"
+      v-model="model2"
+    >
+    </k-radio-button>
+    <k-radio-button
+      label="Radio 5 Disabled"
+      :value="5"
+      :disabled="true"
+      v-model="model2"
+    >
+    </k-radio-button>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      model1: 2,
+      model2: 4,
+    }),
+  };
+
+</script>

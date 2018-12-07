@@ -1,0 +1,15 @@
+{% extends "kolibri/base.html" %}
+{% load learn_tags %}
+{% load kolibri_tags %}
+{% load cache %}
+
+{% block content %}
+
+  {% if request.user.is_facility_user %}
+    <!-- Bootstrapping the the user's memberships. -->
+    {% kolibri_bootstrap_collection 'membership' 'MembershipResource' user_id=user.id %}
+  {% endif %}
+
+  {% learn_async_assets %}
+  {% learn_assets %}
+{% endblock %}

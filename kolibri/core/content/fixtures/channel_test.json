@@ -1,0 +1,1 @@
+[{"model": "content.channelmetadata", "pk": "6199dde695db4ee4ab392222d5af1e5c", "fields": {"name": "testing", "description": "test data", "author": "eli", "min_schema_version": "1"}}]

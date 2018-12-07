@@ -1,0 +1,32 @@
+<template>
+
+  <div>
+    <k-filter-textbox
+      v-model="filter"
+      placeholder="Filter items"
+    >
+    </k-filter-textbox>
+    <div v-for="item in filteredItems" :key="item">{{ item }}</div>
+  </div>
+
+</template>
+
+
+<script>
+
+  module.exports = {
+    data: () => ({
+      filter: '',
+      items: ['chicken', 'ostrich', 'falcon', 'robin', 'eagle'],
+    }),
+    computed: {
+      filteredItems() {
+        if(this.filter) {
+          return this.items.filter(item => item.includes(this.filter));
+        }
+        return this.items;
+      },
+    }
+  };
+
+</script>

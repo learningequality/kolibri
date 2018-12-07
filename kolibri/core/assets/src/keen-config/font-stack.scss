@@ -1,0 +1,39 @@
+@import '~kolibri.styles.definitions';
+
+/*
+  This hacky set of overrides allows the Keen UI components to play nicely with our
+  font loader. Instead, we reference all classes individually so that the font-famil-ui
+  mixin can be inserted.
+*/
+
+.ui-alert,
+.ui-autocomplete,
+.ui-autocomplete__input,
+.ui-autocomplete-suggestion,
+.ui-button,
+.ui-calendar,
+.ui-checkbox,
+.ui-checkbox-group,
+.ui-collapsible,
+.ui-confirm__message,
+.ui-datepicker,
+.ui-datepicker__display,
+.ui-fileupload,
+.ui-menu,
+.ui-menu-option,
+.ui-modal,
+.ui-radio,
+.ui-radio-group,
+.ui-select,
+.ui-select__display,
+.ui-select__search-input,
+.ui-select-option,
+.ui-snackbar,
+.ui-switch,
+.ui-tab-header-item,
+.ui-textbox,
+.ui-textbox__input,
+.ui-textbox__textarea,
+.ui-toolbar {
+  @include font-family-noto;
+}

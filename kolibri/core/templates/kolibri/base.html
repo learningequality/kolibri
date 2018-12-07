@@ -1,0 +1,105 @@
+{% load i18n kolibri_tags webpack_tags content_tags cache %}
+{% load staticfiles %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}" lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" content="notranslate">
+  <link rel="shortcut icon" href="{% static 'assets/logo.ico' %}">
+  <title>{% trans "Kolibri" %}</title>
+  {% if LANGUAGE_CODE == "ach-ug" %}
+    <script type="text/javascript">
+      var _jipt = [];
+      _jipt.push(['project', 'kolibri']);
+    </script>
+    <script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>
+  {% endif %}
+  {% if developer_mode %}
+    <script src="{% static 'rest_framework/js/coreapi-0.1.1.js' %}"></script>
+    <script src="{% url 'api-docs:schema-js' %}"></script>
+  {% endif %}
+</head>
+<body>
+{% csrf_token %}
+{% if supported_browser %}
+<rootvue>
+  <style>
+    .container{
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .rel{
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .flapping-kolibri {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 125px;
+      height: 125px;
+      background: url("{% static 'assets/loading-spinner.gif' %}") no-repeat center;
+      background-size: contain;
+      transform: translate(-50%, -50%);
+      animation: fadeIn;
+      animation-duration: 1s;
+      animation-delay: 1s;
+      animation-fill-mode: both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+      to {
+        opacity: 1
+      }
+    }
+  </style>
+
+  <div class="container">
+    <div class="rel">
+      <div class="flapping-kolibri"></div>
+    </div>
+  </div>
+
+</rootvue>
+{% block frontend_assets %}
+{% kolibri_language_globals %}
+{% kolibri_content_cache_key %}
+{% webpack_asset 'default_frontend' %}
+{% kolibri_set_server_time %}
+{% kolibri_navigation_actions %}
+<script type="text/javascript">
+  {% cache 5000 js_urls %}
+    {% kolibri_set_urls %}
+  {% endcache %}
+</script>
+<!-- Bootstrapping the currently logged in user's session object into the page. -->
+{% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
+{% webpack_base_assets %}
+{% webpack_base_async_assets %}
+{% content_renderer_assets %}
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+{% else %}
+
+{% include 'kolibri/unsupported_browser.html' %}
+
+{% endif %}
+</body>
+</html>

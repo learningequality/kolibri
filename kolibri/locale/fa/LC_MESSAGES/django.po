@@ -1,0 +1,82 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-25 15:19-0700\n"
+"PO-Revision-Date: 2018-10-29 23:37\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Persian\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: fa\n"
+"X-Crowdin-File: /privacy-info/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:14
+msgid "Facility"
+msgstr "مرکز آموزشی"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "کلاس درس"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "گروه یادگیرنده"
+
+#: kolibri/core/content/api.py:131
+msgid "Content"
+msgstr "محتوا"
+
+#: kolibri/core/content/api.py:715
+msgid "The requested channel does not exist on the content server"
+msgstr "کانال درخواست شده در سِرور محتوا و مطالب وجود ندارد"
+
+#: kolibri/core/content/models.py:278
+msgid "Unknown format"
+msgstr "فرمت ناشناخته"
+
+#: kolibri/core/device/serializers.py:50
+msgid "Language is not supported by Kolibri"
+msgstr "زبان توسط Kolibri پشتیبانی نمی‌شود"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "یک خطاى شبکه وجود داشت."
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "یک خطای دسترسی به دیسک وجود داشت."
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "یک خطای ناشناخته وجود دارد."
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "مرورگر پشتیبانی‌نشده"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "متاسفانه نسخه مرورگر شما پشتیبانی نمی‌شود."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "برای استفاده از Kolibri توصیه می‌کنیم که از فایرفاکس (Firefox) یا کروم (Chrome) استفاده کنید."
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "شما همچنین می‌توانید مرورگر فعلی خود را به‌روزرسانی کنید."
+
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "هیچ صفحه‌ی مسیریابی مناسبی پیدا نشد. به نظر می‌رسد که Kolibri به درستی پیکربندی نشده است"
+
