@@ -24,8 +24,8 @@
     name: 'DeleteUserModal',
     $trs: {
       deleteUser: 'Delete user',
-      confirmation: "Are you sure you want to delete '{ username }'?",
-      warning: "All the learning records for '{ username }' will be lost.",
+      confirmation: "Are you sure you want to delete the user '{ username }'?",
+      warning: 'All data logs for this user will be lost.',
       cancel: 'Cancel',
       delete: 'Delete',
     },
