@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import KolibriNotification
+from .models import LearnerProgressNotification
 from .models import NotificationType
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -50,7 +50,7 @@ def save_notifications(notifications):
 
 
 def create_notification(notification_type, user_id, group_id, lesson_id=None, content_id=None, channel_id=None, quiz_id=None):
-    notification = KolibriNotification()
+    notification = LearnerProgressNotification()
     notification.id = uuid.uuid4().hex
     notification.user_id = user_id
     notification.classroom_id = group_id
@@ -80,10 +80,10 @@ def parse_summary_log(sender, instance, **kwargs):
     for group_id in touched_groups:
         lesson_id, lesson_resources = touched_groups[group_id]
         # Check if the notification has been previously saved:
-        if KolibriNotification.objects.filter(user_id=instance.user_id,
-                                              notification_type=NotificationType.Resource,
-                                              lesson_id=lesson_id,
-                                              contentnode_id=instance.content_id).count() > 0:
+        if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
+                                                      notification_type=NotificationType.Resource,
+                                                      lesson_id=lesson_id,
+                                                      contentnode_id=instance.content_id).count() > 0:
             continue
         # Let's create an ResourceIndividualCompletion
         notification = create_notification(NotificationType.Resource,

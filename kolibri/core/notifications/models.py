@@ -75,7 +75,7 @@ class HelpReason(Enum):
 
 
 @python_2_unicode_compatible
-class KolibriNotification(models.Model):
+class LearnerProgressNotification(models.Model):
     id = UUIDField(primary_key=True)
     notification_type = models.CharField(max_length=200, choices=[(t, t.value) for t in NotificationType], blank=True)
     user_id = UUIDField()
