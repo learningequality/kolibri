@@ -215,7 +215,7 @@
     $trs: {
       cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
-      devicePermissionsDetails: 'Can import and export content channels',
+      devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
       permissionChangeConfirmation: 'Changes saved',
@@ -270,7 +270,7 @@
   }
 
   .section {
-    padding: 1em;
+    margin-bottom: 16px;
   }
 
   .permissions-icon {
