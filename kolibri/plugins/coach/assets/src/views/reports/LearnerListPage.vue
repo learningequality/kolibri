@@ -16,7 +16,19 @@
         :value="contentScopeSummary.num_coach_contents"
       />
     </template>
-    <h1 v-else>{{ $tr('learners') }}</h1>
+
+    <KGrid v-else>
+      <KGridItem sizes="100, 50, 50" percentage>
+        <h1>{{ $tr('learners') }}</h1>
+      </KGridItem>
+      <KGridItem sizes="100, 50, 50" percentage align="right">
+        <KButton
+          :text="$tr('newUserButtonLabel')"
+          :primary="true"
+          @click="displayModal(Modals.COACH_CREATE_USER)"
+        />
+      </KGridItem>
+    </KGrid>
 
     <CoreTable>
       <thead slot="thead">
@@ -72,6 +84,8 @@
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
+    <CoachUserCreateModal v-if="modalShown===Modals.COACH_CREATE_USER" />
+
   </div>
 
 </template>
@@ -79,14 +93,18 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { PageNames } from '../../constants';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KButton from 'kolibri.coreVue.components.KButton';
+  import { PageNames, Modals } from '../../constants';
   import { TableColumns } from '../../constants/reportConstants';
+  import CoachUserCreateModal from './CoachUserCreateModal';
   import Breadcrumbs from './Breadcrumbs';
   import HeaderCell from './table-cells/HeaderCell';
   import NameCell from './table-cells/NameCell';
@@ -102,6 +120,7 @@
       };
     },
     components: {
+      CoachUserCreateModal,
       CoachContentLabel,
       CoreTable,
       ContentIcon,
@@ -110,11 +129,15 @@
       NameCell,
       ProgressCell,
       ActivityCell,
+      KGridItem,
+      KGrid,
+      KButton,
     },
     mixins: [alignMixin],
     $trs: {
       learners: 'Learner reports',
       fullNameColumnLabel: 'Full name',
+      newUserButtonLabel: 'New Learner',
       group: 'Group',
       channelIconColumnHeader: 'Channel icon',
       userIconColumnHeader: 'User icon',
@@ -134,6 +157,9 @@
       ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
       ...mapGetters('reports', ['standardDataTable', 'exerciseCount', 'contentCount']),
       ...mapState('reports', ['channelId', 'contentScopeSummary', 'contentScopeId', 'userScope']),
+      ...mapGetters(['currentUserId', 'isSuperuser', 'isCoach']),
+      ...mapState('userManagement', ['facilityUsers', 'modalShown']),
+      Modals: () => Modals,
       documentTitle() {
         switch (this.pageName) {
           case PageNames.LEARNER_LIST:
@@ -168,6 +194,7 @@
       this.setInterval = clearInterval(this.intervalId);
     },
     methods: {
+      ...mapActions('userManagement', ['displayModal']),
       refreshReportData() {
         // The data needed to do a proper refresh. See _showClassLearnerList for details
         return this.$store.dispatch('reports/setLearnersForItemTableData', {
