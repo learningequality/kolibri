@@ -21,12 +21,15 @@
     </KGrid>
     <Draggable
       :value="workingResources"
+      :options="{animation:150}"
+      :noTransitionOnDrag="true"
       @input="handleDrag($event)"
     >
       <transition-group name="resource-reorder">
         <KGrid
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
+          class="row"
         >
           <KGridItem size="1" class="relative">
             <UiIconButton
@@ -334,6 +337,14 @@
     margin-bottom: 0;
     margin-left: 0;
     color: $core-text-annotation;
+  }
+
+  .sortable-ghost {
+    border: 1px solid $core-text-annotation;
+  }
+
+  .sortable-ghost * {
+    visibility: hidden;
   }
 
 </style>
