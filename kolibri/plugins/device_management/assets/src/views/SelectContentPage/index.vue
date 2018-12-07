@@ -202,15 +202,15 @@
       },
       transferredChannel(val) {
         if (val.name) {
-          this.setToolbarTitle(this.$tr('selectContent', { channelName: val.name }));
+          this.setAppBarTitle(this.$tr('selectContent', { channelName: val.name }));
         }
       },
     },
     mounted() {
       if (this.wholePageError) {
-        this.setToolbarTitle(this.$tr('pageLoadError'));
+        this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
-        this.setToolbarTitle(
+        this.setAppBarTitle(
           this.$tr('selectContent', { channelName: this.transferredChannel.name })
         );
       }
@@ -219,8 +219,8 @@
       this.cancelMetadataDownloadTask();
     },
     methods: {
-      ...mapMutations('manageContent', {
-        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      ...mapMutations('coreBase', {
+        setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
       downloadChannelMetadata,

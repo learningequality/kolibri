@@ -3,17 +3,14 @@
 exports[`side nav component should be hidden if navShown is false 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px; display: none;" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;">
-      <button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
         <div class="ui-icon-button__icon">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
         <div class="ui-icon-button__focus-ring"></div>
-        <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 24px; height: 24px; display: none;" name="ui-progress-circular--transition-fade">
-          <svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
+        <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 24px; height: 24px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
             <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular__indeterminate-path"></circle>
-          </svg>
-        </div>
+          </svg></div>
         <div class="ui-ripple-ink"></div>
         <!---->
         <!---->
@@ -22,30 +19,20 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
       <div role="navigation" aria-label="Main user navigation" class="side-nav-scrollable-area-menu">
         <ul role="menu" class="ui-menu has-icons">
           <!---->
-          <li>
-            <a role="menuitem" class="ui-menu-option is-divider">
-              <!---->
-            </a>
-          </li>
-          <li>
-            <a role="menuitem" class="ui-menu-option is-divider">
-              <!---->
-            </a>
-          </li>
+          <li><a role="menuitem" class="ui-menu-option is-divider">
+              <!----></a></li>
+          <li><a role="menuitem" class="ui-menu-option is-divider">
+              <!----></a></li>
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer">
-        <img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p>
-            <button dir="auto" type="button" class="privacy-link link">
+          <p><button dir="auto" type="button" class="privacy-link link">
               Usage and privacy
-              <!---->
-            </button>
-          </p>
+              <!----></button></p>
         </div>
       </div>
     </div>
@@ -66,17 +53,14 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
 exports[`side nav component should show nothing if no components are added and user is not logged in 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px;" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;">
-      <button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
         <div class="ui-icon-button__icon">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
         <div class="ui-icon-button__focus-ring"></div>
-        <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 24px; height: 24px; display: none;" name="ui-progress-circular--transition-fade">
-          <svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
+        <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 24px; height: 24px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
             <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular__indeterminate-path"></circle>
-          </svg>
-        </div>
+          </svg></div>
         <div class="ui-ripple-ink"></div>
         <!---->
         <!---->
@@ -85,30 +69,20 @@ exports[`side nav component should show nothing if no components are added and u
       <div role="navigation" aria-label="Main user navigation" class="side-nav-scrollable-area-menu">
         <ul role="menu" class="ui-menu has-icons">
           <!---->
-          <li>
-            <a role="menuitem" class="ui-menu-option is-divider">
-              <!---->
-            </a>
-          </li>
-          <li>
-            <a role="menuitem" class="ui-menu-option is-divider">
-              <!---->
-            </a>
-          </li>
+          <li><a role="menuitem" class="ui-menu-option is-divider">
+              <!----></a></li>
+          <li><a role="menuitem" class="ui-menu-option is-divider">
+              <!----></a></li>
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer">
-        <img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p>
-            <button dir="auto" type="button" class="privacy-link link">
+          <p><button dir="auto" type="button" class="privacy-link link">
               Usage and privacy
-              <!---->
-            </button>
-          </p>
+              <!----></button></p>
         </div>
       </div>
     </div>

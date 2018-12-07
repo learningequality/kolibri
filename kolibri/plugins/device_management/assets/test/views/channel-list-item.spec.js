@@ -4,12 +4,14 @@ import ChannelListItem from '../../src/views/ManageContentPage/ChannelListItem';
 import { defaultChannel } from '../utils/data';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
+const fakeImage = 'data:image/png;base64,abcd1234';
+
 function makeWrapper(options = {}) {
   const { props = {}, store } = options;
   const defaultProps = {
     channel: {
       ...defaultChannel,
-      thumbnail: 'data:image/png;base64,abcd1234',
+      thumbnail: fakeImage,
     },
     mode: 'MANAGE',
     onDevice: false,
@@ -43,8 +45,6 @@ function getElements(wrapper) {
     dropdownMenu: () => wrapper.find({ name: 'KDropdownMenu' }),
   };
 }
-
-const fakeImage = 'data:image/png;base64,abcd1234';
 
 describe('channelListItem', () => {
   let importWrapper;
@@ -86,16 +86,22 @@ describe('channelListItem', () => {
     });
 
     it('defaults to a material design icon if there is no thumbnail', () => {
+      exportWrapper = makeWrapper({
+        props: { mode: 'EXPORT', channel: { ...defaultChannel, thumbnail: '' } },
+      });
+      importWrapper = makeWrapper({
+        props: { mode: 'IMPORT', channel: { ...defaultChannel, thumbnail: '' } },
+      });
+      manageWrapper = makeWrapper({
+        props: { mode: 'MANAGE', channel: { ...defaultChannel, thumbnail: '' } },
+      });
       function test(wrapper) {
         const { thumbnail } = getElements(wrapper);
-        wrapper.setProps({ channel: { ...defaultChannel, thumbnail: '' } });
         const thumb = thumbnail();
         // We are not using the mat-svg webpack loader, so just check for the
         // mat-svg tag here untransformed.
-        return wrapper.vm.$nextTick().then(() => {
-          expect(thumb.contains('mat-svg')).toEqual(true);
-          expect(thumb.contains('img')).toEqual(false);
-        });
+        expect(thumb.contains('mat-svg')).toEqual(true);
+        expect(thumb.contains('img')).toEqual(false);
       }
       testAll(test);
     });
@@ -190,9 +196,10 @@ describe('channelListItem', () => {
       const { onDevice } = getElements(wrapper);
       expect(onDevice().exists()).toEqual(false);
     }
-    posTest(importWrapper);
-    negTest(exportWrapper);
-    negTest(manageWrapper);
+    return posTest(importWrapper).then(() => {
+      negTest(exportWrapper);
+      negTest(manageWrapper);
+    });
   });
 
   it('in IMPORT mode only, does not show the "on device" indicator if channel is not installed', () => {

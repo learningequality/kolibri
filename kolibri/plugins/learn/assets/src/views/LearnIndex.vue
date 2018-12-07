@@ -30,7 +30,6 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
@@ -101,9 +100,6 @@
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
-      topLevelPageName() {
-        return TopLevelPageNames.LEARN;
-      },
       currentPage() {
         if (RecommendedPages.includes(this.pageName)) {
           return RecommendedSubpage;

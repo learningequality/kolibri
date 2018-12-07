@@ -1,6 +1,6 @@
 <template>
 
-  <page-template :completed="false">
+  <PageTemplate :completed="false">
 
     <h1>Dropdown buttons</h1>
 
@@ -22,32 +22,20 @@
       more actions
     </p>
 
-  </page-template>
+  </PageTemplate>
 
 </template>
 
 
 <script>
 
-  import ComponentDocs from '../../shell/ComponentDocs';
-  import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
-  import Show from '../../shell/Show';
-
-  import example from 'raw-loader!./example.html';
-
-  import FullVue from 'vue/dist/vue.common';
 
   export default {
+    name: 'DropdownButton',
     components: {
       PageTemplate,
-      ComponentDocs,
-      VueExample,
-      Show,
     },
-    data: () => ({
-      example,
-    }),
   };
 
 </script>

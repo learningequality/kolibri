@@ -35,20 +35,27 @@
 
 ### Contributor Checklist
 
-- [ ] Contributor has fully tested the PR manually
+
+PR process:
+
 - [ ] PR has the correct target branch and milestone
 - [ ] PR has 'needs review' or 'work-in-progress' label
 - [ ] If PR is ready for review, a reviewer has been added. (Don't use 'Assignees')
-- [ ] If there are any front-end changes, before/after screenshots are included
 - [ ] If this is an important user-facing change, PR or related issue has a 'changelog' label
+- [ ] If this includes an internal dependency change, a link to the diff is provided
+
+Testing:
+
+- [ ] Contributor has fully tested the PR manually
+- [ ] If there are any front-end changes, before/after screenshots are included
+- [ ] Gherkin stories have been updated
+- [ ] Unit tests have been updated
 
 ### Reviewer Checklist
 
-- [ ] Automated test coverage is satisfactory
-- [ ] Reviewer has fully tested the PR manually
-- [ ] PR has been tested for [accessibility regressions](http://kolibri-dev.readthedocs.io/en/develop/manual_testing.html#accessibility-a11y-testing)
-- [ ] External dependencies files were updated (`yarn` and `pip`)
-- [ ] Documentation is updated
-- [ ] Link to diff of internal dependency change is included
-- [ ] CHANGELOG.rst is updated for high-level changes
-- [ ] Contributor is in AUTHORS.rst
+- Automated test coverage is satisfactory
+- PR is fully functional
+- PR has been tested for [accessibility regressions](http://kolibri-dev.readthedocs.io/en/develop/manual_testing.html#accessibility-a11y-testing)
+- External dependency files were updated if necessary (`yarn` and `pip`)
+- Documentation is updated
+- Contributor is in AUTHORS.rst

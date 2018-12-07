@@ -12,7 +12,7 @@ const translator = createTranslator('ContentWizardTexts', {
 
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
-  store.commit('manageContent/SET_TOOLBAR_TITLE', translator.$tr('loadingChannelsToolbar'), {
+  store.commit('coreBase/SET_APP_BAR_TITLE', translator.$tr('loadingChannelsToolbar'), {
     root: true,
   });
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS, { root: true });
