@@ -37,10 +37,8 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
   python get-pip.py && \
   pip install cython virtualenv && \
   # get kevin's custom packages
-  git clone -b dev https://github.com/kollivier/pyeverywhere && \
-  git clone -b webview_plus https://github.com/dxcanas/python-for-android && \
-  pip install -e ./pyeverywhere && \
-  pip install -e ./python-for-android && \
+  pip install -e git+https://github.com/kollivier/pyeverywhere@dev#egg=pyeverywhere && \
+  pip install -e git+https://github.com/kollivier/python-for-android@webview_plus#egg=python-for-android && \
   useradd -lm kivy
 
 USER kivy:kivy
@@ -55,10 +53,10 @@ COPY --chown=kivy:kivy scripts/version_utils.py scripts/create_dummy_project_inf
 RUN make dummy_project_info.json && pew init android
 
 COPY --chown=kivy:kivy assets assets
-COPY --chown=kivy:kivy src src
 
 # Could probably include this earlier on
 COPY --chown=kivy:kivy icon.png .
+COPY --chown=kivy:kivy src/main.py src/
 
 # Extract .whl files and build the apk
 CMD make Kolibri*.apk

@@ -1,6 +1,5 @@
-# Whl files go here for build
-src/
-!src/main.py
+src/kolibri
+whl/
 
 # File format for signing key
 *.jks
