@@ -61,8 +61,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .header {
     padding-top: 10px;
     margin-top: 0;
@@ -82,16 +80,6 @@
   .pagination-right {
     position: absolute;
     right: 0;
-  }
-
-  .enable {
-    cursor: pointer;
-    fill: $core-text-default;
-  }
-
-  .disable {
-    pointer-events: none;
-    fill: $core-text-disabled;
   }
 
 </style>

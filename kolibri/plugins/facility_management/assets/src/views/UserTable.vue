@@ -57,6 +57,10 @@
               :userType="user.kind"
               :omitLearner="true"
               class="role-badge"
+              :style="{
+                color: $coreBgLight,
+                backgroundColor: $coreTextAnnotation,
+              }"
             />
           </td>
           <td class="visuallyhidden">
@@ -84,6 +88,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -128,6 +133,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreTextAnnotation']),
       allAreSelected() {
         return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
       },
@@ -186,9 +192,7 @@
     padding-left: 1em;
     margin-left: 8px;
     font-size: small;
-    color: $core-bg-light;
     white-space: nowrap;
-    background-color: $core-text-annotation;
     border-radius: 0.5em;
   }
 

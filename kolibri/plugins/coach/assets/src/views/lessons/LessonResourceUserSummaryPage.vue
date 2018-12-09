@@ -44,7 +44,7 @@
             </th>
             <th>
               <KButton
-                class="header-button"
+                :style="headerButtonStyle"
                 appearance="basic-link"
                 :text="$tr('fullnameTableColumnHeader')"
                 @click="setSort('name')"
@@ -70,7 +70,7 @@
             </th>
             <th>
               <KButton
-                class="header-button"
+                :style="headerButtonStyle"
                 appearance="basic-link"
                 :text="progressHeader"
                 @click="setSort('progress')"
@@ -95,7 +95,7 @@
             </th>
             <th>
               <KButton
-                class="header-button"
+                :style="headerButtonStyle"
                 appearance="basic-link"
                 :text="$tr('groupTableColumnHeader')"
                 @click="setSort('groupName')"
@@ -121,7 +121,7 @@
             </th>
             <th>
               <KButton
-                class="header-button"
+                :style="headerButtonStyle"
                 appearance="basic-link"
                 :text="$tr('lastActiveTableColumnHeader')"
                 @click="setSort('lastActive')"
@@ -271,6 +271,12 @@
       users() {
         return this.invert ? Array.from(this.sortedUsers).reverse() : this.sortedUsers;
       },
+      headerButtonStyle() {
+        return {
+          color: this.$coreTextDefault,
+          textDecoration: 'none',
+        };
+      },
     },
     mounted() {
       this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
@@ -320,8 +326,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .coach-content-label {
     padding: 8px 0;
   }
@@ -355,11 +359,6 @@
 
   .resource-data {
     max-width: 90%;
-  }
-
-  .header-button {
-    color: $core-text-default;
-    text-decoration: none;
   }
 
 </style>

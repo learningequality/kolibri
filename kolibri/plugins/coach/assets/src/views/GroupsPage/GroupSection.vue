@@ -192,8 +192,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .group-section {
     margin-top: 32px;
   }

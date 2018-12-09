@@ -233,7 +233,7 @@
       updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['sessionTimeSpent', '$coreBgLight']),
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;
@@ -286,7 +286,10 @@
       },
       epubRendererStyle() {
         const ratio = this.windowIsSmall ? 11 / 8.5 : 8.5 / 11;
-        return { height: `${this.elementWidth * ratio}px` };
+        return {
+          height: `${this.elementWidth * ratio}px`,
+          backgroundColor: this.$coreBgLight,
+        };
       },
       navigationButtonColor() {
         return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
@@ -687,14 +690,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .epub-renderer {
     position: relative;
     height: 500px;
     font-size: smaller;
-    background-color: $core-bg-light;
   }
 
   .top-bar {

@@ -305,8 +305,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .coach-selector {
     padding: 0;
     margin: 0;

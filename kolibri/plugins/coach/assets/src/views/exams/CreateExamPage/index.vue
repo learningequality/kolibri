@@ -644,8 +644,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .search-box {
     display: inline-block;
     vertical-align: middle;

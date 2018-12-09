@@ -15,7 +15,7 @@
         :selectedQuestionNumber="attemptLogIndex"
         @select="navigateToNewAttempt($event)"
       />
-      <div slot="main" class="exercise-section">
+      <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
         <h3>{{ $tr('question', {questionNumber: currentAttemptLog.questionNumber}) }}</h3>
         <KCheckbox
           :label="$tr('showCorrectAnswerLabel')"
@@ -89,6 +89,7 @@
     },
     computed: {
       ...mapState(['pageName', 'classId', 'reportRefreshInterval']),
+      ...mapGetters(['$coreBgLight']),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',
         'currentInteraction',
@@ -176,11 +177,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .exercise-section {
     padding: 16px;
-    background-color: $core-bg-light;
     h3 {
       margin-top: 0;
     }

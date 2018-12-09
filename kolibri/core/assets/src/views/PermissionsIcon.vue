@@ -5,6 +5,7 @@
       <mat-svg
         v-if="hasSuperAdminPermission"
         class="super-admin icon"
+        :style="{ fill: $coreStatusMastered }"
         name="vpn_key"
         category="communication"
       />
@@ -12,6 +13,7 @@
       <mat-svg
         v-else-if="hasLimitedPermissions"
         class="some-permissions icon"
+        :style="{ fill: $coreTextDefault }"
         name="vpn_key"
         category="communication"
       />
@@ -35,6 +37,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
@@ -55,6 +58,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreStatusMastered', '$coreTextDefault']),
       UserKinds() {
         return UserKinds;
       },
@@ -83,13 +87,6 @@
 
   .icon {
     vertical-align: text-bottom;
-
-    &.super-admin {
-      fill: $core-status-mastered;
-    }
-    &.some-permissions {
-      fill: $core-text-default;
-    }
   }
 
 </style>

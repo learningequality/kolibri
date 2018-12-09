@@ -462,8 +462,6 @@
 
   /***** PLAYER OVERRIDES *****/
 
-  @import '~kolibri.styles.definitions';
-
   /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/

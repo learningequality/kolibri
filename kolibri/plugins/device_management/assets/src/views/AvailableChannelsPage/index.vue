@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header">
+      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
         {{ $tr('channelHeader') }}
       </div>
 
@@ -136,6 +136,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
@@ -285,12 +286,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-    color: $core-text-annotation;
   }
 
   .top-matter {

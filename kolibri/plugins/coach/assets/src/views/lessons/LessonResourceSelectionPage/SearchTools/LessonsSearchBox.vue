@@ -18,6 +18,8 @@
         v-model.trim="searchTerm"
         type="search"
         class="input"
+        :class="$computedClass(inputPlaceHolderStyle)"
+        :style="{ color: $coreTextDefault }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -37,7 +39,7 @@
           />
         </UiIconButton>
 
-        <div class="submit-button-wrapper">
+        <div class="submit-button-wrapper" :style="{ backgroundColor: $coreActionDark }">
           <UiIconButton
             type="secondary"
             color="white"
@@ -62,6 +64,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
@@ -80,8 +83,16 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreActionDark', '$coreTextAnnotation', '$coreTextDefault']),
       searchTermHasChanged() {
         return this.searchTerm !== this.$route.params.searchTerm;
+      },
+      inputPlaceHolderStyle() {
+        return {
+          '::placeholder': {
+            color: this.$coreTextAnnotation,
+          },
+        };
       },
     },
     methods: {
@@ -101,8 +112,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .box {
     margin-right: 8px;
@@ -126,14 +135,9 @@
     padding: 0;
     padding-left: 8px;
     margin: 0;
-    color: $core-text-default;
     vertical-align: middle;
     background-color: white;
     border: 0;
-
-    &::placeholder {
-      color: $core-text-annotation;
-    }
 
     // removes the IE clear button
     &::-ms-clear {
@@ -154,7 +158,6 @@
     height: 24px;
     margin-right: 6px;
     margin-left: 6px;
-    color: $core-text-default;
     vertical-align: middle;
     visibility: hidden;
   }
@@ -172,7 +175,6 @@
   .submit-button-wrapper {
     display: inline-block;
     vertical-align: middle;
-    background-color: $core-action-dark;
   }
 
   .filter-icon {

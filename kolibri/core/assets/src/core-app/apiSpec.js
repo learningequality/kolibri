@@ -97,6 +97,7 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import * as colour from '../utils/colour';
 import * as client from './client';
 import urls from './urls';
 
@@ -189,6 +190,7 @@ export default {
   urls,
   utils: {
     contentNode,
+    colour,
     browser,
     exams,
     validators,

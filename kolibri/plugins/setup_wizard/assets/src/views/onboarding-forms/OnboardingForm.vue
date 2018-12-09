@@ -68,10 +68,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  $core-title-md: 21px; // filling in for future typography styles
-
   .onboarding-form-fields {
     padding: 0;
     margin: 0;
@@ -82,7 +78,7 @@
   .onboarding-form-header {
     margin-top: 0;
     margin-bottom: 16px;
-    font-size: $core-title-md;
+    font-size: 21px;
   }
 
   .onboarding-form-legend {

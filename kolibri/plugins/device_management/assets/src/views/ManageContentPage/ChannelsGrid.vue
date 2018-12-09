@@ -4,7 +4,7 @@
     <transition mode="out-in">
       <p
         v-if="noChannelsToShow"
-        class="no-channels"
+        :style="{ color: $coreTextError }"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -16,7 +16,7 @@
       />
 
       <div v-else>
-        <div class="channel-list-header">
+        <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
           {{ $tr('channelHeader') }}
         </div>
 
@@ -64,6 +64,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreTextError', '$coreTextAnnotation']),
       ...mapState('manageContent', ['channelListLoading']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),
       channelIsSelected() {
@@ -107,16 +108,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 12px;
-    color: $core-text-annotation;
-  }
-
-  .no-channels {
-    color: $core-text-error;
   }
 
 </style>

@@ -11,6 +11,7 @@
     <div
       dir="auto"
       class="k-tooltip"
+      :style="{ backgroundColor: $coreTextDefault }"
     >
       <!--Default slot that will contain the tooltip content.-->
       <slot></slot>
@@ -22,6 +23,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import isArray from 'lodash/isArray';
   import Popper from './Popper';
 
@@ -69,6 +71,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreTextDefault']),
       readyToInit() {
         return this.mounted && this.htmlElement;
       },
@@ -117,7 +120,6 @@
     line-height: 1.4;
     color: white;
     text-align: center;
-    background-color: $core-text-default;
     border-radius: 8px;
     box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 1px 3px 0 rgba(0, 0, 0, 0.12);
