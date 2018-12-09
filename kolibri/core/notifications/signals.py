@@ -3,15 +3,17 @@ import uuid
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from le_utils.constants import content_kinds
 
+from .models import HelpReason
 from .models import LearnerProgressNotification
 from .models import NotificationType
+from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamLog
-
-# from .models import HelpReason
 
 
 def get_assignments(memberships, content_id):
@@ -49,7 +51,9 @@ def save_notifications(notifications):
             notification.save()
 
 
-def create_notification(notification_type, user_id, group_id, lesson_id=None, content_id=None, channel_id=None, quiz_id=None):
+def create_notification(notification_type, user_id, group_id, lesson_id=None,
+                        content_id=None, channel_id=None,
+                        quiz_id=None, reason=None):
     notification = LearnerProgressNotification()
     notification.id = uuid.uuid4().hex
     notification.user_id = user_id
@@ -63,6 +67,8 @@ def create_notification(notification_type, user_id, group_id, lesson_id=None, co
         notification.lesson_id = lesson_id
     if quiz_id:
         notification.quiz_id = quiz_id
+    if reason:
+        notification.reason = reason
     return notification
 
 
@@ -83,7 +89,7 @@ def parse_summary_log(sender, instance, **kwargs):
         if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
                                                       notification_type=NotificationType.Resource,
                                                       lesson_id=lesson_id,
-                                                      contentnode_id=instance.content_id).count() > 0:
+                                                      contentnode_id=instance.content_id).exists():
             continue
         # Let's create an ResourceIndividualCompletion
         notification = create_notification(NotificationType.Resource,
@@ -120,3 +126,55 @@ def parse_exam_log(sender, instance, **kwargs):
         notifications.append(notification)
 
     save_notifications(notifications)
+
+
+@receiver(post_save, sender=AttemptLog)
+def parse_attempts_log(sender, instance, **kwargs):
+    user_classrooms = instance.user.memberships.all()
+    # If the user is not in any classroom nor group, nothing to notify
+    if not user_classrooms:
+        return
+
+    content_id = instance.masterylog.summarylog.content_id
+    channel_id = instance.masterylog.summarylog.channel_id
+    # This Event should be triggered only once
+    # TODO: Decide if add a day interval filter, to trigger the event in different days
+    if LearnerProgressNotification.objects.filter(contentnode_id=content_id,
+                                                  user_id=instance.user_id,
+                                                  notification_type=NotificationType.Help).exists():
+        return
+    # This Event can only be triggered on Exercises in a Lesson:
+    content_node = ContentNode.objects.get(content_id=content_id, channel_id=channel_id)
+    if content_node.kind != content_kinds.EXERCISE:
+        return
+    # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
+    touched_groups = get_assignments(user_classrooms, content_id)
+    if not touched_groups:
+        return
+    # get all the atempts log on this exercise:
+    needs_help = False
+    failed_interactions = []
+    attempts = AttemptLog.objects.filter(masterylog_id=instance.masterylog_id)
+    for attempt in attempts:
+        failed_interactions += [failed for failed in attempt.interaction_history if failed['correct'] == 0]
+        # More than 3 errors in this mastery log
+        if len(failed_interactions) > 3:
+            needs_help = True
+            break
+    if needs_help:
+        notifications = []
+        for group in touched_groups:
+            # Check if the notification for that exercise and group has already been created:
+            if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
+                                                          notification_type=NotificationType.Help,
+                                                          group_id=group,
+                                                          contentnode_id=content_id).exists():
+                continue
+            lesson_id, _ = touched_groups[group]
+            notification = create_notification(NotificationType.Help, instance.user_id, group,
+                                               lesson_id=lesson_id,
+                                               content_id=content_id,
+                                               channel_id=channel_id,
+                                               reason=HelpReason.Multiple)
+            notifications.append(notification)
+        save_notifications(notifications)

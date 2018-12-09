@@ -14,3 +14,4 @@ class KolibriNotificationsConfig(AppConfig):
         # activate signals:
         from .signals import parse_summary_log  # noqa: F401
         from .signals import parse_exam_log  # noqa: F401
+        from .signals import parse_attempts_log  # noqa: F401
