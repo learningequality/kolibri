@@ -7,97 +7,99 @@
   Logic and styling has been consolidated with the KLinearLoader to simplify
   and remove unused logic.
   -->
-    <transition name="ui-progress-linear--transition-fade">
-        <div
-            class="ui-progress-linear"
-            :class="classes"
-            :style="{ backgroundColor: `rgba(${$coreLoading}, 0.4)` }"
-        >
-            <div
-                class="ui-progress-linear--progress-bar is-determinate"
-                role="progressbar"
+  <transition name="ui-progress-linear--transition-fade">
+    <div
+      class="ui-progress-linear"
+      :class="classes"
+      :style="{ backgroundColor: `rgba(${$coreLoading}, 0.4)` }"
+    >
+      <div
+        v-if="type === 'determinate'"
+        class="ui-progress-linear-progress-bar is-determinate"
 
-                :aria-valuemax="100"
-                :aria-valuemin="0"
-                :aria-valuenow="moderatedProgress"
-                :style="{
-                  transform: `scaleX(${moderatedProgress / 100})`,
-                  backgroundColor: $coreLoading,
-                }"
+        role="progressbar"
+        :aria-valuemax="100"
+        :aria-valuemin="0"
+        :aria-valuenow="moderatedProgress"
 
-                v-if="type === 'determinate'"
-            ></div>
+        :style="{
+          transform: `scaleX(${moderatedProgress / 100})`,
+          backgroundColor: $coreLoading,
+        }"
+      ></div>
 
-            <div
-                class="ui-progress-linear--progress-bar is-indeterminate"
-                role="progressbar"
+      <div
+        v-else
+        class="ui-progress-linear-progress-bar is-indeterminate"
 
-                :aria-valuemax="100"
-                :aria-valuemin="0"
-                :style="{ backgroundColor: $coreLoading }"
+        role="progressbar"
+        :aria-valuemax="100"
+        :aria-valuemin="0"
 
-                v-else
-            ></div>
-        </div>
-    </transition>
+        :style="{ backgroundColor: $coreLoading }"
+      ></div>
+    </div>
+  </transition>
+
 </template>
+
 
 <script>
 
-      /**
-       * Used to show determinate or indeterminate loading
-       */
+  import { mapGetters } from 'vuex';
 
+  /**
+   * Used to show determinate or indeterminate loading
+   */
   export default {
-      name: 'KLinearLoader',
+    name: 'KLinearLoader',
 
-      props: {
-          /**
-           * Whether there should be a delay before the loader displays
-           */
-          delay: {
-            type: Boolean,
-            required: true,
-          },
-          /**
-           * Determinate or indeterminate
-           */
-          type: {
-              type: String,
-              default: 'indeterminate' // 'determinate' or 'indeterminate'
-              validator(val) {
-                return val === 'determinate' || val === 'indeterminate';
-              },
-          },
-          progress: {
-              type: Number,
-              default: 0
-          }
+    props: {
+      /**
+       * Whether there should be a delay before the loader displays
+       */
+      delay: {
+        type: Boolean,
+        required: true,
+      },
+      /**
+       * Determinate or indeterminate
+       */
+      type: {
+        type: String,
+        default: 'indeterminate',
+        validator(val) {
+          return val === 'determinate' || val === 'indeterminate';
+        },
+      },
+      progress: {
+        type: Number,
+        default: 0,
+      },
+    },
+
+    computed: {
+      ...mapGetters(['$coreLoading']),
+      classes() {
+        return [`ui-progress-linear--type-${this.type}`, this.delay ? 'delay' : ''];
       },
 
-      computed: {
-          classes() {
-              return [
-                  `ui-progress-linear--type-${this.type}`,
-                  this.delay ? 'delay' : '',
-              ];
-          },
+      moderatedProgress() {
+        if (this.progress < 0) {
+          return 0;
+        }
 
-          moderatedProgress() {
-              if (this.progress < 0) {
-                  return 0;
-              }
+        if (this.progress > 100) {
+          return 100;
+        }
 
-              if (this.progress > 100) {
-                  return 100;
-              }
-
-              return this.progress;
-          }
-      }
+        return this.progress;
+      },
+    },
   };
 
 </script>
+
 
 <style lang="scss">
 
@@ -133,7 +135,7 @@
     animation-fill-mode: backwards;
   }
 
-  .ui-progress-linear--progress-bar {
+  .ui-progress-linear-progress-bar {
     position: absolute;
     top: 0;
     left: 0;

@@ -13,6 +13,7 @@
         v-model.trim="searchQuery"
         type="search"
         :class="[ 'search-input', $computedClass(searchInputStyle) ]"
+        :style="{ color: $coreTextDefault }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >

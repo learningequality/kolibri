@@ -59,7 +59,6 @@ import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
 import CoreFullscreen from '../views/CoreFullscreen';
-import theme from '../styles/core-theme.scss';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
@@ -182,7 +181,6 @@ export default {
   },
   resources,
   styles: {
-    theme,
     definitions,
     keenVars,
     buttonAndLinkStyles,
