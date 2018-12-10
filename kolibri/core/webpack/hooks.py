@@ -156,7 +156,10 @@ class WebpackBundleHook(hooks.KolibriHook):
                     continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
             if getattr(django_settings, 'DEVELOPER_MODE', False):
-                f['url'] = f['publicPath']
+                try:
+                    f['url'] = f['publicPath']
+                except KeyError:
+                    f['url'] = staticfiles_storage.url(relpath)
             else:
                 f['url'] = staticfiles_storage.url(relpath)
             yield f
