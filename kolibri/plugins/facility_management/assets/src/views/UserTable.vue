@@ -176,8 +176,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .empty-message {
     margin-bottom: 16px;
   }

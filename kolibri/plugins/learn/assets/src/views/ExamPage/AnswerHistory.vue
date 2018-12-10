@@ -71,8 +71,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .history-list {
     max-height: inherit;
     padding-left: 0;

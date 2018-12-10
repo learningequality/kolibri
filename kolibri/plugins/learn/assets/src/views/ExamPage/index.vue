@@ -254,8 +254,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .exam-status-container {
     padding: 16px;
   }

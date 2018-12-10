@@ -202,7 +202,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
+      ...mapGetters(['facilityConfig', '$coreGrey', '$coreActionNormal', '$coreBgLight']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),
@@ -424,6 +424,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   .fh {
     height: 100%;

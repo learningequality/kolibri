@@ -106,8 +106,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .k-tooltip {
     position: absolute;
     z-index: 24;

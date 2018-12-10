@@ -79,8 +79,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .pos-rel {
     position: relative;
   }

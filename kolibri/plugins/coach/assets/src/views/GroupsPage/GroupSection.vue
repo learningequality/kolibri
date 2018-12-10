@@ -34,7 +34,7 @@
       </KGridItem>
     </KGrid>
 
-    <CoreTable>
+    <CoreTable :selectable="true">
       <thead slot="thead">
         <tr>
           <th class="core-table-checkbox-col">
@@ -50,11 +50,10 @@
           <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody slot="tbody" class="core-table-rows-selectable">
+      <tbody slot="tbody">
         <tr
           v-for="user in sortedGroupUsers"
           :key="user.id"
-          :class="isSelected(user.id) ? 'core-table-row-selected' : ''"
           @click="toggleSelection(user.id)"
         >
           <td class="core-table-checkbox-col">

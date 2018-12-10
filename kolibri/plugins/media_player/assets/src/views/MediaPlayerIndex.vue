@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="wrapper" class="wrapper">
+  <div ref="wrapper" :class="['wrapper', $computedClass(progressStyle)]">
     <div v-show="loading" class="fill-space">
       <KCircularLoader
         class="loader"
@@ -149,6 +149,16 @@
           return this.extraFields.contentState.savedLocation;
         }
         return 0;
+      },
+      progressStyle() {
+        return {
+          '.vjs-play-progress': {
+            backgroundColor: this.$coreActionNormal,
+            '::before': {
+              color: this.$coreActionNormal,
+            },
+          },
+        };
       },
     },
     created() {
@@ -439,6 +449,7 @@
   @import './videojs-style/video-js.min.css';
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
+  @import '~kolibri.styles.definitions';
 
   .wrapper {
     width: 854px;
@@ -470,7 +481,6 @@
   $video-player-color-2: tint($video-player-color, 7%);
   $video-player-color-3: tint($video-player-color, 15%);
   $video-player-font-color: white;
-  $video-player-accent-color: $core-action-normal;
 
   $video-player-font-size: 12px;
 
@@ -514,12 +524,9 @@
         }
 
         .vjs-play-progress {
-          background-color: $video-player-accent-color;
-
           &::before {
             top: -5px;
             font-size: 18px;
-            color: $video-player-accent-color;
           }
         }
       }
