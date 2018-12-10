@@ -12,6 +12,7 @@ from rest_framework import viewsets
 
 from .serializers import ContentReportSerializer
 from .serializers import ContentSummarySerializer
+from .serializers import LearnerNotificationSerializer
 from .serializers import LessonReportSerializer
 from .serializers import UserReportSerializer
 from .utils.return_users import get_members_or_user
@@ -24,6 +25,7 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.notifications.models import LearnerProgressNotification
 
 
 collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
@@ -55,7 +57,10 @@ class KolibriReportPermissions(permissions.BasePermission):
                 collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
 
         else:
-            collection_kind = view.kwargs.get('collection_kind', 'user')
+            if isinstance(view, ClassroomNotificationsViewset):
+                collection_kind = 'classroom'
+            else:
+                collection_kind = view.kwargs.get('collection_kind', 'user')
             collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
@@ -143,3 +148,17 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, KolibriReportPermissions,)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()
+
+
+@query_params_required(collection_id=str)
+class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
+
+    permission_classes = (KolibriReportPermissions,)
+    serializer_class = LearnerNotificationSerializer
+
+    def get_queryset(self):
+        classroom_id = self.kwargs['collection_id']
+        today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
+        return LearnerProgressNotification.objects.filter(classroom_id=classroom_id,
+                                                          timestamp__gte=today).order_by('notification_type',
+                                                                                         'timestamp')

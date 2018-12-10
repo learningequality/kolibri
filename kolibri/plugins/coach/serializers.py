@@ -18,6 +18,9 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.notifications.models import HelpReason
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.core.notifications.models import NotificationType
 
 
 class UserReportSerializer(serializers.ModelSerializer):
@@ -295,3 +298,21 @@ class LessonReportSerializer(serializers.ModelSerializer):
         else:
             response['num_learners_completed'] = completed_content_logs[0]['total']
             return response
+
+
+class LearnerNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LearnerProgressNotification
+        fields = ('timestamp', 'user_id', 'classroom_id', 'lesson_id')
+
+    def to_representation(self, instance):
+        value = super(LearnerNotificationSerializer, self).to_representation(instance)
+        value['type'] = NotificationType[instance.notification_type.split('.')[1]].value
+        if instance.notification_type == NotificationType.Help:
+            value['reason'] = HelpReason[instance.reason.split('.')[1]].value
+        if instance.notification_type == NotificationType.Quiz:
+            value['quiz_id'] = instance.quiz_id
+        else:
+            value['contentnode_id'] = instance.contentnode_id
+            value['channel_id'] = instance.channel_id
+        return value
