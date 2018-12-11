@@ -141,10 +141,26 @@ def parse_attempts_log(sender, instance, **kwargs):
 
     content_id = instance.masterylog.summarylog.content_id
     channel_id = instance.masterylog.summarylog.channel_id
-    content_node = ContentNode.objects.filter(channel_id=channel_id,
-                                              content_id=content_id,
-                                              available=True).order_by('lft').first()
-    # This Event can only be triggered on Exercises in a Lesson:
+    # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
+    touched_groups = get_assignments(user_classrooms, content_id)
+    if not touched_groups:
+        return
+    # try to get the contentnode_id for this attemptlog
+    contentnode_id = None
+    for group in touched_groups:
+        for resource in touched_groups[group][1]:
+            if resource['content_id'] == content_id and resource['channel_id'] == channel_id:
+                contentnode_id = resource['contentnode_id']
+                lesson_id = touched_groups[group][0]
+                break
+        else:
+            continue
+        break
+    # Resource must be inside a lesson:
+    if not contentnode_id:
+        return
+    content_node = ContentNode.objects.get(pk=contentnode_id)
+    # This Event can only be triggered on Exercises:
     if content_node.kind != content_kinds.EXERCISE:
         return
     # This Event should be triggered only once
@@ -154,10 +170,6 @@ def parse_attempts_log(sender, instance, **kwargs):
                                                   notification_type=NotificationType.Help.name).exists():
         return
 
-    # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
-    touched_groups = get_assignments(user_classrooms, content_node.id)
-    if not touched_groups:
-        return
     # get all the atempts log on this exercise:
     needs_help = False
     failed_interactions = []
@@ -177,7 +189,6 @@ def parse_attempts_log(sender, instance, **kwargs):
                                                           classroom_id=group,
                                                           contentnode_id=content_node.id).exists():
                 continue
-            lesson_id, _ = touched_groups[group]
             notification = create_notification(NotificationType.Help, instance.user_id, group,
                                                lesson_id=lesson_id,
                                                contentnode_id=content_node.id,
