@@ -729,21 +729,22 @@ export class Resource {
     }
     // Add to the model cache using the default key if id is defined.
     const cache = this.__modelCache(endpointName);
+    let cacheKey;
     if (model.id) {
-      const cacheKey = this.__cacheKey({ [this.idKey]: model.id }, model.getParams);
+      cacheKey = this.__cacheKey({ [this.idKey]: model.id }, model.getParams);
       if (!cache[cacheKey]) {
         cache[cacheKey] = model;
       } else {
         cache[cacheKey].set(model.attributes);
       }
-      return cache[cacheKey];
+    } else {
+      // Otherwise use a hash of the models attributes to create a temporary cache key
+      cacheKey = this.__cacheKey(model.attributes);
+      cache[cacheKey] = model;
+      // invalidate collection cache because this new model may be included in a collection
+      this.collections = {};
     }
-    // Otherwise use a hash of the models attributes to create a temporary cache key
-    const cacheKey = this.__cacheKey(model.attributes);
-    cache[cacheKey] = model;
-    // invalidate collection cache because this new model may be included in a collection
-    this.collections = {};
-    return model;
+    return cache[cacheKey];
   }
 
   /**
