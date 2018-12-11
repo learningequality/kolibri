@@ -47,7 +47,39 @@ These modules would now be available for import anywhere with the following stat
 Styling
 -------
 
-To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri.styles.definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``core-theme.scss`` and ``definitions.scss``.
+To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri.styles.definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``definitions.scss``.
+
+Dynamic core theme
+------------------
+
+In addition to some of the global SCSS variables, we also leverage Vuex state to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). As such, much of our colour styles are defined in Javascript variables kept in Vuex state, which are then programmatically accessed using Vue.js style bindings in order to apply stylings inline to elements.
+
+This works for most use cases, however, inline styles cannot apply pseudo-selectors (e.g. ':hover', ':focus', '::before') - in order to accomplish this, we leverage the `Aphrodite<https://github.com/Khan/aphrodite>`__ library to generate computed classes that apply these stylings through a programmatically generated style sheet. This should be generally performant, but we are limiting their use for now to cases where we have pseudo selectors and styles that may conflict with pseudo-selector applied styles (to have clear selector precedence). In order to apply a style using Aphrodite, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object thusly:
+
+.. code-block:: javascript
+
+  pseudoStyle() {
+    return {
+      ':hover': {
+        backgroundColor: white,
+      },
+    };
+  },
+
+Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the `$computedClass` method, referencing this style object:
+
+.. code-block:: javascript
+
+  <div :class="$computedClass(pseudoStyle)">I'm going to get a white background when you hover on me!</div>
+
+Finally, to leverage the transition magic of Vue.js (which relies on specific classes to apply different styling for different transition events), you can use the range of `{event}-class` properties as options on the `<transition>` or `<transition-group>` special component, and the `$computedClass` method can be used again:
+
+.. code-block:: javascript
+
+  <transition-group :move-class="$computedClass(pseudoSelector)">
+    <div>While moving I'll have the hover style applied!</div>
+  </transition-group>
+
 
 Bootstrapped data
 -----------------
