@@ -1,39 +1,36 @@
+import { lighten } from 'kolibri.utils.colour';
+
+const initialState = {
+  '$core-action-light': '#e2d1e0',
+  '$core-action-dark': '#72486f',
+
+  '$core-accent-color': '#996189',
+
+  '$core-bg-canvas': '#f9f9f9',
+
+  '$core-text-default': '#3a3a3a',
+
+  '$core-bg-warning': '#fff3e1',
+
+  '$core-text-error': '#b93329',
+  '$core-bg-error': '#eeeeee',
+
+  /* Status colors */
+  '$core-status-progress': '#2196f3',
+  '$core-status-mastered': '#ffc107',
+  '$core-status-correct': '#4caf50',
+  '$core-status-wrong': '#df4d4f',
+
+  '$core-grey': '#e0e0e0',
+
+  '$core-loading': '#03a9f4',
+};
+
 export default {
-  state: {
-    '$core-action-normal': '#996189',
-    '$core-action-light': '#e2d1e0',
-    '$core-action-dark': '#72486f',
-
-    '$core-accent-color': '#996189',
-
-    '$core-bg-light': '#ffffff',
-    '$core-bg-canvas': '#f9f9f9',
-
-    '$core-text-default': '#3a3a3a',
-    '$core-text-annotation': '#616161',
-    '$core-text-disabled': '#dfdfdf',
-
-    '$core-bg-warning': '#fff3e1',
-
-    '$core-text-error': '#b93329',
-    '$core-bg-error': '#eeeeee',
-
-    /* Status colors */
-    '$core-status-progress': '#2196f3',
-    '$core-status-mastered': '#ffc107',
-    '$core-status-correct': '#4caf50',
-    '$core-status-wrong': '#df4d4f',
-
-    '$core-grey': '#e0e0e0',
-
-    '$core-grey-200': '#eeeeee',
-    '$core-grey-300': '#e0e0e0',
-
-    '$core-loading': '#03a9f4',
-  },
+  state: { ...initialState },
   getters: {
     $coreActionNormal(state) {
-      return state['$core-action-normal'];
+      return state['$core-accent-color'];
     },
     $coreActionLight(state) {
       return state['$core-action-light'];
@@ -45,7 +42,7 @@ export default {
       return state['$core-accent-color'];
     },
     $coreBgLight(state) {
-      return state['$core-bg-light'];
+      return lighten(state['$core-bg-canvas'], 0.025);
     },
     $coreBgCanvas(state) {
       return state['$core-bg-canvas'];
@@ -54,10 +51,10 @@ export default {
       return state['$core-text-default'];
     },
     $coreTextAnnotation(state) {
-      return state['$core-text-annotation'];
+      return lighten(state['$core-text-default'], 0.68);
     },
     $coreTextDisabled(state) {
-      return state['$core-text-disabled'];
+      return lighten(state['$core-text-default'], 2.85);
     },
     $coreBgWarning(state) {
       return state['$core-bg-warning'];
@@ -85,10 +82,10 @@ export default {
       return state['$core-grey'];
     },
     $coreGrey200(state) {
-      return state['$core-grey-200'];
+      return lighten(state['$core-grey'], 0.063);
     },
     $coreGrey300(state) {
-      return state['$core-grey-300'];
+      return state['$core-grey'];
     },
     $coreLoading(state) {
       return state['$core-loading'];
@@ -97,5 +94,12 @@ export default {
       return `${state['$core-action-light']} 2px solid`;
     },
   },
-  mutations: {},
+  mutations: {
+    SET_CORE_THEME(state, theme) {
+      Object.assign(state, theme);
+    },
+    RESET_THEME_VALUE(state, varName) {
+      state[varName] = initialState[varName];
+    },
+  },
 };

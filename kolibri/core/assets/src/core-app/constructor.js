@@ -66,6 +66,11 @@ export default class CoreApp {
       mediator.setReady();
     };
 
+    if (process.env.NODE !== 'production') {
+      const colourPicker = require('../utils/colourPicker').default;
+      colourPicker.start();
+    }
+
     i18nSetup().then(intlReady);
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
