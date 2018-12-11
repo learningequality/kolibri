@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <!-- temporary hack, resolves flicker when using other templates -->
-    <template v-if="navBarNeeded">
-
+    <template v-if="!fullScreen">
       <ImmersiveToolbar
         v-if="immersivePage"
         :appBarTitle="toolbarTitle || appBarTitle"
@@ -13,7 +11,6 @@
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
-
       <template v-else>
         <AppBar
           ref="appBar"
@@ -41,12 +38,12 @@
           @toggleSideNav="navShown=!navShown"
         />
       </template>
-
     </template>
 
     <AppBody
       :topGap="appBodyTopGap"
       :bottomGap="bottomMargin"
+      :fullScreen="fullScreen"
     >
       <AuthMessage
         v-if="notAuthorized"
@@ -100,10 +97,10 @@
         required: false,
         default: '',
       },
-      // Prop that determines whether to show nav components
-      navBarNeeded: {
+      // Prop that determines whether to show nav components and provide margins
+      fullScreen: {
         type: Boolean,
-        default: true,
+        default: false,
       },
       // reserve space at the bottom for floating widgets
       bottomMargin: {
@@ -134,11 +131,13 @@
         required: false,
         default: false,
       },
+      // generally a 'back' or 'close' icon
       immersivePageIcon: {
         type: String,
         required: false,
         default: 'close',
       },
+      // link to where the 'back' button should go
       immersivePageRoute: {
         type: Object,
         required: false,
