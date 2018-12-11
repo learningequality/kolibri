@@ -24,14 +24,6 @@
       class="signup-form"
       @submit.prevent="signUp"
     >
-      <UiAlert
-        v-if="unknownError"
-        type="error"
-        @dismiss="resetSignUpState"
-      >
-        {{ errorMessage }}
-      </UiAlert>
-
       <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
 
       <KTextbox
@@ -287,15 +279,6 @@
           !this.confirmedPasswordIsInvalid &&
           !this.facilityIsInvalid
         );
-      },
-      unknownError() {
-        if (this.errorCode) {
-          return this.errorCode !== 400;
-        }
-        return false;
-      },
-      errorMessage() {
-        return this.$tr('genericError');
       },
     },
     beforeMount() {
