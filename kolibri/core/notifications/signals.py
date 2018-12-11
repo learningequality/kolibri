@@ -78,7 +78,9 @@ def parse_summary_log(sender, instance, **kwargs):
     # If the user is not in any classroom nor group, nothing to notify
     if not user_classrooms:
         return
-    content_node = ContentNode.objects.get(content_id=instance.content_id, channel_id=instance.channel_id)
+    content_node = ContentNode.objects.filter(channel_id=instance.channel_id,
+                                              content_id=instance.content_id,
+                                              available=True).order_by('lft').first()
     touched_groups = get_assignments(user_classrooms, content_node.id)
     notifications = []
     for group_id in touched_groups:
@@ -139,8 +141,10 @@ def parse_attempts_log(sender, instance, **kwargs):
 
     content_id = instance.masterylog.summarylog.content_id
     channel_id = instance.masterylog.summarylog.channel_id
+    content_node = ContentNode.objects.filter(channel_id=channel_id,
+                                              content_id=content_id,
+                                              available=True).order_by('lft').first()
     # This Event can only be triggered on Exercises in a Lesson:
-    content_node = ContentNode.objects.get(content_id=content_id, channel_id=channel_id)
     if content_node.kind != content_kinds.EXERCISE:
         return
     # This Event should be triggered only once
