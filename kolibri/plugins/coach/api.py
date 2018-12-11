@@ -57,7 +57,10 @@ class KolibriReportPermissions(permissions.BasePermission):
                 collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
 
         else:
-            collection_kind = view.kwargs.get('collection_kind', 'user')
+            if isinstance(view, ClassroomNotificationsViewset):
+                collection_kind = 'classroom'
+            else:
+                collection_kind = view.kwargs.get('collection_kind', 'user')
             collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
@@ -147,22 +150,10 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Lesson.objects.all()
 
 
-class LearnNotificationPermissions(permissions.BasePermission):
-
-    # check if requesting user has permission for collection or user
-    def has_permission(self, request, view):
-        collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
-        except (Collection.DoesNotExist, ValueError):
-            return True
-
-
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
-    permission_classes = (LearnNotificationPermissions,)
+    permission_classes = (KolibriReportPermissions,)
     serializer_class = LearnerNotificationSerializer
 
     def get_queryset(self):
