@@ -57,10 +57,7 @@ class KolibriReportPermissions(permissions.BasePermission):
                 collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
 
         else:
-            if isinstance(view, ClassroomNotificationsViewset):
-                collection_kind = 'classroom'
-            else:
-                collection_kind = view.kwargs.get('collection_kind', 'user')
+            collection_kind = view.kwargs.get('collection_kind', 'user')
             collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
@@ -69,7 +66,7 @@ class KolibriReportPermissions(permissions.BasePermission):
                 return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
             else:
                 return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
-        except (FacilityUser.DoesNotExist, Collection.DoesNotExist):
+        except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
             return False
 
 
@@ -150,14 +147,30 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Lesson.objects.all()
 
 
+class LearnNotificationPermissions(permissions.BasePermission):
+
+    # check if requesting user has permission for collection or user
+    def has_permission(self, request, view):
+        collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
+        except (Collection.DoesNotExist, ValueError):
+            return True
+
+
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
-    permission_classes = (KolibriReportPermissions,)
+    permission_classes = (LearnNotificationPermissions,)
     serializer_class = LearnerNotificationSerializer
 
     def get_queryset(self):
         classroom_id = self.kwargs['collection_id']
+        try:
+            Collection.objects.get(pk=classroom_id)
+        except (Collection.DoesNotExist, ValueError):
+            return None
         today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
         return LearnerProgressNotification.objects.filter(classroom_id=classroom_id,
                                                           timestamp__gte=today).order_by('notification_type',

@@ -87,7 +87,7 @@ def parse_summary_log(sender, instance, **kwargs):
         lesson_id, lesson_resources = touched_groups[group_id]
         # Check if the notification has been previously saved:
         if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
-                                                      notification_type=NotificationType.Resource,
+                                                      notification_type=NotificationType.Resource.name,
                                                       lesson_id=lesson_id,
                                                       contentnode_id=instance.content_id).exists():
             continue
@@ -105,7 +105,7 @@ def parse_summary_log(sender, instance, **kwargs):
         user_completed = sender.objects.filter(user_id=instance.user_id, content_id__in=lesson_content_ids, progress=1.0).count()
         if user_completed == len(lesson_content_ids):
             if not LearnerProgressNotification.objects.filter(user_id=instance.user_id,
-                                                              notification_type=NotificationType.Lesson,
+                                                              notification_type=NotificationType.Lesson.name,
                                                               lesson_id=lesson_id,
                                                               classroom_id=group_id).exists():
                 lesson_notification = create_notification(NotificationType.Lesson, instance.user_id,
@@ -146,7 +146,7 @@ def parse_attempts_log(sender, instance, **kwargs):
     # TODO: Decide if add a day interval filter, to trigger the event in different days
     if LearnerProgressNotification.objects.filter(contentnode_id=content_id,
                                                   user_id=instance.user_id,
-                                                  notification_type=NotificationType.Help).exists():
+                                                  notification_type=NotificationType.Help.name).exists():
         return
     # This Event can only be triggered on Exercises in a Lesson:
     content_node = ContentNode.objects.get(content_id=content_id, channel_id=channel_id)
@@ -171,7 +171,7 @@ def parse_attempts_log(sender, instance, **kwargs):
         for group in touched_groups:
             # Check if the notification for that exercise and group has already been created:
             if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
-                                                          notification_type=NotificationType.Help,
+                                                          notification_type=NotificationType.Help.name,
                                                           classroom_id=group,
                                                           contentnode_id=content_id).exists():
                 continue
