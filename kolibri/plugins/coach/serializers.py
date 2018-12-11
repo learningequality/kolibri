@@ -307,12 +307,17 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         value = super(LearnerNotificationSerializer, self).to_representation(instance)
-        value['type'] = NotificationType[instance.notification_type.split('.')[1]].value
-        if instance.notification_type == NotificationType.Help:
-            value['reason'] = HelpReason[instance.reason.split('.')[1]].value
-        if instance.notification_type == NotificationType.Quiz:
+
+        if instance.notification_type == NotificationType.Help.name:
+            value['reason'] = HelpReason[instance.reason].value
+
+        if instance.notification_type == NotificationType.Quiz.name:
             value['quiz_id'] = instance.quiz_id
-        else:
+
+        if instance.notification_type == NotificationType.Help.name or\
+           instance.notification_type == NotificationType.Resource.name:
             value['contentnode_id'] = instance.contentnode_id
             value['channel_id'] = instance.channel_id
+
+        value['type'] = NotificationType[instance.notification_type].value
         return value

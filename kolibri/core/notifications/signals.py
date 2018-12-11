@@ -104,8 +104,13 @@ def parse_summary_log(sender, instance, **kwargs):
         # Let's check if an LessonResourceIndividualCompletion needs to be created
         user_completed = sender.objects.filter(user_id=instance.user_id, content_id__in=lesson_content_ids, progress=1.0).count()
         if user_completed == len(lesson_content_ids):
-            lesson_notification = create_notification(NotificationType.Lesson, instance.user_id, group_id, lesson_id=lesson_id)
-            notifications.append(lesson_notification)
+            if not LearnerProgressNotification.objects.filter(user_id=instance.user_id,
+                                                              notification_type=NotificationType.Lesson,
+                                                              lesson_id=lesson_id,
+                                                              classroom_id=group_id).exists():
+                lesson_notification = create_notification(NotificationType.Lesson, instance.user_id,
+                                                          group_id, lesson_id=lesson_id)
+                notifications.append(lesson_notification)
 
     save_notifications(notifications)
 
@@ -167,7 +172,7 @@ def parse_attempts_log(sender, instance, **kwargs):
             # Check if the notification for that exercise and group has already been created:
             if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
                                                           notification_type=NotificationType.Help,
-                                                          group_id=group,
+                                                          classroom_id=group,
                                                           contentnode_id=content_id).exists():
                 continue
             lesson_id, _ = touched_groups[group]
