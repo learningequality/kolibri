@@ -52,17 +52,15 @@ def save_notifications(notifications):
 
 
 def create_notification(notification_type, user_id, group_id, lesson_id=None,
-                        content_id=None, channel_id=None,
+                        contentnode_id=None,
                         quiz_id=None, reason=None):
     notification = LearnerProgressNotification()
     notification.id = uuid.uuid4().hex
     notification.user_id = user_id
     notification.classroom_id = group_id
     notification.notification_type = notification_type
-    if content_id:
-        notification.contentnode_id = content_id
-    if channel_id:
-        notification.channel_id = channel_id
+    if contentnode_id:
+        notification.contentnode_id = contentnode_id
     if lesson_id:
         notification.lesson_id = lesson_id
     if quiz_id:
@@ -80,8 +78,8 @@ def parse_summary_log(sender, instance, **kwargs):
     # If the user is not in any classroom nor group, nothing to notify
     if not user_classrooms:
         return
-
-    touched_groups = get_assignments(user_classrooms, instance.content_id)
+    content_node = ContentNode.objects.get(content_id=instance.content_id, channel_id=instance.channel_id)
+    touched_groups = get_assignments(user_classrooms, content_node.id)
     notifications = []
     for group_id in touched_groups:
         lesson_id, lesson_resources = touched_groups[group_id]
@@ -89,15 +87,14 @@ def parse_summary_log(sender, instance, **kwargs):
         if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
                                                       notification_type=NotificationType.Resource.name,
                                                       lesson_id=lesson_id,
-                                                      contentnode_id=instance.content_id).exists():
+                                                      contentnode_id=content_node.id).exists():
             continue
         # Let's create an ResourceIndividualCompletion
         notification = create_notification(NotificationType.Resource,
                                            instance.user_id,
                                            group_id,
                                            lesson_id=lesson_id,
-                                           content_id=instance.content_id,
-                                           channel_id=instance.channel_id)
+                                           contentnode_id=content_node.id)
         notifications.append(notification)
         lesson_content_ids = [resource['content_id'] for resource in lesson_resources]
 
@@ -142,18 +139,19 @@ def parse_attempts_log(sender, instance, **kwargs):
 
     content_id = instance.masterylog.summarylog.content_id
     channel_id = instance.masterylog.summarylog.channel_id
-    # This Event should be triggered only once
-    # TODO: Decide if add a day interval filter, to trigger the event in different days
-    if LearnerProgressNotification.objects.filter(contentnode_id=content_id,
-                                                  user_id=instance.user_id,
-                                                  notification_type=NotificationType.Help.name).exists():
-        return
     # This Event can only be triggered on Exercises in a Lesson:
     content_node = ContentNode.objects.get(content_id=content_id, channel_id=channel_id)
     if content_node.kind != content_kinds.EXERCISE:
         return
+    # This Event should be triggered only once
+    # TODO: Decide if add a day interval filter, to trigger the event in different days
+    if LearnerProgressNotification.objects.filter(contentnode_id=content_node.id,
+                                                  user_id=instance.user_id,
+                                                  notification_type=NotificationType.Help.name).exists():
+        return
+
     # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
-    touched_groups = get_assignments(user_classrooms, content_id)
+    touched_groups = get_assignments(user_classrooms, content_node.id)
     if not touched_groups:
         return
     # get all the atempts log on this exercise:
@@ -173,13 +171,12 @@ def parse_attempts_log(sender, instance, **kwargs):
             if LearnerProgressNotification.objects.filter(user_id=instance.user_id,
                                                           notification_type=NotificationType.Help.name,
                                                           classroom_id=group,
-                                                          contentnode_id=content_id).exists():
+                                                          contentnode_id=content_node.id).exists():
                 continue
             lesson_id, _ = touched_groups[group]
             notification = create_notification(NotificationType.Help, instance.user_id, group,
                                                lesson_id=lesson_id,
-                                               content_id=content_id,
-                                               channel_id=channel_id,
+                                               contentnode_id=content_node.id,
                                                reason=HelpReason.Multiple)
             notifications.append(notification)
         save_notifications(notifications)

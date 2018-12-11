@@ -53,7 +53,6 @@ class Migration(migrations.Migration):
                 ),
                 ('user_id', kolibri.core.content.models.UUIDField()),
                 ('classroom_id', kolibri.core.content.models.UUIDField()),
-                ('channel_id', kolibri.core.content.models.UUIDField(null=True)),
                 ('contentnode_id', kolibri.core.content.models.UUIDField(null=True)),
                 ('lesson_id', kolibri.core.content.models.UUIDField(null=True)),
                 ('quiz_id', kolibri.core.content.models.UUIDField(null=True)),

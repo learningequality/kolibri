@@ -317,7 +317,6 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
         if instance.notification_type == NotificationType.Help.name or\
            instance.notification_type == NotificationType.Resource.name:
             value['contentnode_id'] = instance.contentnode_id
-            value['channel_id'] = instance.channel_id
 
         value['type'] = NotificationType[instance.notification_type].value
         return value
