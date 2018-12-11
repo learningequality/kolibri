@@ -618,7 +618,9 @@ export class Resource {
         {},
         ...Object.keys(allParams)
           .sort()
-          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+          .map(paramKey => ({
+            [paramKey]: paramKey === this.idKey ? String(allParams[paramKey]) : allParams[paramKey],
+          }))
       )
     );
   }
