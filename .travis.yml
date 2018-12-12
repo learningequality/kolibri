@@ -47,6 +47,10 @@ matrix:
     - python: "3.4"
       env:
         - TOX_ENV=py3.4
+    - python: "3.4"
+      os: windows
+      env:
+        - TOX_ENV=py3.4
     - python: "3.5"
       env:
         - TOX_ENV=py3.5
