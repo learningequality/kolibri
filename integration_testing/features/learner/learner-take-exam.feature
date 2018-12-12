@@ -1,16 +1,16 @@
-Feature: Learner take exam
-  Learner can access the exam that has been assigned by coach
+Feature: Learner take quiz
+  Learner can access the quiz that has been assigned by coach
 
   Background:
     Given I am signed in as a learner user
       And I am on *Learn > Classes* page
-      And there is an exam assigned to me
+      And there is an quiz assigned to me
 
-  Scenario: Take an asigned exam
-    When I click to select a not started exam
-    Then I see all exam questions
+  Scenario: Take an asigned quiz
+    When I click to select a not started quiz
+    Then I see all quiz questions
     When I fill out all questions with answers
-    When I click *Submit exam* button
-    Then I see the *Submit exam* modal
-    When I click *Submit exam* button
-    Then I see the exam is marked as *Completed*
+    When I click *Submit quiz* button
+    Then I see the *Submit quiz* modal
+    When I click *Submit quiz* button
+    Then I see the quiz is marked as *Completed*
