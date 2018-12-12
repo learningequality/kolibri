@@ -659,8 +659,6 @@ def main(args=None):  # noqa: max-complexity=13
         call_command("clearsessions")
 
         daemon = not arguments['--foreground']
-        if sys.platform == 'darwin':
-            daemon = False
         start(port, daemon=daemon)
         return
 

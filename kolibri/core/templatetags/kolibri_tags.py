@@ -28,6 +28,7 @@ from django_js_reverse.templatetags.js_reverse import js_reverse_inline
 from rest_framework.renderers import JSONRenderer
 from six import iteritems
 
+import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.utils import webpack_asset_render
@@ -99,9 +100,9 @@ def kolibri_language_globals(context):
       var languages = JSON.parse('{languages}');
       var useModernFontLoading = {use_modern};
     </script>
-    <link type="text/css" href="{common_css_file}" rel="stylesheet"/>
-    <link type="text/css" href="{subset_css_file}" rel="stylesheet"/>
-    <link type="text/css" href="{full_css_file}" rel="stylesheet"/>
+    <link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>
+    <link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>
+    <link type="text/css" href="{full_css_file}?v={version}" rel="stylesheet"/>
     """
 
     language_code = get_language()
@@ -123,7 +124,7 @@ def kolibri_language_globals(context):
     is_modern = _supports_modern_fonts(context["request"])
     full_file = static(
         "assets/fonts/noto-full.{}.{}.css".format(
-            language_code, "modern" if is_modern else "basic"
+            language_code, ("modern" if is_modern else "basic")
         )
     )
 
@@ -136,6 +137,9 @@ def kolibri_language_globals(context):
             common_css_file=common_file,
             subset_css_file=subset_file,
             full_css_file=full_file,
+            # Temporary cache busting strategy.
+            # Would be better to use ManifestStaticFilesStorage
+            version=kolibri.__version__,
         )
     )
 
@@ -154,9 +158,14 @@ def kolibri_set_urls(context):
     js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
     js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
     js = (js_reverse_inline(context) +
-          "Object.assign({0}.urls, {1}.{2})".format(conf.KOLIBRI_CORE_JS_NAME,
-                                                    js_global_object_name,
-                                                    js_var_name))
+          """
+          Object.assign({kolibri}.urls, {global_object}.{js_var});
+          {kolibri}.urls.__staticURL = '{static_url}';
+          """.format(
+        kolibri=conf.KOLIBRI_CORE_JS_NAME,
+        global_object=js_global_object_name,
+        js_var=js_var_name,
+        static_url=settings.STATIC_URL))
     return mark_safe(js)
 
 

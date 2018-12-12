@@ -1,6 +1,6 @@
 <template>
 
-  <ImmersiveFullScreen v-bind="{ backPageLink, backPageText }">
+  <div>
     <!-- TODO should I try and use the baked in auth page? Does this have a URL-->
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
@@ -87,7 +87,7 @@
       </div>
     </template>
 
-  </ImmersiveFullScreen>
+  </div>
 
 </template>
 
@@ -96,13 +96,11 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import UserType from 'kolibri.utils.UserType';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import { PageNames } from '../../constants';
 
   const SUCCESS = 'SUCCESS';
   const IN_PROGRESS = 'IN_PROGRESS';
@@ -117,7 +115,6 @@
     },
     components: {
       AuthMessage,
-      ImmersiveFullScreen,
       KButton,
       KCheckbox,
       PermissionsIcon,
@@ -162,16 +159,6 @@
           default:
             return '';
         }
-      },
-      backPageLink() {
-        if (this.isSuperuser) {
-          return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
-        }
-        return { name: PageNames.MANAGE_CONTENT_PAGE };
-      },
-      backPageText() {
-        if (!this.isSuperuser) return this.$tr('goBack');
-        return this.user ? this.user.full_name : this.$tr('invalidUser');
       },
       // "dirty check" of permissions
       permissionsAreUnchanged() {
@@ -228,10 +215,8 @@
     $trs: {
       cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
-      devicePermissionsDetails: 'Can import and export content channels',
+      devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",
-      goBack: 'Go Back',
-      invalidUser: 'Invalid user ID',
       makeSuperAdmin: 'Make super admin',
       permissionChangeConfirmation: 'Changes saved',
       saveButton: 'Save Changes',
@@ -285,12 +270,11 @@
   }
 
   .section {
-    padding: 1em;
+    margin-bottom: 16px;
   }
 
   .permissions-icon {
     display: inline;
-    // was 5px in the mocks, this is kolibri standard(?)
     margin-left: 8px;
   }
 

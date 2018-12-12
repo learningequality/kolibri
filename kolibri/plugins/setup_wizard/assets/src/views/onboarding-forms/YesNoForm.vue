@@ -23,7 +23,6 @@
         class="info-icon"
         :iconAriaLabel="noOptionLabel"
         :tooltipText="noOptionTooltip"
-        tooltipPosition="bottom right"
       />
     </KRadioButton>
 

@@ -9,12 +9,12 @@ function makeWrapper() {
   const store = makeStore();
   const wrapper = mount(ClassListPage, {
     store,
-    stubs: ['router-link'],
+    stubs: { 'router-link': '<div />', KTooltip: '<div><slot></slot></div>' },
   });
   const els = {
     AuthMessage: () => wrapper.find({ name: 'AuthMessage' }),
-    coachNames: () => wrapper.find('td[data-test="coach-names"]').text(),
-    coachNamesTooltip: () => wrapper.find('td[data-test="coach-names"]').attributes().title,
+    coachNames: () => wrapper.find('td[data-test="coach-names"] span').text(),
+    coachNamesTooltip: () => wrapper.find({ name: 'KTooltip' }),
     classRows: () => wrapper.findAll('tbody tr'),
   };
   return { wrapper, els, store };
@@ -131,11 +131,11 @@ describe('ClassListPage', () => {
       classList: [{ coaches, name: 'Class 1' }],
     });
     expect(els.coachNames()).toEqual('Coach Carter, Coach K… (+2)');
-    expect(els.coachNamesTooltip().split('\n')).toEqual([
-      'Coach Carter',
-      'Coach K',
-      'Coach L',
-      "Patches O'Houlihan",
-    ]);
+    expect(
+      els
+        .coachNamesTooltip()
+        .text()
+        .split('\n')
+    ).toEqual(['Coach Carter', 'Coach K', 'Coach L', "Patches O'Houlihan"]);
   });
 });

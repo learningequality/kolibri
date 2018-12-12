@@ -66,7 +66,7 @@ class Lesson(AbstractFacilityDataModel):
     morango_model_name = 'lesson'
 
     def infer_dataset(self, *args, **kwargs):
-        return self.created_by.dataset
+        return self.created_by.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
@@ -101,7 +101,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     morango_model_name = 'lessonassignment'
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset
+        return self.assigned_by.dataset_id
 
     def calculate_source_id(self):
         return "{lesson_id}:{collection_id}".format(lesson_id=self.lesson_id, collection_id=self.collection_id)

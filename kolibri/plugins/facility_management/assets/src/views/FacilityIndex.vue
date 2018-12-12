@@ -25,7 +25,6 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
@@ -67,7 +66,6 @@
       isEnrollmentPage() {
         return classEnrollmentPages.includes(this.pageName);
       },
-      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },

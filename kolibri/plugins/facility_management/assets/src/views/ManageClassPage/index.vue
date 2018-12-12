@@ -43,9 +43,19 @@
               :to="classEditLink(classroom.id)"
             />
           </td>
-          <td :title="formattedCoachNamesTooltip(classroom)">
-            {{ formattedCoachNames(classroom) }}
+          <td>
+            <span :ref="`coachNames${classroom.id}`">
+              {{ formattedCoachNames(classroom) }}
+            </span>
+            <KTooltip
+              v-if="formattedCoachNamesTooltip(classroom)"
+              :reference="`coachNames${classroom.id}`"
+              :refs="$refs"
+            >
+              {{ formattedCoachNamesTooltip(classroom) }}
+            </KTooltip>
           </td>
+
           <td>
             {{ classroom.learner_count }}
           </td>
@@ -87,6 +97,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -114,6 +125,7 @@
       KGrid,
       KGridItem,
       UiIcon,
+      KTooltip,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
