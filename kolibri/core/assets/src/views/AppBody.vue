@@ -81,6 +81,7 @@
           };
         }
         return {
+          maxWidth: '1000px',
           padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
@@ -100,7 +101,6 @@
   }
 
   .body-wrapper {
-    max-width: 1000px;
     margin: auto;
   }
 
