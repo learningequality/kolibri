@@ -45,7 +45,7 @@
   export default {
     name: 'PageStatus',
     $trs: {
-      title: '{name} - Exam performance',
+      title: '{name} - Quiz performance',
       overallScore: 'Overall score: { score, number, percent }',
       questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',

@@ -216,7 +216,7 @@
     $trs: {
       averageScore: 'Average score: {num, number, percent}',
       noAverageScore: 'Average score: –',
-      examReport: 'Exam report',
+      examReport: 'Quiz report',
       completed: 'Completed',
       remaining: '{ num, number } {num, plural, one {question} other {questions}} remaining',
       notstarted: 'Not started',
@@ -229,7 +229,7 @@
       options: 'Options',
       previewExam: 'Preview',
       editDetails: 'Edit details',
-      copyExamOptionLabel: 'Copy exam',
+      copyExamOptionLabel: 'Copy quiz',
       delete: 'Delete',
       viewByGroups: 'View by groups',
       allLearners: 'All learners',

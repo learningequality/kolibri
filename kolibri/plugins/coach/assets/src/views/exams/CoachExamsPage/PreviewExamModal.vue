@@ -106,7 +106,7 @@
   export default {
     name: 'PreviewExamModal',
     $trs: {
-      preview: 'Preview exam',
+      preview: 'Preview quiz',
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',

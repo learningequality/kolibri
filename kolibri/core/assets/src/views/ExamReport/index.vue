@@ -64,7 +64,7 @@
   export default {
     name: 'ExamReport',
     $trs: {
-      backTo: 'Back to exam report for { title }',
+      backTo: 'Back to quiz report for { title }',
       correctAnswer: 'Correct answer',
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',

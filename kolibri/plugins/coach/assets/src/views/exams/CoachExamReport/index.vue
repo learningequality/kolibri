@@ -91,7 +91,7 @@
       },
     },
     $trs: {
-      documentTitle: 'Exam Report Detail',
+      documentTitle: 'Quiz Report Detail',
     },
   };
 
