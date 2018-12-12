@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <h1>{{ $tr('createNewExam') }}</h1>
     <template v-if="!inSearchMode">
       <KTextbox
         ref="title"
@@ -47,10 +46,8 @@
         sizes="100, 50, 50"
         percentage
       >
-        <h2>{{ $tr('chooseExercises') }}</h2>
-
+        <h1>{{ $tr('chooseExercises') }}</h1>
       </KGridItem>
-
       <KGridItem
         sizes="100, 50, 50"
         percentage
@@ -85,6 +82,9 @@
       :channelsLink="channelsLink"
       :topicsLink="topicsLink"
     />
+
+    <h2>{{ topicTitle }}</h2>
+    <p>{{ topicDescription }}</p>
 
     <ContentCardList
       :contentList="filteredContentList"
@@ -167,7 +167,7 @@
     mixins: [responsiveWindow],
     $trs: {
       createNewExam: 'Create new exam',
-      chooseExercises: 'Select topics or exercises',
+      chooseExercises: 'Select exercises',
       title: 'Title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
@@ -382,6 +382,12 @@
           },
         };
       },
+      topicTitle() {
+        return this.ancestors[this.ancestors.length - 1].title;
+      },
+      topicDescription() {
+        return this.ancestors[this.ancestors.length - 1].description;
+      },
     },
     watch: {
       filters(newVal) {
@@ -497,13 +503,18 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
-        const topicTitle = this.ancestors[this.ancestors.length - 1].title;
         if (isChecked) {
           this.addToSelectedExercises(this.addableExercises);
-          this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
+          this.createSnackbar({
+            text: `${this.$tr('added')} ${this.topicTitle}`,
+            autoDismiss: true,
+          });
         } else {
           this.removeFromSelectedExercises(this.allExercises);
-          this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
+          this.createSnackbar({
+            text: `${this.$tr('removed')} ${this.topicTitle}`,
+            autoDismiss: true,
+          });
         }
       },
       toggleSelected({ checked, contentId }) {
