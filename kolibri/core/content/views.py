@@ -6,9 +6,12 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from le_utils.constants import exercises
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
 from .utils.paths import get_content_storage_file_path
@@ -25,6 +28,35 @@ def _add_access_control_headers(request, response):
     requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
     if requested_headers:
         response["Access-Control-Allow-Headers"] = requested_headers
+
+
+def get_referrer_url(request):
+    if request.META.get('HTTP_REFERER'):
+        # If available user HTTP_REFERER to infer the host as that will give us more
+        # information if Kolibri is behind a proxy.
+        return urlparse(request.META.get('HTTP_REFERER'))
+
+
+def generate_image_prefix_url(zipped_filename, parsed_referrer_url):
+    # Remove trailing slash
+    zipcontent = reverse(
+        'kolibri:core:zipcontent',
+        kwargs={
+            "zipped_filename": zipped_filename,
+            "embedded_filepath": ''
+        })[:-1]
+    if parsed_referrer_url:
+        # Reconstruct the parsed URL using only the scheme(0) and host + port(1)
+        zipcontent = urlunparse((parsed_referrer_url[0], parsed_referrer_url[1], zipcontent, '', '', ''))
+    return zipcontent.encode()
+
+
+def get_host(request, parsed_referrer_url):
+    if parsed_referrer_url:
+        host = urlunparse((parsed_referrer_url[0], parsed_referrer_url[1], '', '', '', ''))
+    else:
+        host = request.build_absolute_uri(OPTIONS['Deployment']['URL_PATH_PREFIX'])
+    return host.strip("/")
 
 
 class ZipContentView(View):
@@ -59,6 +91,8 @@ class ZipContentView(View):
         if request.META.get('HTTP_IF_MODIFIED_SINCE'):
             return HttpResponseNotModified()
 
+        parsed_referrer_url = get_referrer_url(request)
+
         with zipfile.ZipFile(zipped_path) as zf:
 
             # if no path, or a directory, is being referenced, look for an index.html file
@@ -79,11 +113,11 @@ class ZipContentView(View):
                 response = FileResponse(zf.open(info), content_type=content_type)
                 file_size = info.file_size
             else:
+                image_prefix_url = generate_image_prefix_url(zipped_filename, parsed_referrer_url)
                 # load the stream from json file into memory, replace the path_place_holder.
                 content = zf.open(info).read()
                 str_to_be_replaced = ('$' + exercises.IMG_PLACEHOLDER).encode()
-                zipcontent = ('/' + request.resolver_match.url_name + "/" + zipped_filename).encode()
-                content_with_path = content.replace(str_to_be_replaced, zipcontent)
+                content_with_path = content.replace(str_to_be_replaced, image_prefix_url)
                 response = HttpResponse(content_with_path, content_type=content_type)
                 file_size = len(content_with_path)
 
@@ -99,7 +133,7 @@ class ZipContentView(View):
 
         # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
         # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-        host = request.build_absolute_uri(OPTIONS['Deployment']['URL_PATH_PREFIX']).strip("/")
+        host = get_host(request, parsed_referrer_url)
         response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response
