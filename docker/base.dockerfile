@@ -18,7 +18,7 @@ RUN apt-get update && \
       gettext \
       git \
       git-lfs \
-      nodejs=10.14.1-1nodesource1 \
+      nodejs \
       psmisc \
       python2.7 \
       python-pip \
