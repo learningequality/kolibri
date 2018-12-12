@@ -37,7 +37,8 @@ def get_referrer_url(request):
         return urlparse(request.META.get('HTTP_REFERER'))
 
 
-def generate_image_prefix_url(zipped_filename, parsed_referrer_url):
+def generate_image_prefix_url(request, zipped_filename):
+    parsed_referrer_url = get_referrer_url(request)
     # Remove trailing slash
     zipcontent = reverse(
         'kolibri:core:zipcontent',
@@ -51,7 +52,8 @@ def generate_image_prefix_url(zipped_filename, parsed_referrer_url):
     return zipcontent.encode()
 
 
-def get_host(request, parsed_referrer_url):
+def get_host(request):
+    parsed_referrer_url = get_referrer_url(request)
     if parsed_referrer_url:
         host = urlunparse((parsed_referrer_url[0], parsed_referrer_url[1], '', '', '', ''))
     else:
@@ -91,8 +93,6 @@ class ZipContentView(View):
         if request.META.get('HTTP_IF_MODIFIED_SINCE'):
             return HttpResponseNotModified()
 
-        parsed_referrer_url = get_referrer_url(request)
-
         with zipfile.ZipFile(zipped_path) as zf:
 
             # if no path, or a directory, is being referenced, look for an index.html file
@@ -113,7 +113,7 @@ class ZipContentView(View):
                 response = FileResponse(zf.open(info), content_type=content_type)
                 file_size = info.file_size
             else:
-                image_prefix_url = generate_image_prefix_url(zipped_filename, parsed_referrer_url)
+                image_prefix_url = generate_image_prefix_url(request, zipped_filename)
                 # load the stream from json file into memory, replace the path_place_holder.
                 content = zf.open(info).read()
                 str_to_be_replaced = ('$' + exercises.IMG_PLACEHOLDER).encode()
@@ -133,7 +133,7 @@ class ZipContentView(View):
 
         # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
         # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-        host = get_host(request, parsed_referrer_url)
+        host = get_host(request)
         response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
         return response

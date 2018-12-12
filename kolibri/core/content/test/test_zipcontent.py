@@ -110,9 +110,13 @@ class ZipContentTestCase(TestCase):
     def test_json_image_replacement_http_referer_header(self):
         server_name = "http://testserver"
         response = self.client.get(self.zip_file_base_url + self.test_name_3, HTTP_REFERER=server_name)
-        self.assertEqual(response.content, self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
+        self.assertEqual(
+            response.content.decode('utf-8'),
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
 
     def test_json_image_replacement_no_http_referer_header(self):
         server_name = "http://testserver"
         response = self.client.get(self.zip_file_base_url + self.test_name_3)
-        self.assertEqual(response.content, self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
+        self.assertEqual(
+            response.content.decode('utf-8'),
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
