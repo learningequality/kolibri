@@ -80,7 +80,7 @@ describe('SelectAddressForm', () => {
     await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
     expect(els.uiAlert().exists()).toEqual(true);
-    expect(els.uiAlert().text()).toEqual('You have not entered any addresses');
+    expect(els.uiAlert().text()).toEqual('There are no addresses yet');
     expect(els.KModal().props().submitDisabled).toEqual(true);
   });
 
