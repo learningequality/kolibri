@@ -56,6 +56,8 @@
       changeLanguageModalHeader: 'Change language',
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Confirm',
+      // TODO: https://github.com/learningequality/kolibri/issues/4512
+      communitySupported: 'Community-supported language in this release',
     },
     data() {
       return {

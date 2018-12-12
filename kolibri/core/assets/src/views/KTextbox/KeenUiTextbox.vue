@@ -361,8 +361,8 @@
   /* stylelint-disable */
 
   .ui-textbox {
-    align-items: flex-start;
     display: flex;
+    align-items: flex-start;
     margin-bottom: $ui-input-margin-bottom;
 
     &:hover:not(.is-disabled) {
@@ -439,9 +439,9 @@
     &.is-disabled {
       .ui-textbox-input,
       .ui-textbox-textarea {
+        color: $ui-input-text-color--disabled;
         border-bottom-style: $ui-input-border-style--disabled;
         border-bottom-width: $ui-input-border-width--active;
-        color: $ui-input-text-color--disabled;
       }
 
       .ui-textbox-icon-wrapper .ui-icon {
@@ -456,15 +456,15 @@
 
   .ui-textbox-label {
     display: block;
-    margin: 0;
-    padding: 0;
     width: 100%;
+    padding: 0;
+    margin: 0;
   }
 
   .ui-textbox-icon-wrapper {
     flex-shrink: 0;
-    margin-right: rem-calc(12px);
     padding-top: $ui-input-icon-margin-top;
+    margin-right: rem-calc(12px);
 
     .ui-icon {
       color: $ui-input-icon-color;
@@ -476,33 +476,33 @@
   }
 
   .ui-textbox-label-text {
-    color: $ui-input-label-color;
-    cursor: default;
+    margin-bottom: $ui-input-label-margin-bottom;
     font-size: $ui-input-label-font-size;
     line-height: $ui-input-label-line-height;
-    margin-bottom: $ui-input-label-margin-bottom;
-    transform-origin: left;
+    color: $ui-input-label-color;
+    cursor: default;
     transition: color 0.1s ease, transform 0.2s ease;
+    transform-origin: left;
   }
 
   .ui-textbox-input,
   .ui-textbox-textarea {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: $ui-input-text-font-size;
+    font-weight: normal;
+    color: $ui-input-text-color;
+    cursor: auto;
     background: none;
     border: none;
     border-bottom-color: $ui-input-border-color;
     border-bottom-style: solid;
     border-bottom-width: $ui-input-border-width;
     border-radius: 0;
-    color: $ui-input-text-color;
-    cursor: auto;
-    display: block;
-    font-size: $ui-input-text-font-size;
-    font-weight: normal;
-    margin: 0;
     outline: none;
-    padding: 0;
     transition: border 0.1s ease;
-    width: 100%;
   }
 
   .ui-textbox-input {
@@ -510,25 +510,25 @@
   }
 
   .ui-textbox-textarea {
+    padding-bottom: rem-calc(6px);
     overflow-x: hidden;
     overflow-y: auto;
-    padding-bottom: rem-calc(6px);
     resize: vertical;
   }
 
   .ui-textbox-feedback {
-    color: $ui-input-feedback-color;
+    position: relative;
+    padding-top: $ui-input-feedback-padding-top;
+    margin: 0;
     font-size: $ui-input-feedback-font-size;
     line-height: $ui-input-feedback-line-height;
-    margin: 0;
-    padding-top: $ui-input-feedback-padding-top;
-    position: relative;
+    color: $ui-input-feedback-color;
   }
 
   .ui-textbox-counter {
     position: absolute;
-    right: 0;
     top: $ui-input-feedback-padding-top;
+    right: 0;
   }
 
   /* stylelint-enable */

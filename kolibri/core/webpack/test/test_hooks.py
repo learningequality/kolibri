@@ -74,10 +74,5 @@ class WebpackBundleHookTestCase(TestCase):
 
     def test_sync_hook(self):
 
-        html = _FrontEndASyncInclusionTargetHook().render_to_page_load_async_html()
+        assert _FrontEndASyncInclusionTargetHook().render_to_page_load_async_html()
         assert not _FrontEndASyncInclusionTargetHook().bundle_class()._meta.abstract
-        for event_key in _FrontEndASyncAssetHook.events.keys():
-            self.assertIn(
-                event_key,
-                html,
-            )

@@ -73,12 +73,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
     src_file = ""
 
-    # : A list of events to listen to
-    events = {}
-
-    # : A list of events to load the asset once
-    once = {}
-
     # : Kolibri version for build hashes
     version = kolibri.__version__
 
@@ -157,11 +151,15 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f['name']
-            if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
-                continue
+            if not getattr(django_settings, 'DEVELOPER_MODE', False):
+                if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
+                    continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
             if getattr(django_settings, 'DEVELOPER_MODE', False):
-                f['url'] = f['publicPath']
+                try:
+                    f['url'] = f['publicPath']
+                except KeyError:
+                    f['url'] = staticfiles_storage.url(relpath)
             else:
                 f['url'] = staticfiles_storage.url(relpath)
             yield f
@@ -185,9 +183,6 @@ class WebpackBundleHook(hooks.KolibriHook):
                 "static_dir": self._static_dir,
                 "plugin_path": self._module_file_path,
                 "stats_file": self._stats_file,
-                "events": self.events,
-                "once": self.once,
-                "static_url_root": getattr(django_settings, 'STATIC_URL'),
                 "locale_data_folder": self.locale_data_folder,
                 "version": self.version,
             }
@@ -405,12 +400,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
-            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
+            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
-                events=json.dumps(self.events),
-                once=json.dumps(self.once),
             )]
         return mark_safe('\n'.join(tags))
 

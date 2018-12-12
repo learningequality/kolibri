@@ -4,22 +4,18 @@ exports[`app bar component drop down user menu should show the language modal li
 <div class="wrapper" navshown="true">
   <div class="ui-toolbar app-bar ui-toolbar--type-colored ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
-      <div class="ui-toolbar__nav-icon">
-        <button type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-default ui-icon-button--size-normal">
+      <div class="ui-toolbar__nav-icon"><button type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-default ui-icon-button--size-normal">
           <div class="ui-icon-button__icon">
             <mat-svg name="menu" category="navigation" class="icon"></mat-svg>
           </div>
           <div class="ui-icon-button__focus-ring"></div>
-          <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-black ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;" name="ui-progress-circular--transition-fade">
-            <svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
+          <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-black ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
               <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular__indeterminate-path"></circle>
-            </svg>
-          </div>
+            </svg></div>
           <div class="ui-ripple-ink"></div>
           <!---->
           <!---->
-        </button>
-      </div>
+        </button></div>
       <!---->
     </div>
     <div class="ui-toolbar__body">
@@ -29,8 +25,7 @@ exports[`app bar component drop down user menu should show the language modal li
       </div>
     </div>
     <div class="ui-toolbar__right">
-      <div>
-        <button type="submit" class="ui-button user-menu-button ui-button--type-primary ui-button--color-primary ui-button--icon-position-left ui-button--size-normal" arialabel="User menu">
+      <div> <button type="submit" class="ui-button user-menu-button ui-button--type-primary ui-button--color-primary ui-button--icon-position-left ui-button--size-normal" arialabel="User menu">
           <div class="ui-button__content">
             <div class="ui-button__icon">
               <mat-svg name="person" category="social"></mat-svg>
@@ -40,27 +35,23 @@ exports[`app bar component drop down user menu should show the language modal li
             <!---->
           </div>
           <div class="ui-button__focus-ring" style="height: 0px; width: 0px; top: 0px; left: 0px;"></div>
-          <div class="ui-progress-circular ui-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;">
-            <svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
+          <div class="ui-progress-circular ui-button__progress ui-progress-circular--color-white ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
               <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular__indeterminate-path"></circle>
-            </svg>
-          </div>
+            </svg></div>
           <div class="ui-ripple-ink"></div>
           <!---->
         </button>
         <div class="user-menu-dropdown" style="display: none;">
           <ul role="menu" class="ui-menu is-raised has-icons">
             <!---->
-            <li>
-              <a role="menuitem" tabindex="0" class="ui-menu-option">
+            <li><a role="menuitem" tabindex="0" class="ui-menu-option">
                 <div class="ui-menu-option-content"><span class="ui-icon ui-menu-option-icon material-icons"><mat-svg name="language" category="action"></mat-svg></span>
                   <div class="ui-menu-option-text">
                     Change language
                   </div>
                   <!---->
                 </div>
-              </a>
-            </li>
+              </a></li>
             <!---->
             <div tabindex="0" class="ui-menu-focus-redirector"></div>
           </ul>
