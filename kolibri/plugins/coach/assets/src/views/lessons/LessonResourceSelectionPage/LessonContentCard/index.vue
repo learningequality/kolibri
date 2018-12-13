@@ -20,7 +20,10 @@
       <div v-if="message" class="message">
         {{ message }}
       </div>
-
+      <p class="ancestors">
+        {{ $tr('topic') }} <KRouterLink text="TODO" :to="{}" />
+        {{ $tr('channel') }} <KRouterLink text="TODO" :to="{}" />
+      </p>
       <TextTruncator
         :text="description"
         :maxHeight="80"
@@ -32,6 +35,9 @@
         :value="numCoachContents"
         :isTopic="isTopic"
       />
+      <p class="ancestors">
+        <KRouterLink :text="$tr('previewButtonLabel')" :to="{}" />
+      </p>
     </div>
 
   </router-link>
@@ -42,6 +48,7 @@
 <script>
 
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -53,6 +60,7 @@
       CardThumbnail,
       TextTruncator,
       CoachContentLabel,
+      KRouterLink,
     },
     props: {
       title: {
@@ -99,8 +107,8 @@
       resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
       selectedResourcesInTopic: '{selected} of {total} selected',
       previewButtonLabel: 'Preview',
-      goToTopicButtonLabel: 'Go to topic',
-      searchResultTopicLink: 'From {parentTopic} in {channelName}',
+      topic: 'Topic:',
+      channel: 'Channel:',
     },
   };
 
@@ -171,6 +179,11 @@
 
   .description {
     font-size: 14px;
+  }
+
+  .ancestors {
+    margin-top: 8px;
+    font-size: smaller;
   }
 
   .message {

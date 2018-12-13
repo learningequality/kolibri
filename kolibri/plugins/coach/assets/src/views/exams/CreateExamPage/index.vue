@@ -31,12 +31,11 @@
       </UiAlert>
 
       <div class="buttons-container">
-        <KButton :text="$tr('preview')" @click="preview" />
         <KButton
-          :text="$tr('saveButtonlabel')"
+          :text="$tr('continueButtonlabel')"
           :primary="true"
           :disabled="submitting"
-          @click="finish"
+          @click="preview"
         />
       </div>
     </template>
@@ -178,7 +177,7 @@
         'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
       noneSelected: 'No exercises are selected',
       preview: 'Preview',
-      saveButtonlabel: 'Save',
+      continueButtonlabel: 'Continue',
       // TODO: Interpolate strings correctly
       added: 'Added',
       removed: 'Removed',
@@ -383,9 +382,15 @@
         };
       },
       topicTitle() {
+        if (!this.ancestors.length) {
+          return '';
+        }
         return this.ancestors[this.ancestors.length - 1].title;
       },
       topicDescription() {
+        if (!this.ancestors.length) {
+          return '';
+        }
         return this.ancestors[this.ancestors.length - 1].description;
       },
     },
