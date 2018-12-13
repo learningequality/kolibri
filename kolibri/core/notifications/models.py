@@ -67,7 +67,7 @@ class NotificationType(Enum):
     Resource = "ResourceIndividualCompletion"
     Quiz = "QuizIndividualCompletion"
     Help = "LessonResourceIndividualNeedsHelpEvent"
-    Lesson = "LessonResourceIndividualCompletion"
+    Lesson = "LessonIndividualCompletion"
 
     def __str__(self):
         return self.name

@@ -132,9 +132,6 @@ def parse_exam_log(sender, instance, **kwargs):
     if not instance.closed:
         return
     user_classrooms = instance.user.memberships.all()
-    # If the user is not in any classroom nor group, nothing to notify
-    if not user_classrooms:
-        return
 
     touched_groups = get_exam_group(user_classrooms, instance.exam_id)
     notifications = []
