@@ -34,7 +34,7 @@
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
             :indeterminate="nodeIsIndeterminate(node)"
-            :message="'node.message'"
+            :message="node.message"
             :node="node"
             @clicktopic="updateCurrentTopicNode(node)"
             @changeselection="toggleSelection(node)"
