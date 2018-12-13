@@ -2,7 +2,7 @@ FROM ubuntu:bionic
 
 ENV NODE_VERSION=10.14.1
 
-# install latest python
+# install required packages
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       curl \
