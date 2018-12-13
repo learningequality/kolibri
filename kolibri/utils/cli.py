@@ -38,6 +38,7 @@ www.learningequality.org
 Usage:
   kolibri start [--foreground] [--port=<port>] [options]
   kolibri stop [options]
+  kolibri stop-clean [options]
   kolibri restart [options]
   kolibri status [options]
   kolibri shell [options]
@@ -63,6 +64,7 @@ Options:
 Examples:
   kolibri start             Start Kolibri
   kolibri stop              Stop Kolibri
+  kolibri stop-clean        stop Kolibri - kill all sessions, sync DB with WAL files
   kolibri status            How is Kolibri doing?
   kolibri url               Tell me the address of Kolibri
   kolibri shell             Display a Django shell
@@ -665,6 +667,12 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['stop']:
+        stop()
+        return
+
+    if arguments['stop-clean']:
+        call_command("clearsessions")
+        call_command("vacuumsqlite")  # empty WAL files into DB first
         stop()
         return
 
