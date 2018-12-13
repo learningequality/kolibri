@@ -1,6 +1,6 @@
 <template>
 
-  <PreviewExamModal
+  <CreateExamPreview
     :examQuestionSources="examQuestionSources"
     :examSeed="examSeed"
     :examNumQuestions="examNumQuestions"
@@ -15,7 +15,7 @@
       class="randomize-btn"
       @click="$emit('randomize')"
     />
-  </PreviewExamModal>
+  </CreateExamPreview>
 
 </template>
 
@@ -23,13 +23,13 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import PreviewExamModal from '../CoachExamsPage/PreviewExamModal';
+  import CreateExamPreview from './CreateExamPreview';
 
   export default {
     name: 'PreviewNewExamModal',
     $trs: { randomize: 'Randomize questions' },
     components: {
-      PreviewExamModal,
+      CreateExamPreview,
       KButton,
     },
     props: {
