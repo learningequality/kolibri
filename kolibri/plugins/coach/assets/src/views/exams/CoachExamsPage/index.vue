@@ -93,7 +93,7 @@
       newExam: 'New quiz',
       title: 'Title',
       assignedGroupsHeader: 'Visible to',
-      noExams: 'You do not have any quiz',
+      noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quiz',
       noInactiveExams: 'No inactive quiz',
       show: 'Show',
