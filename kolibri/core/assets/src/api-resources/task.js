@@ -103,4 +103,8 @@ export default new Resource({
   clearTasks() {
     return this.postListEndpoint('cleartasks');
   },
+
+  deleteFinishedTasks() {
+    return this.postListEndpoint('deletefinishedtasks');
+  },
 });

@@ -324,6 +324,14 @@ class TasksViewSet(viewsets.ViewSet):
         get_client().clear(force=True)
         return Response({})
 
+    @list_route(methods=['post'])
+    def deletefinishedtasks(self, request):
+        '''
+        Delete all tasks that have succeeded or failed.
+        '''
+        get_client().clear()
+        return Response({})
+
     @list_route(methods=['get'])
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
