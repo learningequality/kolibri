@@ -101,8 +101,8 @@
       @moreresults="handleMoreResults"
     />
 
-    <PreviewNewExamModal
-      v-if="showPreviewNewExamModal"
+    <CreateExamPreview
+      v-if="showCreateExamPreview"
       :examQuestionSources="questionSources"
       :examSeed="examSeed"
       :examNumQuestions="examNumberOfQuestions"
@@ -141,7 +141,7 @@
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
-  import PreviewNewExamModal from './PreviewNewExamModal';
+  import CreateExamPreview from './CreateExamPreview';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -154,7 +154,7 @@
     components: {
       KButton,
       KTextbox,
-      PreviewNewExamModal,
+      CreateExamPreview,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
@@ -370,7 +370,7 @@
       uniqueSelectedExercises() {
         return uniqBy(this.selectedExercises, 'content_id');
       },
-      showPreviewNewExamModal() {
+      showCreateExamPreview() {
         return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
       },
       channelsLink() {

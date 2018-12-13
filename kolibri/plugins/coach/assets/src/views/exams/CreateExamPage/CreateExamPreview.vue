@@ -21,7 +21,13 @@
       <div v-else @keyup.enter.stop>
         <div ref="header">
           <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
-          <slot name="randomize-button"></slot>
+          <KButton
+            :text="$tr('randomize')"
+            :primary="false"
+            class="randomize-btn"
+            @click="$emit('randomize')"
+          />
+
         </div>
         <KGrid class="exam-preview-container">
           <KGridItem
@@ -111,6 +117,7 @@
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
+      randomize: 'Randomize questions',
     },
     components: {
       CoachContentLabel,
@@ -316,6 +323,10 @@
 
   .o-y-auto {
     overflow-y: auto;
+  }
+
+  .randomize-btn {
+    margin: 0 0 0 8px;
   }
 
 </style>
