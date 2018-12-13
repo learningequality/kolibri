@@ -109,6 +109,7 @@
       :exerciseContentNodes="selectedExercises"
       @randomize="randomize"
       @close="setExamsModal(null)"
+      @submit="finish"
     />
 
   </div>

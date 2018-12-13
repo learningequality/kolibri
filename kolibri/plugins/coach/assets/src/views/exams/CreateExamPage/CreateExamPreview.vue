@@ -7,7 +7,7 @@
     size="large"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
-    @submit="close"
+    @submit="submit"
     @cancel="close"
   >
     <transition mode="out-in">
@@ -291,6 +291,9 @@
       },
       close() {
         this.$emit('close');
+      },
+      submit() {
+        this.$emit('submit');
       },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
