@@ -2,8 +2,8 @@
 
   <KModal
     ref="modal"
-    :title="$tr('preview')"
-    :submitText="$tr('close')"
+    :title="$tr('title')"
+    :submitText="$tr('finish')"
     size="large"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
@@ -20,14 +20,22 @@
       </div>
       <div v-else @keyup.enter.stop>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
-          <KButton
-            :text="$tr('randomize')"
-            :primary="false"
-            class="randomize-btn"
-            @click="$emit('randomize')"
-          />
-
+          <h2>{{ $tr('questionOrder') }}</h2>
+          <div>
+            <KRadioButton
+              v-model="isRandom"
+              :label="$tr('randomizedLabel')"
+              :description="$tr('randomizedDescription')"
+              :value="true"
+            />
+            <KRadioButton
+              v-model="isRandom"
+              :label="$tr('flexibleLabel')"
+              :description="$tr('flexibleDescription')"
+              :value="false"
+            />
+          </div>
+          <h2>{{ $tr('questions') }}</h2>
         </div>
         <KGrid class="exam-preview-container">
           <KGridItem
@@ -35,6 +43,18 @@
             :style="{ maxHeight: `${maxHeight}px` }"
             class="o-y-auto"
           >
+            <div>
+              {{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}
+            </div>
+            <div>
+              <KButton
+                :text="$tr('randomize')"
+                appearance="basic-link"
+                :primary="false"
+                class="randomize-btn"
+                @click="$emit('randomize')"
+              />
+            </div>
             <div
               v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
               :key="exerciseIndex"
@@ -103,6 +123,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -112,18 +133,28 @@
   export default {
     name: 'CreateExamPreview',
     $trs: {
-      preview: 'Preview exam',
-      close: 'Close',
+      title: 'Select questions',
+      finish: 'Finish',
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
-      randomize: 'Randomize questions',
+      randomize: 'Give me a different set of questions',
+      questionOrder: 'Question order',
+      questions: 'Questions',
+      randomizedLabel: 'Randomized',
+      randomizedDescription:
+        'The questions in this quiz will be in a random order for each learner',
+      flexibleLabel: 'Flexible',
+      flexibleDescription:
+        'You can order the quiz questions however you want. All learners will see this version',
+      newQuestions: 'New question set created',
     },
     components: {
       CoachContentLabel,
       KModal,
       ContentRenderer,
       KButton,
+      KRadioButton,
       KGrid,
       KGridItem,
       KCircularLoader,
@@ -158,6 +189,7 @@
         loading: true,
         maxHeight: null,
         questions: [],
+        isRandom: true,
       };
     },
     computed: {
