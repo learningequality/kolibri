@@ -33,7 +33,6 @@
               v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
               :key="exerciseIndex"
             >
-              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
                   v-for="(question, questionIndex) in
@@ -134,10 +133,6 @@
       examNumQuestions: {
         type: Number,
         required: true,
-      },
-      examCreation: {
-        type: Boolean,
-        default: false,
       },
       exerciseContentNodes: {
         type: Array,
