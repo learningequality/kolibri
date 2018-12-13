@@ -20,10 +20,12 @@
       <div v-if="message" class="message">
         {{ message }}
       </div>
+      <!--
       <p class="ancestors">
         {{ $tr('topic') }} <KRouterLink text="TODO" :to="{}" />
         {{ $tr('channel') }} <KRouterLink text="TODO" :to="{}" />
       </p>
+       -->
       <TextTruncator
         :text="description"
         :maxHeight="80"
@@ -36,7 +38,11 @@
         :isTopic="isTopic"
       />
       <p class="ancestors">
-        <KRouterLink :text="$tr('previewButtonLabel')" :to="{}" />
+        <KRouterLink
+          v-if="!isTopic"
+          :text="$tr('previewButtonLabel')"
+          :to="{}"
+        />
       </p>
     </div>
 
@@ -106,7 +112,7 @@
       // These strings are not used yet
       resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
       selectedResourcesInTopic: '{selected} of {total} selected',
-      previewButtonLabel: 'Preview',
+      previewButtonLabel: 'View',
       topic: 'Topic:',
       channel: 'Channel:',
     },
