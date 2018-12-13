@@ -103,7 +103,7 @@
   import debounce from 'lodash/debounce';
 
   export default {
-    name: 'PreviewExamModal',
+    name: 'ExamPreview',
     $trs: {
       preview: 'Preview exam',
       close: 'Close',
