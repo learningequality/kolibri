@@ -98,21 +98,31 @@ class Application(pew.ui.PEWApp):
 
     def wait_for_server(self):
         from kolibri.utils import server
-        running = False
-        saved_state = self.webview.get_view_state()
+
         home_url = 'http://localhost:5000'
-        while not running:
+
+        # test url to see if servr has started
+        def running():
             try:
-                url = home_url
-                if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-                    url = saved_state["URL"]
-                result = urllib2.urlopen(url)
-                running = True
-                pew.ui.run_on_main_thread(self.webview.load_url(url))
-            except Exception as e:
-                import traceback
-                logging.info('Kolibri server not yet started, checking again in one second...')
-                time.sleep(2)
+                urllib2.urlopen(home_url)
+                return true
+            except URLError:
+                return false
+
+        # Tie up this thread until the server is running
+        while not running():
+            logging.info('Kolibri server not yet started, checking again in one second...')
+            time.sleep(1)
+
+        # Check for saved URL, which exists when the app was put to sleep last time it ran
+        saved_state = self.webview.get_view_state()
+        logging.debug('Persisted View State: {}'.format(self.webview.get_view_state()))
+
+        if "URL" in saved_state and saved_state["URL"].startswith(home_url):
+            pew.ui.run_on_main_thread(self.webview.load_url(saved_state["URL"]))
+            return
+
+        pew.ui.run_on_main_thread(self.webview.load_url(home_url))
 
     def get_main_window(self):
         return self.webview
