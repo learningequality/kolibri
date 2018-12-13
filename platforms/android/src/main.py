@@ -73,7 +73,7 @@ class Application(pew.ui.PEWApp):
         # Set loading screen
         loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
         loader_url = 'file://{}'.format(loader_page)
-        self.webview = pew.ui.WebUIView("Kolibri", loader_url, delegate=self)
+        self.view = pew.ui.WebUIView("Kolibri", loader_url, delegate=self)
 
         # start thread
         self.thread = pew.ui.PEWThread(target=start_django)
@@ -87,14 +87,22 @@ class Application(pew.ui.PEWApp):
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
         # causing the app to shut down early
-        self.webview.show()
+        self.view.show()
         return 0
 
     def load_complete(self):
         """
-        This is a PyEverywhere delegate method to let us know the WebView is ready to use. Just pass for now.
+        This is a PyEverywhere delegate method to let us know the WebView is ready to use.
         """
-        pass
+
+        # On Android, there is a system back button, that works like the browser back button. Make sure we clear the
+        # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
+        # during load, so we do it here.
+        # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
+        if pew.ui.platform == 'android':
+            # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
+            # for clarity.
+            self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
         from kolibri.utils import server
@@ -115,17 +123,17 @@ class Application(pew.ui.PEWApp):
             time.sleep(1)
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = self.webview.get_view_state()
-        logging.debug('Persisted View State: {}'.format(self.webview.get_view_state()))
+        saved_state = self.view.get_view_state()
+        logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.webview.load_url(saved_state["URL"]))
+            pew.ui.run_on_main_thread(self.view.load_url(saved_state["URL"]))
             return
 
-        pew.ui.run_on_main_thread(self.webview.load_url(home_url))
+        pew.ui.run_on_main_thread(self.view.load_url(home_url))
 
     def get_main_window(self):
-        return self.webview
+        return self.view
 
 if __name__ == "__main__":
     app = Application()
