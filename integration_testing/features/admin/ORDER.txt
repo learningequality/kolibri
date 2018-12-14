@@ -1,0 +1,15 @@
+admin-change-facility-settings.feature
+admin-create-users.feature
+admin-enroll-assign-users.feature
+admin-manage-channel-sizes.feature
+admin-change-language.feature
+admin-delete-class.feature
+admin-export-data.feature
+admin-sign-in.feature
+admin-change-profile-information.feature
+admin-delete-user.feature
+admin-find-user.feature
+admin-sign-out.feature
+admin-create-class.feature
+admin-edit-user.feature
+admin-import-content.feature
