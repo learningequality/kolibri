@@ -180,8 +180,8 @@
       preview: 'Preview',
       continueButtonlabel: 'Continue',
       // TODO: Interpolate strings correctly
-      added: 'Added',
-      removed: 'Removed',
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
       selected: '{count, number, integer} total selected',
       documentTitle: 'Create new exam',
       exitSearchButtonLabel: 'Exit search',
@@ -512,13 +512,13 @@
         if (isChecked) {
           this.addToSelectedExercises(this.addableExercises);
           this.createSnackbar({
-            text: `${this.$tr('added')} ${this.topicTitle}`,
+            text: this.$tr('added', { item: this.topicTitle }),
             autoDismiss: true,
           });
         } else {
           this.removeFromSelectedExercises(this.allExercises);
           this.createSnackbar({
-            text: `${this.$tr('removed')} ${this.topicTitle}`,
+            text: this.$tr('removed', { item: this.topicTitle }),
             autoDismiss: true,
           });
         }
@@ -531,28 +531,28 @@
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('added')} ${contentNode.title}`,
+            text: this.$tr('added', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (checked && !isTopic) {
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('added')} ${contentNode.title}`,
+            text: this.$tr('added', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('removed')} ${contentNode.title}`,
+            text: this.$tr('removed', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('removed')} ${contentNode.title}`,
+            text: this.$tr('removed', { item: contentNode.title }),
             autoDismiss: true,
           });
         }

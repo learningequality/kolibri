@@ -147,8 +147,8 @@
       resourcesRemovedSnackbarText:
         'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
       // TODO: Interpolate strings correctly
-      added: 'Added',
-      removed: 'Removed',
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
     },
     components: {
       CoachTopNav,
@@ -310,7 +310,7 @@
         let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.addToSelectedExercises([content]);
-          text = `${this.$tr('added')} ${content.title}`;
+          text = this.$tr('added', { item: content.title });
         } else {
           this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
           this.addToResourceCache({ node: content });
@@ -322,7 +322,7 @@
         let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.removeFromSelectedExercises([content]);
-          text = `${this.$tr('removed')} ${content.title}`;
+          text = this.$tr('removed', { item: content.title });
         } else {
           this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
           text = this.$tr('resourcesRemovedSnackbarText', { count: 1 });
