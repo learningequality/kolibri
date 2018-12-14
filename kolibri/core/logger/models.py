@@ -72,18 +72,18 @@ class BaseLogModel(AbstractFacilityDataModel):
         abstract = True
 
     def infer_dataset(self, *args, **kwargs):
-        if self.user:
-            return self.user.dataset
+        if self.user_id:
+            return self.cached_related_dataset_lookup('user')
         elif self.dataset_id:
             # confirm that there exists a facility with that dataset_id
             try:
-                return Facility.objects.get(dataset_id=self.dataset_id).dataset
+                return Facility.objects.get(dataset_id=self.dataset_id).dataset_id
             except Facility.DoesNotExist:
                 pass
         # if no user or matching facility, infer dataset from the default facility
         facility = Facility.get_default_facility()
         assert facility, "Before you can save logs, you must have a facility"
-        return facility.dataset
+        return facility.dataset_id
 
     objects = BaseLogQuerySet.as_manager()
 
@@ -199,7 +199,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.user.dataset
+        return self.cached_related_dataset_lookup('user')
 
     def calculate_source_id(self):
         return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
@@ -248,7 +248,7 @@ class AttemptLog(BaseAttemptLog):
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
     def infer_dataset(self, *args, **kwargs):
-        return self.sessionlog.dataset
+        return self.sessionlog.dataset_id
 
 
 class ExamLog(BaseLogModel):
@@ -291,7 +291,7 @@ class ExamAttemptLog(BaseAttemptLog):
     channel_id = UUIDField()
 
     def infer_dataset(self, *args, **kwargs):
-        return self.examlog.dataset
+        return self.examlog.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id

@@ -9,14 +9,6 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <KButton
-      v-show="!newAddressButtonDisabled"
-      class="new-address-button"
-      :text="$tr('newAddressButtonLabel')"
-      appearance="basic-link"
-      @click="$emit('click_add_address')"
-    />
-
     <UiAlert
       v-if="uiAlertProps"
       v-show="showUiAlerts"
@@ -31,6 +23,14 @@
         @click="refreshAddressList"
       />
     </UiAlert>
+
+    <KButton
+      v-show="!newAddressButtonDisabled"
+      class="new-address-button"
+      :text="$tr('newAddressButtonLabel')"
+      appearance="basic-link"
+      @click="$emit('click_add_address')"
+    />
 
     <template v-for="(a, idx) in addresses">
       <div :key="`div-${idx}`">
@@ -200,8 +200,8 @@
       fetchingFailedText: 'There was a problem getting the available addresses',
       forgetAddressButtonLabel: 'Forget',
       header: 'Select network address',
-      newAddressButtonLabel: 'New address',
-      noAddressText: 'You have not entered any addresses',
+      newAddressButtonLabel: 'Add new address',
+      noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       submitButtonLabel: 'Continue',
     },

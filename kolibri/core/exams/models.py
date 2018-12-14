@@ -50,7 +50,7 @@ class Exam(AbstractFacilityDataModel):
     archive = models.BooleanField(default=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.creator.dataset
+        return self.creator.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
@@ -81,7 +81,7 @@ class ExamAssignment(AbstractFacilityDataModel):
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset
+        return self.assigned_by.dataset_id
 
     def calculate_source_id(self):
         return "{exam_id}:{collection_id}".format(exam_id=self.exam_id, collection_id=self.collection_id)
