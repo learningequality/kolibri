@@ -29,10 +29,10 @@
         <dd v-html="description" dir="auto" class="description"></dd>
       </div>
 
+      <!-- (metadata hidden for KICD)
       <div class="secondary-data" v-if="author">
         <dt>{{ $tr('authorDataHeader') }}</dt>
         <dd>
-          <!-- single-quote wrapped user strings, per indirectlylit -->
           '{{ author }}'
         </dd>
       </div>
@@ -56,6 +56,7 @@
           '{{ copyrightHolder }}'
         </dd>
       </div>
+      -->
     </dl>
   </div>
 

@@ -46,9 +46,8 @@
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <p v-html="description" dir="auto"></p>
 
-
+    <!-- (metadata hidden for KICD)
     <section class="metadata">
-      <!-- TODO: RTL - Do not interpolate strings -->
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
@@ -76,6 +75,7 @@
         {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
     </section>
+    -->
 
     <download-button
       v-if="canDownload"
