@@ -75,6 +75,7 @@
                       'question',
                       { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
                     )"
+                    :title="question.title"
                     @click="goToQuestion(question.itemId, exercise.exercise_id)"
                   />
                   <CoachContentLabel
@@ -255,6 +256,7 @@
               this.exercises[question.contentId]
             ),
             contentId: question.contentId,
+            title: question.title,
           }));
         }
       },
