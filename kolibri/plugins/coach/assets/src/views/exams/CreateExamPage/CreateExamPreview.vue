@@ -3,6 +3,7 @@
   <KModal
     ref="modal"
     :title="$tr('title')"
+    :cancelText="$tr('back')"
     :submitText="$tr('finish')"
     size="large"
     :width="`${windowWidth - 16}px`"
@@ -134,6 +135,7 @@
     name: 'CreateExamPreview',
     $trs: {
       title: 'Select questions',
+      back: 'Go back',
       finish: 'Finish',
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',

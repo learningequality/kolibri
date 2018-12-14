@@ -35,7 +35,7 @@
           :text="$tr('continueButtonlabel')"
           :primary="true"
           :disabled="submitting"
-          @click="preview"
+          @click="continueProcess"
         />
       </div>
     </template>
@@ -110,6 +110,7 @@
       @randomize="randomize"
       @close="setExamsModal(null)"
       @submit="finish"
+      @cancel="goBack"
     />
 
   </div>
@@ -591,13 +592,16 @@
           });
         }
       },
-      preview() {
+      continueProcess() {
         this.previewOrSubmissionAttempt = true;
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
           this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
         }
+      },
+      goBack() {
+        this.setExamsModal(null);
       },
       finish() {
         this.previewOrSubmissionAttempt = true;
