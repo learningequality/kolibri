@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <div class="main-wrapper">
+
+    <div v-if="blockDoubleClicks" class="click-mask"></div>
+
     <!-- temporary hack, resolves flicker when using other templates -->
     <template v-if="navBarNeeded">
 
@@ -17,7 +20,7 @@
       <template v-else>
         <AppBar
           ref="appBar"
-          class="core-base-app-bar align-to-parent"
+          class="app-bar"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
@@ -44,34 +47,28 @@
 
     </template>
 
-    <div
-      class="app-body"
-      :style="contentStyle"
-      @scroll="handleScroll"
-    >
-      <div v-if="blockDoubleClicks" class="click-mask"></div>
-      <KLinearLoader
-        v-if="loading"
-        class="toolbar-loader"
-        :style="loaderPositionStyles"
-        type="indeterminate"
-        :delay="false"
-      />
+    <KLinearLoader
+      v-if="loading"
+      class="loader"
+      :style="loaderPositionStyles"
+      type="indeterminate"
+      :delay="false"
+    />
 
-      <div
-        v-else
-        :style="bodyPadding"
-        class="body-wrapper"
-      >
-        <AuthMessage
-          v-if="notAuthorized"
-          :authorizedRole="authorizedRole"
-          :header="authorizationErrorHeader"
-          :details="authorizationErrorDetails"
-        />
-        <AppError v-else-if="error" />
-        <slot v-else></slot>
-      </div>
+    <div
+      v-if="!loading"
+      @scroll="handleScroll"
+      class="content"
+      :style="contentStyles"
+    >
+      <AuthMessage
+        v-if="notAuthorized"
+        :authorizedRole="authorizedRole"
+        :header="authorizationErrorHeader"
+        :details="authorizationErrorDetails"
+      />
+      <AppError v-else-if="error" />
+      <slot v-else></slot>
     </div>
 
     <GlobalSnackbar />
@@ -227,20 +224,16 @@
       isMobile() {
         return this.windowIsSmall;
       },
-      contentStyle() {
+      contentStyles() {
         return {
-          top: `${this.appBodyTopGap}px`,
-          bottom: `${this.bottomMargin}px`,
+          marginTop: `${this.appBodyTopGap}px`,
+          marginBottom: `${this.bottomMargin}px`,
+          padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
       loaderPositionStyles() {
         return {
           top: `${this.appBodyTopGap}px`,
-        };
-      },
-      bodyPadding() {
-        return {
-          padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
     },
@@ -258,38 +251,13 @@
 
   @import '~kolibri.styles.definitions';
 
-  .align-to-parent {
+  .main-wrapper {
     position: absolute;
     top: 0;
-    left: 0;
-  }
-
-  .core-base-app-bar {
-    @extend %ui-toolbar-box-shadow;
-
-    width: 100%;
-  }
-
-  .app-bar-actions {
-    display: inline-block;
-  }
-
-  .app-body {
-    position: absolute;
     right: 0;
+    bottom: 0;
     left: 0;
     overflow-x: hidden;
-  }
-
-  .body-wrapper {
-    max-width: 1000px;
-    margin: auto;
-  }
-
-  .toolbar-loader {
-    position: fixed;
-    right: 0;
-    left: 0;
   }
 
   .click-mask {
@@ -299,6 +267,31 @@
     z-index: 24;
     width: 100%;
     height: 100%;
+  }
+
+  .app-bar {
+    @extend %ui-toolbar-box-shadow;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .app-bar-actions {
+    display: inline-block;
+  }
+
+  .loader {
+    position: fixed;
+    right: 0;
+    left: 0;
+  }
+
+  .content {
+    max-width: 1000px;
+    margin-right: auto;
+    margin-left: auto;
   }
 
 </style>
