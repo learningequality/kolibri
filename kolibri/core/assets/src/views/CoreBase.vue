@@ -88,9 +88,12 @@
   import { throttle } from 'frame-throttle';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import debounce from 'lodash/debounce';
+  import logger from 'kolibri.lib.logging';
   import AppError from './AppError';
   import GlobalSnackbar from './GlobalSnackbar';
   import ImmersiveToolbar from './ImmersiveToolbar';
+
+  const logging = logger.getLogger(__filename);
 
   export default {
     name: 'CoreBase',
@@ -194,10 +197,12 @@
     data() {
       return {
         navShown: false,
-        appbarPos: 'absolute',
-        appbarTop: 0,
-        scrollBuffer: [0, 0, 0],
-        scrollBufferIndex: 0,
+        // whether app bar is moving with content or pinned to the page
+        barPinned: true,
+        // vertical offset of the app
+        barTranslation: 0,
+        // the most recent and previous scroll positions, respectively
+        scrollBuffer: [0, 0],
       };
     },
     computed: {
@@ -209,7 +214,7 @@
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
-      marginTop() {
+      appBarHeight() {
         if (this.showSubNav) {
           // Adds the height of KNavBar
           return this.headerHeight + 48;
@@ -231,7 +236,7 @@
       },
       contentStyles() {
         return {
-          marginTop: `${this.marginTop}px`,
+          marginTop: `${this.appBarHeight}px`,
           marginBottom: `${this.marginBottom}px`,
           padding: `${this.isMobile ? 16 : 32}px`,
         };
@@ -239,12 +244,12 @@
       appbarStyles() {
         return {
           position: this.appbarPos,
-          transform: `translateY(${this.appbarTop}px)`,
+          transform: `translateY(${this.barTranslation}px)`,
         };
       },
       loaderPositionStyles() {
         return {
-          top: `${this.marginTop}px`,
+          top: `${this.appBarHeight}px`,
         };
       },
       // calls handleScroll no more than every 17ms
@@ -255,92 +260,140 @@
       waitForScrollStop() {
         return debounce(this.scrollingStopped, 500);
       },
-      // current scroll position
-      scroll_0() {
-        return this.scrollBuffer[this.scrollBufferIndex];
+      // current content scroll position
+      contentPos() {
+        return this.scrollBuffer[0];
       },
-      // previous scroll position
-      scroll_1() {
-        return this.scrollBuffer[(this.scrollBufferIndex + 2) % 3];
+      // previous content scroll position
+      contentPosPrev() {
+        return this.scrollBuffer[1];
       },
-      // oldest scroll position
-      scroll_2() {
-        return this.scrollBuffer[(this.scrollBufferIndex + 1) % 3];
+      // difference between previous and current position
+      scrollDelta() {
+        return this.contentPos - this.contentPosPrev;
+      },
+      // position of app bar relative to browser viewport
+      barPos() {
+        if (this.barPinned) {
+          return this.barTranslation;
+        }
+        return this.contentPos - this.barTranslation;
+      },
+      negBarHeight() {
+        return 0 - this.appBarHeight;
       },
     },
     methods: {
       handleScroll(e) {
-        this.scrollBufferIndex = (this.scrollBufferIndex + 1) % 3;
-        this.$set(this.scrollBuffer, this.scrollBufferIndex, e.target.scrollTop);
+        this.scrollBuffer = [e.target.scrollTop, this.contentPos];
         this.waitForScrollStop();
 
-        // padding relative to app bar height
-        const wiggleRoom = this.marginTop / 8;
+        // IF: scrolling upward, bar visibly pinned
+        if (this.scrollDelta < 0 && this.barPinned && this.barTranslation === 0) {
+          // THEN: bar stays visibly pinned
+          return;
+        }
 
-        // currently fixed to the top
-        if (this.appbarPos === 'fixed') {
-          // scrolling up
-          if (this.scroll_0 < this.scroll_1) {
-            // nothing to do
+        // IF: scrolling downward, bar visibly pinned
+        else if (this.scrollDelta > 0 && this.barPinned && this.barTranslation === 0) {
+          // THEN: attach at content position so it can scroll offscreen
+          this.barPinned = false;
+          this.barTranslation = this.contentPos;
+          return;
+        }
+
+        // IF: scrolling upward, bar invisibly pinned
+        else if (
+          this.scrollDelta < 0 &&
+          this.barPinned &&
+          this.barTranslation === this.negBarHeight
+        ) {
+          // THEN: attach at content position
+          this.barPinned = false;
+          this.barTranslation = this.contentPos - this.appBarHeight;
+          return;
+        }
+
+        // IF: scrolling downward, bar invisibly pinned
+        else if (
+          this.scrollDelta > 0 &&
+          this.barPinned &&
+          this.barTranslation === this.negBarHeight
+        ) {
+          // THEN: bar stays invisibly pinned
+          return;
+        }
+
+        // IF: scrolling downward, attached to content
+        else if (this.scrollDelta > 0 && !this.barPinned) {
+          // IF: bar is fully offscreen
+          if (this.barPos <= this.negBarHeight) {
+            // THEN: pin bar offscreen
+            this.barPinned = true;
+            this.barTranslation = this.negBarHeight;
             return;
           }
-          // switch direction from down to up
-          if (this.scroll_0 < this.scroll_1 && this.scroll_1 > this.scroll_2) {
-            // app bar will begin scrolling into view
-            this.appbarPos = 'absolute';
-            this.appbarTop = this.scroll_0 - this.marginTop;
+          // IF: bar is partially offscreen
+          else if (this.negBarHeight < this.barPos && this.barPos < 0) {
+            // THEN: stay attached to content at current position
             return;
           }
-          // switch direction from up to down
-          if (this.scroll_0 > this.scroll_1 && this.scroll_1 < this.scroll_2) {
-            // begin scrolling app bar out of view
-            this.appbarPos = 'absolute';
-            this.appbarTop = this.scroll_0;
+          // IF: if bar somehow got too low (barPos > 0)
+          else {
+            // THEN: re-attach at content position
+            this.barTranslation = this.contentPos;
             return;
           }
         }
 
-        // currently moving with page
-        if (this.appbarPos === 'absolute') {
-          // scrolling down
-          if (this.scroll_0 > this.scroll_1 && this.appbarTop) {
-            // nothing to do
+        // IF: scrolling upward, attached to content
+        else if (this.scrollDelta < 0 && !this.barPinned) {
+          // IF: bar is at least partially offscreen
+          if (this.negBarHeight <= this.barPos && this.barPos < 0) {
+            // IF: scrolling quickly relative to remaining distance
+            if (Math.abs(this.scrollDelta) > Math.abs(this.barPos / 2)) {
+              // THEN: pin bar visibly
+              this.barPinned = true;
+              this.barTranslation = 0;
+              return;
+            } else {
+              // THEN: stay attached to content at bar position
+              return;
+            }
+          }
+          // IF: bar is too low, e.g. due to momentum or overshoot
+          else if (this.barPos >= 0) {
+            // THEN: pin bar visibly
+            this.barPinned = true;
+            this.barTranslation = 0;
             return;
           }
-          // app
-
-          // scrolling up very fast
-          if (this.scroll_1 - this.scroll_0 > wiggleRoom) {
-            // pin it preemptively to prevent overshoot
-            this.appbarPos = 'fixed';
-            this.appbarTop = 0;
-            return;
-          }
-          // app bar has come close to all the way down
-          if (this.scroll_0 <= this.appbarTop + wiggleRoom) {
-            // pin it
-            this.appbarPos = 'fixed';
-            this.appbarTop = 0;
+          // IF: bar is too high (barPos < negBarHeight)
+          else {
+            // THEN: re-attach at content position
+            this.barPinned = false;
+            this.barTranslation = this.contentPos;
             return;
           }
         }
+
+        // report if logic above is flawed or incomplete
+        logging.warn(`Unhandled scrolling state:`);
+        logging.warn(`\tScroll buffer: ${this.scrollBuffer}`);
+        logging.warn(`\tAppbar height: ${this.appBarHeight}`);
+        logging.warn(`\tAppbar translation: ${this.barTranslation}`);
+        logging.warn(`\tIs pinned: ${this.barPinned}`);
       },
       scrollingStopped() {
-        const current = this.scroll_0;
-        this.$set(this.scrollBuffer, 0, current);
-        this.$set(this.scrollBuffer, 1, current);
-        this.$set(this.scrollBuffer, 2, current);
-        const offset = this.scroll_0 - this.appbarTop;
-        // the appbar is partly visible. how rude
-        if (offset > 0 && offset < this.marginTop) {
-          if (offset > (2 * this.marginTop) / 3) {
-            this.appbarPos = 'fixed';
-            this.appbarTop = -1 * this.marginTop;
-          } else {
-            this.appbarPos = 'fixed';
-            this.appbarTop = 0;
-          }
+        this.scrollBuffer = [this.contentPos, this.contentPos];
+        this.barPinned = true;
+        // IF: bar is at least half visible
+        if (this.barPos > this.negBarHeight / 2) {
+          // THEN: pin bar visibly
+          this.barTranslation = 0;
         }
+        // OTHERWISE: pin bar offscreen
+        this.barTranslation = this.negBarHeight;
       },
     },
   };

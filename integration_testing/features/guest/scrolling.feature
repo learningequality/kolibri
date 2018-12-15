@@ -1,60 +1,60 @@
 
-# bar visibly pinned, looking upward
-(fix, 0) AND up
+# looking upward, bar visibly pinned
+up AND (fix, 0)
 
   # bar stays visibly pinned
   => (fix, 0)
 
-# bar visibly pinned, looking downward
-(fix, 0) AND down
+# looking downward, bar visibly pinned
+down AND (fix, 0)
 
   # attach at content position
-  => (attach, content_pos)
+  => (attach, contentPos)
 
-# bar invisibly pinned, looking upward
-(fix, -H) AND up
+# looking upward, bar invisibly pinned
+up AND (fix, -H)
 
-  # attach at content position
-  => (attach, content_pos)
+  # attach at content position minus bar height
+  => (attach, contentPos - H)
 
-# bar invisibly pinned, looking downward
-(fix, -H) AND down
+# looking downward, bar invisibly pinned
+down AND (fix, -H)
 
   # bar stays invisibly pinned
   => (fix, -H)
 
-# attached, looking downward
-(attach, bar_pos) AND down
+# looking downward and attached
+down AND (attach, barTranslation)
 
   # bar fully offscreen
-  bar_vis <= -H
+  barPos <= -H
 
     # fix bar just offscreen
     => (fix, -H)
 
   # bar partially offscreen
-  -H < bar_vis <= 0
+  -H < barPos <= 0
 
     # stay attached at bar position
-    => (attach, bar_pos)
+    => (attach, barTranslation)
 
   # bar somehow too low
-  bar_vis > 0
+  barPos > 0
 
     # re-attach at content position
-    => (attach, content_pos)
+    => (attach, contentPos)
 
 # attached, looking upward
-(attach, bar_pos) AND up
+up AND (attach, barTranslation)
 
   # bar partially offscreen
-  -H < bar_vis <= 0
+  -H < barPos <= 0
 
     # bar moving slowly
-    delta < (0 - bar_vis) / 2
+    delta < (0 - barPos) / 2
 
       # stay attached at bar position
-      => (attach, bar_pos)
+      => (attach, barTranslation)
 
     # bar moving quickly
     else
@@ -63,14 +63,14 @@
       => (fix, 0)
 
   # bar too low
-  bar_vis > 0
+  barPos > 0
 
     # pin bar visibly
     => (fix, 0)
 
   # bar too high
-  bar_vis < -H
+  barPos < -H
 
     # re-attach at content position
-    => (attach, content_pos)
+    => (attach, contentPos)
 
