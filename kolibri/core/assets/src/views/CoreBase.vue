@@ -194,7 +194,6 @@
     data() {
       return {
         navShown: false,
-        isScrolling: false,
         appbarPos: 'absolute',
         appbarTop: 0,
         scrollBuffer: [0, 0, 0],
@@ -248,19 +247,24 @@
           top: `${this.marginTop}px`,
         };
       },
+      // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
         return throttle(this.handleScroll);
       },
+      // calls scrollingStopped 500ms after scrolling pauses
       waitForScrollStop() {
         return debounce(this.scrollingStopped, 500);
       },
-      scrollCurrent() {
+      // current scroll position
+      scroll_0() {
         return this.scrollBuffer[this.scrollBufferIndex];
       },
-      scrollPrevious() {
+      // previous scroll position
+      scroll_1() {
         return this.scrollBuffer[(this.scrollBufferIndex + 2) % 3];
       },
-      scrollOldest() {
+      // oldest scroll position
+      scroll_2() {
         return this.scrollBuffer[(this.scrollBufferIndex + 1) % 3];
       },
     },
@@ -268,41 +272,68 @@
       handleScroll(e) {
         this.scrollBufferIndex = (this.scrollBufferIndex + 1) % 3;
         this.$set(this.scrollBuffer, this.scrollBufferIndex, e.target.scrollTop);
+        this.waitForScrollStop();
 
-        // switch direction from down to up: allow the app bar to begin scrolling into view
-        if (this.scrollCurrent < this.scrollPrevious && this.scrollPrevious >= this.scrollOldest) {
-          console.log('A');
-          this.appbarPos = 'absolute';
-          this.appbarTop = this.scrollCurrent - this.marginTop;
-        }
-        // scroll up until app bar comes into view: pin it to the top of the viewport
-        if (this.scrollCurrent <= this.appbarTop) {
-          console.log('B');
-          this.appbarPos = 'fixed';
-          this.appbarTop = 0;
-        }
-        // switch direction from up to down: begin scrolling app bar out of view
-        if (this.scrollCurrent > this.scrollPrevious && this.scrollPrevious <= this.scrollOldest) {
-          console.log('C');
-          if (this.appbarPos === 'fixed') {
+        // padding relative to app bar height
+        const wiggleRoom = this.marginTop / 8;
+
+        // currently fixed to the top
+        if (this.appbarPos === 'fixed') {
+          // scrolling up
+          if (this.scroll_0 < this.scroll_1) {
+            // nothing to do
+            return;
+          }
+          // switch direction from down to up
+          if (this.scroll_0 < this.scroll_1 && this.scroll_1 > this.scroll_2) {
+            // app bar will begin scrolling into view
             this.appbarPos = 'absolute';
-            this.appbarTop = this.scrollCurrent;
+            this.appbarTop = this.scroll_0 - this.marginTop;
+            return;
+          }
+          // switch direction from up to down
+          if (this.scroll_0 > this.scroll_1 && this.scroll_1 < this.scroll_2) {
+            // begin scrolling app bar out of view
+            this.appbarPos = 'absolute';
+            this.appbarTop = this.scroll_0;
+            return;
           }
         }
 
-        this.isScrolling = true;
-        this.waitForScrollStop();
+        // currently moving with page
+        if (this.appbarPos === 'absolute') {
+          // scrolling down
+          if (this.scroll_0 > this.scroll_1 && this.appbarTop) {
+            // nothing to do
+            return;
+          }
+          // app
+
+          // scrolling up very fast
+          if (this.scroll_1 - this.scroll_0 > wiggleRoom) {
+            // pin it preemptively to prevent overshoot
+            this.appbarPos = 'fixed';
+            this.appbarTop = 0;
+            return;
+          }
+          // app bar has come close to all the way down
+          if (this.scroll_0 <= this.appbarTop + wiggleRoom) {
+            // pin it
+            this.appbarPos = 'fixed';
+            this.appbarTop = 0;
+            return;
+          }
+        }
       },
       scrollingStopped() {
-        const current = this.scrollCurrent;
+        const current = this.scroll_0;
         this.$set(this.scrollBuffer, 0, current);
         this.$set(this.scrollBuffer, 1, current);
         this.$set(this.scrollBuffer, 2, current);
-        this.isScrolling = false;
-        const offset = this.scrollCurrent - this.appbarTop;
+        const offset = this.scroll_0 - this.appbarTop;
         // the appbar is partly visible. how rude
         if (offset > 0 && offset < this.marginTop) {
-          if (offset > this.marginTop / 2) {
+          if (offset > (2 * this.marginTop) / 3) {
             this.appbarPos = 'fixed';
             this.appbarTop = -1 * this.marginTop;
           } else {
