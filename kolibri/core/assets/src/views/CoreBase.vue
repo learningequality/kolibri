@@ -47,6 +47,7 @@
     <AppBody
       :topGap="appBodyTopGap"
       :bottomGap="bottomMargin"
+      @scroll="handleScroll"
     >
       <AuthMessage
         v-if="notAuthorized"
@@ -72,6 +73,7 @@
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import { throttle } from 'frame-throttle';
   import AppError from './AppError';
   import AppBody from './AppBody';
   import GlobalSnackbar from './GlobalSnackbar';
@@ -205,6 +207,11 @@
         }
         return !this.authorized;
       },
+    },
+    methods: {
+      handleScroll: throttle(e => {
+        console.log(Date.now(), '>>>', e);
+      }),
     },
   };
 

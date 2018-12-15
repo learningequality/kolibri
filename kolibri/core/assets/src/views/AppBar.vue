@@ -194,6 +194,7 @@
   }
 
   .wrapper {
+    z-index: 4;
     background-color: $core-action-normal;
   }
 

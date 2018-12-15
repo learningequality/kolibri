@@ -1,7 +1,11 @@
 <template>
 
   <!-- class unused, used as identifier when debugging from DOM -->
-  <div class="app-body" :style="contentStyle">
+  <div
+    class="app-body"
+    :style="contentStyle"
+    @scroll="e => $emit('scroll', e)"
+  >
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <KLinearLoader
       v-if="loading"
