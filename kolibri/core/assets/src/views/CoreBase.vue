@@ -1,6 +1,6 @@
 <template>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper" @scroll="throttledHandleScroll">
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
@@ -21,6 +21,7 @@
         <AppBar
           ref="appBar"
           class="app-bar"
+          :style="appbarStyles"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
@@ -57,7 +58,6 @@
 
     <div
       v-if="!loading"
-      @scroll="handleScroll"
       class="content"
       :style="contentStyles"
     >
@@ -87,6 +87,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { throttle } from 'frame-throttle';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import debounce from 'lodash/debounce';
   import AppError from './AppError';
   import GlobalSnackbar from './GlobalSnackbar';
   import ImmersiveToolbar from './ImmersiveToolbar';
@@ -120,7 +121,7 @@
         default: true,
       },
       // reserve space at the bottom for floating widgets
-      bottomMargin: {
+      marginBottom: {
         type: Number,
         default: 0,
       },
@@ -193,6 +194,11 @@
     data() {
       return {
         navShown: false,
+        isScrolling: false,
+        appbarPos: 'absolute',
+        appbarTop: 0,
+        scrollBuffer: [0, 0, 0],
+        scrollBufferIndex: 0,
       };
     },
     computed: {
@@ -204,7 +210,7 @@
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
-      appBodyTopGap() {
+      marginTop() {
         if (this.showSubNav) {
           // Adds the height of KNavBar
           return this.headerHeight + 48;
@@ -226,21 +232,85 @@
       },
       contentStyles() {
         return {
-          marginTop: `${this.appBodyTopGap}px`,
-          marginBottom: `${this.bottomMargin}px`,
+          marginTop: `${this.marginTop}px`,
+          marginBottom: `${this.marginBottom}px`,
           padding: `${this.isMobile ? 16 : 32}px`,
+        };
+      },
+      appbarStyles() {
+        return {
+          position: this.appbarPos,
+          transform: `translateY(${this.appbarTop}px)`,
         };
       },
       loaderPositionStyles() {
         return {
-          top: `${this.appBodyTopGap}px`,
+          top: `${this.marginTop}px`,
         };
+      },
+      throttledHandleScroll() {
+        return throttle(this.handleScroll);
+      },
+      waitForScrollStop() {
+        return debounce(this.scrollingStopped, 500);
+      },
+      scrollCurrent() {
+        return this.scrollBuffer[this.scrollBufferIndex];
+      },
+      scrollPrevious() {
+        return this.scrollBuffer[(this.scrollBufferIndex + 2) % 3];
+      },
+      scrollOldest() {
+        return this.scrollBuffer[(this.scrollBufferIndex + 1) % 3];
       },
     },
     methods: {
-      handleScroll: throttle(e => {
-        console.log(Date.now(), '>>>', e);
-      }),
+      handleScroll(e) {
+        this.scrollBufferIndex = (this.scrollBufferIndex + 1) % 3;
+        this.$set(this.scrollBuffer, this.scrollBufferIndex, e.target.scrollTop);
+
+        // switch direction from down to up: allow the app bar to begin scrolling into view
+        if (this.scrollCurrent < this.scrollPrevious && this.scrollPrevious >= this.scrollOldest) {
+          console.log('A');
+          this.appbarPos = 'absolute';
+          this.appbarTop = this.scrollCurrent - this.marginTop;
+        }
+        // scroll up until app bar comes into view: pin it to the top of the viewport
+        if (this.scrollCurrent <= this.appbarTop) {
+          console.log('B');
+          this.appbarPos = 'fixed';
+          this.appbarTop = 0;
+        }
+        // switch direction from up to down: begin scrolling app bar out of view
+        if (this.scrollCurrent > this.scrollPrevious && this.scrollPrevious <= this.scrollOldest) {
+          console.log('C');
+          if (this.appbarPos === 'fixed') {
+            this.appbarPos = 'absolute';
+            this.appbarTop = this.scrollCurrent;
+          }
+        }
+
+        this.isScrolling = true;
+        this.waitForScrollStop();
+      },
+      scrollingStopped() {
+        const current = this.scrollCurrent;
+        this.$set(this.scrollBuffer, 0, current);
+        this.$set(this.scrollBuffer, 1, current);
+        this.$set(this.scrollBuffer, 2, current);
+        this.isScrolling = false;
+        const offset = this.scrollCurrent - this.appbarTop;
+        // the appbar is partly visible. how rude
+        if (offset > 0 && offset < this.marginTop) {
+          if (offset > this.marginTop / 2) {
+            this.appbarPos = 'fixed';
+            this.appbarTop = -1 * this.marginTop;
+          } else {
+            this.appbarPos = 'fixed';
+            this.appbarTop = 0;
+          }
+        }
+      },
     },
   };
 
@@ -272,10 +342,11 @@
   .app-bar {
     @extend %ui-toolbar-box-shadow;
 
-    position: absolute;
-    top: 0;
     right: 0;
     left: 0;
+    // transition-timing-function: ease;
+    // transition-duration: 0.25s;
+    // transition-property: transform;
   }
 
   .app-bar-actions {
