@@ -1,6 +1,6 @@
 <template>
 
-  <div class="main-wrapper" @scroll="throttledHandleScroll">
+  <div class="main-wrapper" @scroll.passive="throttledHandleScroll">
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
@@ -328,6 +328,8 @@
     bottom: 0;
     left: 0;
     overflow-x: hidden;
+    overflow-y: scroll; // has to be scroll, not auto
+    -webkit-overflow-scrolling: touch; // iOS momentum scrolling
   }
 
   .click-mask {
@@ -341,9 +343,11 @@
 
   .app-bar {
     @extend %ui-toolbar-box-shadow;
+    @extend %enable-gpu-acceleration;
 
     right: 0;
     left: 0;
+
     // transition-timing-function: ease;
     // transition-duration: 0.25s;
     // transition-property: transform;
