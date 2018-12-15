@@ -44,20 +44,35 @@
 
     </template>
 
-    <AppBody
-      :topGap="appBodyTopGap"
-      :bottomGap="bottomMargin"
+    <div
+      class="app-body"
+      :style="contentStyle"
       @scroll="handleScroll"
     >
-      <AuthMessage
-        v-if="notAuthorized"
-        :authorizedRole="authorizedRole"
-        :header="authorizationErrorHeader"
-        :details="authorizationErrorDetails"
+      <div v-if="blockDoubleClicks" class="click-mask"></div>
+      <KLinearLoader
+        v-if="loading"
+        class="toolbar-loader"
+        :style="loaderPositionStyles"
+        type="indeterminate"
+        :delay="false"
       />
-      <AppError v-else-if="error" />
-      <slot v-else></slot>
-    </AppBody>
+
+      <div
+        v-else
+        :style="bodyPadding"
+        class="body-wrapper"
+      >
+        <AuthMessage
+          v-if="notAuthorized"
+          :authorizedRole="authorizedRole"
+          :header="authorizationErrorHeader"
+          :details="authorizationErrorDetails"
+        />
+        <AppError v-else-if="error" />
+        <slot v-else></slot>
+      </div>
+    </div>
 
     <GlobalSnackbar />
 
@@ -74,8 +89,8 @@
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { throttle } from 'frame-throttle';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import AppError from './AppError';
-  import AppBody from './AppBody';
   import GlobalSnackbar from './GlobalSnackbar';
   import ImmersiveToolbar from './ImmersiveToolbar';
 
@@ -92,8 +107,8 @@
       ImmersiveToolbar,
       SideNav,
       AuthMessage,
-      AppBody,
       GlobalSnackbar,
+      KLinearLoader,
     },
     mixins: [responsiveWindow],
     props: {
@@ -186,6 +201,8 @@
     computed: {
       ...mapState({
         error: state => state.core.error,
+        loading: state => state.core.loading,
+        blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -206,6 +223,25 @@
           return true;
         }
         return !this.authorized;
+      },
+      isMobile() {
+        return this.windowIsSmall;
+      },
+      contentStyle() {
+        return {
+          top: `${this.appBodyTopGap}px`,
+          bottom: `${this.bottomMargin}px`,
+        };
+      },
+      loaderPositionStyles() {
+        return {
+          top: `${this.appBodyTopGap}px`,
+        };
+      },
+      bodyPadding() {
+        return {
+          padding: `${this.isMobile ? 16 : 32}px`,
+        };
       },
     },
     methods: {
@@ -236,6 +272,33 @@
 
   .app-bar-actions {
     display: inline-block;
+  }
+
+  .app-body {
+    position: absolute;
+    right: 0;
+    left: 0;
+    overflow-x: hidden;
+  }
+
+  .body-wrapper {
+    max-width: 1000px;
+    margin: auto;
+  }
+
+  .toolbar-loader {
+    position: fixed;
+    right: 0;
+    left: 0;
+  }
+
+  .click-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 24;
+    width: 100%;
+    height: 100%;
   }
 
 </style>
