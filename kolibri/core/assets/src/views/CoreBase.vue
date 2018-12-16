@@ -243,7 +243,7 @@
       },
       appbarStyles() {
         return {
-          position: this.appbarPos,
+          position: this.barPinned ? 'fixed' : 'absolute',
           transform: `translateY(${this.barTranslation}px)`,
         };
       },
