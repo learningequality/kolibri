@@ -360,8 +360,8 @@
           // IF: bar is at least partially offscreen
           if (this.negBarHeight <= this.barPos && this.barPos < 0) {
             logging.debug('bar is at least partially offscreen');
-            // IF: scrolling quickly relative to app bar height
-            if (this.scrollDelta < this.negBarHeight / 8) {
+            // IF: scrolling quickly relative to app bar height and distance remaining
+            if (2 * this.scrollDelta < this.barPos) {
               logging.debug('scrolling quickly relative to app bar height');
               // THEN: pin bar visibly
               this.barPinned = true;
