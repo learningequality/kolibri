@@ -53,8 +53,8 @@
       return {
         // whether app bar is moving with content or pinned to the page
         pinned: true,
-        // vertical offset of the app
-        translation: 0,
+        // vertical offset of the bar. generally in range [-height, 0] inclusive
+        offset: 0,
         // briefly enable CSS transitions when scrolling stops to prevent hard jumps
         transition: false,
       };
@@ -67,15 +67,15 @@
         }
         return {
           position: this.pinned ? 'fixed' : 'absolute',
-          transform: `translateY(${this.translation}px)`,
+          transform: `translateY(${this.offset}px)`,
         };
       },
       // position of app bar relative to browser viewport
       barPos() {
         if (this.pinned) {
-          return this.translation;
+          return this.offset;
         }
-        return this.translation - this.scrollPosition;
+        return this.offset - this.scrollPosition;
       },
       // calls scrollingStopped 500ms after scrolling pauses
       waitForScrollStop() {
@@ -105,32 +105,32 @@
         const delta = scrollPos - scrollPosPrev;
 
         // IF: scrolling upward, bar visibly pinned
-        if (delta < 0 && this.pinned && this.translation === 0) {
+        if (delta < 0 && this.pinned && this.offset === 0) {
           this.log('scrolling upward, bar visibly pinned');
           // THEN: bar stays visibly pinned
           return;
         }
 
         // IF: scrolling downward, bar visibly pinned
-        else if (delta > 0 && this.pinned && this.translation === 0) {
+        else if (delta > 0 && this.pinned && this.offset === 0) {
           this.log('scrolling downward, bar visibly pinned');
           // THEN: attach at content position so it can scroll offscreen
           this.pinned = false;
-          this.translation = scrollPos;
+          this.offset = scrollPos;
           return;
         }
 
         // IF: scrolling upward, bar invisibly pinned
-        else if (delta < 0 && this.pinned && this.translation === -this.height) {
+        else if (delta < 0 && this.pinned && this.offset === -this.height) {
           this.log('scrolling upward, bar invisibly pinned');
           // THEN: attach at content position
           this.pinned = false;
-          this.translation = scrollPos - this.height;
+          this.offset = scrollPos - this.height;
           return;
         }
 
         // IF: scrolling downward, bar invisibly pinned
-        else if (delta > 0 && this.pinned && this.translation === -this.height) {
+        else if (delta > 0 && this.pinned && this.offset === -this.height) {
           this.log('scrolling downward, bar invisibly pinned');
           // THEN: bar stays invisibly pinned
           return;
@@ -141,7 +141,7 @@
           this.log('scrolling, bar pinned somewhere unknown');
           // THEN: attach it to content at its current location
           this.pinned = false;
-          this.translation = this.translation + this.scrollPosition;
+          this.offset = this.offset + this.scrollPosition;
           return;
         }
 
@@ -153,7 +153,7 @@
             this.log('  bar is fully offscreen');
             // THEN: pin bar offscreen
             this.pinned = true;
-            this.translation = -this.height;
+            this.offset = -this.height;
             return;
           }
           // IF: bar is partially offscreen
@@ -166,7 +166,7 @@
           else {
             this.log('  if bar somehow got too low (barPos > 0)');
             // THEN: re-attach at content position
-            this.translation = scrollPos;
+            this.offset = scrollPos;
             return;
           }
         }
@@ -183,7 +183,7 @@
               this.log('  scrolling quickly relative to app bar height');
               // THEN: pin bar visibly
               this.pinned = true;
-              this.translation = 0;
+              this.offset = 0;
               return;
             } else {
               this.log('  scrolling slowly relative to app bar height');
@@ -196,7 +196,7 @@
             this.log('  bar is too low, e.g. due to momentum or overshoot');
             // THEN: pin bar visibly
             this.pinned = true;
-            this.translation = 0;
+            this.offset = 0;
             return;
           }
           // IF: bar is too high (barPos < negBarHeight)
@@ -204,7 +204,7 @@
             this.log('  bar is too high (barPos < negBarHeight)');
             // THEN: re-attach at content position
             this.pinned = false;
-            this.translation = scrollPos;
+            this.offset = scrollPos;
             return;
           }
         }
@@ -212,7 +212,7 @@
         // report if logic above is flawed or incomplete
         logging.warn(`Unhandled scrolling state:`);
         logging.warn(`\tAppbar height: ${this.height}`);
-        logging.warn(`\tAppbar translation: ${this.translation}`);
+        logging.warn(`\tAppbar offset: ${this.offset}`);
         logging.warn(`\tIs pinned: ${this.pinned}`);
       },
       // called when we've detected a pause in scrolling
@@ -253,16 +253,16 @@
         }
       },
       //
-      transitionTo(translation) {
+      transitionTo(offset) {
         // first pin it at its current location
         this.pinned = true;
         this.transition = false;
-        this.translation = this.translation - this.scrollPosition;
+        this.offset = this.offset - this.scrollPosition;
         // Then on the next frame, transition it to be fully visible.
         // Expected $nextTick should have worked here, but it doesn't seem to.
         setTimeout(() => {
           this.transition = true;
-          this.translation = translation;
+          this.offset = offset;
         }, 20);
       },
     },
