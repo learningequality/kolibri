@@ -1,6 +1,10 @@
 <template>
 
-  <div class="scrolling-header" :style="barPositioning">
+  <div
+    class="scrolling-header"
+    :style="barPositioning"
+    :class="{ 'ease': barPinned && transition }"
+  >
     <slot></slot>
   </div>
 
@@ -46,6 +50,8 @@
         barPinned: true,
         // vertical offset of the app
         barTranslation: 0,
+        // briefly enable CSS transitions when scrolling stops to prevent hard jumps
+        transition: false,
       };
     },
     computed: {
@@ -65,7 +71,7 @@
       },
       // calls scrollingStopped 500ms after scrolling pauses
       waitForScrollStop() {
-        return debounce(this.scrollingStopped, 500);
+        return debounce(this.scrollingStopped, 250);
       },
     },
     watch: {
@@ -82,6 +88,7 @@
       // based on the short history of scroll positions, figure out how to set positioning
       handleScroll(scrollPos, scrollPosPrev) {
         this.waitForScrollStop();
+        this.transition = false;
 
         const delta = scrollPos - scrollPosPrev;
 
@@ -114,6 +121,15 @@
         else if (delta > 0 && this.barPinned && this.barTranslation === -this.barHeight) {
           this.log('scrolling downward, bar invisibly pinned');
           // THEN: bar stays invisibly pinned
+          return;
+        }
+
+        // IF: scrolling, bar pinned somewhere in the middle
+        else if (this.barPinned) {
+          this.log('scrolling, bar pinned somewhere unknown');
+          // THEN: attach it to content at its current location
+          this.barPinned = false;
+          this.barTranslation = this.barTranslation + this.scrollPosition;
           return;
         }
 
@@ -205,27 +221,36 @@
           if (this.scrollPosition < this.barHeight) {
             this.log('    close to top');
             // THEN: pin bar visibly to prevent a blank space
-            this.barPinned = true;
-            this.barTranslation = 0;
+            this.transitionTo(0);
             return;
           }
           // IF: bar is at least half visible
           else if (this.barPos > -this.barHeight / 2) {
             this.log('    at least half visible');
             // THEN: pin bar visibly
-            this.barPinned = true;
-            this.barTranslation = 0;
+            this.transitionTo(0);
             return;
           }
           // IF: bar is less than half visible
           else {
             this.log('    less than half visible');
             // THEN: pin bar offscreen
-            this.barPinned = true;
-            this.barTranslation = -this.barHeight;
+            this.transitionTo(-this.barHeight);
             return;
           }
         }
+      },
+      //
+      transitionTo(translation) {
+        // first pin it at its current location
+        this.barPinned = true;
+        this.transition = false;
+        this.barTranslation = this.barTranslation - this.scrollPosition;
+        // then on the next tick, transition it to be fully visible
+        this.$nextTick(() => {
+          this.transition = true;
+          this.barTranslation = translation;
+        });
       },
     },
   };
@@ -243,6 +268,12 @@
     right: 0;
     left: 0;
     z-index: 4;
+  }
+
+  .ease {
+    transition-timing-function: ease-in;
+    transition-duration: 0.05s;
+    transition-property: transform;
   }
 
 </style>
