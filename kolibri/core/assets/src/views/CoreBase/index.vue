@@ -7,10 +7,13 @@
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
-    <template v-if="navBarNeeded">
-
+    <ScrollingHeader
+      :height="appbarHeight"
+      :scrollPosition="scrollPosition"
+      :alwaysVisible="windowIsLarge"
+    >
       <ImmersiveToolbar
-        v-if="immersivePage"
+        v-if="navBarNeeded && immersivePage"
         :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
@@ -18,49 +21,40 @@
         :height="headerHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
-
-      <template v-else>
-        <ScrollingHeader
-          :height="appbarHeight"
-          :scrollPosition="scrollPosition"
-          :alwaysVisible="windowIsLarge"
+      <AppBar
+        v-else-if="navBarNeeded && !immersivePage"
+        ref="appBar"
+        class="app-bar"
+        :title="toolbarTitle || appBarTitle"
+        :height="headerHeight"
+        :navShown="navShown"
+        @toggleSideNav="navShown=!navShown"
+      >
+        <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
+        <div slot="app-bar-actions" class="app-bar-actions">
+          <slot name="app-bar-actions"></slot>
+        </div>
+        <slot
+          v-if="showSubNav"
+          slot="sub-nav"
+          name="sub-nav"
         >
-          <AppBar
-            ref="appBar"
-            class="app-bar"
-            :title="toolbarTitle || appBarTitle"
-            :height="headerHeight"
-            :navShown="navShown"
-            @toggleSideNav="navShown=!navShown"
-          >
-            <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
-            <div slot="app-bar-actions" class="app-bar-actions">
-              <slot name="app-bar-actions"></slot>
-            </div>
-            <slot
-              v-if="showSubNav"
-              slot="sub-nav"
-              name="sub-nav"
-            >
-            </slot>
-          </AppBar>
-        </ScrollingHeader>
-        <SideNav
-          :navShown="navShown"
-          :headerHeight="headerHeight"
-          :width="navWidth"
-          @toggleSideNav="navShown=!navShown"
-        />
-      </template>
+        </slot>
+      </AppBar>
+      <KLinearLoader
+        v-if="loading"
+        class="loader"
+        :style="loaderPositionStyles"
+        type="indeterminate"
+        :delay="false"
+      />
+    </ScrollingHeader>
 
-    </template>
-
-    <KLinearLoader
-      v-if="loading"
-      class="loader"
-      :style="loaderPositionStyles"
-      type="indeterminate"
-      :delay="false"
+    <SideNav
+      :navShown="navShown"
+      :headerHeight="headerHeight"
+      :width="navWidth"
+      @toggleSideNav="navShown=!navShown"
     />
 
     <div
