@@ -400,14 +400,39 @@
       },
       scrollingStopped() {
         this.scrollBuffer = [this.contentPos, this.contentPos];
-        this.barPinned = true;
-        // IF: bar is at least half visible
-        if (this.barPos > this.negBarHeight / 2) {
-          // THEN: pin bar visibly
-          this.barTranslation = 0;
+        logging.debug('scrolling stopped');
+
+        // IF: the bar is already pinned
+        if (this.barPinned) {
+          logging.debug('already pinned: do nothing');
+          // THEN: do nothing
+          return;
         }
-        // OTHERWISE: pin bar offscreen
-        this.barTranslation = this.negBarHeight;
+
+        // IF: the bar is attached to the content, and the content is near the top
+        if (!this.barPinned && this.contentPos < this.appBarHeight) {
+          logging.debug('close to top: do nothing');
+          // THEN: keep the bar attached to the content to prevent a blank space
+          return;
+        }
+
+        // IF: the bar is attached to the content
+        if (!this.barPinned) {
+          // IF: bar is at least half visible
+          if (this.barPos > this.negBarHeight / 2) {
+            // THEN: pin bar visibly
+            this.barPinned = true;
+            this.barTranslation = 0;
+            return;
+          }
+          // IF: bar is less than half visible
+          else {
+            // THEN: pin bar offscreen
+            this.barPinned = true;
+            this.barTranslation = this.negBarHeight;
+            return;
+          }
+        }
       },
     },
   };
