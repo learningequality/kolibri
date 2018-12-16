@@ -277,7 +277,7 @@
         if (this.barPinned) {
           return this.barTranslation;
         }
-        return this.contentPos - this.barTranslation;
+        return this.barTranslation - this.contentPos;
       },
       negBarHeight() {
         return 0 - this.appBarHeight;
@@ -360,9 +360,9 @@
           // IF: bar is at least partially offscreen
           if (this.negBarHeight <= this.barPos && this.barPos < 0) {
             logging.debug('bar is at least partially offscreen');
-            // IF: scrolling quickly relative to remaining distance
-            if (Math.abs(this.scrollDelta) > Math.abs(this.barPos / 2)) {
-              logging.debug('scrolling quickly relative to remaining distance');
+            // IF: scrolling quickly relative to app bar height
+            if (this.scrollDelta < this.negBarHeight / 8) {
+              logging.debug('scrolling quickly relative to app bar height');
               // THEN: pin bar visibly
               this.barPinned = true;
               this.barTranslation = 0;
