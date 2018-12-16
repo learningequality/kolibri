@@ -38,6 +38,11 @@
           return value >= 0;
         },
       },
+      // keep the header permanently pinned to the top
+      alwaysVisible: {
+        type: Boolean,
+        default: false,
+      },
       // print out the logic
       debug: {
         type: Boolean,
@@ -57,6 +62,9 @@
     computed: {
       // sets up appropriate styles
       barPositioning() {
+        if (this.alwaysVisible) {
+          return { position: 'fixed' };
+        }
         return {
           position: this.pinned ? 'fixed' : 'absolute',
           transform: `translateY(${this.translation}px)`,
@@ -87,6 +95,10 @@
       },
       // based on the short history of scroll positions, figure out how to set positioning
       handleScroll(scrollPos, scrollPosPrev) {
+        if (this.alwaysVisible) {
+          return;
+        }
+
         this.waitForScrollStop();
         this.transition = false;
 

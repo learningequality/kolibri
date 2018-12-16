@@ -23,6 +23,7 @@
         <ScrollingHeader
           :height="appbarHeight"
           :scrollPosition="scrollPosition"
+          :alwaysVisible="windowIsLarge"
         >
           <AppBar
             ref="appBar"
