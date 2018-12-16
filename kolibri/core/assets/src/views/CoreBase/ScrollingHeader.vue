@@ -246,11 +246,12 @@
         this.barPinned = true;
         this.transition = false;
         this.barTranslation = this.barTranslation - this.scrollPosition;
-        // then on the next tick, transition it to be fully visible
-        this.$nextTick(() => {
+        // Then on the next frame, transition it to be fully visible.
+        // Expected $nextTick should have worked here, but it doesn't seem to.
+        setTimeout(() => {
           this.transition = true;
           this.barTranslation = translation;
-        });
+        }, 20);
       },
     },
   };
@@ -272,7 +273,7 @@
 
   .ease {
     transition-timing-function: ease-in;
-    transition-duration: 0.05s;
+    transition-duration: 0.1s;
     transition-property: transform;
   }
 
