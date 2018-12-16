@@ -237,7 +237,7 @@
       contentStyles() {
         return {
           marginTop: `${this.appbarHeight}px`,
-          marginBottom: `${this.marginBottom}px`,
+          marginBottom: `${this.marginBottom + 128}px`,
           padding: `${this.isMobile ? 16 : 32}px`,
         };
       },

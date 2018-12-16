@@ -236,16 +236,16 @@
             this.transitionTo(0);
             return;
           }
-          // IF: bar is at least half visible
-          else if (this.barPos > -this.height / 2) {
-            this.log('    at least half visible');
+          // IF: bar is at least two thirds visible
+          else if (-this.barPos < this.height / 3) {
+            this.log('    at least two thirds visible');
             // THEN: pin bar visibly
             this.transitionTo(0);
             return;
           }
-          // IF: bar is less than half visible
+          // IF: bar is up to two thirds visible
           else {
-            this.log('    less than half visible');
+            this.log('    up to two thirds visible');
             // THEN: pin bar offscreen
             this.transitionTo(-this.height);
             return;
