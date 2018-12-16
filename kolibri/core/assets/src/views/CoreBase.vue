@@ -21,7 +21,7 @@
         <AppBar
           ref="appBar"
           class="app-bar"
-          :style="appbarStyles"
+          :style="barStyles"
           :title="toolbarTitle || appBarTitle"
           :height="headerHeight"
           :navShown="navShown"
@@ -214,7 +214,7 @@
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
-      appBarHeight() {
+      barHeight() {
         if (this.showSubNav) {
           // Adds the height of KNavBar
           return this.headerHeight + 48;
@@ -236,12 +236,12 @@
       },
       contentStyles() {
         return {
-          marginTop: `${this.appBarHeight}px`,
+          marginTop: `${this.barHeight}px`,
           marginBottom: `${this.marginBottom}px`,
           padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
-      appbarStyles() {
+      barStyles() {
         return {
           position: this.barPinned ? 'fixed' : 'absolute',
           transform: `translateY(${this.barTranslation}px)`,
@@ -249,7 +249,7 @@
       },
       loaderPositionStyles() {
         return {
-          top: `${this.appBarHeight}px`,
+          top: `${this.barHeight}px`,
         };
       },
       // calls handleScroll no more than every 17ms
@@ -279,9 +279,6 @@
         }
         return this.barTranslation - this.contentPos;
       },
-      negBarHeight() {
-        return 0 - this.appBarHeight;
-      },
     },
     methods: {
       handleScroll(e) {
@@ -308,12 +305,12 @@
         else if (
           this.scrollDelta < 0 &&
           this.barPinned &&
-          this.barTranslation === this.negBarHeight
+          this.barTranslation === -this.barHeight
         ) {
           logging.debug('scrolling upward, bar invisibly pinned');
           // THEN: attach at content position
           this.barPinned = false;
-          this.barTranslation = this.contentPos - this.appBarHeight;
+          this.barTranslation = this.contentPos - this.barHeight;
           return;
         }
 
@@ -321,7 +318,7 @@
         else if (
           this.scrollDelta > 0 &&
           this.barPinned &&
-          this.barTranslation === this.negBarHeight
+          this.barTranslation === -this.barHeight
         ) {
           logging.debug('scrolling downward, bar invisibly pinned');
           // THEN: bar stays invisibly pinned
@@ -332,15 +329,15 @@
         else if (this.scrollDelta > 0 && !this.barPinned) {
           logging.debug('scrolling downward, attached to content');
           // IF: bar is fully offscreen
-          if (this.barPos <= this.negBarHeight) {
+          if (this.barPos <= -this.barHeight) {
             logging.debug('bar is fully offscreen');
             // THEN: pin bar offscreen
             this.barPinned = true;
-            this.barTranslation = this.negBarHeight;
+            this.barTranslation = -this.barHeight;
             return;
           }
           // IF: bar is partially offscreen
-          else if (this.negBarHeight < this.barPos && this.barPos < 0) {
+          else if (-this.barHeight < this.barPos && this.barPos < 0) {
             logging.debug('bar is partially offscreen');
             // THEN: stay attached to content at current position
             return;
@@ -358,9 +355,10 @@
         else if (this.scrollDelta < 0 && !this.barPinned) {
           logging.debug('scrolling upward, attached to content');
           // IF: bar is at least partially offscreen
-          if (this.negBarHeight <= this.barPos && this.barPos < 0) {
+          if (-this.barHeight <= this.barPos && this.barPos < 0) {
             logging.debug('bar is at least partially offscreen');
             // IF: scrolling quickly relative to app bar height and distance remaining
+            // note - both scrollDelta and barPos are negative here
             if (2 * this.scrollDelta < this.barPos) {
               logging.debug('scrolling quickly relative to app bar height');
               // THEN: pin bar visibly
@@ -394,7 +392,7 @@
         // report if logic above is flawed or incomplete
         logging.warn(`Unhandled scrolling state:`);
         logging.warn(`\tScroll buffer: ${this.scrollBuffer}`);
-        logging.warn(`\tAppbar height: ${this.appBarHeight}`);
+        logging.warn(`\tAppbar height: ${this.barHeight}`);
         logging.warn(`\tAppbar translation: ${this.barTranslation}`);
         logging.warn(`\tIs pinned: ${this.barPinned}`);
       },
@@ -410,7 +408,7 @@
         }
 
         // IF: the bar is attached to the content, and the content is near the top
-        if (!this.barPinned && this.contentPos < this.appBarHeight) {
+        if (!this.barPinned && this.contentPos < this.barHeight) {
           logging.debug('close to top: do nothing');
           // THEN: keep the bar attached to the content to prevent a blank space
           return;
@@ -419,7 +417,7 @@
         // IF: the bar is attached to the content
         if (!this.barPinned) {
           // IF: bar is at least half visible
-          if (this.barPos > this.negBarHeight / 2) {
+          if (this.barPos > -this.barHeight / 2) {
             // THEN: pin bar visibly
             this.barPinned = true;
             this.barTranslation = 0;
@@ -429,7 +427,7 @@
           else {
             // THEN: pin bar offscreen
             this.barPinned = true;
-            this.barTranslation = this.negBarHeight;
+            this.barTranslation = -this.barHeight;
             return;
           }
         }
