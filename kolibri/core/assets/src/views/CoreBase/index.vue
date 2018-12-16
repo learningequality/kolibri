@@ -21,7 +21,7 @@
 
       <template v-else>
         <ScrollingHeader
-          :barHeight="appbarHeight"
+          :height="appbarHeight"
           :scrollPosition="scrollPosition"
         >
           <AppBar
