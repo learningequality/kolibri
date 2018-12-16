@@ -2,7 +2,7 @@
 
   <div
     class="main-wrapper"
-    @scroll.passive="handleScroll"
+    @scroll.passive="throttledHandleScroll"
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
@@ -92,6 +92,7 @@
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import { throttle } from 'frame-throttle';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -243,6 +244,10 @@
         return {
           top: `${this.appbarHeight}px`,
         };
+      },
+      // calls handleScroll no more than every 17ms
+      throttledHandleScroll() {
+        return throttle(this.handleScroll);
       },
     },
     methods: {

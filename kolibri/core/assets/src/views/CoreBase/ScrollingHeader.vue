@@ -9,7 +9,6 @@
 
 <script>
 
-  import { throttle } from 'frame-throttle';
   import debounce from 'lodash/debounce';
   import logger from 'kolibri.lib.logging';
 
@@ -38,7 +37,7 @@
       // print out the logic
       debug: {
         type: Boolean,
-        default: true,
+        default: false,
       },
     },
     data() {
@@ -64,18 +63,14 @@
         }
         return this.barTranslation - this.scrollPosition;
       },
-      // calls handleScroll no more than every 17ms
-      throttledHandleScroll() {
-        return throttle(this.handleScroll);
-      },
       // calls scrollingStopped 500ms after scrolling pauses
       waitForScrollStop() {
         return debounce(this.scrollingStopped, 500);
       },
     },
     watch: {
-      scrollPosition(newValue, oldValue) {
-        this.throttledHandleScroll(newValue, oldValue);
+      scrollPosition(scrollPos, scrollPosPrev) {
+        this.handleScroll(scrollPos, scrollPosPrev);
       },
     },
     methods: {
