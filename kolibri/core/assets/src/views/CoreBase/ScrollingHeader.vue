@@ -198,22 +198,25 @@
 
         // IF: the bar is already pinned
         if (this.barPinned) {
-          this.log('already pinned: do nothing');
+          this.log('  already pinned');
           // THEN: do nothing
-          return;
-        }
-
-        // IF: the bar is attached to the content, and the content is near the top
-        if (!this.barPinned && this.scrollPosition < this.barHeight) {
-          this.log('close to top: do nothing');
-          // THEN: keep the bar attached to the content to prevent a blank space
           return;
         }
 
         // IF: the bar is attached to the content
         if (!this.barPinned) {
+          this.log('  the bar is attached to the content');
+          // IF: the content is near the top
+          if (this.scrollPosition < this.barHeight) {
+            this.log('    close to top');
+            // THEN: pin bar visibly to prevent a blank space
+            this.barPinned = true;
+            this.barTranslation = 0;
+            return;
+          }
           // IF: bar is at least half visible
-          if (this.barPos > -this.barHeight / 2) {
+          else if (this.barPos > -this.barHeight / 2) {
+            this.log('    at least half visible');
             // THEN: pin bar visibly
             this.barPinned = true;
             this.barTranslation = 0;
