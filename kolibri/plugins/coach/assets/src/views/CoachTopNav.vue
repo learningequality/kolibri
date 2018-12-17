@@ -55,7 +55,7 @@
     $trs: {
       recent: 'Recent',
       channels: 'Channels',
-      exams: 'Exams',
+      exams: 'Quizzes',
       learners: 'Learners',
       groups: 'Groups',
       lessons: 'Lessons',

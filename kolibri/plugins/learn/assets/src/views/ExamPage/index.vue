@@ -105,8 +105,8 @@
   export default {
     name: 'ExamPage',
     $trs: {
-      submitExam: 'Submit exam',
-      backToExamList: 'Back to exam list',
+      submitExam: 'Submit quiz',
+      backToExamList: 'Back to quiz list',
       questionsAnswered:
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',

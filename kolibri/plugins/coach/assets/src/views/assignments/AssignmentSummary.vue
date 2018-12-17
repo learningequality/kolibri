@@ -117,7 +117,7 @@
     $trs: {
       status: 'Status',
       statusDescription: 'Status description',
-      statusTooltipTextExams: 'Learners can only see active exams',
+      statusTooltipTextExams: 'Learners can only see active quizzes',
       statusTooltipTextLessons: 'Learners can only see active lessons',
       changeStatus: 'Change',
       description: 'Description',
