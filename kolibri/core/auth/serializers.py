@@ -55,8 +55,10 @@ class FacilityUserSignupSerializer(FacilityUserSerializer):
 
     def validate_username(self, value):
         if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
-                                              code=error_constants.USERNAME_ALREADY_EXISTS)
+            raise serializers.ValidationError(
+                detail='An account with that username already exists.',
+                code=error_constants.USERNAME_ALREADY_EXISTS
+            )
         return value
 
 

@@ -20,7 +20,7 @@ export function signUpNewUser(store, signUpCreds) {
         store.commit('SET_SIGN_UP_ERRORS', errors);
       } else {
         // No errors we recognize, flag there are unrecognized errors
-        store.commit('SET_UNRECOGNIZED_ERROR');
+        store.dispatch('handleApiError', error, { root: true });
       }
       store.commit('SET_SIGN_UP_BUSY', false);
     });

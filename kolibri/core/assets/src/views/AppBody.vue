@@ -13,7 +13,7 @@
 
     <div
       v-else
-      :style="bodyPadding"
+      :style="bodyStyle"
       class="body-wrapper"
     >
       <slot></slot>
@@ -48,6 +48,11 @@
         required: false,
         default: 0,
       },
+      // when true, don't add any margins or padding (regardless of gaps)
+      fullScreen: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       ...mapState({
@@ -59,17 +64,24 @@
       },
       contentStyle() {
         return {
-          top: `${this.topGap}px`,
-          bottom: `${this.bottomGap}px`,
+          top: `${this.fullScreen ? 0 : this.topGap}px`,
+          bottom: `${this.fullScreen ? 0 : this.bottomGap}px`,
         };
       },
       loaderPositionStyles() {
         return {
-          top: `${this.topGap}px`,
+          top: `${this.fullScreen ? 0 : this.topGap}px`,
         };
       },
-      bodyPadding() {
+      bodyStyle() {
+        if (this.fullScreen) {
+          return {
+            padding: '0px',
+            height: '100%',
+          };
+        }
         return {
+          maxWidth: '1000px',
           padding: `${this.isMobile ? 16 : 32}px`,
         };
       },
@@ -89,7 +101,6 @@
   }
 
   .body-wrapper {
-    max-width: 1000px;
     margin: auto;
   }
 
