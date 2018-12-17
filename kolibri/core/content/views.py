@@ -47,8 +47,8 @@ def generate_image_prefix_url(request, zipped_filename):
             "embedded_filepath": ''
         })[:-1]
     if parsed_referrer_url:
-        # Reconstruct the parsed URL using only the scheme(0) and host + port(1)
-        zipcontent = urlunparse((parsed_referrer_url[0], parsed_referrer_url[1], zipcontent, '', '', ''))
+        # Reconstruct the parsed URL using a blank scheme and host + port(1)
+        zipcontent = urlunparse(('', parsed_referrer_url[1], zipcontent, '', '', ''))
     return zipcontent.encode()
 
 
