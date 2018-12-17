@@ -2,6 +2,7 @@
 
   <div
     class="main-wrapper"
+    :style="{top: windowIsLarge ? `${appbarHeight}px` : 0 }"
     @scroll.passive="throttledHandleScroll"
   >
 
@@ -225,14 +226,11 @@
         }
         return !this.authorized;
       },
-      isMobile() {
-        return this.windowIsSmall;
-      },
       contentStyles() {
         return {
-          marginTop: `${this.appbarHeight}px`,
+          marginTop: `${this.windowIsLarge ? 0 : this.appbarHeight}px`,
           marginBottom: `${this.marginBottom + 128}px`,
-          padding: `${this.isMobile ? 16 : 32}px`,
+          padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
       loaderPositionStyles() {
