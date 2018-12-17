@@ -32,7 +32,7 @@ def _add_access_control_headers(request, response):
 
 def get_referrer_url(request):
     if request.META.get('HTTP_REFERER'):
-        # If available user HTTP_REFERER to infer the host as that will give us more
+        # If available use HTTP_REFERER to infer the host as that will give us more
         # information if Kolibri is behind a proxy.
         return urlparse(request.META.get('HTTP_REFERER'))
 

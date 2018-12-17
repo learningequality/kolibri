@@ -87,8 +87,8 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
 
     def test_content_security_policy_header_http_referer(self):
-        response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_REFERER="http://testserver")
-        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
+        response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_REFERER="http://testserver:1234/iam/a/real/path/#thatsomeonemightuse")
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver:1234")
 
     def test_access_control_allow_origin_header(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
@@ -112,11 +112,11 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(self.zip_file_base_url + self.test_name_3, HTTP_REFERER=server_name)
         self.assertEqual(
             response.content.decode('utf-8'),
-            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name.replace('http:', '') + self.zip_file_base_url)).strip("/"))
 
     def test_json_image_replacement_no_http_referer_header(self):
         server_name = "http://testserver"
         response = self.client.get(self.zip_file_base_url + self.test_name_3)
         self.assertEqual(
             response.content.decode('utf-8'),
-            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name + self.zip_file_base_url).strip("/")))
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name.replace('http:', '') + self.zip_file_base_url)).strip("/"))
