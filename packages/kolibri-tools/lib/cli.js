@@ -287,29 +287,25 @@ program
 // Test
 program
   .command('test')
-  .option(
-    '--extraConfig [extraConfig]',
-    'Additional configuration to merge and overwrite the default jest config'
-  )
+  .option('--config [config]', 'Set configuration for jest tests')
   .allowUnknownOption()
   .action(function(options) {
-    const baseConfig = require('../jest_config/jest.conf.js');
+    const baseConfigPath = path.resolve(__dirname, '../jest.conf');
     if (process.env.NODE_ENV == null) {
       process.env.NODE_ENV = 'test';
     }
     let config;
-    if (options.extraConfig) {
-      const importConfig = require(path.resolve(process.cwd(), options.extraConfig));
-      config = Object.assign({}, baseConfig, importConfig);
-      const extraConfigIndex = process.argv.findIndex(item => item === '--extraConfig');
-      process.argv.splice(extraConfigIndex, 2);
+    if (options.config) {
+      config = path.resolve(process.cwd(), options.config);
+      const configIndex = process.argv.findIndex(item => item === '--config');
+      process.argv.splice(configIndex, 2);
     } else {
-      config = baseConfig;
+      config = baseConfigPath;
     }
     // Remove the 'test' command that this was invoked with
     process.argv.splice(2, 1);
     process.argv.push('--config');
-    process.argv.push(JSON.stringify(config));
+    process.argv.push(config);
     require('jest-cli/build/cli').run();
   });
 

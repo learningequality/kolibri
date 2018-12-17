@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "test": "yarn run test-jest --watch",
-    "test-jest": "kolibri-tools test --extraConfig ./jest.conf.js",
+    "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt",
