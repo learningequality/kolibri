@@ -306,6 +306,8 @@ program
     } else {
       config = baseConfig;
     }
+    // Remove the 'test' command that this was invoked with
+    process.argv.splice(2, 1);
     process.argv.push('--config');
     process.argv.push(JSON.stringify(config));
     require('jest-cli/build/cli').run();
