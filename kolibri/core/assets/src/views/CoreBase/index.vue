@@ -2,7 +2,7 @@
 
   <div
     class="main-wrapper"
-    :style="{top: windowIsLarge ? `${appbarHeight}px` : 0 }"
+    :style="{top: fixedAppBar ? `${appbarHeight}px` : 0 }"
     @scroll.passive="throttledHandleScroll"
   >
 
@@ -11,7 +11,7 @@
     <ScrollingHeader
       :height="appbarHeight"
       :scrollPosition="scrollPosition"
-      :alwaysVisible="windowIsLarge"
+      :alwaysVisible="fixedAppBar"
     >
       <ImmersiveToolbar
         v-if="navBarNeeded && immersivePage"
@@ -45,7 +45,7 @@
       <KLinearLoader
         v-if="loading"
         class="loader"
-        :style="loaderPositionStyles"
+        :style="{top: `${appbarHeight}px`}"
         type="indeterminate"
         :delay="false"
       />
@@ -228,15 +228,13 @@
       },
       contentStyles() {
         return {
-          marginTop: `${this.windowIsLarge ? 0 : this.appbarHeight}px`,
+          marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
           marginBottom: `${this.marginBottom + 128}px`,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
-      loaderPositionStyles() {
-        return {
-          top: `${this.appbarHeight}px`,
-        };
+      fixedAppBar() {
+        return this.windowIsLarge || this.immersivePage;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
