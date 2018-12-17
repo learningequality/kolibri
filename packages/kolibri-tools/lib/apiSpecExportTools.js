@@ -205,7 +205,7 @@ const __builder = {
 
     const knownAliases = coreAliases();
 
-    // Keep track of all the external dependencies so that they can be added to the package.json for
+    // Keep track of all the external dependencies so that they can be added to the package.json
     // for the exported API spec.
     const externalDependencies = {};
     const files = [];
