@@ -5,6 +5,7 @@ import Cookie from './cookie';
 import { events, nameSpace } from './hashiBase';
 import patchXMLHttpRequest from './monkeyPatchXMLHttpRequest';
 import patchCrossOrigin from './monkeyPatchCORSMediaElements';
+import loadCurrentPage from './loadCurrentPage';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -32,8 +33,6 @@ export default class SandboxEnvironment {
 
     this.cookie.iframeInitialize();
 
-    this.loadPage = this.loadPage.bind(this);
-
     patchXMLHttpRequest();
 
     patchCrossOrigin();
@@ -41,7 +40,7 @@ export default class SandboxEnvironment {
     this.mediator.registerMessageHandler({
       nameSpace,
       event: events.READY,
-      callback: this.loadPage,
+      callback: loadCurrentPage,
     });
 
     // Send a ready message in case the outer Hashi has already initialized
@@ -56,18 +55,5 @@ export default class SandboxEnvironment {
         this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
       },
     });
-  }
-  loadPage() {
-    const req = new XMLHttpRequest();
-    req.addEventListener('load', () => {
-      this.setContent(req.responseText);
-    });
-    req.open('GET', window.location.href);
-    req.send();
-  }
-  setContent(contents) {
-    window.document.open();
-    window.document.write(contents);
-    window.document.close();
   }
 }

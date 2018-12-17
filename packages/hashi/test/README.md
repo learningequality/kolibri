@@ -3,8 +3,8 @@ Hashi Tests
 
 It is difficult to test Hashi through unit tests because a proper
 test environment needs to have a working iframe sandbox. Until we
-can determine a good way to perform automated testing, this
-directory will contain any files used for manual tests.
+can determine a good way to perform automated integration testing, this
+directory will contain any files used for unit tests and manual integration tests.
 
 test/kzip (Kolibri Zip Test)
 ----------
