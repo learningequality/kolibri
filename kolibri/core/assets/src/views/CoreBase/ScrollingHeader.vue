@@ -97,8 +97,10 @@
       },
     },
     watch: {
-      scrollPosition(scrollPos, scrollPosPrev) {
-        this.handleScroll(scrollPos, scrollPosPrev);
+      scrollPosition(scrollPosNew, scrollPosPrev) {
+        if (!this.alwaysVisible) {
+          this.handleScroll(scrollPosNew - scrollPosPrev);
+        }
       },
     },
     methods: {
@@ -108,15 +110,9 @@
         }
       },
       // based on the short history of scroll positions, figure out how to set positioning
-      handleScroll(scrollPos, scrollPosPrev) {
-        if (this.alwaysVisible) {
-          return;
-        }
-
+      handleScroll(delta) {
         this.waitForScrollStop();
         this.transition = false;
-
-        const delta = scrollPos - scrollPosPrev;
 
         // IF: scrolling upward, bar visibly pinned
         if (delta < 0 && this.pinned && this.offset === 0) {
@@ -130,7 +126,7 @@
           this.log('scrolling downward, bar visibly pinned');
           // THEN: attach at content position so it can scroll offscreen
           this.pinned = false;
-          this.offset = scrollPos;
+          this.offset = this.scrollPosition;
           return;
         }
 
@@ -139,7 +135,7 @@
           this.log('scrolling upward, bar invisibly pinned');
           // THEN: attach at content position
           this.pinned = false;
-          this.offset = scrollPos - this.height;
+          this.offset = this.scrollPosition - this.height;
           return;
         }
 
@@ -180,7 +176,7 @@
           else {
             this.log('  if bar somehow got too low (barPos > 0)');
             // THEN: re-attach at content position
-            this.offset = scrollPos;
+            this.offset = this.scrollPosition;
             return;
           }
         }
@@ -218,7 +214,7 @@
             this.log('  bar is too high (barPos < negBarHeight)');
             // THEN: re-attach at content position
             this.pinned = false;
-            this.offset = scrollPos;
+            this.offset = this.scrollPosition;
             return;
           }
         }
@@ -266,7 +262,7 @@
           }
         }
       },
-      //
+      // In order to make the transition work right, we need to switch to position: fixed first
       transitionTo(offset) {
         // first pin it at its current location
         this.pinned = true;
