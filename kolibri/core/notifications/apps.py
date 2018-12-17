@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 
+from .tasks import AsyncNotificationsThread
+
 
 class KolibriNotificationsConfig(AppConfig):
     name = 'kolibri.core.notifications'
@@ -11,7 +13,4 @@ class KolibriNotificationsConfig(AppConfig):
     verbose_name = 'Kolibri Notifications'
 
     def ready(self):
-        # activate signals:
-        from .signals import parse_summary_log  # noqa: F401
-        from .signals import parse_exam_log  # noqa: F401
-        from .signals import parse_attempts_log  # noqa: F401
+        AsyncNotificationsThread.start_command()

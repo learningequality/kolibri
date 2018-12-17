@@ -43,9 +43,9 @@ class Migration(migrations.Migration):
                             ),
                             (
                                 kolibri.core.notifications.models.NotificationType(
-                                    'LessonResourceIndividualCompletion'
+                                    'LessonIndividualCompletion'
                                 ),
-                                'LessonResourceIndividualCompletion',
+                                'LessonIndividualCompletion',
                             ),
                         ],
                         max_length=200,

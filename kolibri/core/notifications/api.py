@@ -1,8 +1,6 @@
 import uuid
 
 from django.db import transaction
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from le_utils.constants import content_kinds
 
 from .models import HelpReason
@@ -13,7 +11,6 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamLog
 
 
 def get_assignments(instance, summarylog, attempt=False):
@@ -91,8 +88,7 @@ def create_notification(notification_type, user_id, group_id, lesson_id=None,
     return notification
 
 
-@receiver(post_save, sender=ContentSummaryLog)
-def parse_summary_log(sender, instance, **kwargs):
+def parse_summary_log(instance):
     if instance.progress < 1.0:
         return
     lessons = get_assignments(instance, instance)
@@ -114,7 +110,9 @@ def parse_summary_log(sender, instance, **kwargs):
         lesson_content_ids = [resource['content_id'] for resource in lesson.resources]
 
         # Let's check if an LessonResourceIndividualCompletion needs to be created
-        user_completed = sender.objects.filter(user_id=instance.user_id, content_id__in=lesson_content_ids, progress=1.0).count()
+        user_completed = ContentSummaryLog.objects.filter(user_id=instance.user_id,
+                                                          content_id__in=lesson_content_ids,
+                                                          progress=1.0).count()
         if user_completed == len(lesson_content_ids):
             if not LearnerProgressNotification.objects.filter(user_id=instance.user_id,
                                                               notification_type=NotificationType.Lesson,
@@ -127,8 +125,7 @@ def parse_summary_log(sender, instance, **kwargs):
     save_notifications(notifications)
 
 
-@receiver(post_save, sender=ExamLog)
-def parse_exam_log(sender, instance, **kwargs):
+def parse_exam_log(instance):
     if not instance.closed:
         return
     user_classrooms = instance.user.memberships.all()
@@ -142,8 +139,7 @@ def parse_exam_log(sender, instance, **kwargs):
     save_notifications(notifications)
 
 
-@receiver(post_save, sender=AttemptLog)
-def parse_attempts_log(sender, instance, **kwargs):
+def parse_attempts_log(instance):
     # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
     lessons = get_assignments(instance, instance.masterylog.summarylog, attempt=True)
     if not lessons:
