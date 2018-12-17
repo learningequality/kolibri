@@ -1,76 +1,18 @@
+Feature: Scrolling app bar
+    Top app bar should become visible when scrolling up and hidden when scrolling down on mobile
 
-# looking upward, bar visibly pinned
-up AND (fix, 0)
+  Background:
+    Given that I am on a page with lots of content
 
-  # bar stays visibly pinned
-  => (fix, 0)
+  Scenario: Scrolling down on a small screen
+    When I scroll down
+    Then The app bar disappears
 
-# looking downward, bar visibly pinned
-down AND (fix, 0)
+  Scenario: Scrolling down on a large screen
+    When I scroll down
+    Then The app bar stays visible
 
-  # attach at content position
-  => (attach, contentPos)
-
-# looking upward, bar invisibly pinned
-up AND (fix, -H)
-
-  # attach at content position minus bar height
-  => (attach, contentPos - H)
-
-# looking downward, bar invisibly pinned
-down AND (fix, -H)
-
-  # bar stays invisibly pinned
-  => (fix, -H)
-
-# looking downward and attached
-down AND (attach, barTranslation)
-
-  # bar fully offscreen
-  barPos <= -H
-
-    # fix bar just offscreen
-    => (fix, -H)
-
-  # bar partially offscreen
-  -H < barPos <= 0
-
-    # stay attached at bar position
-    => (attach, barTranslation)
-
-  # bar somehow too low
-  barPos > 0
-
-    # re-attach at content position
-    => (attach, contentPos)
-
-# attached, looking upward
-up AND (attach, barTranslation)
-
-  # bar partially offscreen
-  -H < barPos <= 0
-
-    # bar moving slowly
-    delta < (0 - barPos) / 2
-
-      # stay attached at bar position
-      => (attach, barTranslation)
-
-    # bar moving quickly
-    else
-
-      # pin bar visibly
-      => (fix, 0)
-
-  # bar too low
-  barPos > 0
-
-    # pin bar visibly
-    => (fix, 0)
-
-  # bar too high
-  barPos < -H
-
-    # re-attach at content position
-    => (attach, contentPos)
+  Scenario: Scrolling up on a small screen
+    When I scroll up
+    Then The app bar re-appears
 
