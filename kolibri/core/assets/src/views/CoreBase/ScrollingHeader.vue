@@ -18,6 +18,20 @@
 
   const logging = logger.getLogger(__filename);
 
+  /*
+    The parameters below can be fine-tuned:
+  */
+  // time waited to see if scrolling has stopped
+  const SCROLL_STOPPED_WAIT = 250;
+  // time waited between flipping position styles and enabling CSS transition
+  const TRANSITION_START_DELAY = 25;
+  // Fraction of app bar height that triggers hiding a partially-visible bar.
+  // For example, 4 would mean the bar gets hidden if at least 1/4 of the height is offscreen
+  const THRESHOLD_DIVISOR = 3;
+  // Determines how aggressively we extrapolate scroll position and preemptively pin the bar.
+  // For example, if you scroll up very quickly, the bar might appear in the middle of the screen.
+  const SPEED_SCALER = 2;
+
   export default {
     name: 'ScrollingHeader',
     components: {},
@@ -77,9 +91,9 @@
         }
         return this.offset - this.scrollPosition;
       },
-      // calls scrollingStopped 500ms after scrolling pauses
+      // calls scrollingStopped a short period after scrolling pauses
       waitForScrollStop() {
-        return debounce(this.scrollingStopped, 250);
+        return debounce(this.scrollingStopped, SCROLL_STOPPED_WAIT);
       },
     },
     watch: {
@@ -179,7 +193,7 @@
             this.log('  bar is at least partially offscreen');
             // IF: scrolling quickly relative to app bar height and distance remaining
             // note - both delta and barPos are negative here
-            if (2 * delta < this.barPos) {
+            if (SPEED_SCALER * delta < this.barPos) {
               this.log('  scrolling quickly relative to app bar height');
               // THEN: pin bar visibly
               this.pinned = true;
@@ -237,7 +251,7 @@
             return;
           }
           // IF: bar is at least two thirds visible
-          else if (-this.barPos < this.height / 3) {
+          else if (-this.barPos < this.height / THRESHOLD_DIVISOR) {
             this.log('    at least two thirds visible');
             // THEN: pin bar visibly
             this.transitionTo(0);
@@ -263,7 +277,7 @@
         setTimeout(() => {
           this.transition = true;
           this.offset = offset;
-        }, 20);
+        }, TRANSITION_START_DELAY);
       },
     },
   };
