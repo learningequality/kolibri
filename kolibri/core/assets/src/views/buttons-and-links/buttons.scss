@@ -146,6 +146,7 @@ a.button {
   white-space: normal;
   cursor: pointer;
   transition: $transition;
+  user-select: text;
 
   &:hover {
     color: $core-action-dark;
