@@ -3,7 +3,7 @@ import store from 'kolibri.coreVue.vuex.store';
 import ColourPicker from '../views/ColourPicker';
 
 export default {
-  start() {
+  show() {
     const pickerDiv = global.document.createElement('div');
     global.document.body.appendChild(pickerDiv);
     this.rootvue = new Vue(
@@ -15,5 +15,9 @@ export default {
         ColourPicker
       )
     );
+  },
+  hide() {
+    global.document.body.removeChild(this.rootvue.$el);
+    this.rootvue.$destroy();
   },
 };

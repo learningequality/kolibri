@@ -23,7 +23,7 @@ function _modifyColour(sourceColour, ratio, colourFn, name) {
       parsedRatio = Number(ratio);
     }
     if (parsedRatio !== null) {
-      return colourFn(sourceColour, ratio).toString();
+      return colourFn(sourceColour, parsedRatio).toString();
     }
     throw TypeError(`Unparseable ratio: ${ratio} passed to ${name} function`);
   }
@@ -39,7 +39,7 @@ export function lighten(sourceColour, ratio) {
 }
 
 function _darken(sourceColour, ratio) {
-  return sourceColour.brighter(Math.log(1 - ratio) / darkenLogBase);
+  return sourceColour.darker(Math.log(1 - ratio) / darkenLogBase);
 }
 
 export function darken(sourceColour, ratio) {

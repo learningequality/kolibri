@@ -3,14 +3,10 @@
  * @module Facade
  */
 
-import Vue from 'vue';
-import VueMeta from 'vue-meta';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import Vue from 'kolibri.lib.vue';
 import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
-import VueAphrodite from './vueAphrodite';
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -48,12 +44,6 @@ export default class CoreApp {
 
     Vue.prototype.Kolibri = this;
 
-    // Register Vue plugins
-    Vue.use(Vuex);
-    Vue.use(VueRouter);
-    Vue.use(VueMeta);
-    Vue.use(VueAphrodite);
-
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
       window.location.origin = `${window.location.protocol}//${window.location.hostname}${
@@ -66,9 +56,9 @@ export default class CoreApp {
       mediator.setReady();
     };
 
-    if (process.env.NODE !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       const colourPicker = require('../utils/colourPicker').default;
-      colourPicker.start();
+      window.colourPicker = colourPicker;
     }
 
     i18nSetup().then(intlReady);

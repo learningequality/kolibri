@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import PersonalDataConsentForm from '../../src/views/onboarding-forms/PersonalDataConsentForm';
 
 function makeWrapper() {
-  const wrapper = mount(PersonalDataConsentForm, {});
+  const wrapper = mount(PersonalDataConsentForm, { store });
   return { wrapper };
 }
 

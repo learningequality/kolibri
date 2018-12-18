@@ -12,7 +12,6 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-import vue from 'vue';
 import vuex from 'vuex';
 import seededshuffle from 'seededshuffle';
 import UiAlert from 'keen-ui/src/UiAlert';
@@ -97,6 +96,7 @@ import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import * as colour from '../utils/colour';
+import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
 

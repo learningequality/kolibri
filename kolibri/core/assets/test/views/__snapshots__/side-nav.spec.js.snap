@@ -2,8 +2,8 @@
 
 exports[`side nav component should be hidden if navShown is false 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
-  <div class="side-nav" style="width: 100px; display: none;" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
+  <div class="side-nav" style="width: 100px; color: rgb(58, 58, 58); background-color: rgb(255, 255, 255); display: none;" name="side-nav">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
         <div class="ui-icon-button__icon">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
@@ -14,9 +14,9 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
         <div class="ui-ripple-ink"></div>
         <!---->
         <!---->
-      </button> <span class="side-nav-header-name">Kolibri</span></div>
+      </button> <span class="side-nav-header-name" style="color: rgb(255, 255, 255);">Kolibri</span></div>
     <div class="side-nav-scrollable-area" style="top: 20px; width: 100px;">
-      <div role="navigation" aria-label="Main user navigation" class="side-nav-scrollable-area-menu">
+      <div role="navigation" aria-label="Main user navigation" style="background-color: rgb(255, 255, 255);">
         <ul role="menu" class="ui-menu has-icons">
           <!---->
           <li><a role="menuitem" class="ui-menu-option is-divider">
@@ -26,11 +26,11 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p><a dir="auto" type="button" class="privacy-link link">Usage and privacy
+          <p><a dir="auto" type="button" class="privacy-link KButton-noKey-0_1a16x9n link">Usage and privacy
               <!----></a></p>
         </div>
       </div>
@@ -51,8 +51,8 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
 
 exports[`side nav component should show nothing if no components are added and user is not logged in 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
-  <div class="side-nav" style="width: 100px;" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px;"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
+  <div class="side-nav" style="width: 100px; color: rgb(58, 58, 58); background-color: rgb(255, 255, 255);" name="side-nav">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-white ui-icon-button--size-large">
         <div class="ui-icon-button__icon">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
@@ -63,9 +63,9 @@ exports[`side nav component should show nothing if no components are added and u
         <div class="ui-ripple-ink"></div>
         <!---->
         <!---->
-      </button> <span class="side-nav-header-name">Kolibri</span></div>
+      </button> <span class="side-nav-header-name" style="color: rgb(255, 255, 255);">Kolibri</span></div>
     <div class="side-nav-scrollable-area" style="top: 20px; width: 100px;">
-      <div role="navigation" aria-label="Main user navigation" class="side-nav-scrollable-area-menu">
+      <div role="navigation" aria-label="Main user navigation" style="background-color: rgb(255, 255, 255);">
         <ul role="menu" class="ui-menu has-icons">
           <!---->
           <li><a role="menuitem" class="ui-menu-option is-divider">
@@ -75,11 +75,11 @@ exports[`side nav component should show nothing if no components are added and u
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p><a dir="auto" type="button" class="privacy-link link">Usage and privacy
+          <p><a dir="auto" type="button" class="privacy-link KButton-noKey-0_1a16x9n link">Usage and privacy
               <!----></a></p>
         </div>
       </div>

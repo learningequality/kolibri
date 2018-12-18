@@ -16,17 +16,12 @@
       </div>
 
       <div class="ui-snackbar-action">
-        <UiButton
+        <button
           v-if="action"
           class="ui-snackbar-action-button"
-          :class="$computedClass(actionButtonStyles)"
-
-          type="secondary"
-
-          :color="actionColor"
-
+          :style="{ color: $coreBgLight }"
           @click.stop="onActionClick"
-        >{{ action }}</UiButton>
+        >{{ action }}</button>
       </div>
     </div>
   </transition>
@@ -36,22 +31,14 @@
 
 <script>
 
-  import UiButton from 'keen-ui/src/UiButton';
+  import { mapGetters } from 'vuex';
 
   export default {
     name: 'KeenUiSnackbar',
 
-    components: {
-      UiButton,
-    },
-
     props: {
       message: String,
       action: String,
-      actionColor: {
-        type: String,
-        default: 'accent', // 'primary' or 'accent'
-      },
       transition: {
         type: String,
         default: 'slide', // 'slide' or 'fade'
@@ -59,20 +46,9 @@
     },
 
     computed: {
+      ...mapGetters(['$coreBgLight']),
       transitionName() {
         return 'ui-snackbar--transition-' + this.transition;
-      },
-      actionButtonStyles() {
-        return {
-          color: this.$coreBgLight,
-          fontWeight: 'bold',
-          ':hover:not(.is-disabled)': {
-            backgroundColor: 'rgba(white, 0.05)',
-          },
-          ":focus body[modality='keyboard']": {
-            backgroundColor: 'rgba(white, 0.1)',
-          },
-        };
       },
     },
 
@@ -139,10 +115,40 @@
   }
 
   .ui-snackbar-action-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: initial;
+    /* stylelint-disable csstree/validator */
+    min-width: rem-calc(80px);
+    height: $ui-button-height;
     min-height: initial;
-    padding: rem-calc(12px); // stylelint-disable-line csstree/validator
+    padding: rem-calc(12px);
+    padding: 0;
+    padding-right: rem-calc(16px);
+    padding-left: rem-calc(16px);
+    /* stylelint-enable */
     margin: 0;
+    overflow: hidden;
+    font-family: $font-stack;
+    font-size: $ui-button-font-size;
+    font-weight: bold;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    touch-action: manipulation; // IE
+    cursor: pointer;
+    background: none;
+    border: 0;
+    border-radius: $ui-default-border-radius;
+    outline: none;
+    &:hover {
+      background-color: lighten($ui-snackbar-background-color, 5%);
+    }
+    &:focus body[modality='keyboard'] {
+      background-color: lighten($ui-snackbar-background-color, 10%);
+    }
   }
 
   .ui-snackbar--transition-slide-enter-active,
