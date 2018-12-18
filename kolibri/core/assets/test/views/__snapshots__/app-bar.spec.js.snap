@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`app bar component drop down user menu should show the language modal link if no components are added and user is not logged in 1`] = `
-<div class="wrapper" navshown="true">
-  <div class="ui-toolbar app-bar ui-toolbar--type-colored ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
+<div style="background-color: rgb(153, 97, 137);" navshown="true">
+  <div class="ui-toolbar app-bar ui-toolbar--type-clear ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
       <div class="ui-toolbar__nav-icon"><button type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-default ui-icon-button--size-normal">
           <div class="ui-icon-button__icon">
@@ -25,7 +25,7 @@ exports[`app bar component drop down user menu should show the language modal li
       </div>
     </div>
     <div class="ui-toolbar__right">
-      <div> <button type="submit" class="ui-button user-menu-button ui-button--type-primary ui-button--color-primary ui-button--icon-position-left ui-button--size-normal" arialabel="User menu">
+      <div> <button type="submit" class="ui-button user-menu-button ui-button--type-primary ui-button--color-clear ui-button--icon-position-left ui-button--size-normal" arialabel="User menu" style="background-color: rgb(153, 97, 137);">
           <div class="ui-button__content">
             <div class="ui-button__icon">
               <mat-svg name="person" category="social"></mat-svg>
@@ -44,7 +44,7 @@ exports[`app bar component drop down user menu should show the language modal li
         <div class="user-menu-dropdown" style="display: none;">
           <ul role="menu" class="ui-menu is-raised has-icons">
             <!---->
-            <li><a role="menuitem" tabindex="0" class="ui-menu-option">
+            <li><a role="menuitem" tabindex="0" class="ui-menu-option" style="color: rgb(58, 58, 58);">
                 <div class="ui-menu-option-content"><span class="ui-icon ui-menu-option-icon material-icons"><mat-svg name="language" category="action"></mat-svg></span>
                   <div class="ui-menu-option-text">
                     Change language

@@ -25,22 +25,15 @@
 <script>
 
   import { validator } from './appearances.js';
-  import buttonClassesMixin from './buttonClassesMixin.js';
+  import buttonMixin from './buttonMixin.js';
 
   /**
    * The KButton component is used to trigger actions
    */
   export default {
     name: 'KButton',
-    mixins: [buttonClassesMixin],
+    mixins: [buttonMixin],
     props: {
-      /**
-       * Button label text
-       */
-      text: {
-        type: String,
-        required: false,
-      },
       /**
        * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
@@ -48,13 +41,6 @@
         type: String,
         default: 'raised-button',
         validator,
-      },
-      /**
-       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
-       */
-      primary: {
-        type: Boolean,
-        default: false,
       },
       /**
        * Whether or not button is disabled

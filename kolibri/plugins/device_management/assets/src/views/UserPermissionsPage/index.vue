@@ -46,7 +46,7 @@
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-        <ul class="checkbox-description" :class="{disabled: superuserDisabled}">
+        <ul class="checkbox-description" :style="{ color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation }">
           <li>{{ $tr('superAdminExplanation1') }}</li>
           <li>{{ $tr('superAdminExplanation2') }}</li>
         </ul>
@@ -129,7 +129,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'facilities']),
+      ...mapGetters(['isSuperuser', 'facilities', '$coreTextAnnotation', '$coreTextDisabled']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
@@ -239,8 +239,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .no-margin {
     margin-left: 0;
   }
@@ -263,10 +261,6 @@
     padding: 0;
     margin: 0 0 0 50px;
     font-size: 12px;
-    color: $core-text-annotation;
-    &.disabled {
-      color: $core-text-disabled;
-    }
   }
 
   .section {

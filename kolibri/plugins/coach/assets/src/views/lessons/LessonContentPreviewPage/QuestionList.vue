@@ -15,6 +15,7 @@
       >
         <KButton
           :class="{selected: index === selectedIndex}"
+          :style="{ backgroundColor: index === selectedIndex ? $coreGrey300 : '' }"
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"
@@ -30,6 +31,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
@@ -57,17 +59,20 @@
         validator: value => typeof value(0) === 'string',
       },
     },
+    computed: {
+      ...mapGetters(['coreTextDisabled', '$coreGrey300']),
+      buttonAndHeaderBorder() {
+        return {
+          borderBottom: `2px solid ${this.$coreTextDisabled}`,
+        };
+      },
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  $item-content-height: 56px;
-  $item-division-height: 2px;
 
   .question-list {
     background-color: white;
@@ -92,9 +97,8 @@
   .header {
     padding-left: 16px;
     font-size: 16px;
-    line-height: $item-content-height;
+    line-height: 56px;
     vertical-align: middle;
-    border-bottom: $item-division-height solid $core-text-disabled;
   }
 
   .button {
@@ -104,7 +108,6 @@
     border-radius: 0;
     &.selected {
       font-weight: bold;
-      background-color: $core-grey-300; // duped from k-button
     }
   }
 

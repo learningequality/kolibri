@@ -1,12 +1,12 @@
 <template>
 
-  <section :class="{'content-area-perseus': isPerseusExercise}">
-    <h2 v-if="isPerseusExercise" class="header">
+  <section :style="{backgroundColor: isExercise ? $coreBgLight : ''}">
+    <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
     <ContentRenderer
       :id="content.id"
-      :class="{ hof: isPerseusExercise}"
+      :class="{ hof: isExercise}"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
 
   export default {
@@ -37,12 +38,12 @@
         type: Object,
         required: true,
       },
-      // Perseus-specific
+      // Exercise-specific
       selectedQuestion: {
         type: String,
         required: false,
       },
-      isPerseusExercise: {
+      isExercise: {
         type: Boolean,
         required: false,
         default: false,
@@ -54,6 +55,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight']),
       hasHeader() {
         return Boolean(this.header);
       },
@@ -65,11 +67,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .content-area-perseus {
+  .content-area-exercise {
     padding: 16px;
-    background-color: $core-bg-light;
   }
 
   .hof {

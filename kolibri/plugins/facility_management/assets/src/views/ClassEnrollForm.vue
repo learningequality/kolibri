@@ -210,8 +210,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .actions-header,
   .footer,
   nav {

@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import ChannelTokenModal from '../../src/views/AvailableChannelsPage/ChannelTokenModal';
 
 function makeWrapper() {
-  return mount(ChannelTokenModal);
+  return mount(ChannelTokenModal, { store });
 }
 
 function getElements(wrapper) {

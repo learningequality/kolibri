@@ -1,7 +1,7 @@
 <template>
 
   <div v-if="isUserLoggedIn">
-    <div ref="icon" class="points">
+    <div ref="icon" class="points" :style="{ color: $coreTextAnnotation }">
       <PointsIcon class="icon" :active="true" />
       <div class="description">
         <div class="description-value">
@@ -34,7 +34,7 @@
       KTooltip,
     },
     computed: {
-      ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
+      ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn', '$coreTextAnnotation']),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
@@ -47,11 +47,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .points {
     padding: 8px 0;
-    color: $core-text-annotation;
   }
 
   .icon {

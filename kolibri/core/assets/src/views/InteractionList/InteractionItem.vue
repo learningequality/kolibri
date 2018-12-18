@@ -1,31 +1,38 @@
 <template>
 
-  <div class="attempt-box" :class="{selected: selected}">
+  <div
+    class="attempt-box"
+    :style="{ border: `2px solid ${selected ? $coreTextDefault : $coreTextDisable}` }"
+  >
     <template v-if="isAnswer">
       <mat-svg
         v-if="interaction.correct"
-        class="svg-item svg-correct"
+        class="svg-item"
         category="action"
         name="check_circle"
+        :style="[svgItemBorder, { fill: $coreStatusCorrect }]"
       />
       <mat-svg
         v-if="!interaction.correct"
-        class="svg-item svg-wrong"
+        class="svg-item"
         category="navigation"
         name="cancel"
+        :style="[svgItemBorder, { fill: $coreStatusWrong }]"
       />
     </template>
     <mat-svg
       v-else-if="isHint"
-      class="svg-item svg-hint"
+      class="svg-item"
       category="action"
       name="lightbulb_outline"
+      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
     />
     <mat-svg
       v-else-if="isError"
-      class="svg-item svg-error"
+      class="svg-item"
       category="alert"
       name="error_outline"
+      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
     />
   </div>
 
@@ -33,6 +40,8 @@
 
 
 <script>
+
+  import { mapGetters } from 'vuex';
 
   export default {
     name: 'InteractionItem',
@@ -47,6 +56,13 @@
       },
     },
     computed: {
+      ...mapGetters([
+        '$coreTextAnnotation',
+        '$coreStatusWrong',
+        '$coreStatusCorrect',
+        '$coreTextDisabled',
+        '$coreTextDefault',
+      ]),
       isAnswer() {
         return this.interaction.type === 'answer';
       },
@@ -56,6 +72,11 @@
       isError() {
         return this.interaction.type === 'error';
       },
+      svgItemBorder() {
+        return {
+          borderBottom: `2px solid ${this.$coreTextDefault}`,
+        };
+      },
     },
   };
 
@@ -63,8 +84,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .attempt-box {
     display: inline-block;
@@ -74,32 +93,13 @@
     padding: 10px;
     margin-right: 10px;
     cursor: pointer;
-    border: 2px solid $core-text-disabled;
     border-radius: 10px;
-  }
-
-  .selected {
-    border: 2px solid $core-text-default;
   }
 
   .svg-item {
     width: auto;
     height: 38px;
     padding: 2px;
-    border-bottom: 2px solid $core-text-default;
-  }
-
-  .svg-hint,
-  .svg-error {
-    fill: $core-text-annotation;
-  }
-
-  .svg-wrong {
-    fill: $core-status-wrong;
-  }
-
-  .svg-correct {
-    fill: $core-status-correct;
   }
 
 </style>

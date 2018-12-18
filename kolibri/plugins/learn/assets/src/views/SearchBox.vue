@@ -12,7 +12,8 @@
         ref="searchInput"
         v-model.trim="searchQuery"
         type="search"
-        class="search-input"
+        :class="[ 'search-input', $computedClass(searchInputStyle) ]"
+        :style="{ color: $coreTextDefault }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -22,6 +23,7 @@
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
+          :style="{ color: $coreTextDefault }"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
         >
@@ -31,7 +33,7 @@
           />
         </UiIconButton>
 
-        <div class="search-submit-button-wrapper">
+        <div class="search-submit-button-wrapper" :style="{ backgroundColor: $coreActionDark }">
           <UiIconButton
             type="secondary"
             color="white"
@@ -160,12 +162,14 @@
         searchQuery: this.$store.state.search.searchTerm,
         contentKindFilterSelection: {},
         channelFilterSelection: {},
+        test: 10,
       };
     },
     computed: {
       ...mapGetters({
         channels: 'getChannels',
       }),
+      ...mapGetters(['$coreActionDark', '$coreTextDefault', '$coreTextAnnotation']),
       ...mapState('search', [
         'searchTerm',
         'channel_ids',
@@ -208,6 +212,13 @@
       },
       searchUpdate() {
         return this.searchQuery !== this.searchTerm || this.filterUpdate;
+      },
+      searchInputStyle() {
+        return {
+          '::placeholder': {
+            color: this.$coreTextAnnotation,
+          },
+        };
       },
     },
     watch: {
@@ -263,8 +274,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .search-box {
     margin-right: 8px;
   }
@@ -287,14 +296,9 @@
     padding: 0;
     padding-left: 8px;
     margin: 0;
-    color: $core-text-default;
     vertical-align: middle;
     background-color: white;
     border: 0;
-
-    &::placeholder {
-      color: $core-text-annotation;
-    }
 
     // removes the IE clear button
     &::-ms-clear {
@@ -315,7 +319,6 @@
     height: 24px;
     margin-right: 6px;
     margin-left: 6px;
-    color: $core-text-default;
     vertical-align: middle;
     visibility: hidden;
   }
@@ -333,7 +336,6 @@
   .search-submit-button-wrapper {
     display: inline-block;
     vertical-align: middle;
-    background-color: $core-action-dark;
   }
 
   .filter-icon {

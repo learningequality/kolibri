@@ -8,9 +8,9 @@
     />
 
     <div class="wrapper-table">
-      <div class="table-row main-row">
+      <div class="table-row main-row" :style="{ backgroundColor: $coreActionNormal }">
         <div class="table-cell main-cell">
-          <div class="box">
+          <div class="box" :style="{ backgroundColor: $coreBgLight }">
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"
@@ -51,7 +51,7 @@
                     v-for="(suggestion, i) in suggestions"
                     :key="i"
                     :suggestion="suggestion"
-                    :class="{ highlighted: highlightedIndex === i }"
+                    :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
                     @click.native="fillUsername(suggestion)"
                   />
                 </ul>
@@ -106,7 +106,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
@@ -206,7 +206,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
+      ...mapGetters(['facilityConfig', '$coreGrey', '$coreActionNormal', '$coreBgLight']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),
@@ -451,7 +451,6 @@
     $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
 
     text-align: center;
-    background-color: $core-action-normal;
     background-image: $bk-img;
     background-repeat: no-repeat;
     background-position: center;
@@ -471,7 +470,6 @@
     width: 300px;
     padding: 16px 32px;
     margin: 16px auto;
-    background-color: $core-bg-light;
     border-radius: $radius;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.33);
   }
@@ -504,7 +502,6 @@
 
   .footer-cell {
     padding: 16px;
-    background-color: $core-bg-light;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.33);
   }
 
@@ -523,10 +520,6 @@
     list-style-type: none;
     background-color: white;
     box-shadow: 1px 2px 8px #e6e6e6;
-  }
-
-  .highlighted {
-    background-color: $core-grey;
   }
 
   .textbox-enter-active {

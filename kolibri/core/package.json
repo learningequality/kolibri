@@ -4,10 +4,12 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
+    "aphrodite": "^2.2.3",
     "array-includes": "^3.0.3",
     "clipboard": "^2.0.1",
     "core-js": "^2.4.1",
     "css-element-queries": "1.0.1",
+    "d3-color": "^1.2.3",
     "date-fns": "^1.28.2",
     "filesize": "^3.3.0 ",
     "fontfaceobserver": "^2.0.13",
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "kolibri-tools": "0.12.0-dev.1",
-    "responselike": "^1.0.2"
+    "responselike": "^1.0.2",
+    "vue-color": "^2.7.0"
   }
 }

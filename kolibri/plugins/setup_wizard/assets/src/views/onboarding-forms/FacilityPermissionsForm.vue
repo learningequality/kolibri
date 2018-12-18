@@ -148,8 +148,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $margin-of-radio-button-text: 32px;
 
   .facility-name-form {

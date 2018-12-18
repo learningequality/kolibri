@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import SearchSideBar from '../src/views/SearchSideBar';
 import SampleSearchResults from './SampleSearchResults';
 
@@ -7,6 +8,7 @@ function createWrapper() {
     propsData: {
       book: {},
     },
+    store,
   });
 }
 

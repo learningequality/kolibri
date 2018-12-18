@@ -95,8 +95,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .error-svg {
     margin-right: 0.2em;
     margin-bottom: -6px;

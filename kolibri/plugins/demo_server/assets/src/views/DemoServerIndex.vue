@@ -2,6 +2,7 @@
 
   <div
     class="banner"
+    :style="{ background: $coreBgLight }"
     :tabindex="0"
     role="dialog"
   >
@@ -63,6 +64,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 
@@ -76,6 +78,9 @@
       return {
         bannerClosed: false,
       };
+    },
+    computed: {
+      ...mapGetters(['$coreBgLight']),
     },
     methods: {
       toggleBannerState(event) {
@@ -91,8 +96,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .banner {
     position: absolute;
     top: 0%;
@@ -100,7 +103,6 @@
     width: 100%;
     margin: 0 auto;
     overflow-y: auto;
-    background: $core-bg-light;
   }
 
   .banner-inner {
