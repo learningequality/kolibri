@@ -2,7 +2,8 @@
 
   <div
     class="main-wrapper"
-    :style="{top: fixedAppBar ? `${appbarHeight}px` : 0 }"
+    :style="mainWrapperStyles"
+    :class="fullScreen ? '' : 'scrolling-pane'"
     @scroll.passive="throttledHandleScroll"
   >
 
@@ -60,7 +61,7 @@
 
     <div
       v-if="!loading"
-      class="content"
+      :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
       <AuthMessage
@@ -228,6 +229,12 @@
         }
         return !this.authorized;
       },
+      mainWrapperStyles() {
+        if (this.fullScreen) {
+          return { top: 0 };
+        }
+        return { top: this.fixedAppBar ? `${this.appbarHeight}px` : 0 };
+      },
       contentStyles() {
         if (this.fullScreen) {
           return {
@@ -264,7 +271,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  .main-wrapper {
+  .scrolling-pane {
     position: absolute;
     top: 0;
     right: 0;
