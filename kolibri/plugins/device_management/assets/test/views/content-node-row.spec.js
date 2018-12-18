@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
 import { makeNode } from '../utils/data';
 
@@ -14,6 +15,7 @@ const defaultProps = {
 function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
     propsData: { ...defaultProps, ...props },
+    store,
   });
 }
 

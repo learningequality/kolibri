@@ -6,7 +6,7 @@
       :delay="false"
     />
 
-    <h1 class="submission-state-page-header">
+    <h1 class="submission-state-page-header" :style="{ color: $coreAccentColor }">
       {{ header }}
     </h1>
 
@@ -21,6 +21,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
   export default {
@@ -32,14 +33,15 @@
         required: true,
       },
     },
+    computed: {
+      ...mapGetters(['$coreAccentColor']),
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .submission-state-page {
     text-align: center;
@@ -49,7 +51,6 @@
     margin-top: 0;
     margin-bottom: 24px;
     font-size: 21px;
-    color: $core-accent-color;
   }
 
   .submission-state-page-body {

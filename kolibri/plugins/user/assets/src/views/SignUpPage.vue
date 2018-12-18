@@ -301,7 +301,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   $iphone-5-width: 320px;
   $vertical-page-margin: 100px;
 

@@ -15,7 +15,7 @@
       v-for="i in numSpaces"
       :key="`placeholder-${i}`"
       class="placeholder"
-      :class="{ 'placeholder-first': i === 1 }"
+      :style="{ borderBottom: `2px solid ${$coreTextAnnotation}` }"
     >
     </div>
   </div>
@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import AnswerIcon from './AnswerIcon';
 
   export default {
@@ -51,6 +52,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       numItemsToRender() {
         if (this.waitingForAttempt) {
           return this.numSpaces;
@@ -93,8 +95,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $size: 30px;
   $margin: 4px;
 
@@ -120,12 +120,7 @@
   }
 
   .placeholder {
-    border-bottom: 2px solid $core-text-annotation;
     transition: border-bottom 0.1s linear;
-  }
-
-  .placeholder-first {
-    border: 2px solid $core-text-annotation;
   }
 
   .fade-enter,

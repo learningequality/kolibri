@@ -6,6 +6,7 @@
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
         class="inprogress"
+        :style="{ backgroundColor: $coreStatusProgress }"
       >
         <mat-svg name="schedule" category="action" />
       </UiIcon>
@@ -13,6 +14,7 @@
         v-else-if="isCompleted"
         :ariaLabel="$tr('completed')"
         class="completed"
+        :style="{ backgroundColor: $coreStatusMastered }"
       >
         <mat-svg name="star" category="toggle" />
       </UiIcon>
@@ -30,6 +32,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -53,6 +56,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered']),
       isInProgress() {
         return this.progress !== null && this.progress >= 0 && this.progress < 1;
       },
@@ -67,21 +71,11 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .inprogress,
   .completed {
     color: white;
     cursor: default;
     border-radius: 50%;
-  }
-
-  .inprogress {
-    background-color: $core-status-progress;
-  }
-
-  .completed {
-    background-color: $core-status-mastered;
   }
 
 </style>

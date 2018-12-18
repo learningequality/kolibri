@@ -21,7 +21,7 @@
           class="download-button"
         />
       </p>
-      <p v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</p>
+      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
       <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
       <p v-else>
         <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
@@ -32,7 +32,7 @@
           @click="generateSessionLog"
         />
       </p>
-      <p class="infobox">
+      <p class="infobox" :style="infoBoxStyle">
         <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
       </p>
     </KGridItem>
@@ -48,7 +48,7 @@
           class="download-button"
         />
       </p>
-      <p v-if="cannotDownload" class="no-dl">{{ $tr('noDownload') }}</p>
+      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
       <p v-else-if="inSummaryCSVCreation"><DataPageTaskProgress /></p>
       <p v-else>
         <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
@@ -59,7 +59,7 @@
           @click="generateSummaryLog"
         />
       </p>
-      <p class="infobox">
+      <p class="infobox" :style="infoBoxStyle">
         <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
       </p>
     </KGridItem>
@@ -121,6 +121,7 @@
       documentTitle: 'Manage Data',
     },
     computed: {
+      ...mapGetters(['$coreBgWarning', '$coreTextAnnotation']),
       ...mapGetters('manageCSV', [
         'inSessionCSVCreation',
         'inSummaryCSVCreation',
@@ -139,6 +140,16 @@
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;
+      },
+      infoBoxStyle() {
+        return {
+          backgroundColor: this.$coreBgWarning,
+        };
+      },
+      noDlStyle() {
+        return {
+          color: this.$coreTextAnnotation,
+        };
       },
     },
     watch: {
@@ -195,14 +206,9 @@
   .infobox {
     padding: 8px;
     font-size: 0.8em;
-    background-color: $core-bg-warning;
     border-radius: $radius;
     margin-left: -8px;
     margin-right: -8px;
-  }
-
-  .no-dl {
-    color: $core-text-annotation;
   }
 
   .download-button {

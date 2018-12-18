@@ -264,8 +264,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .question-list-item {
     vertical-align: middle;
   }

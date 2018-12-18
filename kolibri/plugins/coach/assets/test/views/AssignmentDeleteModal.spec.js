@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import AssignmentDeleteModal from '../../src/views/assignments/AssignmentDeleteModal';
 
 const defaultProps = {
@@ -20,6 +21,7 @@ describe('AssignmentDeleteModal', () => {
   it('clicking delete causes a "delete" event to be emitted', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
+      store,
     });
     // Again, clicking the submit button does not propagate to form, so doing a hack
     // els.submitButton().trigger('click');
@@ -30,6 +32,7 @@ describe('AssignmentDeleteModal', () => {
   it('clicking cancel causes a "cancel" event to be emitted', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
+      store,
     });
     els.cancelButton().trigger('click');
     expect(wrapper.emitted().cancel.length).toEqual(1);

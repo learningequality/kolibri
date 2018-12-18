@@ -6,8 +6,14 @@
     :backPageText="$tr('backToExamList')"
   >
     <MultiPaneLayout ref="multiPaneLayout">
-      <div slot="header" class="exam-status-container">
-        <mat-svg slot="content-icon" class="exam-icon" category="action" name="assignment_late" />
+      <div slot="header" class="exam-status-container" :style="{ backgroundColor: $coreBgLight }">
+        <mat-svg
+          slot="content-icon"
+          class="exam-icon"
+          :style="{ fill: $coreTextDefault }"
+          category="action"
+          name="assignment_late"
+        />
         <h1 class="exam-title">{{ exam.title }}</h1>
         <div class="exam-status">
           <p class="questions-answered">
@@ -31,7 +37,7 @@
 
       <div
         slot="main"
-        class="question-container"
+        :style="{ background: $coreBgLight }"
       >
         <ContentRenderer
           v-if="itemId"
@@ -88,7 +94,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -137,6 +143,7 @@
       };
     },
     computed: {
+      ...mapGetters('$coreBgLight', '$coreTextDefault'),
       ...mapState(['examAttemptLogs']),
       ...mapState('examViewer', [
         'channelId',
@@ -247,11 +254,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .exam-status-container {
     padding: 16px;
-    background: $core-bg-light;
   }
 
   .exam-status {
@@ -268,7 +272,6 @@
     position: relative;
     top: 4px;
     margin-right: 5px;
-    fill: $core-text-default;
   }
 
   .exam-title {
@@ -279,10 +282,6 @@
     position: relative;
     display: inline-block;
     margin-top: 0;
-  }
-
-  .question-container {
-    background: $core-bg-light;
   }
 
   .question-navbutton-container {

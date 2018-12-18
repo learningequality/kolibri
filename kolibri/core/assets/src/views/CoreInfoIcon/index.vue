@@ -4,6 +4,7 @@
     <UiIcon
       ref="icon"
       class="info-icon"
+      :style="{ color: $coreAccentColor }"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
@@ -22,6 +23,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -45,6 +47,9 @@
         required: false,
       },
     },
+    computed: {
+      ...mapGetters(['$coreAccentColor']),
+    },
   };
 
 </script>
@@ -52,12 +57,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .info-icon {
     display: inline-block;
     font-size: 1.2em;
-    color: $core-accent-color;
     vertical-align: top;
     cursor: pointer;
   }

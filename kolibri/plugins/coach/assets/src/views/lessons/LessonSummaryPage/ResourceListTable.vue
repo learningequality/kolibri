@@ -29,7 +29,7 @@
     </thead>
     <transition-group
       slot="tbody"
-      name="resource-reorder"
+      :moveClass="$computedClass(resourceReorderMoveStyle)"
       tag="tbody"
     >
       <tr
@@ -65,7 +65,7 @@
               :to="resourceUserSummaryLink(resourceId)"
               :text="resourceTitle(resourceId)"
             />
-            <p dir="auto" class="channel-title">
+            <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
               <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
               {{ resourceChannelTitle(resourceId) }}
             </p>
@@ -168,6 +168,12 @@
         return this.$tr('multipleResourceRemovalsConfirmationMessage', {
           numberOfRemovals,
         });
+      },
+      resourceReorderMoveStyle() {
+        return {
+          backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
+          transition: 'transform 0.5s',
+        };
       },
     },
     methods: {
@@ -278,8 +284,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .resource-title {
     display: inline-block;
     max-width: 75%;
@@ -296,11 +300,6 @@
     margin: 0;
   }
 
-  .resource-reorder-move {
-    background-color: $core-bg-canvas; // duping color set in core-table for selected
-    transition: transform 0.5s;
-  }
-
   .lesson-summary {
     margin-bottom: 30px;
   }
@@ -315,7 +314,6 @@
     margin-right: 0;
     margin-bottom: 0;
     margin-left: 0;
-    color: $core-text-annotation;
   }
 
 </style>

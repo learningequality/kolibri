@@ -48,7 +48,7 @@
     </div>
 
     <QuestionList
-      v-if="isPerseusExercise"
+      v-if="isExercise"
       slot="aside"
       :questions="questions"
       :questionLabel="questionLabel"
@@ -61,7 +61,7 @@
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
       :content="content"
-      :isPerseusExercise="isPerseusExercise"
+      :isExercise="isExercise"
     />
   </MultiPaneLayout>
 
@@ -136,11 +136,11 @@
       };
     },
     computed: {
-      isPerseusExercise() {
+      isExercise() {
         return this.content.kind === 'exercise';
       },
       selectedQuestion() {
-        if (this.isPerseusExercise) {
+        if (this.isExercise) {
           return this.questions[this.selectedQuestionIndex];
         }
         return '';
@@ -164,7 +164,7 @@
     },
     methods: {
       questionLabel(questionIndex) {
-        if (!this.isPerseusExercise) {
+        if (!this.isExercise) {
           return '';
         }
         const questionNumber = questionIndex + 1;
@@ -177,8 +177,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .meta {
     margin-bottom: 16px;

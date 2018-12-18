@@ -11,9 +11,6 @@
     @require '~kolibri.styles.definitions'
 */
 
-// Also include values defined in the theme. These can be overridden.
-@import '~kolibri.styles.theme';
-
 $radius: 4px;
 $core-time: 0.25s;
 $login-overlay: #201a21;
@@ -30,8 +27,6 @@ $login-overlay: #201a21;
     clear: both;
   }
 }
-
-$core-outline: $core-action-light 2px solid;
 
 /*
   Mixins for font-family to ensure that the full fonts are not referenced until they've

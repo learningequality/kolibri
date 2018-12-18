@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import DownloadButton from '../src/views/ContentRenderer/DownloadButton';
 
 describe('download-button Component', function() {
@@ -22,6 +23,7 @@ describe('download-button Component', function() {
           propsData: {
             files: samplesFiles,
           },
+          store,
         });
         expect(wrapper.vm.fileOptions.length).toEqual(samplesFiles.length);
       });
