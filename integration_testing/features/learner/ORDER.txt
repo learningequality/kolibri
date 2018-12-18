@@ -1,10 +1,10 @@
-learner-change-language.feature
-learner-engage-completed-exam.feature
-learner-find-content-item.feature
-learner-take-exam.feature
-learner-change-profile-information.feature
-learner-engage-content-channels.feature
 learner-sign-in.feature
-learner-close-and-reopen-content.feature
+learner-change-profile-information.feature
+learner-change-language.feature
+learner-engage-content-channels.feature
 learner-engage-content-recommended.feature
+learner-find-content-item.feature
+learner-close-and-reopen-content.feature
+learner-take-exam.feature
+learner-engage-completed-exam.feature
 learner-sign-out.feature
