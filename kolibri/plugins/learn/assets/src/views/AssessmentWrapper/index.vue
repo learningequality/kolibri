@@ -606,10 +606,9 @@ oriented data synchronization.
 
   // checkAnswer btn animation
   .shaking {
-    transform: translate3d(0, 0, 0);
+    @extend %enable-gpu-acceleration;
+
     animation: shake 0.8s ease-in-out both;
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   @keyframes shake {

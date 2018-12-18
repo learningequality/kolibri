@@ -55,3 +55,16 @@ $core-outline: $core-action-light 2px solid;
 %ui-toolbar-box-shadow {
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
 }
+
+/*
+  Use of this mixin can help prompt the browser to use the GPU for certain DOM elements.
+  This can help with certain CSS animations and other transitions.
+
+  For details, see https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/
+*/
+%enable-gpu-acceleration {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 10000px;
+}
+

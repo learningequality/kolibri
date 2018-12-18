@@ -22,8 +22,8 @@
 
 <script>
 
-  import Popper from 'vue-popperjs';
   import isArray from 'lodash/isArray';
+  import Popper from './Popper';
 
   /**
    * Used to create a tooltip.

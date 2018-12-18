@@ -2,7 +2,7 @@
 
   <CoreBase
     :appBarTitle="appBarTitle"
-    :bottomMargin="bottomSpaceReserved"
+    :marginBottom="bottomSpaceReserved"
     :immersivePage="isImmersivePage"
     :immersivePageIcon="immersivePageIcon"
     :immersivePagePrimary="immersivePageIsPrimary"
