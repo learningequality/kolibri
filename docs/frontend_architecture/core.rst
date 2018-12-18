@@ -52,19 +52,32 @@ To help enforce style guide specs, we provide global variables that can be used 
 Dynamic core theme
 ------------------
 
-In addition to some of the global SCSS variables, we also leverage Vuex state to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). As such, much of our colour styles are defined in Javascript variables kept in Vuex state, which are then programmatically accessed using Vue.js style bindings in order to apply stylings inline to elements.
+Vuex state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in Vuex state, which are then applied inline to elements using Vue.js style bindings from Vuex getters.
 
-This works for most use cases, however, inline styles cannot apply pseudo-selectors (e.g. ':hover', ':focus', '::before') - in order to accomplish this, we leverage the `Aphrodite<https://github.com/Khan/aphrodite>`__ library to generate computed classes that apply these stylings through a programmatically generated style sheet. This should be generally performant, but we are limiting their use for now to cases where we have pseudo selectors and styles that may conflict with pseudo-selector applied styles (to have clear selector precedence). In order to apply a style using Aphrodite, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object thusly:
+There are two cases where dynamic styles cannot be directly applied to DOM elements:
+- inline styles cannot apply `pseudo-classes<https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
+- styles applied during `Vue transitions<https://vuejs.org/v2/guide/transitions.html>`__
+
+For these cases, it's necessary to define a "computed class" using the `$computedClass` function. This returns an auto-generated class name which can be used like a standard CSS class name. Under the hood, this uses `Aphrodite<https://github.com/Khan/aphrodite>`__ to create unique classes for each set of inputs given, so be careful not to abuse this feature!
+
+In order to apply a style using a computed class, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object:
 
 .. code-block:: javascript
 
-  pseudoStyle() {
-    return {
-      ':hover': {
-        backgroundColor: white,
+  import { mapGetters } from 'vuex';
+
+  export default {
+    computed: {
+      ...mapGetters(['$coreBgCanvas'])
+      pseudoStyle() {
+        return {
+          ':hover': {
+            backgroundColor: this.$coreBgCanvas,
+          },
+        };
       },
-    };
-  },
+    },
+  };
 
 Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the `$computedClass` method, referencing this style object:
 
@@ -72,7 +85,7 @@ Then, within the template code, this can be applied to an element or component u
 
   <div :class="$computedClass(pseudoStyle)">I'm going to get a white background when you hover on me!</div>
 
-Finally, to leverage the transition magic of Vue.js (which relies on specific classes to apply different styling for different transition events), you can use the range of `{event}-class` properties as options on the `<transition>` or `<transition-group>` special component, and the `$computedClass` method can be used again:
+To use computed classes for Vue.js transitions, you can use the `{event}-class` `properties<https://vuejs.org/v2/api/#transition>`__ as options on the `<transition>` or `<transition-group>` special component, and the `$computedClass` method can be used again:
 
 .. code-block:: javascript
 
