@@ -2,37 +2,12 @@
 
   <div class="signup-page">
 
-    <UiToolbar type="colored" textColor="white">
-      <template slot="icon">
-        <CoreLogo class="app-bar-icon" />
-      </template>
-      <template slot="brand">
-        {{ $tr('kolibri') }}
-      </template>
-      <div slot="actions">
-        <router-link
-          class="signin"
-          :to="signInPage"
-        >
-          <span>{{ $tr('logIn') }}</span>
-        </router-link>
-      </div>
-    </UiToolbar>
-
     <form
       ref="form"
       class="signup-form"
       @submit.prevent="signUp"
     >
-      <UiAlert
-        v-if="unknownError"
-        type="error"
-        @dismiss="resetSignUpState"
-      >
-        {{ errorMessage }}
-      </UiAlert>
-
-      <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
+      <h1>{{ $tr('createAccount') }}</h1>
 
       <KTextbox
         id="name"
@@ -135,10 +110,7 @@
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -172,10 +144,7 @@
     },
     components: {
       KButton,
-      UiAlert,
       KTextbox,
-      UiToolbar,
-      CoreLogo,
       KSelect,
       LanguageSwitcherFooter,
       PrivacyInfoModal,
@@ -288,15 +257,6 @@
           !this.facilityIsInvalid
         );
       },
-      unknownError() {
-        if (this.errorCode) {
-          return this.errorCode !== 400;
-        }
-        return false;
-      },
-      errorMessage() {
-        return this.$tr('genericError');
-      },
     },
     beforeMount() {
       if (this.facilityList.length === 1) {
@@ -344,54 +304,17 @@
   @import '~kolibri.styles.definitions';
   $iphone-5-width: 320px;
   $vertical-page-margin: 100px;
-  $logo-size: 1.64 * 1.125;
-  $logo-margin: 0.38 * $logo-size;
-
-  // component, highest level
-  .signup-page {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .signin {
-    margin-right: 1em;
-    color: white;
-    text-decoration: none;
-  }
 
   // Form
-  .signup-title {
-    text-align: center;
-  }
-
   .signup-form {
-    width: $iphone-5-width - 20;
-    margin-top: $vertical-page-margin;
+    max-width: $iphone-5-width - 20;
     margin-right: auto;
     margin-left: auto;
   }
 
-  .terms {
-    height: 6em;
-    padding: 0.5em;
-    margin-bottom: 1em;
-    overflow-y: scroll;
-    color: $core-text-annotation;
-    background-color: $core-bg-light;
-    p {
-      margin-top: 0;
-    }
-  }
-
-  .app-bar-icon {
-    height: 40px;
-    margin-left: 0.25em;
-  }
-
   .footer {
     margin: 36px;
-    margin-top: 96px;
+    margin-top: 48px;
   }
 
   .privacy-link {

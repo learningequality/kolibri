@@ -14,7 +14,7 @@
       :alwaysVisible="fixedAppBar"
     >
       <ImmersiveToolbar
-        v-if="navBarNeeded && immersivePage"
+        v-if="immersivePage && !fullScreen"
         :appBarTitle="toolbarTitle || appBarTitle"
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
@@ -23,7 +23,7 @@
         @nav-icon-click="$emit('navIconClick')"
       />
       <AppBar
-        v-else-if="navBarNeeded && !immersivePage"
+        v-else-if="!immersivePage && !fullScreen"
         ref="appBar"
         class="app-bar"
         :title="toolbarTitle || appBarTitle"
@@ -118,10 +118,10 @@
         required: false,
         default: '',
       },
-      // Prop that determines whether to show nav components
-      navBarNeeded: {
+      // Prop that determines whether to show nav components and provide margins
+      fullScreen: {
         type: Boolean,
-        default: true,
+        default: false,
       },
       // reserve space at the bottom for floating widgets
       marginBottom: {
@@ -152,11 +152,13 @@
         required: false,
         default: false,
       },
+      // generally a 'back' or 'close' icon
       immersivePageIcon: {
         type: String,
         required: false,
         default: 'close',
       },
+      // link to where the 'back' button should go
       immersivePageRoute: {
         type: Object,
         required: false,
@@ -227,6 +229,13 @@
         return !this.authorized;
       },
       contentStyles() {
+        if (this.fullScreen) {
+          return {
+            marginTop: '0px',
+            marginBottom: '0px',
+            padding: '0px',
+          };
+        }
         return {
           marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
           marginBottom: `${this.marginBottom + 128}px`,

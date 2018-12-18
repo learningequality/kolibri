@@ -141,10 +141,12 @@ a.button {
   display: inline;
   padding: 0;
   color: $core-action-normal;
+  text-align: left;
   text-decoration: underline;
   white-space: normal;
   cursor: pointer;
   transition: $transition;
+  user-select: text;
 
   &:hover {
     color: $core-action-dark;

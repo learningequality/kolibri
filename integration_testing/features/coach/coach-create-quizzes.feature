@@ -1,43 +1,43 @@
-Feature: Coach create exams
-  Coach needs to be able to create exams from existing content
+Feature: Coach create quizzes
+  Coach needs to be able to create quizzes from existing content
 
   Background:
     Given I am signed in to Kolibri as a coach user
-    And I am on the *Coach > Exams* page
+    And I am on the *Coach > Quizzes* page
 
-  Scenario: Create new exam
-    When I click the *New exam* button
-    Then I see a new *Create new exam* page
+  Scenario: Create new quiz
+    When I click the *New quiz* button
+    Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
       And I see *0 total selected* exercises
       And I see a list of channels that contain exercises
       But I don't see any checkboxes
-    
+
   # Given there are no channels that have exercises
   # Then there should not be any channels available to select
-  Scenario: Try and fail to create new exam when no channel on device contains exercises
-    When I click the *New exam* button
-    Then I see a new *Create new exam* page
+  Scenario: Try and fail to create new quiz when no channel on device contains exercises
+    When I click the *New quiz* button
+    Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
       And I see *0 total selected* exercises indicator
       But I don't see any channels
 
-  Scenario: Check validation for the title field 
-    Given I have not inputted an exam title (yet)
-    When I leave the input field or attempt to preview or save the exam
+  Scenario: Check validation for the title field
+    Given I have not inputted an quiz title (yet)
+    When I leave the input field or attempt to preview or save the quiz
     Then an input validation error appears
     When I input a valid title into the field
     Then I don't see the validation error anymore
 
   Scenario: Check validation for the number of questions field
     When I input a number outside the range of 1-50
-      And I leave the input field or attempt to preview or save the exam
+      And I leave the input field or attempt to preview or save the quiz
     Then an input validation error appears
     When I input a number greater than amount of exercise questions
-      And I leave the input field or attempt to preview or save the exam
+      And I leave the input field or attempt to preview or save the quiz
     Then an input validation error appears
     When I don't input anything into the number field
-      And I leave the input field or attempt to preview or save the exam
+      And I leave the input field or attempt to preview or save the quiz
     Then an input validation error appears
     When I input a valid number
     Then I don't see the validation error anymore
@@ -88,10 +88,10 @@ Feature: Coach create exams
 
   Scenario: Use the *Select all* checkbox
     Given that the *Select all* checkbox is unchecked
-    When I check the *Select all* checkbox 
+    When I check the *Select all* checkbox
     Then I see a snackbar confirming the topic was added
       And I see the value of *n total selected* indicator is increased
-    When I uncheck the *Select all* checkbox 
+    When I uncheck the *Select all* checkbox
     Then I see a snackbar confirming the topic was removed
       And I see the value of *n total selected* indicator is decreased
 
@@ -125,21 +125,21 @@ Feature: Coach create exams
       And there are exercises and topics available in the search results
     When I check an exercise checkbox
     Then I see the *n total selected* count increase by 1
-      And I see a snackbar confirmation that the exercise was added to the exam
+      And I see a snackbar confirmation that the exercise was added to the quiz
     When I check a topic checkbox
     Then I see the *n total selected* count increase for the number of exercises in the selected topic
-      And I see a snackbar confirmation that the topic was added to the exam
+      And I see a snackbar confirmation that the topic was added to the quiz
 
   Scenario: Remove a topic or exercise from the search results page
     Given I am on the search results page
       And there are exercises and topics available in the search results
-      And some of them are selected 
+      And some of them are selected
     When I uncheck an exercise checkbox
     Then I see the *n total selected* count decrease by 1
-      And I see a snackbar confirmation that the exercise was removed from the exam
+      And I see a snackbar confirmation that the exercise was removed from the quiz
     When I uncheck a topic checkbox
     Then I see the *n total selected* count decrease for the number of exercises in the removed topic
-      And I see a snackbar confirmation that the topic was removed from the exam
+      And I see a snackbar confirmation that the topic was removed from the quiz
 
   Scenario: Filter search results by type
     Given I am on the search results page
@@ -169,7 +169,7 @@ Feature: Coach create exams
     When I select *Non-coach* filter option
     Then I see the search results are filtered and exclude content for coaches
 
-  Scenario: Don't filter content by role visibility 
+  Scenario: Don't filter content by role visibility
     Given I am on the search results page
     When I select the *All* filter dropdown
     Then I see the search results include both coach and non-coach content
@@ -189,7 +189,7 @@ Feature: Coach create exams
     Then I see its title
       And I see its description
       And I see how many coach exercises/topics it contains
-      And I see how many exercises inside are added to the exam
+      And I see how many exercises inside are added to the quiz
 
   Scenario: Preview a resource in the search results
     Given I am on the search results page
@@ -205,28 +205,28 @@ Feature: Coach create exams
     When I click *Exit search*
     Then I see the topic and channel I was viewing before I initiated the search
 
-  Scenario: Preview Exam
-    Given I am on *Create new exam* page
+  Scenario: Preview Quiz
+    Given I am on *Create new quiz* page
       And there are no validation errors
     When I click “Preview”
     Then I see a modal with a question list pulled randomly from each exercise
     When I click on *Randomize questions* button
     Then I see the modal is refreshed with reordered randomized question list
 
-  Scenario: Save exam
-    Given I am on *Create new exam* page
+  Scenario: Save quiz
+    Given I am on *Create new quiz* page
       And there are no validation errors
     When I click “Save”
-    Then I am redirected to the *Coach > Exams* page
-      And I see a snackbar confirmation that the exam is created
+    Then I am redirected to the *Coach > Quizzes* page
+      And I see a snackbar confirmation that the quiz is created
 
-  Scenario: Exit exam creation from the app bar
-    Given I am on *Create new exam* page
-      But I did not save the exam
+  Scenario: Exit quiz creation from the app bar
+    Given I am on *Create new quiz* page
+      But I did not save the quiz
     When I click the exit icon (X) in the app bar
-    Then I am redirected to the *Coach > Exams* page
-      And I loose all exam creation progress
+    Then I am redirected to the *Coach > Quizzes* page
+      And I loose all quiz creation progress
 
     Examples:
-      | exam_title    | number_of_question | exercises_questions | channel                | topic               |
+      | quiz_title    | number_of_question | exercises_questions | channel                | topic               |
       | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |

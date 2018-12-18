@@ -11,7 +11,7 @@ import { PageNames } from '../../constants';
 import { _createExam } from '../shared/exams';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
-  newExamCreated: 'New exam created',
+  newExamCreated: 'New quiz created',
 });
 
 export function resetExamCreationState(store) {

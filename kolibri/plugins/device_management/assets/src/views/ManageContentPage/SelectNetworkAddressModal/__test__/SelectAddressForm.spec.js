@@ -40,7 +40,7 @@ function makeWrapper() {
   // prettier-ignore
   const els = {
     KModal: () => wrapper.find({ name: 'KModal' }),
-    newAddressButton: () => wrapper.find('button.new-address-button'),
+    newAddressButton: () => wrapper.find('a.new-address-button'),
     uiAlert: () => wrapper.find({ name: 'ui-alert' }),
     radioButtons: () => wrapper.findAll({ name: 'KRadioButton' }),
   };
