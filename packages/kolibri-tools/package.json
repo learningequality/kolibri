@@ -44,7 +44,6 @@
     "jest": "^23.6.0",
     "jest-serializer-vue": "^2.0.2",
     "json-loader": "^0.5.4",
-    "kolibri": "0.12.0-dev.1",
     "launch-editor-middleware": "^2.2.1",
     "mini-css-extract-plugin": "^0.4.0",
     "mkdirp": "^0.5.1",
@@ -92,5 +91,8 @@
   },
   "devDependencies": {
     "readline-sync": "^1.4.9"
+  },
+  "optionalDependencies": {
+    "kolibri": "0.12.0-dev.1"
   }
 }
