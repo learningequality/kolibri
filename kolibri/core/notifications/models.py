@@ -94,7 +94,7 @@ class LearnerProgressNotification(models.Model):
     timestamp = DateTimeTzField(default=local_now)
 
     def __str__(self):
-        return self.type
+        return str(self.notification_type)
 
     class Meta:
         app_label = 'notifications'
