@@ -170,6 +170,7 @@
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       title: 'Title',
+      duplicateTitle: 'A quiz with that name already exists',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',

@@ -159,6 +159,7 @@
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
       deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
       editExamDetails: 'Edit quiz details',
+      duplicateTitle: 'A quiz with that name already exists',
       saveExamError: 'There was a problem saving this quiz',
       copyOfExam: 'Copy of { examTitle }',
     },
