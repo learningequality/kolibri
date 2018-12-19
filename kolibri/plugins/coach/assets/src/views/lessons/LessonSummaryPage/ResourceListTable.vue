@@ -310,7 +310,6 @@
     margin-bottom: 16px;
     font-size: smaller;
     font-weight: bold;
-    color: $core-text-annotation;
   }
 
   .resource-title {
