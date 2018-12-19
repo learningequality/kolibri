@@ -16,44 +16,21 @@
 
 <script>
 
-  import { validator } from './appearances.js';
-  import buttonClassesMixin from './buttonClassesMixin.js';
+  import buttonMixin from './buttonMixin.js';
 
   /**
    * KExternalLink creates a styled external link
    */
   export default {
     name: 'KExternalLink',
-    mixins: [buttonClassesMixin],
+    mixins: [buttonMixin],
     props: {
-      /**
-       * Link text
-       */
-      text: {
-        type: String,
-        required: true,
-      },
       /**
        * URL string
        */
       href: {
         type: String,
         required: true,
-      },
-      /**
-       * Link appearance: 'raised-button', 'flat-button', or 'basic-link'
-       */
-      appearance: {
-        type: String,
-        default: 'basic-link',
-        validator,
-      },
-      /**
-       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
-       */
-      primary: {
-        type: Boolean,
-        default: false,
       },
       /**
        * Specifies that the file is meant to be downloaded, not displayed in a separate tab.

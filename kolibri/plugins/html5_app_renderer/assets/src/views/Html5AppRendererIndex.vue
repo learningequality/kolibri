@@ -17,6 +17,7 @@
     </UiIconButton>
     <iframe
       class="iframe"
+      :style="{ backgroundColor: $coreBgCanvas }"
       sandbox="allow-scripts"
       frameBorder="0"
       :src="rooturl"
@@ -29,6 +30,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -52,6 +54,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreBgCanvas']),
       rooturl() {
         return this.defaultFile.storage_url;
       },
@@ -80,8 +83,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .btn {
     position: absolute;
     top: 8px;
@@ -100,7 +101,6 @@
   .iframe {
     width: 100%;
     height: 100%;
-    background-color: $core-bg-canvas;
   }
 
 </style>

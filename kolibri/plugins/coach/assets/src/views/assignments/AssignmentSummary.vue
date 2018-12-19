@@ -15,14 +15,14 @@
     </div>
 
     <dl>
-      <dt>
+      <dt class="term" :style="{ color: $coreTextAnnotation }">
         {{ $tr('status') }}
         <CoreInfoIcon
           :iconAriaLabel="$tr('statusDescription')"
           :tooltipText="tooltipText"
         />
       </dt>
-      <dd>
+      <dd class="description">
         <StatusIcon :active="active" :type="kind" />
         <KButton
           appearance="basic-link"
@@ -33,7 +33,7 @@
       </dd>
 
       <template v-if="showDescription">
-        <dt>
+        <dt class="term" :style="{ color: $coreTextAnnotation }">
           {{ $tr('description') }}
         </dt>
         <dd dir="auto">
@@ -41,10 +41,10 @@
         </dd>
       </template>
 
-      <dt>
+      <dt class="term" :style="{ color: $coreTextAnnotation }">
         {{ $tr('assignedGroupsListLabel') }}
       </dt>
-      <dd>
+      <dd class="description">
         <template v-if="!recipients.length">
           {{ this.$tr('noOne') }}
         </template>
@@ -73,6 +73,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -117,7 +118,7 @@
     $trs: {
       status: 'Status',
       statusDescription: 'Status description',
-      statusTooltipTextExams: 'Learners can only see active exams',
+      statusTooltipTextExams: 'Learners can only see active quizzes',
       statusTooltipTextLessons: 'Learners can only see active lessons',
       changeStatus: 'Change',
       description: 'Description',
@@ -127,6 +128,7 @@
       entireClass: 'Entire class',
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       showDescription() {
         return this.description !== null;
       },
@@ -171,18 +173,16 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   $table-header-size: 12px;
 
   // TODO use classes
-  dt {
+  .term {
     margin-top: 16px;
     margin-bottom: 8px;
     font-size: $table-header-size;
-    color: $core-text-annotation; // same as table header
   }
 
-  dd {
+  .description {
     margin-bottom: 1.5em;
     margin-left: 0;
   }

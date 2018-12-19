@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
@@ -14,6 +15,7 @@ const defaultProps = {
 };
 
 function makeWrapper(options) {
+  options.store = store;
   const wrapper = mount(AssignmentDetailsModal, options);
   const els = {
     titleField: () => wrapper.findAll({ name: 'KTextbox' }).at(0),

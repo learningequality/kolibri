@@ -4,7 +4,7 @@ fake-factory==0.5.7  # pyup: ignore Needs an update
 coverage==4.5.1
 mock==2.0.0
 mixer==6.0.1
-pytest==3.7.1
+pytest==3.7.1 # pyup: < 4.0.0
 pytest-cov==2.5.1
 pytest-django==3.3.3
 pytest-pythonpath==0.7.2

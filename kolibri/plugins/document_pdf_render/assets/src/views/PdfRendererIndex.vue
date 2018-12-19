@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
+    :style="{ backgroundColor: $coreTextDefault }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <KLinearLoader
@@ -122,7 +123,7 @@
       updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['sessionTimeSpent', '$coreTextDefault']),
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -340,12 +341,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .pdf-renderer {
     position: relative;
     height: 500px;
-    background-color: $core-text-default;
   }
 
   .controls {

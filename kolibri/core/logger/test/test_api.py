@@ -6,8 +6,10 @@ import csv
 import datetime
 import uuid
 
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -49,8 +51,10 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
 
         # create logs for each user
-        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
-        [ContentSessionLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(2)]
+        self.interaction_logs = [ContentSessionLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex,
+                                                                 channel_id=uuid.uuid4().hex) for _ in range(3)]
+        [ContentSessionLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex,
+                                         channel_id=uuid.uuid4().hex) for _ in range(2)]
 
         # create classroom, learner group, add user2
         self.classroom = ClassroomFactory.create(parent=self.facility)
@@ -107,7 +111,8 @@ class ContentSessionLogAPITestCase(APITestCase):
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
-        [ContentSessionLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(1)]
+        [ContentSessionLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex,
+                                         channel_id=uuid.uuid4().hex) for _ in range(1)]
         response = self.client.get(reverse('kolibri:core:contentsessionlog-list'), data={"facility": self.facility2.id})
         expected_count = ContentSessionLog.objects.filter(user__facility_id=self.facility2.id).count()
         self.assertEqual(len(response.data), expected_count)
@@ -143,8 +148,10 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
 
         # create logs for each user
-        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(3)]
-        [ContentSummaryLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(2)]
+        self.summary_logs = [ContentSummaryLogFactory.create(user=self.user1, content_id=uuid.uuid4().hex,
+                                                             channel_id=uuid.uuid4().hex) for _ in range(3)]
+        [ContentSummaryLogFactory.create(user=self.user2, content_id=uuid.uuid4().hex,
+                                         channel_id=uuid.uuid4().hex) for _ in range(2)]
 
         # create classroom, learner group, add user2
         self.classroom = ClassroomFactory.create(parent=self.facility)
@@ -201,7 +208,8 @@ class ContentSummaryLogAPITestCase(APITestCase):
         # add user3 to new facility
         self.facility2 = FacilityFactory.create()
         self.user3 = FacilityUserFactory.create(facility=self.facility2)
-        [ContentSummaryLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex) for _ in range(1)]
+        [ContentSummaryLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex,
+                                         channel_id=uuid.uuid4().hex) for _ in range(1)]
         response = self.client.get(reverse('kolibri:core:contentsummarylog-list'), data={"facility": self.facility2.id})
         expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility2.id).count()
         self.assertEqual(len(response.data), expected_count)
@@ -325,22 +333,34 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
-    def test_csv_download(self):
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
+    @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
+    def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
-        response = self.client.get(reverse('kolibri:core:contentsummarylogcsv-list'))
-        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
+        get_queryset_mock.return_value = ContentSummaryLog.objects
+        call_command("exportlogs", log_type="summary", output_file='/my/path/not/exists')
+        response = _create_file_mock.call_args[0][0]
+        results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    def test_csv_download_deleted_content(self):
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
+    @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
+    def test_csv_download_deleted_content(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSummaryLog.objects.count()
         ContentNode.objects.all().delete()
         ChannelMetadata.objects.all().delete()
-        response = self.client.get(reverse('kolibri:core:contentsummarylogcsv-list'))
-        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        data_mock.__iter__.return_value = ContentSummaryLog.objects.all()
+        get_queryset_mock.return_value = ContentSummaryLog.objects
+        call_command("exportlogs", log_type="summary", output_file='/my/path/not/exists')
+        response = _create_file_mock.call_args[0][0]
+        results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
@@ -363,22 +383,34 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ) for _ in range(3)]
         self.facility.add_admin(self.admin)
 
-    def test_csv_download(self):
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
+    @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
+    def test_csv_download(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSessionLog.objects.count()
-        response = self.client.get(reverse('kolibri:core:contentsessionlogcsv-list'))
-        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        data_mock.__iter__.return_value = ContentSessionLog.objects.all()
+        get_queryset_mock.return_value = ContentSessionLog.objects
+        call_command("exportlogs", log_type="session", output_file='/my/path/not/exists')
+        response = _create_file_mock.call_args[0][0]
+        results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    def test_csv_download_deleted_content(self):
+    @patch('kolibri.core.logger.management.commands.exportlogs.AsyncListSerializer.data')
+    @patch('kolibri.core.api.CSVModelViewSet.get_queryset')
+    @patch('kolibri.core.logger.management.commands.exportlogs.Command._create_file')
+    def test_csv_download_deleted_content(self, _create_file_mock, get_queryset_mock, data_mock):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
         expected_count = ContentSessionLog.objects.count()
         ContentNode.objects.all().delete()
         ChannelMetadata.objects.all().delete()
-        response = self.client.get(reverse('kolibri:core:contentsessionlogcsv-list'))
-        results = list(csv.reader(row for row in response.content.decode("utf-8").split("\n") if row))
+        data_mock.__iter__.return_value = ContentSessionLog.objects.all()
+        get_queryset_mock.return_value = ContentSessionLog.objects
+        call_command("exportlogs", log_type="session", output_file='/my/path/not/exists')
+        response = _create_file_mock.call_args[0][0]
+        results = list(csv.reader(row for row in response.decode("utf-8").split("\r\n") if row))
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
@@ -392,7 +424,9 @@ class ExamAttemptLogAPITestCase(APITestCase):
         provision_device()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
-        self.exam = Exam.objects.create(title="", channel_id="", question_count=1, collection=self.facility, creator=self.user2, active=True)
+        self.exam = Exam.objects.create(title="", channel_id="", question_count=1,
+                                        collection=self.facility,
+                                        creator=self.user2, active=True)
         self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
         [ExamAttemptLog.objects.create(
             item="d4623921a2ef5ddaa39048c0f7a6fe06",

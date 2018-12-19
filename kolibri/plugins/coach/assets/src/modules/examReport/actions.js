@@ -10,11 +10,11 @@ export function setExamsModal(store, modalName) {
 }
 
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
-  changesToExamSaved: 'Changes to exam saved',
-  copiedExamToClass: 'Copied exam to { className }',
-  examDeleted: 'Exam deleted',
-  examIsNowActive: 'Exam is now active',
-  examIsNowInactive: 'Exam is now inactive',
+  changesToExamSaved: 'Changes to quiz saved',
+  copiedExamToClass: 'Copied quiz to { className }',
+  examDeleted: 'Quiz deleted',
+  examIsNowActive: 'Quiz is now active',
+  examIsNowInactive: 'Quiz is now inactive',
 });
 
 function updateExamStatus(store, { examId, isActive }) {

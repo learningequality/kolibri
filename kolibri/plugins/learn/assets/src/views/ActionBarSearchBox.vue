@@ -6,14 +6,18 @@
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
         type="primary"
-        color="primary"
+        color="clear"
         :disableRipple="true"
         @click="toggleDropdownSearchBox"
       >
         <mat-svg name="search" category="action" class="search-icon" />
       </UiIconButton>
 
-      <div v-show="searchBoxIsVisible" :class="{ 'search-box-dropdown': searchBoxIsDropdown }">
+      <div
+        v-show="searchBoxIsVisible"
+        :class="{ 'search-box-dropdown': searchBoxIsDropdown }"
+        :style="{ backgroundColor: searchBoxIsDropdown ? $coreActionNormal : '' }"
+      >
         <SearchBox
           ref="searchBox"
           :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
@@ -31,6 +35,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import SearchBox from './SearchBox';
@@ -48,6 +53,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreActionNormal']),
       searchBoxIsDropdown() {
         return this.windowIsSmall;
       },
@@ -104,8 +110,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .search-box-wrapper {
     display: inline-block;
     vertical-align: middle;
@@ -121,7 +125,6 @@
     padding-right: 16px;
     padding-bottom: 10px;
     padding-left: 16px;
-    background-color: $core-action-normal;
   }
 
   .search-box-dropdown-backdrop {

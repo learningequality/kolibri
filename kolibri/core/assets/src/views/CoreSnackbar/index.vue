@@ -24,8 +24,8 @@
 
 <script>
 
-  import UiSnackbar from 'keen-ui/src/UiSnackbar';
   import { mapActions } from 'vuex';
+  import UiSnackbar from './KeenUiSnackbar';
 
   /* Snackbars are used to display notification. */
   export default {
@@ -108,23 +108,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .snackbar {
     position: fixed;
     bottom: 0;
     left: 0;
     z-index: 24;
     margin: 16px;
-
-    /deep/ .ui-snackbar__action-button {
-      font-weight: bold;
-      color: $core-bg-light;
-    }
-
-    /deep/ .ui-button--type-secondary:hover:not(.is-disabled) {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
   }
 
   .snackbar-backdrop {

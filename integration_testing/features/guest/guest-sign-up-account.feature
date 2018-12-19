@@ -15,6 +15,11 @@ Feature: Guest sign up for account
      And I click the *Finish* button 
     Then I am signed in and I can see the *Learn > Channels* page
 
+  Scenario: Username is already taken
+    Given A user already exists with some username
+    When I try to sign up for a new account with that username
+    Then I get a validation message shown next to the username field that the name is already taken
+
   Examples:
   | full_name | password | username | password | facility |
   | juan .p   | learner  | juan     | pass     | school   |

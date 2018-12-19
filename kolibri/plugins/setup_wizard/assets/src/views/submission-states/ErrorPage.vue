@@ -13,7 +13,7 @@
       @click="refreshPage"
     />
 
-    <p class="error-page-subtext">
+    <p class="error-page-subtext" :style="{ color: $coreTextAnnotation }">
       {{ $tr('errorPageAdditionalGuidance') }}
     </p>
 
@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import SubmissionStatePage from './SubmissionStatePage';
 
@@ -38,6 +39,9 @@
         "If retrying doesn't work, restart the server and refresh the page.",
       errorPageRetryButtonLabel: 'Retry',
     },
+    computed: {
+      ...mapGetters(['$coreTextAnnotation']),
+    },
     methods: {
       refreshPage() {
         global.location.reload(true);
@@ -50,8 +54,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .error-page-subheader {
     margin-bottom: 24px;
   }
@@ -62,7 +64,6 @@
 
   .error-page-subtext {
     font-size: 12px;
-    color: $core-text-annotation;
   }
 
 </style>

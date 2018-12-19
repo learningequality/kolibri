@@ -167,8 +167,8 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create new exam',
-      chooseExercises: 'Select exercises',
+      createNewExam: 'Create new quiz',
+      chooseExercises: 'Select topics or exercises',
       title: 'Title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
@@ -176,7 +176,7 @@
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
+        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
       preview: 'Preview',
       continueButtonlabel: 'Continue',
@@ -184,7 +184,7 @@
       added: "Added '{item}'",
       removed: "Removed '{item}'",
       selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new exam',
+      documentTitle: 'Create new quiz',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:
@@ -664,8 +664,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .search-box {
     display: inline-block;

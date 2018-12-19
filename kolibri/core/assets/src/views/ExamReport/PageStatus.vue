@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid class="page-status">
+  <KGrid class="page-status" :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
       <div class="user-name-container">
         <mat-svg
@@ -37,6 +37,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -45,7 +46,7 @@
   export default {
     name: 'PageStatus',
     $trs: {
-      title: '{name} - Exam performance',
+      title: '{name} - Quiz performance',
       overallScore: 'Overall score: { score, number, percent }',
       questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',
@@ -74,6 +75,7 @@
       completionTimestamp: { type: Date },
     },
     computed: {
+      ...mapGetters(['$coreBgLight']),
       questionsCorrect() {
         return this.questions.reduce((a, q) => a + (q.correct === 1 ? 1 : 0), 0);
       },
@@ -92,11 +94,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .page-status {
     padding: 8px;
-    background-color: $core-bg-light;
   }
 
   .user-name-container {

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import UiIcon from 'keen-ui/src/UiIcon';
 import ProgressIcon from '../src/views/ProgressIcon';
 
@@ -18,6 +19,7 @@ describe('ProgressIcon Component', () => {
         // Causes a validation error
         progress: -1.0,
       },
+      store,
     });
     await wrapper.vm.$nextTick();
     const tooltip = wrapper.find({ name: 'KTooltip' });
@@ -31,6 +33,7 @@ describe('ProgressIcon Component', () => {
       propsData: {
         progress: 0.1,
       },
+      store,
     });
     await wrapper.vm.$nextTick();
     testIcon(wrapper, 'In progress');
@@ -41,6 +44,7 @@ describe('ProgressIcon Component', () => {
       propsData: {
         progress: 1.0,
       },
+      store,
     });
     await wrapper.vm.$nextTick();
     testIcon(wrapper, 'Completed');
@@ -51,6 +55,7 @@ describe('ProgressIcon Component', () => {
       propsData: {
         progress: 2.0,
       },
+      store,
     });
     await wrapper.vm.$nextTick();
     testIcon(wrapper, 'Completed');

@@ -5,7 +5,6 @@
     textColor="white"
     type="colored"
     :showIcon="showIcon"
-    :class="{ secondary: !primary }"
     :style="{ height: height + 'px' }"
     @nav-icon-click="$emit('navIconClick')"
   >
@@ -13,7 +12,7 @@
       v-if="hasRoute"
       slot="icon"
       :to="route"
-      class="link"
+      :class="['link', $computedClass(linkStyle)]"
     >
       <!-- TODO add aria label? -->
       <UiIconButton
@@ -70,6 +69,7 @@
 
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import UiIconButton from 'keen-ui/src/UiIconButton';
+  import { darken } from 'kolibri.utils.colour';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
@@ -115,6 +115,15 @@
       hasRoute() {
         return Boolean(this.route);
       },
+      linkStyle() {
+        const hoverAndFocus = {
+          backgroundColor: this.primary ? this.$coreActionDark : darken(this.$coreTextDefault),
+        };
+        return {
+          backgroundColor: this.primary ? '' : this.$coreTextDefault,
+          ':hover': hoverAndFocus,
+        };
+      },
     },
   };
 
@@ -122,8 +131,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   // only used when using a link. Otherwise, uses UiToolbar's styles
   .icon {
@@ -136,20 +143,6 @@
   .link {
     display: inline-block;
     border-radius: 50%;
-    &:focus,
-    &:hover {
-      background-color: $core-action-dark;
-    }
-  }
-
-  .secondary {
-    background-color: $core-text-default;
-    .link {
-      &:focus,
-      &:hover {
-        background-color: darken($core-text-default, 25%);
-      }
-    }
   }
 
 </style>

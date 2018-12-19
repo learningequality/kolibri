@@ -57,7 +57,7 @@ describe('availableChannelsPage', () => {
     const wrapper = makeWrapper({ store });
     const { unlistedChannelsSection, ChannelTokenModal } = getElements(wrapper);
     // prettier-ignore
-    const button = unlistedChannelsSection().at(0).find('button');
+    const button = unlistedChannelsSection().at(0).find('a');
     button.trigger('click');
     expect(ChannelTokenModal().isVueInstance()).toEqual(true);
   });

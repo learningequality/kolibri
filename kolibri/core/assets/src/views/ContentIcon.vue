@@ -98,7 +98,7 @@
       audio: 'Audio',
       document: 'Document',
       html5: 'App',
-      exam: 'Exam',
+      exam: 'Quiz',
       lesson: 'Lesson',
       user: 'User',
     },

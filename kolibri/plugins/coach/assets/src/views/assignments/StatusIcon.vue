@@ -1,17 +1,19 @@
 <template>
 
-  <span class="status-icon">
+  <span class="status-icon-wrapper">
     <mat-svg
       v-if="active"
       category="image"
       name="lens"
-      class="status-icon-active"
+      class="status-icon"
+      :style="{ fill: $coreStatusCorrect }"
     />
     <mat-svg
       v-else
       category="image"
       name="lens"
-      class="status-icon-inactive"
+      class="status-icon"
+      :style="{ fill: $coreGrey }"
     />
     <span class="active-text">{{ text }}</span>
   </span>
@@ -21,6 +23,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -46,6 +49,7 @@
       lessonInactive: 'Inactive',
     },
     computed: {
+      ...mapGetters(['$coreStatusCorrect', '$coreGrey']),
       text() {
         if (this.type === ContentNodeKinds.EXAM) {
           return this.active ? this.$tr('examActive') : this.$tr('examInactive');
@@ -60,23 +64,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .status-icon {
+  .status-icon,
+  .status-icon-wrapper {
     vertical-align: middle;
-  }
-
-  .status-icon-active,
-  .status-icon-inactive {
-    vertical-align: middle;
-  }
-
-  .status-icon-active {
-    fill: $core-status-correct;
-  }
-
-  .status-icon-inactive {
-    fill: $core-grey;
   }
 
   .active-text {

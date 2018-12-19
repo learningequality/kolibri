@@ -25,7 +25,9 @@
       :noTransitionOnDrag="true"
       @input="handleDrag($event)"
     >
-      <transition-group name="resource-reorder">
+      <transition-group
+        :moveClass="$computedClass(resourceReorderMoveStyle)"
+      >
         <KGrid
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
@@ -58,7 +60,7 @@
                 :to="resourceUserSummaryLink(resourceId)"
                 :text="resourceTitle(resourceId)"
               />
-              <p dir="auto" class="channel-title">
+              <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
                 <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                 {{ resourceChannelTitle(resourceId) }}
               </p>
@@ -167,6 +169,12 @@
         return this.$tr('multipleResourceRemovalsConfirmationMessage', {
           numberOfRemovals,
         });
+      },
+      resourceReorderMoveStyle() {
+        return {
+          backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
+          transition: 'transform 0.5s',
+        };
       },
     },
     methods: {
@@ -321,11 +329,6 @@
     margin: 0;
   }
 
-  .resource-reorder-move {
-    background-color: $core-bg-canvas; // duping color set in core-table for selected
-    transition: transform 0.5s;
-  }
-
   .progress-message {
     margin-left: 8px;
     white-space: nowrap;
@@ -336,11 +339,10 @@
     margin-right: 0;
     margin-bottom: 0;
     margin-left: 0;
-    color: $core-text-annotation;
   }
 
   .sortable-ghost {
-    border: 1px solid $core-text-annotation;
+    border: 1px solid grey;
   }
 
   .sortable-ghost * {

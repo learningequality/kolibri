@@ -7,13 +7,13 @@
           v-if="taskHasFailed"
           category="alert"
           name="error"
-          class="error"
+          :style="{ fill: $coreTextError }"
         />
         <mat-svg
           v-else-if="taskHasCompleted"
           category="action"
           name="check_circle"
-          class="complete"
+          :style="{ fill: $coreStatusCorrect }"
         />
         <KCircularLoader
           v-else
@@ -55,7 +55,7 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapActions, mapGetters } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -96,6 +96,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreStatusCorrect', '$coreTextError']),
       TaskStatuses: () => TaskStatuses,
       stageText() {
         // Special case for Channel DB downloading, since they never go into RUNNING
@@ -182,19 +183,11 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .progress-icon {
     width: 5%;
     text-align: center;
     .inprogress {
       display: inline-block;
-    }
-    .complete {
-      fill: $core-status-correct;
-    }
-    .error {
-      fill: $core-text-error;
     }
   }
 
