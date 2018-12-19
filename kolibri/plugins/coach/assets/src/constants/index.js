@@ -30,6 +30,7 @@ export const PageNames = {
   EXAM_REPORT_DETAIL_ROOT: 'EXAM_REPORT_DETAIL_ROOT',
   LEARNERS: 'LEARNERS',
   GROUPS: 'GROUPS',
+  NEW_COACH_PAGES: 'NEW_COACH_PAGES', // ... COACH - under construction
 };
 
 export const RecentReports = [

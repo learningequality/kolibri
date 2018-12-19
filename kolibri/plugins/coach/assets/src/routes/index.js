@@ -1,6 +1,10 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
-import { showClassListPage, shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
+import {
+  showClassListPage,
+  shouldRedirectToClassRootPage,
+  showNewPage, // ... COACH - under construction
+} from '../modules/coreCoach/handlers';
 import { showGroupsPage } from '../modules/groups/handlers';
 import {
   showChannelListForReports,
@@ -190,6 +194,15 @@ export default [
       showGroupsPage(store, to.params.classId);
     },
   },
+  /* COACH - under construction ... */
+  {
+    name: PageNames.NEW_COACH_PAGES,
+    path: '/new/:page',
+    handler: to => {
+      showNewPage(store, to.params.page);
+    },
+  },
+  /* ... COACH - under construction */
   {
     path: '*',
     redirect: '/',

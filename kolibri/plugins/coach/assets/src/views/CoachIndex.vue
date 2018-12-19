@@ -12,7 +12,10 @@
       :showSubNav="Boolean(classId) && showCoachNav"
     >
 
-      <CoachTopNav slot="sub-nav" />
+      <!-- COACH - under construction ... -->
+      <NewCoachTopNav v-if="isNewPage" slot="sub-nav" />
+      <CoachTopNav v-else slot="sub-nav" />
+      <!-- ... COACH - under construction -->
 
       <template v-if="showCoachNav">
         <NavTitle
@@ -47,9 +50,11 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import logger from 'kolibri.lib.logging';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import CoachTopNav from './CoachTopNav';
+  import NewCoachTopNav from './new/CoachTopNav';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -67,6 +72,18 @@
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
   import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
+
+  /* COACH - under construction ... */
+  import NotificationCard from './new/NotificationCard.vue';
+  import ClassActivityFeed from './new/ClassActivityFeed.vue';
+
+  const logging = logger.getLogger(__filename);
+
+  const newPageMap = {
+    NotificationCard,
+    ClassActivityFeed,
+  };
+  /* ... COACH - under construction */
 
   // IDEA set up routenames that all use the same PageName instead of doing this?
   // See Content Preview routes in app.js + PageName handling here
@@ -152,6 +169,7 @@
     },
     components: {
       CoachTopNav,
+      NewCoachTopNav,
       CoreBase,
       NavTitle,
       LessonContentPreviewPage,
@@ -175,6 +193,14 @@
       }),
 
       currentPage() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          if (!newPageMap[this.$route.params.page]) {
+            logging.error(`${this.$route.params.page} has not been registered to CoachIndex`);
+          }
+          return newPageMap[this.$route.params.page];
+        }
+        /* ... COACH - under construction */
         return pageNameToComponentMap[this.pageName] || null;
       },
       isPreviewPage() {
@@ -236,7 +262,15 @@
           this.pageName === PageNames.EXAM_CREATION_PREVIEW || Boolean(this.lessonWorkingResources)
         );
       },
+      /* COACH - under construction ... */
+      isNewPage() {
+        return this.pageName === PageNames.NEW_COACH_PAGES;
+      },
       showCoachNav() {
+        if (this.isNewPage) {
+          return true;
+        }
+        /* ... COACH - under construction */
         return (
           this.pageName !== PageNames.CLASS_LIST &&
           this.userCanAccessPage &&
