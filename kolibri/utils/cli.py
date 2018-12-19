@@ -146,7 +146,7 @@ def initialize(debug=False):
         version = version.strip() if version else ""
         change_version = kolibri.__version__ != version
 
-        if change_version and 'dev' not in version:
+        if change_version and 'dev' not in version and 'dev' not in kolibri.__version__:
             # dbbackup will load settings.INSTALLED_APPS.
             # we need to ensure plugins are correct in conf.config before
             enable_default_plugins()
