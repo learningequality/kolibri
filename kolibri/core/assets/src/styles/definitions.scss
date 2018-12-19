@@ -8,7 +8,7 @@
   To reference these values (and those defined in the theme), add the following
   line to your comonent's scss block:
 
-    @require '~kolibri.styles.definitions'
+    @import '~kolibri.styles.definitions';
 */
 
 $radius: 4px;
