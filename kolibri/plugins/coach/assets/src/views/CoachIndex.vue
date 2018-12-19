@@ -17,7 +17,7 @@
       <CoachTopNav v-else slot="sub-nav" />
       <!-- ... COACH - under construction -->
 
-      <template v-if="showCoachNav">
+      <template v-if="showCoachNav && !isNewPage">
         <NavTitle
           class="nav-title"
           :className="className"
@@ -76,12 +76,14 @@
   /* COACH - under construction ... */
   import NotificationCard from './new/NotificationCard.vue';
   import ClassActivityFeed from './new/ClassActivityFeed.vue';
+  import CoachHomeIndex from './new/home/CoachHomeIndex.vue';
 
   const logging = logger.getLogger(__filename);
 
   const newPageMap = {
     NotificationCard,
     ClassActivityFeed,
+    CoachHomeIndex,
   };
   /* ... COACH - under construction */
 
@@ -374,5 +376,19 @@
   .nav-title {
     margin-bottom: 32px;
   }
+
+</style>
+
+<style lang="scss">
+
+  // COACH - under construction ...
+  .new-coach-block {
+    padding: 16px;
+    margin: 8px;
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 4px;
+  }
+  // ... COACH - under construction
 
 </style>

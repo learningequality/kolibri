@@ -3,7 +3,7 @@
   <KNavbar>
     <KNavbarLink
       :title="$tr('home')"
-      :link="link('ClassActivityFeed')"
+      :link="link('CoachHomeIndex')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
