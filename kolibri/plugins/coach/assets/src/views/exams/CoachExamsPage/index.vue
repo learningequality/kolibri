@@ -86,7 +86,7 @@
   export default {
     name: 'CoachExamsPage',
     $trs: {
-      exam: 'Quizzes',
+      exams: 'Quizzes',
       allExams: 'All quizzes',
       activeExams: 'Active quizzes',
       inactiveExams: 'Inactive quizzes',
