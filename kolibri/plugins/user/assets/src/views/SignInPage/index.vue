@@ -8,14 +8,14 @@
     />
 
     <div class="wrapper-table">
-      <div class="main-row" :style="{ backgroundColor: $coreActionNormal }">
-        <div class="main-cell">
+      <div class="table-row main-row" :style="{ backgroundColor: $coreActionNormal }">
+        <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $coreBgLight }">
-            <CoreLogo
-              class="logo"
-              :style="{'height': `${logoHeight}px`}"
-            />
-            <h1 :style="{'font-size': `${logoTextSize}px`}">
+            <CoreLogo :style="{'height': `${logoHeight}px`}" />
+            <h1
+              class="kolibri-title"
+              :style="{'font-size': `${logoTextSize}px`}"
+            >
               {{ $tr('kolibri') }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">
@@ -84,38 +84,42 @@
               </div>
             </form>
 
-            <KRouterLink
-              v-if="canSignUp"
-              class="create-button"
-              :text="$tr('createAccount')"
-              :to="signUpPage"
-              :primary="true"
-              appearance="flat-button"
-            />
-            <div>
+            <p class="create">
+              <KRouterLink
+                v-if="canSignUp"
+                :text="$tr('createAccount')"
+                :to="signUpPage"
+                :primary="true"
+                appearance="flat-button"
+              />
+            </p>
+            <p class="guest small-text">
               <KExternalLink
                 v-if="allowGuestAccess"
-                class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
                 :primary="true"
                 appearance="basic-link"
               />
-            </div>
-            <div class="small-text">
-              <span class="version-string">{{ versionMsg }}</span>
-              |
-              <KButton
-                :text="$tr('privacyLink')"
-                appearance="basic-link"
-                @click="privacyModalVisible = true"
-              />
-            </div>
+            </p>
           </div>
         </div>
       </div>
-      <div class="footer-row" :style="{ backgroundColor: $coreBgLight }">
-        <LanguageSwitcherFooter class="footer-cell" />
+      <div class="table-row">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+          <LanguageSwitcherFooter />
+          <div class="small-text">
+            <span class="version-string">
+              {{ versionMsg }}
+            </span>
+            •
+            <KButton
+              :text="$tr('privacyLink')"
+              appearance="basic-link"
+              @click="privacyModalVisible = true"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -158,7 +162,7 @@
       password: 'Password',
       enterPassword: 'Enter password',
       createAccount: 'Create an account',
-      accessAsGuest: 'Continue as guest',
+      accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
@@ -438,11 +442,14 @@
     text-align: center;
   }
 
+  .table-row {
+    display: table-row;
+  }
+
   .main-row {
     // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
     $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
 
-    display: table-row;
     text-align: center;
     background-image: $bk-img;
     background-repeat: no-repeat;
@@ -450,29 +457,24 @@
     background-size: cover;
   }
 
-  .main-cell {
+  .table-cell {
     display: table-cell;
+  }
+
+  .main-cell {
     height: 100%;
     vertical-align: middle;
   }
 
   .box {
     width: 300px;
+    padding: 16px 32px;
     margin: 16px auto;
     border-radius: $radius;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-      0 2px 1px -1px rgba(0, 0, 0, 0.12);
-  }
-
-  .logo {
-    margin-top: 16px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.33);
   }
 
   .login-form {
-    position: relative;
-    width: 70%;
-    max-width: 300px;
-    margin: auto;
     text-align: left;
   }
 
@@ -480,10 +482,17 @@
     width: calc(100% - 16px);
   }
 
+  .create {
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  .guest {
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+
   .small-text {
-    padding-bottom: 16px;
-    margin-top: 24px;
-    margin-bottom: 0;
     font-size: 0.8em;
   }
 
@@ -491,15 +500,13 @@
     white-space: nowrap;
   }
 
-  .footer-row {
-    display: table-row;
+  .footer-cell {
+    padding: 16px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.33);
   }
 
-  .footer-cell {
-    display: table-cell;
-    min-height: 56px;
-    padding: 16px;
-    vertical-align: middle;
+  .footer-cell .small-text {
+    margin-top: 8px;
   }
 
   .suggestions {
@@ -531,19 +538,12 @@
     transition: opacity 0s;
   }
 
-  h1 {
+  .kolibri-title {
     margin-top: 0;
+    margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
     color: #9174a9;
-  }
-
-  .create-button {
-    margin-top: 16px;
-  }
-
-  .guest-button {
-    font-size: 14px;
   }
 
 </style>
