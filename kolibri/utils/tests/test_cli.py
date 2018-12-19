@@ -231,16 +231,13 @@ def test_first_run(
 @patch('kolibri.utils.cli.update')
 def test_update(update, version_file=None, orig_version=None):
     """
-    Tests that update() function performs as expected, creating a database
-    backup automatically when version changes
+    Tests that update() function performs as expected
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
-
     if is_sqlite_settings():
         with patch('kolibri.core.deviceadmin.utils.dbbackup') as dbbackup:
             cli.initialize()
-            dbbackup.assert_called_once()
     else:
         cli.initialize()
     update.assert_called_once()
