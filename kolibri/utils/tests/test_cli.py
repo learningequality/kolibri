@@ -244,6 +244,18 @@ def test_update(update, version_file=None, orig_version=None):
 
 
 @pytest.mark.django_db
+def test_should_back_up():
+    """
+    Tests our db backup logic: skip for dev versions, and backup on change
+    """
+    assert cli.should_back_up('0.10.0', '0.10.1')
+    assert not cli.should_back_up('0.10.0', '0.10.0')
+    assert not cli.should_back_up('0.10.0-dev0', '0.10.0')
+    assert not cli.should_back_up('0.10.0', '0.10.0-dev0')
+    assert not cli.should_back_up('0.10.0-dev0', '0.10.0-dev0')
+
+
+@pytest.mark.django_db
 @patch('kolibri.utils.cli.update')
 @patch('kolibri.core.deviceadmin.utils.dbbackup')
 def test_update_no_version_change(dbbackup, update, orig_version=None):
