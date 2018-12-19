@@ -16,6 +16,8 @@
         ref="numQuest"
         v-model.trim.number="examNumberOfQuestions"
         type="number"
+        :min="1"
+        :max="50"
         :label="$tr('numQuestions')"
         :invalid="numQuestIsInvalid"
         :invalidText="numQuestIsInvalidText"
@@ -194,7 +196,7 @@
     data() {
       return {
         examTitle: '',
-        examNumberOfQuestions: '',
+        examNumberOfQuestions: 10,
         examSeed: null,
         titleBlurred: false,
         numQuestBlurred: false,
