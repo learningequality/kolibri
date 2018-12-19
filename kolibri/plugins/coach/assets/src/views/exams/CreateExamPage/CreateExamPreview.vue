@@ -60,30 +60,18 @@
               v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
               :key="exerciseIndex"
             >
-              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
-                <li
-                  v-for="(question, questionIndex) in
-                  getExerciseQuestions(exercise.exercise_id)"
+                <AssessmentQuestionListItem
+                  v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
-                  class="question-list-item"
-                >
-                  <KButton
-                    :primary="isSelected(question.itemId, exercise.exercise_id)"
-                    appearance="flat-button"
-                    :text="$tr(
-                      'question',
-                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                    )"
-                    :title="question.title"
-                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  />
-                  <CoachContentLabel
-                    class="coach-content-label"
-                    :value="numCoachContents(exercise)"
-                    :isTopic="false"
-                  />
-                </li>
+                  :questionNumberWithinExam="getQuestionIndex(question.itemId, exercise.exercise_id) + 1"
+                  :questionNumberWithinExercise="questionIndex"
+                  :totalFromExercise="availableExamQuestionSources.length"
+                  :isSelected="isSelected(question.itemId, exercise.exercise_id)"
+                  :exerciseName="getExerciseName(exercise.exercise_id)"
+                  :isCoachContent="Boolean(numCoachContents(exercise))"
+                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                />
               </ol>
             </div>
           </KGridItem>
@@ -121,7 +109,6 @@
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -131,6 +118,7 @@
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
+  import AssessmentQuestionListItem from '../AssessmentQuestionListItem';
 
   export default {
     name: 'CreateExamPreview',
@@ -138,7 +126,6 @@
       title: 'Select questions',
       back: 'Go back',
       finish: 'Finish',
-      question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
       randomize: 'Give me a different set of questions',
@@ -153,10 +140,10 @@
       newQuestions: 'New question set created',
     },
     components: {
-      CoachContentLabel,
       KModal,
       ContentRenderer,
       KButton,
+      AssessmentQuestionListItem,
       KRadioButton,
       KGrid,
       KGridItem,
@@ -175,10 +162,6 @@
       examNumQuestions: {
         type: Number,
         required: true,
-      },
-      examCreation: {
-        type: Boolean,
-        default: false,
       },
       exerciseContentNodes: {
         type: Array,
@@ -312,25 +295,8 @@
 
   @import '~kolibri.styles.definitions';
 
-  .question-list-item {
-    vertical-align: middle;
-  }
-
-  .coach-content-label {
-    display: inline-block;
-    vertical-align: inherit;
-  }
-
   .exam-preview-container {
     margin-top: 16px;
-  }
-
-  .close-btn-wrapper {
-    text-align: right;
-    button {
-      margin-right: 0;
-      margin-bottom: 0;
-    }
   }
 
   /deep/ .modal {
@@ -341,10 +307,6 @@
   ol {
     padding: 0;
     margin: 0;
-  }
-
-  li {
-    list-style-type: none;
   }
 
   h3 {

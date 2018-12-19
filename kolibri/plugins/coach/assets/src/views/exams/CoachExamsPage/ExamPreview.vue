@@ -272,14 +272,6 @@
     margin-top: 16px;
   }
 
-  .close-btn-wrapper {
-    text-align: right;
-    button {
-      margin-right: 0;
-      margin-bottom: 0;
-    }
-  }
-
   /deep/ .modal {
     max-width: unset;
     max-height: unset;
