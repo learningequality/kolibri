@@ -106,7 +106,7 @@
   export default {
     name: 'PreviewExamModal',
     $trs: {
-      preview: 'Preview exam',
+      preview: 'Preview quiz',
       close: 'Close',
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
@@ -263,8 +263,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .question-list-item {
     vertical-align: middle;

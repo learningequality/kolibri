@@ -179,19 +179,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .title-header {
     display: inline-block;
     margin-right: 8px;
-  }
-
-  .edit-button {
-    position: relative;
-    top: -4px;
-    left: 10px;
-    display: inline-block;
-    fill: $core-action-normal;
   }
 
   .top-margin {

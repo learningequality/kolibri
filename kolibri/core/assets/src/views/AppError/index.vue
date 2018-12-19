@@ -100,8 +100,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .app-error {
     margin-top: 64px;
     text-align: center;

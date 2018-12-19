@@ -3,6 +3,7 @@
   <div
     class="wrapper"
     :class="wrapperClass"
+    :style="{ backgroundColor: $coreActionNormal }"
   >
     <nav>
       <button
@@ -30,6 +31,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
         <mat-svg
@@ -47,6 +49,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import throttle from 'lodash/throttle';
 
@@ -62,6 +65,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreActionNormal', '$coreOutline']),
       maxWidth() {
         return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
       },
@@ -69,6 +73,13 @@
         if (!this.enoughSpace) {
           return ['wrapper-narrow'];
         }
+      },
+      scrollButton() {
+        return {
+          ':hover': {
+            outline: this.$coreOutline,
+          },
+        };
       },
     },
     mounted() {
@@ -110,11 +121,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .wrapper {
     padding-left: 16px;
-    background-color: $core-action-normal;
   }
 
   .wrapper-narrow {
@@ -135,9 +143,6 @@
     width: 36px;
     height: 36px;
     vertical-align: middle;
-    &:focus {
-      outline: $core-outline;
-    }
   }
 
   .scroll-button-icon {

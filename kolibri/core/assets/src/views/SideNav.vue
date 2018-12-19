@@ -5,13 +5,18 @@
       <div
         v-show="navShown"
         class="side-nav"
-        :style="{ width: `${width}px` }"
+        :style="{
+          width: `${width}px`,
+          color: $coreTextDefault,
+          backgroundColor: $coreBgLight,
+        }"
       >
         <div
           class="side-nav-header"
           :style="{
             height: headerHeight + 'px',
-            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px'
+            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+            backgroundColor: $coreTextDefault,
           }"
         >
           <UiIconButton
@@ -28,7 +33,10 @@
               class="side-nav-header-close"
             />
           </UiIconButton>
-          <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
+          <span
+            class="side-nav-header-name"
+            :style="{ color: $coreBgLight }"
+          >{{ $tr('kolibri') }}</span>
         </div>
 
         <div
@@ -36,8 +44,8 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <CoreMenu
-            class="side-nav-scrollable-area-menu"
             role="navigation"
+            :style="{ backgroundColor: $coreBgLight }"
             :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
           >
@@ -47,7 +55,7 @@
             </template>
           </CoreMenu>
 
-          <div class="side-nav-scrollable-area-footer">
+          <div class="side-nav-scrollable-area-footer" :style="{ color: $coreTextAnnotation }">
             <CoreLogo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
@@ -152,7 +160,16 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        'isSuperuser',
+        'isAdmin',
+        'isCoach',
+        'canManageContent',
+        '$coreBgLight',
+        '$coreTextAnnotation',
+        '$coreTextDefault',
+      ]),
       ...mapState({
         session: state => state.core.session,
       }),
@@ -242,8 +259,6 @@
     top: 0;
     bottom: 0;
     z-index: 16;
-    color: $core-text-default;
-    background: $core-bg-light;
     box-shadow: $side-nav-box-shadow;
   }
 
@@ -280,7 +295,6 @@
     z-index: 17;
     font-size: 14px;
     text-transform: uppercase;
-    background-color: $core-text-default;
   }
 
   .side-nav-header-close {
@@ -291,7 +305,6 @@
     margin-left: 8px;
     font-size: 18px;
     font-weight: bold;
-    color: $core-bg-light;
     vertical-align: middle;
   }
 
@@ -302,13 +315,8 @@
     overflow: auto;
   }
 
-  .side-nav-scrollable-area-menu {
-    background: $core-bg-light;
-  }
-
   .side-nav-scrollable-area-footer {
     padding: 16px;
-    color: $core-text-annotation;
   }
 
   .side-nav-scrollable-area-footer-logo {
@@ -341,7 +349,6 @@
   /deep/ .ui-menu {
     max-height: none;
     padding: 0;
-    background: $core-bg-light;
     border: 0;
   }
 
@@ -353,24 +360,17 @@
       .ui-menu-option-text {
         overflow: visible;
         font-size: 14px;
-        color: $core-text-default;
         white-space: normal;
       }
 
       .ui-menu-option-icon {
         font-size: 1.2em;
-        color: $core-text-default;
       }
 
       &.is-active {
         .ui-menu-option-text {
           font-weight: bold;
-          color: $core-accent-color;
           opacity: 1;
-        }
-
-        .ui-menu-option-icon {
-          color: $core-accent-color;
         }
       }
     }

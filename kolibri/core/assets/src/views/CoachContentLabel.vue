@@ -8,7 +8,7 @@
       ref="icon"
       class="d-ib vab"
     >
-      <UiIcon class="coach-mat-icon">
+      <UiIcon class="coach-mat-icon" :style="{ color: $coreStatusProgress }">
         <mat-svg
           name="local_library"
           category="maps"
@@ -34,6 +34,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -55,6 +56,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreStatusProgress']),
       titleText() {
         if (this.isTopic) {
           return this.$tr('topicTitle', { count: this.value });
@@ -74,8 +76,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.theme';
-
   .vab {
     vertical-align: bottom;
   }
@@ -91,7 +91,6 @@
 
   .coach-mat-icon.ui-icon {
     font-size: 16px;
-    color: $core-status-progress;
   }
 
 </style>

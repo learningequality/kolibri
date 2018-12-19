@@ -2,6 +2,7 @@ import connectionModule from '../connection';
 import loggingModule from '../logging';
 import sessionModule from '../session';
 import snackbarModule from '../snackbar';
+import themeModule from '../theme';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
@@ -31,5 +32,6 @@ export default {
     logging: loggingModule,
     session: sessionModule,
     snackbar: snackbarModule,
+    theme: themeModule,
   },
 };

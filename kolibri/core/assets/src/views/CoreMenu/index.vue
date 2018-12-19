@@ -12,6 +12,7 @@
         v-if="$slots.header"
         class="ui-menu-header"
         :class="{'ui-menu-header-lp': hasIcons}"
+        :style="{ color: $coreTextDefault }"
       >
         <slot name="header"></slot>
       </div>
@@ -32,6 +33,8 @@
 
 
 <script>
+
+  import { mapGetters } from 'vuex';
 
   export default {
     name: 'CoreMenu',
@@ -55,6 +58,7 @@
     },
 
     computed: {
+      ...mapGetters(['$coreTextDefault']),
       classes() {
         return {
           'is-raised': this.raised,
@@ -102,7 +106,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     list-style: none;
-    background-color: white;
+    background-color: inherit;
     border: rem-calc(1px) solid rgba(black, 0.08);
     outline: none;
 
@@ -126,7 +130,6 @@
   .ui-menu-header {
     padding: 1rem;
     font-size: $ui-dropdown-item-font-size;
-    color: $primary-text-color;
     border-bottom: solid 1px rgba(black, 0.08);
   }
 

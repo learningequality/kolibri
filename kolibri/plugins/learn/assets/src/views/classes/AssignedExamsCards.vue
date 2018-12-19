@@ -90,8 +90,8 @@
       },
     },
     $trs: {
-      examsHeader: 'Exams',
-      noExamsMessage: 'You have no exams assigned',
+      examsHeader: 'Quizzes',
+      noExamsMessage: 'You have no quizzes assigned',
       notStarted: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',

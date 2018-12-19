@@ -46,7 +46,7 @@
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-        <ul class="checkbox-description" :class="{disabled: superuserDisabled}">
+        <ul class="checkbox-description" :style="{ color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation }">
           <li>{{ $tr('superAdminExplanation1') }}</li>
           <li>{{ $tr('superAdminExplanation2') }}</li>
         </ul>
@@ -129,7 +129,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'facilities']),
+      ...mapGetters(['isSuperuser', 'facilities', '$coreTextAnnotation', '$coreTextDisabled']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,
@@ -215,7 +215,7 @@
     $trs: {
       cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
-      devicePermissionsDetails: 'Can import and export content channels',
+      devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
       permissionChangeConfirmation: 'Changes saved',
@@ -239,8 +239,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .no-margin {
     margin-left: 0;
   }
@@ -263,19 +261,14 @@
     padding: 0;
     margin: 0 0 0 50px;
     font-size: 12px;
-    color: $core-text-annotation;
-    &.disabled {
-      color: $core-text-disabled;
-    }
   }
 
   .section {
-    padding: 1em;
+    margin-bottom: 16px;
   }
 
   .permissions-icon {
     display: inline;
-    // was 5px in the mocks, this is kolibri standard(?)
     margin-left: 8px;
   }
 

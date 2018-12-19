@@ -8,9 +8,9 @@
     />
 
     <div class="wrapper-table">
-      <div class="main-row">
+      <div class="main-row" :style="{ backgroundColor: $coreActionNormal }">
         <div class="main-cell">
-          <div class="box">
+          <div class="box" :style="{ backgroundColor: $coreBgLight }">
             <CoreLogo
               class="logo"
               :style="{'height': `${logoHeight}px`}"
@@ -51,7 +51,7 @@
                     v-for="(suggestion, i) in suggestions"
                     :key="i"
                     :suggestion="suggestion"
-                    :class="{ highlighted: highlightedIndex === i }"
+                    :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
                     @click.native="fillUsername(suggestion)"
                   />
                 </ul>
@@ -114,7 +114,7 @@
           </div>
         </div>
       </div>
-      <div class="footer-row">
+      <div class="footer-row" :style="{ backgroundColor: $coreBgLight }">
         <LanguageSwitcherFooter class="footer-cell" />
       </div>
     </div>
@@ -202,7 +202,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
+      ...mapGetters(['facilityConfig', '$coreGrey', '$coreActionNormal', '$coreBgLight']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),
@@ -444,7 +444,6 @@
 
     display: table-row;
     text-align: center;
-    background-color: $core-action-normal;
     background-image: $bk-img;
     background-repeat: no-repeat;
     background-position: center;
@@ -460,7 +459,6 @@
   .box {
     width: 300px;
     margin: 16px auto;
-    background-color: $core-bg-light;
     border-radius: $radius;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
@@ -495,7 +493,6 @@
 
   .footer-row {
     display: table-row;
-    background-color: $core-bg-light;
   }
 
   .footer-cell {
@@ -516,10 +513,6 @@
     list-style-type: none;
     background-color: white;
     box-shadow: 1px 2px 8px #e6e6e6;
-  }
-
-  .highlighted {
-    background-color: $core-grey;
   }
 
   .textbox-enter-active {

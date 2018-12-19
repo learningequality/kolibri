@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import TopBar from '../src/views/TopBar';
 
 function createWrapper({ title, isInFullscreen = false } = {}) {
@@ -7,6 +8,7 @@ function createWrapper({ title, isInFullscreen = false } = {}) {
       title,
       isInFullscreen,
     },
+    store,
   });
 }
 

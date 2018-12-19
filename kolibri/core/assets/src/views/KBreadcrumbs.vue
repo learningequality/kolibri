@@ -245,8 +245,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .breadcrumbs {
     margin-top: 8px;
     margin-bottom: 8px;

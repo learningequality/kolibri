@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="content-card">
+  <router-link :to="link" class="content-card" :style="{ backgroundColor: $coreBgLight }">
 
     <CardThumbnail
       class="thumbnail"
@@ -9,7 +9,7 @@
       :isMobile="true"
     />
 
-    <div class="text">
+    <div class="text" :style="{ color: $coreTextDefault }">
       <h3
         class="title"
         :class="{'has-message': Boolean(message)}"
@@ -17,7 +17,7 @@
       >
         {{ title }}
       </h3>
-      <div v-if="message" class="message">
+      <div v-if="message" class="message" :style="{ color: $coreTextDefault }">
         {{ message }}
       </div>
 
@@ -41,6 +41,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
@@ -90,6 +91,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       isTopic() {
         return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },
@@ -122,7 +124,6 @@
     margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
-    background-color: $core-bg-light;
     border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
@@ -144,7 +145,6 @@
     width: calc(100% - #{$left-offset});
     padding: 16px;
     overflow-y: auto;
-    color: $core-text-default;
   }
 
   .title,
@@ -177,7 +177,6 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    color: $core-text-default;
   }
 
 </style>
