@@ -74,15 +74,13 @@
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import NotificationCard from './new/NotificationCard.vue';
-  import ClassActivityFeed from './new/ClassActivityFeed.vue';
   import CoachHomeIndex from './new/home/CoachHomeIndex.vue';
+  import AllActivity from './new/home/AllActivity.vue';
 
   const logging = logger.getLogger(__filename);
 
   const newPageMap = {
-    NotificationCard,
-    ClassActivityFeed,
+    AllActivity,
     CoachHomeIndex,
   };
   /* ... COACH - under construction */
@@ -384,7 +382,7 @@
   // COACH - under construction ...
   .new-coach-block {
     padding: 16px;
-    margin: 8px;
+    margin-top: 24px;
     background-color: white;
     border: 1px solid gray;
     border-radius: 4px;

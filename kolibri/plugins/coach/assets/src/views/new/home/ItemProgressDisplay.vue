@@ -4,7 +4,7 @@
     <h3>{{ name }}</h3>
     <p>{{ assignment }}</p>
     <p>{{ $tr('completed', {completed: completedItems, total:totalItems }) }}</p>
-    <p v-if="needHelp">
+    <p v-if="needHelp" class="float">
       <mat-svg category="alert" name="error" /> {{ needHelp }}
     </p>
   </div>
@@ -61,6 +61,10 @@
 
   .item {
     border-top: 1px solid gray;
+  }
+
+  .float {
+    float: right;
   }
 
 </style>

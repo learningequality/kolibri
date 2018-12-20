@@ -1,7 +1,9 @@
 <template>
 
-  <div>
-    Notification card
+  <div class="notification">
+    <p>
+      {{ $tr('wholeClassroomFinished', {classroomName: 'My Class', itemName: 'some item'}) }}
+    </p>
   </div>
 
 </template>
@@ -28,4 +30,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .notification {
+    border-top: 1px solid gray;
+  }
+
+</style>
