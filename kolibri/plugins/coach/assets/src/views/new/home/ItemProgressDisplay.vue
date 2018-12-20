@@ -3,10 +3,14 @@
   <div class="item">
     <h3>{{ name }}</h3>
     <p>{{ assignment }}</p>
-    <p>{{ $tr('completed', {completed: completedItems, total:totalItems }) }}</p>
-    <p v-if="needHelp" class="float">
-      <mat-svg category="alert" name="error" /> {{ needHelp }}
-    </p>
+    <Completed
+      :completed="completedItems"
+      :total="totalItems"
+    />
+    <NeedHelp
+      class="float"
+      :num="needHelp"
+    />
   </div>
 
 </template>
@@ -14,9 +18,15 @@
 
 <script>
 
+  import NeedHelp from '../NeedHelp';
+  import Completed from '../Completed';
+
   export default {
     name: 'ItemProgressDisplay',
-    components: {},
+    components: {
+      NeedHelp,
+      Completed,
+    },
     props: {
       name: {
         type: String,
@@ -50,7 +60,6 @@
     $trs: {
       assignmentClass: 'Entire class',
       assignmentGroup: '{count, number, integer} {count, plural, one {group} other {groups}}',
-      completed: '{completed, number, integer} of {total, number, integer} completed',
     },
   };
 
