@@ -17,7 +17,7 @@
   import BackLink from '../BackLink';
 
   export default {
-    name: 'ClassOverviewBlock',
+    name: 'OverviewBlock',
     components: {
       BackLink,
     },

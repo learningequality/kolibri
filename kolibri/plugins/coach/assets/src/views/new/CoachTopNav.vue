@@ -9,7 +9,7 @@
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('reports')"
-      :link="link('Reports')"
+      :link="link('ReportsLessonList')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>

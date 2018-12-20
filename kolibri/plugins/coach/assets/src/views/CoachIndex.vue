@@ -76,7 +76,7 @@
   /* COACH - under construction ... */
   import Home from './new/home/Home.vue';
   import AllActivity from './new/home/AllActivity.vue';
-  import Reports from './new/reports/Reports.vue';
+  import ReportsLessonList from './new/reports/ReportsLessonList.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
@@ -84,7 +84,7 @@
   const newPageMap = {
     Home,
     AllActivity,
-    Reports,
+    ReportsLessonList,
     Plan,
   };
   /* ... COACH - under construction */
@@ -385,10 +385,10 @@
 
   // COACH - under construction ...
   .new-coach-block {
-    padding: 16px;
+    padding: 8px 24px;
     margin-top: 24px;
     background-color: white;
-    border: 1px solid gray;
+    border: 1px solid rgb(223, 223, 223);
     border-radius: 4px;
   }
   // ... COACH - under construction

@@ -25,7 +25,7 @@
   import NotificationCard from './NotificationCard';
 
   export default {
-    name: 'ClassActivityBlock',
+    name: 'ActivityBlock',
     components: {
       KRouterLink,
       NotificationCard,

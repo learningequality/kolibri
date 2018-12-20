@@ -2,7 +2,7 @@
 
   <KGrid>
     <KGridItem size="100" percentage>
-      <ClassOverviewBlock />
+      <OverviewBlock />
     </KGridItem>
     <KGridItem size="50" percentage>
       <LessonsBlock />
@@ -11,7 +11,7 @@
       <QuizzesBlock />
     </KGridItem>
     <KGridItem size="100" percentage>
-      <ClassActivityBlock />
+      <ActivityBlock />
     </KGridItem>
   </KGrid>
 
@@ -22,8 +22,8 @@
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import ClassOverviewBlock from './ClassOverviewBlock';
-  import ClassActivityBlock from './ClassActivityBlock';
+  import OverviewBlock from './OverviewBlock';
+  import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
   import QuizzesBlock from './QuizzesBlock';
 
@@ -32,8 +32,8 @@
     components: {
       KGrid,
       KGridItem,
-      ClassOverviewBlock,
-      ClassActivityBlock,
+      OverviewBlock,
+      ActivityBlock,
       LessonsBlock,
       QuizzesBlock,
     },
