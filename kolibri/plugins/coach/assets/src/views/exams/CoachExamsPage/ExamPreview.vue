@@ -15,8 +15,8 @@
         v-if="loading"
         :delay="false"
       />
-      <div v-else-if="exerciseContentNodes.length === 0" class="no-exercise-x">
-        <mat-svg category="navigation" name="close" />
+      <div v-else-if="exerciseContentNodes.length === 0" class="no-exercise">
+        {{ $tr('missingContent') }}
       </div>
       <div v-else @keyup.enter.stop>
         <div ref="header">
@@ -110,6 +110,7 @@
       question: 'Question { num }',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
+      missingContent: 'This quiz cannot be displayed because the content is missing',
     },
     components: {
       CoachContentLabel,
@@ -291,12 +292,8 @@
     margin-bottom: 0.25em;
   }
 
-  .no-exercise-x {
+  .no-exercise {
     text-align: center;
-    svg {
-      width: 200px;
-      height: 200px;
-    }
   }
 
   .o-y-auto {
