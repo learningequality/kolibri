@@ -535,6 +535,8 @@ oriented data synchronization.
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   // BOTTOM_SPACED_RESERVED depends on the height of this container
   .attempts-container {
     position: fixed;
