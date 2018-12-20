@@ -78,6 +78,7 @@
   import AllActivity from './new/home/AllActivity.vue';
   import ReportsLessonList from './new/reports/ReportsLessonList.vue';
   import ReportsQuizzesList from './new/reports/ReportsQuizzesList.vue';
+  import ReportsLessonDetails from './new/reports/ReportsLessonDetails.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
@@ -87,6 +88,7 @@
     Home,
     AllActivity,
     ReportsQuizzesList,
+    ReportsLessonDetails,
     ReportsLessonList,
     Plan,
   };
@@ -384,14 +386,15 @@
 
 </style>
 
+
 <style lang="scss">
 
   // COACH - under construction ...
   .new-coach-block {
-    padding: 8px 24px;
+    padding: 8px 24px 24px;
     margin-top: 24px;
     background-color: white;
-    border: 1px solid rgb(223, 223, 223);
+    border: 1px solid rgb(240, 240, 240);
     border-radius: 4px;
   }
 
@@ -403,6 +406,9 @@
     }
     tbody tr:not(:last-child) {
       border-bottom: 1px solid rgb(223, 223, 223);
+    }
+    td {
+      padding: 8px;
     }
   }
   // ... COACH - under construction

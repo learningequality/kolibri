@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <p><BackLink :to="{ name:'CLASS_LIST' }" :text="$tr('back')" /></p>
     <h1>{{ $tr('reports') }}</h1>
     <p>View reports for your class materials and learners</p>
     <div>
@@ -38,13 +39,16 @@
 <script>
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import BackLink from '../BackLink';
 
   export default {
     name: 'ReportsHeader',
     components: {
       KRouterLink,
+      BackLink,
     },
     $trs: {
+      back: 'View all classes',
       reports: 'Reports',
       lessons: 'Lessons',
       quizzes: 'Quizzes',

@@ -22,7 +22,7 @@
       BackLink,
     },
     $trs: {
-      back: 'Back to classes',
+      back: 'View all classes',
       changeClass: 'Change class',
       coachCount: '{count, number, integer} {count, plural, one {Coach} other {Coaches}}',
       coach: '{count, plural, one {Coach} other {Coaches}}',
