@@ -137,9 +137,10 @@
       },
     },
     $trs: {
-      addressDesc: "The network address can be an IP like '10.0.0.10' or a URL like 'example.com':",
+      addressDesc:
+        "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
       addressLabel: 'Full network address',
-      addressPlaceholder: 'e.g. http://123.456.7.89:8080',
+      addressPlaceholder: 'e.g. 192.168.0.100:8080',
       cancelButtonLabel: 'Cancel',
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
