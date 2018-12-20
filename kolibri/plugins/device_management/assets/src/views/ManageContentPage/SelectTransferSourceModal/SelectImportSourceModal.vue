@@ -96,11 +96,11 @@
       selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
       studioDescription:
-        'Download content directly from Learning Equality if you have access to the public internet',
+        "Import content channels from Learning Equality's library if you are connected to the internet",
       networkDescription:
-        'Transfer content between two running instances of Kolibri or a mirror of Kolibri Studio',
+        'Import content channels from Kolibri running on another device, either in the same local network or on the internet',
       localDescription:
-        'Copy content directly to the computer running Kolibri if you have a drive that has been pre-loaded with content',
+        'Import content channels from a drive. Channels must first be exported onto the drive from another Kolibri device with existing content',
     },
     methods: {
       ...mapActions('manageContent/wizard', ['goForwardFromSelectImportSourceModal']),
