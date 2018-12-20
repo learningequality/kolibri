@@ -4,6 +4,7 @@
 
     <ClassOverviewBlock />
     <LessonsBlock />
+    <QuizzesBlock />
 
   </div>
 
@@ -14,12 +15,14 @@
 
   import ClassOverviewBlock from './ClassOverviewBlock';
   import LessonsBlock from './LessonsBlock';
+  import QuizzesBlock from './QuizzesBlock';
 
   export default {
     name: 'CoachHomeIndex',
     components: {
       ClassOverviewBlock,
       LessonsBlock,
+      QuizzesBlock,
     },
     $trs: {},
   };
