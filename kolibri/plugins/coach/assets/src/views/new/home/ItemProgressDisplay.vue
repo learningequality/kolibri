@@ -2,14 +2,14 @@
 
   <div class="item">
     <h3>{{ name }}</h3>
-    <p>{{ assignment }}</p>
+    <p><Recipients :groups="groups" /></p>
     <Completed
-      :completed="completedItems"
+      :count="completedItems"
       :total="totalItems"
     />
     <NeedHelp
       class="float"
-      :num="needHelp"
+      :count="needHelp"
     />
   </div>
 
@@ -20,12 +20,14 @@
 
   import NeedHelp from '../NeedHelp';
   import Completed from '../Completed';
+  import Recipients from '../Recipients';
 
   export default {
     name: 'ItemProgressDisplay',
     components: {
       NeedHelp,
       Completed,
+      Recipients,
     },
     props: {
       name: {
@@ -48,18 +50,6 @@
         type: Number,
         required: true,
       },
-    },
-    computed: {
-      assignment() {
-        if (!this.groups.length) {
-          return this.$tr('assignmentClass');
-        }
-        return this.$tr('assignmentGroup', { count: this.groups.length });
-      },
-    },
-    $trs: {
-      assignmentClass: 'Entire class',
-      assignmentGroup: '{count, number, integer} {count, plural, one {group} other {groups}}',
     },
   };
 

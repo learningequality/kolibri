@@ -77,13 +77,16 @@
   import Home from './new/home/Home.vue';
   import AllActivity from './new/home/AllActivity.vue';
   import ReportsLessonList from './new/reports/ReportsLessonList.vue';
+  import ReportsQuizzesList from './new/reports/ReportsQuizzesList.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
 
+  // register pages to index
   const newPageMap = {
     Home,
     AllActivity,
+    ReportsQuizzesList,
     ReportsLessonList,
     Plan,
   };
@@ -390,6 +393,17 @@
     background-color: white;
     border: 1px solid rgb(223, 223, 223);
     border-radius: 4px;
+  }
+
+  .new-coach-table {
+    width: 100%;
+    thead {
+      font-size: smaller;
+      border-bottom: 1px solid rgb(223, 223, 223);
+    }
+    tbody tr:not(:last-child) {
+      border-bottom: 1px solid rgb(223, 223, 223);
+    }
   }
   // ... COACH - under construction
 

@@ -3,15 +3,15 @@
   <span>
     <LabeledIcon
       v-if="verbosity === 0"
-      :label="$tr('completedShort', {completed: completed, total: total })"
+      :label="$tr('completedShort', {count: count, total: total })"
     >
-      <mat-svg category="social" name="people" class="icon" />
+      <mat-svg category="social" name="people" />
     </LabeledIcon>
     <LabeledIcon
       v-else
-      :label="$tr('completed', {completed: completed, total: total })"
+      :label="$tr('completed', {count: count, total: total })"
     >
-      <mat-svg category="social" name="people" class="icon" />
+      <mat-svg category="social" name="people" />
     </LabeledIcon>
   </span>
 
@@ -28,7 +28,7 @@
       LabeledIcon,
     },
     props: {
-      completed: {
+      count: {
         type: Number,
         required: true,
       },
@@ -42,8 +42,8 @@
       },
     },
     $trs: {
-      completedShort: '{completed, number, integer} of {total, number, integer}',
-      completed: '{completed, number, integer} of {total, number, integer} completed',
+      completedShort: '{count, number, integer} of {total, number, integer}',
+      completed: '{count, number, integer} of {total, number, integer} completed',
     },
   };
 

@@ -1,6 +1,6 @@
 <template>
 
-  <span><slot class="icon"></slot> {{ label }}</span>
+  <span class="wrapper"><slot></slot> {{ label }}</span>
 
 </template>
 
@@ -23,7 +23,7 @@
 
 <style lang="scss" scoped>
 
-  .icon {
+  .wrapper svg {
     position: relative;
     top: 6px;
     width: 16px;

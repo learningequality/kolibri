@@ -1,24 +1,24 @@
 <template>
 
   <span>
-    <template v-if="num">
+    <template v-if="count">
       <LabeledIcon
-        v-if="verbosity === 0" 
-        :label="num"
+        v-if="verbosity === 0"
+        :label="count"
       >
-        <mat-svg category="alert" name="error" class="icon" />
+        <mat-svg category="alert" name="error" />
       </LabeledIcon>
       <LabeledIcon
-        v-else-if="verbosity === 1" 
-        :label="$tr('short', {count: num})"
+        v-else-if="verbosity === 1"
+        :label="$tr('short', {count: count})"
       >
-        <mat-svg category="alert" name="error" class="icon" />
+        <mat-svg category="alert" name="error" />
       </LabeledIcon>
       <LabeledIcon
-        v-else 
-        :label="$tr('long', {count: num})"
+        v-else
+        :label="$tr('long', {count: count})"
       >
-        <mat-svg category="alert" name="error" class="icon" />
+        <mat-svg category="alert" name="error" />
       </LabeledIcon>
     </template>
   </span>
@@ -36,7 +36,7 @@
       LabeledIcon,
     },
     props: {
-      num: {
+      count: {
         type: Number,
         required: true,
       },

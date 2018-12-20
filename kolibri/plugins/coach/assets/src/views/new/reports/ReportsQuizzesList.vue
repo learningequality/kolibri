@@ -18,30 +18,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>
-            <KRouterLink
-              text="Lesson A"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonDetails' }}"
-            />
-          </td>
-          <td><Completed :count="1" :total="100" /></td>
-          <td><Recipients :groups="[]" /></td>
-          <td><LessonActive :active="true" /></td>
-        </tr>
-        <tr>
-          <td>
-            <KRouterLink
-              text="Lesson B"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonDetails' }}"
-            />
-          </td>
-          <td><Completed :count="3" :total="10" /></td>
-          <td>
-            <Recipients :groups="[1, 2]" /> &nbsp; <NeedHelp :count="3" />
-          </td>
-          <td><LessonActive :active="false" /></td>
-        </tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+          <LessonActive :active="true" />
+        </td>
       </tbody>
     </table>
   </div>
@@ -52,23 +34,15 @@
 <script>
 
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import LessonActive from '../LessonActive';
-  import Recipients from '../Recipients';
-  import Completed from '../Completed';
-  import NeedHelp from '../NeedHelp';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonList',
     components: {
       LessonActive,
-      Recipients,
-      Completed,
-      NeedHelp,
       ReportsHeader,
       KSelect,
-      KRouterLink,
     },
     data() {
       return {
