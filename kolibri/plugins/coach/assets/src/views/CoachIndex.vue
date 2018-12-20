@@ -74,14 +74,18 @@
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import CoachHomeIndex from './new/home/CoachHomeIndex.vue';
+  import Home from './new/home/Home.vue';
   import AllActivity from './new/home/AllActivity.vue';
+  import Reports from './new/reports/Reports.vue';
+  import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
 
   const newPageMap = {
+    Home,
     AllActivity,
-    CoachHomeIndex,
+    Reports,
+    Plan,
   };
   /* ... COACH - under construction */
 

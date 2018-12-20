@@ -3,19 +3,19 @@
   <KNavbar>
     <KNavbarLink
       :title="$tr('home')"
-      :link="link('CoachHomeIndex')"
+      :link="link('Home')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
-      :title="$tr('materials')"
-      :link="link('NotificationCard')"
+      :title="$tr('reports')"
+      :link="link('Reports')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
-      :title="$tr('progress')"
-      :link="link('ClassActivityFeed')"
+      :title="$tr('plan')"
+      :link="link('Plan')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -34,8 +34,8 @@
     name: 'CoachTopNav',
     $trs: {
       home: 'Home',
-      materials: 'Materials',
-      progress: 'Progress',
+      reports: 'Reports',
+      plan: 'Plan',
     },
     components: {
       KNavbar,
