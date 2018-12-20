@@ -78,7 +78,9 @@
   import AllActivity from './new/home/AllActivity.vue';
   import ReportsLessonList from './new/reports/ReportsLessonList.vue';
   import ReportsQuizzesList from './new/reports/ReportsQuizzesList.vue';
-  import ReportsLessonDetails from './new/reports/ReportsLessonDetails.vue';
+  import ReportsLesson from './new/reports/ReportsLesson.vue';
+  import ReportsLessonDetailEditor from './new/reports/ReportsLessonDetailEditor.vue';
+  import ReportsLessonResourceManager from './new/reports/ReportsLessonResourceManager.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
@@ -88,7 +90,9 @@
     Home,
     AllActivity,
     ReportsQuizzesList,
-    ReportsLessonDetails,
+    ReportsLesson,
+    ReportsLessonResourceManager,
+    ReportsLessonDetailEditor,
     ReportsLessonList,
     Plan,
   };
@@ -172,9 +176,10 @@
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
         'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
-      // TODO: Interpolate strings correctly
       added: "Added '{item}'",
       removed: "Removed '{item}'",
+      reportLessonDetailEditorTitle: 'Edit lesson details',
+      reportLessonResourceManagerTitle: 'Manage resources',
     },
     components: {
       CoachTopNav,
@@ -287,12 +292,28 @@
         );
       },
       currentPageIsImmersive() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          return ['ReportsLessonDetailEditor', 'ReportsLessonResourceManager'].includes(
+            this.$route.params.page
+          );
+        }
+        /* ... COACH - under construction */
         return immersivePages.includes(this.pageName);
       },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
       },
       appBarTitle() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          if (this.$route.params.page === 'ReportsLessonDetailEditor') {
+            return this.$tr('reportLessonDetailEditorTitle');
+          } else if (this.$route.params.page === 'ReportsLessonResourceManager') {
+            return this.$tr('reportLessonResourceManagerTitle');
+          }
+        }
+        /* ... COACH - under construction */
         if (this.currentPageIsImmersive) {
           if (
             [LessonsPageNames.CONTENT_PREVIEW, PageNames.EXAM_CREATION_PREVIEW].includes(

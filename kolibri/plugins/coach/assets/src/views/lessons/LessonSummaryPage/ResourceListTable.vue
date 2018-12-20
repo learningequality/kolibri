@@ -101,7 +101,7 @@
 
 <script>
 
-  import { mapActions, mapState, mapMutations } from 'vuex';
+  import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import Draggable from 'vuedraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -135,6 +135,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       ...mapState('lessonSummary', {
         lessonId: state => state.currentLesson.id,
         workingResources: state => state.workingResources,

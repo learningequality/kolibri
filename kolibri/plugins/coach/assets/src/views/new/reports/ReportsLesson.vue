@@ -74,7 +74,7 @@
   import BackLink from '../BackLink';
 
   export default {
-    name: 'ReportsLessonDetails',
+    name: 'ReportsLesson',
     components: {
       LessonActive,
       ElapsedTime,
@@ -87,14 +87,14 @@
     computed: {
       actionOptions() {
         return [
-          { label: this.$tr('editDetails'), value: 'ReportsEditLessonDetails' },
-          { label: this.$tr('manageResources'), value: 'ReportsManageLessonResources' },
+          { label: this.$tr('editDetails'), value: 'ReportsLessonDetailEditor' },
+          { label: this.$tr('manageResources'), value: 'ReportsLessonResourceManager' },
         ];
       },
     },
     methods: {
       goTo(page) {
-        this.$router.go({ name: 'NEW_COACH_PAGES', params: { page } });
+        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
       },
     },
     $trs: {
