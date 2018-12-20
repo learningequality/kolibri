@@ -235,11 +235,7 @@ def test_update(update, version_file=None, orig_version=None):
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
-    if is_sqlite_settings():
-        with patch('kolibri.core.deviceadmin.utils.dbbackup') as dbbackup:
-            cli.initialize()
-    else:
-        cli.initialize()
+    cli.initialize()
     update.assert_called_once()
 
 
