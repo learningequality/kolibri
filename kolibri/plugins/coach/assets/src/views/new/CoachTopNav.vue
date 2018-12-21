@@ -33,7 +33,7 @@
   export default {
     name: 'CoachTopNav',
     $trs: {
-      home: 'Home',
+      home: 'Class Home',
       reports: 'Reports',
       plan: 'Plan',
     },
