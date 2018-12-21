@@ -65,25 +65,12 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import LessonActive from './shared/LessonActive';
-  import BackLink from './shared/BackLink';
-  import TimeDuration from './shared/TimeDuration';
-  import Completed from './shared/status/Completed';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
 
   export default {
     name: 'ReportsLessonPage',
-    components: {
-      LessonActive,
-      TimeDuration,
-      Completed,
-      NeedHelp,
-      BackLink,
-      KRouterLink,
-      KDropdownMenu,
-    },
+    components: {},
+    mixins: [imports],
     computed: {
       actionOptions() {
         return [

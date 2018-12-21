@@ -21,7 +21,7 @@
 
     <div>
       <KButton
-        :text="$tr('report')"
+        :text="$tr('learnerReport')"
         appearance="flat-button"
         @click="goTo('ReportsLessonExerciseLearnerListPage')"
       />
@@ -31,6 +31,8 @@
         @click="goTo('ReportsLessonExerciseQuestionListPage')"
       />
     </div>
+
+    <hr>
 
   </div>
 
@@ -66,8 +68,8 @@
       back: "Back to '{lesson}'",
       preview: 'Preview',
       masteryModelLabel: 'Completion requirement:',
-      report: 'Learner report',
-      difficulties: 'Question difficulties',
+      learnerReport: 'Learner report',
+      difficulties: 'Difficult questions',
       viewByGroups: 'View by groups',
     },
   };

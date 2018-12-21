@@ -1,65 +1,54 @@
 <template>
 
   <div class="new-coach-block">
-    <ReportsHeader />
-    <KSelect
-      v-model="filter"
-      :label="$tr('show')"
-      :options="filterOptions"
-      :inline="true"
-    />
+
+    <ReportsQuizHeader />
+
+    <h2>{{ $tr('overall') }}</h2>
+    <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
+
     <table class="new-coach-table">
       <thead>
         <tr>
           <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderAverageScore') }}</td>
-          <td>{{ $tr('tableHeaderCompleted') }}</td>
-          <td>{{ $tr('tableHeaderRecipients') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
+          <td>{{ $tr('tableHeaderScore') }}</td>
+          <td>{{ $tr('tableHeaderProgress') }}</td>
+          <td>{{ $tr('tableHeaderGroups') }}</td>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>
             <KRouterLink
-              text="Another quiz"
+              text="April"
               :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
             />
           </td>
           <td><Score /></td>
           <td><NotStarted :count="0" :total="10" /></td>
-          <td><Recipients :groups="['a', 'b']" /></td>
-          <td>
-            <QuizActive :active="false" />
-          </td>
+          <td><EnrolledGroups :groups="[]" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
-              text="Quiz A"
+              text="Steve"
               :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
             />
           </td>
           <td><Score /></td>
           <td><InProgress :count="8" :total="10" /></td>
-          <td><Recipients :groups="['a', 'b']" /></td>
-          <td>
-            <QuizActive :active="true" />
-          </td>
+          <td><EnrolledGroups :groups="['a', 'b']" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
-              text="Quiz B"
+              text="John"
               :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
             />
           </td>
-          <td><Score :value="0.9" /></td>
+          <td><Score :value="0.1" /></td>
           <td><Completed :count="10" :total="10" /></td>
-          <td><Recipients :groups="[]" /></td>
-          <td>
-            <QuizActive :active="true" />
-          </td>
+          <td><EnrolledGroups :groups="['a', 'b', 'c', 'd']" /></td>
         </tr>
       </tbody>
     </table>
@@ -70,27 +59,15 @@
 
 <script>
 
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import QuizActive from './shared/QuizActive';
-  import ReportsHeader from './ReportsHeader';
-  import Recipients from './shared/Recipients';
-  import Completed from './shared/status/Completed';
-  import InProgress from './shared/status/InProgress';
-  import NotStarted from './shared/status/NotStarted';
+  import imports from './imports';
+  import ReportsQuizHeader from './ReportsQuizHeader';
 
   export default {
-    name: 'ReportsQuizListPage',
+    name: 'ReportsQuizLearnerListPage',
     components: {
-      QuizActive,
-      ReportsHeader,
-      KSelect,
-      KRouterLink,
-      NotStarted,
-      InProgress,
-      Completed,
-      Recipients,
+      ReportsQuizHeader,
     },
+    mixins: [imports],
     data() {
       return {
         filter: 'allQuizzes',
@@ -118,15 +95,15 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      show: 'Show',
+      overall: 'Overall',
+      averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
       tableHeaderTitle: 'Title',
-      tableHeaderAverageScore: 'Average score',
-      tableHeaderCompleted: 'Completed',
-      tableHeaderRecipients: 'Recipients',
-      tableHeaderStatus: 'Status',
+      tableHeaderScore: 'Score',
+      tableHeaderProgress: 'Progress',
+      tableHeaderGroups: 'Groups',
     },
   };
 

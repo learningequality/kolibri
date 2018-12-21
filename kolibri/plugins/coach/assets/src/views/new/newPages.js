@@ -2,6 +2,7 @@ import PlanPage from './PlanPage';
 import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
+import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
 import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsLessonPage from './ReportsLessonPage';
 import ReportsLessonEditorPage from './ReportsLessonEditorPage';
@@ -17,6 +18,7 @@ export default {
   HomePage,
   HomeActivityPage,
   ReportsQuizListPage,
+  ReportsQuizLearnerListPage,
   ReportsLessonPage,
   ReportsLessonResourcePage,
   ReportsLessonExerciseLearnerListPage,
