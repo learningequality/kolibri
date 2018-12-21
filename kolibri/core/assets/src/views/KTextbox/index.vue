@@ -13,6 +13,8 @@
       :maxlength="maxlength"
       :autocomplete="autocomplete"
       :type="type"
+      :min="min"
+      :max="max"
       :enforceMaxlength="true"
       :floatingLabel="floatingLabel"
       :multiLine="textArea"
@@ -100,6 +102,20 @@
       type: {
         type: String,
         default: 'text',
+      },
+      /**
+       * Minimum value, used when type is 'number'
+       */
+      min: {
+        type: Number,
+        required: false,
+      },
+      /**
+       * Maximum value, used when type is 'number'
+       */
+      max: {
+        type: Number,
+        required: false,
       },
       /**
        * Display as text area.

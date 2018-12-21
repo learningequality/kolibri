@@ -1,103 +1,100 @@
 <template>
 
-  <CoreTable>
-    <thead slot="thead">
-      <tr>
-        <th class="core-table-icon-col">
-          <span class="visuallyhidden">
-            {{ $tr('resourceReorderColumnHeaderForTable') }}
-          </span>
-        </th>
-        <td class="core-table-icon-col">
-          <span class="visuallyhidden">
-            {{ $tr('resourceTypeColumnHeaderForTable') }}
-          </span>
-        </td>
-
-        <th class="core-table-main-col">
-          {{ $tr('lessonTitleColumnHeaderForTable') }}
-        </th>
-        <th>
-          {{ $tr('resourceProgressColumnHeaderForTable') }}
-        </th>
-        <th>
-          <span class="visuallyhidden">
-            {{ $tr('resourceRemovalColumnHeaderForTable') }}
-          </span>
-        </th>
-      </tr>
-    </thead>
-    <transition-group
-      slot="tbody"
-      :moveClass="$computedClass(resourceReorderMoveStyle)"
-      tag="tbody"
+  <div>
+    <KGrid class="headers">
+      <KGridItem size="1">
+        <span class="visuallyhidden">
+          {{ $tr('resourceReorderColumnHeaderForTable') }}
+        </span>
+      </KGridItem>
+      <KGridItem size="6">
+        {{ $tr('lessonTitleColumnHeaderForTable') }}
+      </KGridItem>
+      <KGridItem size="3">
+        {{ $tr('resourceProgressColumnHeaderForTable') }}
+      </KGridItem>
+      <KGridItem size="2">
+        <span class="visuallyhidden">
+          {{ $tr('resourceRemovalColumnHeaderForTable') }}
+        </span>
+      </KGridItem>
+    </KGrid>
+    <Draggable
+      :value="workingResources"
+      :options="{animation:150}"
+      :noTransitionOnDrag="true"
+      @input="handleDrag($event)"
     >
-      <tr
-        v-for="(resourceId, index) in workingResources"
-        :key="resourceId"
+      <transition-group
+        :moveClass="$computedClass(resourceReorderMoveStyle)"
       >
-        <td class="core-table-icon-col">
-          <UiIconButton
-            type="flat"
-            :ariaLabel="$tr('moveResourceUpButtonDescription')"
-            :disabled="index === 0"
-            class="position-adjustment-button"
-            @click="moveUpOne(index)"
-          >
-            <mat-svg name="keyboard_arrow_up" category="hardware" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
-            :ariaLabel="$tr('moveResourceDownButtonDescription')"
-            :disabled="index === (workingResources.length - 1)"
-            class="position-adjustment-button"
-            @click="moveDownOne(index)"
-          >
-            <mat-svg name="keyboard_arrow_down" category="hardware" />
-          </UiIconButton>
-        </td>
-        <td class="core-table-icon-col">
-          <ContentIcon :kind="resourceKind(resourceId)" />
-        </td>
-        <td>
-          <div class="resource-title">
-            <KRouterLink
-              :to="resourceUserSummaryLink(resourceId)"
-              :text="resourceTitle(resourceId)"
+        <KGrid
+          v-for="(resourceId, index) in workingResources"
+          :key="resourceId"
+          class="row"
+        >
+          <KGridItem size="1" class="relative">
+            <UiIconButton
+              type="flat"
+              :ariaLabel="$tr('moveResourceUpButtonDescription')"
+              :disabled="index === 0"
+              class="position-adjustment-button"
+              @click="moveUpOne(index)"
+            >
+              <mat-svg name="keyboard_arrow_up" category="hardware" />
+            </UiIconButton>
+            <UiIconButton
+              type="flat"
+              :ariaLabel="$tr('moveResourceDownButtonDescription')"
+              :disabled="index === (workingResources.length - 1)"
+              class="position-adjustment-button"
+              @click="moveDownOne(index)"
+            >
+              <mat-svg name="keyboard_arrow_down" category="hardware" />
+            </UiIconButton>
+            <ContentIcon :kind="resourceKind(resourceId)" class="type-icon" />
+          </KGridItem>
+          <KGridItem size="6">
+            <div class="resource-title">
+              <KRouterLink
+                :to="resourceUserSummaryLink(resourceId)"
+                :text="resourceTitle(resourceId)"
+              />
+              <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
+                <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+                {{ resourceChannelTitle(resourceId) }}
+              </p>
+            </div>
+            <CoachContentLabel
+              class="coach-content-label"
+              :value="getCachedResource(resourceId).num_coach_contents"
+              :isTopic="false"
             />
-            <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
-              <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-              {{ resourceChannelTitle(resourceId) }}
-            </p>
-          </div>
-          <CoachContentLabel
-            class="coach-content-label"
-            :value="getCachedResource(resourceId).num_coach_contents"
-            :isTopic="false"
-          />
-        </td>
-        <td>
-          <ProgressBar
-            v-if="resourceProgress(resourceId)!==null"
-            class="resource-progress-bar"
-            :progress="resourceProgress(resourceId)"
-            :showPercentage="false"
-          />
-          <!-- could just use progress bar's? -->
-          <span class="progress-message">
-            {{ resourceProgressMessage(resourceId) }}
-          </span>
-        </td>
-        <td>
-          <KButton
-            :text="$tr('resourceRemovalButtonLabel')"
-            appearance="flat-button"
-            @click="removeResource(resourceId)"
-          />
-        </td>
-      </tr>
-    </transition-group>
-  </CoreTable>
+          </KGridItem>
+          <KGridItem size="3">
+            <ProgressBar
+              v-if="resourceProgress(resourceId)!==null"
+              class="resource-progress-bar"
+              :progress="resourceProgress(resourceId)"
+              :showPercentage="false"
+            />
+            <!-- could just use progress bar's? -->
+            <span class="progress-message">
+              {{ resourceProgressMessage(resourceId) }}
+            </span>
+
+          </KGridItem>
+          <KGridItem size="2" alignment="right">
+            <KButton
+              :text="$tr('resourceRemovalButtonLabel')"
+              appearance="flat-button"
+              @click="removeResource(resourceId)"
+            />
+          </KGridItem>
+        </KGrid>
+      </transition-group>
+    </Draggable>
+  </div>
 
 </template>
 
@@ -106,10 +103,12 @@
 
   import { mapActions, mapState, mapMutations } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
+  import Draggable from 'vuedraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { resourceUserSummaryLink } from '../lessonsRouterUtils';
@@ -119,12 +118,14 @@
   export default {
     name: 'ResourceListTable',
     components: {
+      Draggable,
       CoachContentLabel,
       UiIconButton,
       KButton,
+      KGrid,
+      KGridItem,
       KRouterLink,
       ProgressBar,
-      CoreTable,
       ContentIcon,
     },
     data() {
@@ -249,6 +250,14 @@
           autoDismiss: true,
         });
       },
+      handleDrag(resources) {
+        this.setWorkingResources(resources);
+        this.autoSave(this.lessonId, resources);
+        this.createSnackbar({
+          text: this.$tr('resourceReorderConfirmationMessage'),
+          autoDismiss: true,
+        });
+      },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {
           this.updateCurrentLesson(id).then(currentLesson => {
@@ -284,6 +293,25 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
+  .relative {
+    position: relative;
+  }
+
+  .type-icon {
+    position: absolute;
+    top: 25px;
+    right: 10px;
+  }
+
+  .headers {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    font-size: smaller;
+    font-weight: bold;
+  }
+
   .resource-title {
     display: inline-block;
     max-width: 75%;
@@ -300,10 +328,6 @@
     margin: 0;
   }
 
-  .lesson-summary {
-    margin-bottom: 30px;
-  }
-
   .progress-message {
     margin-left: 8px;
     white-space: nowrap;
@@ -314,6 +338,14 @@
     margin-right: 0;
     margin-bottom: 0;
     margin-left: 0;
+  }
+
+  .sortable-ghost {
+    border: 1px solid grey;
+  }
+
+  .sortable-ghost * {
+    visibility: hidden;
   }
 
 </style>

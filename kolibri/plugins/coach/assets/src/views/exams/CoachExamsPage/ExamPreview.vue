@@ -33,7 +33,6 @@
               v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
               :key="exerciseIndex"
             >
-              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
                 <li
                   v-for="(question, questionIndex) in
@@ -104,7 +103,7 @@
   import debounce from 'lodash/debounce';
 
   export default {
-    name: 'PreviewExamModal',
+    name: 'ExamPreview',
     $trs: {
       preview: 'Preview quiz',
       close: 'Close',
@@ -134,10 +133,6 @@
       examNumQuestions: {
         type: Number,
         required: true,
-      },
-      examCreation: {
-        type: Boolean,
-        default: false,
       },
       exerciseContentNodes: {
         type: Array,
@@ -275,14 +270,6 @@
 
   .exam-preview-container {
     margin-top: 16px;
-  }
-
-  .close-btn-wrapper {
-    text-align: right;
-    button {
-      margin-right: 0;
-      margin-bottom: 0;
-    }
   }
 
   /deep/ .modal {
