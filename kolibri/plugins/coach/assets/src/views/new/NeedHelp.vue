@@ -49,6 +49,7 @@
       short: '{count, number, integer} {count, plural, one {needs} other {need}} help',
       long:
         '{count, number, integer} {count, plural, one {learner needs} other {learners need}} help',
+      needsHelp: 'Needs help',
     },
   };
 

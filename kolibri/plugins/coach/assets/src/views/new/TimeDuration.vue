@@ -8,7 +8,7 @@
 <script>
 
   export default {
-    name: 'ElapsedTime',
+    name: 'TimeDuration',
     components: {},
     props: {
       seconds: {

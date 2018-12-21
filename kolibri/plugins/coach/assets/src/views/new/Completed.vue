@@ -1,19 +1,8 @@
 <template>
 
-  <span>
-    <LabeledIcon
-      v-if="verbosity === 0"
-      :label="$tr('completedShort', {count: count, total: total })"
-    >
-      <mat-svg category="social" name="people" />
-    </LabeledIcon>
-    <LabeledIcon
-      v-else
-      :label="$tr('completed', {count: count, total: total })"
-    >
-      <mat-svg category="social" name="people" />
-    </LabeledIcon>
-  </span>
+  <LabeledIcon :label="text">
+    <mat-svg category="action" name="stars" />
+  </LabeledIcon>
 
 </template>
 
@@ -30,20 +19,53 @@
     props: {
       count: {
         type: Number,
-        required: true,
+        default: 1,
       },
       total: {
         type: Number,
-        required: true,
+        default: 1,
       },
       verbosity: {
         type: Number,
         default: 0,
       },
+      showRatio: {
+        type: Boolean,
+        default: true,
+      },
+      showNumber: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    computed: {
+      text() {
+        if (!this.showNumber) {
+          if (this.verbosity === 0) {
+            return '';
+          }
+          return this.$tr('completed');
+        }
+        if (this.verbosity === 0) {
+          if (this.showRatio) {
+            return this.$tr('portionCompletedShort', { count: this.count, total: this.total });
+          }
+          return this.$tr('numberCompletedShort', { count: this.count, total: this.total });
+        }
+        if (this.showRatio) {
+          return this.$tr('portionCompleted', { count: this.count, total: this.total });
+        }
+        return this.$tr('numberCompleted', { count: this.count, total: this.total });
+      },
     },
     $trs: {
-      completedShort: '{count, number, integer} of {total, number, integer}',
-      completed: '{count, number, integer} of {total, number, integer} completed',
+      numberCompletedShort: '{count, number, integer}',
+      portionCompletedShort: '{count, number, integer} of {total, number, integer}',
+      numberCompleted: '{count, number, integer} {count, plural, other {completed}}',
+      portionCompleted:
+        '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
+      allCompleted: 'All {count, number, integer} completed',
+      completed: 'Completed',
     },
   };
 

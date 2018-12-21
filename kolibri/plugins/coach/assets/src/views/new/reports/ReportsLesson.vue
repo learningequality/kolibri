@@ -38,23 +38,23 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsExerciseDetails' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsExerciseGroupReport' }}"
             />
           </td>
           <td><Completed :count="3" :total="6" /></td>
-          <td><ElapsedTime :seconds="360" /></td>
+          <td><TimeDuration :seconds="360" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
               text="Some video"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsResourceDetails' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsResourceClassReport' }}"
             />
           </td>
           <td>
             <Completed :count="3" :total="6" /> &nbsp; <NeedHelp :count="1" />
           </td>
-          <td><ElapsedTime :seconds="120" /></td>
+          <td><TimeDuration :seconds="120" /></td>
         </tr>
       </tbody>
     </table>
@@ -68,7 +68,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import LessonActive from '../LessonActive';
-  import ElapsedTime from '../ElapsedTime';
+  import TimeDuration from '../TimeDuration';
   import Completed from '../Completed';
   import NeedHelp from '../NeedHelp';
   import BackLink from '../BackLink';
@@ -77,7 +77,7 @@
     name: 'ReportsLesson',
     components: {
       LessonActive,
-      ElapsedTime,
+      TimeDuration,
       Completed,
       NeedHelp,
       BackLink,

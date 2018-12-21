@@ -81,6 +81,7 @@
   import ReportsLesson from './new/reports/ReportsLesson.vue';
   import ReportsLessonDetailEditor from './new/reports/ReportsLessonDetailEditor.vue';
   import ReportsLessonResourceManager from './new/reports/ReportsLessonResourceManager.vue';
+  import ReportsResourceClassReport from './new/reports/ReportsResourceClassReport.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
@@ -91,6 +92,7 @@
     AllActivity,
     ReportsQuizzesList,
     ReportsLesson,
+    ReportsResourceClassReport,
     ReportsLessonResourceManager,
     ReportsLessonDetailEditor,
     ReportsLessonList,
@@ -294,9 +296,11 @@
       currentPageIsImmersive() {
         /* COACH - under construction ... */
         if (this.isNewPage) {
-          return ['ReportsLessonDetailEditor', 'ReportsLessonResourceManager'].includes(
-            this.$route.params.page
-          );
+          return [
+            'ReportsLessonDetailEditor',
+            'ReportsLessonResourceManager',
+            'ReportsResourceClassReport',
+          ].includes(this.$route.params.page);
         }
         /* ... COACH - under construction */
         return immersivePages.includes(this.pageName);

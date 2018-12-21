@@ -9,25 +9,9 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import LessonActive from '../LessonActive';
-  import ElapsedTime from '../ElapsedTime';
-  import Completed from '../Completed';
-  import NeedHelp from '../NeedHelp';
-  import BackLink from '../BackLink';
-
   export default {
     name: 'ReportsLessonResourceManager',
-    components: {
-      LessonActive,
-      ElapsedTime,
-      Completed,
-      NeedHelp,
-      BackLink,
-      KRouterLink,
-      KDropdownMenu,
-    },
+    components: {},
     $trs: {},
   };
 
