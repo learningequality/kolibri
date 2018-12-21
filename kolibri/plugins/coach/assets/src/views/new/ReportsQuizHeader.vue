@@ -73,7 +73,7 @@
       editDetails: 'Edit details',
       preview: 'Preview',
       options: 'Options',
-      learnerReport: 'Learner report',
+      learnerReport: 'Report',
       status: 'Status',
       recipients: 'Recipients',
       progress: 'Progress',

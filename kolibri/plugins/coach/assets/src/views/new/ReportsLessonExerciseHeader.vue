@@ -68,7 +68,7 @@
       back: "Back to '{lesson}'",
       preview: 'Preview',
       masteryModelLabel: 'Completion requirement:',
-      learnerReport: 'Learner report',
+      learnerReport: 'Report',
       difficulties: 'Difficult questions',
       viewByGroups: 'View by groups',
     },

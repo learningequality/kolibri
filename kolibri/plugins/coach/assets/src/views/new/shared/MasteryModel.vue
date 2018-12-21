@@ -13,7 +13,6 @@
   const NUM_CORRECT_IN_A_ROW_2 = 'num_correct_in_a_row_2';
   const NUM_CORRECT_IN_A_ROW_3 = 'num_correct_in_a_row_3';
   const NUM_CORRECT_IN_A_ROW_5 = 'num_correct_in_a_row_5';
-  const SKILL_CHECK = 'skill_check';
   const M_OF_N = 'm_of_n';
 
   const models = [
@@ -22,7 +21,6 @@
     NUM_CORRECT_IN_A_ROW_2,
     NUM_CORRECT_IN_A_ROW_3,
     NUM_CORRECT_IN_A_ROW_5,
-    SKILL_CHECK,
     M_OF_N,
   ];
 
@@ -66,17 +64,16 @@
           return this.$tr('streak', { count: 5 });
         } else if (this.model === DO_ALL) {
           return this.$tr('doAll');
-        } else if (this.model === SKILL_CHECK) {
-          return this.$tr('skillCheck');
+        } else {
+          return this.$tr('unknown');
         }
       },
     },
     $trs: {
-      one: 'Get one correct',
-      streak: 'Get {count, number, integer} in a row correct',
-      mOfN: 'Get {M, number, integer} of the last {N, number, integer} correct',
-      doAll: 'Complete all',
-      skillCheck: 'Skill check',
+      one: 'Get one question correct',
+      streak: 'Get {count, number, integer} questions in a row correct',
+      mOfN: 'Get {M, number, integer} of the last {N, number, integer} questions correct',
+      doAll: 'Get every question correct',
       unknown: 'Unknown mastery model',
     },
   };
