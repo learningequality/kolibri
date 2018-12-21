@@ -63,7 +63,7 @@
       questionLink() {
         return {
           name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseQuestionPage' },
+          params: { page: 'ReportsQuizQuestionPage' },
         };
       },
     },

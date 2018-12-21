@@ -3,6 +3,7 @@ import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import Answer from './shared/Answer';
 import BackLink from './shared/BackLink';
 import Completed from './shared/status/Completed';
 import EnrolledGroups from './shared/EnrolledGroups';
@@ -25,6 +26,7 @@ export default {
     KDropdownMenu,
     KRouterLink,
     KSelect,
+    Answer,
     BackLink,
     Completed,
     EnrolledGroups,

@@ -1,14 +1,8 @@
 <template>
 
   <div class="interaction-list">
-    <!--TODO-->
-    <template v-if="interactions.length">
-      <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
-    </template>
 
-    <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
-
       <InteractionItem
         v-for="(interaction, index) in interactions"
         :key="index"
@@ -16,8 +10,15 @@
         :interaction="interaction"
         @click.native="setCurrentInteractionIndex(index)"
       />
-
     </div>
+
+    <p v-if="interactions.length">
+      {{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}
+    </p>
+    <p v-else>
+      {{ $tr('noInteractions') }}
+    </p>
+
   </div>
 
 </template>
@@ -33,7 +34,7 @@
     components: { InteractionItem },
     mixins: [responsiveElement],
     $trs: {
-      currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
+      currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} attempt',
       noInteractions: 'No attempts made on this question',
     },
     props: {

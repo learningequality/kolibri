@@ -3,7 +3,9 @@ import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
 import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
+import ReportsQuizLearnerPage from './ReportsQuizLearnerPage';
 import ReportsQuizQuestionListPage from './ReportsQuizQuestionListPage';
+import ReportsQuizQuestionPage from './ReportsQuizQuestionPage';
 import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsLessonPage from './ReportsLessonPage';
 import ReportsLessonEditorPage from './ReportsLessonEditorPage';
@@ -20,7 +22,9 @@ export default {
   HomeActivityPage,
   ReportsQuizListPage,
   ReportsQuizLearnerListPage,
+  ReportsQuizLearnerPage,
   ReportsQuizQuestionListPage,
+  ReportsQuizQuestionPage,
   ReportsLessonPage,
   ReportsLessonResourcePage,
   ReportsLessonExerciseLearnerListPage,

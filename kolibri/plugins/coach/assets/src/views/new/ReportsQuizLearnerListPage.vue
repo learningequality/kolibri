@@ -21,7 +21,7 @@
           <td>
             <KRouterLink
               text="April"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
             />
           </td>
           <td><Score /></td>
@@ -32,7 +32,7 @@
           <td>
             <KRouterLink
               text="Steve"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
             />
           </td>
           <td><Score /></td>
@@ -43,7 +43,7 @@
           <td>
             <KRouterLink
               text="John"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
             />
           </td>
           <td><Score :value="0.1" /></td>

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <BackLink text="Counting with big numbers" :to="backLink" />
+    <BackLink text="Some quiz" :to="backLink" />
     <h1>Question 1</h1>
     <p>{{ $tr('attempts') }}</p>
     <p>{{ $tr('showCorrectAnswer') }}</p>
@@ -25,7 +25,7 @@
   import Answer from './shared/Answer';
 
   export default {
-    name: 'ReportsLessonExerciseQuestionPage',
+    name: 'ReportsQuizQuestionPage',
     components: {
       BackLink,
       Answer,
@@ -34,7 +34,7 @@
       backLink() {
         return {
           name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseLearnerListPage' },
+          params: { page: 'ReportsQuizQuestionListPage' },
         };
       },
     },
