@@ -143,7 +143,7 @@
       };
     },
     computed: {
-      ...mapGetters('$coreBgLight', '$coreTextDefault'),
+      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       ...mapState(['examAttemptLogs']),
       ...mapState('examViewer', [
         'channelId',
