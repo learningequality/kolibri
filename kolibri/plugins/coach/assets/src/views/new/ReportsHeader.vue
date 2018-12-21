@@ -3,7 +3,7 @@
   <div>
     <p><BackLink :to="{ name:'CLASS_LIST' }" :text="$tr('back')" /></p>
     <h1>{{ $tr('reports') }}</h1>
-    <p>View reports for your class materials and learners</p>
+    <p>View reports for your learners and class materials</p>
     <div>
       <KRouterLink
         :text="$tr('lessons')"
