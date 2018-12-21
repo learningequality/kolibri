@@ -15,24 +15,28 @@
         :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonListPage' }}"
         :primary="false"
         appearance="flat-button"
+        class="new-coach-tab"
       />
       <KRouterLink
         :text="$tr('quizzes')"
         :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizListPage' }}"
         :primary="false"
         appearance="flat-button"
+        class="new-coach-tab"
       />
       <KRouterLink
         :text="$tr('learners')"
         :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnersList' }}"
         :primary="false"
         appearance="flat-button"
+        class="new-coach-tab"
       />
       <KRouterLink
         :text="$tr('groups')"
         :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsGroupsList' }}"
         :primary="false"
         appearance="flat-button"
+        class="new-coach-tab"
       />
     </div>
     <hr>

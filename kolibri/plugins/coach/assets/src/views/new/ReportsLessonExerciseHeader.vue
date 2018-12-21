@@ -20,15 +20,17 @@
     <KCheckbox :label="$tr('viewByGroups')" />
 
     <div>
-      <KButton
+      <KRouterLink
+        appearance="flat-button"
+        class="new-coach-tab"
         :text="$tr('learnerReport')"
-        appearance="flat-button"
-        @click="goTo('ReportsLessonExerciseLearnerListPage')"
+        :to="link('ReportsLessonExerciseLearnerListPage')"
       />
-      <KButton
-        :text="$tr('difficulties')"
+      <KRouterLink
         appearance="flat-button"
-        @click="goTo('ReportsLessonExerciseQuestionListPage')"
+        class="new-coach-tab"
+        :text="$tr('difficulties')"
+        :to="link('ReportsLessonExerciseQuestionListPage')"
       />
     </div>
 
@@ -41,27 +43,20 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import BackLink from './shared/BackLink';
-  import MasteryModel from './shared/MasteryModel';
+  import imports from './imports';
 
   export default {
     name: 'ReportsLessonExerciseHeader',
-    components: {
-      MasteryModel,
-      BackLink,
-      KCheckbox,
-      KButton,
-    },
+    components: {},
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
       };
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      link(page) {
+        return { name: 'NEW_COACH_PAGES', params: { page } };
       },
     },
     $trs: {

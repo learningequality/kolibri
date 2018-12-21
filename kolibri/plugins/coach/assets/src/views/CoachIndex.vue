@@ -267,7 +267,7 @@
       },
       showCoachNav() {
         if (this.isNewPage) {
-          return true;
+          return this.$route.params.page !== 'ClassListPage';
         }
         /* ... COACH - under construction */
         return (
@@ -431,6 +431,10 @@
     padding: 8px;
     font-weight: bold;
     background-color: white;
+  }
+
+  .new-coach-tab.router-link-active {
+    border-bottom: 3px solid black;
   }
   // ... COACH - under construction
 
