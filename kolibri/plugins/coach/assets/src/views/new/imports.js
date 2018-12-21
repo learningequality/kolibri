@@ -6,7 +6,7 @@ import KSelect from 'kolibri.coreVue.components.KSelect';
 import Answer from './shared/Answer';
 import BackLink from './shared/BackLink';
 import Completed from './shared/status/Completed';
-import EnrolledGroups from './shared/EnrolledGroups';
+import TruncatedItemList from './shared/TruncatedItemList';
 import InProgress from './shared/status/InProgress';
 import LessonActive from './shared/LessonActive';
 import MasteryModel from './shared/MasteryModel';
@@ -29,7 +29,7 @@ export default {
     Answer,
     BackLink,
     Completed,
-    EnrolledGroups,
+    TruncatedItemList,
     InProgress,
     LessonActive,
     MasteryModel,

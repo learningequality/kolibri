@@ -1,6 +1,7 @@
-import PlanPage from './PlanPage';
+import ClassListPage from './ClassListPage';
 import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
+import PlanPage from './PlanPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
 import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
 import ReportsQuizLearnerPage from './ReportsQuizLearnerPage';
@@ -18,8 +19,10 @@ import ReportsLessonExerciseQuestionPage from './ReportsLessonExerciseQuestionPa
 
 // register pages to index
 export default {
+  ClassListPage,
   HomePage,
   HomeActivityPage,
+  PlanPage,
   ReportsQuizListPage,
   ReportsQuizLearnerListPage,
   ReportsQuizLearnerPage,
@@ -32,7 +35,6 @@ export default {
   ReportsLessonManagerPage,
   ReportsLessonEditorPage,
   ReportsLessonListPage,
-  PlanPage,
   ReportsLessonExerciseLearnerPage,
   ReportsLessonExerciseQuestionPage,
 };

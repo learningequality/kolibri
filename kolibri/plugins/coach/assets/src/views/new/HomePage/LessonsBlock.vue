@@ -25,7 +25,7 @@
         :groups="[1, 2, 3]"
       />
       <ItemProgressDisplay
-        name="whatevz"
+        name="Item name"
         :completedItems="2"
         :totalItems="50"
         :needHelp="0"

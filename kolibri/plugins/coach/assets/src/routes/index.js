@@ -206,6 +206,6 @@ export default [
   /* ... COACH - under construction */
   {
     path: '*',
-    redirect: '/HomePage',
+    redirect: '/ClassListPage',
   },
 ];

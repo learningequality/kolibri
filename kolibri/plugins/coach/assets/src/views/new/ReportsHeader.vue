@@ -1,7 +1,12 @@
 <template>
 
   <div>
-    <p><BackLink :to="{ name:'CLASS_LIST' }" :text="$tr('back')" /></p>
+    <p>
+      <BackLink
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }"
+        :text="$tr('back')"
+      />
+    </p>
     <h1>{{ $tr('reports') }}</h1>
     <p>View reports for your learners and class materials</p>
     <div>

@@ -1,7 +1,12 @@
 <template>
 
   <div class="new-coach-block">
-    <p><BackLink :to="{ name:'CLASS_LIST' }" :text="$tr('back')" /></p>
+    <p>
+      <BackLink
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }" 
+        :text="$tr('back')"
+      />
+    </p>
     <h1>Class name</h1>
     <ul>
       <li>{{ $tr('coach', {count: 2}) }} A | B | C</li>
