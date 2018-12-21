@@ -206,6 +206,7 @@
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',
+      channelNotAvailable: 'This channel is no longer available',
     },
   };
 
