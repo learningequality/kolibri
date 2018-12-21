@@ -11,7 +11,10 @@
     <h1>Counting with big numbers</h1>
     <p>Advanced counting</p>
 
-    <p><MasteryModel model="num_correct_in_a_row_5" /></p>
+    <p>
+      {{ $tr('masteryModelLabel') }}
+      <MasteryModel model="num_correct_in_a_row_5" />
+    </p>
 
     <KButton :text="$tr('preview')" />
     <KCheckbox :label="$tr('viewByGroups')" />
@@ -62,6 +65,7 @@
     $trs: {
       back: "Back to '{lesson}'",
       preview: 'Preview',
+      masteryModelLabel: 'Completion requirement:',
       report: 'Learner report',
       difficulties: 'Question difficulties',
       viewByGroups: 'View by groups',
