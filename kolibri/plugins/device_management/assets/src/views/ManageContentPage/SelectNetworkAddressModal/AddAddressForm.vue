@@ -9,7 +9,7 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr(`addressDesc`) }}</p>
+    <p>{{ $tr('addressDesc') }}</p>
     <div>
       <KTextbox
         v-model="address"
@@ -22,7 +22,7 @@
         @blur="addressBlurred = true"
       />
     </div>
-    <p>{{ $tr(`nameDesc`) }}</p>
+    <p>{{ $tr('nameDesc') }}</p>
     <div>
       <KTextbox
         v-model="name"
