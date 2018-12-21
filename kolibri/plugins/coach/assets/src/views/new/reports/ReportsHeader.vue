@@ -7,7 +7,7 @@
     <div>
       <KRouterLink
         :text="$tr('lessons')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonsList' }}"
+        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonList' }}"
         :primary="false"
         appearance="flat-button"
       />

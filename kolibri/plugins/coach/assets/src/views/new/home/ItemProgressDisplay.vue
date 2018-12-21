@@ -18,8 +18,8 @@
 
 <script>
 
-  import NeedHelp from '../NeedHelp';
-  import Completed from '../Completed';
+  import NeedHelp from '../Status/NeedHelp';
+  import Completed from '../Status/Completed';
   import Recipients from '../Recipients';
 
   export default {

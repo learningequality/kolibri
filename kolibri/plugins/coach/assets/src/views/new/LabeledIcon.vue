@@ -31,7 +31,7 @@
   }
 
   .label {
-    margin-left: 24px;
+    margin-left: 20px;
   }
 
   .wrapper svg {

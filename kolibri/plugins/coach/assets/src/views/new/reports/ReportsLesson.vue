@@ -38,7 +38,7 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsExerciseGroupReport' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsExerciseClassReportUsers' }}"
             />
           </td>
           <td><Completed :count="3" :total="6" /></td>
@@ -69,8 +69,8 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import LessonActive from '../LessonActive';
   import TimeDuration from '../TimeDuration';
-  import Completed from '../Completed';
-  import NeedHelp from '../NeedHelp';
+  import Completed from '../Status/Completed';
+  import NeedHelp from '../Status/NeedHelp';
   import BackLink from '../BackLink';
 
   export default {

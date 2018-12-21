@@ -55,8 +55,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import LessonActive from '../LessonActive';
   import Recipients from '../Recipients';
-  import Completed from '../Completed';
-  import NeedHelp from '../NeedHelp';
+  import Completed from '../Status/Completed';
+  import NeedHelp from '../Status/NeedHelp';
   import ReportsHeader from './ReportsHeader';
 
   export default {

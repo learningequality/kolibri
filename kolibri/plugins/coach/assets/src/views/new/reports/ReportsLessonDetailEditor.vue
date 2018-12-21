@@ -13,11 +13,13 @@
 
 <script>
 
+  import KButton from 'kolibri.coreVue.components.KButton';
   import LessonDetailEditor from '../LessonDetailEditor';
 
   export default {
     name: 'ReportsLessonDetailEditor',
     components: {
+      KButton,
       LessonDetailEditor,
     },
     data() {

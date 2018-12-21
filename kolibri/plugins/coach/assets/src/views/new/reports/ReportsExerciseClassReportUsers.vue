@@ -1,23 +1,14 @@
 <template>
 
   <div class="new-coach-block">
-    <p>
-      <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLesson'} }"
-        :text="$tr('back', { lesson: lessonName })"
-      />
-    </p>
-    <h1>Some Video</h1>
-    <KButton :text="$tr('preview')" />
-    <KCheckbox :label="$tr('viewByGroups')" />
+
+    <ReportsExerciseClassReportHeader />
+
     <h2>{{ $tr('overall') }}</h2>
-    <ul>
-      <li>{{ $tr('avgTimeSpent') }} <TimeDuration :seconds="360" /></li>
-      <li>{{ $tr('avgNumViews') }} 4</li>
-    </ul>
     <p>
       <Completed :verbosity="0" :count="3" :showRatio="false" class="stats" />
       <InProgress :verbosity="0" :count="3" :showRatio="false" class="stats" />
+      <NeedHelp :verbosity="0" :count="3" :showRatio="false" class="stats" />
       <NotStarted :verbosity="0" :count="3" :showRatio="false" class="stats" />
     </p>
     <table class="new-coach-table">
@@ -25,7 +16,6 @@
         <tr>
           <td>{{ $tr('tableHeaderName') }}</td>
           <td>{{ $tr('tableHeaderStatus') }}</td>
-          <td>{{ $tr('tableHeaderViews') }}</td>
           <td>{{ $tr('tableHeaderTimeSpent') }}</td>
           <td>{{ $tr('tableHeaderGroups') }}</td>
           <td>{{ $tr('tableHeaderLastActivity') }}</td>
@@ -33,25 +23,22 @@
       </thead>
       <tbody>
         <tr>
-          <td>April</td>
+          <td><KRouterLink text="April" :to="userLink" /></td>
           <td><NotStarted :showNumber="false" :verbosity="1" /></td>
-          <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
+          <td><KRouterLink text="John" :to="userLink" /></td>
           <td><Completed :showNumber="false" :verbosity="1" /></td>
-          <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
-          <td><InProgress :showNumber="false" :verbosity="1" /></td>
-          <td>23</td>
+          <td><KRouterLink text="Steve" :to="userLink" /></td>
+          <td><NeedHelp :showNumber="false" :verbosity="1" /></td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
@@ -65,34 +52,49 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import InProgress from '../Status/InProgress';
   import TimeDuration from '../TimeDuration';
   import Completed from '../Status/Completed';
   import NotStarted from '../Status/NotStarted';
-  import BackLink from '../BackLink';
+  import NeedHelp from '../Status/NeedHelp';
+  import ReportsExerciseClassReportHeader from './ReportsExerciseClassReportHeader';
 
   export default {
-    name: 'ReportsResourceClassReport',
+    name: 'ReportsExerciseClassReportUsers',
     components: {
       InProgress,
       TimeDuration,
       Completed,
+      NeedHelp,
       NotStarted,
-      BackLink,
-      KCheckbox,
-      KButton,
+      ReportsExerciseClassReportHeader,
+      KRouterLink,
     },
     data() {
       return {
         lessonName: 'Lesson A',
       };
     },
+    computed: {
+      userLink() {
+        return {
+          name: 'NEW_COACH_PAGES',
+          params: { page: 'ReportsExerciseClassReportIndividual' },
+        };
+      },
+    },
+    methods: {
+      goTo(page) {
+        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      },
+    },
     $trs: {
       back: "Back to '{lesson}'",
       preview: 'Preview',
       overall: 'Overall',
+      report: 'Learner report',
+      difficulties: 'Question difficulties',
       avgTimeSpent: 'Average time spent:',
       avgNumViews: 'Average number of views:',
       viewByGroups: 'View report by groups',

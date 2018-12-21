@@ -82,6 +82,8 @@
   import ReportsLessonDetailEditor from './new/reports/ReportsLessonDetailEditor.vue';
   import ReportsLessonResourceManager from './new/reports/ReportsLessonResourceManager.vue';
   import ReportsResourceClassReport from './new/reports/ReportsResourceClassReport.vue';
+  import ReportsExerciseClassReportUsers from './new/reports/ReportsExerciseClassReportUsers.vue';
+  import ReportsExerciseClassReportQuestions from './new/reports/ReportsExerciseClassReportQuestions.vue';
   import Plan from './new/plan/Plan.vue';
 
   const logging = logger.getLogger(__filename);
@@ -93,6 +95,8 @@
     ReportsQuizzesList,
     ReportsLesson,
     ReportsResourceClassReport,
+    ReportsExerciseClassReportUsers,
+    ReportsExerciseClassReportQuestions,
     ReportsLessonResourceManager,
     ReportsLessonDetailEditor,
     ReportsLessonList,
