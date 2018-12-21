@@ -40,7 +40,7 @@
   import ReportsExerciseClassReportHeader from './ReportsLessonExerciseHeader';
 
   export default {
-    name: 'ReportsLessonExerciseQuestionsPage',
+    name: 'ReportsLessonExerciseQuestionListPage',
     components: {
       TimeDuration,
       NeedHelp,
@@ -56,7 +56,7 @@
       questionLink() {
         return {
           name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsExerciseClassReportQuestion' },
+          params: { page: 'ReportsLessonExerciseQuestionPage' },
         };
       },
     },

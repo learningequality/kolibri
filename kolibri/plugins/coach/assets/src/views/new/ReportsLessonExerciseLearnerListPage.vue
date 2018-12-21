@@ -23,21 +23,21 @@
       </thead>
       <tbody>
         <tr>
-          <td><KRouterLink text="April" :to="userLink" /></td>
+          <td><KRouterLink text="April" :to="learnerLink" /></td>
           <td><NotStarted :showNumber="false" :verbosity="1" /></td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td><KRouterLink text="John" :to="userLink" /></td>
+          <td><KRouterLink text="John" :to="learnerLink" /></td>
           <td><Completed :showNumber="false" :verbosity="1" /></td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td><KRouterLink text="Steve" :to="userLink" /></td>
+          <td><KRouterLink text="Steve" :to="learnerLink" /></td>
           <td><NeedHelp :showNumber="false" :verbosity="1" /></td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
@@ -77,10 +77,10 @@
       };
     },
     computed: {
-      userLink() {
+      learnerLink() {
         return {
           name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsExerciseClassReportIndividual' },
+          params: { page: 'ReportsLessonExerciseLearnerPage' },
         };
       },
     },

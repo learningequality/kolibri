@@ -1,8 +1,6 @@
 <template>
 
-  <div>
-    ReportsLessonExerciseLearnerPage
-  </div>
+  <div>ReportsLessonExerciseQuestionPage</div>
 
 </template>
 
@@ -10,7 +8,7 @@
 <script>
 
   export default {
-    name: 'ReportsLessonExerciseLearnerPage',
+    name: 'ReportsLessonExerciseQuestionPage',
     components: {},
     $trs: {},
   };

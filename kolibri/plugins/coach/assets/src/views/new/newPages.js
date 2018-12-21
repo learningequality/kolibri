@@ -1,14 +1,16 @@
+import PlanPage from './PlanPage';
 import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
-import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
+import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsLessonPage from './ReportsLessonPage';
 import ReportsLessonEditorPage from './ReportsLessonEditorPage';
 import ReportsLessonManagerPage from './ReportsLessonManagerPage';
 import ReportsLessonResourcePage from './ReportsLessonResourcePage';
 import ReportsLessonExerciseLearnerListPage from './ReportsLessonExerciseLearnerListPage';
-import ReportsLessonExerciseQuestionsPage from './ReportsLessonExerciseQuestionsPage';
-import PlanPage from './PlanPage';
+import ReportsLessonExerciseLearnerPage from './ReportsLessonExerciseLearnerPage';
+import ReportsLessonExerciseQuestionListPage from './ReportsLessonExerciseQuestionListPage';
+import ReportsLessonExerciseQuestionPage from './ReportsLessonExerciseQuestionPage';
 
 // register pages to index
 export default {
@@ -18,9 +20,11 @@ export default {
   ReportsLessonPage,
   ReportsLessonResourcePage,
   ReportsLessonExerciseLearnerListPage,
-  ReportsLessonExerciseQuestionsPage,
+  ReportsLessonExerciseQuestionListPage,
   ReportsLessonManagerPage,
   ReportsLessonEditorPage,
   ReportsLessonListPage,
   PlanPage,
+  ReportsLessonExerciseLearnerPage,
+  ReportsLessonExerciseQuestionPage,
 };

@@ -28,7 +28,7 @@
       <KButton
         :text="$tr('difficulties')"
         appearance="flat-button"
-        @click="goTo('ReportsLessonExerciseQuestionsPage')"
+        @click="goTo('ReportsLessonExerciseQuestionListPage')"
       />
     </div>
 
