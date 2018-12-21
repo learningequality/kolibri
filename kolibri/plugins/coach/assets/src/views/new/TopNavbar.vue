@@ -3,7 +3,7 @@
   <KNavbar>
     <KNavbarLink
       :title="$tr('home')"
-      :link="link('Home')"
+      :link="link('HomePage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -15,7 +15,7 @@
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
-      :link="link('Plan')"
+      :link="link('PlanPage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>

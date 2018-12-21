@@ -15,6 +15,10 @@
       <!-- COACH - under construction ... -->
       <NewCoachTopNav v-if="isNewPage" slot="sub-nav" />
       <CoachTopNav v-else slot="sub-nav" />
+
+      <div v-if="isNewPage" class="coach-debug">
+        <pre>{{ $route.params.page }}</pre>
+      </div>
       <!-- ... COACH - under construction -->
 
       <template v-if="showCoachNav && !isNewPage">
@@ -74,35 +78,10 @@
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import HomePage from './new/HomePage';
-  import HomeActivityPage from './new/HomeActivityPage';
-  import ReportsLessonListPage from './new/ReportsLessonListPage';
-  import ReportsQuizListPage from './new/ReportsQuizListPage';
-  import ReportsLessonPage from './new/ReportsLessonPage';
-  import ReportsLessonEditorPage from './new/ReportsLessonEditorPage';
-  import ReportsLessonManagerPage from './new/ReportsLessonManagerPage';
-  import ReportsLessonResourcePage from './new/ReportsLessonResourcePage';
-  import ReportsLessonExerciseLearnerListPage from './new/ReportsLessonExerciseLearnerListPage';
-  import ReportsLessonExerciseQuestionsPage from './new/ReportsLessonExerciseQuestionsPage';
-  import PlanPage from './new/PlanPage';
+  import newPageMap from './new/newPages';
+  /* ... COACH - under construction */
 
   const logging = logger.getLogger(__filename);
-
-  // register pages to index
-  const newPageMap = {
-    HomePage,
-    HomeActivityPage,
-    ReportsQuizListPage,
-    ReportsLessonPage,
-    ReportsLessonResourcePage,
-    ReportsLessonExerciseLearnerListPage,
-    ReportsLessonExerciseQuestionsPage,
-    ReportsLessonManagerPage,
-    ReportsLessonEditorPage,
-    ReportsLessonListPage,
-    PlanPage,
-  };
-  /* ... COACH - under construction */
 
   // IDEA set up routenames that all use the same PageName instead of doing this?
   // See Content Preview routes in app.js + PageName handling here
@@ -439,6 +418,17 @@
     td {
       padding: 8px;
     }
+  }
+
+  .coach-debug {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 80px;
+    padding: 8px;
+    font-weight: bold;
+    background-color: white;
   }
   // ... COACH - under construction
 
