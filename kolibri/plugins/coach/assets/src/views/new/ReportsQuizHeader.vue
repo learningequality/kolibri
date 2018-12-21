@@ -28,15 +28,18 @@
     </dl>
 
     <div>
-      <KButton
+      <KRouterLink
         :text="$tr('learnerReport')"
         appearance="flat-button"
-        @click="goTo('ReportsQuizLearnerListPage')"
+        class="new-coach-tab"
+        :to="link('ReportsQuizLearnerListPage')"
       />
-      <KButton
+      <KRouterLink
         :text="$tr('difficulties')"
         appearance="flat-button"
-        @click="goTo('ReportsQuizQuestionListPage')"
+        class="new-coach-tab"
+
+        :to="link('ReportsQuizQuestionListPage')"
       />
     </div>
 
@@ -64,12 +67,12 @@
       },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      link(page) {
+        return { name: 'NEW_COACH_PAGES', params: { page } };
       },
     },
     $trs: {
-      back: 'View all quizzes',
+      back: 'All quizzes',
       editDetails: 'Edit details',
       preview: 'Preview',
       options: 'Options',

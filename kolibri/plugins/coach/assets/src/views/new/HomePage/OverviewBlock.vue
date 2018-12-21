@@ -3,7 +3,7 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }" 
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }"
         :text="$tr('back')"
       />
     </p>
@@ -27,7 +27,7 @@
       BackLink,
     },
     $trs: {
-      back: 'View all classes',
+      back: 'All classes',
       changeClass: 'Change class',
       coachCount: '{count, number, integer} {count, plural, one {Coach} other {Coaches}}',
       coach: '{count, plural, one {Coach} other {Coaches}}',

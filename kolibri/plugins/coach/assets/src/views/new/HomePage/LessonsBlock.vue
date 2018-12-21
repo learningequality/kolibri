@@ -6,7 +6,7 @@
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'test'} }"
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
       />
     </p>
     <div>
@@ -50,7 +50,7 @@
     },
     $trs: {
       lessons: 'Lessons',
-      viewAll: 'View all',
+      viewAll: 'All lessons',
     },
   };
 

@@ -89,7 +89,7 @@
       options: 'Options',
       editDetails: 'Edit Details',
       manageResources: 'Manage Resources',
-      back: 'View all lessons',
+      back: 'All lessons',
       status: 'Status',
       recipients: 'Recipients',
       descriptionn: 'Description',

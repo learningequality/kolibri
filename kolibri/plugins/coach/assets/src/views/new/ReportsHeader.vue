@@ -57,7 +57,7 @@
       BackLink,
     },
     $trs: {
-      back: 'View all classes',
+      back: 'All classes',
       reports: 'Reports',
       lessons: 'Lessons',
       quizzes: 'Quizzes',
