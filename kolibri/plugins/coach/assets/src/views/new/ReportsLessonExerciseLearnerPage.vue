@@ -13,7 +13,7 @@
     <p>{{ $tr('answerHistory') }}</p>
     <p>{{ $tr('attempts') }}</p>
     <p>{{ $tr('showCorrectAnswer') }}</p>
-    <p>{{ $tr('questions') }}</p>
+    <h2>{{ $tr('questions') }}</h2>
     <ul>
       <li><Answer type="noAttempt" /></li>
       <li><Answer type="correct" /></li>
