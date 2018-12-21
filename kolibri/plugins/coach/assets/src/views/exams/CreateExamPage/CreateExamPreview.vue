@@ -124,6 +124,7 @@
     name: 'CreateExamPreview',
     $trs: {
       title: 'Select questions',
+      backLabel: 'Select topics or exercises',
       back: 'Go back',
       finish: 'Finish',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
