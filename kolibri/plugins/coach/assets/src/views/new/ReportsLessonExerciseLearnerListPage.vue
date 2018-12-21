@@ -2,7 +2,7 @@
 
   <div class="new-coach-block">
 
-    <ReportsExerciseClassReportHeader />
+    <ReportsLessonExerciseHeader />
 
     <h2>{{ $tr('overall') }}</h2>
     <p>
@@ -53,22 +53,22 @@
 <script>
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import InProgress from '../Status/InProgress';
-  import TimeDuration from '../TimeDuration';
-  import Completed from '../Status/Completed';
-  import NotStarted from '../Status/NotStarted';
-  import NeedHelp from '../Status/NeedHelp';
-  import ReportsExerciseClassReportHeader from './ReportsExerciseClassReportHeader';
+  import TimeDuration from './shared/TimeDuration';
+  import InProgress from './shared/status/InProgress';
+  import Completed from './shared/status/Completed';
+  import NotStarted from './shared/status/NotStarted';
+  import NeedHelp from './shared/status/NeedHelp';
+  import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
-    name: 'ReportsExerciseClassReportUsers',
+    name: 'ReportsLessonExerciseLearnerListPage',
     components: {
       InProgress,
       TimeDuration,
       Completed,
       NeedHelp,
       NotStarted,
-      ReportsExerciseClassReportHeader,
+      ReportsLessonExerciseHeader,
       KRouterLink,
     },
     data() {

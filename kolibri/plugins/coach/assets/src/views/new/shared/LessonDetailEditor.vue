@@ -45,7 +45,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import RecipientSelector from '../assignments/RecipientSelector';
+  import RecipientSelector from '../../assignments/RecipientSelector';
 
   export default {
     name: 'LessonDetailEditor',

@@ -4,8 +4,8 @@
     <h2>{{ $tr('lessons') }}</h2>
     <p>
       <KRouterLink
-        appearance="flat-button" 
-        :text="$tr('viewAll')" 
+        appearance="flat-button"
+        :text="$tr('viewAll')"
         :to="{ name:'NEW_COACH_PAGES', params: {page: 'test'} }"
       />
     </p>

@@ -1,7 +1,7 @@
 <template>
 
-  <div class="new-coach-block">
-    Resource manager
+  <div>
+    Plan
   </div>
 
 </template>
@@ -10,7 +10,7 @@
 <script>
 
   export default {
-    name: 'ReportsLessonResourceManager',
+    name: 'PlanPage',
     components: {},
     $trs: {},
   };

@@ -3,7 +3,7 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonList'} }"
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
         :text="$tr('back')"
       />
     </p>
@@ -38,7 +38,7 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsExerciseClassReportUsers' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonExerciseLearnerListPage' }}"
             />
           </td>
           <td><Completed :count="3" :total="6" /></td>
@@ -48,7 +48,7 @@
           <td>
             <KRouterLink
               text="Some video"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsResourceClassReport' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonResourcePage' }}"
             />
           </td>
           <td>
@@ -67,14 +67,14 @@
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import LessonActive from '../LessonActive';
-  import TimeDuration from '../TimeDuration';
-  import Completed from '../Status/Completed';
-  import NeedHelp from '../Status/NeedHelp';
-  import BackLink from '../BackLink';
+  import LessonActive from './shared/LessonActive';
+  import BackLink from './shared/BackLink';
+  import TimeDuration from './shared/TimeDuration';
+  import Completed from './shared/status/Completed';
+  import NeedHelp from './shared/status/NeedHelp';
 
   export default {
-    name: 'ReportsLesson',
+    name: 'ReportsLessonPage',
     components: {
       LessonActive,
       TimeDuration,
@@ -87,8 +87,8 @@
     computed: {
       actionOptions() {
         return [
-          { label: this.$tr('editDetails'), value: 'ReportsLessonDetailEditor' },
-          { label: this.$tr('manageResources'), value: 'ReportsLessonResourceManager' },
+          { label: this.$tr('editDetails'), value: 'ReportsLessonEditorPage' },
+          { label: this.$tr('manageResources'), value: 'ReportsLessonManagerPage' },
         ];
       },
     },

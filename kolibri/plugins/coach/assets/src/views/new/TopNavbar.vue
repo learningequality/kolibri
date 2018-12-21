@@ -9,7 +9,7 @@
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('reports')"
-      :link="link('ReportsLessonList')"
+      :link="link('ReportsLessonListPage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -31,7 +31,7 @@
   import { PageNames } from '../../constants';
 
   export default {
-    name: 'CoachTopNav',
+    name: 'CoachTopNavbar',
     $trs: {
       home: 'Class Home',
       reports: 'Reports',

@@ -14,7 +14,7 @@
 
 <script>
 
-  import BackLink from '../BackLink';
+  import BackLink from '../shared/BackLink';
 
   export default {
     name: 'OverviewBlock',

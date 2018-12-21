@@ -35,12 +35,12 @@
 <script>
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import TimeDuration from '../TimeDuration';
-  import NeedHelp from '../Status/NeedHelp';
-  import ReportsExerciseClassReportHeader from './ReportsExerciseClassReportHeader';
+  import TimeDuration from './shared/TimeDuration';
+  import NeedHelp from './shared/status/NeedHelp';
+  import ReportsExerciseClassReportHeader from './ReportsLessonExerciseHeader';
 
   export default {
-    name: 'ReportsExerciseClassReportQuestions',
+    name: 'ReportsLessonExerciseQuestionsPage',
     components: {
       TimeDuration,
       NeedHelp,
@@ -75,7 +75,7 @@
       avgNumViews: 'Average number of views:',
       viewByGroups: 'View report by groups',
       tableHeaderQuestion: 'Question',
-      tableHeaderNeedHelp: 'Learners needing help',
+      tableHeaderNeedHelp: 'Help needed',
       tableHeaderTimeSpent: 'Average time spent',
     },
   };

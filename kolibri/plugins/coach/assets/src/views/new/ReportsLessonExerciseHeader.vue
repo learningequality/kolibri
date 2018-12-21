@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLesson'} }"
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonPage'} }"
         :text="$tr('back', { lesson: lessonName })"
       />
     </p>
@@ -20,12 +20,12 @@
       <KButton
         :text="$tr('report')"
         appearance="flat-button"
-        @click="goTo('ReportsExerciseClassReportUsers')"
+        @click="goTo('ReportsLessonExerciseLearnerListPage')"
       />
       <KButton
         :text="$tr('difficulties')"
         appearance="flat-button"
-        @click="goTo('ReportsExerciseClassReportQuestions')"
+        @click="goTo('ReportsLessonExerciseQuestionsPage')"
       />
     </div>
 
@@ -38,11 +38,11 @@
 
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import BackLink from '../BackLink';
-  import MasteryModel from '../MasteryModel';
+  import BackLink from './shared/BackLink';
+  import MasteryModel from './shared/MasteryModel';
 
   export default {
-    name: 'ReportsExerciseClassReportHeader',
+    name: 'ReportsLessonExerciseHeader',
     components: {
       MasteryModel,
       BackLink,

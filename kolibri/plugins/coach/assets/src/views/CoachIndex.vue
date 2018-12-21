@@ -54,7 +54,7 @@
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import CoachTopNav from './CoachTopNav';
-  import NewCoachTopNav from './new/CoachTopNav';
+  import NewCoachTopNav from './new/TopNavbar';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -74,33 +74,33 @@
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import Home from './new/home/Home.vue';
-  import AllActivity from './new/home/AllActivity.vue';
-  import ReportsLessonList from './new/reports/ReportsLessonList.vue';
-  import ReportsQuizzesList from './new/reports/ReportsQuizzesList.vue';
-  import ReportsLesson from './new/reports/ReportsLesson.vue';
-  import ReportsLessonDetailEditor from './new/reports/ReportsLessonDetailEditor.vue';
-  import ReportsLessonResourceManager from './new/reports/ReportsLessonResourceManager.vue';
-  import ReportsResourceClassReport from './new/reports/ReportsResourceClassReport.vue';
-  import ReportsExerciseClassReportUsers from './new/reports/ReportsExerciseClassReportUsers.vue';
-  import ReportsExerciseClassReportQuestions from './new/reports/ReportsExerciseClassReportQuestions.vue';
-  import Plan from './new/plan/Plan.vue';
+  import HomePage from './new/HomePage';
+  import HomeActivityPage from './new/HomeActivityPage';
+  import ReportsLessonListPage from './new/ReportsLessonListPage';
+  import ReportsQuizListPage from './new/ReportsQuizListPage';
+  import ReportsLessonPage from './new/ReportsLessonPage';
+  import ReportsLessonEditorPage from './new/ReportsLessonEditorPage';
+  import ReportsLessonManagerPage from './new/ReportsLessonManagerPage';
+  import ReportsLessonResourcePage from './new/ReportsLessonResourcePage';
+  import ReportsLessonExerciseLearnerListPage from './new/ReportsLessonExerciseLearnerListPage';
+  import ReportsLessonExerciseQuestionsPage from './new/ReportsLessonExerciseQuestionsPage';
+  import PlanPage from './new/PlanPage';
 
   const logging = logger.getLogger(__filename);
 
   // register pages to index
   const newPageMap = {
-    Home,
-    AllActivity,
-    ReportsQuizzesList,
-    ReportsLesson,
-    ReportsResourceClassReport,
-    ReportsExerciseClassReportUsers,
-    ReportsExerciseClassReportQuestions,
-    ReportsLessonResourceManager,
-    ReportsLessonDetailEditor,
-    ReportsLessonList,
-    Plan,
+    HomePage,
+    HomeActivityPage,
+    ReportsQuizListPage,
+    ReportsLessonPage,
+    ReportsLessonResourcePage,
+    ReportsLessonExerciseLearnerListPage,
+    ReportsLessonExerciseQuestionsPage,
+    ReportsLessonManagerPage,
+    ReportsLessonEditorPage,
+    ReportsLessonListPage,
+    PlanPage,
   };
   /* ... COACH - under construction */
 
@@ -301,9 +301,9 @@
         /* COACH - under construction ... */
         if (this.isNewPage) {
           return [
-            'ReportsLessonDetailEditor',
-            'ReportsLessonResourceManager',
-            'ReportsResourceClassReport',
+            'ReportsLessonEditorPage',
+            'ReportsLessonManagerPage',
+            'ReportsLessonResourcePage',
           ].includes(this.$route.params.page);
         }
         /* ... COACH - under construction */
@@ -315,9 +315,9 @@
       appBarTitle() {
         /* COACH - under construction ... */
         if (this.isNewPage) {
-          if (this.$route.params.page === 'ReportsLessonDetailEditor') {
+          if (this.$route.params.page === 'ReportsLessonEditorPage') {
             return this.$tr('reportLessonDetailEditorTitle');
-          } else if (this.$route.params.page === 'ReportsLessonResourceManager') {
+          } else if (this.$route.params.page === 'ReportsLessonManagerPage') {
             return this.$tr('reportLessonResourceManagerTitle');
           }
         }

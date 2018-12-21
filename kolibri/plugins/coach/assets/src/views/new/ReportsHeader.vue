@@ -7,13 +7,13 @@
     <div>
       <KRouterLink
         :text="$tr('lessons')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonList' }}"
+        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonListPage' }}"
         :primary="false"
         appearance="flat-button"
       />
       <KRouterLink
         :text="$tr('quizzes')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizzesList' }}"
+        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizListPage' }}"
         :primary="false"
         appearance="flat-button"
       />
@@ -39,7 +39,7 @@
 <script>
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import BackLink from '../BackLink';
+  import BackLink from './shared/BackLink';
 
   export default {
     name: 'ReportsHeader',

@@ -3,7 +3,7 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLesson'} }"
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonPage'} }"
         :text="$tr('back', { lesson: lessonName })"
       />
     </p>
@@ -67,14 +67,14 @@
 
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import InProgress from '../Status/InProgress';
-  import TimeDuration from '../TimeDuration';
-  import Completed from '../Status/Completed';
-  import NotStarted from '../Status/NotStarted';
-  import BackLink from '../BackLink';
+  import BackLink from './shared/BackLink';
+  import TimeDuration from './shared/TimeDuration';
+  import InProgress from './shared/status/InProgress';
+  import Completed from './shared/status/Completed';
+  import NotStarted from './shared/status/NotStarted';
 
   export default {
-    name: 'ReportsResourceClassReport',
+    name: 'ReportsLessonResourcePage',
     components: {
       InProgress,
       TimeDuration,

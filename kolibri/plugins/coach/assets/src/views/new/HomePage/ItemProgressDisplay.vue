@@ -18,9 +18,9 @@
 
 <script>
 
-  import NeedHelp from '../Status/NeedHelp';
-  import Completed from '../Status/Completed';
-  import Recipients from '../Recipients';
+  import NeedHelp from '../shared/status/NeedHelp';
+  import Completed from '../shared/status/Completed';
+  import Recipients from '../shared/Recipients';
 
   export default {
     name: 'ItemProgressDisplay',

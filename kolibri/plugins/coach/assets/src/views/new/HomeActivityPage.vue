@@ -27,11 +27,11 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import BackLink from '../BackLink';
-  import NotificationCard from './NotificationCard';
+  import BackLink from './shared/BackLink';
+  import NotificationCard from './shared/NotificationCard';
 
   export default {
-    name: 'AllActivity',
+    name: 'HomeActivityPage',
     components: {
       KButton,
       NotificationCard,

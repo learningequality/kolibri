@@ -28,7 +28,7 @@
   import QuizzesBlock from './QuizzesBlock';
 
   export default {
-    name: 'CoachHomeIndex',
+    name: 'HomePage',
     components: {
       KGrid,
       KGridItem,

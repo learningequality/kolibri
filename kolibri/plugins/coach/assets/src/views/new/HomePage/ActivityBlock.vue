@@ -22,7 +22,7 @@
 <script>
 
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import NotificationCard from './NotificationCard';
+  import NotificationCard from '../shared/NotificationCard';
 
   export default {
     name: 'ActivityBlock',
