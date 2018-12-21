@@ -145,7 +145,7 @@
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
       fieldIsRequired: 'This field is required',
-      nameDesc: 'You can choose a name for this address so you can remember it later:',
+      nameDesc: 'Choose a name for this address so you can remember it later:',
       nameLabel: 'Network name',
       namePlaceholder: 'e.g. House network',
       submitButtonLabel: 'Add',
