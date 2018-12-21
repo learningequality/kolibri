@@ -15,7 +15,7 @@
       <thead>
         <tr>
           <td>{{ $tr('tableHeaderName') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
+          <td>{{ $tr('tableHeaderProgress') }}</td>
           <td>{{ $tr('tableHeaderTimeSpent') }}</td>
           <td>{{ $tr('tableHeaderGroups') }}</td>
           <td>{{ $tr('tableHeaderLastActivity') }}</td>
@@ -52,25 +52,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import TimeDuration from './shared/TimeDuration';
-  import InProgress from './shared/status/InProgress';
-  import Completed from './shared/status/Completed';
-  import NotStarted from './shared/status/NotStarted';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
-      InProgress,
-      TimeDuration,
-      Completed,
-      NeedHelp,
-      NotStarted,
       ReportsLessonExerciseHeader,
-      KRouterLink,
     },
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
@@ -92,7 +82,7 @@
     $trs: {
       overall: 'Overall',
       tableHeaderName: 'Name',
-      tableHeaderStatus: 'Status',
+      tableHeaderProgress: 'Progress',
       tableHeaderViews: 'Views',
       tableHeaderTimeSpent: 'Time spent',
       tableHeaderGroups: 'Groups',

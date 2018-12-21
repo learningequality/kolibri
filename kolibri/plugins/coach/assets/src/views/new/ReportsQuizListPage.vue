@@ -70,27 +70,15 @@
 
 <script>
 
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import QuizActive from './shared/QuizActive';
+  import imports from './imports';
   import ReportsHeader from './ReportsHeader';
-  import Recipients from './shared/Recipients';
-  import Completed from './shared/status/Completed';
-  import InProgress from './shared/status/InProgress';
-  import NotStarted from './shared/status/NotStarted';
 
   export default {
     name: 'ReportsQuizListPage',
     components: {
-      QuizActive,
       ReportsHeader,
-      KSelect,
-      KRouterLink,
-      NotStarted,
-      InProgress,
-      Completed,
-      Recipients,
     },
+    mixins: [imports],
     data() {
       return {
         filter: 'allQuizzes',

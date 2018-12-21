@@ -47,6 +47,12 @@ export default {
         });
       }
       if (this.showRatio) {
+        if (this.count === this.total && this.count != 1) {
+          return this.$tr(this.stringId('all'), {
+            count: this.count,
+            total: this.total,
+          });
+        }
         return this.$tr(this.stringId('ratio'), {
           count: this.count,
           total: this.total,

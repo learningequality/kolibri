@@ -2,7 +2,7 @@
 
   <div class="new-coach-block">
 
-    <ReportsLessonExerciseHeader />
+    <ReportsQuizHeader />
 
     <h2>{{ $tr('overall') }}</h2>
     <table class="new-coach-table">
@@ -18,12 +18,23 @@
           <td><KRouterLink text="Question 1" :to="questionLink" /></td>
           <td>
             <NeedHelp
-              :count="3"
+              :count="12"
               :total="12"
               :showRatio="true"
               :verbosity="1"
           /></td>
           <td><TimeDuration :seconds="60*15" /></td>
+        </tr>
+        <tr>
+          <td><KRouterLink text="Question 2" :to="questionLink" /></td>
+          <td>
+            <NeedHelp
+              :count="1"
+              :total="12"
+              :showRatio="true"
+              :verbosity="1"
+          /></td>
+          <td><TimeDuration :seconds="60*4" /></td>
         </tr>
       </tbody>
     </table>
@@ -34,19 +45,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import TimeDuration from './shared/TimeDuration';
-  import NeedHelp from './shared/status/NeedHelp';
-  import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import imports from './imports';
+  import ReportsQuizHeader from './ReportsQuizHeader';
 
   export default {
-    name: 'ReportsLessonExerciseQuestionListPage',
+    name: 'ReportsQuizQuestionListPage',
     components: {
-      TimeDuration,
-      NeedHelp,
-      ReportsLessonExerciseHeader,
-      KRouterLink,
+      ReportsQuizHeader,
     },
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
