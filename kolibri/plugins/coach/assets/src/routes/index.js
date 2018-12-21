@@ -29,7 +29,7 @@ export default [
   ...examRoutes,
   {
     name: PageNames.CLASS_LIST,
-    path: '/',
+    path: '/old/',
     handler: () => {
       return shouldRedirectToClassRootPage().then(classId => {
         if (classId) {
@@ -46,38 +46,38 @@ export default [
   },
   {
     name: PageNames.CLASS_ROOT,
-    path: '/:classId/',
-    redirect: '/:classId/learners/',
+    path: '/old/:classId/',
+    redirect: '/old/:classId/learners/',
   },
   {
     name: PageNames.RECENT_CHANNELS,
-    path: '/:classId/recent',
+    path: '/old/:classId/recent',
     handler: to => {
       showChannelListForReports(store, { ...to.params, showRecentOnly: true });
     },
   },
   {
     name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
-    path: '/:classId/recent/:channelId',
+    path: '/old/:classId/recent/:channelId',
     handler: to => {
       showRecentItemsForChannel(store, to.params);
     },
   },
   {
     name: PageNames.RECENT_LEARNERS_FOR_ITEM,
-    path: '/:classId/recent/:channelId/:contentId',
+    path: '/old/:classId/recent/:channelId/:contentId',
     handler: to => {
       showLearnerReportsForItem(store, { ...to.params, showRecentOnly: true });
     },
   },
   {
     name: PageNames.RECENT_LEARNER_ITEM_DETAILS_ROOT,
-    path: '/:classId/recent/:channelId/:contentId/:userId',
-    redirect: '/:classId/recent/:channelId/:contentId/:userId/0/0',
+    path: '/old/:classId/recent/:channelId/:contentId/:userId',
+    redirect: '/old/:classId/recent/:channelId/:contentId/:userId/0/0',
   },
   {
     name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
-    path: '/:classId/recent/:channelId/:contentId/:userId/:attemptLogIndex/:interactionIndex',
+    path: '/old/:classId/recent/:channelId/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
       showRecentLearnerItemDetails(
         store,
@@ -92,40 +92,41 @@ export default [
   },
   {
     name: PageNames.TOPIC_CHANNELS,
-    path: '/:classId/topics',
+    path: '/old/:classId/topics',
     handler: to => {
       showChannelListForReports(store, { ...to.params, showRecentOnly: false });
     },
   },
   {
     name: PageNames.TOPIC_CHANNEL_ROOT,
-    path: '/:classId/topics/:channelId',
+    path: '/old/:classId/topics/:channelId',
     handler: to => {
       showChannelRootReport(store, to.params);
     },
   },
   {
     name: PageNames.TOPIC_ITEM_LIST,
-    path: '/:classId/topics/:channelId/topic/:topicId',
+    path: '/old/:classId/topics/:channelId/topic/:topicId',
     handler: to => {
       showItemListReports(store, to.params);
     },
   },
   {
     name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
-    path: '/:classId/topics/:channelId/item/:contentId',
+    path: '/old/:classId/topics/:channelId/item/:contentId',
     handler: to => {
       showLearnerReportsForItem(store, { ...to.params, showRecentOnly: false });
     },
   },
   {
     name: PageNames.TOPIC_LEARNER_ITEM_DETAILS_ROOT,
-    path: '/:classId/topics/:channelId/item/:contentId/:userId',
-    redirect: '/:classId/topics/:channelId/item/:contentId/:userId/0/0',
+    path: '/old/:classId/topics/:channelId/item/:contentId/:userId',
+    redirect: '/old/:classId/topics/:channelId/item/:contentId/:userId/0/0',
   },
   {
     name: PageNames.TOPIC_LEARNER_ITEM_DETAILS,
-    path: '/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
+    path:
+      '/old/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
       showTopicLearnerItemDetails(
         store,
@@ -140,41 +141,41 @@ export default [
   },
   {
     name: PageNames.LEARNER_LIST,
-    path: '/:classId/learners',
+    path: '/old/:classId/learners',
     handler: to => {
       showLearnerList(store, to.params.classId);
     },
   },
   {
     name: PageNames.LEARNER_CHANNELS,
-    path: '/:classId/learners/:userId',
+    path: '/old/:classId/learners/:userId',
     handler: to => {
       showLearnerChannels(store, to.params);
     },
   },
   {
     name: PageNames.LEARNER_CHANNEL_ROOT,
-    path: '/:classId/learners/:userId/:channelId',
+    path: '/old/:classId/learners/:userId/:channelId',
     handler: to => {
       showChannelRootReport(store, to.params);
     },
   },
   {
     name: PageNames.LEARNER_ITEM_LIST,
-    path: '/:classId/learners/:userId/:channelId/topic/:topicId',
+    path: '/old/:classId/learners/:userId/:channelId/topic/:topicId',
     handler: to => {
       showItemListReports(store, to.params);
     },
   },
   {
     name: PageNames.LEARNER_ITEM_DETAILS_ROOT,
-    path: '/:classId/learners/:userId/:channelId/item/:contentId',
-    redirect: '/:classId/learners/:userId/:channelId/item/:contentId/0/0',
+    path: '/old/:classId/learners/:userId/:channelId/item/:contentId',
+    redirect: '/old/:classId/learners/:userId/:channelId/item/:contentId/0/0',
   },
   {
     name: PageNames.LEARNER_ITEM_DETAILS,
     path:
-      '/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
+      '/old/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
     handler: to => {
       showLearnerItemDetails(
         store,
@@ -189,7 +190,7 @@ export default [
   },
   {
     name: PageNames.GROUPS,
-    path: '/:classId/groups',
+    path: '/old/:classId/groups',
     handler: to => {
       showGroupsPage(store, to.params.classId);
     },
@@ -197,7 +198,7 @@ export default [
   /* COACH - under construction ... */
   {
     name: PageNames.NEW_COACH_PAGES,
-    path: '/new/:page',
+    path: '/:page',
     handler: to => {
       showNewPage(store, to.params.page);
     },
@@ -205,6 +206,6 @@ export default [
   /* ... COACH - under construction */
   {
     path: '*',
-    redirect: '/',
+    redirect: '/HomePage',
   },
 ];

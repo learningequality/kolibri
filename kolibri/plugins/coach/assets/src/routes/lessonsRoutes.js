@@ -16,41 +16,41 @@ import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectio
 export default [
   {
     name: LessonsPageNames.ROOT,
-    path: '/:classId/lessons',
+    path: '/old/:classId/lessons',
     handler: toRoute => {
       showLessonsRootPage(store, toRoute.params.classId);
     },
   },
   {
     name: LessonsPageNames.SUMMARY,
-    path: '/:classId/lessons/:lessonId',
+    path: '/old/:classId/lessons/:lessonId',
     handler: toRoute => {
       return showLessonSummaryPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.RESOURCE_USER_SUMMARY,
-    path: '/:classId/lessons/:lessonId/resource/:contentId',
+    path: '/old/:classId/lessons/:lessonId/resource/:contentId',
     handler: toRoute => {
       showLessonResourceUserSummaryPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.RESOURCE_USER_REPORT_ROOT,
-    path: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
-    redirect: '/:classId/lessons/:lessonId/resource/:contentId/user/:userId/0/0',
+    path: '/old/:classId/lessons/:lessonId/resource/:contentId/user/:userId',
+    redirect: '/old/:classId/lessons/:lessonId/resource/:contentId/user/:userId/0/0',
   },
   {
     name: LessonsPageNames.RESOURCE_USER_REPORT,
     path:
-      '/:classId/lessons/:lessonId/resource/:contentId/user/:userId/:attemptLogIndex/:interactionIndex',
+      '/old/:classId/lessons/:lessonId/resource/:contentId/user/:userId/:attemptLogIndex/:interactionIndex',
     handler: toRoute => {
       showLessonResourceUserReportPage(store, toRoute.params);
     },
   },
   {
     name: LessonsPageNames.SELECTION_ROOT,
-    path: '/:classId/lessons/:lessonId/selection',
+    path: '/old/:classId/lessons/:lessonId/selection',
     component: LessonResourceSelectionPage,
     handler: toRoute => {
       showLessonResourceSelectionRootPage(store, toRoute.params);
@@ -58,7 +58,7 @@ export default [
   },
   {
     name: LessonsPageNames.SELECTION,
-    path: '/:classId/lessons/:lessonId/selection/topic/:topicId',
+    path: '/old/:classId/lessons/:lessonId/selection/topic/:topicId',
     component: LessonResourceSelectionPage,
     handler: (toRoute, fromRoute) => {
       // HACK if last page was LessonContentPreviewPage, then we need to make sure
@@ -81,7 +81,7 @@ export default [
   },
   {
     name: LessonsPageNames.SELECTION_SEARCH,
-    path: '/:classId/lessons/:lessonId/selection/search/:searchTerm',
+    path: '/old/:classId/lessons/:lessonId/selection/search/:searchTerm',
     component: LessonResourceSelectionPage,
     handler: toRoute => {
       showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
@@ -89,14 +89,14 @@ export default [
   },
   {
     name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
-    path: '/:classId/lessons/:lessonId/selection/preview/:contentId',
+    path: '/old/:classId/lessons/:lessonId/selection/preview/:contentId',
     handler: toRoute => {
       showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
     },
   },
   {
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
-    path: '/:classId/lessons/:lessonId/resource/preview/:contentId',
+    path: '/old/:classId/lessons/:lessonId/resource/preview/:contentId',
     handler: toRoute => {
       showLessonResourceContentPreview(store, toRoute.params);
     },
