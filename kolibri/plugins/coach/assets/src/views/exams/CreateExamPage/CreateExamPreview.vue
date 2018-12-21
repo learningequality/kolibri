@@ -31,8 +31,8 @@
             />
             <KRadioButton
               v-model="isRandom"
-              :label="$tr('flexibleLabel')"
-              :description="$tr('flexibleDescription')"
+              :label="$tr('fixedLabel')"
+              :description="$tr('fixedDescription')"
               :value="false"
             />
           </div>
@@ -128,15 +128,13 @@
       finish: 'Finish',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
-      randomize: 'Give me a different set of questions',
+      randomize: 'Choose a different set of questions',
       questionOrder: 'Question order',
       questions: 'Questions',
       randomizedLabel: 'Randomized',
-      randomizedDescription:
-        'The questions in this quiz will be in a random order for each learner',
-      flexibleLabel: 'Flexible',
-      flexibleDescription:
-        'You can order the quiz questions however you want. All learners will see this version',
+      randomizedDescription: 'Each learner sees a different question order',
+      fixedLabel: 'Fixed',
+      fixedDescription: 'Each learner sees the same question order',
       newQuestions: 'New question set created',
     },
     components: {
