@@ -69,7 +69,7 @@
       },
     },
     $trs: {
-      back: 'Back to quizzes',
+      back: 'View all quizzes',
       editDetails: 'Edit details',
       preview: 'Preview',
       options: 'Options',
