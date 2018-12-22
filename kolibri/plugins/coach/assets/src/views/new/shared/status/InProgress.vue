@@ -15,13 +15,13 @@
     name: 'InProgress',
     mixins: [statusMixin],
     $trs: {
-      basicLabelInProgress: '{count, plural, other {In-progress}}',
+      basicLabelInProgress: '{count, plural, other {In progress}}',
       countShortInProgress: '{count, number, integer}',
       ratioShortInProgress: '{count, number, integer} of {total, number, integer}',
-      countInProgress: '{count, number, integer} {count, plural, other {in-progress}}',
+      countInProgress: '{count, number, integer} {count, plural, other {in progress}}',
       ratioInProgress:
-        '{count, number, integer} of {total, number, integer} {count, plural, other {in-progress}}',
-      allInProgress: 'All {count, number, integer} {count, plural, other {in-progress}}',
+        '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
+      allInProgress: 'All {count, number, integer} {count, plural, other {in progress}}',
     },
   };
 
