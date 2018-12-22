@@ -1,15 +1,12 @@
 <template>
 
   <div>
-    <h1>{{ $tr('editLesson') }}</h1>
+    <h1>{{ $tr('editQuiz') }}</h1>
     <h2>{{ $tr('details') }}</h2>
+    test
     <KTextbox
-      v-model="lessonTitle"
-      :label="$tr('lessonTitle')"
-    />
-    <KTextbox
-      v-model="lessonDescription"
-      :label="$tr('lessonDescription')"
+      v-model="quizTitle"
+      :label="$tr('quizTitle')"
     />
 
     <h2>{{ $tr('status') }}</h2>
@@ -17,12 +14,12 @@
     <p>
       <KRadioButton
         v-model="isActive"
-        :label="$tr('lessonActive')"
+        :label="$tr('quizActive')"
         value="active"
       />
       <KRadioButton
         v-model="isActive"
-        :label="$tr('lessonInactive')"
+        :label="$tr('quizInactive')"
         value="active"
       />
     </p>
@@ -49,7 +46,7 @@
   import RecipientSelector from '../../assignments/RecipientSelector';
 
   export default {
-    name: 'LessonDetailEditor',
+    name: 'QuizDetailEditor',
     components: {
       RecipientSelector,
       KTextbox,
@@ -58,8 +55,7 @@
     },
     data() {
       return {
-        lessonTitle: 'Lesson A',
-        lessonDescription: 'Ipsum lorem',
+        quizTitle: 'Quiz A',
         selectedCollectionIds: ['a'],
         availableGroups: [{ name: 'Group A', id: 'a' }, { name: 'Group B', id: 'b' }],
         selectedClassroomId: 'x',
@@ -67,17 +63,16 @@
       };
     },
     $trs: {
-      editLesson: 'Edit lesson',
+      editQuiz: 'Edit quiz',
       details: 'Details',
-      lessonTitle: 'Title',
-      duplicateTitle: 'A lesson with that name already exists',
-      status: 'Lesson status',
+      quizTitle: 'Title',
+      duplicateTitle: 'A quiz with that name already exists',
+      status: 'Quiz status',
       statusDescription: 'Learners can only see active quizzes',
-      lessonActive: 'Active',
-      lessonInactive: 'Inactive',
+      quizActive: 'Active',
+      quizInactive: 'Inactive',
       recipients: 'Recipients',
-      recipientsDescription: 'This lesson will be visible to:',
-      lessonDescription: 'Description',
+      recipientsDescription: 'This quiz will be visible to:',
       save: 'Save',
       cancel: 'Cancel',
     },

@@ -9,7 +9,7 @@
       :immersivePagePrimary="immersivePagePrimary"
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
-      :showSubNav="Boolean(classId) && showCoachNav"
+      :showSubNav="Boolean(classId) && showCoachNav && !currentPageIsImmersive"
     >
 
       <!-- COACH - under construction ... -->
@@ -82,7 +82,7 @@
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import newPageMap from './new/newPages';
+  import { newPageMap, newImmersivePages } from './new/newPages';
   /* ... COACH - under construction */
 
   const logging = logger.getLogger(__filename);
@@ -283,11 +283,7 @@
       currentPageIsImmersive() {
         /* COACH - under construction ... */
         if (this.isNewPage) {
-          return [
-            'ReportsLessonEditorPage',
-            'ReportsLessonManagerPage',
-            'ReportsLessonResourcePage',
-          ].includes(this.$route.params.page);
+          return newImmersivePages.includes(this.$route.params.page);
         }
         /* ... COACH - under construction */
         return immersivePages.includes(this.pageName);

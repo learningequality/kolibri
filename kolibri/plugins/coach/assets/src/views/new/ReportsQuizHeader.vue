@@ -67,6 +67,9 @@
       },
     },
     methods: {
+      goTo(page) {
+        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      },
       link(page) {
         return { name: 'NEW_COACH_PAGES', params: { page } };
       },

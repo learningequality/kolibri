@@ -26,7 +26,7 @@
           </td>
           <td><Score /></td>
           <td><NotStarted :count="0" :total="10" /></td>
-          <td><TruncatedItemList :groups="[]" /></td>
+          <td><TruncatedItemList :items="[]" /></td>
         </tr>
         <tr>
           <td>
@@ -37,7 +37,7 @@
           </td>
           <td><Score /></td>
           <td><InProgress :count="8" :total="10" /></td>
-          <td><TruncatedItemList :groups="['a', 'b']" /></td>
+          <td><TruncatedItemList :items="['a', 'b']" /></td>
         </tr>
         <tr>
           <td>
@@ -48,7 +48,7 @@
           </td>
           <td><Score :value="0.1" /></td>
           <td><Completed :count="10" :total="10" /></td>
-          <td><TruncatedItemList :groups="['a', 'b', 'c', 'd']" /></td>
+          <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
         </tr>
       </tbody>
     </table>

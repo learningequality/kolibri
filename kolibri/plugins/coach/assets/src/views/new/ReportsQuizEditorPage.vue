@@ -1,10 +1,7 @@
 <template>
 
   <div class="new-coach-block">
-    <LessonDetailEditor />
-    <p><KButton :text="$tr('manageResources')" /></p>
-    <h2>{{ $tr('numResources', { count: 2 }) }}</h2>
-    <pre>ResourceListTable</pre>
+    <QuizDetailEditor />
     <KButton :text="$tr('cancel')" :primary="false" />
     <KButton :text="$tr('save')" :primary="true" />
   </div>
@@ -15,13 +12,13 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import LessonDetailEditor from './shared/LessonDetailEditor';
+  import QuizDetailEditor from './shared/QuizDetailEditor';
 
   export default {
-    name: 'ReportsLessonEditorPage',
+    name: 'ReportsQuizEditorPage',
     components: {
       KButton,
-      LessonDetailEditor,
+      QuizDetailEditor,
     },
     data() {
       return {

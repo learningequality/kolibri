@@ -3,6 +3,7 @@ import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
 import PlanPage from './PlanPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
+import ReportsQuizEditorPage from './ReportsQuizEditorPage';
 import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
 import ReportsQuizLearnerPage from './ReportsQuizLearnerPage';
 import ReportsQuizQuestionListPage from './ReportsQuizQuestionListPage';
@@ -18,7 +19,7 @@ import ReportsLessonExerciseQuestionListPage from './ReportsLessonExerciseQuesti
 import ReportsLessonExerciseQuestionPage from './ReportsLessonExerciseQuestionPage';
 
 // register pages to index
-export default {
+export const newPageMap = {
   ClassListPage,
   HomePage,
   HomeActivityPage,
@@ -26,6 +27,7 @@ export default {
   ReportsQuizListPage,
   ReportsQuizLearnerListPage,
   ReportsQuizLearnerPage,
+  ReportsQuizEditorPage,
   ReportsQuizQuestionListPage,
   ReportsQuizQuestionPage,
   ReportsLessonPage,
@@ -38,3 +40,10 @@ export default {
   ReportsLessonExerciseLearnerPage,
   ReportsLessonExerciseQuestionPage,
 };
+
+export const newImmersivePages = [
+  'ReportsQuizEditorPage',
+  'ReportsLessonEditorPage',
+  'ReportsLessonManagerPage',
+  'ReportsLessonResourcePage',
+];
