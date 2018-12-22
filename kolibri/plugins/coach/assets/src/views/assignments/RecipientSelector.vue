@@ -40,9 +40,18 @@
         type: Array,
         required: true,
       },
+      // Array of objects, each with 'group' and 'name'
       groups: {
         type: Array,
         required: true,
+        validator(value) {
+          for (let i = 0; i < value.length; i++) {
+            if (!value[i].name || !value[i].id) {
+              return false;
+            }
+          }
+          return true;
+        },
       },
       // For the 'Entire Class' option
       classId: {
