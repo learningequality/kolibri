@@ -12,7 +12,7 @@ import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsLessonPage from './ReportsLessonPage';
 import ReportsLessonEditorPage from './ReportsLessonEditorPage';
 import ReportsLessonManagerPage from './ReportsLessonManagerPage';
-import ReportsLessonResourcePage from './ReportsLessonResourcePage';
+import ReportsLessonResourceLearnerListPage from './ReportsLessonResourceLearnerListPage';
 import ReportsLessonExerciseLearnerListPage from './ReportsLessonExerciseLearnerListPage';
 import ReportsLessonExerciseLearnerPage from './ReportsLessonExerciseLearnerPage';
 import ReportsLessonExerciseQuestionListPage from './ReportsLessonExerciseQuestionListPage';
@@ -31,7 +31,7 @@ export const newPageMap = {
   ReportsQuizQuestionListPage,
   ReportsQuizQuestionPage,
   ReportsLessonPage,
-  ReportsLessonResourcePage,
+  ReportsLessonResourceLearnerListPage,
   ReportsLessonExerciseLearnerListPage,
   ReportsLessonExerciseQuestionListPage,
   ReportsLessonManagerPage,
@@ -45,5 +45,5 @@ export const newImmersivePages = [
   'ReportsQuizEditorPage',
   'ReportsLessonEditorPage',
   'ReportsLessonManagerPage',
-  'ReportsLessonResourcePage',
+  'ReportsLessonResourceLearnerListPage',
 ];

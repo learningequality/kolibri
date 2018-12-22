@@ -48,7 +48,7 @@
           <td>
             <KRouterLink
               text="Some video"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonResourcePage' }}"
+              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonResourceLearnerListPage' }}"
             />
           </td>
           <td>

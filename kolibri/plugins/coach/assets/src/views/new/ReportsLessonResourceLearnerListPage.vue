@@ -74,7 +74,7 @@
   import NotStarted from './shared/status/NotStarted';
 
   export default {
-    name: 'ReportsLessonResourcePage',
+    name: 'ReportsLessonResourceLearnerListPage',
     components: {
       InProgress,
       TimeDuration,
