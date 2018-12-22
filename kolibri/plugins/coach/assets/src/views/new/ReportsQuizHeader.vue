@@ -24,7 +24,7 @@
       <dt>{{ $tr('progress') }}</dt>
       <dd><Completed :count="3" :total="10" :verbosity="1" /></dd>
       <dt>{{ $tr('questionOrder') }}</dt>
-      <dd><QuestionOrder order="random" /></dd>
+      <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
     </dl>
 
     <div>

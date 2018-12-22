@@ -6,6 +6,7 @@ import ReportsQuizListPage from './ReportsQuizListPage';
 import ReportsQuizEditorPage from './ReportsQuizEditorPage';
 import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
 import ReportsQuizLearnerPage from './ReportsQuizLearnerPage';
+import ReportsQuizPreviewPage from './ReportsQuizPreviewPage';
 import ReportsQuizQuestionListPage from './ReportsQuizQuestionListPage';
 import ReportsQuizQuestionPage from './ReportsQuizQuestionPage';
 import ReportsLessonListPage from './ReportsLessonListPage';
@@ -28,6 +29,7 @@ export const newPageMap = {
   ReportsQuizLearnerListPage,
   ReportsQuizLearnerPage,
   ReportsQuizEditorPage,
+  ReportsQuizPreviewPage,
   ReportsQuizQuestionListPage,
   ReportsQuizQuestionPage,
   ReportsLessonPage,

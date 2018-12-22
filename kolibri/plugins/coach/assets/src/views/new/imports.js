@@ -3,6 +3,7 @@ import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import { coachStringsMixin } from './shared/commonCoachStrings';
 import Answer from './shared/Answer';
 import BackLink from './shared/BackLink';
 import Completed from './shared/status/Completed';
@@ -15,7 +16,6 @@ import NotStarted from './shared/status/NotStarted';
 import Recipients from './shared/Recipients';
 import Score from './shared/Score';
 import TimeDuration from './shared/TimeDuration';
-import QuestionOrder from './shared/QuestionOrder';
 import QuizActive from './shared/QuizActive';
 
 export default {
@@ -38,7 +38,7 @@ export default {
     Recipients,
     Score,
     TimeDuration,
-    QuestionOrder,
     QuizActive,
   },
+  mixins: [coachStringsMixin],
 };
