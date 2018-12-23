@@ -2,7 +2,7 @@
 
   <div class="new-coach-block">
     <ReportsHeader />
-    <KCheckbox :label="coachStrings.$tr('viewByGroupsToggle')" />
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
     <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">
       <thead>
@@ -52,7 +52,7 @@
     mixins: [imports],
     computed: {
       link() {
-        return { name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnerPage' } };
+        return { name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnerReportPage' } };
       },
     },
     $trs: {},

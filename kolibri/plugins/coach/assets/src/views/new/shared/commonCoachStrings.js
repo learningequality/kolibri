@@ -8,15 +8,15 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewAction: 'Preview',
   saveAction: 'Save',
 
-  // Toggles
-  viewByGroupsToggle: 'View by groups',
-
   // labels, phrases, titles, headers...
   avgQuizScoreLabel: 'Average quiz score',
   exercisesCompletedLabel: 'Exercises completed',
   groupsLabel: 'Groups',
+  lessonsLabel: 'Lessons',
   lessonsAssignedLabel: 'Lessons assigned',
+  lessonsCompletedLabel: 'Lessons completed',
   nameLabel: 'Name',
+  needsHelpLabel: 'Needs help',
   orderFixedLabel: 'Fixed',
   orderFixedLabelLong: 'Fixed: each learner sees the same question order',
   orderFixedDescription: 'Each learner sees the same question order',
@@ -25,12 +25,22 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   orderRandomDescription: 'Each learner sees a different question order',
   overallLabel: 'Overall',
   previewLabel: 'Preview',
+  progressLabel: 'Progress',
+  quizzesLabel: 'Quizzes',
+  quizzesAssignedLabel: 'Quizzes assigned',
+  quizzesCompletedLabel: 'Quizzes completed',
+  reportsLabel: 'Reports',
   resourcesViewedLabel: 'Resources viewed',
+  scoreLabel: 'Score',
+  titleLabel: 'Title',
+  usernameLabel: 'Username',
+  viewByGroupsLabel: 'View by groups',
 
   // formatted values
   number: '{value, number}',
   integer: '{value, number, integer}',
   percentage: '{value, number, percent}',
+  ratio: '{value, number, integer} out of {total, number, integer}',
   numberOfQuestions: '{value} {value, plural, one {question} other {questions}}',
 });
 

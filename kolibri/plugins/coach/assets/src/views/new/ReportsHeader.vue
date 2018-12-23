@@ -8,7 +8,7 @@
       />
     </p>
     <h1>{{ $tr('reports') }}</h1>
-    <p>View reports for your learners and class materials</p>
+    <p>{{ $tr('description') }}</p>
     <div>
       <KRouterLink
         :text="$tr('lessons')"
@@ -58,6 +58,7 @@
     },
     $trs: {
       back: 'All classes',
+      description: 'View reports for your learners and class materials',
       reports: 'Reports',
       lessons: 'Lessons',
       quizzes: 'Quizzes',

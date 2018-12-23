@@ -1,6 +1,8 @@
 import KButton from 'kolibri.coreVue.components.KButton';
 import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+import KGrid from 'kolibri.coreVue.components.KGrid';
+import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
 import { coachStringsMixin } from './shared/commonCoachStrings';
@@ -24,6 +26,8 @@ export default {
     KButton,
     KCheckbox,
     KDropdownMenu,
+    KGrid,
+    KGridItem,
     KRouterLink,
     KSelect,
     Answer,

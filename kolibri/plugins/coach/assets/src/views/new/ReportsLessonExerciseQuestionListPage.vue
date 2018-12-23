@@ -4,7 +4,7 @@
 
     <ReportsLessonExerciseHeader />
 
-    <KCheckbox :label="coachStrings.$tr('viewByGroupsToggle')" />
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
 
     <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">

@@ -8,7 +8,7 @@
       <dt>{{ $tr('overallScore') }}</dt>
       <dd><Score :value="0.5" /></dd>
       <dt>{{ $tr('questionsCorrect') }}</dt>
-      <dd>{{ $tr('ratio', {count:10, total: 12}) }}</dd>
+      <dd>{{ coachStrings.$tr('ratio', {count:10, total: 12}) }}</dd>
     </dl>
 
     <p>{{ $tr('answers') }}</p>
@@ -46,7 +46,6 @@
     $trs: {
       overallScore: 'Overall score',
       questionsCorrect: 'Questions correct',
-      ratio: '{count, number, integer} out of {total, number, integer}',
       answers: 'Answers',
       showCorrectAnswer: 'Show correct answer',
     },
