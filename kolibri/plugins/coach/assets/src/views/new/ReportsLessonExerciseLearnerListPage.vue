@@ -70,10 +70,7 @@
     },
     computed: {
       learnerLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseLearnerPage' },
-        };
+        return this.newCoachRoute('ReportsLessonExerciseLearnerPage');
       },
     },
     methods: {

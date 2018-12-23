@@ -32,10 +32,7 @@
     },
     computed: {
       backLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseLearnerListPage' },
-        };
+        return this.newCoachRoute('ReportsLessonExerciseLearnerListPage');
       },
     },
     $trs: {

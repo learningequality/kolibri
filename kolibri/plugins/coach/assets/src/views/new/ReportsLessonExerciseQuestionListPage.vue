@@ -52,10 +52,7 @@
     },
     computed: {
       questionLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseQuestionPage' },
-        };
+        return this.newCoachRoute('ReportsLessonExerciseQuestionPage');
       },
     },
     methods: {

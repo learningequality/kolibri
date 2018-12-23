@@ -61,10 +61,7 @@
     },
     computed: {
       questionLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsQuizQuestionPage' },
-        };
+        return this.newCoachRoute('ReportsQuizQuestionPage');
       },
     },
     methods: {

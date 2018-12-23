@@ -78,7 +78,7 @@
     mixins: [imports],
     computed: {
       link() {
-        return { name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnerPage' } };
+        return this.newCoachRoute('ReportsLearnerPage');
       },
     },
     $trs: {},

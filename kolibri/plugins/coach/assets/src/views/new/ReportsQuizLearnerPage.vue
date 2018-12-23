@@ -37,10 +37,7 @@
     mixins: [imports],
     computed: {
       backLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsQuizLearnerListPage' },
-        };
+        return this.newCoachRoute('ReportsQuizLearnerListPage');
       },
     },
     $trs: {

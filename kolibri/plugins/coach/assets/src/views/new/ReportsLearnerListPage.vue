@@ -52,7 +52,7 @@
     mixins: [imports],
     computed: {
       link() {
-        return { name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnerReportPage' } };
+        return this.newCoachRoute('ReportsLearnerReportPage');
       },
     },
     $trs: {},
