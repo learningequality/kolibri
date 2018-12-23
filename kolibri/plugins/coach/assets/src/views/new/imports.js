@@ -45,4 +45,9 @@ export default {
     QuizActive,
   },
   mixins: [coachStringsMixin],
+  methods: {
+    newCoachRoute(page) {
+      return { name: 'NEW_COACH_PAGES', params: { page } };
+    },
+  },
 };
