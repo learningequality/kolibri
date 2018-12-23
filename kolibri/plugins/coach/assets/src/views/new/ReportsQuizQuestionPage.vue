@@ -21,15 +21,12 @@
 
 <script>
 
-  import BackLink from './shared/BackLink';
-  import Answer from './shared/Answer';
+  import imports from './imports';
 
   export default {
     name: 'ReportsQuizQuestionPage',
-    components: {
-      BackLink,
-      Answer,
-    },
+    components: {},
+    mixins: [imports],
     computed: {
       backLink() {
         return this.newCoachRoute('ReportsQuizQuestionListPage');

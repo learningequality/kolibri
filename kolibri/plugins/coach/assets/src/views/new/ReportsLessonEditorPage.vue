@@ -14,15 +14,15 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import imports from './imports';
   import LessonDetailEditor from './shared/LessonDetailEditor';
 
   export default {
     name: 'ReportsLessonEditorPage',
     components: {
-      KButton,
       LessonDetailEditor,
     },
+    mixins: [imports],
     data() {
       return {
         lessonTitle: 'Lesson A',

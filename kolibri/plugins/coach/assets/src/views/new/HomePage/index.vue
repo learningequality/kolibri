@@ -26,8 +26,7 @@
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import imports from '../imports';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
@@ -36,13 +35,12 @@
   export default {
     name: 'HomePage',
     components: {
-      KGrid,
-      KGridItem,
       OverviewBlock,
       ActivityBlock,
       LessonsBlock,
       QuizzesBlock,
     },
+    mixins: [imports],
     $trs: {},
   };
 

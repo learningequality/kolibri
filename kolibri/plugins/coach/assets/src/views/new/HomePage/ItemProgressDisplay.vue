@@ -21,6 +21,7 @@
   import NeedHelp from '../shared/status/NeedHelp';
   import Completed from '../shared/status/Completed';
   import Recipients from '../shared/Recipients';
+  import imports from '../imports';
 
   export default {
     name: 'ItemProgressDisplay',
@@ -29,6 +30,7 @@
       Completed,
       Recipients,
     },
+    mixins: [imports],
     props: {
       name: {
         type: String,

@@ -47,15 +47,12 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import BackLink from './shared/BackLink';
+  import imports from './imports';
 
   export default {
     name: 'ReportsHeader',
-    components: {
-      KRouterLink,
-      BackLink,
-    },
+    components: {},
+    mixins: [imports],
     $trs: {
       back: 'All classes',
       description: 'View reports for your learners and class materials',

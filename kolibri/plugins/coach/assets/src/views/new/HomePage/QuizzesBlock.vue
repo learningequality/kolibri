@@ -39,15 +39,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import imports from '../imports';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   export default {
     name: 'QuizzesBlock',
     components: {
       ItemProgressDisplay,
-      KRouterLink,
     },
+    mixins: [imports],
     $trs: {
       quizzes: 'Quizzes',
       viewAll: 'All quizzes',

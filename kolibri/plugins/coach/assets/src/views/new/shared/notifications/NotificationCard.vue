@@ -15,8 +15,11 @@
 
 <script>
 
+  import imports from '../imports';
+
   export default {
     name: 'NotificationCard',
+    mixins: [imports],
     props: {
       targetPage: {
         type: String,

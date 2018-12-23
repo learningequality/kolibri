@@ -28,19 +28,12 @@
 
 <script>
 
-  import BackLink from './shared/BackLink';
-  import MasteryModel from './shared/MasteryModel';
-  import Completed from './shared/status/Completed';
-  import Answer from './shared/Answer';
+  import imports from './imports';
 
   export default {
     name: 'ReportsLessonExerciseLearnerPage',
-    components: {
-      BackLink,
-      Answer,
-      Completed,
-      MasteryModel,
-    },
+    components: {},
+    mixins: [imports],
     computed: {
       backLink() {
         return this.newCoachRoute('ReportsLessonExerciseLearnerListPage');

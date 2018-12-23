@@ -159,17 +159,16 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import imports from '../imports';
   import NotificationCard from '../shared/notifications/NotificationCard';
   import { nStringsMixin } from '../shared/notifications/notificationStrings';
 
   export default {
     name: 'ActivityBlock',
     components: {
-      KRouterLink,
       NotificationCard,
     },
-    mixins: [nStringsMixin],
+    mixins: [nStringsMixin, imports],
     props: {},
     computed: {},
     methods: {},

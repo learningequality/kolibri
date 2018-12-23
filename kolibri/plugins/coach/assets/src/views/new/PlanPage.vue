@@ -9,9 +9,12 @@
 
 <script>
 
+  import imports from './imports';
+
   export default {
     name: 'PlanPage',
     components: {},
+    mixins: [imports],
     $trs: {},
   };
 

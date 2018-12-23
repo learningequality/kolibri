@@ -11,15 +11,15 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import imports from './imports';
   import QuizDetailEditor from './shared/QuizDetailEditor';
 
   export default {
     name: 'ReportsQuizEditorPage',
     components: {
-      KButton,
       QuizDetailEditor,
     },
+    mixins: [imports],
     data() {
       return {
         lessonTitle: 'Lesson A',

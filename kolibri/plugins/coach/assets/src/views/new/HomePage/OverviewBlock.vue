@@ -19,13 +19,12 @@
 
 <script>
 
-  import BackLink from '../shared/BackLink';
+  import imports from '../imports';
 
   export default {
     name: 'OverviewBlock',
-    components: {
-      BackLink,
-    },
+    components: {},
+    mixins: [imports],
     $trs: {
       back: 'All classes',
       changeClass: 'Change class',

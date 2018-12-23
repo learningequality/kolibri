@@ -26,20 +26,15 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import BackLink from './shared/BackLink';
+  import imports from './imports';
   import NotificationCard from './shared/notifications/NotificationCard';
 
   export default {
     name: 'HomeActivityPage',
     components: {
-      KButton,
       NotificationCard,
-      BackLink,
     },
-    props: {},
-    computed: {},
-    methods: {},
+    mixins: [imports],
     $trs: {
       back: 'Back',
       classActivity: 'Class activity',

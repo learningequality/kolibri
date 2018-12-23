@@ -51,25 +51,15 @@
 
 <script>
 
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import Recipients from './shared/Recipients';
-  import LessonActive from './shared/LessonActive';
-  import Completed from './shared/status/Completed';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
-      LessonActive,
-      Recipients,
-      Completed,
-      NeedHelp,
       ReportsHeader,
-      KSelect,
-      KRouterLink,
     },
+    mixins: [imports],
     data() {
       return {
         filter: 'allLessons',
