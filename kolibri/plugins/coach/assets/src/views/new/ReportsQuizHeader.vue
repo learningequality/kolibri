@@ -11,31 +11,31 @@
     <h1>Some quiz</h1>
     <KDropdownMenu
       slot="optionsDropdown"
-      :text="$tr('options')"
+      :text="coachStrings.$tr('optionsLabel')"
       :options="actionOptions"
       appearance="raised-button"
       @select="goTo($event.value)"
     />
     <dl>
-      <dt>{{ $tr('status') }}</dt>
+      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
       <dd><QuizActive :active="true" /></dd>
-      <dt>{{ $tr('recipients') }}</dt>
+      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
       <dd><Recipients :groups="[]" /></dd>
-      <dt>{{ $tr('progress') }}</dt>
+      <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
       <dd><Completed :count="3" :total="10" :verbosity="1" /></dd>
-      <dt>{{ $tr('questionOrder') }}</dt>
+      <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
       <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
     </dl>
 
     <div>
       <KRouterLink
-        :text="$tr('learnerReport')"
+        :text="coachStrings.$tr('reportLabel')"
         appearance="flat-button"
         class="new-coach-tab"
         :to="link('ReportsQuizLearnerListPage')"
       />
       <KRouterLink
-        :text="$tr('difficulties')"
+        :text="coachStrings.$tr('difficultQuestionsLabel')"
         appearance="flat-button"
         class="new-coach-tab"
 
@@ -61,32 +61,21 @@
     computed: {
       actionOptions() {
         return [
-          { label: this.$tr('preview'), value: 'ReportsQuizPreviewPage' },
-          { label: this.$tr('editDetails'), value: 'ReportsQuizEditorPage' },
+          { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
+          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
     },
     methods: {
       goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+        this.$router.push(this.newCoachRoute(page));
       },
       link(page) {
-        return { name: 'NEW_COACH_PAGES', params: { page } };
+        return this.newCoachRoute(page);
       },
     },
     $trs: {
       back: 'All quizzes',
-      editDetails: 'Edit details',
-      preview: 'Preview',
-      options: 'Options',
-      learnerReport: 'Report',
-      status: 'Status',
-      recipients: 'Recipients',
-      progress: 'Progress',
-      questionOrder: 'Question order',
-      questionOrderFixed: 'Fixed',
-      questionOrderRandom: 'Randomized',
-      difficulties: 'Difficult questions',
     },
   };
 

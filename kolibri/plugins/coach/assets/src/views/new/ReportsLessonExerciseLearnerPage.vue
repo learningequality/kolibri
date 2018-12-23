@@ -4,16 +4,16 @@
     <BackLink text="Counting with big numbers" :to="backLink" />
     <h1>April</h1>
     <ul>
-      <li>{{ $tr('masteryModelLabel') }} <MasteryModel /></li>
+      <li>{{ coachStrings.$tr('masteryModelLabel') }} <MasteryModel /></li>
       <li>
-        {{ $tr('statusLabel') }}
+        {{ coachStrings.$tr('statusLabel') }}
         <Completed :showNumber="false" :verbosity="1" />
       </li>
     </ul>
-    <p>{{ $tr('answerHistory') }}</p>
-    <p>{{ $tr('attempts') }}</p>
-    <p>{{ $tr('showCorrectAnswer') }}</p>
-    <h2>{{ $tr('questions') }}</h2>
+    <p>{{ coachStrings.$tr('answerHistoryLabel') }}</p>
+    <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
+    <p>{{ coachStrings.$tr('showCorrectAnswerLabel') }}</p>
+    <h2>{{ coachStrings.$tr('questionsLabel') }}</h2>
     <ul>
       <li><Answer type="noAttempt" /></li>
       <li><Answer type="correct" /></li>
@@ -39,14 +39,7 @@
         return this.newCoachRoute('ReportsLessonExerciseLearnerListPage');
       },
     },
-    $trs: {
-      masteryModelLabel: 'Completion requirement',
-      statusLabel: 'Status',
-      answerHistory: 'Answer history',
-      attempts: 'Attempts',
-      showCorrectAnswer: 'Show correct answer',
-      questions: 'Questions',
-    },
+    $trs: {},
   };
 
 </script>

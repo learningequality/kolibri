@@ -10,9 +10,9 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderQuestion') }}</td>
-          <td>{{ $tr('tableHeaderNeedHelp') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
+          <td>{{ coachStrings.$tr('questionLabel') }}</td>
+          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -60,11 +60,7 @@
         this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
       },
     },
-    $trs: {
-      tableHeaderQuestion: 'Question',
-      tableHeaderNeedHelp: 'Help needed',
-      tableHeaderTimeSpent: 'Average time spent',
-    },
+    $trs: {},
   };
 
 </script>

@@ -8,13 +8,13 @@
       <dt>{{ $tr('overallScore') }}</dt>
       <dd><Score :value="0.5" /></dd>
       <dt>{{ $tr('questionsCorrect') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {count:10, total: 12}) }}</dd>
+      <dd>{{ coachStrings.$tr('ratio', {value:10, total: 12}) }}</dd>
     </dl>
 
-    <p>{{ $tr('answers') }}</p>
-    <p>{{ $tr('attempts') }}</p>
-    <p>{{ $tr('showCorrectAnswer') }}</p>
-    <h2>{{ $tr('answers') }}</h2>
+    <p>{{ coachStrings.$tr('answersLabel') }}</p>
+    <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
+    <p>{{ coachStrings.$tr('showCorrectAnswerLabel') }}</p>
+    <h2>{{ coachStrings.$tr('answersLabel') }}</h2>
     <ul>
       <li><Answer type="noAttempt" /></li>
       <li><Answer type="correct" /></li>
@@ -43,8 +43,6 @@
     $trs: {
       overallScore: 'Overall score',
       questionsCorrect: 'Questions correct',
-      answers: 'Answers',
-      showCorrectAnswer: 'Show correct answer',
     },
   };
 

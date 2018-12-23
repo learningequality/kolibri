@@ -7,32 +7,32 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ $tr('reports') }}</h1>
+    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
     <p>{{ $tr('description') }}</p>
     <div>
       <KRouterLink
-        :text="$tr('lessons')"
+        :text="coachStrings.$tr('lessonsLabel')"
         :to="newCoachRoute('ReportsLessonListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('quizzes')"
+        :text="coachStrings.$tr('quizzesLabel')"
         :to="newCoachRoute('ReportsQuizListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('learners')"
+        :text="coachStrings.$tr('learnersLabel')"
         :to="newCoachRoute('ReportsLearnerListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('groups')"
+        :text="coachStrings.$tr('groupsLabel')"
         :to="newCoachRoute('ReportsGroupListPage')"
         :primary="false"
         appearance="flat-button"
@@ -56,11 +56,6 @@
     $trs: {
       back: 'All classes',
       description: 'View reports for your learners and class materials',
-      reports: 'Reports',
-      lessons: 'Lessons',
-      quizzes: 'Quizzes',
-      learners: 'Learners',
-      groups: 'Groups',
     },
   };
 

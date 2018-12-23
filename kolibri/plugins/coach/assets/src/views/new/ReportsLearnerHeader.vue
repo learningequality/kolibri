@@ -35,7 +35,7 @@
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('activity')"
+        :text="coachStrings.$tr('activityLabel')"
         :to="newCoachRoute('ReportsLearnerActivityPage')"
         :primary="false"
         appearance="flat-button"
@@ -58,7 +58,6 @@
     mixins: [imports],
     $trs: {
       back: 'All learners',
-      activity: 'Activity',
     },
   };
 

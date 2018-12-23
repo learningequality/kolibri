@@ -8,8 +8,8 @@
       />
     </p>
     <h1>Some Video</h1>
-    <KButton :text="$tr('preview')" />
-    <KCheckbox :label="$tr('viewByGroups')" />
+    <KButton :text="coachStrings.$tr('previewAction')" />
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
     <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <ul>
       <li>{{ $tr('avgTimeSpent') }} <TimeDuration :seconds="360" /></li>
@@ -23,12 +23,12 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderName') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
-          <td>{{ $tr('tableHeaderViews') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
-          <td>{{ $tr('tableHeaderGroups') }}</td>
-          <td>{{ $tr('tableHeaderLastActivity') }}</td>
+          <td>{{ coachStrings.$tr('nameLabel') }}</td>
+          <td>{{ coachStrings.$tr('statusLabel') }}</td>
+          <td>{{ coachStrings.$tr('viewsLabel') }}</td>
+          <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
+          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
+          <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -78,16 +78,8 @@
     },
     $trs: {
       back: "Back to '{lesson}'",
-      preview: 'Preview',
       avgTimeSpent: 'Average time spent:',
       avgNumViews: 'Average number of views:',
-      viewByGroups: 'View report by groups',
-      tableHeaderName: 'Name',
-      tableHeaderStatus: 'Status',
-      tableHeaderViews: 'Views',
-      tableHeaderTimeSpent: 'Time spent',
-      tableHeaderGroups: 'Groups',
-      tableHeaderLastActivity: 'Last activity',
     },
   };
 

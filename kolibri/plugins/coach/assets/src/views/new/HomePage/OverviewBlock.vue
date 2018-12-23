@@ -8,10 +8,12 @@
       />
     </p>
     <h1>Class name</h1>
-    <ul>
-      <li>{{ $tr('coach', {count: 2}) }} A | B | C</li>
-      <li>{{ $tr('learner', {count: 12}) }} 21</li>
-    </ul>
+    <dl>
+      <dd>{{ $tr('coach', {count: 2}) }}</dd>
+      <dt><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></dt>
+      <dd>{{ $tr('learner', {count: 12}) }}</dd>
+      <dt>{{ coachStrings.$tr('integer', {value: 12}) }}</dt>
+    </dl>
   </div>
 
 </template>
@@ -28,9 +30,7 @@
     $trs: {
       back: 'All classes',
       changeClass: 'Change class',
-      coachCount: '{count, number, integer} {count, plural, one {Coach} other {Coaches}}',
       coach: '{count, plural, one {Coach} other {Coaches}}',
-      learnerCount: '{count, number, integer} {count, plural, one {Learner} other {Learners}}',
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
   };

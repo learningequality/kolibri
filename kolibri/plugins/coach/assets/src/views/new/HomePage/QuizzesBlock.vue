@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h2>{{ $tr('quizzes') }}</h2>
+    <h2>{{ coachStrings.$tr('quizzesLabel') }}</h2>
     <p>
       <KRouterLink
         appearance="flat-button"
@@ -49,7 +49,6 @@
     },
     mixins: [imports],
     $trs: {
-      quizzes: 'Quizzes',
       viewAll: 'All quizzes',
     },
   };

@@ -11,11 +11,11 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderAverageScore') }}</td>
-          <td>{{ $tr('tableHeaderCompleted') }}</td>
-          <td>{{ $tr('tableHeaderRecipients') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
+          <td>{{ coachStrings.$tr('completedLabel') }}</td>
+          <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
+          <td>{{ coachStrings.$tr('statusLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -110,11 +110,6 @@
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
-      tableHeaderTitle: 'Title',
-      tableHeaderAverageScore: 'Average score',
-      tableHeaderCompleted: 'Completed',
-      tableHeaderRecipients: 'Recipients',
-      tableHeaderStatus: 'Status',
     },
   };
 

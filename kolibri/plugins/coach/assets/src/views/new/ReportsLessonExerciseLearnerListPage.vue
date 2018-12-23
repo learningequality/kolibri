@@ -16,11 +16,11 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderName') }}</td>
-          <td>{{ $tr('tableHeaderProgress') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
-          <td>{{ $tr('tableHeaderGroups') }}</td>
-          <td>{{ $tr('tableHeaderLastActivity') }}</td>
+          <td>{{ coachStrings.$tr('nameLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
+          <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
+          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
+          <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -78,14 +78,7 @@
         this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
       },
     },
-    $trs: {
-      tableHeaderName: 'Name',
-      tableHeaderProgress: 'Progress',
-      tableHeaderViews: 'Views',
-      tableHeaderTimeSpent: 'Time spent',
-      tableHeaderGroups: 'Groups',
-      tableHeaderLastActivity: 'Last activity',
-    },
+    $trs: {},
   };
 
 </script>

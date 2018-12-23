@@ -2,11 +2,11 @@
 
   <div class="new-coach-block">
     <LessonDetailEditor />
-    <p><KButton :text="$tr('manageResources')" /></p>
-    <h2>{{ $tr('numResources', { count: 2 }) }}</h2>
+    <p><KButton :text="coachStrings.$tr('manageResourcesAction')" /></p>
+    <h2>{{ coachStrings.$tr('numberOfResources', { value: 2 }) }}</h2>
     <pre>ResourceListTable</pre>
-    <KButton :text="$tr('cancel')" :primary="false" />
-    <KButton :text="$tr('save')" :primary="true" />
+    <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
+    <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
   </div>
 
 </template>
@@ -33,12 +33,7 @@
         isActive: true,
       };
     },
-    $trs: {
-      manageResources: 'Manage resources',
-      cancel: 'Cancel',
-      save: 'Save',
-      numResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
-    },
+    $trs: {},
   };
 
 </script>

@@ -10,10 +10,10 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderScore') }}</td>
-          <td>{{ $tr('tableHeaderProgress') }}</td>
-          <td>{{ $tr('tableHeaderGroups') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
+          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -99,10 +99,6 @@
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
-      tableHeaderTitle: 'Title',
-      tableHeaderScore: 'Score',
-      tableHeaderProgress: 'Progress',
-      tableHeaderGroups: 'Groups',
     },
   };
 

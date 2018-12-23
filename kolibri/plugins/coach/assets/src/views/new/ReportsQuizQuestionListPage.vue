@@ -8,9 +8,9 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderQuestion') }}</td>
-          <td>{{ $tr('tableHeaderNeedHelp') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
+          <td>{{ coachStrings.$tr('questionLabel') }}</td>
+          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+          <td>{{ $tr('avgTimeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -70,9 +70,7 @@
       },
     },
     $trs: {
-      tableHeaderQuestion: 'Question',
-      tableHeaderNeedHelp: 'Help needed',
-      tableHeaderTimeSpent: 'Average time spent',
+      avgTimeSpentLabel: 'Average time spent',
     },
   };
 

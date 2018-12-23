@@ -2,8 +2,8 @@
 
   <div class="new-coach-block">
     <QuizDetailEditor />
-    <KButton :text="$tr('cancel')" :primary="false" />
-    <KButton :text="$tr('save')" :primary="true" />
+    <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
+    <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
   </div>
 
 </template>
@@ -30,12 +30,7 @@
         isActive: true,
       };
     },
-    $trs: {
-      manageResources: 'Manage resources',
-      cancel: 'Cancel',
-      save: 'Save',
-      numResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
-    },
+    $trs: {},
   };
 
 </script>

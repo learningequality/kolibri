@@ -15,7 +15,7 @@
 
 <script>
 
-  import imports from '../imports';
+  import imports from '../../imports';
 
   export default {
     name: 'NotificationCard',

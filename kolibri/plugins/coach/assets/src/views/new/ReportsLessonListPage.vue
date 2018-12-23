@@ -11,10 +11,10 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderCompleted') }}</td>
-          <td>{{ $tr('tableHeaderRecipients') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('completedLabel') }}</td>
+          <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
+          <td>{{ coachStrings.$tr('statusLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -91,10 +91,6 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      tableHeaderTitle: 'Title',
-      tableHeaderCompleted: 'Completed',
-      tableHeaderRecipients: 'Recipients',
-      tableHeaderStatus: 'Status',
     },
   };
 
