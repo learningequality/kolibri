@@ -2,8 +2,8 @@
 
   <div>
     <BackLink
-      text="Counting with big numbers"
-      :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
+      :text="coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'})"
+      :to="newCoachRoute('ReportsLearnerReportLessonPage')"
     />
     <LearnerExerciseReport />
   </div>
@@ -17,7 +17,7 @@
   import LearnerExerciseReport from './shared/LearnerExerciseReport';
 
   export default {
-    name: 'ReportsLessonExerciseLearnerPage',
+    name: 'ReportsLearnerReportLessonExercisePage',
     components: {
       LearnerExerciseReport,
     },

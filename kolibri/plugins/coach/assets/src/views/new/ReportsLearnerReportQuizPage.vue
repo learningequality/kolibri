@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <BackLink text="Some quiz" :to="backLink" />
+    <BackLink
+      text="Julie"
+      :to="newCoachRoute('ReportsLearnerReportPage')"
+    />
     <LearnerQuizReport />
   </div>
 
@@ -14,16 +17,11 @@
   import LearnerQuizReport from './shared/LearnerQuizReport';
 
   export default {
-    name: 'ReportsQuizLearnerPage',
+    name: 'ReportsLearnerReportQuizPage',
     components: {
       LearnerQuizReport,
     },
     mixins: [imports],
-    computed: {
-      backLink() {
-        return this.newCoachRoute('ReportsQuizLearnerListPage');
-      },
-    },
     $trs: {},
   };
 

@@ -16,19 +16,39 @@
           </thead>
           <tbody>
             <tr>
-              <td>Some lesson</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  text="Some lesson"
+                />
+              </td>
               <td><NotStarted :showNumber="false" :verbosity="1" /></td>
             </tr>
             <tr>
-              <td>Another lesson</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  text="Another lesson"
+                />
+              </td>
               <td><NeedHelp :showNumber="false" :verbosity="1" /></td>
             </tr>
             <tr>
-              <td>Lesson 1</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  text="Lesson 1"
+                />
+              </td>
               <td><Completed :showNumber="false" :verbosity="1" /></td>
             </tr>
             <tr>
-              <td>Lesson 2</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  text="Lesson 2"
+                />
+              </td>
               <td><InProgress :showNumber="false" :verbosity="1" /></td>
             </tr>
           </tbody>
@@ -46,12 +66,22 @@
           </thead>
           <tbody>
             <tr>
-              <td>Some quiz</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                  text="Some quiz"
+                />
+              </td>
               <td><Completed :showNumber="false" :verbosity="1" /></td>
               <td><Score :value="0.92" /></td>
             </tr>
             <tr>
-              <td>Another quiz</td>
+              <td>
+                <KRouterLink
+                  :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                  text="Another quiz"
+                />
+              </td>
               <td><InProgress :showNumber="false" :verbosity="1" /></td>
               <td><Score /></td>
             </tr>

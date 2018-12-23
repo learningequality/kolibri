@@ -3,18 +3,13 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLessonListPage')"
-        :text="$tr('back')"
+        :to="newCoachRoute('ReportsLearnerReportPage')"
+        text="Julie"
       />
     </p>
-    <h1>Some Lesson</h1>
-    <KDropdownMenu
-      slot="optionsDropdown"
-      :text="coachStrings.$tr('optionsLabel')"
-      :options="actionOptions"
-      appearance="raised-button"
-      @select="goTo($event.value)"
-    />
+    <h1>
+      {{ coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'}) }}
+    </h1>
     <dl>
       <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
       <dd><LessonActive :active="true" /></dd>
@@ -30,7 +25,7 @@
         <tr>
           <td>{{ coachStrings.$tr('titleLabel') }}</td>
           <td>{{ coachStrings.$tr('progressLabel') }}</td>
-          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+          <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -38,23 +33,20 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
+              :to="newCoachRoute('ReportsLearnerReportLessonExercisePage')"
             />
           </td>
           <td>
-            <Completed :count="3" :total="6" /> &nbsp; <NeedHelp :count="1" />
+            <NeedHelp :showNumber="false" :verbosity="1" />
           </td>
           <td><TimeDuration :seconds="360" /></td>
         </tr>
         <tr>
           <td>
-            <KRouterLink
-              text="Some video"
-              :to="newCoachRoute('ReportsLessonResourceLearnerListPage')"
-            />
+            Some video
           </td>
           <td>
-            <Completed :count="3" :total="6" />
+            <Completed :showNumber="false" :verbosity="1" />
           </td>
           <td><TimeDuration :seconds="120" /></td>
         </tr>
@@ -70,27 +62,11 @@
   import imports from './imports';
 
   export default {
-    name: 'ReportsLessonPage',
+    name: 'ReportsLearnerReportLessonPage',
     components: {},
     mixins: [imports],
-    computed: {
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
-    },
-    methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
-      },
-    },
     $trs: {
-      back: 'All lessons',
+      lessonProgressLabel: "'{lesson}' progress",
     },
   };
 
