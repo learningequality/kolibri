@@ -4,7 +4,9 @@
 
     <ReportsLessonExerciseHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsToggle')" />
+
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
@@ -34,19 +36,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import TimeDuration from './shared/TimeDuration';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
-      TimeDuration,
-      NeedHelp,
       ReportsLessonExerciseHeader,
-      KRouterLink,
     },
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
@@ -66,7 +64,6 @@
       },
     },
     $trs: {
-      overall: 'Overall',
       tableHeaderQuestion: 'Question',
       tableHeaderNeedHelp: 'Help needed',
       tableHeaderTimeSpent: 'Average time spent',

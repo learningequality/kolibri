@@ -17,7 +17,6 @@
     </p>
 
     <KButton :text="$tr('preview')" />
-    <KCheckbox :label="$tr('viewByGroups')" />
 
     <div>
       <KRouterLink
@@ -65,7 +64,6 @@
       masteryModelLabel: 'Completion requirement:',
       learnerReport: 'Report',
       difficulties: 'Difficult questions',
-      viewByGroups: 'View by groups',
     },
   };
 

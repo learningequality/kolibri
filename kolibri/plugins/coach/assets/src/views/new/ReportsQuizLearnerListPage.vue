@@ -4,7 +4,7 @@
 
     <ReportsQuizHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
 
     <table class="new-coach-table">
@@ -95,7 +95,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      overall: 'Overall',
       averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',

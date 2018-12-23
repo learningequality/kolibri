@@ -4,7 +4,7 @@
 
     <ReportsQuizHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
@@ -73,7 +73,6 @@
       },
     },
     $trs: {
-      overall: 'Overall',
       tableHeaderQuestion: 'Question',
       tableHeaderNeedHelp: 'Help needed',
       tableHeaderTimeSpent: 'Average time spent',

@@ -4,7 +4,9 @@
 
     <ReportsLessonExerciseHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsToggle')" />
+
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <p>
       <Completed :verbosity="0" :count="3" :showRatio="false" class="stats" />
       <InProgress :verbosity="0" :count="3" :showRatio="false" class="stats" />
@@ -80,7 +82,6 @@
       },
     },
     $trs: {
-      overall: 'Overall',
       tableHeaderName: 'Name',
       tableHeaderProgress: 'Progress',
       tableHeaderViews: 'Views',

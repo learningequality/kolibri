@@ -10,7 +10,7 @@
     <h1>Some Video</h1>
     <KButton :text="$tr('preview')" />
     <KCheckbox :label="$tr('viewByGroups')" />
-    <h2>{{ $tr('overall') }}</h2>
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <ul>
       <li>{{ $tr('avgTimeSpent') }} <TimeDuration :seconds="360" /></li>
       <li>{{ $tr('avgNumViews') }} 4</li>
@@ -65,25 +65,12 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import BackLink from './shared/BackLink';
-  import TimeDuration from './shared/TimeDuration';
-  import InProgress from './shared/status/InProgress';
-  import Completed from './shared/status/Completed';
-  import NotStarted from './shared/status/NotStarted';
+  import imports from './imports';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
-    components: {
-      InProgress,
-      TimeDuration,
-      Completed,
-      NotStarted,
-      BackLink,
-      KCheckbox,
-      KButton,
-    },
+    components: {},
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
@@ -92,7 +79,6 @@
     $trs: {
       back: "Back to '{lesson}'",
       preview: 'Preview',
-      overall: 'Overall',
       avgTimeSpent: 'Average time spent:',
       avgNumViews: 'Average number of views:',
       viewByGroups: 'View report by groups',

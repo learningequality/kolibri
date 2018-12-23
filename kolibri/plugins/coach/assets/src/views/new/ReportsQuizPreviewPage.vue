@@ -17,7 +17,7 @@
     <h1>Some quiz</h1>
     <p>{{ coachStrings.$tr('orderFixedDescription') }}</p>
     <p>{{ coachStrings.$tr('orderRandomDescription') }}</p>
-    <p>{{ coachStrings.$tr('numberOfQuestions', {num: 2}) }}</p>
+    <p>{{ coachStrings.$tr('numberOfQuestions', {value: 2}) }}</p>
   </div>
 
 </template>

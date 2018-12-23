@@ -26,14 +26,14 @@
       />
       <KRouterLink
         :text="$tr('learners')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnersList' }}"
+        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnerListPage' }}"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="$tr('groups')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsGroupsList' }}"
+        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsGroupListPage' }}"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

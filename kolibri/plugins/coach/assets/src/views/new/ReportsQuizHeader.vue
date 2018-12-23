@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
+        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsQuizListPage'} }"
         :text="$tr('back')"
       />
     </p>
@@ -87,7 +87,6 @@
       questionOrderFixed: 'Fixed',
       questionOrderRandom: 'Randomized',
       difficulties: 'Difficult questions',
-      viewByGroups: 'View by groups',
     },
   };
 
