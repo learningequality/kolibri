@@ -427,6 +427,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 1000;
     height: 80px;
     padding: 8px;
     font-weight: bold;
