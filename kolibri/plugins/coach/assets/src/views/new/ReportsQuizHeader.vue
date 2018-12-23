@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsQuizListPage'} }"
+        :to="newCoachRoute('ReportsQuizListPage')"
         :text="$tr('back')"
       />
     </p>

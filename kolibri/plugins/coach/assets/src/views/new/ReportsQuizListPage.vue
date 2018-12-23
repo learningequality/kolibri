@@ -23,7 +23,7 @@
           <td>
             <KRouterLink
               text="Another quiz"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerListPage')"
             />
           </td>
           <td><Score /></td>
@@ -37,7 +37,7 @@
           <td>
             <KRouterLink
               text="Quiz A"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerListPage')"
             />
           </td>
           <td><Score /></td>
@@ -51,7 +51,7 @@
           <td>
             <KRouterLink
               text="Quiz B"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerListPage')"
             />
           </td>
           <td><Score :value="0.9" /></td>

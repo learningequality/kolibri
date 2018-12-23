@@ -17,7 +17,7 @@
           <td>
             <KRouterLink
               text="Some class"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="['Jacob', 'Alice']" /></td>
@@ -27,7 +27,7 @@
           <td>
             <KRouterLink
               text="Another class"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="[]" /></td>
@@ -37,7 +37,7 @@
           <td>
             <KRouterLink
               text="Conference"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="['Steve', 'Julie', 'Jane', 'Alice', 'Jacob']" /></td>

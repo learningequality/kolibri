@@ -3,7 +3,7 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
+        :to="newCoachRoute('ReportsLessonListPage')"
         :text="$tr('back')"
       />
     </p>
@@ -38,7 +38,7 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonExerciseLearnerListPage' }}"
+              :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
             />
           </td>
           <td><Completed :count="3" :total="6" /></td>
@@ -48,7 +48,7 @@
           <td>
             <KRouterLink
               text="Some video"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonResourceLearnerListPage' }}"
+              :to="newCoachRoute('ReportsLessonResourceLearnerListPage')"
             />
           </td>
           <td>

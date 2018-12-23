@@ -22,7 +22,7 @@
           <td>
             <KRouterLink
               text="Lesson A"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonPage' }}"
+              :to="newCoachRoute('ReportsLessonPage')"
             />
           </td>
           <td><Completed :count="1" :total="100" /></td>
@@ -33,7 +33,7 @@
           <td>
             <KRouterLink
               text="Lesson B"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonPage' }}"
+              :to="newCoachRoute('ReportsLessonPage')"
             />
           </td>
           <td><Completed :count="3" :total="10" /></td>

@@ -4,13 +4,13 @@
     <p>
       <BackLink
         text="Some Quiz"
-        :to="{ name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' } }"
+        :to="newCoachRoute('ReportsQuizLearnerListPage')"
       />
     </p>
     <p>
       <BackLink
         :text="$tr('backToQuizAction')"
-        :to="{ name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerListPage' } }"
+        :to="newCoachRoute('ReportsQuizLearnerListPage')"
       />
     </p>
     <h1>{{ coachStrings.$tr('previewLabel') }}</h1>
