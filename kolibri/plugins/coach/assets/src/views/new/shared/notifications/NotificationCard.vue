@@ -4,8 +4,10 @@
     class="notification"
     :to="route"
   >
-    <p>{{ context }}</p>
-    <p><slot></slot></p>
+    <div>
+      <p class="context">{{ context }}</p>
+      <p class="text"><slot></slot></p>
+    </div>
   </router-link>
 
 </template>
@@ -21,7 +23,7 @@
         required: true,
       },
       // group name
-      userContext: {
+      learnerContext: {
         type: String,
         required: false,
       },
@@ -36,10 +38,10 @@
         return { name: 'NEW_COACH_PAGES', params: { page: this.targetPage } };
       },
       context() {
-        if (this.userContext && this.contentContext) {
-          return `${this.userContext} • ${this.userContext}`;
-        } else if (this.userContext) {
-          return this.userContext;
+        if (this.learnerContext && this.contentContext) {
+          return `${this.learnerContext} • ${this.contentContext}`;
+        } else if (this.learnerContext) {
+          return this.learnerContext;
         } else if (this.contentContext) {
           return this.contentContext;
         }
@@ -55,9 +57,26 @@
 
   .notification {
     display: block;
+    padding: 8px;
     color: black;
     text-decoration: none;
     border-top: 1px solid gray;
+  }
+
+  .notification:hover {
+    background-color: #eeeeee;
+  }
+
+  .context {
+    margin-top: 0;
+    margin-bottom: 4px;
+    font-size: small;
+    color: gray;
+  }
+
+  .text {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
 </style>

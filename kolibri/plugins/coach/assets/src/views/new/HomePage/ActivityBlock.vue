@@ -11,15 +11,6 @@
     </p>
     <div>
 
-      <!--
-  nStrings.$tr('individualFinished', {learnerName, itemName})
-  nStrings.$tr('multipleFinished', {learnerName, numOthers, itemName})
-  nStrings.$tr('wholeClassroomFinished', {classroomName, itemName})
-  nStrings.$tr('wholeLearnerGroupFinished', {itemName})
-  nStrings.$tr('individualNeedsHelp', {learnerName, itemName})
-  nStrings.$tr('multipleNeedsHelp', {learnerName, numOthers, itemName})
- -->
-
       <!-- Individual finished -->
       <NotificationCard targetPage="SomePage">
         {{ nStrings.$tr('individualFinished', {learnerName: "Adam", itemName: "A video"}) }}
@@ -27,26 +18,138 @@
       <NotificationCard targetPage="SomePage">
         {{ nStrings.$tr('individualFinished', {learnerName: "Betsty", itemName: "An exercise"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
         {{ nStrings.$tr('individualFinished', {learnerName: "Adam", itemName: "A video assigned to the class"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
         {{ nStrings.$tr('individualFinished', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
         {{ nStrings.$tr('individualFinished', {learnerName: "Carol", itemName: "A video assigned to a group"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
         {{ nStrings.$tr('individualFinished', {learnerName: "Darren", itemName: "An exercise assigned to a group"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
-        {{ nStrings.$tr('individualFinished', {learnerName: "Edward", itemName: "A lesson"}) }}
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('individualFinished', {learnerName: "Edward", itemName: "Some lesson"}) }}
       </NotificationCard>
-      <NotificationCard targetPage="SomePage">
-        {{ nStrings.$tr('individualFinished', {learnerName: "Frank", itemName: "A quiz"}) }}
+      <NotificationCard targetPage="SomePage" contentContext="Some quiz">
+        {{ nStrings.$tr('individualFinished', {learnerName: "Frank", itemName: "Some quiz"}) }}
       </NotificationCard>
 
+
       <!-- Multiple finished -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Adam", numOthers: 1, itemName: "A video"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Betsty", numOthers: 2, itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Adam", numOthers: 3, itemName: "A video assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Betsty", numOthers: 4, itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Carol", numOthers: 5, itemName: "A video assigned to a group"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Darren", numOthers: 6, itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Edward", numOthers: 7, itemName: "Some lesson"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some quiz">
+        {{ nStrings.$tr('multipleFinished', {learnerName: "Frank", numOthers: 8, itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+      <!-- Whole group finished -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "A video"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "A video assigned to a group"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "Some lesson"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some quiz">
+        {{ nStrings.$tr('wholeGroupFinished', {groupName: "Group A", itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+      <!-- Whole class finished -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "A video"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "A video assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "Some lesson"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some quiz">
+        {{ nStrings.$tr('wholeClassFinished', {className: "5th Grade", itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+      <!-- Whole class finished - alternative -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "A video"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "A video assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "Some lesson"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some quiz">
+        {{ nStrings.$tr('everyoneFinished', {itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+      <!-- Individual needs help -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Darren", itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+
+
+      <!-- Multiple need help -->
+      <NotificationCard targetPage="SomePage">
+        {{ nStrings.$tr('multipleNeedHelp', {learnerName: "Betsty", numOthers: 1, itemName: "An exercise"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleNeedHelp', {learnerName: "Betsty", numOthers: 2, itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+      <NotificationCard targetPage="SomePage" learnerContext="Group A" contentContext="Some lesson">
+        {{ nStrings.$tr('multipleNeedHelp', {learnerName: "Darren", numOthers: 3, itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
 
     </div>
   </div>
