@@ -4,10 +4,15 @@
     class="notification"
     :to="route"
   >
-    <div>
-      <p class="context">{{ context }}</p>
-      <p class="text"><slot></slot></p>
-    </div>
+    <KGrid>
+      <KGridItem :size="time ? 75 : 100" percentage>
+        <p class="context">{{ context }}</p>
+        <p class="text"><slot></slot></p>
+      </KGridItem>
+      <KGridItem v-if="time" :size="25" percentage>
+        {{ time }}
+      </KGridItem>
+    </KGrid>
   </router-link>
 
 </template>
@@ -32,6 +37,11 @@
       },
       // exam or lesson name
       contentContext: {
+        type: String,
+        required: false,
+      },
+      // exam or lesson name
+      time: {
         type: String,
         required: false,
       },
@@ -63,7 +73,7 @@
     padding: 8px;
     color: black;
     text-decoration: none;
-    border-top: 1px solid gray;
+    border-top: 1px solid rgb(223, 223, 223);
   }
 
   .notification:hover {

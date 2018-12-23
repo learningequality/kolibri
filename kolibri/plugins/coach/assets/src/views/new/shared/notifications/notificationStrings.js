@@ -11,16 +11,21 @@ import { createTranslator } from 'kolibri.utils.i18n';
 */
 
 const nStrings = createTranslator('CommonCoachStrings', {
+  // started
   individualStarted: `{learnerName} started '{itemName}'`,
   multipleStarted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,
   wholeClassStarted: `Everyone in '{className}' started '{itemName}'`,
   wholeGroupStarted: `Everyone in '{groupName}' started '{itemName}'`,
   everyoneStarted: `Everyone started '{itemName}'`,
-  individualFinished: `{learnerName} finished '{itemName}'`,
-  multipleFinished: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} finished '{itemName}'`,
-  wholeClassFinished: `Everyone in '{className}' finished '{itemName}'`,
-  wholeGroupFinished: `Everyone in '{groupName}' finished '{itemName}'`,
-  everyoneFinished: `Everyone finished '{itemName}'`,
+
+  // completed
+  individualCompleted: `{learnerName} completed '{itemName}'`,
+  multipleCompleted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} completed '{itemName}'`,
+  wholeClassCompleted: `Everyone in '{className}' completed '{itemName}'`,
+  wholeGroupCompleted: `Everyone in '{groupName}' completed '{itemName}'`,
+  everyoneCompleted: `Everyone completed '{itemName}'`,
+
+  // needs help
   individualNeedsHelp: `{learnerName} needs help with '{itemName}'`,
   multipleNeedHelp: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} need help with '{itemName}'`,
 });

@@ -13,7 +13,7 @@
         <tr>
           <td>{{ coachStrings.$tr('titleLabel') }}</td>
           <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
-          <td>{{ coachStrings.$tr('completedLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
           <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
           <td>{{ coachStrings.$tr('statusLabel') }}</td>
         </tr>

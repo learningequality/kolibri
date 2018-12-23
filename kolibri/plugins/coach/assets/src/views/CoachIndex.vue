@@ -401,7 +401,6 @@
   .new-coach-block {
     padding: 8px 24px 24px;
     margin-top: 24px;
-    overflow-x: scroll;
     background-color: white;
     border: 1px solid rgb(240, 240, 240);
     border-radius: 4px;
@@ -420,6 +419,11 @@
     td {
       padding: 8px;
     }
+  }
+
+  .table-head {
+    font-size: smaller;
+    border-bottom: 1px solid rgb(223, 223, 223);
   }
 
   .coach-debug {

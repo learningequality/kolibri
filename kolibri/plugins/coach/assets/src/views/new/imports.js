@@ -17,6 +17,7 @@ import NeedHelp from './shared/status/NeedHelp';
 import NotStarted from './shared/status/NotStarted';
 import Recipients from './shared/Recipients';
 import Score from './shared/Score';
+import Started from './shared/status/Started';
 import TimeDuration from './shared/TimeDuration';
 import QuizActive from './shared/QuizActive';
 
@@ -41,6 +42,7 @@ export default {
     NotStarted,
     Recipients,
     Score,
+    Started,
     TimeDuration,
     QuizActive,
   },

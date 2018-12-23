@@ -9,10 +9,10 @@
     </p>
     <h1>Class name</h1>
     <dl>
-      <dd>{{ $tr('coach', {count: 2}) }}</dd>
-      <dt><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></dt>
-      <dd>{{ $tr('learner', {count: 12}) }}</dd>
-      <dt>{{ coachStrings.$tr('integer', {value: 12}) }}</dt>
+      <dt>{{ $tr('coach', {count: 2}) }}</dt>
+      <dd><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></dd>
+      <dt>{{ $tr('learner', {count: 12}) }}</dt>
+      <dd>{{ coachStrings.$tr('integer', {value: 12}) }}</dd>
     </dl>
   </div>
 
