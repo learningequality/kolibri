@@ -1,6 +1,6 @@
 <template>
 
-  <div class="new-coach-block">
+  <div>
     <p>
       <BackLink
         :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }"

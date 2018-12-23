@@ -1,17 +1,23 @@
 <template>
 
-  <KGrid>
+  <KGrid :gutter="8">
     <KGridItem size="100" percentage>
-      <OverviewBlock />
+      <OverviewBlock class="new-coach-block" />
     </KGridItem>
-    <KGridItem size="50" percentage>
-      <LessonsBlock />
+    <KGridItem sizes="100, 50, 50" percentage>
+
+      <KGrid :gutter="8">
+        <KGridItem size="100" percentage>
+          <QuizzesBlock class="new-coach-block" />
+        </KGridItem>
+        <KGridItem size="100" percentage>
+          <LessonsBlock class="new-coach-block" />
+        </KGridItem>
+      </KGrid>
+
     </KGridItem>
-    <KGridItem size="50" percentage>
-      <QuizzesBlock />
-    </KGridItem>
-    <KGridItem size="100" percentage>
-      <ActivityBlock />
+    <KGridItem sizes="100, 50, 50" percentage>
+      <ActivityBlock class="new-coach-block" />
     </KGridItem>
   </KGrid>
 
@@ -43,4 +49,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .new-coach-block {
+    margin-top: 8px;
+  }
+
+</style>

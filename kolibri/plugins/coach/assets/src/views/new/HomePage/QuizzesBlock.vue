@@ -1,6 +1,6 @@
 <template>
 
-  <div class="new-coach-block">
+  <div>
     <h2>{{ $tr('quizzes') }}</h2>
     <p>
       <KRouterLink

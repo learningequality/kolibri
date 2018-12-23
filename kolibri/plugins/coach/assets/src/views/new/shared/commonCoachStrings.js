@@ -37,11 +37,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   viewByGroupsLabel: 'View by groups',
 
   // formatted values
-  number: '{value, number}',
   integer: '{value, number, integer}',
+  number: '{value, number}',
+  numberOfGroups: '{value, number, integer} {value, plural, one {group} other {groups}}',
+  numberOfQuestions: '{value} {value, plural, one {question} other {questions}}',
   percentage: '{value, number, percent}',
   ratio: '{value, number, integer} out of {total, number, integer}',
-  numberOfQuestions: '{value} {value, plural, one {question} other {questions}}',
 });
 
 const coachStringsMixin = {

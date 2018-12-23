@@ -28,7 +28,7 @@
 
   import KButton from 'kolibri.coreVue.components.KButton';
   import BackLink from './shared/BackLink';
-  import NotificationCard from './shared/NotificationCard';
+  import NotificationCard from './shared/notifications/NotificationCard';
 
   export default {
     name: 'HomeActivityPage',
