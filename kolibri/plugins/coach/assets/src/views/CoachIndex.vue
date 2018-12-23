@@ -17,11 +17,11 @@
       <CoachTopNav v-else slot="sub-nav" />
 
       <div v-if="isNewPage" class="coach-debug">
+        <pre>{{ $route.params.page }}</pre>
         <p class="coach-warning">
           MOCKUP FOR TRANSLATION:<br>
           not the final design or functionality
         </p>
-        <pre>{{ $route.params.page }}</pre>
       </div>
       <!-- ... COACH - under construction -->
 
@@ -428,18 +428,14 @@
     bottom: 0;
     left: 0;
     z-index: 1000;
-    height: 80px;
-    padding: 8px;
+    height: 100px;
     font-weight: bold;
+    text-align: center;
     background-color: white;
     border-top: 1px solid gray;
 
     .coach-warning {
-      float: right;
-      width: 300px;
-      margin-top: 16px;
       color: red;
-      text-align: center;
     }
   }
 
