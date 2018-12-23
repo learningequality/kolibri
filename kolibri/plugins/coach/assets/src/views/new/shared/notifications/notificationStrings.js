@@ -11,6 +11,11 @@ import { createTranslator } from 'kolibri.utils.i18n';
 */
 
 const nStrings = createTranslator('CommonCoachStrings', {
+  individualStarted: `{learnerName} started '{itemName}'`,
+  multipleStarted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,
+  wholeClassStarted: `Everyone in '{className}' started '{itemName}'`,
+  wholeGroupStarted: `Everyone in '{groupName}' started '{itemName}'`,
+  everyoneStarted: `Everyone started '{itemName}'`,
   individualFinished: `{learnerName} finished '{itemName}'`,
   multipleFinished: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} finished '{itemName}'`,
   wholeClassFinished: `Everyone in '{className}' finished '{itemName}'`,
