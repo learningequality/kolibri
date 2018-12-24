@@ -24,12 +24,12 @@
   import imports from './imports';
 
   export default {
-    name: 'ReportsLessonExerciseQuestionPage',
+    name: 'ReportsGroupReportLessonExerciseQuestionPage',
     components: {},
     mixins: [imports],
     computed: {
       backLink() {
-        return this.newCoachRoute('ReportsLessonExerciseLearnerListPage');
+        return this.newCoachRoute('ReportsGroupReportLessonExerciseQuestionListPage');
       },
     },
     $trs: {
