@@ -93,6 +93,24 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   usernameLabel: 'Username',
   viewsLabel: 'Views',
 
+  // notifications
+  updated: 'Updated',
+  created: 'Created',
+  deleted: 'Deleted',
+  saved: 'Saved',
+
+  // empty states
+  activityListEmptyState: 'There is no activity',
+  answerListEmptyState: 'There are no answers',
+  attemptListEmptyState: 'There are no attempts',
+  classListEmptyState: 'There are no classes',
+  groupListEmptyState: 'There are no groups',
+  learnerListEmptyState: 'There are no learners',
+  lessonListEmptyState: 'There are no lessons',
+  recentActivityListEmptyState: 'There is no recent activity',
+  questionListEmptyState: 'There are no questions',
+  quizListEmptyState: 'There are no quizzes',
+
   // toggles
   showCorrectAnswerLabel: 'Show correct answer',
   viewByGroupsLabel: 'View by groups',

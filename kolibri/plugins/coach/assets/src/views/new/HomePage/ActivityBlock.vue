@@ -233,6 +233,8 @@
     methods: {},
     $trs: {
       classActivity: 'Class activity',
+      recentActivity: 'Recent activity',
+      recentClassActivity: 'Recent Class activity',
       noActivity: 'No activity in your class',
       viewAll: 'View all',
     },
