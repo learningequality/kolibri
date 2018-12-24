@@ -24,7 +24,6 @@
       <dd>Ipsum lorem</dd>
     </dl>
 
-    <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
