@@ -3,12 +3,16 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   cancelAction: 'Cancel',
+  createAction: 'Create',
+  deleteAction: 'Delete',
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
   manageResourcesAction: 'Manage resources',
+  newGroupAction: 'New group',
   previewAction: 'Preview',
   saveAction: 'Save',
+  renameAction: 'Rename',
   showMoreAction: 'Show more',
   sortedAscendingAction: 'Sort in ascending order',
   sortedDescendingAction: 'Sort in descending order',

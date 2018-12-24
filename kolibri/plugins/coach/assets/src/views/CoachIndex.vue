@@ -78,7 +78,7 @@
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
-  import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
+  import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReportOld';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */

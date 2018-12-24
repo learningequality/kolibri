@@ -10,7 +10,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
   nStrings.$tr('multipleNeedHelp', {learnerName, numOthers, itemName})
 */
 
-const nStrings = createTranslator('CommonCoachStrings', {
+const nStrings = createTranslator('NotificationStrings', {
   // started
   individualStarted: `{learnerName} started '{itemName}'`,
   multipleStarted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,

@@ -1,7 +1,7 @@
-import ClassListPage from './ClassListPage';
+import CoachClassListPage from './CoachClassListPage';
 import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
-import PlanPage from './PlanPage';
+import PlanLessonListPage from './PlanLessonListPage';
 import ReportsGroupListPage from './ReportsGroupListPage';
 import ReportsGroupLearnerListPage from './ReportsGroupLearnerListPage';
 import ReportsGroupReportPage from './ReportsGroupReportPage';
@@ -40,10 +40,10 @@ import ReportsLessonExerciseQuestionPage from './ReportsLessonExerciseQuestionPa
 
 // register pages to index
 export const newPageMap = {
-  ClassListPage,
+  CoachClassListPage,
   HomePage,
   HomeActivityPage,
-  PlanPage,
+  PlanLessonListPage,
   ReportsGroupListPage,
   ReportsGroupLearnerListPage,
   ReportsGroupReportPage,

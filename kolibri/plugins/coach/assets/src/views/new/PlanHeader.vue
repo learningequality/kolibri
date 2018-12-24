@@ -1,39 +1,32 @@
 <template>
 
   <div>
-    <p>
-      <BackLink
-        :to="newCoachRoute('CoachClassListPage')"
-        :text="$tr('back')"
-      />
-    </p>
-    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
-    <p>{{ $tr('description') }}</p>
+    <h1>{{ $tr('planYourClassLabel') }}</h1>
     <div>
       <KRouterLink
         :text="coachStrings.$tr('lessonsLabel')"
-        :to="newCoachRoute('ReportsLessonListPage')"
+        :to="newCoachRoute('PlanLessonListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('quizzesLabel')"
-        :to="newCoachRoute('ReportsQuizListPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
-      />
-      <KRouterLink
-        :text="coachStrings.$tr('learnersLabel')"
-        :to="newCoachRoute('ReportsLearnerListPage')"
+        :to="newCoachRoute('PlanQuizListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('groupsLabel')"
-        :to="newCoachRoute('ReportsGroupListPage')"
+        :to="newCoachRoute('PlanGroupListPage')"
+        :primary="false"
+        appearance="flat-button"
+        class="new-coach-tab"
+      />
+      <KRouterLink
+        :text="coachStrings.$tr('learnersLabel')"
+        :to="newCoachRoute('PlanLearnersListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
@@ -50,12 +43,11 @@
   import imports from './imports';
 
   export default {
-    name: 'ReportsHeader',
+    name: 'PlanHeader',
     components: {},
     mixins: [imports],
     $trs: {
-      back: 'All classes',
-      description: 'View reports for your learners and class materials',
+      planYourClassLabel: 'Plan your class',
     },
   };
 

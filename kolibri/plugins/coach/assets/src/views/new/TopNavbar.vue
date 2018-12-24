@@ -15,7 +15,7 @@
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
-      :link="link('PlanPage')"
+      :link="link('PlanLessonListPage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>

@@ -55,7 +55,7 @@
   import imports from './imports';
 
   export default {
-    name: 'ClassListPage',
+    name: 'CoachClassListPage',
     components: {},
     mixins: [imports],
     $trs: {

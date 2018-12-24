@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    Plan
+
+    Plan lesson list
+
+    <PlanHeader />
   </div>
 
 </template>
@@ -10,10 +13,13 @@
 <script>
 
   import imports from './imports';
+  import PlanHeader from './PlanHeader';
 
   export default {
-    name: 'PlanPage',
-    components: {},
+    name: 'PlanLessonListPage',
+    components: {
+      PlanHeader,
+    },
     mixins: [imports],
     $trs: {},
   };
