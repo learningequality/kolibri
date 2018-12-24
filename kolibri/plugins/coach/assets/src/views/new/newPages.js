@@ -10,6 +10,10 @@ import ReportsGroupReportLessonExerciseLearnerListPage from './ReportsGroupRepor
 import ReportsGroupReportLessonExerciseLearnerPage from './ReportsGroupReportLessonExerciseLearnerPage';
 import ReportsGroupReportLessonExerciseQuestionListPage from './ReportsGroupReportLessonExerciseQuestionListPage';
 import ReportsGroupReportLessonExerciseQuestionPage from './ReportsGroupReportLessonExerciseQuestionPage';
+import ReportsGroupReportQuizLearnerListPage from './ReportsGroupReportQuizLearnerListPage';
+import ReportsGroupReportQuizLearnerPage from './ReportsGroupReportQuizLearnerPage';
+import ReportsGroupReportQuizQuestionListPage from './ReportsGroupReportQuizQuestionListPage';
+import ReportsGroupReportQuizQuestionPage from './ReportsGroupReportQuizQuestionPage';
 import ReportsLearnerActivityPage from './ReportsLearnerActivityPage';
 import ReportsLearnerListPage from './ReportsLearnerListPage';
 import ReportsLearnerReportPage from './ReportsLearnerReportPage';
@@ -41,12 +45,16 @@ export const newPageMap = {
   PlanPage,
   ReportsGroupListPage,
   ReportsGroupReportPage,
+  ReportsGroupReportLessonPage,
   ReportsGroupReportLessonResourceLearnerListPage,
   ReportsGroupReportLessonExerciseLearnerListPage,
   ReportsGroupReportLessonExerciseLearnerPage,
   ReportsGroupReportLessonExerciseQuestionListPage,
   ReportsGroupReportLessonExerciseQuestionPage,
-  ReportsGroupReportLessonPage,
+  ReportsGroupReportQuizLearnerListPage,
+  ReportsGroupReportQuizLearnerPage,
+  ReportsGroupReportQuizQuestionListPage,
+  ReportsGroupReportQuizQuestionPage,
   ReportsLearnerActivityPage,
   ReportsLearnerListPage,
   ReportsLearnerReportPage,

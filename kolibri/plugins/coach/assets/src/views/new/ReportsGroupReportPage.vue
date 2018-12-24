@@ -98,7 +98,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsGroupReportQuizPage')"
+                  :to="newCoachRoute('ReportsGroupReportQuizLearnerListPage')"
                   text="Some quiz"
                 />
               </td>
@@ -114,7 +114,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsGroupReportQuizPage')"
+                  :to="newCoachRoute('ReportsGroupReportQuizLearnerListPage')"
                   text="Another quiz"
                 />
               </td>
@@ -143,7 +143,7 @@
   import ReportsGroupHeader from './ReportsGroupHeader';
 
   export default {
-    name: 'ReportsLearnerReportPage',
+    name: 'ReportsGroupReportPage',
     components: {
       ReportsGroupHeader,
     },
