@@ -75,6 +75,7 @@
     </div>
 
     <GlobalSnackbar />
+    <UpdateNotification />
 
   </div>
 
@@ -93,6 +94,7 @@
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
+  import UpdateNotification from '../UpdateNotification';
   import ScrollingHeader from './ScrollingHeader';
 
   export default {
@@ -111,6 +113,7 @@
       GlobalSnackbar,
       KLinearLoader,
       ScrollingHeader,
+      UpdateNotification,
     },
     mixins: [responsiveWindow],
     props: {
@@ -314,4 +317,3 @@
   }
 
 </style>
-
