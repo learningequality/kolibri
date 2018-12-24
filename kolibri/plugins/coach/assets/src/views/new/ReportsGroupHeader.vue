@@ -36,7 +36,7 @@
       />
       <KRouterLink
         :text="coachStrings.$tr('membersLabel')"
-        :to="newCoachRoute('ReportsGroupMembersPage')"
+        :to="newCoachRoute('ReportsGroupLearnerListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

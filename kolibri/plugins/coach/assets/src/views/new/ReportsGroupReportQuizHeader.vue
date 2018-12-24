@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsQuizListPage')"
+        :to="newCoachRoute('ReportsGroupReportPage')"
         text="Group A"
       />
     </p>
