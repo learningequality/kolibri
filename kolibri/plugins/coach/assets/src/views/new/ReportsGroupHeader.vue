@@ -64,7 +64,7 @@
     components: {},
     mixins: [imports],
     $trs: {
-      back: 'All learners',
+      back: 'All groups',
     },
   };
 

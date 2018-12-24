@@ -3,14 +3,13 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLessonPage')"
-        :text="$tr('back', { lesson: lessonName })"
+        :to="newCoachRoute('ReportsGroupReportLessonPage')"
+        :text="$tr('back', { lesson: 'Lesson 1' })"
       />
     </p>
     <h1>Some Video</h1>
+
     <KButton :text="coachStrings.$tr('previewAction')" />
-    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
-    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
 
     <dl>
       <dt>{{ coachStrings.$tr('avgTimeSpentLabel') }}</dt>
@@ -31,7 +30,6 @@
           <td>{{ coachStrings.$tr('statusLabel') }}</td>
           <td>{{ coachStrings.$tr('viewsLabel') }}</td>
           <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
-          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
           <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
         </tr>
       </thead>
@@ -41,23 +39,20 @@
           <td><NotStarted :showNumber="false" :verbosity="1" /></td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
+          <td>John</td>
           <td><Completed :showNumber="false" :verbosity="1" /></td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
+          <td>Steve</td>
           <td><InProgress :showNumber="false" :verbosity="1" /></td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
       </tbody>
@@ -72,14 +67,9 @@
   import imports from './imports';
 
   export default {
-    name: 'ReportsLessonResourceLearnerListPage',
+    name: 'ReportsGroupReportLessonResourceLearnerListPage',
     components: {},
     mixins: [imports],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
-    },
     $trs: {
       back: "Back to '{lesson}'",
       avgNumViews: 'Average number of views',
