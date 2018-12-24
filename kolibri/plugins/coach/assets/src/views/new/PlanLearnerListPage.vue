@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="new-coach-block">
     <PlanHeader />
     Learner list
   </div>

@@ -25,15 +25,15 @@
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="coachStrings.$tr('learnersLabel')"
-        :to="newCoachRoute('ReportsLearnerListPage')"
+        :text="coachStrings.$tr('groupsLabel')"
+        :to="newCoachRoute('ReportsGroupListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="coachStrings.$tr('groupsLabel')"
-        :to="newCoachRoute('ReportsGroupListPage')"
+        :text="coachStrings.$tr('learnersLabel')"
+        :to="newCoachRoute('ReportsLearnerListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

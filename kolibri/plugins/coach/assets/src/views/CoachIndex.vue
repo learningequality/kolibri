@@ -271,7 +271,7 @@
       },
       showCoachNav() {
         if (this.isNewPage) {
-          return this.$route.params.page !== 'ClassListPage';
+          return this.$route.params.page !== 'CoachClassListPage';
         }
         /* ... COACH - under construction */
         return (

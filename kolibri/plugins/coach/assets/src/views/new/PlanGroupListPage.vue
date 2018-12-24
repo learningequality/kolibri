@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="new-coach-block">
     <PlanHeader />
     Group list
   </div>

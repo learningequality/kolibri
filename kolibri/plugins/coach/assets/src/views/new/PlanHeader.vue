@@ -1,6 +1,12 @@
 <template>
 
   <div>
+    <p>
+      <BackLink
+        :to="newCoachRoute('CoachClassListPage')"
+        :text="$tr('back')"
+      />
+    </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
     <p>{{ $tr('planYourClassDescription') }}</p>
     <div>
@@ -48,6 +54,7 @@
     components: {},
     mixins: [imports],
     $trs: {
+      back: 'All classes',
       planYourClassLabel: 'Plan your class',
       planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
     },
