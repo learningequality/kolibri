@@ -30,6 +30,7 @@
       allLabel: 'All',
       appsLabel: 'Apps',
       audioLabel: 'Audio',
+      bookLabel: 'Book',
       eventTypeLabel: 'Event type',
       dateLabel: 'Date',
       documentsLabel: 'Documents',

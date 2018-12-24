@@ -94,10 +94,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   viewsLabel: 'Views',
 
   // notifications
-  updated: 'Updated',
-  created: 'Created',
-  deleted: 'Deleted',
-  saved: 'Saved',
+  updatedNotification: 'Updated',
+  createdNotification: 'Created',
+  deletedNotification: 'Deleted',
+  savedNotification: 'Saved',
 
   // empty states
   activityListEmptyState: 'There is no activity',
