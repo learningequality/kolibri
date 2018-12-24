@@ -3,6 +3,7 @@ from le_utils.constants import content_kinds
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
+from requests.exceptions import ChunkedEncodingError
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -99,6 +100,7 @@ def retry_import(e, **kwargs):
     if (
             isinstance(e, ConnectionError) or
             isinstance(e, Timeout) or
+            isinstance(e, ChunkedEncodingError) or
             (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE) or
             (isinstance(e, SSLERROR) and 'decryption failed or bad record mac' in str(e))):
         return True
