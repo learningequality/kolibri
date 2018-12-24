@@ -2,7 +2,7 @@
 
   <div>
     <PlanHeader />
-    Lesson list
+    Learner list
   </div>
 
 </template>
@@ -14,7 +14,7 @@
   import PlanHeader from './PlanHeader';
 
   export default {
-    name: 'PlanLessonListPage',
+    name: 'PlanLearnerListPage',
     components: {
       PlanHeader,
     },

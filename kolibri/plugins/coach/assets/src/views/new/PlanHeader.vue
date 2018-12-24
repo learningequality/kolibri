@@ -2,6 +2,7 @@
 
   <div>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
+    <p>{{ $tr('planYourClassDescription') }}</p>
     <div>
       <KRouterLink
         :text="coachStrings.$tr('lessonsLabel')"
@@ -26,7 +27,7 @@
       />
       <KRouterLink
         :text="coachStrings.$tr('learnersLabel')"
-        :to="newCoachRoute('PlanLearnersListPage')"
+        :to="newCoachRoute('PlanLearnerListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
@@ -48,6 +49,7 @@
     mixins: [imports],
     $trs: {
       planYourClassLabel: 'Plan your class',
+      planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
     },
   };
 
