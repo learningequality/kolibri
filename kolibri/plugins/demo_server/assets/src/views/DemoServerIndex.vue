@@ -8,33 +8,29 @@
   >
     <div class="banner-inner">
       <div v-if="!bannerClosed">
-        <h1>Welcome to the Kolibri demo site!</h1>
-
-        <p>
-          You are welcome to explore with any of the
-          three primary user types (login credentials are in parentheses):
-        </p>
+        <h1>{{ $tr('demoServerHeader') }}</h1>
+        <p>{{ $tr('demoServerP1') }}</p>
         <ul>
-          <li>Learner (learnerdemo/pass or access as a guest)</li>
-          <li>Coach (coachdemo/pass)</li>
-          <li>Admin (admindemo/pass)</li>
+          <li>{{ $tr('demoServerL1', {user: 'learnerdemo', pass: 'pass'} ) }}</li>
+          <li>{{ $tr('demoServerL2', {user: 'coachdemo', pass: 'pass'} ) }}</li>
+          <li>{{ $tr('demoServerL3', {user: 'admindemo', pass: 'pass'} ) }}</li>
         </ul>
-
-        <p>
-          This online demo site includes the features and functionalities of the latest version,
-          but only holds a sample of the content that has been made available for offline use
-          in Kolibri.
-          It is intended for demonstration purposes and any user data on here may be cleared
-          periodically.
-        </p>
-
-        <p>
-          To learn more about using Kolibri, take a look at our
-          <KExternalLink href="https://learningequality.org/documentation/" text="documentation guides" />
-          and
-          <KExternalLink href="https://learningequality.org/download/" text="download the latest release" />
-          to better understand the platform in an offline context.
-        </p>
+        <p>{{ $tr('demoServerP2') }}</p>
+        <p>{{ $tr('demoServerP3') }}</p>
+        <ul>
+          <li>
+            <KExternalLink
+              href="https://learningequality.org/documentation/"
+              :text="$tr('demoServerA1')"
+            />
+          </li>
+          <li>
+            <KExternalLink
+              href="https://learningequality.org/download/"
+              :text="$tr('demoServerA2')"
+            />
+          </li>
+        </ul>
         <KButton
           class="close-button"
           :text="'Close'"
@@ -74,6 +70,19 @@
       KButton,
       KExternalLink,
     },
+    $trs: {
+      demoServerHeader: 'Welcome to the Kolibri demo site!',
+      demoServerP1: 'You are welcome to explore with any of the three primary user types:',
+      demoServerL1: "Learner (username: '{user}', password: '{pass}') or access as a guest",
+      demoServerL2: "Coach (username: '{user}', password: '{pass}')",
+      demoServerL3: "Admin (username: '{user}', password: '{pass}')",
+      demoServerP2:
+        'This online demo site includes the features and functionalities of the latest version, but only holds a sample of the content that has been made available for offline use in Kolibri. It is intended for demonstration purposes and any user data on here may be cleared periodically.',
+      demoServerP3:
+        'To learn more about using Kolibri in an offline context and better understand the platform:',
+      demoServerA1: 'Read the documentation',
+      demoServerA2: 'Download and install the latest release',
+    },
     data() {
       return {
         bannerClosed: false,
@@ -103,6 +112,7 @@
     width: 100%;
     margin: 0 auto;
     overflow-y: auto;
+    box-shadow: 0 2px 50px rgba(0, 0, 0, 1);
   }
 
   .banner-inner {

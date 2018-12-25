@@ -11,6 +11,7 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
+from requests.exceptions import ChunkedEncodingError
 
 from kolibri.core.content.models import LocalFile
 from kolibri.utils.tests.helpers import override_option
@@ -253,6 +254,18 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(HTTPError):
             call_command('importcontent', 'network', self.the_channel_id)
             self.assertTrue('500' in logger_mock.call_args_list[0][0][0])
+        annotation_mock.annotate_content.assert_called()
+
+    @patch('kolibri.core.content.management.commands.importcontent.len')
+    @patch('kolibri.core.content.utils.transfer.Transfer.next', side_effect=ChunkedEncodingError('Chunked Encoding Error'))
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, True, True, True])
+    def test_remote_import_chunkedencodingerror(self, is_cancelled_mock, cancel_mock, error_mock, len_mock, annotation_mock):
+        LocalFile.objects.filter(pk='6bdfea4a01830fdd4a585181c0b8068c').update(file_size=2201062)
+        LocalFile.objects.filter(pk='211523265f53825b82f70ba19218a02e').update(file_size=336974)
+        call_command('importcontent', 'network', self.the_channel_id, node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
+        cancel_mock.assert_called_with()
+        len_mock.assert_not_called()
         annotation_mock.annotate_content.assert_called()
 
     @patch('kolibri.core.content.management.commands.importcontent.logger.error')
