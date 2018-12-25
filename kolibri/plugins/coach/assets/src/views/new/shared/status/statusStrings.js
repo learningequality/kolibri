@@ -11,8 +11,9 @@ Strings variations below are defined based on the following constructions:
 
 export const Objects = {
   EXERCISE: 'EXERCISE',
-  QUIZ: 'QUIZ',
   LESSON: 'LESSON',
+  QUESTION: 'QUESTION',
+  QUIZ: 'QUIZ',
   RESOURCE: 'RESOURCE',
 };
 
@@ -147,6 +148,66 @@ const translations = {
         allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {lesson} other {lessons}} {count, plural, other {not started}}',
+        ratioShort:
+          '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
+      }),
+    },
+    QUESTION: {
+      DIFFICULT: createTranslator('QuestionStatusDifficult', {
+        label: '{count, plural, one {Question is difficult} other {Questions are difficult}}',
+        labelShort: '{count, plural, other {Difficult}}',
+        count:
+          '{count, number, integer} {count, plural, one {question is difficult} other {questions are difficult}}',
+        countShort:
+          '{count, number, integer} {count, plural, one {is difficult} other {are difficult}}',
+        allOfMoreThanTwo:
+          'All {count, number, integer} {count, plural, other {questions are difficult}}',
+        allOfMoreThanTwoShort:
+          'All {count, number, integer} {count, plural, other {are difficult}}',
+        ratio:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {question} other {questions}} {count, plural, one {is difficult} other {are difficult}}',
+        ratioShort:
+          '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
+      }),
+      COMPLETED: createTranslator('QuestionStatusCompleted', {
+        label: '{count, plural, one {Question completed} other {Questions completed}}',
+        labelShort: '{count, plural, other {Completed}}',
+        count:
+          '{count, number, integer} {count, plural, one {question completed} other {questions completed}}',
+        countShort: '{count, number, integer} {count, plural, other {completed}}',
+        allOfMoreThanTwo:
+          'All {count, number, integer} {count, plural, other {questions completed}}',
+        allOfMoreThanTwoShort: 'All {count, number, integer} {count, plural, other {completed}}',
+        ratio:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {question} other {questions}} {count, plural, other {completed}}',
+        ratioShort:
+          '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
+      }),
+      IN_PROGRESS: createTranslator('QuestionStatusInProgress', {
+        label: '{count, plural, one {Question in progress} other {Questions in progress}}',
+        labelShort: '{count, plural, other {In progress}}',
+        count:
+          '{count, number, integer} {count, plural, one {question in progress} other {questions in progress}}',
+        countShort: '{count, number, integer} {count, plural, other {in progress}}',
+        allOfMoreThanTwo:
+          'All {count, number, integer} {count, plural, other {questions in progress}}',
+        allOfMoreThanTwoShort: 'All {count, number, integer} {count, plural, other {in progress}}',
+        ratio:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {question} other {questions}} {count, plural, other {in progress}}',
+        ratioShort:
+          '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
+      }),
+      NOT_STARTED: createTranslator('QuestionStatusNotStarted', {
+        label: '{count, plural, one {Question not started} other {Questions not started}}',
+        labelShort: '{count, plural, other {Not started}}',
+        count:
+          '{count, number, integer} {count, plural, one {question not started} other {questions not started}}',
+        countShort: '{count, number, integer} {count, plural, other {not started}}',
+        allOfMoreThanTwo:
+          'None of {count, number, integer} {count, plural, other {questions started}}',
+        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
+        ratio:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {question} other {questions}} {count, plural, other {not started}}',
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
       }),
@@ -386,6 +447,15 @@ export const statusStringsMixin = {
     },
     progressRatioString() {
       return progressRatioString;
+    },
+    Objects() {
+      return Objects;
+    },
+    Verbs() {
+      return Verbs;
+    },
+    Adjectives() {
+      return Adjectives;
     },
   },
 };
