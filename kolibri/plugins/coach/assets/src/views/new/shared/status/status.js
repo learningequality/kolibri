@@ -1,5 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 import LabeledIcon from '../LabeledIcon';
+import { statusStringsMixin } from './statusStrings';
 
 export default {
   components: {
@@ -27,39 +28,10 @@ export default {
       default: true,
     },
   },
+  mixins: [statusStringsMixin],
   computed: {
     text() {
-      if (!this.showNumber) {
-        if (this.verbosity === 0) {
-          return '';
-        }
-        return this.$tr(this.stringId('basicLabel'), { count: this.count });
-      }
-      if (this.verbosity === 0) {
-        if (this.showRatio) {
-          return this.$tr(this.stringId('ratioShort'), {
-            count: this.count,
-            total: this.total,
-          });
-        }
-        return this.$tr(this.stringId('countShort'), {
-          count: this.count,
-          total: this.total,
-        });
-      }
-      if (this.showRatio) {
-        if (this.count === this.total && this.count != 1) {
-          return this.$tr(this.stringId('all'), {
-            count: this.count,
-            total: this.total,
-          });
-        }
-        return this.$tr(this.stringId('ratio'), {
-          count: this.count,
-          total: this.total,
-        });
-      }
-      return this.$tr(this.stringId('count'), { count: this.count, total: this.total });
+      return '';
     },
   },
   methods: {
