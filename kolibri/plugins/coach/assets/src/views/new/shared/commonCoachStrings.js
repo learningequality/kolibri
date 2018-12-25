@@ -128,6 +128,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   numberOfViews: '{value, number, integer} {value, plural, one {view} other {views}}',
   percentage: '{value, number, percent}',
   ratio: '{value, number, integer} out of {total, number, integer}',
+  ratioShort: '{value, number, integer} of {total, number, integer}',
 });
 
 const coachStringsMixin = {

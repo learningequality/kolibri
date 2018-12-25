@@ -1,3 +1,4 @@
+import { createTranslator } from 'kolibri.utils.i18n';
 import LabeledIcon from '../LabeledIcon';
 
 export default {
