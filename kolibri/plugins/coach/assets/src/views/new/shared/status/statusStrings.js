@@ -214,7 +214,7 @@ const translations = {
     },
     QUIZ: {
       DIFFICULT: createTranslator('QuizStatusDifficult', {
-        label: '{count, plural, one {Quiz is difficult} other {Quizzess are difficult}}',
+        label: '{count, plural, one {Quiz is difficult} other {Quizzes are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
           '{count, number, integer} {count, plural, one {quiz is difficult} other {quizzes are difficult}}',
@@ -230,7 +230,7 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
       COMPLETED: createTranslator('QuizStatusCompleted', {
-        label: '{count, plural, one {Quiz completed} other {Quizzess completed}}',
+        label: '{count, plural, one {Quiz completed} other {Quizzes completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
           '{count, number, integer} {count, plural, one {quiz completed} other {quizzes completed}}',
@@ -243,7 +243,7 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
       IN_PROGRESS: createTranslator('QuizStatusInProgress', {
-        label: '{count, plural, one {Quiz in progress} other {Quizzess in progress}}',
+        label: '{count, plural, one {Quiz in progress} other {Quizzes in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
           '{count, number, integer} {count, plural, one {quiz in progress} other {quizzes in progress}}',
@@ -257,7 +257,7 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
       NOT_STARTED: createTranslator('QuizStatusNotStarted', {
-        label: '{count, plural, one {Quiz not started} other {Quizzess not started}}',
+        label: '{count, plural, one {Quiz not started} other {Quizzes not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
           '{count, number, integer} {count, plural, one {quiz not started} other {quizzes not started}}',
@@ -334,7 +334,7 @@ const translations = {
   },
   learnerProgress: {
     COMPLETED: createTranslator('LearnersCompleted', {
-      label: '{count, plural, one {Learner has completed} other {Learners have completed}}',
+      label: '{count, plural, one {Completed by learner} other {Completed by learners}}',
       labelShort: '{count, plural, other {Completed}}',
       count:
         '{count, plural, other {Completed by}} {count, number, integer} {count, plural, one {learner} other {learners}}',
