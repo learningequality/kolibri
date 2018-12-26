@@ -119,7 +119,10 @@ def parse_package_page(files, pk_version, index_url):
             install_package_by_wheel(path)
         # Download failed
         else:
-            sys.exit('\nDownload failed for package {}.\n'.format(file.string))
+            # see https://github.com/learningequality/kolibri/issues/4656
+            print('\nDownload failed for package {}.\n'.format(file.string))
+            continue
+            # sys.exit('\nDownload failed for package {}.\n'.format(file.string))
 
 
 def install(name, pk_version):
