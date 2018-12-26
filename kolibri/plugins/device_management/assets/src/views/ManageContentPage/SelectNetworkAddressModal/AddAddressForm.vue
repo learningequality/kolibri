@@ -9,7 +9,7 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr(addressDesc) }}</p>
+    <p>{{ $tr('addressDesc') }}</p>
     <div>
       <KTextbox
         v-model="address"
@@ -22,7 +22,7 @@
         @blur="addressBlurred = true"
       />
     </div>
-    <p>{{ $tr(nameDesc) }}</p>
+    <p>{{ $tr('nameDesc') }}</p>
     <div>
       <KTextbox
         v-model="name"
@@ -137,15 +137,16 @@
       },
     },
     $trs: {
-      addressDesc: "The network address can be an IP like '10.0.0.10' or a URL like 'example.com':",
+      addressDesc:
+        "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
       addressLabel: 'Full network address',
-      addressPlaceholder: 'e.g. http://123.456.7.89:8080',
+      addressPlaceholder: 'e.g. 192.168.0.100:8080',
       cancelButtonLabel: 'Cancel',
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
       fieldIsRequired: 'This field is required',
-      nameDesc: 'You can choose a name for this address so you can remember it later:',
+      nameDesc: 'Choose a name for this address so you can remember it later:',
       nameLabel: 'Network name',
       namePlaceholder: 'e.g. House network',
       submitButtonLabel: 'Add',

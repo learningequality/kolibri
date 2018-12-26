@@ -25,18 +25,21 @@
         :value="ContentSources.KOLIBRI_STUDIO"
         :disabled="kolibriStudioIsOffline || formIsDisabled"
         :autofocus="!kolibriStudioIsOffline"
+        :description="$tr('studioDescription')"
       />
       <KRadioButton
         v-model="source"
         :label="$tr('localNetworkOrInternet')"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
         :disabled="formIsDisabled"
+        :description="$tr('networkDescription')"
       />
       <KRadioButton
         v-model="source"
         :label="$tr('localDrives')"
         :value="ContentSources.LOCAL_DRIVE"
         :disabled="formIsDisabled"
+        :description="$tr('localDescription')"
       />
     </div>
   </KModal>
@@ -92,6 +95,12 @@
       localDrives: 'Attached drive or memory card',
       selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
+      studioDescription:
+        "Import content channels from Learning Equality's library if you are connected to the internet",
+      networkDescription:
+        'Import content channels from Kolibri running on another device, either in the same local network or on the internet',
+      localDescription:
+        'Import content channels from a drive. Channels must first be exported onto the drive from another Kolibri device with existing content',
     },
     methods: {
       ...mapActions('manageContent/wizard', ['goForwardFromSelectImportSourceModal']),

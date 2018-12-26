@@ -146,6 +146,12 @@ describe('Resource', function() {
       expect(Object.keys(resource.collections)).toHaveLength(1);
     });
   });
+  describe('__cacheKey method', function() {
+    it('should return integer to string instance', function() {
+      const expected_string = '{"id":"1"}';
+      expect(resource.__cacheKey({ ['id']: 1 })).toEqual(expected_string);
+    });
+  });
 });
 
 describe('Collection', function() {

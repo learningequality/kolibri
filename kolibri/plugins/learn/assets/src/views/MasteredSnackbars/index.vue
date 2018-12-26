@@ -176,6 +176,7 @@
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
       signIn: 'Sign in or create an account to save points you earn',
+      askForHelp: 'Having trouble? Try asking someone for help',
     },
   };
 

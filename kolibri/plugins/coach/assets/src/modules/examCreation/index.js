@@ -4,7 +4,7 @@ import * as actions from './actions';
 function defaultState() {
   return {
     title: '',
-    numberOfQuestions: null,
+    numberOfQuestions: 10,
     seed: null,
     contentList: [],
     selectedExercises: [],

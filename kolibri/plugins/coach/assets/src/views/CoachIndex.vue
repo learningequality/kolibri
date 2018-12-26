@@ -12,9 +12,16 @@
       :showSubNav="Boolean(classId) && showCoachNav"
     >
 
-      <CoachTopNav slot="sub-nav" />
+      <!-- COACH - under construction ... -->
+      <NewCoachTopNav v-if="isNewPage" slot="sub-nav" />
+      <CoachTopNav v-else slot="sub-nav" />
 
-      <template v-if="showCoachNav">
+      <div v-if="isNewPage" class="coach-debug">
+        <pre>{{ $route.params.page }}</pre>
+      </div>
+      <!-- ... COACH - under construction -->
+
+      <template v-if="showCoachNav && !isNewPage">
         <NavTitle
           class="nav-title"
           :className="className"
@@ -47,9 +54,11 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import logger from 'kolibri.lib.logging';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
   import CoachTopNav from './CoachTopNav';
+  import NewCoachTopNav from './new/TopNavbar';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -67,6 +76,12 @@
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
   import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
+
+  /* COACH - under construction ... */
+  import newPageMap from './new/newPages';
+  /* ... COACH - under construction */
+
+  const logging = logger.getLogger(__filename);
 
   // IDEA set up routenames that all use the same PageName instead of doing this?
   // See Content Preview routes in app.js + PageName handling here
@@ -146,12 +161,14 @@
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
         'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
-      // TODO: Interpolate strings correctly
-      added: 'Added',
-      removed: 'Removed',
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      reportLessonDetailEditorTitle: 'Edit lesson details',
+      reportLessonResourceManagerTitle: 'Manage resources',
     },
     components: {
       CoachTopNav,
+      NewCoachTopNav,
       CoreBase,
       NavTitle,
       LessonContentPreviewPage,
@@ -175,6 +192,14 @@
       }),
 
       currentPage() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          if (!newPageMap[this.$route.params.page]) {
+            logging.error(`${this.$route.params.page} has not been registered to CoachIndex`);
+          }
+          return newPageMap[this.$route.params.page];
+        }
+        /* ... COACH - under construction */
         return pageNameToComponentMap[this.pageName] || null;
       },
       isPreviewPage() {
@@ -236,7 +261,15 @@
           this.pageName === PageNames.EXAM_CREATION_PREVIEW || Boolean(this.lessonWorkingResources)
         );
       },
+      /* COACH - under construction ... */
+      isNewPage() {
+        return this.pageName === PageNames.NEW_COACH_PAGES;
+      },
       showCoachNav() {
+        if (this.isNewPage) {
+          return this.$route.params.page !== 'ClassListPage';
+        }
+        /* ... COACH - under construction */
         return (
           this.pageName !== PageNames.CLASS_LIST &&
           this.userCanAccessPage &&
@@ -244,12 +277,30 @@
         );
       },
       currentPageIsImmersive() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          return [
+            'ReportsLessonEditorPage',
+            'ReportsLessonManagerPage',
+            'ReportsLessonResourcePage',
+          ].includes(this.$route.params.page);
+        }
+        /* ... COACH - under construction */
         return immersivePages.includes(this.pageName);
       },
       userCanAccessPage() {
         return this.isCoach || this.isAdmin || this.isSuperuser;
       },
       appBarTitle() {
+        /* COACH - under construction ... */
+        if (this.isNewPage) {
+          if (this.$route.params.page === 'ReportsLessonEditorPage') {
+            return this.$tr('reportLessonDetailEditorTitle');
+          } else if (this.$route.params.page === 'ReportsLessonManagerPage') {
+            return this.$tr('reportLessonResourceManagerTitle');
+          }
+        }
+        /* ... COACH - under construction */
         if (this.currentPageIsImmersive) {
           if (
             [LessonsPageNames.CONTENT_PREVIEW, PageNames.EXAM_CREATION_PREVIEW].includes(
@@ -310,7 +361,7 @@
         let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.addToSelectedExercises([content]);
-          text = `${this.$tr('added')} ${content.title}`;
+          text = this.$tr('added', { item: content.title });
         } else {
           this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
           this.addToResourceCache({ node: content });
@@ -322,7 +373,7 @@
         let text;
         if (this.pageName === PageNames.EXAM_CREATION_PREVIEW) {
           this.removeFromSelectedExercises([content]);
-          text = `${this.$tr('removed')} ${content.title}`;
+          text = this.$tr('removed', { item: content.title });
         } else {
           this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
           text = this.$tr('resourcesRemovedSnackbarText', { count: 1 });
@@ -340,5 +391,51 @@
   .nav-title {
     margin-bottom: 32px;
   }
+
+</style>
+
+
+<style lang="scss">
+
+  // COACH - under construction ...
+  .new-coach-block {
+    padding: 8px 24px 24px;
+    margin-top: 24px;
+    overflow-x: scroll;
+    background-color: white;
+    border: 1px solid rgb(240, 240, 240);
+    border-radius: 4px;
+  }
+
+  .new-coach-table {
+    width: 100%;
+    min-width: 600px;
+    thead {
+      font-size: smaller;
+      border-bottom: 1px solid rgb(223, 223, 223);
+    }
+    tbody tr:not(:last-child) {
+      border-bottom: 1px solid rgb(223, 223, 223);
+    }
+    td {
+      padding: 8px;
+    }
+  }
+
+  .coach-debug {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 80px;
+    padding: 8px;
+    font-weight: bold;
+    background-color: white;
+  }
+
+  .new-coach-tab.router-link-active {
+    border-bottom: 3px solid black;
+  }
+  // ... COACH - under construction
 
 </style>

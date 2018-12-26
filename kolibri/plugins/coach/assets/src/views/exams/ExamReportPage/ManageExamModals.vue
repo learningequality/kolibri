@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <PreviewExamModal
+    <ExamPreview
       v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
@@ -64,7 +64,7 @@
   import { mapState, mapActions } from 'vuex';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
-  import PreviewExamModal from '../CoachExamsPage/PreviewExamModal';
+  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
@@ -75,7 +75,7 @@
     name: 'ManageExamModals',
     components: {
       AssignmentChangeStatusModal,
-      PreviewExamModal,
+      ExamPreview,
       AssignmentDetailsModal,
       AssignmentCopyModal,
       AssignmentDeleteModal,
@@ -159,6 +159,7 @@
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
       deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
       editExamDetails: 'Edit quiz details',
+      duplicateTitle: 'A quiz with that name already exists',
       saveExamError: 'There was a problem saving this quiz',
       copyOfExam: 'Copy of { examTitle }',
     },

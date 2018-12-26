@@ -2,12 +2,13 @@
 
   <KModal
     ref="modal"
-    :title="$tr('preview')"
-    :submitText="$tr('close')"
+    :title="$tr('title')"
+    :cancelText="$tr('back')"
+    :submitText="$tr('finish')"
     size="large"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
-    @submit="close"
+    @submit="submit"
     @cancel="close"
   >
     <transition mode="out-in">
@@ -20,8 +21,22 @@
       </div>
       <div v-else @keyup.enter.stop>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
-          <slot name="randomize-button"></slot>
+          <h2>{{ $tr('questionOrder') }}</h2>
+          <div>
+            <KRadioButton
+              v-model="isRandom"
+              :label="$tr('randomizedLabel')"
+              :description="$tr('randomizedDescription')"
+              :value="true"
+            />
+            <KRadioButton
+              v-model="isRandom"
+              :label="$tr('fixedLabel')"
+              :description="$tr('fixedDescription')"
+              :value="false"
+            />
+          </div>
+          <h2>{{ $tr('questions') }}</h2>
         </div>
         <KGrid class="exam-preview-container">
           <KGridItem
@@ -29,33 +44,34 @@
             :style="{ maxHeight: `${maxHeight}px` }"
             class="o-y-auto"
           >
+            <div>
+              {{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}
+            </div>
+            <div>
+              <KButton
+                :text="$tr('randomize')"
+                appearance="basic-link"
+                :primary="false"
+                class="randomize-btn"
+                @click="$emit('randomize')"
+              />
+            </div>
             <div
               v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
               :key="exerciseIndex"
             >
-              <h3 v-if="examCreation">{{ getExerciseName(exercise.exercise_id) }}</h3>
               <ol class="question-list">
-                <li
-                  v-for="(question, questionIndex) in
-                  getExerciseQuestions(exercise.exercise_id)"
+                <AssessmentQuestionListItem
+                  v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
-                  class="question-list-item"
-                >
-                  <KButton
-                    :primary="isSelected(question.itemId, exercise.exercise_id)"
-                    appearance="flat-button"
-                    :text="$tr(
-                      'question',
-                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                    )"
-                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  />
-                  <CoachContentLabel
-                    class="coach-content-label"
-                    :value="numCoachContents(exercise)"
-                    :isTopic="false"
-                  />
-                </li>
+                  :questionNumberWithinExam="getQuestionIndex(question.itemId, exercise.exercise_id) + 1"
+                  :questionNumberWithinExercise="questionIndex"
+                  :totalFromExercise="availableExamQuestionSources.length"
+                  :isSelected="isSelected(question.itemId, exercise.exercise_id)"
+                  :exerciseName="getExerciseName(exercise.exercise_id)"
+                  :isCoachContent="Boolean(numCoachContents(exercise))"
+                  @click="goToQuestion(question.itemId, exercise.exercise_id)"
+                />
               </ol>
             </div>
           </KGridItem>
@@ -93,30 +109,41 @@
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
+  import AssessmentQuestionListItem from '../AssessmentQuestionListItem';
 
   export default {
-    name: 'PreviewExamModal',
+    name: 'CreateExamPreview',
     $trs: {
-      preview: 'Preview quiz',
-      close: 'Close',
-      question: 'Question { num }',
+      title: 'Select questions',
+      backLabel: 'Select topics or exercises',
+      back: 'Go back',
+      finish: 'Finish',
       numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
+      randomize: 'Choose a different set of questions',
+      questionOrder: 'Question order',
+      questions: 'Questions',
+      randomizedLabel: 'Randomized',
+      randomizedDescription: 'Each learner sees a different question order',
+      fixedLabel: 'Fixed',
+      fixedDescription: 'Each learner sees the same question order',
+      newQuestions: 'New question set created',
     },
     components: {
-      CoachContentLabel,
       KModal,
       ContentRenderer,
       KButton,
+      AssessmentQuestionListItem,
+      KRadioButton,
       KGrid,
       KGridItem,
       KCircularLoader,
@@ -135,10 +162,6 @@
         type: Number,
         required: true,
       },
-      examCreation: {
-        type: Boolean,
-        default: false,
-      },
       exerciseContentNodes: {
         type: Array,
         required: true,
@@ -151,6 +174,7 @@
         loading: true,
         maxHeight: null,
         questions: [],
+        isRandom: true,
       };
     },
     computed: {
@@ -214,6 +238,7 @@
               this.exercises[question.contentId]
             ),
             contentId: question.contentId,
+            title: question.title,
           }));
         }
       },
@@ -253,6 +278,9 @@
       close() {
         this.$emit('close');
       },
+      submit() {
+        this.$emit('submit');
+      },
       getExerciseQuestions(exerciseId) {
         return this.questions.filter(q => q.contentId === exerciseId);
       },
@@ -264,25 +292,10 @@
 
 <style lang="scss" scoped>
 
-  .question-list-item {
-    vertical-align: middle;
-  }
-
-  .coach-content-label {
-    display: inline-block;
-    vertical-align: inherit;
-  }
+  @import '~kolibri.styles.definitions';
 
   .exam-preview-container {
     margin-top: 16px;
-  }
-
-  .close-btn-wrapper {
-    text-align: right;
-    button {
-      margin-right: 0;
-      margin-bottom: 0;
-    }
   }
 
   /deep/ .modal {
@@ -293,10 +306,6 @@
   ol {
     padding: 0;
     margin: 0;
-  }
-
-  li {
-    list-style-type: none;
   }
 
   h3 {
@@ -314,6 +323,10 @@
 
   .o-y-auto {
     overflow-y: auto;
+  }
+
+  .randomize-btn {
+    margin: 0 0 0 8px;
   }
 
 </style>

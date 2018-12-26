@@ -23,9 +23,9 @@
     />
   </div>
   <div v-else>
-    <div class="no-exercise-x">
-      <mat-svg category="navigation" name="close" />
-    </div>
+    <p class="no-exercise">
+      {{ $tr('missingContent') }}
+    </p>
   </div>
 
 </template>
@@ -98,6 +98,7 @@
     },
     $trs: {
       documentTitle: '{ examTitle } report',
+      missingContent: 'This quiz cannot be displayed because some content was deleted',
     },
   };
 
@@ -106,12 +107,8 @@
 
 <style lang="scss" scoped>
 
-  .no-exercise-x {
+  .no-exercise {
     text-align: center;
-    svg {
-      width: 200px;
-      height: 200px;
-    }
   }
 
 </style>
