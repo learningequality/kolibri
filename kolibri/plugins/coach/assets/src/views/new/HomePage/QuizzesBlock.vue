@@ -12,8 +12,8 @@
     <div>
       <ItemProgressDisplay
         name="A quiz!"
-        :completedItems="1"
-        :totalItems="2"
+        :completedItems="10"
+        :totalItems="10"
         :needHelp="3"
         :groups="[]"
       />

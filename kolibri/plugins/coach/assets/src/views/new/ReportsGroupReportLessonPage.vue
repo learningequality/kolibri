@@ -33,7 +33,8 @@
             />
           </td>
           <td>
-            <Completed :count="3" :total="6" /> &nbsp; <NeedHelp :count="1" />
+            <Completed :count="3" :total="6" />
+            <NeedHelp :count="1" />
           </td>
           <td><TimeDuration :seconds="360" /></td>
         </tr>

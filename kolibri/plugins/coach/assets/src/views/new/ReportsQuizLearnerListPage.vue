@@ -25,7 +25,16 @@
             />
           </td>
           <td><Score /></td>
-          <td><NotStarted :count="0" :total="10" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="0"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="clock"
+            />
+          </td>
           <td><TruncatedItemList :items="[]" /></td>
         </tr>
         <tr>
@@ -36,7 +45,16 @@
             />
           </td>
           <td><Score /></td>
-          <td><InProgress :count="8" :total="10" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="8"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="clock"
+            />
+          </td>
           <td><TruncatedItemList :items="['a', 'b']" /></td>
         </tr>
         <tr>
@@ -47,7 +65,16 @@
             />
           </td>
           <td><Score :value="0.1" /></td>
-          <td><Completed :count="10" :total="10" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="10"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="star"
+            />
+          </td>
           <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
         </tr>
       </tbody>

@@ -37,7 +37,12 @@
             />
           </td>
           <td>
-            <NeedHelp :showNumber="false" :verbosity="1" />
+            <LearnerProgressLabel
+              :verbosity="1"
+              :count="1"
+              verb="needHelp"
+              icon="help"
+            />
           </td>
           <td><TimeDuration :seconds="360" /></td>
         </tr>
@@ -46,7 +51,12 @@
             Some video
           </td>
           <td>
-            <Completed :showNumber="false" :verbosity="1" />
+            <LearnerProgressLabel
+              :verbosity="1"
+              :count="1"
+              verb="completed"
+              icon="star"
+            />
           </td>
           <td><TimeDuration :seconds="120" /></td>
         </tr>

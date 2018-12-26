@@ -43,7 +43,6 @@
                   :showRatio="false"
                   :verbosity="1"
                 />
-                &nbsp;
                 <NeedHelp
                   :count="2"
                   :showRatio="false"

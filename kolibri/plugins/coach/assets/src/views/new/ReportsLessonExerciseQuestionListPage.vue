@@ -19,12 +19,13 @@
         <tr>
           <td><KRouterLink text="Question 1" :to="questionLink" /></td>
           <td>
-            <NeedHelp
-              :count="3"
-              :total="12"
-              :showRatio="true"
-              :verbosity="1"
-          /></td>
+            <LearnerProgressCount
+              :count="2"
+              verbosity="1"
+              verb="needHelp"
+              icon="help"
+            />
+          </td>
           <td><TimeDuration :seconds="60*15" /></td>
         </tr>
       </tbody>

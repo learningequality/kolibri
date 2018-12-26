@@ -17,23 +17,25 @@
         <tr>
           <td><KRouterLink text="Question 1" :to="questionLink" /></td>
           <td>
-            <NeedHelp
+            <LearnerProgressCount
               :count="12"
-              :total="12"
-              :showRatio="true"
               :verbosity="1"
-          /></td>
+              icon="help"
+              verb="needHelp"
+            />
+          </td>
           <td><TimeDuration :seconds="60*15" /></td>
         </tr>
         <tr>
           <td><KRouterLink text="Question 2" :to="questionLink" /></td>
           <td>
-            <NeedHelp
+            <LearnerProgressCount
               :count="1"
-              :total="12"
-              :showRatio="true"
               :verbosity="1"
-          /></td>
+              icon="help"
+              verb="needHelp"
+            />
+          </td>
           <td><TimeDuration :seconds="60*4" /></td>
         </tr>
       </tbody>

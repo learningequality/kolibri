@@ -27,7 +27,15 @@
             />
           </td>
           <td><Score /></td>
-          <td><NotStarted :count="0" :total="10" /></td>
+          <td>
+            <LearnerProgressRatio
+              :count="10"
+              :verbosity="1"
+              icon="nothing"
+              :total="10"
+              verb="notStarted"
+            />
+          </td>
           <td><Recipients :groups="['a', 'b']" /></td>
           <td>
             <QuizActive :active="false" />
@@ -41,7 +49,15 @@
             />
           </td>
           <td><Score /></td>
-          <td><InProgress :count="8" :total="10" /></td>
+          <td>
+            <LearnerProgressRatio
+              verb="started"
+              :count="8"
+              :verbosity="1"
+              icon="clock"
+              :total="10"
+            />
+          </td>
           <td><Recipients :groups="['a', 'b']" /></td>
           <td>
             <QuizActive :active="true" />
@@ -55,7 +71,15 @@
             />
           </td>
           <td><Score :value="0.9" /></td>
-          <td><Completed :count="10" :total="10" /></td>
+          <td>
+            <LearnerProgressRatio
+              verb="completed"
+              :count="10"
+              :verbosity="1"
+              icon="star"
+              :total="10"
+            />
+          </td>
           <td><Recipients :groups="[]" /></td>
           <td>
             <QuizActive :active="true" />

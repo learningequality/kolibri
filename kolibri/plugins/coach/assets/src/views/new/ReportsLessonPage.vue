@@ -41,7 +41,20 @@
             />
           </td>
           <td>
-            <Completed :count="3" :total="6" /> &nbsp; <NeedHelp :count="1" />
+            <LearnerProgressRatio
+              :count="2"
+              :total="10"
+              verbosity="1"
+              verb="completed"
+              icon="learners"
+            />
+            <LearnerProgressCount
+              verb="needHelp"
+              icon="help"
+              :count="1"
+              :verbosity="0"
+            />
+
           </td>
           <td><TimeDuration :seconds="360" /></td>
         </tr>
@@ -53,7 +66,14 @@
             />
           </td>
           <td>
-            <Completed :count="3" :total="6" />
+            <LearnerProgressRatio
+              :count="3"
+              :total="6"
+              verbosity="1"
+              verb="completed"
+              icon="learners"
+            />
+
           </td>
           <td><TimeDuration :seconds="120" /></td>
         </tr>

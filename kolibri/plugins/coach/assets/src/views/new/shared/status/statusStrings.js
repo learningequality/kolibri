@@ -1,4 +1,7 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import logger from 'kolibri.lib.logging';
+
+export const logging = logger.getLogger(__filename);
 
 /*
 
@@ -9,32 +12,10 @@ Strings variations below are defined based on the following constructions:
 
 */
 
-export const Objects = {
-  EXERCISE: 'EXERCISE',
-  LESSON: 'LESSON',
-  QUESTION: 'QUESTION',
-  QUIZ: 'QUIZ',
-  RESOURCE: 'RESOURCE',
-};
-
-export const Verbs = {
-  COMPLETED: 'COMPLETED',
-  DID_NOT_START: 'DID_NOT_START',
-  NEED_HELP_WITH: 'NEED_HELP_WITH',
-  STARTED: 'STARTED',
-};
-
-export const Adjectives = {
-  DIFFICULT: 'DIFFICULT',
-  COMPLETED: 'COMPLETED',
-  IN_PROGRESS: 'IN_PROGRESS',
-  NOT_STARTED: 'NOT_STARTED',
-};
-
 const translations = {
   itemStatus: {
-    EXERCISE: {
-      DIFFICULT: createTranslator('ExerciseStatusDifficult', {
+    exercise: {
+      difficult: createTranslator('ExerciseStatusDifficult', {
         label: '{count, plural, one {Exercise is difficult} other {Exercises are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
@@ -50,7 +31,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
-      COMPLETED: createTranslator('ExerciseStatusCompleted', {
+      completed: createTranslator('ExerciseStatusCompleted', {
         label: '{count, plural, one {Exercise completed} other {Exercises completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
@@ -64,7 +45,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
-      IN_PROGRESS: createTranslator('ExerciseStatusInProgress', {
+      inProgress: createTranslator('ExerciseStatusInProgress', {
         label: '{count, plural, one {Exercise in progress} other {Exercises in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
@@ -78,7 +59,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
-      NOT_STARTED: createTranslator('ExerciseStatusNotStarted', {
+      notStarted: createTranslator('ExerciseStatusNotStarted', {
         label: '{count, plural, one {Exercise not started} other {Exercises not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
@@ -93,8 +74,8 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
       }),
     },
-    LESSON: {
-      DIFFICULT: createTranslator('LessonStatusDifficult', {
+    lesson: {
+      difficult: createTranslator('LessonStatusDifficult', {
         label: '{count, plural, one {Lesson is difficult} other {Lessons are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
@@ -110,7 +91,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
-      COMPLETED: createTranslator('LessonStatusCompleted', {
+      completed: createTranslator('LessonStatusCompleted', {
         label: '{count, plural, one {Lesson completed} other {Lessons completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
@@ -123,7 +104,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
-      IN_PROGRESS: createTranslator('LessonStatusInProgress', {
+      inProgress: createTranslator('LessonStatusInProgress', {
         label: '{count, plural, one {Lesson in progress} other {Lessons in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
@@ -137,7 +118,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
-      NOT_STARTED: createTranslator('LessonStatusNotStarted', {
+      notStarted: createTranslator('LessonStatusNotStarted', {
         label: '{count, plural, one {Lesson not started} other {Lessons not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
@@ -152,8 +133,8 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
       }),
     },
-    QUESTION: {
-      DIFFICULT: createTranslator('QuestionStatusDifficult', {
+    question: {
+      difficult: createTranslator('QuestionStatusDifficult', {
         label: '{count, plural, one {Question is difficult} other {Questions are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
@@ -169,7 +150,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
-      COMPLETED: createTranslator('QuestionStatusCompleted', {
+      completed: createTranslator('QuestionStatusCompleted', {
         label: '{count, plural, one {Question completed} other {Questions completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
@@ -183,7 +164,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
-      IN_PROGRESS: createTranslator('QuestionStatusInProgress', {
+      inProgress: createTranslator('QuestionStatusInProgress', {
         label: '{count, plural, one {Question in progress} other {Questions in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
@@ -197,7 +178,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
-      NOT_STARTED: createTranslator('QuestionStatusNotStarted', {
+      notStarted: createTranslator('QuestionStatusNotStarted', {
         label: '{count, plural, one {Question not started} other {Questions not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
@@ -212,8 +193,8 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
       }),
     },
-    QUIZ: {
-      DIFFICULT: createTranslator('QuizStatusDifficult', {
+    quiz: {
+      difficult: createTranslator('QuizStatusDifficult', {
         label: '{count, plural, one {Quiz is difficult} other {Quizzes are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
@@ -229,7 +210,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
-      COMPLETED: createTranslator('QuizStatusCompleted', {
+      completed: createTranslator('QuizStatusCompleted', {
         label: '{count, plural, one {Quiz completed} other {Quizzes completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
@@ -242,7 +223,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
-      IN_PROGRESS: createTranslator('QuizStatusInProgress', {
+      inProgress: createTranslator('QuizStatusInProgress', {
         label: '{count, plural, one {Quiz in progress} other {Quizzes in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
@@ -256,7 +237,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
-      NOT_STARTED: createTranslator('QuizStatusNotStarted', {
+      notStarted: createTranslator('QuizStatusNotStarted', {
         label: '{count, plural, one {Quiz not started} other {Quizzes not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
@@ -271,8 +252,8 @@ const translations = {
           '{count, number, integer} of {total, number, integer} {count, plural, other {not started}}',
       }),
     },
-    RESOURCE: {
-      DIFFICULT: createTranslator('ResourceStatusDifficult', {
+    resource: {
+      difficult: createTranslator('ResourceStatusDifficult', {
         label: '{count, plural, one {Resource is difficult} other {Resources are difficult}}',
         labelShort: '{count, plural, other {Difficult}}',
         count:
@@ -288,7 +269,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, one {is difficult} other {are difficult}}',
       }),
-      COMPLETED: createTranslator('ResourceStatusCompleted', {
+      completed: createTranslator('ResourceStatusCompleted', {
         label: '{count, plural, one {Resource completed} other {Resources completed}}',
         labelShort: '{count, plural, other {Completed}}',
         count:
@@ -302,7 +283,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {completed}}',
       }),
-      IN_PROGRESS: createTranslator('ResourceStatusInProgress', {
+      inProgress: createTranslator('ResourceStatusInProgress', {
         label: '{count, plural, one {Resource in progress} other {Resources in progress}}',
         labelShort: '{count, plural, other {In progress}}',
         count:
@@ -316,7 +297,7 @@ const translations = {
         ratioShort:
           '{count, number, integer} of {total, number, integer} {count, plural, other {in progress}}',
       }),
-      NOT_STARTED: createTranslator('ResourceStatusNotStarted', {
+      notStarted: createTranslator('ResourceStatusNotStarted', {
         label: '{count, plural, one {Resource not started} other {Resources not started}}',
         labelShort: '{count, plural, other {Not started}}',
         count:
@@ -333,7 +314,7 @@ const translations = {
     },
   },
   learnerProgress: {
-    COMPLETED: createTranslator('LearnersCompleted', {
+    completed: createTranslator('LearnersCompleted', {
       label: '{count, plural, one {Completed by learner} other {Completed by learners}}',
       labelShort: '{count, plural, other {Completed}}',
       count:
@@ -347,7 +328,7 @@ const translations = {
       ratioShort:
         '{count, plural, other {Completed by}} {count, number, integer} of {total, number, integer}',
     }),
-    DID_NOT_START: createTranslator('LearnersDidNotStart', {
+    notStarted: createTranslator('LearnersDidNotStart', {
       label: '{count, plural, one {Learner has not started} other {Learners have not started}}',
       labelShort: '{count, plural, one {Has not started} other {Have not started}}',
       count:
@@ -362,7 +343,7 @@ const translations = {
       ratioShort:
         '{count, number, integer} of {total, number, integer} {count, plural, one {has not started} other {have not started}}',
     }),
-    NEED_HELP_WITH: createTranslator('LearnersNeedHelp', {
+    needHelp: createTranslator('LearnersNeedHelp', {
       label: '{count, plural, one {Learner needs help} other {Learners need help}}',
       labelShort: '{count, plural, one {Needs help} other {Need help}}',
       count:
@@ -375,7 +356,7 @@ const translations = {
       ratioShort:
         '{count, number, integer} of {total, number, integer} {count, plural, one {needs help} other {need help}}',
     }),
-    STARTED: createTranslator('LearnersStarted', {
+    started: createTranslator('LearnersStarted', {
       label: '{count, plural, one {Learner has started} other {Learners have started}}',
       labelShort: '{count, plural, other {Started}}',
       count: 'Started by {count, number, integer} {count, plural, one {learner} other {learners}}',
@@ -390,72 +371,88 @@ const translations = {
   },
 };
 
-function _shorten(id, isShort) {
-  return isShort ? id + 'Short' : id;
-}
+export const OBJECTS = {
+  exercise: 'exercise',
+  lesson: 'lesson',
+  question: 'question',
+  quiz: 'quiz',
+  resource: 'resource',
+};
 
-export function statusLabelString(object, adjective, count, isShort = true) {
-  return translations.itemStatus[object][adjective].$tr(_shorten('label', isShort), { count });
-}
+export const ADJECTIVES = {
+  difficult: 'difficult',
+  completed: 'completed',
+  inProgress: 'inProgress',
+  notStarted: 'notStarted',
+};
 
-export function statusCountString(object, adjective, count, isShort = true) {
-  return translations.itemStatus[object][adjective].$tr(_shorten('count', isShort), { count });
-}
+export const VERBS = {
+  completed: 'completed',
+  notStarted: 'notStarted',
+  needHelp: 'needHelp',
+  started: 'started',
+};
 
-export function statusRatioString(object, adjective, count, total, isShort = true) {
-  if (count === total && total > 2) {
-    return translations.itemStatus[object][adjective].$tr(_shorten('allOfMoreThanTwo', isShort), {
-      count,
-    });
+export function isValidObject(value) {
+  const output = Boolean(OBJECTS[value]);
+  if (!output) {
+    logging.error(`'${value}' must be one of: ${Object.values(OBJECTS)}`);
   }
-  return translations.itemStatus[object][adjective].$tr(_shorten('ratio', isShort), { count });
+  return output;
 }
 
-export function progressLabelString(verb, count, isShort = true) {
-  return translations.learnerProgress[verb].$tr(_shorten('label', isShort), { count });
-}
-
-export function progressCountString(verb, count, isShort = true) {
-  return translations.learnerProgress[verb].$tr(_shorten('count', isShort), { count });
-}
-
-export function progressRatioString(verb, count, total, isShort = true) {
-  if (count === total && total > 2) {
-    return translations.learnerProgress[verb].$tr(_shorten('allOfMoreThanTwo', isShort), {
-      count,
-    });
+export function isValidAdjective(value) {
+  const output = Boolean(ADJECTIVES[value]);
+  if (!output) {
+    logging.error(`'${value}' must be one of: ${Object.values(ADJECTIVES)}`);
   }
-  return translations.learnerProgress[verb].$tr(_shorten('ratio', isShort), { count });
+  return output;
+}
+
+export function isValidVerb(value) {
+  const output = Boolean(VERBS[value]);
+  if (!output) {
+    logging.error(`'${value}' must be one of: ${Object.values(VERBS)}`);
+  }
+  return output;
 }
 
 export const statusStringsMixin = {
+  props: {
+    count: {
+      type: Number,
+      required: true,
+      validator(value) {
+        const output = value >= 0;
+        if (!output) {
+          logging.error(`'${value}' must be greater than 0`);
+        }
+        return output;
+      },
+    },
+    verbosity: {
+      type: [Number, String],
+      required: true,
+      validator(value) {
+        const output = [0, 1, 2].includes(Number(value));
+        if (!output) {
+          logging.error(`'${value}' must be one of: ${[0, 1, 2]}`);
+        }
+        return output;
+      },
+    },
+  },
+  methods: {
+    shorten(id, verbosity) {
+      return verbosity === 1 ? id + 'Short' : id;
+    },
+  },
   computed: {
-    statusLabelString() {
-      return statusLabelString;
+    verbosityNumber() {
+      return Number(this.verbosity);
     },
-    statusCountString() {
-      return statusCountString;
-    },
-    statusRatioString() {
-      return statusRatioString;
-    },
-    progressLabelString() {
-      return progressLabelString;
-    },
-    progressCountString() {
-      return progressCountString;
-    },
-    progressRatioString() {
-      return progressRatioString;
-    },
-    Objects() {
-      return Objects;
-    },
-    Verbs() {
-      return Verbs;
-    },
-    Adjectives() {
-      return Adjectives;
+    translations() {
+      return translations;
     },
   },
 };

@@ -22,7 +22,14 @@
                   text="Some lesson"
                 />
               </td>
-              <td><NotStarted :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="notStarted"
+                  icon="nothing"
+                />
+              </td>
             </tr>
             <tr>
               <td>
@@ -31,7 +38,14 @@
                   text="Another lesson"
                 />
               </td>
-              <td><NeedHelp :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="needHelp"
+                  icon="help"
+                />
+              </td>
             </tr>
             <tr>
               <td>
@@ -40,7 +54,14 @@
                   text="Lesson 1"
                 />
               </td>
-              <td><Completed :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="completed"
+                  icon="star"
+                />
+              </td>
             </tr>
             <tr>
               <td>
@@ -49,7 +70,14 @@
                   text="Lesson 2"
                 />
               </td>
-              <td><InProgress :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="started"
+                  icon="clock"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -72,7 +100,14 @@
                   text="Some quiz"
                 />
               </td>
-              <td><Completed :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="completed"
+                  icon="star"
+                />
+              </td>
               <td><Score :value="0.92" /></td>
             </tr>
             <tr>
@@ -82,7 +117,14 @@
                   text="Another quiz"
                 />
               </td>
-              <td><InProgress :showNumber="false" :verbosity="1" /></td>
+              <td>
+                <LearnerProgressLabel
+                  :verbosity="1"
+                  :count="1"
+                  verb="started"
+                  icon="clock"
+                />
+              </td>
               <td><Score /></td>
             </tr>
           </tbody>

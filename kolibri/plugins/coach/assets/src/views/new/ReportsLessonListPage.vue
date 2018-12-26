@@ -12,7 +12,7 @@
       <thead>
         <tr>
           <td>{{ coachStrings.$tr('titleLabel') }}</td>
-          <td>{{ coachStrings.$tr('completedLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
           <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
           <td>{{ coachStrings.$tr('statusLabel') }}</td>
         </tr>
@@ -25,7 +25,15 @@
               :to="newCoachRoute('ReportsLessonPage')"
             />
           </td>
-          <td><Completed :count="1" :total="100" /></td>
+          <td>
+            <LearnerProgressRatio
+              :count="1"
+              :total="100"
+              verbosity="0"
+              verb="completed"
+              icon="learners"
+            />
+          </td>
           <td><Recipients :groups="[]" /></td>
           <td><LessonActive :active="true" /></td>
         </tr>
@@ -36,9 +44,23 @@
               :to="newCoachRoute('ReportsLessonPage')"
             />
           </td>
-          <td><Completed :count="3" :total="10" /></td>
           <td>
-            <Recipients :groups="[1, 2]" /> &nbsp; <NeedHelp :count="3" />
+            <LearnerProgressRatio
+              :count="3"
+              :total="10"
+              verbosity="0"
+              verb="completed"
+              icon="learners"
+            />
+          </td>
+          <td>
+            <Recipients :groups="['group A', 'group B']" />
+            <LearnerProgressCount
+              verb="needHelp"
+              icon="help"
+              :count="3"
+              :verbosity="0"
+            />
           </td>
           <td><LessonActive :active="false" /></td>
         </tr>

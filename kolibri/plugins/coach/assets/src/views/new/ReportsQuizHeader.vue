@@ -22,7 +22,15 @@
       <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
       <dd><Recipients :groups="[]" /></dd>
       <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
-      <dd><Completed :count="3" :total="10" :verbosity="1" /></dd>
+      <dd>
+        <LearnerProgressRatio
+          :count="1"
+          :total="3"
+          :verbosity="2"
+          verb="completed"
+          icon="clock"
+        />
+      </dd>
       <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
       <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
     </dl>
@@ -38,7 +46,6 @@
         :text="coachStrings.$tr('difficultQuestionsLabel')"
         appearance="flat-button"
         class="new-coach-tab"
-
         :to="link('ReportsQuizQuestionListPage')"
       />
     </div>

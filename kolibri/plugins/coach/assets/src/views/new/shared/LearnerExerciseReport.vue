@@ -6,7 +6,14 @@
       <dt>{{ coachStrings.$tr('masteryModelLabel') }}</dt>
       <dd><MasteryModel /></dd>
       <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><Completed :showNumber="false" :verbosity="1" /></dd>
+      <dd>
+        <LearnerProgressLabel
+          :count="1"
+          :verbosity="1"
+          verb="completed"
+          icon="star"
+        />
+      </dd>
     </dl>
     <p>{{ coachStrings.$tr('answerHistoryLabel') }}</p>
     <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
@@ -22,6 +29,7 @@
   </div>
 
 </template>
+
 
 
 <script>

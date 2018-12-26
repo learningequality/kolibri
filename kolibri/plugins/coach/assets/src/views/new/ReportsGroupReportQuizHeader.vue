@@ -16,7 +16,13 @@
       <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
       <dd><Recipients :groups="[]" /></dd>
       <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
-      <dd><Completed :count="3" :total="10" :verbosity="1" /></dd>
+      <dd>
+        <LearnerProgressRatio
+          :count="3" 
+          :total="10" 
+          :verbosity="1"
+        />
+      </dd>
       <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
       <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
     </dl>

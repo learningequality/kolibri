@@ -8,18 +8,20 @@ import KSelect from 'kolibri.coreVue.components.KSelect';
 import { coachStringsMixin } from './shared/commonCoachStrings';
 import Answer from './shared/Answer';
 import BackLink from './shared/BackLink';
-import Completed from './shared/status/Completed';
 import TruncatedItemList from './shared/TruncatedItemList';
-import InProgress from './shared/status/InProgress';
 import LessonActive from './shared/LessonActive';
 import MasteryModel from './shared/MasteryModel';
-import NeedHelp from './shared/status/NeedHelp';
-import NotStarted from './shared/status/NotStarted';
 import Recipients from './shared/Recipients';
 import Score from './shared/Score';
-import Started from './shared/status/Started';
 import TimeDuration from './shared/TimeDuration';
 import QuizActive from './shared/QuizActive';
+
+import LearnerProgressRatio from './shared/status/LearnerProgressRatio';
+import LearnerProgressCount from './shared/status/LearnerProgressCount';
+import LearnerProgressLabel from './shared/status/LearnerProgressLabel';
+import ItemStatusRatio from './shared/status/ItemStatusRatio';
+import ItemStatusCount from './shared/status/ItemStatusCount';
+import ItemStatusLabel from './shared/status/ItemStatusLabel';
 
 export default {
   name: 'ReportsQuizHeader',
@@ -33,18 +35,19 @@ export default {
     KSelect,
     Answer,
     BackLink,
-    Completed,
     TruncatedItemList,
-    InProgress,
     LessonActive,
     MasteryModel,
-    NeedHelp,
-    NotStarted,
     Recipients,
     Score,
-    Started,
     TimeDuration,
     QuizActive,
+    LearnerProgressRatio,
+    LearnerProgressCount,
+    LearnerProgressLabel,
+    ItemStatusRatio,
+    ItemStatusCount,
+    ItemStatusLabel,
   },
   mixins: [coachStringsMixin],
   methods: {
