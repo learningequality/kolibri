@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.db.models.query import F
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -8,10 +9,13 @@ from rest_framework.serializers import ValidationError
 
 from .models import Lesson
 from .models import LessonAssignment
+from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import ClassroomSerializer
 from kolibri.core.content.models import ContentNode
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 
 class LessonAssignmentSerializer(ModelSerializer):
@@ -128,7 +132,29 @@ class LessonSerializer(ModelSerializer):
                 lesson_id=instance.id,
                 collection_id__in=(set(current_group_ids) - set(new_group_ids))
             ).delete()
-
+        if validated_data.get("is_active", False):
+            #  When Lesson changes from inactive to active:
+            #  * All the summarylogs for the affected resources are reset
+            #  * All attemptlogs for the affected summarylogs are deleted
+            group_ids = set(instance.lesson_assignments.values_list('collection__id', flat=True))
+            user_ids = set()
+            for group_id in group_ids:
+                user_ids.update(
+                    set(
+                        HierarchyRelationsFilter(FacilityUser.objects.values_list('id', flat=True)).filter_by_hierarchy(
+                            target_user=F("id"), ancestor_collection=group_id
+                        )
+                    )
+                )
+            content_ids = [resource['content_id'] for resource in instance.resources]
+            summarylogs_ids = set(
+                ContentSummaryLog.objects.filter(content_id__in=content_ids)
+                .filter(user_id__in=user_ids)
+                .exclude(completion_timestamp__isnull=True)
+                .values_list('id', flat=True)
+            )
+            AttemptLog.objects.filter(masterylog__summarylog__in=summarylogs_ids).delete()
+            ContentSummaryLog.objects.filter(id__in=summarylogs_ids).update(completion_timestamp=None, progress=0.0)
         instance.save()
         return instance
 
