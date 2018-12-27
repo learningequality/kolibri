@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2018-12-27 01:24\n"
+"PO-Revision-Date: 2018-12-27 19:48\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -30,11 +30,11 @@ msgstr "Grupo de estudiantes"
 
 #: kolibri/core/content/api.py:132
 msgid "Content"
-msgstr ""
+msgstr "Contenido"
 
 #: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "El canal solicitado no existe en el servidor de contenidos"
 
 #: kolibri/core/content/models.py:278
 msgid "Unknown format"
