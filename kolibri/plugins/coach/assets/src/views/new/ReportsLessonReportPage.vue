@@ -1,28 +1,8 @@
 <template>
 
   <div class="new-coach-block">
-    <p>
-      <BackLink
-        :to="newCoachRoute('ReportsLessonListPage')"
-        :text="$tr('back')"
-      />
-    </p>
-    <h1>Some Lesson</h1>
-    <KDropdownMenu
-      slot="optionsDropdown"
-      :text="coachStrings.$tr('optionsLabel')"
-      :options="actionOptions"
-      appearance="raised-button"
-      @select="goTo($event.value)"
-    />
-    <dl>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><LessonActive :active="true" /></dd>
-      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-      <dd>Group 1, Group 2</dd>
-      <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-      <dd>Ipsum lorem</dd>
-    </dl>
+
+    <ReportsLessonHeader />
 
     <table class="new-coach-table">
       <thead>
@@ -87,10 +67,13 @@
 <script>
 
   import imports from './imports';
+  import ReportsLessonHeader from './ReportsLessonHeader';
 
   export default {
-    name: 'ReportsLessonPage',
-    components: {},
+    name: 'ReportsLessonReportPage',
+    components: {
+      ReportsLessonHeader,
+    },
     mixins: [imports],
     computed: {
       actionOptions() {

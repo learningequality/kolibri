@@ -25,6 +25,7 @@ import ReportsGroupReportQuizLearnerPage from './ReportsGroupReportQuizLearnerPa
 import ReportsGroupReportQuizQuestionListPage from './ReportsGroupReportQuizQuestionListPage';
 import ReportsGroupReportQuizQuestionPage from './ReportsGroupReportQuizQuestionPage';
 import ReportsLearnerActivityPage from './ReportsLearnerActivityPage';
+import ReportsLearnerActivityExercisePage from './ReportsLearnerActivityExercisePage';
 import ReportsLearnerListPage from './ReportsLearnerListPage';
 import ReportsLearnerReportPage from './ReportsLearnerReportPage';
 import ReportsLearnerReportLessonPage from './ReportsLearnerReportLessonPage';
@@ -38,7 +39,10 @@ import ReportsQuizPreviewPage from './ReportsQuizPreviewPage';
 import ReportsQuizQuestionListPage from './ReportsQuizQuestionListPage';
 import ReportsQuizQuestionPage from './ReportsQuizQuestionPage';
 import ReportsLessonListPage from './ReportsLessonListPage';
-import ReportsLessonPage from './ReportsLessonPage';
+import ReportsLessonReportPage from './ReportsLessonReportPage';
+import ReportsLessonLearnerListPage from './ReportsLessonLearnerListPage';
+import ReportsLessonLearnerPage from './ReportsLessonLearnerPage';
+import ReportsLessonLearnerExercisePage from './ReportsLessonLearnerExercisePage';
 import ReportsLessonEditorPage from './ReportsLessonEditorPage';
 import ReportsLessonManagerPage from './ReportsLessonManagerPage';
 import ReportsLessonResourceLearnerListPage from './ReportsLessonResourceLearnerListPage';
@@ -76,6 +80,7 @@ export const newPageMap = {
   ReportsGroupReportQuizQuestionListPage,
   ReportsGroupReportQuizQuestionPage,
   ReportsLearnerActivityPage,
+  ReportsLearnerActivityExercisePage,
   ReportsLearnerListPage,
   ReportsLearnerReportPage,
   ReportsLearnerReportLessonPage,
@@ -88,7 +93,10 @@ export const newPageMap = {
   ReportsQuizPreviewPage,
   ReportsQuizQuestionListPage,
   ReportsQuizQuestionPage,
-  ReportsLessonPage,
+  ReportsLessonLearnerListPage,
+  ReportsLessonLearnerPage,
+  ReportsLessonLearnerExercisePage,
+  ReportsLessonReportPage,
   ReportsLessonResourceLearnerListPage,
   ReportsLessonExerciseLearnerListPage,
   ReportsLessonExerciseQuestionListPage,
@@ -101,9 +109,20 @@ export const newPageMap = {
 
 export const newImmersivePages = [
   'ReportsQuizEditorPage',
-  'ReportsLearnerReportLessonExercisePage',
   'ReportsLessonEditorPage',
   'ReportsLessonManagerPage',
-  'ReportsLessonResourceLearnerListPage',
+  'ReportsGroupLearnerReportQuizPage',
+  'ReportsGroupReportQuizLearnerPage',
+  'ReportsQuizLearnerPage',
+  'ReportsLearnerReportQuizPage',
   'ReportsLessonExerciseLearnerPage',
+  'ReportsGroupLearnerReportLessonExercisePage',
+  'ReportsGroupReportLessonExerciseLearnerPage',
+  'ReportsLearnerReportLessonExercisePage',
+  'ReportsLearnerActivityExercisePage',
+  'ReportsGroupReportLessonExerciseQuestionPage',
+  'ReportsLessonExerciseQuestionPage',
+  'ReportsQuizQuestionPage',
+  'ReportsGroupReportQuizQuestionPage',
+  'ReportsLessonLearnerExercisePage',
 ];

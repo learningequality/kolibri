@@ -10,7 +10,7 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('nameLabel') }}</td>
           <td>{{ coachStrings.$tr('scoreLabel') }}</td>
           <td>{{ coachStrings.$tr('progressLabel') }}</td>
         </tr>

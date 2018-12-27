@@ -1,3 +1,4 @@
+import KModal from 'kolibri.coreVue.components.KModal';
 import KButton from 'kolibri.coreVue.components.KButton';
 import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
@@ -26,6 +27,7 @@ import ItemStatusLabel from './shared/status/ItemStatusLabel';
 export default {
   name: 'ReportsQuizHeader',
   components: {
+    KModal,
     KButton,
     KCheckbox,
     KDropdownMenu,
