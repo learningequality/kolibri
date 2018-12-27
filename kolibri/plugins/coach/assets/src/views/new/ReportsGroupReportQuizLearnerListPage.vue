@@ -24,7 +24,14 @@
             />
           </td>
           <td><Score /></td>
-          <td><NotStarted :count="0" :total="10" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="0"
+              verbosity="1"
+              icon="nothing"
+              verb="notStarted"
+            />
+          </td>
         </tr>
         <tr>
           <td>
@@ -34,7 +41,14 @@
             />
           </td>
           <td><Score /></td>
-          <td><InProgress :count="8" :total="10" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="8"
+              verbosity="1"
+              icon="clock"
+              verb="started"
+            />
+          </td>
         </tr>
         <tr>
           <td>
@@ -44,7 +58,14 @@
             />
           </td>
           <td><Score :value="0.1" /></td>
-          <td><Completed :count="10" :total="10" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="10"
+              verbosity="1"
+              icon="star"
+              verb="completed"
+            />
+          </td>
         </tr>
       </tbody>
     </table>

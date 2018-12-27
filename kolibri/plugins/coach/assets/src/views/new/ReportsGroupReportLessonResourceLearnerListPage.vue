@@ -19,9 +19,24 @@
     </dl>
 
     <p>
-      <Completed :verbosity="0" :count="3" :showRatio="false" class="stats" />
-      <InProgress :verbosity="0" :count="3" :showRatio="false" class="stats" />
-      <NotStarted :verbosity="0" :count="3" :showRatio="false" class="stats" />
+      <LearnerProgressCount
+        :count="5"
+        verbosity="0"
+        verb="completed"
+        icon="star"
+      />
+      <LearnerProgressCount
+        :count="5"
+        verbosity="0"
+        verb="started"
+        icon="clock"
+      />
+      <LearnerProgressCount
+        :count="5"
+        verbosity="0"
+        verb="notStarted"
+        icon="nothing"
+      />
     </p>
     <table class="new-coach-table">
       <thead>
@@ -36,21 +51,42 @@
       <tbody>
         <tr>
           <td>April</td>
-          <td><NotStarted :showNumber="false" :verbosity="1" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="notStarted"
+              icon="nothing"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>some time ago</td>
         </tr>
         <tr>
           <td>John</td>
-          <td><Completed :showNumber="false" :verbosity="1" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="completed"
+              icon="star"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>some time ago</td>
         </tr>
         <tr>
           <td>Steve</td>
-          <td><InProgress :showNumber="false" :verbosity="1" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="started"
+              icon="clock"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>some time ago</td>

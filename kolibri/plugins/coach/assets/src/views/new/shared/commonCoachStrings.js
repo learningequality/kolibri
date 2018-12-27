@@ -39,6 +39,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   coachesLabel: 'Coaches',
   descriptionLabel: 'Description',
   difficultQuestionsLabel: 'Difficult questions',
+  entireClassLabel: 'Entire class',
   exercisesCompletedLabel: 'Exercises completed',
   groupLabel: 'Group',
   groupNameLabel: 'Group name',
@@ -56,6 +57,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   membersLabel: 'Members',
   nameLabel: 'Name',
   namesLabel: 'Names',
+  notEnoughInformationLabel: 'Not enough information yet',
   notStartedLabel: 'Not started',
   optionsLabel: 'Options',
   orderFixedLabel: 'Fixed',
@@ -90,6 +92,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   titleLabel: 'Title',
   timeLabel: 'Time',
   timeSpentLabel: 'Time spent',
+  ungroupedLearnersLabel: 'Ungrouped learners',
   usernameLabel: 'Username',
   viewsLabel: 'Views',
 

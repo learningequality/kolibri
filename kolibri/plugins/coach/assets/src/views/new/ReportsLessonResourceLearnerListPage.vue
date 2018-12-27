@@ -20,9 +20,24 @@
     </dl>
 
     <p>
-      <Completed :verbosity="0" :count="3" :showRatio="false" class="stats" />
-      <InProgress :verbosity="0" :count="3" :showRatio="false" class="stats" />
-      <NotStarted :verbosity="0" :count="3" :showRatio="false" class="stats" />
+      <LearnerProgressCount
+        :verbosity="0"
+        :count="1"
+        verb="completed"
+        icon="star"
+      />
+      <LearnerProgressCount
+        :verbosity="0"
+        :count="1"
+        verb="started"
+        icon="clock"
+      />
+      <LearnerProgressCount
+        :verbosity="0"
+        :count="1"
+        verb="notStarted"
+        icon="nothing"
+      />
     </p>
     <table class="new-coach-table">
       <thead>
@@ -38,23 +53,44 @@
       <tbody>
         <tr>
           <td>April</td>
-          <td><NotStarted :showNumber="false" :verbosity="1" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="notStarted"
+              icon="nothing"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
-          <td><Completed :showNumber="false" :verbosity="1" /></td>
+          <td>Tom</td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="completed"
+              icon="star"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td>April</td>
-          <td><InProgress :showNumber="false" :verbosity="1" /></td>
+          <td>Steve</td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              :verbosity="1"
+              verb="started"
+              icon="clock"
+            />
+          </td>
           <td>23</td>
           <td><TimeDuration :seconds="60*15" /></td>
           <td>Gnomes | Explorers</td>
@@ -89,10 +125,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .stats {
-    margin-right: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

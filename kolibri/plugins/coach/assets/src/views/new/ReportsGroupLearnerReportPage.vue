@@ -2,7 +2,7 @@
 
   <div class="new-coach-block">
 
-    <ReportsLearnerHeader />
+    <ReportsGroupLearnerHeader />
 
     <KGrid>
       <KGridItem :sizes="[100, 100, 50]" percentage>
@@ -18,7 +18,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
                   text="Some lesson"
                 />
               </td>
@@ -34,7 +34,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
                   text="Another lesson"
                 />
               </td>
@@ -50,7 +50,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
                   text="Lesson 1"
                 />
               </td>
@@ -66,7 +66,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
                   text="Lesson 2"
                 />
               </td>
@@ -96,7 +96,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
                   text="Some quiz"
                 />
               </td>
@@ -113,7 +113,7 @@
             <tr>
               <td>
                 <KRouterLink
-                  :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                  :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
                   text="Another quiz"
                 />
               </td>
@@ -140,12 +140,12 @@
 <script>
 
   import imports from './imports';
-  import ReportsLearnerHeader from './ReportsLearnerHeader';
+  import ReportsGroupLearnerHeader from './ReportsGroupLearnerHeader';
 
   export default {
-    name: 'ReportsLearnerReportPage',
+    name: 'ReportsGroupLearnerReportPage',
     components: {
-      ReportsLearnerHeader,
+      ReportsGroupLearnerHeader,
     },
     mixins: [imports],
     $trs: {},

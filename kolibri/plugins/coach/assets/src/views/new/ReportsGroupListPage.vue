@@ -15,8 +15,7 @@
       </thead>
       <tbody>
         <tr>
-          <td>Group A</td>
-          <!-- <td><KRouterLink text="Group A" :to="link" /></td> -->
+          <td><KRouterLink text="Group A" :to="link" /></td>
           <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
           <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
           <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
@@ -24,8 +23,7 @@
           <td>2 minutes ago</td>
         </tr>
         <tr>
-          <td>Group B</td>
-          <!-- <td><KRouterLink text="Group B" :to="link" /></td> -->
+          <td><KRouterLink text="Group B" :to="link" /></td>
           <td>{{ coachStrings.$tr('integer', {value: 5}) }}</td>
           <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
           <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>

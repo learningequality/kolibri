@@ -18,9 +18,11 @@
       <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
       <dd>
         <LearnerProgressRatio
-          :count="3" 
-          :total="10" 
+          :count="1"
+          :total="3"
           :verbosity="1"
+          verb="completed"
+          icon="clock"
         />
       </dd>
       <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>

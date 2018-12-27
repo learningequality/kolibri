@@ -23,10 +23,11 @@
                 />
               </td>
               <td>
-                <Completed
+                <LearnerProgressCount
                   :count="8"
-                  :showRatio="false"
                   :verbosity="1"
+                  icon="clock"
+                  verb="completed"
                 />
               </td>
             </tr>
@@ -38,15 +39,12 @@
                 />
               </td>
               <td>
-                <Completed
-                  :count="6"
-                  :showRatio="false"
+                <LearnerProgressRatio
+                  :count="10"
+                  :total="10"
                   :verbosity="1"
-                />
-                <NeedHelp
-                  :count="2"
-                  :showRatio="false"
-                  :verbosity="0"
+                  icon="star"
+                  verb="completed"
                 />
               </td>
             </tr>
@@ -58,10 +56,17 @@
                 />
               </td>
               <td>
-                <Completed
+                <LearnerProgressCount
                   :count="2"
-                  :showRatio="false"
                   :verbosity="1"
+                  icon="clock"
+                  verb="completed"
+                />
+                <LearnerProgressCount
+                  :count="2"
+                  :verbosity="0"
+                  icon="help"
+                  verb="needHelp"
                 />
               </td>
             </tr>
@@ -73,10 +78,11 @@
                 />
               </td>
               <td>
-                <Completed
+                <LearnerProgressCount
                   :count="2"
-                  :showRatio="false"
                   :verbosity="1"
+                  icon="clock"
+                  verb="completed"
                 />
               </td>
             </tr>
@@ -102,10 +108,11 @@
                 />
               </td>
               <td>
-                <Completed
+                <LearnerProgressCount
                   :count="2"
-                  :showRatio="false"
                   :verbosity="1"
+                  icon="clock"
+                  verb="completed"
                 />
               </td>
               <td><Score :value="0.92" /></td>
@@ -118,10 +125,12 @@
                 />
               </td>
               <td>
-                <Completed
-                  :count="2"
-                  :showRatio="false"
+                <LearnerProgressRatio
+                  :count="0"
+                  :total="10"
                   :verbosity="1"
+                  icon="nothing"
+                  verb="started"
                 />
               </td>
               <td><Score /></td>
