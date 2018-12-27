@@ -29,11 +29,11 @@
           <td><Score /></td>
           <td>
             <LearnerProgressRatio
-              :count="10"
+              :count="0"
               :verbosity="1"
               icon="nothing"
               :total="10"
-              verb="notStarted"
+              verb="started"
             />
           </td>
           <td><Recipients :groups="['a', 'b']" /></td>

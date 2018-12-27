@@ -46,7 +46,7 @@
         if (!this.verbosityNumber) {
           return coachStrings.$tr('ratioShort', { value: this.count, total: this.total });
         }
-        if (this.count === this.total && this.total > 2) {
+        if (this.count === this.total && this.total > 2 && this.adjective != 'notStarted') {
           return this.translations.itemStatus[this.obj][this.adjective].$tr(
             this.shorten('allOfMoreThanTwo', this.verbosityNumber),
             {

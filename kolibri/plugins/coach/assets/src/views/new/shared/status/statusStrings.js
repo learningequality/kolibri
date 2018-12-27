@@ -65,9 +65,6 @@ const translations = {
         count:
           '{count, number, integer} {count, plural, one {exercise not started} other {exercises not started}}',
         countShort: '{count, number, integer} {count, plural, other {not started}}',
-        allOfMoreThanTwo:
-          'None of {count, number, integer} {count, plural, other {exercises started}}',
-        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {exercise} other {exercises}} {count, plural, other {not started}}',
         ratioShort:
@@ -124,9 +121,6 @@ const translations = {
         count:
           '{count, number, integer} {count, plural, one {lesson not started} other {lessons not started}}',
         countShort: '{count, number, integer} {count, plural, other {not started}}',
-        allOfMoreThanTwo:
-          'None of {count, number, integer} {count, plural, other {lessons started}}',
-        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {lesson} other {lessons}} {count, plural, other {not started}}',
         ratioShort:
@@ -184,9 +178,6 @@ const translations = {
         count:
           '{count, number, integer} {count, plural, one {question not started} other {questions not started}}',
         countShort: '{count, number, integer} {count, plural, other {not started}}',
-        allOfMoreThanTwo:
-          'None of {count, number, integer} {count, plural, other {questions started}}',
-        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {question} other {questions}} {count, plural, other {not started}}',
         ratioShort:
@@ -243,9 +234,6 @@ const translations = {
         count:
           '{count, number, integer} {count, plural, one {quiz not started} other {quizzes not started}}',
         countShort: '{count, number, integer} {count, plural, other {not started}}',
-        allOfMoreThanTwo:
-          'None of {count, number, integer} {count, plural, other {quizzes started}}',
-        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {quiz} other {quizzes}} {count, plural, other {not started}}',
         ratioShort:
@@ -303,9 +291,6 @@ const translations = {
         count:
           '{count, number, integer} {count, plural, one {resource not started} other {resources not started}}',
         countShort: '{count, number, integer} {count, plural, other {not started}}',
-        allOfMoreThanTwo:
-          'None of {count, number, integer} {count, plural, other {resources started}}',
-        allOfMoreThanTwoShort: 'None of {count, number, integer} {count, plural, other {started}}',
         ratio:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} {count, plural, other {not started}}',
         ratioShort:
@@ -335,9 +320,6 @@ const translations = {
         '{count, number, integer} {count, plural, one {learner has not started} other {learners have not started}}',
       countShort:
         '{count, number, integer} {count, plural, one {has not started} other {have not started}}',
-      allOfMoreThanTwo:
-        'None of {total, number, integer} {total, plural, other {learners}} have started',
-      allOfMoreThanTwoShort: 'None of {total, number, integer} have started',
       ratio:
         '{count, number, integer} of {total, number, integer} {total, plural, one {learner} other {learners}} {count, plural, one {has not started} other {have not started}}',
       ratioShort:
