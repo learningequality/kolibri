@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "Àkọọ́lẹ̀ kan pẹlú orúkọ olùṣàmúlò yẹn ti wà",
   "ProfilePage.usernameNotAlphaNumUnderscore": "Orúkọ olùṣàmúlò gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan",
   "ProfilePage.youCan": "O lè ṣé",
-  "SignInPage.accessAsGuest": "Te si waju bi i alejo",
+  "SignInPage.accessAsGuest": "",
   "SignInPage.createAccount": "Ṣẹ̀dá Àkọọ́lẹ̀",
   "SignInPage.documentTitle": "Ìwọlé aṣàmúlò",
   "SignInPage.enterPassword": "Tún ọ̀rọ̀ aṣínà tẹ̀",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "Orúkọ olùṣàmúlò gbọ́dọ̀ ní àwọn lẹ́tà, nọ́ḿbà, àti ìlà abẹ́ nìkan",
   "SignUpPage.usernameAlreadyExistsError": "Àkọọ́lẹ̀ kan pẹlú orúkọ olùṣàmúlò yẹn ti wà",
   "UserIndex.userProfileTitle": "Ìrísí olùṣàmúlò",
+  "UserIndex.userSignInTitle": "",
+  "UserIndex.userSignUpTitle": "",
   "UserPageSnackbars.dismiss": "Yọ kúrò",
   "UserPageSnackbars.signedOut": "A mú ọ jáde láìrótẹ́lẹ̀ nítorí àìṣedédé",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Àyípadà ọ̀rọ̀ aṣínà"

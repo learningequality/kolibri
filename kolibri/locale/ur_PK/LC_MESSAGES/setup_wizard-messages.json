@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "سیٹ اپ ویزرڈ",
   "SetupWizardIndex.onboardingFinishButton": "مکمل کریں",
   "SetupWizardIndex.onboardingNextStepButton": "جاری رکھیں",
-  "SetupWizardIndex.personalFacilityName": "مرکزی ادارہ {name}",
+  "SetupWizardIndex.personalFacilityName": "",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "یہ اکاؤنٹ اس ڈیوائیس پر آپ کو اس ادارے، مواد اور صارف اکاؤنٹس کو چلانے کی اجازت دیتا ہے",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "سپر منتظم اکاؤنٹ بنائیں",
   "SuperuserCredentialsForm.adminNameFieldLabel": "مکمل نام",

@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "اس نام سے ایک اکاؤنٹ پہلے ہی موجود ہے ۔",
   "ProfilePage.usernameNotAlphaNumUnderscore": "صارف/یوزر کا نام میں صرف حروف،نمبرز اور انڈر سکور ہونے چاہیے",
   "ProfilePage.youCan": "اپ کر سکتے ہیں",
-  "SignInPage.accessAsGuest": "مہمان کے طور پر جاری رکھیں",
+  "SignInPage.accessAsGuest": "",
   "SignInPage.createAccount": "اکاؤنٹ بنایں",
   "SignInPage.documentTitle": "صارف/ یوزر سائن ان کریں",
   "SignInPage.enterPassword": "پاس ورڈ درج کریں",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "صارف/یوزر کا نام میں صرف حروف،نمبرز اور انڈر سکور ہونے چاہیے",
   "SignUpPage.usernameAlreadyExistsError": "اس نام سے ایک اکاؤنٹ پہلے ہی موجود ہے ۔",
   "UserIndex.userProfileTitle": "پروفائل",
+  "UserIndex.userSignInTitle": "",
+  "UserIndex.userSignUpTitle": "",
   "UserPageSnackbars.dismiss": "رخصت کریں",
   "UserPageSnackbars.signedOut": "غیر فعال ہونے کی وجہ سے آپ خود بخود سائن آؤٹ ہوگئے تھے",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "پاس ورڈ تبدیل کر دیا گیا"

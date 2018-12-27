@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-25 15:19-0700\n"
-"PO-Revision-Date: 2018-11-05 17:04\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2018-12-27 01:24\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: es-ES\n"
-"X-Crowdin-File: /privacy-info/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,13 +28,13 @@ msgstr "Salón de clase"
 msgid "Learner group"
 msgstr "Grupo de estudiantes"
 
-#: kolibri/core/content/api.py:131
+#: kolibri/core/content/api.py:132
 msgid "Content"
-msgstr "Contenido"
+msgstr ""
 
-#: kolibri/core/content/api.py:715
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr "El canal solicitado no existe en el servidor de contenidos"
+msgstr ""
 
 #: kolibri/core/content/models.py:278
 msgid "Unknown format"
