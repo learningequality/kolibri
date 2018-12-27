@@ -3,22 +3,195 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: { page: 'Home' } }"
+        :to="newCoachRoute('HomePage')"
         :text="$tr('back')"
       />
     </p>
     <h2>{{ $tr('classActivity') }}</h2>
+    <NotificationsFilter />
+    <br>
+    <KGrid class="table-head">
+      <KGridItem :size="75" percentage>
+        {{ coachStrings.$tr('activityLabel') }}
+      </KGridItem>
+      <KGridItem :size="25" percentage>
+        {{ coachStrings.$tr('timeLabel') }}
+      </KGridItem>
+    </KGrid>
+
     <div>
-      <NotificationCard />
-      <NotificationCard />
-      <NotificationCard />
+      <NotificationCard
+        targetPage="SomePage"
+        time="1 minute ago"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Adam", itemName: "A video"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="2 minutes ago"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsty", itemName: "An exercise"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="3 minutes ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Adam", itemName: "A video assigned to the class"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="4 minutes ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="5 minutes ago"
+        learnerContext="Group A"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Carol", itemName: "A video assigned to a group"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="6 minutes ago"
+        learnerContext="Group A"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Darren", itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="10 minutes ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Edward", itemName: "Some lesson"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="15 minutes ago"
+        contentContext="Some quiz"
+      >
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Frank", itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+
+
+
+      <!-- Individual needs help -->
+      <NotificationCard
+        targetPage="SomePage"
+        time="20 minutes ago"
+      >
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="25 minutes ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="30 minutes ago"
+        learnerContext="Group A"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Darren", itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+
+
+
+
+
+      <!-- Individual started -->
+      <NotificationCard
+        targetPage="SomePage"
+        time="40 minutes ago"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Adam", itemName: "A video"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="50 minutes ago"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Betsty", itemName: "An exercise"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="1 hour ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Adam", itemName: "A video assigned to the class"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="1 hour ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="1 hour ago"
+        learnerContext="Group A"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Carol", itemName: "A video assigned to a group"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="2 hours ago"
+        learnerContext="Group A"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Darren", itemName: "An exercise assigned to a group"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="5 hours ago"
+        contentContext="Some lesson"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Edward", itemName: "Some lesson"}) }}
+      </NotificationCard>
+
+      <NotificationCard
+        targetPage="SomePage"
+        time="3 days ago"
+        contentContext="Some quiz"
+      >
+        {{ nStrings.$tr('individualStarted', {learnerName: "Frank", itemName: "Some quiz"}) }}
+      </NotificationCard>
+
+
+
+
+
     </div>
-    <p>
-      <KButton
-        appearance="flat-button"
-        :text="$tr('viewMore')"
-      />
-    </p>
+
+    <KButton
+      :text="coachStrings.$tr('showMoreAction')"
+    />
+
   </div>
 
 </template>
@@ -26,22 +199,21 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
-  import BackLink from './shared/BackLink';
-  import NotificationCard from './shared/NotificationCard';
+  import imports from './imports';
+  import NotificationsFilter from './shared/notifications/NotificationsFilter';
+
+  import NotificationCard from './shared/notifications/NotificationCard';
+  import { nStringsMixin } from './shared/notifications/notificationStrings';
 
   export default {
     name: 'HomeActivityPage',
     components: {
-      KButton,
+      NotificationsFilter,
       NotificationCard,
-      BackLink,
     },
-    props: {},
-    computed: {},
-    methods: {},
+    mixins: [imports, nStringsMixin],
     $trs: {
-      back: 'Back',
+      back: 'Class home',
       classActivity: 'Class activity',
       noActivity: 'No activity in your class',
       viewMore: 'View more',

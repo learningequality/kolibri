@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "ویزاردِ نصب کردن",
   "SetupWizardIndex.onboardingFinishButton": "پايان",
   "SetupWizardIndex.onboardingNextStepButton": "ادامه",
-  "SetupWizardIndex.personalFacilityName": "مرکز خانه {name}",
+  "SetupWizardIndex.personalFacilityName": "",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "این حساب کاربری به شما اجازه می‌دهد تا مرکز و مطالب و محتوا و حساب‌های کاربری را بر روی این دستگاه مدیریت کنید",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "ایجاد حساب کاربری ویژه",
   "SuperuserCredentialsForm.adminNameFieldLabel": "نام کامل",

@@ -9,9 +9,12 @@
 
 <script>
 
+  import imports from './imports';
+
   export default {
     name: 'ReportsLessonManagerPage',
     components: {},
+    mixins: [imports],
     $trs: {},
   };
 

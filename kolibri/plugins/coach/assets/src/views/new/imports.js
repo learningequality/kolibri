@@ -1,22 +1,27 @@
 import KButton from 'kolibri.coreVue.components.KButton';
 import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+import KGrid from 'kolibri.coreVue.components.KGrid';
+import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import { coachStringsMixin } from './shared/commonCoachStrings';
 import Answer from './shared/Answer';
 import BackLink from './shared/BackLink';
-import Completed from './shared/status/Completed';
 import TruncatedItemList from './shared/TruncatedItemList';
-import InProgress from './shared/status/InProgress';
 import LessonActive from './shared/LessonActive';
 import MasteryModel from './shared/MasteryModel';
-import NeedHelp from './shared/status/NeedHelp';
-import NotStarted from './shared/status/NotStarted';
 import Recipients from './shared/Recipients';
 import Score from './shared/Score';
 import TimeDuration from './shared/TimeDuration';
-import QuestionOrder from './shared/QuestionOrder';
 import QuizActive from './shared/QuizActive';
+
+import LearnerProgressRatio from './shared/status/LearnerProgressRatio';
+import LearnerProgressCount from './shared/status/LearnerProgressCount';
+import LearnerProgressLabel from './shared/status/LearnerProgressLabel';
+import ItemStatusRatio from './shared/status/ItemStatusRatio';
+import ItemStatusCount from './shared/status/ItemStatusCount';
+import ItemStatusLabel from './shared/status/ItemStatusLabel';
 
 export default {
   name: 'ReportsQuizHeader',
@@ -24,21 +29,30 @@ export default {
     KButton,
     KCheckbox,
     KDropdownMenu,
+    KGrid,
+    KGridItem,
     KRouterLink,
     KSelect,
     Answer,
     BackLink,
-    Completed,
     TruncatedItemList,
-    InProgress,
     LessonActive,
     MasteryModel,
-    NeedHelp,
-    NotStarted,
     Recipients,
     Score,
     TimeDuration,
-    QuestionOrder,
     QuizActive,
+    LearnerProgressRatio,
+    LearnerProgressCount,
+    LearnerProgressLabel,
+    ItemStatusRatio,
+    ItemStatusCount,
+    ItemStatusLabel,
+  },
+  mixins: [coachStringsMixin],
+  methods: {
+    newCoachRoute(page) {
+      return { name: 'NEW_COACH_PAGES', params: { page } };
+    },
   },
 };

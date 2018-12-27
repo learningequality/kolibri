@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "Sanidi sogora",
   "SetupWizardIndex.onboardingFinishButton": "Maliza",
   "SetupWizardIndex.onboardingNextStepButton": "Endelea",
-  "SetupWizardIndex.personalFacilityName": "Kituo cha nyumbani {name}",
+  "SetupWizardIndex.personalFacilityName": "",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Akaunti hii inakuwezesha kusimamia kituo na yaliyomo na akaunti za watumiaji katika kifaa hiki",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Tengeneza akaunti ya msimamizi mkuu",
   "SuperuserCredentialsForm.adminNameFieldLabel": "Jina kamili",

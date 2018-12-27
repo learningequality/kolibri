@@ -1,15 +1,15 @@
 <template>
 
   <div>
-    <h1>{{ $tr('classPageHeader') }}</h1>
+    <h1>{{ coachStrings.$tr('classesLabel') }}</h1>
     <p>{{ $tr('classPageSubheader') }}</p>
 
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderClassName') }}</td>
-          <td>{{ $tr('tableHeaderCoaches') }}</td>
-          <td>{{ $tr('tableHeaderLearners') }}</td>
+          <td>{{ $tr('classNameLabel') }}</td>
+          <td>{{ coachStrings.$tr('coachesLabel') }}</td>
+          <td>{{ coachStrings.$tr('learnersLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -17,7 +17,7 @@
           <td>
             <KRouterLink
               text="Some class"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="['Jacob', 'Alice']" /></td>
@@ -27,7 +27,7 @@
           <td>
             <KRouterLink
               text="Another class"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="[]" /></td>
@@ -37,7 +37,7 @@
           <td>
             <KRouterLink
               text="Conference"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'HomePage' }}"
+              :to="newCoachRoute('HomePage')"
             />
           </td>
           <td><TruncatedItemList :items="['Steve', 'Julie', 'Jane', 'Alice', 'Jacob']" /></td>
@@ -55,21 +55,18 @@
   import imports from './imports';
 
   export default {
-    name: 'ClassListPage',
+    name: 'CoachClassListPage',
     components: {},
     mixins: [imports],
     $trs: {
-      classPageHeader: 'Classes',
       classPageSubheader: 'View learner progress and class performance',
-      tableHeaderClassName: 'Class name',
+      classNameLabel: 'Class name',
       noAssignedClassesHeader: "You aren't assigned to any classes",
       noAssignedClassesDetails:
         'Please consult your Kolibri administrator to be assigned to a class',
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
-      tableHeaderCoaches: 'Coaches',
       noClassesInFacility: 'There are no classes yet',
-      tableHeaderLearners: 'Learners',
     },
   };
 

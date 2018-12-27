@@ -1,12 +1,12 @@
 <template>
 
-  <div class="new-coach-block">
-    <h2>{{ $tr('lessons') }}</h2>
+  <div>
+    <h2>{{ coachStrings.$tr('lessonsLabel') }}</h2>
     <p>
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'test'} }"
+        :to="newCoachRoute('ReportsLessonListPage')"
       />
     </p>
     <div>
@@ -39,18 +39,17 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import imports from '../imports';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   export default {
     name: 'LessonsBlock',
     components: {
       ItemProgressDisplay,
-      KRouterLink,
     },
+    mixins: [imports],
     $trs: {
-      lessons: 'Lessons',
-      viewAll: 'View all',
+      viewAll: 'All lessons',
     },
   };
 

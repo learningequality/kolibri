@@ -63,7 +63,7 @@
   import AttemptSummary from './AttemptSummary';
 
   export default {
-    name: 'LearnerExerciseReport',
+    name: 'LearnerExerciseReportOld',
     metaInfo() {
       return {
         title: this.exercise.title,

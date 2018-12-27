@@ -182,7 +182,10 @@ def parse_package_page(files, pk_version, index_url):
             install_package_by_wheel(path)
         # Download failed
         else:
-            sys.exit('\nDownload failed for package {}.\n'.format(file.string))
+            # see https://github.com/learningequality/kolibri/issues/4656
+            print('\nDownload failed for package {}.\n'.format(file.string))
+            continue
+            # sys.exit('\nDownload failed for package {}.\n'.format(file.string))
 
     # Copy the packages in cp34 to cp35, cp36, cp37 due to abi3 tag.
     # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-5-on-linux-or-macos

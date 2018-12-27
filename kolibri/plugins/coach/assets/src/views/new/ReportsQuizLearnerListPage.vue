@@ -4,16 +4,16 @@
 
     <ReportsQuizHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
 
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderScore') }}</td>
-          <td>{{ $tr('tableHeaderProgress') }}</td>
-          <td>{{ $tr('tableHeaderGroups') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
+          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -21,34 +21,61 @@
           <td>
             <KRouterLink
               text="April"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerPage')"
             />
           </td>
           <td><Score /></td>
-          <td><NotStarted :count="0" :total="10" /></td>
-          <td><TruncatedItemList :groups="[]" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="0"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="clock"
+            />
+          </td>
+          <td><TruncatedItemList :items="[]" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
               text="Steve"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerPage')"
             />
           </td>
           <td><Score /></td>
-          <td><InProgress :count="8" :total="10" /></td>
-          <td><TruncatedItemList :groups="['a', 'b']" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="8"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="clock"
+            />
+          </td>
+          <td><TruncatedItemList :items="['a', 'b']" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
               text="John"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizLearnerPage' }}"
+              :to="newCoachRoute('ReportsQuizLearnerPage')"
             />
           </td>
           <td><Score :value="0.1" /></td>
-          <td><Completed :count="10" :total="10" /></td>
-          <td><TruncatedItemList :groups="['a', 'b', 'c', 'd']" /></td>
+          <td>
+            <ItemStatusRatio
+              :count="10"
+              :total="10"
+              verbosity="1"
+              obj="question"
+              adjective="completed"
+              icon="star"
+            />
+          </td>
+          <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
         </tr>
       </tbody>
     </table>
@@ -95,15 +122,10 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      overall: 'Overall',
       averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
-      tableHeaderTitle: 'Title',
-      tableHeaderScore: 'Score',
-      tableHeaderProgress: 'Progress',
-      tableHeaderGroups: 'Groups',
     },
   };
 

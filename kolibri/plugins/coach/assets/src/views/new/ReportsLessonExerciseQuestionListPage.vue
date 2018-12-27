@@ -4,25 +4,28 @@
 
     <ReportsLessonExerciseHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
+
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderQuestion') }}</td>
-          <td>{{ $tr('tableHeaderNeedHelp') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
+          <td>{{ coachStrings.$tr('questionLabel') }}</td>
+          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><KRouterLink text="Question 1" :to="questionLink" /></td>
           <td>
-            <NeedHelp
-              :count="3"
-              :total="12"
-              :showRatio="true"
-              :verbosity="1"
-          /></td>
+            <LearnerProgressCount
+              :count="2"
+              verbosity="1"
+              verb="needHelp"
+              icon="help"
+            />
+          </td>
           <td><TimeDuration :seconds="60*15" /></td>
         </tr>
       </tbody>
@@ -34,19 +37,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import TimeDuration from './shared/TimeDuration';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
-      TimeDuration,
-      NeedHelp,
       ReportsLessonExerciseHeader,
-      KRouterLink,
     },
+    mixins: [imports],
     data() {
       return {
         lessonName: 'Lesson A',
@@ -54,10 +53,7 @@
     },
     computed: {
       questionLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsLessonExerciseQuestionPage' },
-        };
+        return this.newCoachRoute('ReportsLessonExerciseQuestionPage');
       },
     },
     methods: {
@@ -65,12 +61,7 @@
         this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
       },
     },
-    $trs: {
-      overall: 'Overall',
-      tableHeaderQuestion: 'Question',
-      tableHeaderNeedHelp: 'Help needed',
-      tableHeaderTimeSpent: 'Average time spent',
-    },
+    $trs: {},
   };
 
 </script>

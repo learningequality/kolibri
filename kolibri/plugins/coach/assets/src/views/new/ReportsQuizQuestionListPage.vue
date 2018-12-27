@@ -4,36 +4,38 @@
 
     <ReportsQuizHeader />
 
-    <h2>{{ $tr('overall') }}</h2>
+    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderQuestion') }}</td>
-          <td>{{ $tr('tableHeaderNeedHelp') }}</td>
-          <td>{{ $tr('tableHeaderTimeSpent') }}</td>
+          <td>{{ coachStrings.$tr('questionLabel') }}</td>
+          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+          <td>{{ $tr('avgTimeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><KRouterLink text="Question 1" :to="questionLink" /></td>
           <td>
-            <NeedHelp
+            <LearnerProgressCount
               :count="12"
-              :total="12"
-              :showRatio="true"
               :verbosity="1"
-          /></td>
+              icon="help"
+              verb="needHelp"
+            />
+          </td>
           <td><TimeDuration :seconds="60*15" /></td>
         </tr>
         <tr>
           <td><KRouterLink text="Question 2" :to="questionLink" /></td>
           <td>
-            <NeedHelp
+            <LearnerProgressCount
               :count="1"
-              :total="12"
-              :showRatio="true"
               :verbosity="1"
-          /></td>
+              icon="help"
+              verb="needHelp"
+            />
+          </td>
           <td><TimeDuration :seconds="60*4" /></td>
         </tr>
       </tbody>
@@ -61,10 +63,7 @@
     },
     computed: {
       questionLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsQuizQuestionPage' },
-        };
+        return this.newCoachRoute('ReportsQuizQuestionPage');
       },
     },
     methods: {
@@ -73,10 +72,7 @@
       },
     },
     $trs: {
-      overall: 'Overall',
-      tableHeaderQuestion: 'Question',
-      tableHeaderNeedHelp: 'Help needed',
-      tableHeaderTimeSpent: 'Average time spent',
+      avgTimeSpentLabel: 'Average time spent',
     },
   };
 

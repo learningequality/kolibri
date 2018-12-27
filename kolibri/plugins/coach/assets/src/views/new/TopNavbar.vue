@@ -8,14 +8,14 @@
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
-      :title="$tr('reports')"
+      :title="coachStrings.$tr('reportsLabel')"
       :link="link('ReportsLessonListPage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
-      :link="link('PlanPage')"
+      :link="link('PlanLessonListPage')"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -29,17 +29,18 @@
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames } from '../../constants';
+  import imports from './imports';
 
   export default {
-    name: 'CoachTopNavbar',
-    $trs: {
-      home: 'Class Home',
-      reports: 'Reports',
-      plan: 'Plan',
-    },
+    name: 'TopNavbar',
     components: {
       KNavbar,
       KNavbarLink,
+    },
+    mixins: [imports],
+    $trs: {
+      home: 'Class Home',
+      plan: 'Plan',
     },
     methods: {
       link(page) {

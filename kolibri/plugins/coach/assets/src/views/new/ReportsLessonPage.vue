@@ -3,34 +3,33 @@
   <div class="new-coach-block">
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
+        :to="newCoachRoute('ReportsLessonListPage')"
         :text="$tr('back')"
       />
     </p>
     <h1>Some Lesson</h1>
     <KDropdownMenu
       slot="optionsDropdown"
-      :text="$tr('options')"
+      :text="coachStrings.$tr('optionsLabel')"
       :options="actionOptions"
       appearance="raised-button"
       @select="goTo($event.value)"
     />
     <dl>
-      <dt>{{ $tr('status') }}</dt>
+      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
       <dd><LessonActive :active="true" /></dd>
-      <dt>{{ $tr('recipients') }}</dt>
+      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
       <dd>Group 1, Group 2</dd>
-      <dt>{{ $tr('descriptionn') }}</dt>
+      <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
       <dd>Ipsum lorem</dd>
     </dl>
 
-    <h2>{{ $tr('numResources', {count: 4}) }}</h2>
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderProgress') }}</td>
-          <td>{{ $tr('tableHeaderTime') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
+          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -38,21 +37,43 @@
           <td>
             <KRouterLink
               text="Some exercise"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonExerciseLearnerListPage' }}"
+              :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
             />
           </td>
-          <td><Completed :count="3" :total="6" /></td>
+          <td>
+            <LearnerProgressRatio
+              :count="2"
+              :total="10"
+              verbosity="1"
+              verb="completed"
+              icon="learners"
+            />
+            <LearnerProgressCount
+              verb="needHelp"
+              icon="help"
+              :count="1"
+              :verbosity="0"
+            />
+
+          </td>
           <td><TimeDuration :seconds="360" /></td>
         </tr>
         <tr>
           <td>
             <KRouterLink
               text="Some video"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonResourcePage' }}"
+              :to="newCoachRoute('ReportsLessonResourceLearnerListPage')"
             />
           </td>
           <td>
-            <Completed :count="3" :total="6" /> &nbsp; <NeedHelp :count="1" />
+            <LearnerProgressRatio
+              :count="3"
+              :total="6"
+              verbosity="1"
+              verb="completed"
+              icon="learners"
+            />
+
           </td>
           <td><TimeDuration :seconds="120" /></td>
         </tr>
@@ -74,8 +95,11 @@
     computed: {
       actionOptions() {
         return [
-          { label: this.$tr('editDetails'), value: 'ReportsLessonEditorPage' },
-          { label: this.$tr('manageResources'), value: 'ReportsLessonManagerPage' },
+          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
+          {
+            label: this.coachStrings.$tr('manageResourcesAction'),
+            value: 'ReportsLessonManagerPage',
+          },
         ];
       },
     },
@@ -85,19 +109,7 @@
       },
     },
     $trs: {
-      numResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
-      options: 'Options',
-      editDetails: 'Edit Details',
-      manageResources: 'Manage Resources',
-      back: 'View all lessons',
-      status: 'Status',
-      recipients: 'Recipients',
-      descriptionn: 'Description',
-      optionsEdit: 'Edit details',
-      optionsManage: 'Manage resources',
-      tableHeaderTitle: 'Title',
-      tableHeaderProgress: 'Progress',
-      tableHeaderTime: 'Average time spent',
+      back: 'All lessons',
     },
   };
 
