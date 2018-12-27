@@ -81,19 +81,16 @@ ADD_BRANCH_URL = CROWDIN_API_URL.format(
     cmd="add-directory",
     params="&name={branch}&is_branch=1&json",
 )
-# pre-translate based on exact ID and matches, and auto-approve
-PRETRANSLATE_APPROVE_PERFECT_MATCHES_URL = CROWDIN_API_URL.format(
+# pre-translate all strings matches, and auto-approve only those with exact ID matches
+PRETRANSLATE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="pre-translate",
-    params="&method=tm&approve_translated=1&auto_approve_option=1&json&apply_untranslated_strings_only=1&perfect_match=1",
-)
-# pre-translate based on basic string matches, but don't auto-approve
-PRETRANSLATE_FIND_STRING_COPIES_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="pre-translate",
-    params="&method=tm&approve_translated=0&json&apply_untranslated_strings_only=1&perfect_match=0",
+    # perfect_match=0 - apply TM to all identical strings, regardless of ID
+    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
+    # import_duplicates=1 - not sure? in the UI this is mutually exclusive with apply_untranslated_strings_only
+    # approve_translated=1 - only auto-approve "perfect" matches, i.e. those with the same ID
+    params="&method=tm&approve_translated=1&auto_approve_option=1&json&apply_untranslated_strings_only=1import_duplicates=1&perfect_match=0",
 )
 UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -187,13 +184,8 @@ def command_pretranslate(branch):
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
     params.extend([("languages[]", code) for code in codes])
 
-    logging.info("Crowdin: pre-translating and approving exact matches in '{}'...".format(branch))
-    r = requests.post(PRETRANSLATE_APPROVE_PERFECT_MATCHES_URL, params=params)
-    r.raise_for_status()
-    logging.info("Crowdin: succeeded!")
-
-    logging.info("Crowdin: pre-translating possible matches in '{}'...".format(branch))
-    r = requests.post(PRETRANSLATE_FIND_STRING_COPIES_URL, params=params)
+    logging.info("Crowdin: pre-translating strings and pre-approving exact matches in '{}'...".format(branch))
+    r = requests.post(PRETRANSLATE_URL, params=params)
     r.raise_for_status()
     logging.info("Crowdin: succeeded!")
 
