@@ -1,9 +1,14 @@
 """
-This app is intended to provide the core functionality for tracking user
-engagement with content and Kolibri in general. As such, it is intended
-to store details of user interactions with content, a summary of those
-interactions, interactions with the software in general, as well as user
-feedback on the content and the software.
+This app provides the core functionality for tracking user
+engagement with content and the Kolibri app.
+
+It stores:
+
+* details of users' interactions with content
+* summaries of those interactions
+* interactions with the software in general
+
+Eventually, it may also store user feedback on the content and the software.
 """
 from __future__ import unicode_literals
 
@@ -120,7 +125,8 @@ class ContentSessionLog(BaseLogModel):
 
 class ContentSummaryLog(BaseLogModel):
     """
-    This model provides a summary of all interactions a user has had with a content item.
+    This model provides an aggregate summary of all recorded interactions a user has had with
+    a content item over time.
     """
     # Morango syncing settings
     morango_model_name = "contentsummarylog"
@@ -207,8 +213,8 @@ class MasteryLog(BaseLogModel):
 
 class BaseAttemptLog(BaseLogModel):
     """
-    This is an abstract model that provides a summary of a user's engagement within a particular
-    interaction with an item/question in an assessment
+    This is an abstract model that provides a summary of a user's interactions with a particular
+    item/question in an assessment/exercise/exam
     """
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
@@ -237,8 +243,8 @@ class BaseAttemptLog(BaseLogModel):
 
 class AttemptLog(BaseAttemptLog):
     """
-    This model provides a summary of a user's engagement within a particular interaction with an
-    item/question in an assessment
+    This model provides a summary of a user's interactions with a question in an exercise.
+    It should probably be called ExerciseAttemptLog to distinguish it from ExamAttemptLog
     """
 
     morango_model_name = 'attemptlog'
@@ -253,7 +259,7 @@ class AttemptLog(BaseAttemptLog):
 
 class ExamLog(BaseLogModel):
     """
-    This model provides a summary of a user's interaction with a particular exam, and serves as
+    This model provides a summary of a user's interactions with an exam, and serves as
     an aggregation point for individual attempts on that exam.
     """
 
@@ -278,8 +284,7 @@ class ExamLog(BaseLogModel):
 
 class ExamAttemptLog(BaseAttemptLog):
     """
-    This model provides a summary of a user's engagement within a particular interaction with an
-    item/question in an exam
+    This model provides a summary of a user's interactions with a question in an exam
     """
 
     morango_model_name = 'examattemptlog'
