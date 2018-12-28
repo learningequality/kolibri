@@ -13,7 +13,7 @@
     </div>
 
     <p v-if="interactions.length">
-      {{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}
+      {{ $tr('currAnswer', {value: selectedInteractionIndex + 1 }) }}
     </p>
     <p v-else>
       {{ $tr('noInteractions') }}
@@ -34,7 +34,7 @@
     components: { InteractionItem },
     mixins: [responsiveElement],
     $trs: {
-      currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} attempt',
+      currAnswer: 'Attempt {value, number, integer}',
       noInteractions: 'No attempts made on this question',
     },
     props: {
