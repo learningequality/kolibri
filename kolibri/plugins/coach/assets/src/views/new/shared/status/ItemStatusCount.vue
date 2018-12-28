@@ -22,7 +22,7 @@
     },
     mixins: [statusStringsMixin],
     props: {
-      object: {
+      obj: {
         type: String,
         required: true,
         validator: isValidObject,
