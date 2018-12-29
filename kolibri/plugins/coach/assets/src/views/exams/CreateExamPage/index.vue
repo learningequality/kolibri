@@ -34,7 +34,7 @@
 
       <div class="buttons-container">
         <KButton
-          :text="$tr('continueButtonlabel')"
+          :text="selectQuestionsString"
           :primary="true"
           :disabled="submitting"
           @click="continueProcess"
@@ -54,7 +54,10 @@
         percentage
         alignments="left, right, right"
       >
-        <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+        <ul>
+          <li class="numItems">{{ numExercisesString }}</li>
+          <li class="numItems">{{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}</li>
+        </ul>
       </KGridItem>
     </KGrid>
 
@@ -131,6 +134,7 @@
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
   import uniqBy from 'lodash/uniqBy';
   import shuffle from 'lodash/shuffle';
@@ -145,7 +149,12 @@
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
+  import ItemListPage from '../../reports/ItemListPage';
+  import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
   import CreateExamPreview from './CreateExamPreview';
+
+  const itemListPageStrings = crossComponentTranslator(ItemListPage);
+  const createExamPreviewStrings = crossComponentTranslator(CreateExamPreview);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -167,7 +176,7 @@
       KGrid,
       KGridItem,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, coachStringsMixin],
     $trs: {
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
@@ -397,6 +406,14 @@
           return '';
         }
         return this.ancestors[this.ancestors.length - 1].description;
+      },
+      numExercisesString() {
+        return itemListPageStrings.$tr('exerciseCountText', {
+          count: this.selectedExercises.length,
+        });
+      },
+      selectQuestionsString() {
+        return createExamPreviewStrings.$tr('title');
       },
     },
     watch: {
@@ -678,6 +695,11 @@
     button {
       margin: 0 0 0 16px;
     }
+  }
+
+  .numItems {
+    margin-left: 0;
+    list-style: none;
   }
 
 </style>
