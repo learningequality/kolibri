@@ -3,8 +3,8 @@
   <KModal
     ref="modal"
     :title="$tr('title')"
-    :cancelText="coachStrings.$tr('goBackButton')"
-    :submitText="coachStrings.$tr('finishButton')"
+    :cancelText="coachStrings.$tr('goBackAction')"
+    :submitText="coachStrings.$tr('finishAction')"
     size="large"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
@@ -45,7 +45,7 @@
             class="o-y-auto"
           >
             <div>
-              {{ coachStrings.$tr('numberOfQuestions', { num: availableExamQuestionSources.length }) }}
+              {{ coachStrings.$tr('numberOfQuestions', { value: availableExamQuestionSources.length }) }}
             </div>
             <div>
               <KButton
@@ -295,11 +295,6 @@
   /deep/ .modal {
     max-width: unset;
     max-height: unset;
-  }
-
-  ol {
-    padding: 0;
-    margin: 0;
   }
 
   h3 {
