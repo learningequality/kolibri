@@ -260,7 +260,7 @@ class AttemptLog(BaseAttemptLog):
 class ExamLog(BaseLogModel):
     """
     This model provides a summary of a user's interactions with an exam, and serves as
-    an aggregation point for individual attempts on that exam.
+    an aggregation point for individual attempts on questions in that exam.
     """
 
     morango_model_name = 'examlog'

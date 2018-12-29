@@ -1,7 +1,7 @@
 Implementation details and workflows
 ====================================
 
-To achieve using separate databases for each channel and being able to switch channels dynamically, the following data structure and utility functions have been implemented.
+To achieve using separate databases for each channel and be able to switch channels dynamically, the following data structure and utility functions have been implemented.
 
 ContentDBRoutingMiddleware
 --------------------------
@@ -63,9 +63,10 @@ ContentNode
 -----------
 
 ``ContentNode`` is implemented as a Django model that inherits from two abstract classes, MPTTModel and ContentDatabaseModel.
-`django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/>`__, which
-allows for efficient traversal and querying of the ContentNode tree.
-``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel.
+
+
+ * `django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/overview.html/>`__ allows for efficient traversal and querying of the ContentNode tree.
+ * ``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel.
 
 The tree structure is established by the ``parent`` field that is a foreign key pointing to another ContentNode object. You can also create a symmetric relationship using the ``related`` field, or an asymmetric field using the ``is_prerequisite`` field.
 
@@ -76,11 +77,8 @@ The ``File`` model also inherits from ``ContentDatabaseModel``.
 
 To find where the source file is located, the class method ``get_url`` uses the ``checksum`` field and ``settings.CONTENT_STORAGE_DIR`` to calculate the file path. Every source file is named based on its MD5 hash value (this value is also stored in the ``checksum`` field) and stored in a namespaced folder under the directory specified in ``settings.CONTENT_STORAGE_DIR``. Because it's likely to have thousands of content files, and some filesystems cannot handle a flat folder with a large number of files very well, we create namespaced subfolders to improve the performance. So the eventual file path would look something like:
 
-    ``/home/user/.kolibri/content/storage/9/8/9808fa7c560b9801acccf0f6cf74c3ea.mp4``
+``[CONTENT_STORAGE_DIR]/content/storage/9/8/9808fa7c560b9801acccf0f6cf74c3ea.mp4``
 
-As you can see, it is fine to store your content files outside of the kolibri project folder as long as you set the ``settings.CONTENT_STORAGE_DIR`` accordingly.
-
-The frontend will then use the ``extension`` field to decide which content player should be used. When the ``supplementary`` field's value is ``True``, that means this File object isn't necessary and can display the content without it. For example, we will mark caption (subtitle) file as supplementary.
 
 Content constants
 -----------------
@@ -94,9 +92,9 @@ A Python module that stores constants for the ``kind`` field in ContentNode mode
 Workflows
 ---------
 
-There are two workflows we currently designed to handle content UI rendering and content playback rendering
+There are two workflows that handle content navigation and content rendering:
 
-- Content UI Rendering
+- Content navigation
 
     1. Start with a ContentNode object.
     2. Get the associated File object that has the ``thumbnail`` field being True.
@@ -105,7 +103,7 @@ There are two workflows we currently designed to handle content UI rendering and
     5. Renders the template with the thumbnail image.
 
 
-- Content Playback Rendering
+- Content rendering
 
     1. Start with a ContentNode object.
     2. Retrieve a queryset of associated File objects that are filtered by the preset.
