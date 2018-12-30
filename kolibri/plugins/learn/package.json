@@ -1,0 +1,9 @@
+{
+  "name": "kolibri-learn-plugin",
+  "description": "Learner experience for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "knuth-shuffle-seeded": "^1.0.6"
+  }
+}

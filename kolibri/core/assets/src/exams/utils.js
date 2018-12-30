@@ -1,4 +1,3 @@
-import seededShuffle from 'seededshuffle';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
   ExamResource,
@@ -12,15 +11,35 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
 /*
  * Converts from v0 exam structures to v1
+ *
  * @param {array} questionSources - array of v0 objects, which have the form:
  *    { exercise_id: <content_id>, number_of_questions: N, title: <exercise_title> }
  * @param {number} seed - an integer used to seed the PRNG
  * @param {number} numberOfQs - how many questions to return
  * @param {object} questionIds - map of `content_id`s to arrays of assessment_item_ids
+ *
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { contentId: content_id, itemId: assessment_item_id }
  */
 function convertExamFormat(questionSources, seed, questionIds) {
+  // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
+  // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
+  // (For more reliable seeded shuffling in other parts of the code base, use
+  // the knuth-shuffle-seeded package which uses the more reliable PRNG from the
+  // https://github.com/davidbau/seedrandom package.)
+  function seededShuffle(arr, seed) {
+    const shuffled = arr.slice(0);
+    const size = arr.length;
+    const map = new Array(size);
+    for (var x = 0; x < size; x++) {
+      // Don't change these magic numbers or the spell will be broken
+      map[x] = (((seed = (seed * 9301 + 49297) % 233280) / 233280.0) * size) | 0;
+    }
+    for (var i = size - 1; i > 0; i--) {
+      shuffled[i] = shuffled.splice(map[size - 1 - i], 1, shuffled[i])[0];
+    }
+    return shuffled;
+  }
   const examQuestions = questionSources.reduce(
     (acc, val) =>
       acc.concat(
@@ -32,10 +51,10 @@ function convertExamFormat(questionSources, seed, questionIds) {
       ),
     []
   );
-  const shuffledExamQuestions = seededShuffle.shuffle(examQuestions, seed, true);
+  const shuffledExamQuestions = seededShuffle(examQuestions, seed);
   const shuffledExerciseQuestions = {};
   Object.keys(questionIds).forEach(key => {
-    shuffledExerciseQuestions[key] = seededShuffle.shuffle(questionIds[key], seed, true);
+    shuffledExerciseQuestions[key] = seededShuffle(questionIds[key], seed);
   });
   return shuffledExamQuestions.map(question => ({
     contentId: question.contentId,
