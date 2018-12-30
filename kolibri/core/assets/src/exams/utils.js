@@ -29,6 +29,30 @@ function selectQuestionFromExercise(index, seed, contentNode) {
   return seededShuffle.shuffle(assessmentmetadata.assessmentIds, seed, true)[index];
 }
 
+/*
+ * Converts from v0 exam structures to v1
+ * @param {array} questionSources - array of v0 objects, which have the form:
+ *    { exercise_id: <content_id>, number_of_questions: N, title: <exercise_title> }
+ * @param {number} seed - an integer used to seed the PRNG
+ * @param {number} numberOfQs - how many questions to return
+ * @param {object} questionIds - map of `content_id`s to arrays of assessment_item_ids
+ * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
+ *    { contentId: content_id, itemId: assessment_item_id }
+ */
+function convertExamFormat(questionSources, seed, questionIds) {
+  const questionList = createQuestionList(questionSources);
+  const shuffledExamQuestions = seededShuffle.shuffle(questionList, seed, true);
+  const shuffledExerciseQuestions = {};
+  Object.keys(questionIds).forEach(key => {
+    shuffledExerciseQuestions[key] = seededShuffle.shuffle(questionIds[key], seed, true);
+  });
+  const questions = shuffledExamQuestions.map(question => ({
+    itemId: shuffledExerciseQuestions[question.contentId][question.assessmentItemIndex],
+    contentId: question.contentId,
+  }));
+  return questions;
+}
+
 // idk the best place to place this function
 function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
@@ -169,6 +193,7 @@ function canViewExamReport(exam, examLog) {
 }
 
 export {
+  convertExamFormat,
   createQuestionList,
   selectQuestionFromExercise,
   getExamReport,
