@@ -4,7 +4,7 @@
     <ExamPreview
       v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
       :examQuestionSources="exam.question_sources"
-      :examSeed="exam.seed"
+      :examSeed="exam.v0_seed"
       :examNumQuestions="exam.question_count"
       :exerciseContentNodes="exerciseContentNodes"
       @close="setExamsModal(null)"
@@ -142,7 +142,7 @@
           title,
           question_count: this.exam.question_count,
           question_sources: this.exam.question_sources,
-          seed: this.exam.seed,
+          seed: this.exam.v0_seed,
           assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
         this.copyExam({ exam, className: this.className });

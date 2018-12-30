@@ -83,8 +83,9 @@ class ExamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
         fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments', 'creator',
+            'id', 'title', 'question_count', 'question_sources', 'v0_seed',
+            'active', 'collection', 'archive', 'assignments', 'creator', 'data_model_version',
+            'learners_see_fixed_order'
         )
 
     def to_internal_value(self, data):
@@ -150,16 +151,17 @@ class UserExamSerializer(serializers.ModelSerializer):
         # defined as they are directly attached to a particular user's collection.
         model = ExamAssignment
         read_only_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'score', 'archive', 'answer_count', 'closed',
+            'id', 'title', 'question_count', 'question_sources', 'v0_seed',
+            'active', 'score', 'archive', 'answer_count', 'closed', 'data_model_version',
+            'learners_see_fixed_order'
         )
         fields = '__all__'
 
     def to_representation(self, obj):
         output = {}
         exam_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'archive',
+            'id', 'title', 'question_count', 'question_sources', 'v0_seed',
+            'active', 'archive', 'data_model_version', 'learners_see_fixed_order'
         )
         for field in exam_fields:
             output[field] = getattr(obj.exam, field)
