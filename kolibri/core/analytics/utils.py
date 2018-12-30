@@ -64,9 +64,12 @@ def extract_facility_statistics(facility):
                     .filter(start_timestamp__gt=datetime.datetime(2016, 1, 1))
                     .aggregate(first=Min("start_timestamp"), last=Max("end_timestamp")))
 
+    first_times = [d["first"] for d in [usersess_agg, contsess_agg] if d["first"]]
+    last_times = [d["last"] for d in [usersess_agg, contsess_agg] if d["last"]]
+
     # since newly provisioned devices won't have logs, we don't know whether we have an available datetime object
-    first_interaction_timestamp = getattr(min(usersess_agg["first"], contsess_agg["first"]), 'strftime', None)
-    last_interaction_timestamp = getattr(max(usersess_agg["last"], contsess_agg["last"]), 'strftime', None)
+    first_interaction_timestamp = getattr(min(first_times), 'strftime', None)
+    last_interaction_timestamp = getattr(max(last_times), 'strftime', None)
 
     sesslogs_by_kind = contsessions.order_by("kind").values("kind").annotate(count=Count("kind"))
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}

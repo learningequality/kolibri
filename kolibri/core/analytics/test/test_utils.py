@@ -219,6 +219,22 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         }
         assert actual == expected
 
+    def test_regression_4606_no_usersessions(self):
+        UserSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
+    def test_regression_4606_no_contentsessions(self):
+        ContentSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
 
