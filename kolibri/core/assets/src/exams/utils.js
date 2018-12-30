@@ -10,25 +10,6 @@ import {
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
-function createQuestionList(questionSources) {
-  return questionSources.reduce(
-    (acc, val) =>
-      acc.concat(
-        Array.from(Array(val.number_of_questions).keys()).map(assessmentItemIndex => ({
-          contentId: val.exercise_id,
-          title: val.title,
-          assessmentItemIndex,
-        }))
-      ),
-    []
-  );
-}
-
-function selectQuestionFromExercise(index, seed, contentNode) {
-  const assessmentmetadata = assessmentMetaDataState(contentNode);
-  return seededShuffle.shuffle(assessmentmetadata.assessmentIds, seed, true)[index];
-}
-
 /*
  * Converts from v0 exam structures to v1
  * @param {array} questionSources - array of v0 objects, which have the form:
@@ -40,17 +21,27 @@ function selectQuestionFromExercise(index, seed, contentNode) {
  *    { contentId: content_id, itemId: assessment_item_id }
  */
 function convertExamFormat(questionSources, seed, questionIds) {
-  const questionList = createQuestionList(questionSources);
-  const shuffledExamQuestions = seededShuffle.shuffle(questionList, seed, true);
+  const examQuestions = questionSources.reduce(
+    (acc, val) =>
+      acc.concat(
+        Array.from(Array(val.number_of_questions).keys()).map(assessmentItemIndex => ({
+          contentId: val.exercise_id,
+          title: val.title,
+          assessmentItemIndex,
+        }))
+      ),
+    []
+  );
+  const shuffledExamQuestions = seededShuffle.shuffle(examQuestions, seed, true);
   const shuffledExerciseQuestions = {};
   Object.keys(questionIds).forEach(key => {
     shuffledExerciseQuestions[key] = seededShuffle.shuffle(questionIds[key], seed, true);
   });
-  const questions = shuffledExamQuestions.map(question => ({
-    itemId: shuffledExerciseQuestions[question.contentId][question.assessmentItemIndex],
+  return shuffledExamQuestions.map(question => ({
     contentId: question.contentId,
+    itemId: shuffledExerciseQuestions[question.contentId][question.assessmentItemIndex],
+    title: question.title,
   }));
-  return questions;
 }
 
 // idk the best place to place this function
@@ -75,10 +66,8 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttempts, user]) => {
         const examLog = examLogs[0] || {};
-        const seed = exam.seed;
         const questionSources = exam.question_sources;
 
-        const questionList = createQuestionList(questionSources);
         let contentPromise;
 
         if (questionSources.length) {
@@ -94,24 +83,11 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         contentPromise.only(
           samePageCheckGenerator(store),
           contentNodes => {
-            const contentNodeMap = {};
-
+            const questionIds = {};
             contentNodes.forEach(node => {
-              contentNodeMap[node.id] = node;
+              questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-
-            // Only pick questions that are still on server
-            const questions = questionList
-              .filter(question => contentNodeMap[question.contentId])
-              .map(question => ({
-                itemId: selectQuestionFromExercise(
-                  question.assessmentItemIndex,
-                  seed,
-                  contentNodeMap[question.contentId]
-                ),
-                contentId: question.contentId,
-                title: question.title,
-              }));
+            const questions = convertExamFormat(questionSources, exam.seed, questionIds);
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
@@ -145,7 +121,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
 
             const currentQuestion = questions[questionNumber];
             const itemId = currentQuestion.itemId;
-            const exercise = contentNodeMap[currentQuestion.contentId];
+            const exercise = contentNodes.find(node => node.id === currentQuestion.contentId);
             const currentAttempt = allQuestions[questionNumber];
             // filter out interactions without answers but keep hints and errors
             const currentInteractionHistory = currentAttempt.interaction_history.filter(
@@ -192,11 +168,4 @@ function canViewExamReport(exam, examLog) {
   return !canViewExam(exam, examLog);
 }
 
-export {
-  convertExamFormat,
-  createQuestionList,
-  selectQuestionFromExercise,
-  getExamReport,
-  canViewExam,
-  canViewExamReport,
-};
+export { convertExamFormat, getExamReport, canViewExam, canViewExamReport };
