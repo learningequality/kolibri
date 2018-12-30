@@ -91,7 +91,8 @@
 
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
-  import { createQuestionList, selectQuestionFromExercise } from 'kolibri.utils.exams';
+  import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+  import { convertExamFormat } from 'kolibri.utils.exams';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
@@ -203,14 +204,15 @@
         if (Object.keys(this.exercises).length === 0) {
           this.questions = [];
         } else {
-          this.questions = createQuestionList(this.availableExamQuestionSources).map(question => ({
-            itemId: selectQuestionFromExercise(
-              question.assessmentItemIndex,
-              this.examSeed,
-              this.exercises[question.contentId]
-            ),
-            contentId: question.contentId,
-          }));
+          const questionIds = {};
+          Object.keys(this.exercises).forEach(key => {
+            questionIds[key] = assessmentMetaDataState(this.exercises[key]).assessmentIds;
+          });
+          this.questions = convertExamFormat(
+            this.availableExamQuestionSources,
+            this.examSeed,
+            questionIds
+          );
         }
       },
       setExercises() {

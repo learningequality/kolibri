@@ -5,11 +5,11 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { createQuestionList, selectQuestionFromExercise, canViewExam } from 'kolibri.utils.exams';
+import { canViewExam, convertExamFormat } from 'kolibri.utils.exams';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
-import seededShuffle from 'kolibri.lib.seededshuffle';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
@@ -85,108 +85,89 @@ export function showExam(store, params) {
           attemptLogs[content_id][item] = { ...log };
         });
 
-        const seed = exam.seed;
         const questionSources = exam.question_sources;
 
-        // Create an array of objects with contentId and assessmentItemIndex
-        // These will be used to select specific questions from the content node
-        // The indices referred to shuffled positions in the content node's assessment_item_ids
-        // property.
-        // Wrap this all in a seededShuffle to give a consistent, repeatable shuffled order.
-        const shuffledQuestions = seededShuffle.shuffle(
-          createQuestionList(questionSources),
-          seed,
-          true
-        );
-
-        if (!shuffledQuestions[questionNumber]) {
-          // Illegal question number!
-          store.dispatch(
-            'handleError',
-            `Question number ${questionNumber} is not valid for this exam`
-          );
-        } else {
-          let contentPromise;
-          if (exam.question_sources.length) {
-            contentPromise = ContentNodeResource.fetchCollection({
-              getParams: {
-                ids: exam.question_sources.map(item => item.exercise_id),
-              },
-            });
-          } else {
-            contentPromise = ConditionalPromise.resolve([]);
-          }
-          contentPromise.only(
-            samePageCheckGenerator(store),
-            contentNodes => {
-              const contentNodeMap = {};
-
-              contentNodes.forEach(node => {
-                contentNodeMap[node.id] = node;
-              });
-
-              const questions = shuffledQuestions.map(question => ({
-                itemId: selectQuestionFromExercise(
-                  question.assessmentItemIndex,
-                  seed,
-                  contentNodeMap[question.contentId]
-                ),
-                contentId: question.contentId,
-              }));
-
-              if (questions.every(question => !question.itemId)) {
-                // Exam is drawing solely on malformed exercise data, best to quit now
-                store.dispatch('handleError', `This exam has no valid questions`);
-              } else {
-                const itemId = questions[questionNumber].itemId;
-                const channelId = exam.channel_id;
-                const currentQuestion = questions[questionNumber];
-                const questionsAnswered = Math.max(
-                  store.state.examViewer.questionsAnswered || 0,
-                  calcQuestionsAnswered(attemptLogs)
-                );
-
-                if (!attemptLogs[currentQuestion.contentId]) {
-                  attemptLogs[currentQuestion.contentId] = {};
-                }
-                if (!attemptLogs[currentQuestion.contentId][itemId]) {
-                  attemptLogs[currentQuestion.contentId][itemId] = {
-                    start_timestamp: now(),
-                    completion_timestamp: null,
-                    end_timestamp: null,
-                    item: itemId,
-                    complete: false,
-                    time_spent: 0,
-                    correct: 0,
-                    answer: null,
-                    simple_answer: '',
-                    interaction_history: [],
-                    hinted: false,
-                    channel_id: channelId,
-                    content_id: currentQuestion.contentId,
-                  };
-                }
-                store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
-                store.commit('examViewer/SET_STATE', {
-                  channelId,
-                  content: contentState(contentNodeMap[questions[questionNumber].contentId]),
-                  currentAttempt: attemptLogs[currentQuestion.contentId][itemId],
-                  currentQuestion,
-                  exam,
-                  itemId,
-                  questionNumber,
-                  questions,
-                  questionsAnswered,
-                });
-                store.commit('CORE_SET_PAGE_LOADING', false);
-                store.commit('CORE_SET_ERROR', null);
-              }
+        let contentPromise;
+        if (exam.question_sources.length) {
+          contentPromise = ContentNodeResource.fetchCollection({
+            getParams: {
+              ids: exam.question_sources.map(item => item.exercise_id),
             },
-            error => {
-              store.dispatch('handleApiError', error);
-            }
-          );
+          });
+        } else {
+          contentPromise = ConditionalPromise.resolve([]);
         }
+        contentPromise.only(
+          samePageCheckGenerator(store),
+          contentNodes => {
+            const questionIds = {};
+            contentNodes.forEach(node => {
+              questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
+            });
+            const questions = convertExamFormat(questionSources, exam.seed, questionIds);
+
+            // Exam is drawing solely on malformed exercise data, best to quit now
+            if (questions.some(question => !question.itemId)) {
+              store.dispatch('handleError', `This exam has an invalid question`);
+              return;
+            }
+            // Illegal question number!
+            else if (questionNumber >= questions.length) {
+              store.dispatch(
+                'handleError',
+                `Question number ${questionNumber} is not valid for this exam`
+              );
+              return;
+            }
+
+            const channelId = exam.channel_id;
+            const currentQuestion = questions[questionNumber];
+            const itemId = currentQuestion.itemId;
+            const contentId = currentQuestion.contentId;
+            const questionsAnswered = Math.max(
+              store.state.examViewer.questionsAnswered || 0,
+              calcQuestionsAnswered(attemptLogs)
+            );
+
+            if (!attemptLogs[currentQuestion.contentId]) {
+              attemptLogs[currentQuestion.contentId] = {};
+            }
+            if (!attemptLogs[contentId][itemId]) {
+              attemptLogs[contentId][itemId] = {
+                start_timestamp: now(),
+                completion_timestamp: null,
+                end_timestamp: null,
+                item: itemId,
+                complete: false,
+                time_spent: 0,
+                correct: 0,
+                answer: null,
+                simple_answer: '',
+                interaction_history: [],
+                hinted: false,
+                channel_id: channelId,
+                content_id: contentId,
+              };
+            }
+            store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
+            store.commit('examViewer/SET_STATE', {
+              channelId,
+              content: contentState(contentNodes.find(node => node.id === contentId)),
+              currentAttempt: attemptLogs[contentId][itemId],
+              currentQuestion,
+              exam,
+              itemId,
+              questionNumber,
+              questions,
+              questionsAnswered,
+            });
+            store.commit('CORE_SET_PAGE_LOADING', false);
+            store.commit('CORE_SET_ERROR', null);
+          },
+          error => {
+            store.dispatch('handleApiError', error);
+          }
+        );
       },
       error => {
         store.dispatch('handleApiError', error);
