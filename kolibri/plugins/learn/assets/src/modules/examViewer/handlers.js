@@ -85,8 +85,6 @@ export function showExam(store, params) {
           attemptLogs[content_id][item] = { ...log };
         });
 
-        const questionSources = exam.question_sources;
-
         let contentPromise;
         if (exam.question_sources.length) {
           contentPromise = ContentNodeResource.fetchCollection({
@@ -104,11 +102,19 @@ export function showExam(store, params) {
             contentNodes.forEach(node => {
               questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-            const questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
+
+            // If necessary, convert the question source info
+            const questions =
+              exam.data_model_version === 0
+                ? convertExamQuestionSourcesV0V1(exam.question_sources, exam.v0_seed, questionIds)
+                : exam.question_sources;
 
             // Exam is drawing solely on malformed exercise data, best to quit now
             if (questions.some(question => !question.itemId)) {
-              store.dispatch('handleError', `This exam has an invalid question`);
+              store.dispatch(
+                'handleError',
+                `This exam cannot be displayed:\nQuestion sources: ${questions}\nExam: ${exam}`
+              );
               return;
             }
             // Illegal question number!
