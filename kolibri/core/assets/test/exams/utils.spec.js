@@ -1,4 +1,4 @@
-import { convertExamFormat } from '../../src/exams/utils';
+import { convertExamQuestionSourcesV0V1 } from '../../src/exams/utils';
 
 // map of content IDs to lists of question IDs
 const QUESTION_IDS = {
@@ -72,7 +72,7 @@ const QUESTION_IDS = {
 };
 
 describe('exam utils', function() {
-  describe('convertExamFormat', function() {
+  describe('convertExamQuestionSourcesV0V1', function() {
     it('should return 10 specific ordered questions from 3 exercises', function() {
       const questionSources = [
         {
@@ -92,7 +92,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 423;
-      const converted = convertExamFormat(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
 
       /*
         The selected questions should be:
@@ -172,7 +172,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 837;
-      const converted = convertExamFormat(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
       const expectedOutput = [
         {
           itemId: 'fc5958e2a67d5cd2bd48962e9e1c35c3',
@@ -246,7 +246,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 168;
-      const converted = convertExamFormat(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
       const expectedOutput = [
         {
           itemId: '6ef7996754de54ad92b660d06436976c',

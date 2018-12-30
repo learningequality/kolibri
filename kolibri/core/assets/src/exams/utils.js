@@ -21,7 +21,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { contentId: content_id, itemId: assessment_item_id }
  */
-function convertExamFormat(questionSources, seed, questionIds) {
+function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
@@ -106,7 +106,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             contentNodes.forEach(node => {
               questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-            const questions = convertExamFormat(questionSources, exam.seed, questionIds);
+            const questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
@@ -187,4 +187,4 @@ function canViewExamReport(exam, examLog) {
   return !canViewExam(exam, examLog);
 }
 
-export { convertExamFormat, getExamReport, canViewExam, canViewExamReport };
+export { convertExamQuestionSourcesV0V1, getExamReport, canViewExam, canViewExamReport };

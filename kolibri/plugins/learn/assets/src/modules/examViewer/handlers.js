@@ -5,7 +5,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { canViewExam, convertExamFormat } from 'kolibri.utils.exams';
+import { canViewExam, convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -104,7 +104,7 @@ export function showExam(store, params) {
             contentNodes.forEach(node => {
               questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-            const questions = convertExamFormat(questionSources, exam.seed, questionIds);
+            const questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
 
             // Exam is drawing solely on malformed exercise data, best to quit now
             if (questions.some(question => !question.itemId)) {
