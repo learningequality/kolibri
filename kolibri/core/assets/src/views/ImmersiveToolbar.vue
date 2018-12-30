@@ -67,6 +67,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import { darken } from 'kolibri.utils.colour';
@@ -112,12 +113,20 @@
       },
     },
     computed: {
+      ...mapGetters([
+        '$coreGrey200',
+        '$coreGrey300',
+        '$coreOutline',
+        '$coreActionDark',
+        '$coreActionNormal',
+        '$coreTextDefault',
+      ]),
       hasRoute() {
         return Boolean(this.route);
       },
       linkStyle() {
         const hoverAndFocus = {
-          backgroundColor: this.primary ? this.$coreActionDark : darken(this.$coreTextDefault),
+          backgroundColor: this.primary ? this.$coreActionDark : darken(this.$coreTextDefault, 0.1),
         };
         return {
           backgroundColor: this.primary ? '' : this.$coreTextDefault,

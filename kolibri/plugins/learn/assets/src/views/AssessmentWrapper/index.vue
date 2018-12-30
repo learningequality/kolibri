@@ -213,6 +213,7 @@ oriented data synchronization.
         'isUserLoggedIn',
         '$coreBgLight',
         '$coreBgLight',
+        '$coreGrey',
         '$coreStatusMastered',
         '$coreTextAnnotation',
         '$coreTextDefault',
