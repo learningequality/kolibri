@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import json
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Min
@@ -34,7 +35,7 @@ facility_settings = [
 
 
 def dump_zipped_json(data):
-    jsondata = json.dumps(data)
+    jsondata = json.dumps(data, sort_keys=True, cls=DjangoJSONEncoder)
     try:
         # perform the import in here as zlib isn't available on some platforms
         import zlib
