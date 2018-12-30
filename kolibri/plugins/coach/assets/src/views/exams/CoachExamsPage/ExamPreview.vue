@@ -92,7 +92,7 @@
   import find from 'lodash/find';
   import { ContentNodeResource } from 'kolibri.resources';
   import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-  import { convertExamFormat } from 'kolibri.utils.exams';
+  import { convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
@@ -208,7 +208,7 @@
           Object.keys(this.exercises).forEach(key => {
             questionIds[key] = assessmentMetaDataState(this.exercises[key]).assessmentIds;
           });
-          this.questions = convertExamFormat(
+          this.questions = convertExamQuestionSourcesV0V1(
             this.availableExamQuestionSources,
             this.examSeed,
             questionIds
