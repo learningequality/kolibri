@@ -34,8 +34,8 @@ class Exam(AbstractFacilityDataModel):
     # questions each assessment contributes to the exam. e.g.:
     #
     # [
-    #     {"exercise_id": <exercise_pk1>, "number_of_questions": 6},
-    #     {"exercise_id": <exercise_pk2>, "number_of_questions": 5}
+    #     {"exercise_id": <exercise_pk1>, "number_of_questions": 6, "title": <exercise_title1>},
+    #     {"exercise_id": <exercise_pk2>, "number_of_questions": 5, "title": <exercise_title2>},
     # ]
     question_sources = JSONField(default=[], blank=True)
     # The random seed we use to decide which questions are in the exam
