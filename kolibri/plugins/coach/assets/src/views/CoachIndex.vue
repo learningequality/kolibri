@@ -66,6 +66,7 @@
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
+  import CreateExamPreview from './exams/CreateExamPage/CreateExamPreview';
   import ExamReportPage from './exams/ExamReportPage';
   import ExamReportDetailPage from './exams/CoachExamReport';
   import GroupsPage from './GroupsPage';
@@ -111,6 +112,7 @@
     PageNames.EXAM_CREATION_TOPIC,
     PageNames.EXAM_CREATION_PREVIEW,
     PageNames.EXAM_CREATION_SEARCH,
+    PageNames.EXAM_CREATION_QUESTION_SELECTION,
   ];
 
   const pageNameToComponentMap = {
@@ -122,6 +124,7 @@
     [PageNames.EXAM_CREATION_TOPIC]: ExamCreationPage,
     [PageNames.EXAM_CREATION_PREVIEW]: LessonContentPreviewPage,
     [PageNames.EXAM_CREATION_SEARCH]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_QUESTION_SELECTION]: CreateExamPreview,
 
     // reports
     [PageNames.RECENT_CHANNELS]: ChannelListPage,

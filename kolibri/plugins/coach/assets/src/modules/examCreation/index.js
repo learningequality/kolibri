@@ -1,11 +1,12 @@
 import unionBy from 'lodash/unionBy';
+import find from 'lodash/find';
 import * as actions from './actions';
 
 function defaultState() {
   return {
     title: '',
     numberOfQuestions: 10,
-    seed: null,
+    seed: Math.random(), // consistent seed is used for question selection
     contentList: [],
     selectedExercises: [],
     availableQuestions: 0,
@@ -23,6 +24,8 @@ function defaultState() {
       completionData: null,
       questions: null,
     },
+    selectedQuestions: [],
+    learnersSeeFixedOrder: false,
   };
 }
 
@@ -48,8 +51,14 @@ export default {
     SET_NUMBER_OF_QUESTIONS(state, numberOfQuestions) {
       state.numberOfQuestions = numberOfQuestions;
     },
-    SET_SEED(state, seed) {
-      state.seed = seed;
+    RANDOMIZE_SEED(state) {
+      state.seed = Math.random();
+    },
+    SET_FIXED_ORDER(state, value) {
+      state.learnersSeeFixedOrder = value;
+    },
+    SET_SELECTED_QUESTIONS(state, questions) {
+      state.selectedQuestions = questions;
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
@@ -64,6 +73,11 @@ export default {
     },
     SET_SELECTED_EXERCISES(state, exercises) {
       state.selectedExercises = unionBy(exercises, 'id');
+    },
+    UPDATE_SELECTED_EXERCISES(state, exercises) {
+      exercises.forEach(newExercise => {
+        Object.assign(find(state.selectedExercises, { id: newExercise.id }), newExercise);
+      });
     },
     SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
       state.availableQuestions = availableQuestions;

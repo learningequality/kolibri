@@ -167,3 +167,13 @@ export function showExamCreationSearchPage(store, params, query = {}) {
     });
   });
 }
+
+export function showExamCreationQuestionSelectionPage(store) {
+  return store.dispatch('loading').then(() => {
+    store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
+    store.commit('SET_TOOLBAR_ROUTE', { name: PageNames.EXAMS });
+    store.dispatch('examCreation/updateSelectedQuestions').then(() => {
+      store.dispatch('notLoading');
+    });
+  });
+}

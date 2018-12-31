@@ -5,6 +5,7 @@ import {
   showExamCreationTopicPage,
   showExamCreationPreviewPage,
   showExamCreationSearchPage,
+  showExamCreationQuestionSelectionPage,
 } from '../modules/examCreation/handlers';
 import { showExamReportDetailPage } from '../modules/examReportDetail/handlers';
 import { showExamReportPage } from '../modules/examReport/handlers';
@@ -44,6 +45,13 @@ export default [
     path: '/old/:classId/exams/new/search/:searchTerm',
     handler: toRoute => {
       showExamCreationSearchPage(store, toRoute.params, toRoute.query);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_QUESTION_SELECTION,
+    path: '/old/:classId/exams/new/finalize',
+    handler: toRoute => {
+      showExamCreationQuestionSelectionPage(store, toRoute.params, toRoute.query);
     },
   },
   {

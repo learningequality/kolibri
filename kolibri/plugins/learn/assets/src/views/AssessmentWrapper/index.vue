@@ -112,7 +112,7 @@ oriented data synchronization.
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
-  import shuffle from 'knuth-shuffle-seeded';
+  import shuffle from 'kolibri.lib.shuffle';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
