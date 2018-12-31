@@ -2,6 +2,8 @@ import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
+import shuffle from 'kolibri.lib.shuffle';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
@@ -9,6 +11,7 @@ import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { _createExam } from '../shared/exams';
+import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
   newExamCreated: 'New quiz created',
@@ -167,6 +170,56 @@ export function filterAndAnnotateContentList(childNodes) {
         thumbnail: getContentNodeThumbnail(node),
       }));
       resolve(contentList);
+    });
+  });
+}
+
+export function updateSelectedQuestions(store) {
+  if (!store.state.selectedExercises.length) {
+    return Promise.resolve([]);
+  }
+
+  return new Promise(resolve => {
+    // The selectedExercises don't necessarily have the assessment metadata so fetch them.
+    // However, if there are more exercises than questions, no need to fetch them all so
+    // choose N at random where N is the the number of questions.
+    const exerciseIds = shuffle(
+      uniq(store.state.selectedExercises.map(exercise => exercise.id)),
+      store.state.seed
+    ).slice(0, store.state.numberOfQuestions);
+
+    ContentNodeResource.fetchCollection({
+      getParams: { ids: exerciseIds },
+    }).then(contentNodes => {
+      store.commit('UPDATE_SELECTED_EXERCISES', contentNodes); // update with full metadata
+      const exercises = {};
+      contentNodes.forEach(exercise => {
+        exercises[exercise.id] = exercise;
+      });
+      const exerciseTitles = exerciseIds.map(id => exercises[id].title);
+      const questionIdArrays = exerciseIds.map(
+        id => assessmentMetaDataState(exercises[id]).assessmentIds
+      );
+      store.commit(
+        'SET_SELECTED_QUESTIONS',
+        selectQuestions(
+          store.state.numberOfQuestions,
+          exerciseIds,
+          exerciseTitles,
+          questionIdArrays,
+          store.state.seed
+        )
+      );
+      resolve();
+    });
+  });
+}
+
+export function getNewQuestionSet(store) {
+  return store.dispatch('loading', {}, { root: true }).then(() => {
+    store.commit('RANDOMIZE_SEED');
+    store.dispatch('updateSelectedQuestions').then(() => {
+      store.dispatch('notLoading', {}, { root: true });
     });
   });
 }

@@ -1,6 +1,7 @@
 <template>
 
   <div>
+
     <template v-if="!inSearchMode">
       <KTextbox
         ref="title"
@@ -36,7 +37,6 @@
         <KButton
           :text="selectQuestionsString"
           :primary="true"
-          :disabled="submitting"
           @click="continueProcess"
         />
       </div>
@@ -55,8 +55,12 @@
         alignments="left, right, right"
       >
         <ul>
-          <li class="numItems">{{ numExercisesString }}</li>
-          <li class="numItems">{{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}</li>
+          <li class="numItems">
+            {{ numExercisesString }}
+          </li>
+          <li class="numItems">
+            {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
+          </li>
         </ul>
       </KGridItem>
     </KGrid>
@@ -106,18 +110,6 @@
       @moreresults="handleMoreResults"
     />
 
-    <CreateExamPreview
-      v-if="showCreateExamPreview"
-      :examQuestionSources="questionSources"
-      :examSeed="examSeed"
-      :examNumQuestions="examNumberOfQuestions"
-      :exerciseContentNodes="selectedExercises"
-      @randomize="randomize"
-      @close="setExamsModal(null)"
-      @submit="finish"
-      @cancel="goBack"
-    />
-
   </div>
 
 </template>
@@ -136,15 +128,10 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
-  import uniqBy from 'lodash/uniqBy';
-  import shuffle from 'lodash/shuffle';
-  import orderBy from 'lodash/orderBy';
-  import random from 'lodash/random';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
 
   import { PageNames } from '../../../constants/';
-  import { Modals as ExamModals } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
@@ -167,7 +154,6 @@
     components: {
       KButton,
       KTextbox,
-      CreateExamPreview,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
@@ -206,12 +192,10 @@
       return {
         examTitle: '',
         examNumberOfQuestions: 10,
-        examSeed: null,
         titleBlurred: false,
         numQuestBlurred: false,
         selectionMade: false,
         previewOrSubmissionAttempt: false,
-        submitting: false,
         moreResultsState: null,
         // null corresponds to 'All' filter value
         filters: {
@@ -230,7 +214,6 @@
       ...mapState('examCreation', [
         'title',
         'numberOfQuestions',
-        'seed',
         'contentList',
         'selectedExercises',
         'availableQuestions',
@@ -276,22 +259,6 @@
           return false;
         }
         return this.addableExercises.length !== this.allExercises.length;
-      },
-      questionSources() {
-        const questionSources = [];
-        for (let i = 0; i < this.examNumberOfQuestions; i++) {
-          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
-          if (questionSources[questionSourcesIndex]) {
-            questionSources[questionSourcesIndex].number_of_questions += 1;
-          } else {
-            questionSources.push({
-              exercise_id: this.uniqueSelectedExercises[i].id,
-              number_of_questions: 1,
-              title: this.uniqueSelectedExercises[i].title,
-            });
-          }
-        }
-        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
       },
       inSearchMode() {
         return this.pageName === PageNames.EXAM_CREATION_SEARCH;
@@ -381,12 +348,6 @@
       formIsInvalid() {
         return Boolean(this.formIsInvalidText);
       },
-      uniqueSelectedExercises() {
-        return uniqBy(this.selectedExercises, 'content_id');
-      },
-      showCreateExamPreview() {
-        return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
-      },
       channelsLink() {
         return {
           name: PageNames.EXAM_CREATION_ROOT,
@@ -426,12 +387,10 @@
     created() {
       this.examTitle = this.title;
       this.examNumberOfQuestions = this.numberOfQuestions;
-      this.examSeed = this.seed || this.generateRandomSeed();
       this.$watch('examTitle', () => this.setTitle(this.examTitle));
       this.$watch('examNumberOfQuestions', () =>
         this.setNumberOfQuestions(this.examNumberOfQuestions)
       );
-      this.$watch('examSeed', () => this.setSeed(this.examSeed));
     },
     methods: {
       ...mapActions(['createSnackbar']),
@@ -617,18 +576,14 @@
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
-          this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
         }
-      },
-      goBack() {
-        this.setExamsModal(null);
       },
       finish() {
         this.previewOrSubmissionAttempt = true;
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
-          this.submitting = true;
           const dummyChannelId = this.channels[0].id;
           const exam = {
             collection: this.classId,
@@ -636,7 +591,6 @@
             title: this.examTitle,
             question_count: this.examNumberOfQuestions,
             question_sources: this.questionSources,
-            seed: this.examSeed,
             assignments: [{ collection: this.classId }],
           };
           this.createExamAndRoute(exam);
@@ -648,13 +602,6 @@
         } else if (this.numQuestIsInvalid) {
           this.$refs.numQuest.focus();
         }
-      },
-      generateRandomSeed() {
-        return random(1000);
-      },
-      randomize() {
-        this.examSeed = this.generateRandomSeed();
-        this.setSelectedExercises(shuffle(this.selectedExercises));
       },
       handleSearchTerm(searchTerm) {
         const lastId = this.$route.query.last_id || this.$route.params.topicId;

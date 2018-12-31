@@ -14,6 +14,7 @@
 
 import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
+import shuffle from 'knuth-shuffle-seeded';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -108,6 +109,7 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
+    shuffle,
     tetherDrop,
     tetherTooltip,
   },
