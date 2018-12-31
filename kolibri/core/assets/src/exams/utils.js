@@ -13,13 +13,13 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
  * Converts from v0 exam structures to v1
  *
  * @param {array} questionSources - array of v0 objects, which have the form:
- *    { exercise_id: <content_id>, number_of_questions: N, title: <exercise_title> }
+ *    { exercise_id, number_of_questions: N, title: <exercise_title> }
  * @param {number} seed - an integer used to seed the PRNG
  * @param {number} numberOfQs - how many questions to return
  * @param {object} questionIds - map of `content_id`s to arrays of assessment_item_ids
  *
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
- *    { contentId: content_id, itemId: assessment_item_id }
+ *    { exercise_id, question_id }
  */
 function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
@@ -43,10 +43,10 @@ function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   const examQuestions = questionSources.reduce(
     (acc, val) =>
       acc.concat(
-        Array.from(Array(val.number_of_questions).keys()).map(assessmentItemIndex => ({
-          contentId: val.exercise_id,
+        Array.from(Array(val.number_of_questions).keys()).map(questionNumber => ({
+          exercise_id: val.exercise_id,
           title: val.title,
-          assessmentItemIndex,
+          questionNumber,
         }))
       ),
     []
@@ -57,8 +57,8 @@ function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
     shuffledExerciseQuestions[key] = seededShuffle(questionIds[key], seed);
   });
   return shuffledExamQuestions.map(question => ({
-    contentId: question.contentId,
-    itemId: shuffledExerciseQuestions[question.contentId][question.assessmentItemIndex],
+    exercise_id: question.exercise_id,
+    question_id: shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
     title: question.title,
   }));
 }
@@ -106,7 +106,11 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             contentNodes.forEach(node => {
               questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-            const questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
+            const questions = convertExamQuestionSourcesV0V1(
+              questionSources,
+              exam.seed,
+              questionIds
+            );
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
@@ -115,7 +119,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
 
             const allQuestions = questions.map((question, index) => {
               const attemptLog = examAttempts.filter(
-                log => log.item === question.itemId && log.content_id === question.contentId
+                log => log.item === question.question_id && log.content_id === question.exercise_id
               );
               let examAttemptLog = attemptLog[0]
                 ? attemptLog[0]
@@ -139,8 +143,8 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
             const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.itemId;
-            const exercise = contentNodes.find(node => node.id === currentQuestion.contentId);
+            const itemId = currentQuestion.question_id;
+            const exercise = contentNodes.find(node => node.id === currentQuestion.exercise_id);
             const currentAttempt = allQuestions[questionNumber];
             // filter out interactions without answers but keep hints and errors
             const currentInteractionHistory = currentAttempt.interaction_history.filter(
