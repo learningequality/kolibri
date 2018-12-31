@@ -3,9 +3,7 @@
   <div>
     <ExamPreview
       v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
-      :examQuestionSources="exam.question_sources"
-      :examSeed="exam.v0_seed"
-      :examNumQuestions="exam.question_count"
+      :examQuestions="examQuestions"
       :exerciseContentNodes="exerciseContentNodes"
       @close="setExamsModal(null)"
     />
@@ -61,7 +59,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
@@ -83,6 +81,7 @@
     computed: {
       ...mapState(['classId', 'className', 'classList']),
       ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups', 'exerciseContentNodes']),
+      ...mapGetters('examReport', ['examQuestions']),
       AssignmentActions() {
         return AssignmentActions;
       },

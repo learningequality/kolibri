@@ -38,7 +38,7 @@ class Exam(AbstractFacilityDataModel):
         [
             {
                 "exercise_id": <exercise_pk>,
-                "assessment_item_id": <item_id_within_exercise>,
+                "question_id": <item_id_within_exercise>,
                 "title": <exercise_title>,
             },
             ...

@@ -11,16 +11,12 @@
     @cancel="close"
   >
     <transition mode="out-in">
-      <KCircularLoader
-        v-if="loading"
-        :delay="false"
-      />
-      <div v-else-if="exerciseContentNodes.length === 0" class="no-exercise">
+      <div v-if="exerciseContentNodes.length === 0" class="no-exercise">
         {{ $tr('missingContent') }}
       </div>
       <div v-else @keyup.enter.stop>
         <div ref="header">
-          <strong>{{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}</strong>
+          <strong>{{ $tr('numQuestions', { num: examQuestions.length }) }}</strong>
           <slot name="randomize-button"></slot>
         </div>
         <KGrid class="exam-preview-container">
@@ -29,34 +25,25 @@
             :style="{ maxHeight: `${maxHeight}px` }"
             class="o-y-auto"
           >
-            <div
-              v-for="(exercise, exerciseIndex) in availableExamQuestionSources"
-              :key="exerciseIndex"
-            >
-              <ol class="question-list">
-                <li
-                  v-for="(question, questionIndex) in
-                  getExerciseQuestions(exercise.exercise_id)"
-                  :key="questionIndex"
-                  class="question-list-item"
-                >
-                  <KButton
-                    :primary="isSelected(question.itemId, exercise.exercise_id)"
-                    appearance="flat-button"
-                    :text="$tr(
-                      'question',
-                      { num: getQuestionIndex(question.itemId, exercise.exercise_id) + 1 }
-                    )"
-                    @click="goToQuestion(question.itemId, exercise.exercise_id)"
-                  />
-                  <CoachContentLabel
-                    class="coach-content-label"
-                    :value="numCoachContents(exercise)"
-                    :isTopic="false"
-                  />
-                </li>
-              </ol>
-            </div>
+            <ol class="question-list">
+              <li
+                v-for="(question, questionIndex) in examQuestions"
+                :key="question.question_id"
+                class="question-list-item"
+              >
+                <KButton
+                  :primary="isSelected(question)"
+                  appearance="flat-button"
+                  :text="$tr('question', { num: questionIndex + 1 })"
+                  @click="currentQuestionIndex = questionIndex"
+                />
+                <CoachContentLabel
+                  class="coach-content-label"
+                  :value="numCoachContents(question.exercise_id)"
+                  :isTopic="false"
+                />
+              </li>
+            </ol>
           </KGridItem>
           <KGridItem
             sizes="3, 5, 8"
@@ -89,17 +76,12 @@
 
 <script>
 
-  import find from 'lodash/find';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-  import { convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KModal from 'kolibri.coreVue.components.KModal';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
 
@@ -120,20 +102,11 @@
       KButton,
       KGrid,
       KGridItem,
-      KCircularLoader,
     },
     mixins: [responsiveWindow],
     props: {
-      examQuestionSources: {
+      examQuestions: {
         type: Array,
-        required: true,
-      },
-      examSeed: {
-        type: Number,
-        required: true,
-      },
-      examNumQuestions: {
-        type: Number,
         required: true,
       },
       exerciseContentNodes: {
@@ -144,35 +117,28 @@
     data() {
       return {
         currentQuestionIndex: 0,
-        exercises: {},
-        loading: true,
         maxHeight: null,
-        questions: [],
       };
     },
     computed: {
+      exercises() {
+        const exercises = {};
+        this.exerciseContentNodes.forEach(exercise => {
+          exercises[exercise.id] = exercise;
+        });
+        return exercises;
+      },
       debouncedSetMaxHeight() {
         return debounce(this.setMaxHeight, 250);
       },
-      availableExamQuestionSources() {
-        return this.examQuestionSources.filter(questionSource => {
-          return this.exercises[questionSource.exercise_id];
-        });
-      },
       currentQuestion() {
-        return this.questions[this.currentQuestionIndex] || {};
+        return this.examQuestions[this.currentQuestionIndex] || {};
       },
       content() {
-        return this.exercises[this.currentQuestion.contentId];
+        return this.exercises[this.currentQuestion.exercise_id];
       },
       itemId() {
-        return this.currentQuestion.itemId;
-      },
-    },
-    watch: {
-      examQuestionSources: {
-        handler: 'resetPreview',
-        immediate: true,
+        return this.currentQuestion.question_id;
       },
     },
     updated() {
@@ -191,68 +157,17 @@
             this.windowHeight - titleHeight - headerHeight - closeBtnHeight - margins;
         }
       },
-      numCoachContents(exercise) {
-        return find(this.exerciseContentNodes, { id: exercise.exercise_id }).num_coach_contents;
+      numCoachContents(exerciseId) {
+        return this.exercises[exerciseId].num_coach_contents;
       },
-      resetPreview() {
-        // Serially update data.exercises, then data.questions
-        return this.setExercises().then(() => {
-          this.setQuestions();
-        });
-      },
-      setQuestions() {
-        if (Object.keys(this.exercises).length === 0) {
-          this.questions = [];
-        } else {
-          const questionIds = {};
-          Object.keys(this.exercises).forEach(key => {
-            questionIds[key] = assessmentMetaDataState(this.exercises[key]).assessmentIds;
-          });
-          this.questions = convertExamQuestionSourcesV0V1(
-            this.availableExamQuestionSources,
-            this.examSeed,
-            questionIds
-          );
-        }
-      },
-      setExercises() {
-        this.loading = true;
-        return ContentNodeResource.fetchCollection({
-          getParams: {
-            ids: this.examQuestionSources.map(item => item.exercise_id),
-          },
-        }).then(contentNodes => {
-          contentNodes.forEach(node => {
-            this.$set(this.exercises, node.id, node);
-          });
-          this.loading = false;
-        });
-      },
-      isSelected(questionItemId, exerciseId) {
+      isSelected(question) {
         return (
-          this.currentQuestion.itemId === questionItemId &&
-          this.currentQuestion.contentId === exerciseId
+          this.currentQuestion.question_id === question.question_id &&
+          this.currentQuestion.exercise_id === question.exercise_id
         );
-      },
-      getQuestionIndex(questionItemId, exerciseId) {
-        return this.questions.findIndex(
-          question => question.itemId === questionItemId && question.contentId === exerciseId
-        );
-      },
-      goToQuestion(questionItemId, exerciseId) {
-        this.currentQuestionIndex = this.getQuestionIndex(questionItemId, exerciseId);
-      },
-      getExerciseName(exerciseId) {
-        if (this.exercises[exerciseId]) {
-          return this.exercises[exerciseId].title;
-        }
-        return '';
       },
       close() {
         this.$emit('close');
-      },
-      getExerciseQuestions(exerciseId) {
-        return this.questions.filter(q => q.contentId === exerciseId);
       },
     },
   };

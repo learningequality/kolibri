@@ -110,10 +110,12 @@ export function showExam(store, params) {
                 : exam.question_sources;
 
             // Exam is drawing solely on malformed exercise data, best to quit now
-            if (questions.some(question => !question.itemId)) {
+            if (questions.some(question => !question.question_id)) {
               store.dispatch(
                 'handleError',
-                `This exam cannot be displayed:\nQuestion sources: ${questions}\nExam: ${exam}`
+                `This exam cannot be displayed:\nQuestion sources: ${JSON.stringify(
+                  questions
+                )}\nExam: ${JSON.stringify(exam)}`
               );
               return;
             }
@@ -128,15 +130,15 @@ export function showExam(store, params) {
 
             const channelId = exam.channel_id;
             const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.itemId;
-            const contentId = currentQuestion.contentId;
+            const itemId = currentQuestion.question_id;
+            const contentId = currentQuestion.exercise_id;
             const questionsAnswered = Math.max(
               store.state.examViewer.questionsAnswered || 0,
               calcQuestionsAnswered(attemptLogs)
             );
 
-            if (!attemptLogs[currentQuestion.contentId]) {
-              attemptLogs[currentQuestion.contentId] = {};
+            if (!attemptLogs[currentQuestion.exercise_id]) {
+              attemptLogs[currentQuestion.exercise_id] = {};
             }
             if (!attemptLogs[contentId][itemId]) {
               attemptLogs[contentId][itemId] = {
