@@ -255,7 +255,8 @@
         };
       },
       fixedAppBar() {
-        return this.windowIsLarge || this.immersivePage;
+        return this.windowIsLarge;
+        // return this.windowIsLarge || this.immersivePage;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {

@@ -46,16 +46,7 @@
         sizes="100, 50, 50"
         percentage
         alignments="left, right, right"
-      >
-        <ul>
-          <li class="numItems">
-            {{ numExercisesString }}
-          </li>
-          <li class="numItems">
-            {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
-          </li>
-        </ul>
-      </KGridItem>
+      />
     </KGrid>
 
     <LessonsSearchBox
@@ -104,6 +95,15 @@
     />
 
     <Bottom>
+      <ul class="items">
+        <li class="numItems">
+          {{ numExercisesString }}
+        </li>
+        <li class="numItems">
+          {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
+        </li>
+      </ul>
+
       <KButton
         :text="selectQuestionsString"
         :primary="true"
@@ -629,8 +629,13 @@
     }
   }
 
+  .items {
+    display: inline-block;
+  }
+
   .numItems {
-    margin-left: 0;
+    display: inline-block;
+    margin: 8px;
     list-style: none;
   }
 
