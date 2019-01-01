@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "Съветник за настройване",
   "SetupWizardIndex.onboardingFinishButton": "Завършване",
   "SetupWizardIndex.onboardingNextStepButton": "Продължи",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "Институция {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Този профил ти позволява да управляваш институцията, материалите и потребителите на това устройство",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Създай суперадминистраторски профил",
   "SuperuserCredentialsForm.adminNameFieldLabel": "Име и фамилия",
