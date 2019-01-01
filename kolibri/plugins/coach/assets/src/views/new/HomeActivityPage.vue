@@ -10,32 +10,26 @@
     <h2>{{ $tr('classActivity') }}</h2>
     <NotificationsFilter />
     <br>
-    <KGrid class="table-head">
-      <KGridItem :size="75" percentage>
-        {{ coachStrings.$tr('activityLabel') }}
-      </KGridItem>
-      <KGridItem :size="25" percentage>
-        {{ coachStrings.$tr('timeLabel') }}
-      </KGridItem>
-    </KGrid>
 
     <div>
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
         time="1 minute ago"
       >
         {{ nStrings.$tr('individualCompleted', {learnerName: "Adam", itemName: "A video"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="2 minutes ago"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsty", itemName: "An exercise"}) }}
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsy", itemName: "An exercise"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="3 minutes ago"
         contentContext="Some lesson"
       >
@@ -43,15 +37,17 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="4 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+        {{ nStrings.$tr('individualCompleted', {learnerName: "Betsy", itemName: "An exercise assigned to the class"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="5 minutes ago"
         learnerContext="Group A"
         contentContext="Some lesson"
@@ -60,7 +56,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="6 minutes ago"
         learnerContext="Group A"
         contentContext="Some lesson"
@@ -69,7 +66,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="10 minutes ago"
         contentContext="Some lesson"
       >
@@ -77,7 +75,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="star"
+        targetPage=""
         time="15 minutes ago"
         contentContext="Some quiz"
       >
@@ -90,22 +89,25 @@
 
       <!-- Individual needs help -->
       <NotificationCard
-        targetPage="SomePage"
+        icon="help"
+        targetPage=""
         time="20 minutes ago"
       >
-        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise"}) }}
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsy", itemName: "An exercise"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="help"
+        targetPage=""
         time="25 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+        {{ nStrings.$tr('individualNeedsHelp', {learnerName: "Betsy", itemName: "An exercise assigned to the class"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="help"
+        targetPage=""
         time="30 minutes ago"
         learnerContext="Group A"
         contentContext="Some lesson"
@@ -119,21 +121,24 @@
 
       <!-- Individual started -->
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="40 minutes ago"
       >
         {{ nStrings.$tr('individualStarted', {learnerName: "Adam", itemName: "A video"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="50 minutes ago"
       >
-        {{ nStrings.$tr('individualStarted', {learnerName: "Betsty", itemName: "An exercise"}) }}
+        {{ nStrings.$tr('individualStarted', {learnerName: "Betsy", itemName: "An exercise"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="1 hour ago"
         contentContext="Some lesson"
       >
@@ -141,15 +146,17 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="1 hour ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualStarted', {learnerName: "Betsty", itemName: "An exercise assigned to the class"}) }}
+        {{ nStrings.$tr('individualStarted', {learnerName: "Betsy", itemName: "An exercise assigned to the class"}) }}
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="1 hour ago"
         learnerContext="Group A"
         contentContext="Some lesson"
@@ -158,7 +165,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="2 hours ago"
         learnerContext="Group A"
         contentContext="Some lesson"
@@ -167,7 +175,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="5 hours ago"
         contentContext="Some lesson"
       >
@@ -175,7 +184,8 @@
       </NotificationCard>
 
       <NotificationCard
-        targetPage="SomePage"
+        icon="clock"
+        targetPage=""
         time="3 days ago"
         contentContext="Some quiz"
       >

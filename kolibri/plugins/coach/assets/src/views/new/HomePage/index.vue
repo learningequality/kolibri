@@ -4,8 +4,7 @@
     <KGridItem size="100" percentage>
       <OverviewBlock class="new-coach-block" />
     </KGridItem>
-    <KGridItem sizes="100, 50, 50" percentage>
-
+    <KGridItem sizes="100, 100, 50" percentage>
       <KGrid :gutter="8">
         <KGridItem size="100" percentage>
           <QuizzesBlock class="new-coach-block" />
@@ -14,9 +13,8 @@
           <LessonsBlock class="new-coach-block" />
         </KGridItem>
       </KGrid>
-
     </KGridItem>
-    <KGridItem sizes="100, 50, 50" percentage>
+    <KGridItem sizes="100, 100, 50" percentage>
       <ActivityBlock class="new-coach-block" />
     </KGridItem>
   </KGrid>

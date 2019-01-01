@@ -16,6 +16,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewAction: 'Preview',
   saveAction: 'Save',
   renameAction: 'Rename',
+  showAction: 'Show',
   showMoreAction: 'Show more',
   sortedAscendingAction: 'Sort in ascending order',
   sortedDescendingAction: 'Sort in descending order',

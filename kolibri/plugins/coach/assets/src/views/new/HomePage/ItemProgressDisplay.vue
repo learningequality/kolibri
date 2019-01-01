@@ -13,6 +13,7 @@
     />
 
     <LearnerProgressCount
+      v-if="needHelp"
       :count="needHelp"
       :verbosity="0"
       icon="help"
@@ -62,6 +63,7 @@
 <style lang="scss" scoped>
 
   .item {
+    margin-bottom: 8px;
     border-top: 1px solid gray;
   }
 

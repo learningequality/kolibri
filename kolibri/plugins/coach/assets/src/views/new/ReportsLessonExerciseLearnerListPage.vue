@@ -9,25 +9,25 @@
     <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
     <p>
       <LearnerProgressCount
-        :count="3"
+        :count="4"
         verbosity="0"
         verb="completed"
         icon="star"
       />
       <LearnerProgressCount
-        :count="5"
+        :count="2"
         verbosity="0"
         verb="started"
         icon="clock"
       />
       <LearnerProgressCount
-        :count="5"
+        :count="1"
         verbosity="0"
         verb="needHelp"
         icon="help"
       />
       <LearnerProgressCount
-        :count="2"
+        :count="0"
         verbosity="0"
         verb="notStarted"
         icon="nothing"
@@ -45,9 +45,8 @@
       </thead>
       <tbody>
         <tr>
-          <td><KRouterLink text="April" :to="learnerLink" /></td>
+          <td><KRouterLink text="Adam" :to="learnerLink" /></td>
           <td>
-
             <LearnerProgressLabel
               :count="1"
               verbosity="1"
@@ -56,13 +55,12 @@
             />
           </td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
+          <td>a, b</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td><KRouterLink text="John" :to="learnerLink" /></td>
+          <td><KRouterLink text="April" :to="learnerLink" /></td>
           <td>
-
             <LearnerProgressLabel
               :count="1"
               verbosity="1"
@@ -71,13 +69,26 @@
             />
           </td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
+          <td>a, b</td>
           <td>some time ago</td>
         </tr>
         <tr>
-          <td><KRouterLink text="Steve" :to="learnerLink" /></td>
+          <td><KRouterLink text="Betsy" :to="learnerLink" /></td>
           <td>
-
+            <LearnerProgressLabel
+              :count="1"
+              verbosity="1"
+              verb="completed"
+              icon="star"
+            />
+          </td>
+          <td><TimeDuration :seconds="60*15" /></td>
+          <td>a, b</td>
+          <td>some time ago</td>
+        </tr>
+        <tr>
+          <td><KRouterLink text="Edward" :to="learnerLink" /></td>
+          <td>
             <LearnerProgressLabel
               :count="1"
               verbosity="1"
@@ -86,7 +97,49 @@
             />
           </td>
           <td><TimeDuration :seconds="60*15" /></td>
-          <td>Gnomes | Explorers</td>
+          <td>a, b</td>
+          <td>some time ago</td>
+        </tr>
+        <tr>
+          <td><KRouterLink text="John" :to="learnerLink" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              verbosity="1"
+              verb="completed"
+              icon="star"
+            />
+          </td>
+          <td><TimeDuration :seconds="60*15" /></td>
+          <td>a, b</td>
+          <td>some time ago</td>
+        </tr>
+        <tr>
+          <td><KRouterLink text="Julie" :to="learnerLink" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              verbosity="1"
+              verb="needHelp"
+              icon="help"
+            />
+          </td>
+          <td><TimeDuration :seconds="60*15" /></td>
+          <td></td>
+          <td>some time ago</td>
+        </tr>
+        <tr>
+          <td><KRouterLink text="Steve" :to="learnerLink" /></td>
+          <td>
+            <LearnerProgressLabel
+              :count="1"
+              verbosity="1"
+              verb="completed"
+              icon="star"
+            />
+          </td>
+          <td><TimeDuration :seconds="60*15" /></td>
+          <td></td>
           <td>some time ago</td>
         </tr>
       </tbody>

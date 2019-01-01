@@ -1,19 +1,32 @@
 <template>
-
-  <router-link
-    class="notification"
-    :to="route"
-  >
+  <div class="notification">
+    <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="time ? 75 : 100" percentage>
-        <p class="context">{{ context }}</p>
-        <p class="text"><slot></slot></p>
+      <KGridItem :size="time ? 50 : 75" percentage>
+        <StatusIcon
+          :icon="icon"
+          class="icon"
+        />
+        <div class="icon-spacer">
+          <slot></slot>
+        </div>
       </KGridItem>
-      <KGridItem v-if="time" :size="25" percentage>
+      <KGridItem v-if="time" :size="25" percentage alignment="center">
         {{ time }}
       </KGridItem>
+      <KGridItem :size="25" percentage>
+        <div class="button-wrapper">
+          <KRouterLink
+            v-if="targetPage"
+            appearance="flat-button"
+            class="show-btn"
+            :text="coachStrings.$tr('showAction')"
+            :to="newCoachRoute(targetPage)"
+          />
+        </div>
+      </KGridItem>
     </KGrid>
-  </router-link>
+  </div>
 
 </template>
 
@@ -21,12 +34,20 @@
 <script>
 
   import imports from '../../imports';
+  import StatusIcon from '../status/StatusIcon';
 
   export default {
     name: 'NotificationCard',
+    components: {
+      StatusIcon,
+    },
     mixins: [imports],
     props: {
       targetPage: {
+        type: String,
+        required: false,
+      },
+      icon: {
         type: String,
         required: true,
       },
@@ -47,9 +68,6 @@
       },
     },
     computed: {
-      route() {
-        return { name: 'NEW_COACH_PAGES', params: { page: this.targetPage } };
-      },
       context() {
         if (this.learnerContext && this.contentContext) {
           return `${this.learnerContext} • ${this.contentContext}`;
@@ -68,28 +86,38 @@
 
 <style lang="scss" scoped>
 
+  .icon {
+    position: absolute;
+  }
+
+  .icon-spacer {
+    margin-left: 40px;
+  }
+
   .notification {
-    display: block;
-    padding: 8px;
-    color: black;
+    position: relative;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
     text-decoration: none;
     border-top: 1px solid rgb(223, 223, 223);
   }
 
-  .notification:hover {
-    background-color: #eeeeee;
-  }
-
   .context {
-    margin-top: 0;
+    margin-top: 4;
     margin-bottom: 4px;
     font-size: small;
     color: gray;
   }
 
-  .text {
-    margin-top: 0;
-    margin-bottom: 0;
+  .button-wrapper {
+    position: relative;
+  }
+
+  .show-btn {
+    position: absolute;
+    top: -15px;
+    right: 0;
   }
 
 </style>
