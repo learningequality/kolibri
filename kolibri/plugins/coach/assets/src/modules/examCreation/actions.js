@@ -10,7 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { _createExam } from '../shared/exams';
+import { createExam } from '../shared/exams';
 import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
@@ -90,11 +90,21 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store, exam) {
+export function createExamAndRoute(store) {
+  const exam = {
+    collection: store.rootState.classId,
+    channel_id: 'no channel',
+    title: store.state.title,
+    question_count: store.state.numberOfQuestions,
+    question_sources: store.state.selectedQuestions,
+    assignments: [{ collection: store.rootState.classId }],
+    learners_see_fixed_order: store.state.learnersSeeFixedOrder,
+  };
+
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  _createExam(store, exam).then(
+  createExam(store, exam).then(
     () => {
-      router.getInstance().push({ name: PageNames.EXAMS });
+      router.push({ name: PageNames.EXAMS });
       store.dispatch(
         'createSnackbar',
         {

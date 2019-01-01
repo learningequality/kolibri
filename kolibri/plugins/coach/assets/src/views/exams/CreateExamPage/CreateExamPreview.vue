@@ -2,29 +2,25 @@
 
   <div>
     <h1>{{ $tr('title') }}</h1>
-    <div ref="header">
-      <h2>{{ $tr('questionOrder') }}</h2>
-      <div>
-        <KRadioButton
-          v-model="fixedOrder"
-          :label="coachStrings.$tr('orderRandomLabel')"
-          :description="coachStrings.$tr('orderRandomDescription')"
-          :value="false"
-        />
-        <KRadioButton
-          v-model="fixedOrder"
-          :label="coachStrings.$tr('orderFixedLabel')"
-          :description="coachStrings.$tr('orderFixedDescription')"
-          :value="true"
-        />
-      </div>
-      <h2>{{ $tr('questions') }}</h2>
-    </div>
+
     <KGrid>
-      <KGridItem sizes="1, 3, 4">
+      <KGridItem sizes="4, 3, 4">
+        <h2>{{ $tr('questionOrder') }}</h2>
         <div>
-          {{ coachStrings.$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+          <KRadioButton
+            v-model="fixedOrder"
+            :label="coachStrings.$tr('orderRandomLabel')"
+            :description="coachStrings.$tr('orderRandomDescription')"
+            :value="false"
+          />
+          <KRadioButton
+            v-model="fixedOrder"
+            :label="coachStrings.$tr('orderFixedLabel')"
+            :description="coachStrings.$tr('orderFixedDescription')"
+            :value="true"
+          />
         </div>
+        <h2>{{ $tr('questions') }}</h2>
         <div>
           <KButton
             :text="$tr('randomize')"
@@ -33,7 +29,7 @@
             @click="getNewQuestionSet"
           />
         </div>
-        <ol class="question-list">
+        <ul class="question-list">
           <AssessmentQuestionListItem
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
@@ -45,9 +41,9 @@
             :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
             @click="currentQuestionIndex = questionIndex"
           />
-        </ol>
+        </ul>
       </KGridItem>
-      <KGridItem sizes="3, 5, 8">
+      <KGridItem v-if="!windowIsSmall" sizes="3, 5, 8">
         <ContentRenderer
           v-if="content && questionId"
           :id="content.id"
@@ -65,10 +61,10 @@
         />
       </KGridItem>
     </KGrid>
-    <div>
+    <Bottom>
       <KButton :text="coachStrings.$tr('goBackAction')" @click="close" />
       <KButton :text="coachStrings.$tr('finishAction')" primary @click="submit" />
-    </div>
+    </Bottom>
   </div>
 
 </template>
@@ -86,9 +82,15 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AssessmentQuestionListItem from '../AssessmentQuestionListItem';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
+  import Bottom from './Bottom';
 
   export default {
     name: 'CreateExamPreview',
+    metaInfo() {
+      return {
+        title: this.$tr('title'),
+      };
+    },
     $trs: {
       title: 'Select questions',
       backLabel: 'Select topics or exercises',
@@ -105,6 +107,7 @@
       KRadioButton,
       KGrid,
       KGridItem,
+      Bottom,
     },
     mixins: [responsiveWindow, coachStringsMixin],
     data() {
@@ -150,7 +153,7 @@
       ...mapMutations('examCreation', {
         setVuexFixedOrder: 'SET_FIXED_ORDER',
       }),
-      ...mapActions('examCreation', ['getNewQuestionSet']),
+      ...mapActions('examCreation', ['getNewQuestionSet', 'createExamAndRoute']),
       numCoachContents(exerciseId) {
         return this.exercises[exerciseId].num_coach_contents;
       },
@@ -164,7 +167,7 @@
         this.$router.push(this.toolbarRoute);
       },
       submit() {
-        this.$emit('submit');
+        this.createExamAndRoute();
       },
     },
   };
@@ -175,5 +178,10 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
+
+  .question-list {
+    padding: 0;
+    list-style: none;
+  }
 
 </style>
