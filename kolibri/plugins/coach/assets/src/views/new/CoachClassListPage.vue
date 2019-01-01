@@ -23,35 +23,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr v-for="classObj in classList" :key="classObj.id">
             <td>
               <KRouterLink
-                text="Some class"
-                :to="newCoachRoute('HomePage')"
+                :text="classObj.name"
+                :to="route(PageNames.HOME_PAGE, { classId: classObj.id })"
               />
             </td>
-            <td><TruncatedItemList :items="['Jacob', 'Alice']" /></td>
-            <td>12</td>
-          </tr>
-          <tr>
             <td>
-              <KRouterLink
-                text="Another class"
-                :to="newCoachRoute('HomePage')"
-              />
+              <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
             </td>
-            <td><TruncatedItemList :items="[]" /></td>
-            <td>8</td>
-          </tr>
-          <tr>
             <td>
-              <KRouterLink
-                text="Conference"
-                :to="newCoachRoute('HomePage')"
-              />
+              {{ coachStrings.$tr('integer', { value: classObj.learner_count }) }}
             </td>
-            <td><TruncatedItemList :items="['Steve', 'Julie', 'Jane', 'Alice', 'Jacob']" /></td>
-            <td>100</td>
           </tr>
         </tbody>
       </table>
@@ -64,6 +48,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import imports from './imports';
 
   export default {
@@ -79,6 +64,9 @@
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       noClassesInFacility: 'There are no classes yet',
+    },
+    computed: {
+      ...mapState(['classList']),
     },
   };
 
