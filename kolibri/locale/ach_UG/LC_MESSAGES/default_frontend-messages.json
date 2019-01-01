@@ -47,7 +47,7 @@
   "ExamReport.question": "crwdns68534:0questionNumber={questionNumber}crwdne68534:0",
   "ExamReport.showCorrectAnswerLabel": "crwdns68536:0crwdne68536:0",
   "ExamReport.yourAnswer": "crwdns68530:0crwdne68530:0",
-  "InteractionList.currAnswer": "crwdns68538:0{#st}crwdnd68538:0{#nd}crwdnd68538:0{#rd}crwdnd68538:0{#th}crwdne68538:0",
+  "InteractionList.currAnswer": "crwdns74412:0value={value}crwdne74412:0",
   "InteractionList.noInteractions": "crwdns68540:0crwdne68540:0",
   "KFilterTextbox.clear": "crwdns68544:0crwdne68544:0",
   "KFilterTextbox.filter": "crwdns68542:0crwdne68542:0",
