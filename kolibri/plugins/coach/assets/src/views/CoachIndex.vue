@@ -323,6 +323,7 @@
               PageNames.EXAM_CREATION_ROOT,
               PageNames.EXAM_CREATION_TOPIC,
               PageNames.EXAM_CREATION_SEARCH,
+              PageNames.EXAM_CREATION_QUESTION_SELECTION,
             ].includes(this.pageName)
           ) {
             return this.$tr('createNewExam');
@@ -336,6 +337,7 @@
           ...resourceUserPages,
           PageNames.EXAM_REPORT_DETAIL,
           PageNames.EXAM_CREATION_PREVIEW,
+          PageNames.EXAM_CREATION_QUESTION_SELECTION,
         ];
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';

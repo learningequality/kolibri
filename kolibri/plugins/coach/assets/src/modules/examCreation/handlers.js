@@ -8,6 +8,7 @@ import {
   ChannelResource,
 } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import { filterAndAnnotateContentList } from './actions';
 
@@ -168,10 +169,24 @@ export function showExamCreationSearchPage(store, params, query = {}) {
   });
 }
 
-export function showExamCreationQuestionSelectionPage(store) {
+const creationPages = [
+  PageNames.EXAM_CREATION_ROOT,
+  PageNames.EXAM_CREATION_TOPIC,
+  PageNames.EXAM_CREATION_PREVIEW,
+  PageNames.EXAM_CREATION_SEARCH,
+];
+
+export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute) {
+  // if we got here from somewhere else, start over
+  if (!creationPages.includes(fromRoute.name)) {
+    router.replace({
+      name: PageNames.EXAM_CREATION_ROOT,
+      params: toRoute.params,
+    });
+  }
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
-    store.commit('SET_TOOLBAR_ROUTE', { name: PageNames.EXAMS });
+    store.commit('SET_TOOLBAR_ROUTE', { name: fromRoute.name, params: fromRoute.params });
     store.dispatch('examCreation/updateSelectedQuestions').then(() => {
       store.dispatch('notLoading');
     });
