@@ -67,7 +67,7 @@
     </KGrid>
     <div>
       <KButton :text="coachStrings.$tr('goBackAction')" @click="close" />
-      <KButton :text="coachStrings.$tr('finishAction')" @click="submit" />
+      <KButton :text="coachStrings.$tr('finishAction')" primary @click="submit" />
     </div>
   </div>
 
@@ -128,6 +128,7 @@
         'selectedExercises',
         'learnersSeeFixedOrder',
       ]),
+      ...mapState(['toolbarRoute']),
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
@@ -160,7 +161,7 @@
         );
       },
       close() {
-        this.$emit('close');
+        this.$router.push(this.toolbarRoute);
       },
       submit() {
         this.$emit('submit');

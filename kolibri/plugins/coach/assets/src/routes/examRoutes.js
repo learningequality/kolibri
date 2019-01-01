@@ -50,8 +50,8 @@ export default [
   {
     name: PageNames.EXAM_CREATION_QUESTION_SELECTION,
     path: '/old/:classId/exams/new/finalize',
-    handler: toRoute => {
-      showExamCreationQuestionSelectionPage(store, toRoute.params, toRoute.query);
+    handler: (toRoute, fromRoute) => {
+      showExamCreationQuestionSelectionPage(store, toRoute, fromRoute);
     },
   },
   {
