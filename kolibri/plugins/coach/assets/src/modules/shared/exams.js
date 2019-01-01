@@ -1,10 +1,10 @@
 import { ExamResource } from 'kolibri.resources';
 
-export function _createExam(store, exam) {
+export function createExam(store, exam) {
   return ExamResource.saveModel({ data: exam });
 }
 
-export function _examState(exam) {
+export function examState(exam) {
   return {
     id: exam.id,
     title: exam.title,
@@ -21,6 +21,6 @@ export function _examState(exam) {
   };
 }
 
-export function _examsState(exams) {
-  return exams.map(exam => _examState(exam));
+export function examsState(exams) {
+  return exams.map(exam => examState(exam));
 }

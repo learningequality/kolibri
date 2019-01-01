@@ -33,13 +33,6 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <div class="buttons-container">
-        <KButton
-          :text="selectQuestionsString"
-          :primary="true"
-          @click="continueProcess"
-        />
-      </div>
     </template>
 
     <KGrid>
@@ -110,6 +103,14 @@
       @moreresults="handleMoreResults"
     />
 
+    <Bottom>
+      <KButton
+        :text="selectQuestionsString"
+        :primary="true"
+        @click="continueProcess"
+      />
+    </Bottom>
+
   </div>
 
 </template>
@@ -139,6 +140,7 @@
   import ItemListPage from '../../reports/ItemListPage';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
   import CreateExamPreview from './CreateExamPreview';
+  import Bottom from './Bottom';
 
   const itemListPageStrings = crossComponentTranslator(ItemListPage);
   const createExamPreviewStrings = crossComponentTranslator(CreateExamPreview);
@@ -161,6 +163,7 @@
       ContentCardList,
       KGrid,
       KGridItem,
+      Bottom,
     },
     mixins: [responsiveWindow, coachStringsMixin],
     $trs: {
@@ -399,7 +402,6 @@
         'removeFromSelectedExercises',
         'setSelectedExercises',
         'fetchAdditionalSearchResults',
-        'createExamAndRoute',
       ]),
       ...mapMutations('examCreation', {
         setExamsModal: 'SET_EXAMS_MODAL',
@@ -577,23 +579,6 @@
           this.focusOnInvalidField();
         } else {
           this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
-        }
-      },
-      finish() {
-        this.previewOrSubmissionAttempt = true;
-        if (this.formIsInvalid) {
-          this.focusOnInvalidField();
-        } else {
-          const dummyChannelId = this.channels[0].id;
-          const exam = {
-            collection: this.classId,
-            channel_id: dummyChannelId,
-            title: this.examTitle,
-            question_count: this.examNumberOfQuestions,
-            question_sources: this.questionSources,
-            assignments: [{ collection: this.classId }],
-          };
-          this.createExamAndRoute(exam);
         }
       },
       focusOnInvalidField() {

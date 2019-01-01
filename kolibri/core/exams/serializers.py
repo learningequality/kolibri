@@ -87,6 +87,17 @@ class ExamSerializer(serializers.ModelSerializer):
             'active', 'collection', 'archive', 'assignments', 'creator', 'data_model_version',
             'learners_see_fixed_order'
         )
+        read_only_fields = ('data_model_version',)
+
+    def validate_question_sources(self, value):
+        for question in value:
+            if 'exercise_id' not in question:
+                raise serializers.ValidationError("Question missing 'exercise_id'")
+            if 'question_id' not in question:
+                raise serializers.ValidationError("Question missing 'question_id'")
+            if 'title' not in question:
+                raise serializers.ValidationError("Question missing 'title'")
+        return value
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
@@ -101,6 +112,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         assignees = validated_data.pop('assignments')
+        validated_data['data_model_version'] = 1
         new_exam = Exam.objects.create(**validated_data)
         # Create all of the new ExamAssignment
         for assignee in assignees:

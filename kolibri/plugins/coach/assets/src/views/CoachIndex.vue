@@ -10,6 +10,7 @@
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
       :showSubNav="Boolean(classId) && showCoachNav && !currentPageIsImmersive"
+      :marginBottom="marginBottom"
     >
 
       <!-- COACH - under construction ... -->
@@ -98,6 +99,15 @@
   const resourceUserPages = [
     LessonsPageNames.RESOURCE_USER_SUMMARY,
     LessonsPageNames.RESOURCE_USER_REPORT,
+  ];
+
+  const examCreationPages = [
+    PageNames.EXAM_REPORT_DETAIL,
+    PageNames.EXAM_CREATION_ROOT,
+    PageNames.EXAM_CREATION_TOPIC,
+    PageNames.EXAM_CREATION_PREVIEW,
+    PageNames.EXAM_CREATION_SEARCH,
+    PageNames.EXAM_CREATION_QUESTION_SELECTION,
   ];
 
   const immersivePages = [
@@ -356,6 +366,9 @@
           return false;
         }
         return true;
+      },
+      marginBottom() {
+        return examCreationPages.includes(this.pageName) ? 72 : 0;
       },
     },
     methods: {

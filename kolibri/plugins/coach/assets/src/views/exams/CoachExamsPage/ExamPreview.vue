@@ -28,7 +28,7 @@
             <ol class="question-list">
               <li
                 v-for="(question, questionIndex) in examQuestions"
-                :key="question.question_id"
+                :key="questionIndex"
                 class="question-list-item"
               >
                 <KButton
