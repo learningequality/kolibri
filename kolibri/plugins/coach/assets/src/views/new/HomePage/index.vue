@@ -1,23 +1,35 @@
 <template>
 
-  <KGrid :gutter="8">
-    <KGridItem size="100" percentage>
-      <OverviewBlock class="new-coach-block" />
-    </KGridItem>
-    <KGridItem sizes="100, 100, 50" percentage>
-      <KGrid :gutter="8">
-        <KGridItem size="100" percentage>
-          <QuizzesBlock class="new-coach-block" />
-        </KGridItem>
-        <KGridItem size="100" percentage>
-          <LessonsBlock class="new-coach-block" />
-        </KGridItem>
-      </KGrid>
-    </KGridItem>
-    <KGridItem sizes="100, 100, 50" percentage>
-      <ActivityBlock class="new-coach-block" />
-    </KGridItem>
-  </KGrid>
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+
+    <TopNavbar slot="sub-nav" />
+
+    <KGrid :gutter="8">
+      <KGridItem size="100" percentage>
+        <OverviewBlock class="new-coach-block" />
+      </KGridItem>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KGrid :gutter="8">
+          <KGridItem size="100" percentage>
+            <QuizzesBlock class="new-coach-block" />
+          </KGridItem>
+          <KGridItem size="100" percentage>
+            <LessonsBlock class="new-coach-block" />
+          </KGridItem>
+        </KGrid>
+      </KGridItem>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <ActivityBlock class="new-coach-block" />
+      </KGridItem>
+    </KGrid>
+
+  </CoreBase>
 
 </template>
 

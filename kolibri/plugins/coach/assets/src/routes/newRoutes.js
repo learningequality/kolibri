@@ -1,7 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../constants/newConstants';
-import { showClassListPage, showNewPage } from '../modules/coreCoach/newHandlers';
+import { showClassListPage, showHomePage, showNewPage } from '../modules/coreCoach/newHandlers';
 import { shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
 
 import CoachClassListPage from '../views/new/CoachClassListPage';
@@ -14,7 +14,7 @@ export default [
     component: CoachClassListPage,
     handler: () => {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      return shouldRedirectToClassRootPage().then(classId => {
+      shouldRedirectToClassRootPage().then(classId => {
         if (classId) {
           return router.replace({
             name: PageNames.HOME_PAGE,
@@ -29,11 +29,20 @@ export default [
     name: PageNames.HOME_PAGE,
     path: '/:classId/home',
     component: HomePage,
-    handler: () => {
+    handler: to => {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      showHomePage(store, to.params.classId);
     },
   },
+  // {
+  //   name: 'next',
+  //   path: '/url',
+  //   component: Component,
+  //   handler: () => {
+  //     store.commit('USE_OLD_INDEX_STYLE', false);
+  //     store.commit('CORE_SET_PAGE_LOADING', false);
+  //   },
+  // },
   /* COACH - under construction ... */
   {
     name: PageNames.NEW_COACH_PAGES,

@@ -12,6 +12,18 @@ export function showClassListPage(store) {
   );
 }
 
+export function showHomePage(store, classId) {
+  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.commit('SET_PAGE_NAME', PageNames.HOME_PAGE);
+  return store.dispatch('classSummary/loadClassSummary', classId).then(
+    () => {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('CORE_SET_ERROR', null);
+    },
+    error => store.dispatch('handleApiError', error)
+  );
+}
+
 /* COACH - under construction ... */
 export function showNewPage(store) {
   store.commit('SET_PAGE_NAME', PageNames.NEW_COACH_PAGES);

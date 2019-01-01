@@ -10,6 +10,7 @@ import lessonResourceUserSummary from './lessonResourceUserSummary';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import reports from './reports';
+import classSummary from './classSummary';
 
 export default {
   state: {
@@ -61,5 +62,9 @@ export default {
     lessonSummary,
     lessonsRoot,
     reports,
+
+    /* COACH - under construction ... */
+    classSummary,
+    /* ... COACH - under construction */
   },
 };
