@@ -16,6 +16,7 @@ export default [
     name: PageNames.EXAMS,
     path: '/old/:classId/exams',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamsPage(store, toRoute.params.classId);
     },
   },
@@ -23,6 +24,7 @@ export default [
     name: PageNames.EXAM_CREATION_ROOT,
     path: '/old/:classId/exams/new/',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationRootPage(store, toRoute.params);
     },
   },
@@ -30,6 +32,7 @@ export default [
     name: PageNames.EXAM_CREATION_TOPIC,
     path: '/old/:classId/exams/new/topic/:topicId',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationTopicPage(store, toRoute.params);
     },
   },
@@ -37,6 +40,7 @@ export default [
     name: PageNames.EXAM_CREATION_PREVIEW,
     path: '/old/:classId/exams/new/preview/:contentId',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationPreviewPage(store, toRoute.params, toRoute.query);
     },
   },
@@ -44,6 +48,7 @@ export default [
     name: PageNames.EXAM_CREATION_SEARCH,
     path: '/old/:classId/exams/new/search/:searchTerm',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationSearchPage(store, toRoute.params, toRoute.query);
     },
   },
@@ -58,6 +63,7 @@ export default [
     name: PageNames.EXAM_REPORT,
     path: '/old/:classId/exams/:examId',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamReportPage(store, toRoute.params);
     },
   },
@@ -70,6 +76,7 @@ export default [
     name: PageNames.EXAM_REPORT_DETAIL,
     path: '/old/:classId/exams/:examId/users/:userId/:question/:interaction',
     handler: toRoute => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamReportDetailPage(store, toRoute.params);
     },
   },

@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('CoachClassListPage')"
+        :to="route(PageNames.COACH_CLASS_LIST)"
         :text="$tr('back')"
       />
     </p>

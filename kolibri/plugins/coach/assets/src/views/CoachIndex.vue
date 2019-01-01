@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="oldReports">
     <CoreBase
       :immersivePage="currentPageIsImmersive"
       :appBarTitle="appBarTitle"
@@ -49,6 +49,9 @@
       <router-view />
 
     </CoreBase>
+  </div>
+  <div v-else>
+    <router-view />
   </div>
 
 </template>
@@ -191,7 +194,7 @@
     },
     computed: {
       ...mapGetters(['classCoaches', 'isAdmin', 'isCoach', 'isSuperuser']),
-      ...mapState(['pageName', 'classList', 'className', 'classId', 'toolbarRoute']),
+      ...mapState(['pageName', 'classList', 'className', 'classId', 'toolbarRoute', 'oldReports']),
       ...mapState('lessonSummary', {
         lessonWorkingResources: state => state.workingResources,
       }),
