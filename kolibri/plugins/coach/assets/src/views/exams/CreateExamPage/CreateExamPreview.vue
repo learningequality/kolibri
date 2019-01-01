@@ -114,14 +114,6 @@
         fixedOrder: true,
       };
     },
-    watch: {
-      fixedOrder(value) {
-        this.setVuexFixedOrder(value);
-      },
-    },
-    mounted() {
-      this.fixedOrder = this.learnersSeeFixedOrder;
-    },
     computed: {
       ...mapState('examCreation', [
         'selectedQuestions',
@@ -145,6 +137,14 @@
       questionId() {
         return this.currentQuestion.question_id;
       },
+    },
+    watch: {
+      fixedOrder(value) {
+        this.setVuexFixedOrder(value);
+      },
+    },
+    mounted() {
+      this.fixedOrder = this.learnersSeeFixedOrder;
     },
     methods: {
       ...mapMutations('examCreation', {
