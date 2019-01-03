@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KGrid class="headers">
+    <KGrid class="headers" cols="12">
       <KGridItem size="1">
         <span class="visuallyhidden">
           {{ $tr('resourceReorderColumnHeaderForTable') }}
@@ -22,7 +22,6 @@
     <Draggable
       :value="workingResources"
       :options="{animation:150}"
-      :noTransitionOnDrag="true"
       @input="handleDrag($event)"
     >
       <transition-group
@@ -32,6 +31,7 @@
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
           class="row"
+          cols="12"
         >
           <KGridItem size="1" class="relative">
             <UiIconButton
@@ -132,6 +132,7 @@
       return {
         workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
         firstRemovalTitle: '',
+        enableTransitions: false,
       };
     },
     computed: {
@@ -172,10 +173,13 @@
         });
       },
       resourceReorderMoveStyle() {
-        return {
-          backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
-          transition: 'transform 0.5s',
-        };
+        if (this.enableTransitions) {
+          return {
+            backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
+            transition: 'transform 0.5s',
+          };
+        }
+        return {};
       },
     },
     methods: {
@@ -232,10 +236,14 @@
         });
       },
       moveUpOne(oldIndex) {
+        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex - 1);
+        setTimeout(() => (this.enableTransitions = false), 500);
       },
       moveDownOne(oldIndex) {
+        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex + 1);
+        setTimeout(() => (this.enableTransitions = false), 500);
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.workingResources];

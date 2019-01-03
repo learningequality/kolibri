@@ -97,14 +97,11 @@
 
   .selected {
     font-weight: bold;
-    background-color: #dadada;
     border-radius: 4px;
   }
 
   .hidden-buttons {
     display: none;
-    // position: absolute;
-    // top: -50px;
   }
 
 </style>

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <h1>{{ $tr('title') }}</h1>
     <h2>{{ $tr('questionOrder') }}</h2>
     <div>
@@ -30,17 +30,24 @@
     <KGrid>
       <KGridItem sizes="4, 4, 5" class="list-wrapper">
         <ul v-if="fixedOrder" class="question-list">
-          <QuestionListItemOrdered
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-            :questionNumberWithinExam="questionIndex + 1"
-            :questionNumberWithinExercise="questionIndex"
-            :totalFromExercise="selectedQuestions.length"
-            :isSelected="isSelected(question)"
-            :exerciseName="question.title"
-            :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-            @click="currentQuestionIndex = questionIndex"
-          />
+          <Draggable
+            :value="selectedQuestions"
+            :options="draggableOptions"
+            @input="handleDrag"
+            @end="handleEnd"
+          >
+            <QuestionListItemOrdered
+              v-for="(question, questionIndex) in selectedQuestions"
+              :key="questionIndex"
+              :questionNumberWithinExam="questionIndex + 1"
+              :questionNumberWithinExercise="questionIndex"
+              :totalFromExercise="selectedQuestions.length"
+              :isSelected="isSelected(question)"
+              :exerciseName="question.title"
+              :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+              @click="currentQuestionIndex = questionIndex"
+            />
+          </Draggable>
         </ul>
         <ul v-else class="question-list">
           <QuestionListItemRandom
@@ -99,6 +106,7 @@
 
   import { mapState, mapActions, mapMutations } from 'vuex';
 
+  import Draggable from 'vuedraggable';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -127,6 +135,7 @@
       newQuestions: 'New question set created',
     },
     components: {
+      Draggable,
       ContentRenderer,
       KButton,
       QuestionListItemRandom,
@@ -151,6 +160,13 @@
         'learnersSeeFixedOrder',
       ]),
       ...mapState(['toolbarRoute']),
+      draggableOptions() {
+        return {
+          animation: 150,
+          touchStartThreshold: 3,
+          direction: 'vertical',
+        };
+      },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
@@ -179,6 +195,7 @@
     methods: {
       ...mapMutations('examCreation', {
         setVuexFixedOrder: 'SET_FIXED_ORDER',
+        setVuexQuestions: 'SET_SELECTED_QUESTIONS',
       }),
       ...mapActions('examCreation', ['getNewQuestionSet', 'createExamAndRoute']),
       numCoachContents(exerciseId) {
@@ -189,6 +206,12 @@
           this.currentQuestion.question_id === question.question_id &&
           this.currentQuestion.exercise_id === question.exercise_id
         );
+      },
+      handleDrag(questions) {
+        this.setVuexQuestions(questions);
+      },
+      handleEnd(event) {
+        this.currentQuestionIndex = event.newIndex;
       },
       close() {
         this.$router.push(this.toolbarRoute);
@@ -232,6 +255,19 @@
     li {
       padding: 8px;
     }
+  }
+
+  .sortable-ghost {
+    visibility: hidden;
+  }
+
+  .sortable-ghost * {
+    visibility: hidden;
+  }
+
+  .wrapper {
+    padding: 16px;
+    background-color: white;
   }
 
 </style>

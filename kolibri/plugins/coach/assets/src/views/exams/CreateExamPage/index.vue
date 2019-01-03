@@ -105,7 +105,7 @@
       </ul>
 
       <KButton
-        :text="selectQuestionsString"
+        :text="$tr('continueButtonlabel')"
         :primary="true"
         @click="continueProcess"
       />
