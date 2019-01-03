@@ -5,7 +5,7 @@
     textColor="white"
     type="colored"
     :showIcon="showIcon"
-    :style="{ height: height + 'px' }"
+    :style="toolbarStyle"
     @nav-icon-click="$emit('navIconClick')"
   >
     <router-link
@@ -124,6 +124,13 @@
       hasRoute() {
         return Boolean(this.route);
       },
+      toolbarStyle() {
+        const style = {
+          height: this.height + 'px',
+          backgroundColor: this.primary ? this.$coreActionNormal : $coreTextDefault,
+        };
+        return style;
+      },
       linkStyle() {
         const hoverAndFocus = {
           backgroundColor: this.primary ? this.$coreActionDark : darken(this.$coreTextDefault, 0.1),
@@ -153,5 +160,7 @@
     display: inline-block;
     border-radius: 50%;
   }
+
+
 
 </style>
