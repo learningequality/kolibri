@@ -349,6 +349,9 @@
           PageNames.EXAM_CREATION_PREVIEW,
           PageNames.EXAM_CREATION_QUESTION_SELECTION,
         ];
+        if (selectionPages.includes(this.pageName)) {
+          return null;
+        }
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
         }
