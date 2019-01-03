@@ -2,38 +2,13 @@
 
   <div>
 
-    <template v-if="!inSearchMode">
-      <KTextbox
-        ref="title"
-        v-model.trim="examTitle"
-        :label="$tr('title')"
-        :autofocus="true"
-        :invalid="titleIsInvalid"
-        :invalidText="titleIsInvalidText"
-        :maxlength="100"
-        @blur="titleBlurred = true"
-      />
-      <KTextbox
-        ref="numQuest"
-        v-model.trim.number="examNumberOfQuestions"
-        type="number"
-        :min="1"
-        :max="50"
-        :label="$tr('numQuestions')"
-        :invalid="numQuestIsInvalid"
-        :invalidText="numQuestIsInvalidText"
-        @blur="numQuestBlurred = true"
-      />
-
-      <UiAlert
-        v-if="selectionIsInvalid"
-        type="error"
-        :dismissible="false"
-      >
-        {{ selectionIsInvalidText }}
-      </UiAlert>
-
-    </template>
+    <UiAlert
+      v-if="showError && !inSearchMode"
+      type="error"
+      :dismissible="false"
+    >
+      {{ selectionIsInvalidText }}
+    </UiAlert>
 
     <KGrid>
       <KGridItem
@@ -46,17 +21,7 @@
         sizes="100, 50, 50"
         percentage
         alignments="left, right, right"
-      >
-        <ul class="items">
-          <li class="numItems">
-            {{ numExercisesString }}
-          </li>
-          <li class="numItems">
-            {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
-          </li>
-        </ul>
-
-      </KGridItem>
+      />
     </KGrid>
 
     <LessonsSearchBox
@@ -130,11 +95,9 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
@@ -144,13 +107,8 @@
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
-  import ItemListPage from '../../reports/ItemListPage';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
-  import CreateExamPreview from './CreateExamPreview';
   import Bottom from './Bottom';
-
-  const itemListPageStrings = crossComponentTranslator(ItemListPage);
-  const createExamPreviewStrings = crossComponentTranslator(CreateExamPreview);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -163,7 +121,6 @@
     components: {
       KRouterLink,
       KButton,
-      KTextbox,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
@@ -203,10 +160,7 @@
       return {
         examTitle: '',
         examNumberOfQuestions: 10,
-        titleBlurred: false,
-        numQuestBlurred: false,
-        selectionMade: false,
-        previewOrSubmissionAttempt: false,
+        showError: false,
         moreResultsState: null,
         // null corresponds to 'All' filter value
         filters: {
@@ -292,72 +246,11 @@
         }
         return 'visible';
       },
-
-      titleIsInvalidText() {
-        if (this.titleBlurred || this.previewOrSubmissionAttempt) {
-          if (this.examTitle === '') {
-            return this.$tr('examRequiresTitle');
-          }
-        }
-        return '';
-      },
-      titleIsInvalid() {
-        return Boolean(this.titleIsInvalidText);
-      },
-      numQuestExceedsSelection() {
-        return this.examNumberOfQuestions > this.availableQuestions;
-      },
-      exercisesAreSelected() {
-        return this.selectedExercises.length > 0;
-      },
-      numQuestIsInvalidText() {
-        if (this.numQuestBlurred || this.previewOrSubmissionAttempt) {
-          if (this.examNumberOfQuestions === '') {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (this.examNumberOfQuestions < 1 || this.examNumberOfQuestions > 50) {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (!Number.isInteger(this.examNumberOfQuestions)) {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
-            return this.$tr('numQuestionsExceed', {
-              inputNumQuestions: this.examNumberOfQuestions,
-              maxQuestionsFromSelection: this.availableQuestions,
-            });
-          }
-        }
-        return '';
-      },
-      numQuestIsInvalid() {
-        return Boolean(this.numQuestIsInvalidText);
-      },
       selectionIsInvalidText() {
-        if (this.selectionMade || this.previewOrSubmissionAttempt) {
-          if (!this.exercisesAreSelected) {
-            return this.$tr('noneSelected');
-          }
+        if (this.selectedExercises.length === 0) {
+          return this.$tr('noneSelected');
         }
-        return '';
-      },
-      selectionIsInvalid() {
-        return Boolean(this.selectionIsInvalidText);
-      },
-      formIsInvalidText() {
-        if (this.titleIsInvalid) {
-          return this.titleIsInvalidText;
-        }
-        if (this.numQuestIsInvalid) {
-          return this.numQuestIsInvalidText;
-        }
-        if (this.selectionIsInvalid) {
-          return this.selectionIsInvalidText;
-        }
-        return '';
-      },
-      formIsInvalid() {
-        return Boolean(this.formIsInvalidText);
+        return null;
       },
       channelsLink() {
         return {
@@ -378,14 +271,6 @@
           return '';
         }
         return this.ancestors[this.ancestors.length - 1].description;
-      },
-      numExercisesString() {
-        return itemListPageStrings.$tr('exerciseCountText', {
-          count: this.selectedExercises.length,
-        });
-      },
-      selectQuestionsString() {
-        return createExamPreviewStrings.$tr('title');
       },
     },
     watch: {
@@ -411,12 +296,6 @@
         'setSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
-      ...mapMutations('examCreation', {
-        setExamsModal: 'SET_EXAMS_MODAL',
-        setTitle: 'SET_TITLE',
-        setNumberOfQuestions: 'SET_NUMBER_OF_QUESTIONS',
-        setSeed: 'SET_SEED',
-      }),
       contentLink(content) {
         if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
           return {
@@ -500,6 +379,7 @@
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
+          this.showError = false;
           this.addToSelectedExercises(this.addableExercises);
           this.createSnackbar({
             text: this.$tr('added', { item: this.topicTitle }),
@@ -518,6 +398,7 @@
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
+          this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
@@ -525,6 +406,7 @@
             autoDismiss: true,
           });
         } else if (checked && !isTopic) {
+          this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
@@ -582,18 +464,10 @@
         }
       },
       continueProcess() {
-        this.previewOrSubmissionAttempt = true;
-        if (this.formIsInvalid) {
-          this.focusOnInvalidField();
+        if (this.selectionIsInvalidText) {
+          this.showError = true;
         } else {
           this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
-        }
-      },
-      focusOnInvalidField() {
-        if (this.titleIsInvalid) {
-          this.$refs.title.focus();
-        } else if (this.numQuestIsInvalid) {
-          this.$refs.numQuest.focus();
         }
       },
       handleSearchTerm(searchTerm) {

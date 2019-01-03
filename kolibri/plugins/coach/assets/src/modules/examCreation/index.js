@@ -26,6 +26,7 @@ function defaultState() {
     },
     selectedQuestions: [],
     learnersSeeFixedOrder: false,
+    loadingNewQuestions: false,
   };
 }
 
@@ -47,6 +48,9 @@ export default {
     },
     SET_TITLE(state, title) {
       state.title = title;
+    },
+    LOADING_NEW_QUESTIONS(state, value) {
+      state.loadingNewQuestions = value;
     },
     SET_NUMBER_OF_QUESTIONS(state, numberOfQuestions) {
       state.numberOfQuestions = numberOfQuestions;

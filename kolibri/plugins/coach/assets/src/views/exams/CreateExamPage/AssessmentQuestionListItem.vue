@@ -1,31 +1,20 @@
 <template>
 
-  <li class="item-wrapper" :class="{selected: isSelected }">
-    <KButton
-      v-if="!isSelected"
-      class="nowrap"
-      :text="text"
-      :disabled="isSelected"
-      appearance="basic-link"
-      @click="handleSelect"
-    />
-    <span v-else class="selected">{{ text }}</span>
+  <button
+    class="item-wrapper"
+    :class="{selected: isSelected, draggable }"
+    @click="handleSelect"
+  >
+    <span class="text">{{ text }}</span>
     <CoachContentLabel
       class="coach-content-label"
       :value="isCoachContent ? 1 : 0"
       :isTopic="false"
     />
-    <div class="handle">
-      <mat-svg name="drag_handle" category="editor" />
+    <div v-if="draggable" class="handle">
+      <DragIndicator />
     </div>
     <div class="hidden-buttons">
-      <UiIconButton
-        type="flat"
-        ariaLabel="up"
-        class="position-adjustment-button"
-      >
-        <mat-svg name="keyboard_arrow_up" category="hardware" />
-      </UiIconButton>
       <UiIconButton
         type="flat"
         ariaLabel="down"
@@ -34,19 +23,19 @@
         <mat-svg name="keyboard_arrow_down" category="hardware" />
       </UiIconButton>
     </div>
-  </li>
+  </button>
 
 </template>
 
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import DragIndicator from '../../new/shared/DragIndicator';
 
   export default {
-    name: 'QuestionListItemOrdered',
+    name: 'AssessmentQuestionListItem',
     $trs: {
       questionNum: 'Question {number, number, integer}:',
       questionNumShort: '{number, number, integer}.',
@@ -57,22 +46,18 @@
       moveExerciseDown: 'Move this exercise down by one position',
     },
     components: {
-      KButton,
       UiIconButton,
       CoachContentLabel,
+      DragIndicator,
     },
     props: {
-      questionNumberWithinExam: {
-        type: Number,
+      draggable: {
+        type: Boolean,
         required: true,
       },
-      questionNumberWithinExercise: {
+      questionNumberOfExercise: {
         type: Number,
-        required: true,
-      },
-      totalFromExercise: {
-        type: Number,
-        required: true,
+        required: false,
       },
       isSelected: {
         type: Boolean,
@@ -89,11 +74,13 @@
     },
     computed: {
       text() {
-        return this.exerciseName;
-        // return this.$tr('nthExerciseName', {
-        //   name: this.exerciseName,
-        //   number: this.questionNumberWithinExercise + 1,
-        // });
+        if (this.questionNumberOfExercise === undefined) {
+          return this.exerciseName;
+        }
+        return this.$tr('nthExerciseName', {
+          name: this.exerciseName,
+          number: this.questionNumberOfExercise + 1,
+        });
       },
     },
     methods: {
@@ -111,23 +98,33 @@
   .item-wrapper {
     position: relative;
     left: -8px;
+    display: block;
+    width: 100%;
     padding: 8px;
-    padding-right: 50px;
-    padding-left: 50px;
     overflow: hidden;
+    text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: grab;
     background-color: white;
+    border-radius: 4px;
+  }
+
+  .selected {
+    background-color: #d8d8d8;
+  }
+
+  .draggable {
+    padding-right: 50px;
+    padding-left: 50px;
+    cursor: grab;
   }
 
   .nowrap {
     white-space: nowrap;
   }
 
-  .selected {
-    font-weight: bold;
-    border-radius: 4px;
+  .text {
+    cursor: pointer;
   }
 
   .handle {

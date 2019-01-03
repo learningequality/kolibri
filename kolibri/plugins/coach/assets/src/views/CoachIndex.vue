@@ -20,8 +20,7 @@
       <div v-if="isNewPage" class="coach-debug">
         <pre>{{ $route.params.page }}</pre>
         <p class="coach-warning">
-          MOCKUP FOR TRANSLATION:<br>
-          not the final design or functionality
+          PROTOTYPE: not the final design or functionality
         </p>
       </div>
       <!-- ... COACH - under construction -->

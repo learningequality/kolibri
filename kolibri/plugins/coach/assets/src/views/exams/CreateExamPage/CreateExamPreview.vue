@@ -1,8 +1,65 @@
 <template>
 
   <div class="wrapper">
-    <h1>{{ $tr('title') }}</h1>
-    <h2>{{ $tr('questionOrder') }}</h2>
+    <h2>{{ detailsString }}</h2>
+    <KGrid>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="title"
+          v-model.trim="examTitle"
+          :label="moreStrings.$tr('title')"
+          :autofocus="true"
+          :maxlength="100"
+          :invalid="Boolean(showError && titleIsInvalidText)"
+          :invalidText="titleIsInvalidText"
+        />
+      </KGridItem>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="numQuest"
+          v-model.trim.number="numQuestions"
+          type="number"
+          :min="1"
+          :max="50"
+          :label="moreStrings.$tr('numQuestions')"
+          :invalid="Boolean(showError && numQuestIsInvalidText)"
+          :invalidText="numQuestIsInvalidText"
+          class="number-field"
+        />
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions -= 1"
+        >
+          <mat-svg name="remove" category="content" />
+        </UiIconButton>
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions += 1"
+        >
+          <mat-svg name="add" category="content" />
+        </UiIconButton>
+      </KGridItem>
+    </KGrid>
+    <div>
+      <UiIconButton
+        type="flat"
+        aria-hidden="true"
+        @click="getNewQuestionSet"
+      >
+        <mat-svg name="refresh" category="navigation" />
+      </UiIconButton>
+      <KButton
+        :text="$tr('randomize')"
+        appearance="basic-link"
+        :primary="false"
+        @click="getNewQuestionSet"
+      />
+    </div>
+    <h2 class="header-margin">{{ $tr('questionOrder') }}</h2>
     <div>
       <KRadioButton
         v-model="fixedOrder"
@@ -17,17 +74,8 @@
         :value="true"
       />
     </div>
-    <h2>{{ $tr('questions') }}</h2>
-    <div>
-      <KButton
-        :text="$tr('randomize')"
-        appearance="basic-link"
-        :primary="false"
-        @click="getNewQuestionSet"
-      />
-    </div>
-    <hr>
-    <KGrid>
+    <h2 class="header-margin">{{ $tr('questions') }}</h2>
+    <KGrid v-if="!loadingNewQuestions">
       <KGridItem sizes="4, 4, 5" class="list-wrapper">
         <ul v-if="fixedOrder" class="question-list">
           <Draggable
@@ -36,12 +84,10 @@
             @input="handleDrag"
             @end="handleEnd"
           >
-            <QuestionListItemOrdered
+            <AssessmentQuestionListItem
               v-for="(question, questionIndex) in selectedQuestions"
               :key="questionIndex"
-              :questionNumberWithinExam="questionIndex + 1"
-              :questionNumberWithinExercise="questionIndex"
-              :totalFromExercise="selectedQuestions.length"
+              :draggable="true"
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
@@ -50,9 +96,10 @@
           </Draggable>
         </ul>
         <ul v-else class="question-list">
-          <QuestionListItemRandom
+          <AssessmentQuestionListItem
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
+            :draggable="false"
             :isSelected="isSelected(question)"
             :exerciseName="question.title"
             :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
@@ -89,10 +136,11 @@
       <KRouterLink
         appearance="flat-button"
         :text="coachStrings.$tr('goBackAction')"
-        :to="toolbarRoute"
+        :to="$store.state.toolbarRoute"
       />
       <KButton
         :text="coachStrings.$tr('finishAction')"
+        :disabled="loadingNewQuestions"
         primary
         @click="submit"
       />
@@ -104,9 +152,11 @@
 
 <script>
 
-  import { mapState, mapActions, mapMutations } from 'vuex';
+  import { mapState } from 'vuex';
 
   import Draggable from 'vuedraggable';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -114,10 +164,16 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
-  import QuestionListItemRandom from './QuestionListItemRandom';
-  import QuestionListItemOrdered from './QuestionListItemOrdered';
+  import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
+  import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
+
+  import CeateExamPage from './index';
+
+  const createExamPageStrings = crossComponentTranslator(CeateExamPage);
+  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
   export default {
     name: 'CreateExamPreview',
@@ -137,31 +193,32 @@
     },
     components: {
       Draggable,
+      UiIconButton,
       ContentRenderer,
       KRouterLink,
       KButton,
-      QuestionListItemRandom,
-      QuestionListItemOrdered,
+      AssessmentQuestionListItem,
       KRadioButton,
       KGrid,
       KGridItem,
       Bottom,
+      KTextbox,
     },
     mixins: [responsiveWindow, coachStringsMixin],
     data() {
       return {
         currentQuestionIndex: 0,
-        questions: [],
-        fixedOrder: true,
+        showError: false,
       };
     },
     computed: {
-      ...mapState('examCreation', [
-        'selectedQuestions',
-        'selectedExercises',
-        'learnersSeeFixedOrder',
-      ]),
-      ...mapState(['toolbarRoute']),
+      ...mapState('examCreation', ['selectedQuestions', 'loadingNewQuestions']),
+      detailsString() {
+        return quizDetailStrings.$tr('details');
+      },
+      moreStrings() {
+        return createExamPageStrings;
+      },
       draggableOptions() {
         return {
           animation: 150,
@@ -174,7 +231,7 @@
       },
       exercises() {
         const exercises = {};
-        this.selectedExercises.forEach(exercise => {
+        this.$store.state.examCreation.selectedExercises.forEach(exercise => {
           exercises[exercise.id] = exercise;
         });
         return exercises;
@@ -185,21 +242,61 @@
       questionId() {
         return this.currentQuestion.question_id;
       },
-    },
-    watch: {
-      fixedOrder(value) {
-        this.setVuexFixedOrder(value);
+      examTitle: {
+        get() {
+          return this.$store.state.examCreation.title;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_TITLE', value);
+        },
+      },
+      numQuestions: {
+        get() {
+          return this.$store.state.examCreation.numberOfQuestions;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+          this.$store.dispatch('examCreation/updateSelectedQuestions');
+        },
+      },
+      fixedOrder: {
+        get() {
+          return this.$store.state.examCreation.learnersSeeFixedOrder;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_FIXED_ORDER', value);
+        },
+      },
+      titleIsInvalidText() {
+        if (this.examTitle === '') {
+          return createExamPageStrings.$tr('examRequiresTitle');
+        }
+        return null;
+      },
+      numQuestIsInvalidText() {
+        if (this.numQuestions === '') {
+          return createExamPageStrings.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions < 1 || this.numQuestions > 50) {
+          return createExamPageStrings.$tr('numQuestionsBetween');
+        }
+        if (!Number.isInteger(this.numQuestions)) {
+          return createExamPageStrings.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions > this.availableQuestions) {
+          return createExamPageStrings.$tr('numQuestionsExceed', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: this.availableQuestions,
+          });
+        }
+        return null;
       },
     },
-    mounted() {
-      this.fixedOrder = this.learnersSeeFixedOrder;
-    },
     methods: {
-      ...mapMutations('examCreation', {
-        setVuexFixedOrder: 'SET_FIXED_ORDER',
-        setVuexQuestions: 'SET_SELECTED_QUESTIONS',
-      }),
-      ...mapActions('examCreation', ['getNewQuestionSet', 'createExamAndRoute']),
+      getNewQuestionSet() {
+        this.$store.commit('examCreation/RANDOMIZE_SEED');
+        this.$store.dispatch('examCreation/updateSelectedQuestions');
+      },
       numCoachContents(exerciseId) {
         return this.exercises[exerciseId].num_coach_contents;
       },
@@ -210,13 +307,21 @@
         );
       },
       handleDrag(questions) {
-        this.setVuexQuestions(questions);
+        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', questions);
       },
       handleEnd(event) {
         this.currentQuestionIndex = event.newIndex;
       },
       submit() {
-        this.createExamAndRoute();
+        if (this.numQuestIsInvalidText) {
+          this.showError = true;
+          this.$refs.numQuest.focus();
+        } else if (this.titleIsInvalidText) {
+          this.showError = true;
+          this.$refs.title.focus();
+        } else {
+          this.$store.dispatch('examCreation/createExamAndRoute');
+        }
       },
     },
   };
@@ -228,9 +333,18 @@
 
   @import '~kolibri.styles.definitions';
 
-  hr {
-    margin-top: 24px;
-    margin-bottom: 8px;
+  .number-btn {
+    position: relative;
+    top: 24px;
+  }
+
+  .number-field {
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .header-margin {
+    margin-top: 32px;
   }
 
   .list-wrapper {
@@ -239,10 +353,12 @@
 
   .question-list {
     padding: 0;
+    margin-top: 0;
     list-style: none;
   }
 
   .question-title {
+    margin-top: 8px;
     text-align: center;
   }
 
@@ -250,6 +366,8 @@
     position: absolute;
     top: 0;
     left: 0;
+    margin-top: 0;
+    font-weight: bold;
 
     li {
       padding: 8px;

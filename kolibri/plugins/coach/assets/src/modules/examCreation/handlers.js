@@ -184,11 +184,7 @@ export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute)
       params: toRoute.params,
     });
   }
-  return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
-    store.commit('SET_TOOLBAR_ROUTE', { name: fromRoute.name, params: fromRoute.params });
-    store.dispatch('examCreation/updateSelectedQuestions').then(() => {
-      store.dispatch('notLoading');
-    });
-  });
+  store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
+  store.commit('SET_TOOLBAR_ROUTE', { name: fromRoute.name, params: fromRoute.params });
+  store.dispatch('examCreation/updateSelectedQuestions');
 }

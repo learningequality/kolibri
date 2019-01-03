@@ -186,18 +186,21 @@ export function filterAndAnnotateContentList(childNodes) {
 
 export function updateSelectedQuestions(store) {
   if (!store.state.selectedExercises.length) {
-    return Promise.resolve([]);
+    store.commit('SET_SELECTED_QUESTIONS', []);
+    return Promise.resolve();
   }
 
   return new Promise(resolve => {
-    // The selectedExercises don't necessarily have the assessment metadata so fetch them.
-    // However, if there are more exercises than questions, no need to fetch them all so
+    // If there are more exercises than questions, no need to fetch them all so
     // choose N at random where N is the the number of questions.
     const exerciseIds = shuffle(
       uniq(store.state.selectedExercises.map(exercise => exercise.id)),
       store.state.seed
     ).slice(0, store.state.numberOfQuestions);
 
+    store.commit('LOADING_NEW_QUESTIONS', true);
+
+    // The selectedExercises don't have the assessment metadata yet so fetch that
     ContentNodeResource.fetchCollection({
       getParams: { ids: exerciseIds },
     }).then(contentNodes => {
@@ -220,16 +223,8 @@ export function updateSelectedQuestions(store) {
           store.state.seed
         )
       );
+      store.commit('LOADING_NEW_QUESTIONS', false);
       resolve();
-    });
-  });
-}
-
-export function getNewQuestionSet(store) {
-  return store.dispatch('loading', {}, { root: true }).then(() => {
-    store.commit('RANDOMIZE_SEED');
-    store.dispatch('updateSelectedQuestions').then(() => {
-      store.dispatch('notLoading', {}, { root: true });
     });
   });
 }
