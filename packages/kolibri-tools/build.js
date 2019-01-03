@@ -1,4 +1,5 @@
 /* Build file for kolibri-tools and kolibri */
+const fs = require('fs');
 const path = require('path');
 const { __buildKolibriName } = require('./lib/kolibriName');
 const { __builder } = require('./lib/apiSpecExportTools');
@@ -20,3 +21,19 @@ __builder.buildApiSpec();
  */
 
 __builder.exportApiSpec(path.resolve(__dirname, '../kolibri'));
+
+/*
+ * Step 4: Copy the kolibri-core module dependencies to the exported kolibri module.
+ */
+
+const kolibriCorePkg = require(path.resolve(__dirname, '../../kolibri/core/package.json'));
+
+const kolibriPackageFile = path.resolve(__dirname, '../kolibri/package.json');
+
+const kolibriPkg = require(kolibriPackageFile);
+
+kolibriPkg.dependencies = kolibriCorePkg.dependencies;
+
+fs.writeFileSync(kolibriPackageFile, JSON.stringify(kolibriPkg, undefined, 2), {
+  encoding: 'utf-8',
+});

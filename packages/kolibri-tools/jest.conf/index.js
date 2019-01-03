@@ -25,8 +25,9 @@ module.exports = {
   testURL: 'http://kolibri.time',
   transform: {
     '^.+\\.js$': path.resolve(__dirname, './babel-jest-transform'),
-    '.*\\.(vue)$': 'vue-jest',
+    '^.+\\.vue$': 'vue-jest',
   },
+  transformIgnorePatterns: ['/node_modules/(?!(kolibri-tools|kolibri)/).*/'],
   snapshotSerializers: ['jest-serializer-vue'],
   setupFiles: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',

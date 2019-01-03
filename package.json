@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "test": "yarn run test-jest --watch",
-    "test-jest": "kolibri-tools test --extraConfig ./jest.conf.js",
+    "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt",
@@ -28,7 +28,6 @@
     "lint:watch": "yarn lint-all -w -m",
     "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build",
-    "build-packages": "yarn run build-kolibri-tools",
     "publish-packages": "node ./packages/publish.js"
   },
   "repository": {
