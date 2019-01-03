@@ -113,9 +113,9 @@ class Application(pew.ui.PEWApp):
         def running():
             try:
                 urllib2.urlopen(home_url)
-                return true
-            except URLError:
-                return false
+                return True
+            except urllib2.URLError:
+                return False
 
         # Tie up this thread until the server is running
         while not running():
