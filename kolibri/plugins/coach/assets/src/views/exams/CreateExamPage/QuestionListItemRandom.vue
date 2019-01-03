@@ -40,12 +40,11 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
   export default {
-    name: 'AssessmentQuestionListItem',
+    name: 'QuestionListItemRandom',
     $trs: {
+      // TODO - grab these strings from the right place (STRING FREEZE)
       questionNum: 'Question {number, number, integer}:',
       questionNumShort: '{number, number, integer}.',
       preview: 'Preview',
@@ -60,18 +59,6 @@
       CoachContentLabel,
     },
     props: {
-      questionNumberWithinExam: {
-        type: Number,
-        required: true,
-      },
-      questionNumberWithinExercise: {
-        type: Number,
-        required: true,
-      },
-      totalFromExercise: {
-        type: Number,
-        required: true,
-      },
       isSelected: {
         type: Boolean,
         required: true,
@@ -88,10 +75,6 @@
     computed: {
       text() {
         return this.exerciseName;
-        // return this.$tr('nthExerciseName', {
-        //   name: this.exerciseName,
-        //   number: this.questionNumberWithinExercise + 1,
-        // });
       },
     },
     methods: {

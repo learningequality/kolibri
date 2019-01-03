@@ -27,10 +27,10 @@
       />
     </div>
     <hr>
-    <KGrid gutter="64">
-      <KGridItem sizes="4, 3, 4">
-        <ul class="question-list">
-          <AssessmentQuestionListItem
+    <KGrid>
+      <KGridItem sizes="4, 4, 5" class="list-wrapper">
+        <ul v-if="fixedOrder" class="question-list">
+          <QuestionListItemOrdered
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
             :questionNumberWithinExam="questionIndex + 1"
@@ -42,8 +42,24 @@
             @click="currentQuestionIndex = questionIndex"
           />
         </ul>
+        <ul v-else class="question-list">
+          <QuestionListItemRandom
+            v-for="(question, questionIndex) in selectedQuestions"
+            :key="questionIndex"
+            :isSelected="isSelected(question)"
+            :exerciseName="question.title"
+            :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+            @click="currentQuestionIndex = questionIndex"
+          />
+        </ul>
+        <ol v-if="fixedOrder" class="numbers">
+          <li
+            v-for="(question, questionIndex) in selectedQuestions"
+            :key="questionIndex"
+          ></li>
+        </ol>
       </KGridItem>
-      <KGridItem sizes="4, 5, 8">
+      <KGridItem sizes="4, 4, 7">
         <h3 class="question-title">{{ currentQuestion.title }}</h3>
         <ContentRenderer
           v-if="content && questionId"
@@ -89,8 +105,9 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import AssessmentQuestionListItem from '../AssessmentQuestionListItem';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
+  import QuestionListItemRandom from './QuestionListItemRandom';
+  import QuestionListItemOrdered from './QuestionListItemOrdered';
   import Bottom from './Bottom';
 
   export default {
@@ -112,7 +129,8 @@
     components: {
       ContentRenderer,
       KButton,
-      AssessmentQuestionListItem,
+      QuestionListItemRandom,
+      QuestionListItemOrdered,
       KRadioButton,
       KGrid,
       KGridItem,
@@ -193,6 +211,10 @@
     margin-bottom: 8px;
   }
 
+  .list-wrapper {
+    position: relative;
+  }
+
   .question-list {
     padding: 0;
     list-style: none;
@@ -200,6 +222,16 @@
 
   .question-title {
     text-align: center;
+  }
+
+  .numbers {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    li {
+      padding: 8px;
+    }
   }
 
 </style>
