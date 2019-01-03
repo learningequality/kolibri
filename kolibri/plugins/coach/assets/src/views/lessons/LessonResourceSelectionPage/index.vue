@@ -61,6 +61,15 @@
       @moreresults="handleMoreResults"
     />
 
+    <Bottom>
+      <KRouterLink
+        text="Finish"
+        primary
+        appearance="raised-button"
+        :to="toolbarRoute"
+      />
+    </Bottom>
+
   </div>
 
 </template>
@@ -75,11 +84,13 @@
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { topicListingLink, selectionRootLink } from '../lessonsRouterUtils';
+  import Bottom from '../../exams/CreateExamPage/Bottom';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -94,12 +105,14 @@
     },
     components: {
       ContentCardList,
+      KRouterLink,
       KButton,
       KGrid,
       KGridItem,
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
+      Bottom,
     },
     data() {
       return {
@@ -115,7 +128,7 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'pageName']),
+      ...mapState(['classId', 'pageName', 'toolbarRoute']),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       ...mapState('lessonSummary/resources', [
         'ancestorCounts',
