@@ -49,15 +49,15 @@ export default {
       const linkClass = 'link';
       const raisedClass = 'raised';
       if (this.appearance === BASIC_LINK) {
-        return [this.$computedClass(this.linkStyle), linkClass];
+        return [linkClass, this.primary ? 'primary' : 'secondary'];
       } else if (this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryRaisedStyle), raisedClass];
+        return [buttonClass, raisedClass, this.primary ? 'primary' : 'secondary'];
       } else if (this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryFlatStyle)];
+        return [buttonClass, this.primary ? 'primary' : 'secondary'];
       } else if (!this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryRaisedStyle), raisedClass];
+        return [buttonClass, raisedClass, this.primary ? 'primary' : 'secondary'];
       } else if (!this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryFlatStyle)];
+        return [buttonClass, this.primary ? 'primary' : 'secondary'];
       }
     },
 
