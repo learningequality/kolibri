@@ -86,10 +86,10 @@
       </KGridItem>
     </KGrid>
     <Bottom>
-      <KButton
+      <KRouterLink
         appearance="flat-button"
         :text="coachStrings.$tr('goBackAction')"
-        @click="close"
+        :to="toolbarRoute"
       />
       <KButton
         :text="coachStrings.$tr('finishAction')"
@@ -109,6 +109,7 @@
   import Draggable from 'vuedraggable';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -137,6 +138,7 @@
     components: {
       Draggable,
       ContentRenderer,
+      KRouterLink,
       KButton,
       QuestionListItemRandom,
       QuestionListItemOrdered,
@@ -212,9 +214,6 @@
       },
       handleEnd(event) {
         this.currentQuestionIndex = event.newIndex;
-      },
-      close() {
-        this.$router.push(this.toolbarRoute);
       },
       submit() {
         this.createExamAndRoute();

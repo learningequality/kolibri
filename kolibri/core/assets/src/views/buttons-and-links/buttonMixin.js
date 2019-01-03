@@ -53,11 +53,11 @@ export default {
       } else if (this.primary && this.appearance === RAISED_BUTTON) {
         return [buttonClass, raisedClass, this.primary ? 'primary' : 'secondary'];
       } else if (this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.primary ? 'primary' : 'secondary'];
+        return [buttonClass, this.primary ? 'primary' : 'secondary', 'flat'];
       } else if (!this.primary && this.appearance === RAISED_BUTTON) {
         return [buttonClass, raisedClass, this.primary ? 'primary' : 'secondary'];
       } else if (!this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.primary ? 'primary' : 'secondary'];
+        return [buttonClass, this.primary ? 'primary' : 'secondary', 'flat'];
       }
     },
 
