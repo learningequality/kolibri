@@ -85,43 +85,49 @@ def parse_package_page(files, pk_version):
     """
 
     for file in files.find_all('a'):
-        file_name = file.string.split('-')
-
         # We are not going to install the packages if they are:
         #   * not a whl file
         #   * not the version specified in requirements.txt
         #   * not python versions that kolibri supports
-        #   * for macosx or any 64-bit platforms, since the process of setup wizard has been fast enough
-        if (
-                file_name[-1].split('.')[-1] != 'whl' or
-                file_name[1] != pk_version or
-                file_name[2][2:] == '26' or
-                'macosx' in file_name[4].split('.')[0] or
-                '64' in file_name[4].split('.')[0]):
+        #   * not macosx or any 64-bit platforms, since the process of setup wizard has been fast enough
+        file_name_chunks = file.string.split('-')
 
+        # When the length of file_name_chunks is 2, it means the file is tar.gz.
+        if len(file_name_chunks) == 2:
+            continue
+
+        package_version = file_name_chunks[1]
+        package_name = file_name_chunks[0]
+        python_version = file_name_chunks[2][2:]
+        platform = file_name_chunks[4].split('.')[0]
+        implementation = file_name_chunks[2][:2]
+        abi = file_name_chunks[3]
+
+        if package_version != pk_version:
+            continue
+        if python_version == '26':
+            continue
+        if 'macosx' in platform:
+            continue
+        if '64' in platform:
             continue
 
         print('Installing {}...'.format(file.string))
 
-        implementation = file_name[2][:2]
-        python_version = file_name[2][2:]
-
-        path = os.path.join(DIST_CEXT, file_name[2])
-
-        abi = file_name[3]
-        platform = file_name[4].split('.')[0]
+        path = os.path.join(DIST_CEXT, file_name_chunks[2])
 
         #  Prior to CPython 3.3, there were two ABI-incompatible ways of building CPython
         if 'linux' in platform and implementation == 'cp' and int(python_version) < 33:
             # There could be abi tag 'm' for narrow-unicode and abi tag 'mu' for wide-unicode
             path = os.path.join(os.path.join(path, 'linux'), abi)
+
         path = get_path_with_arch(platform, path)
         if path == '':
             # Package is not supported in this platform
             continue
 
         download_return = download_package(
-            path, platform, python_version, implementation, abi, file_name[0],
+            path, platform, python_version, implementation, abi, package_name,
             pk_version)
 
         # Successfully downloaded package
