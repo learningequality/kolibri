@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <h1>{{ $tr('title') }}</h1>
     <h2>{{ $tr('questionOrder') }}</h2>
     <div>
@@ -30,17 +30,23 @@
     <KGrid>
       <KGridItem sizes="4, 4, 5" class="list-wrapper">
         <ul v-if="fixedOrder" class="question-list">
-          <QuestionListItemOrdered
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-            :questionNumberWithinExam="questionIndex + 1"
-            :questionNumberWithinExercise="questionIndex"
-            :totalFromExercise="selectedQuestions.length"
-            :isSelected="isSelected(question)"
-            :exerciseName="question.title"
-            :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-            @click="currentQuestionIndex = questionIndex"
-          />
+          <Draggable
+            :value="selectedQuestions"
+            :options="{animation:150}"
+            @input="handleDrag($event)"
+          >
+            <QuestionListItemOrdered
+              v-for="(question, questionIndex) in selectedQuestions"
+              :key="questionIndex"
+              :questionNumberWithinExam="questionIndex + 1"
+              :questionNumberWithinExercise="questionIndex"
+              :totalFromExercise="selectedQuestions.length"
+              :isSelected="isSelected(question)"
+              :exerciseName="question.title"
+              :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+              @click="currentQuestionIndex = questionIndex"
+            />
+          </Draggable>
         </ul>
         <ul v-else class="question-list">
           <QuestionListItemRandom
@@ -99,6 +105,7 @@
 
   import { mapState, mapActions, mapMutations } from 'vuex';
 
+  import Draggable from 'vuedraggable';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -127,6 +134,7 @@
       newQuestions: 'New question set created',
     },
     components: {
+      Draggable,
       ContentRenderer,
       KButton,
       QuestionListItemRandom,
@@ -190,6 +198,9 @@
           this.currentQuestion.exercise_id === question.exercise_id
         );
       },
+      handleDrag(questions) {
+        console.table(questions);
+      },
       close() {
         this.$router.push(this.toolbarRoute);
       },
@@ -232,6 +243,19 @@
     li {
       padding: 8px;
     }
+  }
+
+  .sortable-ghost {
+    visibility: hidden;
+  }
+
+  .sortable-ghost * {
+    visibility: hidden;
+  }
+
+  .wrapper {
+    padding: 16px;
+    background-color: white;
   }
 
 </style>

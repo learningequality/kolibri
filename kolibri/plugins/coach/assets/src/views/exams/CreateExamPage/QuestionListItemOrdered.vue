@@ -1,6 +1,6 @@
 <template>
 
-  <li :class="{selected: isSelected }">
+  <li class="item-wrapper" :class="{selected: isSelected }">
     <KButton
       v-if="!isSelected"
       class="nowrap"
@@ -15,7 +15,10 @@
       :value="isCoachContent ? 1 : 0"
       :isTopic="false"
     />
-    <div class="hidden-buttons visually-hidden">
+    <div class="handle">
+      <mat-svg name="drag_handle" category="editor" />
+    </div>
+    <div class="hidden-buttons">
       <UiIconButton
         type="flat"
         ariaLabel="up"
@@ -105,14 +108,16 @@
 
 <style lang="scss" scoped>
 
-  li {
+  .item-wrapper {
     position: relative;
     left: -8px;
     padding: 8px;
+    padding-right: 50px;
     padding-left: 50px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    background-color: white;
   }
 
   .nowrap {
@@ -121,14 +126,18 @@
 
   .selected {
     font-weight: bold;
-    background-color: #dadada;
     border-radius: 4px;
+  }
+
+  .handle {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    cursor: pointer;
   }
 
   .hidden-buttons {
     display: none;
-    // position: absolute;
-    // top: -50px;
   }
 
 </style>
