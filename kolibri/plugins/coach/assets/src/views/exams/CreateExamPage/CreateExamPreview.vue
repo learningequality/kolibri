@@ -2,33 +2,33 @@
 
   <div>
     <h1>{{ $tr('title') }}</h1>
-
-    <KGrid>
+    <h2>{{ $tr('questionOrder') }}</h2>
+    <div>
+      <KRadioButton
+        v-model="fixedOrder"
+        :label="coachStrings.$tr('orderRandomLabel')"
+        :description="coachStrings.$tr('orderRandomDescription')"
+        :value="false"
+      />
+      <KRadioButton
+        v-model="fixedOrder"
+        :label="coachStrings.$tr('orderFixedLabel')"
+        :description="coachStrings.$tr('orderFixedDescription')"
+        :value="true"
+      />
+    </div>
+    <h2>{{ $tr('questions') }}</h2>
+    <div>
+      <KButton
+        :text="$tr('randomize')"
+        appearance="basic-link"
+        :primary="false"
+        @click="getNewQuestionSet"
+      />
+    </div>
+    <hr>
+    <KGrid gutter="64">
       <KGridItem sizes="4, 3, 4">
-        <h2>{{ $tr('questionOrder') }}</h2>
-        <div>
-          <KRadioButton
-            v-model="fixedOrder"
-            :label="coachStrings.$tr('orderRandomLabel')"
-            :description="coachStrings.$tr('orderRandomDescription')"
-            :value="false"
-          />
-          <KRadioButton
-            v-model="fixedOrder"
-            :label="coachStrings.$tr('orderFixedLabel')"
-            :description="coachStrings.$tr('orderFixedDescription')"
-            :value="true"
-          />
-        </div>
-        <h2>{{ $tr('questions') }}</h2>
-        <div>
-          <KButton
-            :text="$tr('randomize')"
-            appearance="basic-link"
-            :primary="false"
-            @click="getNewQuestionSet"
-          />
-        </div>
         <ul class="question-list">
           <AssessmentQuestionListItem
             v-for="(question, questionIndex) in selectedQuestions"
@@ -43,7 +43,8 @@
           />
         </ul>
       </KGridItem>
-      <KGridItem v-if="!windowIsSmall" sizes="3, 5, 8">
+      <KGridItem sizes="4, 5, 8">
+        <h3 class="question-title">{{ currentQuestion.title }}</h3>
         <ContentRenderer
           v-if="content && questionId"
           :id="content.id"
@@ -62,8 +63,16 @@
       </KGridItem>
     </KGrid>
     <Bottom>
-      <KButton :text="coachStrings.$tr('goBackAction')" @click="close" />
-      <KButton :text="coachStrings.$tr('finishAction')" primary @click="submit" />
+      <KButton
+        appearance="flat-button"
+        :text="coachStrings.$tr('goBackAction')"
+        @click="close"
+      />
+      <KButton
+        :text="coachStrings.$tr('finishAction')"
+        primary
+        @click="submit"
+      />
     </Bottom>
   </div>
 
@@ -179,9 +188,18 @@
 
   @import '~kolibri.styles.definitions';
 
+  hr {
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
   .question-list {
     padding: 0;
     list-style: none;
+  }
+
+  .question-title {
+    text-align: center;
   }
 
 </style>
