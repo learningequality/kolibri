@@ -17,10 +17,6 @@ browser_requirements = [
         'major_version': 11,
     },
     {
-        'family': 'Mobile Safari',
-        'blacklist': True,
-    },
-    {
         'family': 'Android',
         'major_version': 4,
         'minor_version': 0,
