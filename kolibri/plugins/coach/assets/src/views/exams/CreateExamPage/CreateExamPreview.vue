@@ -1,7 +1,32 @@
 <template>
 
   <div class="wrapper">
-    <h1>{{ $tr('title') }}</h1>
+    <h2>Details</h2>
+    <KTextbox
+      ref="title"
+      v-model.trim="examTitle"
+      label="Title"
+      :autofocus="true"
+      :maxlength="100"
+    />
+    <KTextbox
+      ref="numQuest"
+      v-model.trim.number="examNumberOfQuestions"
+      type="number"
+      :min="1"
+      :max="50"
+      label="Number of questions"
+      @input="examNumberOfQuestions = $event"
+    />
+    <div>
+      <KButton
+        :text="$tr('randomize')"
+        appearance="basic-link"
+        :primary="false"
+        @click="getNewQuestionSet"
+      />
+    </div>
+    <br>
     <h2>{{ $tr('questionOrder') }}</h2>
     <div>
       <KRadioButton
@@ -18,15 +43,6 @@
       />
     </div>
     <h2>{{ $tr('questions') }}</h2>
-    <div>
-      <KButton
-        :text="$tr('randomize')"
-        appearance="basic-link"
-        :primary="false"
-        @click="getNewQuestionSet"
-      />
-    </div>
-    <hr>
     <KGrid>
       <KGridItem sizes="4, 4, 5" class="list-wrapper">
         <ul v-if="fixedOrder" class="question-list">
@@ -114,6 +130,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import QuestionListItemRandom from './QuestionListItemRandom';
   import QuestionListItemOrdered from './QuestionListItemOrdered';
@@ -146,6 +163,7 @@
       KGrid,
       KGridItem,
       Bottom,
+      KTextbox,
     },
     mixins: [responsiveWindow, coachStringsMixin],
     data() {
@@ -153,6 +171,8 @@
         currentQuestionIndex: 0,
         questions: [],
         fixedOrder: true,
+        examNumberOfQuestions: 10,
+        examTitle: '',
       };
     },
     computed: {
@@ -190,6 +210,10 @@
       fixedOrder(value) {
         this.setVuexFixedOrder(value);
       },
+      examNumberOfQuestions() {
+        this.setNumberOfQuestions(this.examNumberOfQuestions);
+        this.getNewQuestionSet();
+      },
     },
     mounted() {
       this.fixedOrder = this.learnersSeeFixedOrder;
@@ -198,6 +222,7 @@
       ...mapMutations('examCreation', {
         setVuexFixedOrder: 'SET_FIXED_ORDER',
         setVuexQuestions: 'SET_SELECTED_QUESTIONS',
+        setNumberOfQuestions: 'SET_NUMBER_OF_QUESTIONS',
       }),
       ...mapActions('examCreation', ['getNewQuestionSet', 'createExamAndRoute']),
       numCoachContents(exerciseId) {

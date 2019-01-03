@@ -2,39 +2,6 @@
 
   <div>
 
-    <template v-if="!inSearchMode">
-      <KTextbox
-        ref="title"
-        v-model.trim="examTitle"
-        :label="$tr('title')"
-        :autofocus="true"
-        :invalid="titleIsInvalid"
-        :invalidText="titleIsInvalidText"
-        :maxlength="100"
-        @blur="titleBlurred = true"
-      />
-      <KTextbox
-        ref="numQuest"
-        v-model.trim.number="examNumberOfQuestions"
-        type="number"
-        :min="1"
-        :max="50"
-        :label="$tr('numQuestions')"
-        :invalid="numQuestIsInvalid"
-        :invalidText="numQuestIsInvalidText"
-        @blur="numQuestBlurred = true"
-      />
-
-      <UiAlert
-        v-if="selectionIsInvalid"
-        type="error"
-        :dismissible="false"
-      >
-        {{ selectionIsInvalidText }}
-      </UiAlert>
-
-    </template>
-
     <KGrid>
       <KGridItem
         sizes="100, 50, 50"
@@ -46,17 +13,7 @@
         sizes="100, 50, 50"
         percentage
         alignments="left, right, right"
-      >
-        <ul class="items">
-          <li class="numItems">
-            {{ numExercisesString }}
-          </li>
-          <li class="numItems">
-            {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
-          </li>
-        </ul>
-
-      </KGridItem>
+      />
     </KGrid>
 
     <LessonsSearchBox
@@ -583,11 +540,11 @@
       },
       continueProcess() {
         this.previewOrSubmissionAttempt = true;
-        if (this.formIsInvalid) {
-          this.focusOnInvalidField();
-        } else {
-          this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
-        }
+        // if (this.formIsInvalid) {
+        //   this.focusOnInvalidField();
+        // } else {
+        this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
+        // }
       },
       focusOnInvalidField() {
         if (this.titleIsInvalid) {
