@@ -46,7 +46,17 @@
         sizes="100, 50, 50"
         percentage
         alignments="left, right, right"
-      />
+      >
+        <ul class="items">
+          <li class="numItems">
+            {{ numExercisesString }}
+          </li>
+          <li class="numItems">
+            {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
+          </li>
+        </ul>
+
+      </KGridItem>
     </KGrid>
 
     <LessonsSearchBox
@@ -95,15 +105,11 @@
     />
 
     <Bottom>
-      <ul class="items">
-        <li class="numItems">
-          {{ numExercisesString }}
-        </li>
-        <li class="numItems">
-          {{ coachStrings.$tr('numberOfQuestions', { value: availableQuestions }) }}
-        </li>
-      </ul>
-
+      <KRouterLink
+        appearance="flat-button"
+        :text="coachStrings.$tr('goBackAction')"
+        :to="toolbarRoute"
+      />
       <KButton
         :text="$tr('continueButtonlabel')"
         :primary="true"
@@ -123,6 +129,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -154,6 +161,7 @@
       };
     },
     components: {
+      KRouterLink,
       KButton,
       KTextbox,
       UiAlert,
@@ -209,7 +217,7 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'pageName']),
+      ...mapState(['classId', 'pageName', 'toolbarRoute']),
       ...mapGetters({
         channels: 'getChannels',
       }),
