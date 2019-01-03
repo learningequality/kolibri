@@ -117,6 +117,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: grab;
     background-color: white;
   }
 
@@ -133,7 +134,6 @@
     position: absolute;
     top: 6px;
     right: 8px;
-    cursor: pointer;
   }
 
   .hidden-buttons {

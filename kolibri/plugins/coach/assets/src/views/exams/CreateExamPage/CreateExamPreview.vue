@@ -32,8 +32,9 @@
         <ul v-if="fixedOrder" class="question-list">
           <Draggable
             :value="selectedQuestions"
-            :options="{animation:150}"
-            @input="handleDrag($event)"
+            :options="draggableOptions"
+            @input="handleDrag"
+            @end="handleEnd"
           >
             <QuestionListItemOrdered
               v-for="(question, questionIndex) in selectedQuestions"
@@ -159,6 +160,13 @@
         'learnersSeeFixedOrder',
       ]),
       ...mapState(['toolbarRoute']),
+      draggableOptions() {
+        return {
+          animation: 150,
+          touchStartThreshold: 3,
+          direction: 'vertical',
+        };
+      },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
@@ -187,6 +195,7 @@
     methods: {
       ...mapMutations('examCreation', {
         setVuexFixedOrder: 'SET_FIXED_ORDER',
+        setVuexQuestions: 'SET_SELECTED_QUESTIONS',
       }),
       ...mapActions('examCreation', ['getNewQuestionSet', 'createExamAndRoute']),
       numCoachContents(exerciseId) {
@@ -199,7 +208,10 @@
         );
       },
       handleDrag(questions) {
-        console.table(questions);
+        this.setVuexQuestions(questions);
+      },
+      handleEnd(event) {
+        this.currentQuestionIndex = event.newIndex;
       },
       close() {
         this.$router.push(this.toolbarRoute);
