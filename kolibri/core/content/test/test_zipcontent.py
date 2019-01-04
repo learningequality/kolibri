@@ -35,6 +35,7 @@ class ZipContentTestCase(TestCase):
 
         # Fetch with this header by default to run through non-hashi related behaviour.
         self.client = Client(HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.non_xhr_client = Client()
 
         provision_device()
 
@@ -147,8 +148,7 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_non_xhr_zip_file_nonexistent_internal_file_access(self):
-        client = Client()
-        response = client.get(self.zip_file_base_url + "qqq" + self.index_name)
+        response = self.non_xhr_client.get(self.zip_file_base_url + "qqq" + self.index_name)
         self.assertEqual(response.status_code, 404)
 
     def test_non_xhr_not_modified_response_when_if_modified_since_header_set_index_file(self):
@@ -162,26 +162,22 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.status_code, 304)
 
     def test_non_xhr_content_security_policy_header(self):
-        client = Client()
-        response = client.get(self.zip_file_base_url + self.index_name)
+        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
         self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
 
     def test_non_xhr_access_control_allow_origin_header(self):
-        client = Client()
-        response = client.get(self.zip_file_base_url + self.index_name)
+        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
-        response = client.options(self.zip_file_base_url + self.index_name)
+        response = self.non_xhr_client.options(self.zip_file_base_url + self.index_name)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
 
     def test_non_xhr_x_frame_options_header(self):
-        client = Client()
-        response = client.get(self.zip_file_base_url + self.index_name)
+        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
         self.assertEqual(response.get("X-Frame-Options", ""), "")
 
     def test_non_xhr_access_control_allow_headers(self):
-        client = Client()
         headerval = "X-Penguin-Dance-Party"
-        response = client.options(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        response = self.non_xhr_client.options(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
-        response = client.get(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
+        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)

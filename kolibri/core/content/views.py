@@ -117,6 +117,12 @@ class ZipContentView(View):
                 raise Http404('"{}" does not exist inside "{}"'.format(embedded_filepath, zipped_filename))
 
             if (not request.is_ajax()) and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
+                # Sets up our HTML5 zip file endpoint on Kolibri to serve up a
+                # special template that loads Hashi and then initializes it.
+                # Only do this when the request is not AJAX, as Hashi will fetch
+                # the real HTML file using an AJAX request, and presumably other
+                # dynamic loading of HTML content would also get confused if it
+                # got the special Hashi template back instead!
                 cache_key = 'hashi_bootstrap_html'
                 bootstrap_content = cache.get(cache_key)
                 if bootstrap_content is None:
