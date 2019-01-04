@@ -15,15 +15,19 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="kolibri-network-layer"
 NAME=kolibri-network-layer
 DAEMON_UWSGI=/usr/bin/uwsgi
-DAEMON_UWSGI_ARGS="--ini /usr/share/kolibri/kolibri.ini"
+MAIN=/usr/bin/kolibri
 CONFIG_FILE=/etc/default/kolibri
-PIDFILE_UWSGI=/var/run/$NAME/uwgsi.pid
-PROCESSNAME_UWSGI=uwgsi
+PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 # Exit if the package is not installed
-[ -x "$DAEMON" ] || exit 0
+[ -x "$MAIN" ] || exit 0
 
 # Read configuration variable file if it is present
 [ -r $CONFIG_FILE ] && . $CONFIG_FILE
+
+# I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
+DAEMON_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
+DAEMON_UWSGI_ARGS="--ini /usr/share/kolibri/kolibri.ini --uid=$KOLIBRI_USER \
+	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -35,12 +39,13 @@ PROCESSNAME_UWSGI=uwgsi
 
 do_start()
 {
-    mkdir -p /var/run/$NAME
-    chown "$KOLIBRI_USER" /var/run/$NAME
+	mkdir -p /var/run/$NAME
+	chown "$KOLIBRI_USER" /var/run/$NAME
 	# Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
+
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
 		|| return 1
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
@@ -60,7 +65,7 @@ do_stop_uwsgi()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name $PROCESSNAME_UWSGI
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name uwsgi
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
 	# Many daemons don't delete their pidfiles when they exit.
@@ -99,8 +104,7 @@ case "$1" in
 	esac
 	;;
   status)
-	status_of_proc "$DAEMON_HTTPD" "$PROCESSNAME_HTTPD" || exit $?
-	status_of_proc "$DAEMON" "$PROCESSNAME" && exit 0 || exit $?
+	status_of_proc "$DAEMON_UWSGI" "uwsgi" && exit 0 || exit $?
 	;;
   #reload|force-reload)
 	#
