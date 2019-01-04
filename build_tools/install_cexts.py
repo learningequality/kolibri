@@ -127,8 +127,11 @@ def parse_package_page(files, pk_version, index_url):
         else:
             # see https://github.com/learningequality/kolibri/issues/4656
             print('\nDownload failed for package {}.\n'.format(file.string))
-            continue
-            # sys.exit('\nDownload failed for package {}.\n'.format(file.string))
+
+            # We still need to have the program exit with error
+            # if something wrong with PyPi download.
+            if index_url == PYPI_DOWNLOAD:
+                sys.exit(1)
 
 
 def install(name, pk_version):
