@@ -8,7 +8,7 @@
     />
 
     <div class="wrapper-table">
-      <div class="table-row main-row" :style="{ backgroundColor: $coreActionNormal }">
+      <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $coreBgLight }">
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
@@ -291,6 +291,12 @@
       guestURL() {
         return urls['kolibri:core:guest']();
       },
+      backgroundImageStyle() {
+        return {
+          backgroundColor: this.$coreActionNormal,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
+        };
+      },
     },
     watch: {
       username: 'setSuggestionTerm',
@@ -447,11 +453,7 @@
   }
 
   .main-row {
-    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
-    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
-
     text-align: center;
-    background-image: $bk-img;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
