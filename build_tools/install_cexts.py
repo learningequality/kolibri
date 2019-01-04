@@ -86,43 +86,56 @@ def parse_package_page(files, pk_version, index_url):
     """
 
     for file in files.find_all('a'):
-        file_name = file.string.split('-')
-
         # We are not going to install the packages if they are:
         #   * not a whl file
         #   * not the version specified in requirements.txt
         #   * not python versions that kolibri supports
         #   * not macosx or win_x64 platforms,
         #     since the process of setup wizard has been fast enough
-        if (
-                file_name[-1].split('.')[-1] != 'whl' or
-                file_name[1] != pk_version or
-                file_name[2][2:] == '26' or
-                'macosx' in file_name[4].split('.')[0] or
-                ('win_amd64' in file_name[4].split('.')[0] and file_name[2][2:] != '34')):
 
+        file_name_chunks = file.string.split('-')
+
+        # When the length of file_name_chunks is 2, it means the file is tar.gz.
+        if len(file_name_chunks) == 2:
+            continue
+
+        package_version = file_name_chunks[1]
+        package_name = file_name_chunks[0]
+        python_version = file_name_chunks[2][2:]
+        platform = file_name_chunks[4].split('.')[0]
+        implementation = file_name_chunks[2][:2]
+        abi = file_name_chunks[3]
+
+        if package_version != pk_version:
+            continue
+        if python_version == '26':
+            continue
+        if 'macosx' in platform:
+            continue
+        if 'win_amd64' in platform and python_version != '34':
             continue
 
         print('Installing {}...'.format(file.string))
 
-        path = os.path.join(DIST_CEXT, file_name[2])
-        implementation = file_name[2][:2]
-        python_version = file_name[2][2:]
-        abi = file_name[3]
-        platform = file_name[4].split('.')[0]
-
-        path = get_path_with_arch(platform, path, abi, implementation, python_version)
+        version_path = os.path.join(DIST_CEXT, file_name_chunks[2])
+        package_path = get_path_with_arch(platform, version_path, abi, implementation, python_version)
 
         download_return = download_package(
-            path, platform, python_version, implementation, abi, file_name[0],
+            package_path, platform, python_version, implementation, abi, package_name,
             pk_version, index_url)
 
         # Successfully download package
         if download_return == 0:
-            install_package_by_wheel(path)
+            install_package_by_wheel(package_path)
         # Download failed
         else:
-            sys.exit('\nDownload failed for package {}.\n'.format(file.string))
+            # see https://github.com/learningequality/kolibri/issues/4656
+            print('\nDownload failed for package {}.\n'.format(file.string))
+
+            # We still need to have the program exit with error
+            # if something wrong with PyPi download.
+            if index_url == PYPI_DOWNLOAD:
+                sys.exit(1)
 
 
 def install(name, pk_version):
