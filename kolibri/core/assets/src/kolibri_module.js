@@ -5,6 +5,11 @@
  */
 
 import coreApp from 'kolibri';
+import urls from 'kolibri.urls';
+import setWebpackPublicPath from './utils/setWebpackPublicPath';
+
+// Do this to set a public path for this module
+setWebpackPublicPath(urls);
 
 export default class KolibriModule {
   /**

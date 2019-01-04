@@ -157,10 +157,9 @@ def kolibri_navigation_actions():
 def kolibri_set_urls(context):
     js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
     js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
-    js = (js_reverse_inline(context) +
-          """
+    js = (js_reverse_inline(context) + """
           Object.assign({kolibri}.urls, {global_object}.{js_var});
-          {kolibri}.urls.__staticURL = '{static_url}';
+          {kolibri}.urls.__setStaticURL('{static_url}');
           """.format(
         kolibri=conf.KOLIBRI_CORE_JS_NAME,
         global_object=js_global_object_name,
