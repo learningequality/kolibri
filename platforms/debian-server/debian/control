@@ -1,0 +1,19 @@
+Source: kolibri-network-layer
+Section: education
+Priority: extra
+Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
+Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>
+           Benjamin Bach <benjamin@learningequality.org>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.8
+Homepage: https://learningequality.org/kolibri
+
+Package: kolibri-network-layer
+Architecture: all
+Depends: kolibri, nginx, uwsgi, uwsgi-plugin-python3
+Description: Improve Kolibri server network configuration
+ This package automates uwsgi and nginx configuration for
+ Kolibri to take all the benefits from the multicore
+ processors most servers have.
+ It also uses nginx caching capabilities to improve static
+ files requests.
