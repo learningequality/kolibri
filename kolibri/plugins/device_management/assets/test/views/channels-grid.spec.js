@@ -111,8 +111,8 @@ describe('channelsGrid component', () => {
     const { channelListItems } = getElements(wrapper);
     return wrapper.vm.$nextTick().then(() => {
       const items = channelListItems();
-      assert.equal(items.at(0).props().channel.id, 'awesome_channel');
-      assert.equal(items.at(1).props().channel.id, 'beautiful_channel');
+      assert.equal(items.at(1).props().channel.id, 'awesome_channel');
+      assert.equal(items.at(0).props().channel.id, 'beautiful_channel');
     });
   });
 

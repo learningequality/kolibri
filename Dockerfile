@@ -16,10 +16,14 @@ RUN apt-get update && apt-get install -y \
     python3.6 \
     python-pip \
     git \
+    git-lfs \
     nodejs \
     yarn \
     gettext \
     python-sphinx
+
+RUN git lfs install
+
 COPY . /kolibri
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
