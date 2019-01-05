@@ -12,12 +12,12 @@
     "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
-    "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt",
+    "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "kolibri-tools build dev --file ./build_tools/build_plugins.txt --hot",
     "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
-    "devserver": "npm-run-all --parallel django-devserver watch lint:watch",
+    "devserver": "npm-run-all --parallel django-devserver watch lint:watch hashi-dev",
     "devserver-hot": "npm-run-all --parallel django-devserver watch-hot lint:watch",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
@@ -28,7 +28,9 @@
     "lint:watch": "yarn lint-all -w -m",
     "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build",
-    "publish-packages": "node ./packages/publish.js"
+    "publish-packages": "node ./packages/publish.js",
+    "hashi-dev": "yarn workspace hashi run dev",
+    "hashi-build": "yarn workspace hashi run build"
   },
   "repository": {
     "type": "git",
