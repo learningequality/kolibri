@@ -49,7 +49,7 @@ export default {
         });
         return convertExamQuestionSourcesV0V1(
           state.exam.question_sources,
-          state.exam.v0_seed,
+          state.exam.seed,
           questionIds
         );
       }

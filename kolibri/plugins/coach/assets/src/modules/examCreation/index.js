@@ -2,11 +2,15 @@ import unionBy from 'lodash/unionBy';
 import find from 'lodash/find';
 import * as actions from './actions';
 
+function getRandomInt() {
+  return Math.floor(Math.random() * 1000);
+}
+
 function defaultState() {
   return {
     title: '',
     numberOfQuestions: 10,
-    seed: Math.random(), // consistent seed is used for question selection
+    seed: getRandomInt(), // consistent seed is used for question selection
     contentList: [],
     selectedExercises: [],
     availableQuestions: 0,
@@ -56,7 +60,7 @@ export default {
       state.numberOfQuestions = numberOfQuestions;
     },
     RANDOMIZE_SEED(state) {
-      state.seed = Math.random();
+      state.seed = getRandomInt();
     },
     SET_FIXED_ORDER(state, value) {
       state.learnersSeeFixedOrder = value;

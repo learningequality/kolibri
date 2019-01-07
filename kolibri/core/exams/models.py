@@ -57,6 +57,18 @@ class Exam(AbstractFacilityDataModel):
     """
     question_sources = JSONField(default=[], blank=True)
 
+    """
+    This field is interpretted differently depending on the 'data_model_version' field.
+
+    V1:
+        Used to help select new questions from exercises at quiz creation time
+
+    V0:
+        Used to decide which questions are in an exam at runtime.
+        See convertExamQuestionSourcesV0V1 in exams/utils.js for details.
+    """
+    seed = models.IntegerField(default=1)
+
     # When True, learners see questions in the order they appear in 'question_sources'.
     # When False, each learner sees questions in a random (but consistent) order seeded
     #   by their user's UUID.
@@ -84,13 +96,6 @@ class Exam(AbstractFacilityDataModel):
     with their version numbers.
     """
     data_model_version = models.SmallIntegerField(default=0)
-
-    # Earlier, a random seed we use to decide which questions are in an exam.
-    # This value is used on the client-side to deterministically select questions from
-    # exercises and show them in a particular order. See convertExamQuestionSourcesV0V1
-    # in exams/utils.js for details.
-    v0_seed = models.IntegerField(default=1)
-
 
     def infer_dataset(self, *args, **kwargs):
         return self.creator.dataset_id

@@ -47,7 +47,7 @@ const fakeExams = [
         title: 'exercise title 2',
       },
     ],
-    v0_seed: 1234,
+    seed: 1234,
     learners_see_fixed_order: false,
     data_model_version: 0,
     assignments: [
@@ -87,7 +87,7 @@ const fakeExams = [
         title: 'exercise title 5',
       },
     ],
-    v0_seed: 4321,
+    seed: 4321,
     learners_see_fixed_order: false,
     data_model_version: 0,
     assignments: [
@@ -141,7 +141,7 @@ const fakeExams = [
         title: 'exercise title 5',
       },
     ],
-    v0_seed: 4321,
+    seed: 4321,
     learners_see_fixed_order: true,
     data_model_version: 1,
     assignments: [
@@ -188,7 +188,7 @@ const fakeExamState = [
         title: 'exercise title 2',
       },
     ],
-    v0_seed: 1234,
+    seed: 1234,
     dataModelVersion: 0,
     learnersSeeFixedOrder: false,
     assignments: [
@@ -228,7 +228,7 @@ const fakeExamState = [
         title: 'exercise title 5',
       },
     ],
-    v0_seed: 4321,
+    seed: 4321,
     dataModelVersion: 0,
     learnersSeeFixedOrder: false,
     assignments: [
@@ -282,7 +282,7 @@ const fakeExamState = [
         title: 'exercise title 5',
       },
     ],
-    v0_seed: 4321,
+    seed: 4321,
     dataModelVersion: 1,
     learnersSeeFixedOrder: true,
     assignments: [

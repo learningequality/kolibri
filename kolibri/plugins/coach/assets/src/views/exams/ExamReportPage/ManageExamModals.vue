@@ -137,11 +137,10 @@
           .trim();
         const exam = {
           collection: selectedClassroomId,
-          channel_id: this.exam.channel_id,
           title,
           question_count: this.exam.question_count,
           question_sources: this.exam.question_sources,
-          seed: this.exam.v0_seed,
+          seed: this.exam.seed,
           assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
         this.copyExam({ exam, className: this.className });

@@ -93,8 +93,8 @@ export function fetchAdditionalSearchResults(store, params) {
 export function createExamAndRoute(store) {
   const exam = {
     collection: store.rootState.classId,
-    channel_id: 'no channel',
     title: store.state.title,
+    seed: store.state.seed,
     question_count: store.state.numberOfQuestions,
     question_sources: store.state.selectedQuestions,
     assignments: [{ collection: store.rootState.classId }],

@@ -22,7 +22,6 @@ class Migration(migrations.Migration):
             name='learners_see_fixed_order',
             field=models.BooleanField(default=False),
         ),
-        migrations.RenameField(model_name='exam', old_name='seed', new_name='v0_seed'),
         migrations.RemoveField(
             model_name='exam',
             name='channel_id',

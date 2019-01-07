@@ -106,7 +106,7 @@ export function showExam(store, params) {
             // If necessary, convert the question source info
             const questions =
               exam.data_model_version === 0
-                ? convertExamQuestionSourcesV0V1(exam.question_sources, exam.v0_seed, questionIds)
+                ? convertExamQuestionSourcesV0V1(exam.question_sources, exam.seed, questionIds)
                 : exam.question_sources;
 
             // Exam is drawing solely on malformed exercise data, best to quit now

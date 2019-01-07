@@ -17,7 +17,7 @@ export function examState(exam) {
     assignments: exam.assignments,
     learnersSeeFixedOrder: exam.learners_see_fixed_order,
     dataModelVersion: exam.data_model_version,
-    v0_seed: exam.v0_seed,
+    seed: exam.seed,
   };
 }
 
