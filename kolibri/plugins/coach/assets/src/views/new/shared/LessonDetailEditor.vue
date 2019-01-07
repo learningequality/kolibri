@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <h1>{{ $tr('editLesson') }}</h1>
     <h2>{{ $tr('details') }}</h2>
     <KTextbox
       v-model="lessonTitle"
@@ -66,6 +67,7 @@
       };
     },
     $trs: {
+      editLesson: 'Edit lesson',
       details: 'Details',
       lessonTitle: 'Title',
       duplicateTitle: 'A lesson with that name already exists',

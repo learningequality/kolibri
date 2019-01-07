@@ -16,6 +16,7 @@
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
     <iframe
+      ref="iframe"
       class="iframe"
       :style="{ backgroundColor: $coreBgCanvas }"
       sandbox="allow-scripts"
@@ -32,8 +33,10 @@
 
   import { mapGetters } from 'vuex';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import { now } from 'kolibri.utils.serverClock';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import Hashi from '../../../../../../packages/hashi';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -60,11 +63,12 @@
       },
     },
     mounted() {
+      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
+      this.hashi.onStateUpdate(data => {
+        this.$emit('updateContentState', data);
+      });
+      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', 1);
-      }, 15000);
     },
     beforeDestroy() {
       if (this.timeout) {

@@ -3,14 +3,24 @@
   <div class="item">
     <h3>{{ name }}</h3>
     <p><Recipients :groups="groups" /></p>
-    <Completed
+
+    <LearnerProgressRatio
       :count="completedItems"
       :total="totalItems"
+      :verbosity="2"
+      :icon="completedItems === totalItems ? 'star' : 'clock'"
+      verb="completed"
     />
-    <NeedHelp
-      class="float"
+
+    <LearnerProgressCount
+      v-if="needHelp"
       :count="needHelp"
+      :verbosity="0"
+      icon="help"
+      verb="needHelp"
+      class="float"
     />
+
   </div>
 
 </template>
@@ -18,17 +28,11 @@
 
 <script>
 
-  import NeedHelp from '../shared/status/NeedHelp';
-  import Completed from '../shared/status/Completed';
-  import Recipients from '../shared/Recipients';
+  import imports from '../imports';
 
   export default {
     name: 'ItemProgressDisplay',
-    components: {
-      NeedHelp,
-      Completed,
-      Recipients,
-    },
+    mixins: [imports],
     props: {
       name: {
         type: String,
@@ -59,6 +63,7 @@
 <style lang="scss" scoped>
 
   .item {
+    margin-bottom: 8px;
     border-top: 1px solid gray;
   }
 

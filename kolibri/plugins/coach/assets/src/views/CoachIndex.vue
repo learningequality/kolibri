@@ -9,7 +9,7 @@
       :immersivePagePrimary="immersivePagePrimary"
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
-      :showSubNav="Boolean(classId) && showCoachNav"
+      :showSubNav="Boolean(classId) && showCoachNav && !currentPageIsImmersive"
     >
 
       <!-- COACH - under construction ... -->
@@ -18,6 +18,10 @@
 
       <div v-if="isNewPage" class="coach-debug">
         <pre>{{ $route.params.page }}</pre>
+        <p class="coach-warning">
+          MOCKUP FOR TRANSLATION:<br>
+          not the final design or functionality
+        </p>
       </div>
       <!-- ... COACH - under construction -->
 
@@ -74,11 +78,11 @@
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
-  import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReport';
+  import LessonResourceUserReportPage from './reports/LearnerExerciseDetailPage/LearnerExerciseReportOld';
   import LessonResourceUserSummaryPage from './lessons/LessonResourceUserSummaryPage';
 
   /* COACH - under construction ... */
-  import newPageMap from './new/newPages';
+  import { newPageMap, newImmersivePages } from './new/newPages';
   /* ... COACH - under construction */
 
   const logging = logger.getLogger(__filename);
@@ -267,7 +271,7 @@
       },
       showCoachNav() {
         if (this.isNewPage) {
-          return this.$route.params.page !== 'ClassListPage';
+          return this.$route.params.page !== 'CoachClassListPage';
         }
         /* ... COACH - under construction */
         return (
@@ -279,11 +283,7 @@
       currentPageIsImmersive() {
         /* COACH - under construction ... */
         if (this.isNewPage) {
-          return [
-            'ReportsLessonEditorPage',
-            'ReportsLessonManagerPage',
-            'ReportsLessonResourcePage',
-          ].includes(this.$route.params.page);
+          return newImmersivePages.includes(this.$route.params.page);
         }
         /* ... COACH - under construction */
         return immersivePages.includes(this.pageName);
@@ -401,7 +401,6 @@
   .new-coach-block {
     padding: 8px 24px 24px;
     margin-top: 24px;
-    overflow-x: scroll;
     background-color: white;
     border: 1px solid rgb(240, 240, 240);
     border-radius: 4px;
@@ -422,15 +421,26 @@
     }
   }
 
+  .table-head {
+    font-size: smaller;
+    border-bottom: 1px solid rgb(223, 223, 223);
+  }
+
   .coach-debug {
     position: fixed;
     right: 0;
     bottom: 0;
     left: 0;
-    height: 80px;
-    padding: 8px;
+    z-index: 1000;
+    height: 100px;
     font-weight: bold;
+    text-align: center;
     background-color: white;
+    border-top: 1px solid gray;
+
+    .coach-warning {
+      color: red;
+    }
   }
 
   .new-coach-tab.router-link-active {

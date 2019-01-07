@@ -13,7 +13,7 @@
 
     <CoachContentLabel
       class="coach-content-label"
-      :value="isCoachContent"
+      :value="isCoachContent ? 1 : 0"
       :isTopic="false"
     />
   </li>

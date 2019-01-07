@@ -2,7 +2,7 @@
 
   <span>
     <template v-if="value === undefined">-</template>
-    <template v-else>{{ $tr('score', {score: value}) }}</template>
+    <template v-else>{{ coachStrings.$tr('percentage', {value}) }}</template>
   </span>
 
 </template>
@@ -10,9 +10,12 @@
 
 <script>
 
+  import { coachStringsMixin } from './commonCoachStrings';
+
   export default {
     name: 'Score',
     components: {},
+    mixins: [coachStringsMixin],
     props: {
       value: {
         type: Number,
@@ -21,9 +24,6 @@
           return value >= 0 && value <= 1;
         },
       },
-    },
-    $trs: {
-      score: '{score, number, percent}',
     },
   };
 

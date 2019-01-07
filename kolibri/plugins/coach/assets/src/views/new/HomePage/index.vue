@@ -1,17 +1,21 @@
 <template>
 
-  <KGrid>
+  <KGrid :gutter="8">
     <KGridItem size="100" percentage>
-      <OverviewBlock />
+      <OverviewBlock class="new-coach-block" />
     </KGridItem>
-    <KGridItem size="50" percentage>
-      <LessonsBlock />
+    <KGridItem sizes="100, 100, 50" percentage>
+      <KGrid :gutter="8">
+        <KGridItem size="100" percentage>
+          <QuizzesBlock class="new-coach-block" />
+        </KGridItem>
+        <KGridItem size="100" percentage>
+          <LessonsBlock class="new-coach-block" />
+        </KGridItem>
+      </KGrid>
     </KGridItem>
-    <KGridItem size="50" percentage>
-      <QuizzesBlock />
-    </KGridItem>
-    <KGridItem size="100" percentage>
-      <ActivityBlock />
+    <KGridItem sizes="100, 100, 50" percentage>
+      <ActivityBlock class="new-coach-block" />
     </KGridItem>
   </KGrid>
 
@@ -20,8 +24,7 @@
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import imports from '../imports';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
@@ -30,17 +33,22 @@
   export default {
     name: 'HomePage',
     components: {
-      KGrid,
-      KGridItem,
       OverviewBlock,
       ActivityBlock,
       LessonsBlock,
       QuizzesBlock,
     },
+    mixins: [imports],
     $trs: {},
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .new-coach-block {
+    margin-top: 8px;
+  }
+
+</style>
