@@ -28,6 +28,7 @@
 
   .wrapper {
     position: relative;
+    margin-right: 16px;
   }
 
   .label {
@@ -36,7 +37,7 @@
 
   .wrapper svg {
     position: absolute;
-    top: 0;
+    top: -1px;
     width: 16px;
   }
 

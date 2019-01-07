@@ -1,19 +1,19 @@
 <template>
 
-  <div class="new-coach-block">
-    <h2>{{ $tr('quizzes') }}</h2>
+  <div>
+    <h2>{{ coachStrings.$tr('quizzesLabel') }}</h2>
     <p>
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'test'} }"
+        :to="newCoachRoute('ReportsQuizListPage')"
       />
     </p>
     <div>
       <ItemProgressDisplay
         name="A quiz!"
-        :completedItems="1"
-        :totalItems="2"
+        :completedItems="10"
+        :totalItems="10"
         :needHelp="3"
         :groups="[]"
       />
@@ -39,18 +39,17 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import imports from '../imports';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   export default {
     name: 'QuizzesBlock',
     components: {
       ItemProgressDisplay,
-      KRouterLink,
     },
+    mixins: [imports],
     $trs: {
-      quizzes: 'Quizzes',
-      viewAll: 'View all',
+      viewAll: 'All quizzes',
     },
   };
 

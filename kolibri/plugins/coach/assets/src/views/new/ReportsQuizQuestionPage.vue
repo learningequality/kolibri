@@ -3,10 +3,10 @@
   <div>
     <BackLink text="Some quiz" :to="backLink" />
     <h1>Question 1</h1>
-    <p>{{ $tr('attempts') }}</p>
-    <p>{{ $tr('showCorrectAnswer') }}</p>
+    <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
+    <p>{{ coachStrings.$tr('showCorrectAnswerLabel') }}</p>
     <p>{{ $tr('summary', {count: 4}) }}</p>
-    <h2>{{ $tr('learners') }}</h2>
+    <h2>{{ coachStrings.$tr('learnersLabel') }}</h2>
     <ul>
       <li><Answer type="noAttempt" /></li>
       <li><Answer type="correct" /></li>
@@ -21,27 +21,18 @@
 
 <script>
 
-  import BackLink from './shared/BackLink';
-  import Answer from './shared/Answer';
+  import imports from './imports';
 
   export default {
     name: 'ReportsQuizQuestionPage',
-    components: {
-      BackLink,
-      Answer,
-    },
+    components: {},
+    mixins: [imports],
     computed: {
       backLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsQuizQuestionListPage' },
-        };
+        return this.newCoachRoute('ReportsQuizQuestionListPage');
       },
     },
     $trs: {
-      attempts: 'Attempts',
-      showCorrectAnswer: 'Show correct answer',
-      learners: 'Learners',
       summary:
         '{count, number, integer} {count, plural, one {learner} other {learners}} got this question incorrect',
     },

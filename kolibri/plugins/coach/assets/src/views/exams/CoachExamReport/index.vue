@@ -91,7 +91,7 @@
       },
     },
     $trs: {
-      documentTitle: 'Quiz Report Detail',
+      documentTitle: 'Quiz report detail',
       missingContent: 'This quiz cannot be displayed because some content was deleted',
     },
   };

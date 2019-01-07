@@ -4,39 +4,49 @@
 
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonListPage'} }"
+        :to="newCoachRoute('ReportsQuizListPage')"
         :text="$tr('back')"
       />
     </p>
     <h1>Some quiz</h1>
     <KDropdownMenu
       slot="optionsDropdown"
-      :text="$tr('options')"
+      :text="coachStrings.$tr('optionsLabel')"
       :options="actionOptions"
       appearance="raised-button"
       @select="goTo($event.value)"
     />
     <dl>
-      <dt>{{ $tr('status') }}</dt>
+      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
       <dd><QuizActive :active="true" /></dd>
-      <dt>{{ $tr('recipients') }}</dt>
+      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
       <dd><Recipients :groups="[]" /></dd>
-      <dt>{{ $tr('progress') }}</dt>
-      <dd><Completed :count="3" :total="10" :verbosity="1" /></dd>
-      <dt>{{ $tr('questionOrder') }}</dt>
-      <dd><QuestionOrder order="random" /></dd>
+      <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
+      <dd>
+        <LearnerProgressRatio
+          :count="1"
+          :total="3"
+          :verbosity="2"
+          verb="completed"
+          icon="clock"
+        />
+      </dd>
+      <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
+      <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
     </dl>
 
     <div>
-      <KButton
-        :text="$tr('learnerReport')"
+      <KRouterLink
+        :text="coachStrings.$tr('reportLabel')"
         appearance="flat-button"
-        @click="goTo('ReportsQuizLearnerListPage')"
+        class="new-coach-tab"
+        :to="link('ReportsQuizLearnerListPage')"
       />
-      <KButton
-        :text="$tr('difficulties')"
+      <KRouterLink
+        :text="coachStrings.$tr('difficultQuestionsLabel')"
         appearance="flat-button"
-        @click="goTo('ReportsQuizQuestionListPage')"
+        class="new-coach-tab"
+        :to="link('ReportsQuizQuestionListPage')"
       />
     </div>
 
@@ -58,30 +68,21 @@
     computed: {
       actionOptions() {
         return [
-          { label: this.$tr('preview'), value: 'ReportsQuizPreviewPage' },
-          { label: this.$tr('editDetails'), value: 'ReportsQuizEditorPage' },
+          { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
+          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
     },
     methods: {
       goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+        this.$router.push(this.newCoachRoute(page));
+      },
+      link(page) {
+        return this.newCoachRoute(page);
       },
     },
     $trs: {
-      back: 'View all quizzes',
-      editDetails: 'Edit details',
-      preview: 'Preview',
-      options: 'Options',
-      learnerReport: 'Report',
-      status: 'Status',
-      recipients: 'Recipients',
-      progress: 'Progress',
-      questionOrder: 'Question order',
-      questionOrderFixed: 'Fixed',
-      questionOrderRandom: 'Randomized',
-      difficulties: 'Difficult questions',
-      viewByGroups: 'View by groups',
+      back: 'All quizzes',
     },
   };
 

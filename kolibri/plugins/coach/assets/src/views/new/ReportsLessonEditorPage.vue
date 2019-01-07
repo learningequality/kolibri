@@ -2,10 +2,11 @@
 
   <div class="new-coach-block">
     <LessonDetailEditor />
-    <p><KButton :text="$tr('manageResources')" /></p>
-    <h2>{{ $tr('numResources', { count: 2 }) }}</h2>
+    <p><KButton :text="coachStrings.$tr('manageResourcesAction')" /></p>
+    <h2>{{ coachStrings.$tr('numberOfResources', { value: 2 }) }}</h2>
     <pre>ResourceListTable</pre>
-    <KButton :text="$tr('save')" :primary="true" />
+    <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
+    <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
   </div>
 
 </template>
@@ -13,15 +14,15 @@
 
 <script>
 
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import imports from './imports';
   import LessonDetailEditor from './shared/LessonDetailEditor';
 
   export default {
     name: 'ReportsLessonEditorPage',
     components: {
-      KButton,
       LessonDetailEditor,
     },
+    mixins: [imports],
     data() {
       return {
         lessonTitle: 'Lesson A',
@@ -32,11 +33,7 @@
         isActive: true,
       };
     },
-    $trs: {
-      manageResources: 'Manage resources',
-      save: 'Save',
-      numResources: '{count, number, integer} {count, plural, one {resource} other {resources}}',
-    },
+    $trs: {},
   };
 
 </script>

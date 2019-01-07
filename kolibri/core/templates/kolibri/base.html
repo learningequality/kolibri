@@ -27,52 +27,7 @@
 {% csrf_token %}
 {% if supported_browser %}
 <rootvue>
-  <style>
-    .container{
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-
-    .rel{
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .flapping-kolibri {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 125px;
-      height: 125px;
-      background: url("{% static 'assets/loading-spinner.gif' %}") no-repeat center;
-      background-size: contain;
-      transform: translate(-50%, -50%);
-      animation: fadeIn;
-      animation-duration: 1s;
-      animation-delay: 1s;
-      animation-fill-mode: both;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0
-      }
-      to {
-        opacity: 1
-      }
-    }
-  </style>
-
-  <div class="container">
-    <div class="rel">
-      <div class="flapping-kolibri"></div>
-    </div>
-  </div>
-
+  {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
 {% kolibri_language_globals %}

@@ -2,26 +2,7 @@
 
   <div>
     <BackLink text="Some quiz" :to="backLink" />
-    <h1>Adam</h1>
-
-    <dl>
-      <dt>{{ $tr('overallScore') }}</dt>
-      <dd><Score :value="0.5" /></dd>
-      <dt>{{ $tr('questionsCorrect') }}</dt>
-      <dd>{{ $tr('ratio', {count:10, total: 12}) }}</dd>
-    </dl>
-
-    <p>{{ $tr('answers') }}</p>
-    <p>{{ $tr('attempts') }}</p>
-    <p>{{ $tr('showCorrectAnswer') }}</p>
-    <h2>{{ $tr('answers') }}</h2>
-    <ul>
-      <li><Answer type="noAttempt" /></li>
-      <li><Answer type="correct" /></li>
-      <li><Answer type="incorrect" /></li>
-      <li><Answer type="error" /></li>
-      <li><Answer type="hint" /></li>
-    </ul>
+    <LearnerQuizReport />
   </div>
 
 </template>
@@ -30,26 +11,20 @@
 <script>
 
   import imports from './imports';
+  import LearnerQuizReport from './shared/LearnerQuizReport';
 
   export default {
     name: 'ReportsQuizLearnerPage',
-    components: {},
+    components: {
+      LearnerQuizReport,
+    },
     mixins: [imports],
     computed: {
       backLink() {
-        return {
-          name: 'NEW_COACH_PAGES',
-          params: { page: 'ReportsQuizLearnerListPage' },
-        };
+        return this.newCoachRoute('ReportsQuizLearnerListPage');
       },
     },
-    $trs: {
-      overallScore: 'Overall score',
-      questionsCorrect: 'Questions correct',
-      ratio: '{count, number, integer} out of {total, number, integer}',
-      answers: 'Answers',
-      showCorrectAnswer: 'Show correct answer',
-    },
+    $trs: {},
   };
 
 </script>

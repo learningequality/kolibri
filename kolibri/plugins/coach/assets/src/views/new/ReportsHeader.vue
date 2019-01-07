@@ -3,37 +3,37 @@
   <div>
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ClassListPage'} }"
+        :to="newCoachRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ $tr('reports') }}</h1>
-    <p>View reports for your learners and class materials</p>
+    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
+    <p>{{ $tr('description') }}</p>
     <div>
       <KRouterLink
-        :text="$tr('lessons')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonListPage' }}"
+        :text="coachStrings.$tr('lessonsLabel')"
+        :to="newCoachRoute('ReportsLessonListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('quizzes')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsQuizListPage' }}"
+        :text="coachStrings.$tr('quizzesLabel')"
+        :to="newCoachRoute('ReportsQuizListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('learners')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLearnersList' }}"
+        :text="coachStrings.$tr('groupsLabel')"
+        :to="newCoachRoute('ReportsGroupListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
-        :text="$tr('groups')"
-        :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsGroupsList' }}"
+        :text="coachStrings.$tr('learnersLabel')"
+        :to="newCoachRoute('ReportsLearnerListPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
@@ -47,22 +47,15 @@
 
 <script>
 
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import BackLink from './shared/BackLink';
+  import imports from './imports';
 
   export default {
     name: 'ReportsHeader',
-    components: {
-      KRouterLink,
-      BackLink,
-    },
+    components: {},
+    mixins: [imports],
     $trs: {
-      back: 'View all classes',
-      reports: 'Reports',
-      lessons: 'Lessons',
-      quizzes: 'Quizzes',
-      learners: 'Learners',
-      groups: 'Groups',
+      back: 'All classes',
+      description: 'View reports for your learners and class materials',
     },
   };
 

@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="{ name:'NEW_COACH_PAGES', params: {page: 'ReportsLessonPage'} }"
+        :to="newCoachRoute('ReportsLessonReportPage')"
         :text="$tr('back', { lesson: lessonName })"
       />
     </p>
@@ -12,24 +12,23 @@
     <p>Advanced counting</p>
 
     <p>
-      {{ $tr('masteryModelLabel') }}
+      {{ coachStrings.$tr('masteryModelLabel') }}
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
 
-    <KButton :text="$tr('preview')" />
-    <KCheckbox :label="$tr('viewByGroups')" />
+    <KButton :text="coachStrings.$tr('previewAction')" />
 
     <div>
       <KRouterLink
         appearance="flat-button"
         class="new-coach-tab"
-        :text="$tr('learnerReport')"
+        :text="coachStrings.$tr('reportLabel')"
         :to="link('ReportsLessonExerciseLearnerListPage')"
       />
       <KRouterLink
         appearance="flat-button"
         class="new-coach-tab"
-        :text="$tr('difficulties')"
+        :text="coachStrings.$tr('difficultQuestionsLabel')"
         :to="link('ReportsLessonExerciseQuestionListPage')"
       />
     </div>
@@ -61,11 +60,6 @@
     },
     $trs: {
       back: "Back to '{lesson}'",
-      preview: 'Preview',
-      masteryModelLabel: 'Completion requirement:',
-      learnerReport: 'Report',
-      difficulties: 'Difficult questions',
-      viewByGroups: 'View by groups',
     },
   };
 
