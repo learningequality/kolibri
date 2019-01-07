@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "Akaunti yenye jina hilo la mtumiaji tayari ipo",
   "ProfilePage.usernameNotAlphaNumUnderscore": "Jina la mtumiaji ni lazima liwe na herufi, namba and kistari chini",
   "ProfilePage.youCan": "Unaweza",
-  "SignInPage.accessAsGuest": "Endelea kama mgeni",
+  "SignInPage.accessAsGuest": "",
   "SignInPage.createAccount": "Tengeneza akaunti",
   "SignInPage.documentTitle": "Kuingia kwa Mtumiaji",
   "SignInPage.enterPassword": "Ingiza nywila",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "Jina la mtumiaji ni lazima liwe na herufi, namba and kistari chini",
   "SignUpPage.usernameAlreadyExistsError": "Akaunti yenye jina hilo la mtumiaji tayari ipo",
   "UserIndex.userProfileTitle": "Wasifu",
+  "UserIndex.userSignInTitle": "",
+  "UserIndex.userSignUpTitle": "",
   "UserPageSnackbars.dismiss": "Ondoa",
   "UserPageSnackbars.signedOut": "Umetolewa moja kwa moja kwa kutotumia",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Nywila imebadilishwa"

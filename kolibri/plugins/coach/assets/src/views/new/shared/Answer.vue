@@ -76,10 +76,10 @@
       },
     },
     $trs: {
-      noAttempt: 'No attempt was made',
+      noAttempt: 'Learner made no attempts',
       correct: 'Correct answer given',
       incorrect: 'Incorrect answer given',
-      hint: 'A hint was taken',
+      hint: 'Learner asked for a hint',
       error: 'An unknown error occurred',
     },
   };

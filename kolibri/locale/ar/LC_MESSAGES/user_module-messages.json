@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "يوجد حساب بهذا الاسم",
   "ProfilePage.usernameNotAlphaNumUnderscore": "اسم المستخدم يمكن أن يحتوي فقط على أحرف وأرقام ومحارف سفلية (_)",
   "ProfilePage.youCan": "بإمكانك ذلك",
-  "SignInPage.accessAsGuest": "متابعة التصفح كزائر",
+  "SignInPage.accessAsGuest": "استكشاف المنصة دون إنشاء حساب",
   "SignInPage.createAccount": "إنشاء حساب",
   "SignInPage.documentTitle": "تسجيل دخول المستخدم",
   "SignInPage.enterPassword": "أَدْخل كلمة المرور",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "اسم المستخدم يمكن أن يحتوي فقط على أحرف وأرقام ومحارف سفلية (_)",
   "SignUpPage.usernameAlreadyExistsError": "يوجد حساب بهذا الاسم",
   "UserIndex.userProfileTitle": "الملف الشخصي",
+  "UserIndex.userSignInTitle": "تسجل الدخول",
+  "UserIndex.userSignUpTitle": "تسجيل الاشتراك",
   "UserPageSnackbars.dismiss": "رفض",
   "UserPageSnackbars.signedOut": "تم نسجيل خروجك تلقائياً بسبب عدم النشاط",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "تم تغيير كلمة المرور"

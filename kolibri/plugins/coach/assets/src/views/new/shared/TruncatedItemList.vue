@@ -2,7 +2,7 @@
 
   <span>
     <template v-if="!items.length">
-      -
+      {{ $tr('noItems') }}
     </template>
     <template v-else-if="items.length === 1">
       {{ items[0] }}
@@ -33,6 +33,7 @@
       },
     },
     $trs: {
+      noItems: '–',
       twoItems: '{item1}, {item2}',
       threeItems: '{item1}, {item2}, {item3}',
       manyItems: '{item1}, {item2}, and {count, number, integer} others',

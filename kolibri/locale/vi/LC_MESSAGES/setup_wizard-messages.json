@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "Thuật sĩ thiết lập",
   "SetupWizardIndex.onboardingFinishButton": "Hoàn tất",
   "SetupWizardIndex.onboardingNextStepButton": "Tiếp tục",
-  "SetupWizardIndex.personalFacilityName": "Địa điểm nhà {name}",
+  "SetupWizardIndex.personalFacilityName": "",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Tài khoản này cho phép bạn quản lý địa điểm, nội dung và tài khoản người dùng trên thiết bị",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Tạo tài khoản siêu quản trị viên",
   "SuperuserCredentialsForm.adminNameFieldLabel": "Họ tên",

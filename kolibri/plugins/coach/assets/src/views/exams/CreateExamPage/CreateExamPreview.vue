@@ -3,8 +3,8 @@
   <KModal
     ref="modal"
     :title="$tr('title')"
-    :cancelText="$tr('back')"
-    :submitText="$tr('finish')"
+    :cancelText="coachStrings.$tr('goBackButton')"
+    :submitText="coachStrings.$tr('finishButton')"
     size="large"
     :width="`${windowWidth - 16}px`"
     :height="`${windowHeight - 16}px`"
@@ -25,14 +25,14 @@
           <div>
             <KRadioButton
               v-model="isRandom"
-              :label="$tr('randomizedLabel')"
-              :description="$tr('randomizedDescription')"
+              :label="coachStrings.$tr('orderRandomLabel')"
+              :description="coachStrings.$tr('orderRandomDescription')"
               :value="true"
             />
             <KRadioButton
               v-model="isRandom"
-              :label="$tr('fixedLabel')"
-              :description="$tr('fixedDescription')"
+              :label="coachStrings.$tr('orderFixedLabel')"
+              :description="coachStrings.$tr('orderFixedDescription')"
               :value="false"
             />
           </div>
@@ -45,7 +45,7 @@
             class="o-y-auto"
           >
             <div>
-              {{ $tr('numQuestions', { num: availableExamQuestionSources.length }) }}
+              {{ coachStrings.$tr('numberOfQuestions', { num: availableExamQuestionSources.length }) }}
             </div>
             <div>
               <KButton
@@ -119,23 +119,17 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
   import AssessmentQuestionListItem from '../AssessmentQuestionListItem';
+  import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
 
   export default {
     name: 'CreateExamPreview',
     $trs: {
       title: 'Select questions',
       backLabel: 'Select topics or exercises',
-      back: 'Go back',
-      finish: 'Finish',
-      numQuestions: '{num} {num, plural, one {question} other {questions}}',
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
       questionOrder: 'Question order',
       questions: 'Questions',
-      randomizedLabel: 'Randomized',
-      randomizedDescription: 'Each learner sees a different question order',
-      fixedLabel: 'Fixed',
-      fixedDescription: 'Each learner sees the same question order',
       newQuestions: 'New question set created',
     },
     components: {
@@ -148,7 +142,7 @@
       KGridItem,
       KCircularLoader,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, coachStringsMixin],
     props: {
       examQuestionSources: {
         type: Array,

@@ -81,11 +81,16 @@ ADD_BRANCH_URL = CROWDIN_API_URL.format(
     cmd="add-directory",
     params="&name={branch}&is_branch=1&json",
 )
+# pre-translate all strings matches, and auto-approve only those with exact ID matches
 PRETRANSLATE_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
     key=CROWDIN_API_KEY,
     cmd="pre-translate",
-    params="&method=tm&approve_translated=1&auto_approve_option=1&json&&apply_untranslated_strings_only=1&perfect_match=1",
+    # perfect_match=0 - apply TM to all identical strings, regardless of ID
+    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
+    # import_duplicates=1 - not sure? in the UI this is mutually exclusive with apply_untranslated_strings_only
+    # approve_translated=1 - only auto-approve "perfect" matches, i.e. those with the same ID
+    params="&method=tm&approve_translated=1&auto_approve_option=1&json&apply_untranslated_strings_only=1import_duplicates=1&perfect_match=0",
 )
 UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -170,7 +175,6 @@ def command_pretranslate(branch):
     """
     Applies pre-translation to the given branch on Crowdin
     """
-    logging.info("Crowdin: pre-translating '{}'...".format(branch))
     params = []
     files = [
         "{}/{}".format(branch, f)
@@ -179,9 +183,11 @@ def command_pretranslate(branch):
     params.extend([("files[]", file) for file in files])
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
     params.extend([("languages[]", code) for code in codes])
+
+    logging.info("Crowdin: pre-translating strings and pre-approving exact matches in '{}'...".format(branch))
     r = requests.post(PRETRANSLATE_URL, params=params)
     r.raise_for_status()
-    logging.info("Crowdin: pre-translate succeeded!")
+    logging.info("Crowdin: succeeded!")
 
 
 """
@@ -371,15 +377,26 @@ Stats command
 """
 
 STATS_TEMPLATE = """
+=================================================================
+==  Summary  ====================================================
 
-Branch: {branch}
+{summary_table}
 
-New since last release:
-{totals_table}
+=================================================================
+==  Word counts  ================================================
 
-Untranslated:
-{branch_table}
+Total words: {words_total}
 
+{words_table}
+
+=================================================================
+==  String counts  ==============================================
+
+Total strings: {strings_total}
+
+{strings_table}
+
+=================================================================
 """
 
 
@@ -392,15 +409,16 @@ def command_stats(branch):
     def _is_branch_node(node):
         return node["node_type"] == "branch" and node["name"] == branch
 
-    total_strings = None
-    total_words = None
-
-    branch_table = []
+    strings_table = []
+    strings_total = 0
+    words_table = []
+    words_total = 0
 
     sorted_languages = sorted(
         utils.supported_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
     )
     for lang in sorted_languages:
+
         logging.info("Retrieving stats for {}...".format(lang[utils.KEY_ENG_NAME]))
         r = requests.post(LANG_STATUS_URL.format(language=lang[utils.KEY_CROWDIN_CODE]))
         r.raise_for_status()
@@ -412,31 +430,57 @@ def command_stats(branch):
             logging.error("Branch '{}' not found on Crowdin".format(branch))
             sys.exit(1)
 
-        strs = branch_node["phrases"]
-        strs_fin = branch_node["approved"]
-        words = branch_node["words"]
-        words_fin = branch_node["words_approved"]
-
-        total_strings = strs
-        total_words = words
-
-        branch_table.append(
-            (lang[utils.KEY_ENG_NAME], strs - strs_fin, words - words_fin)
+        strings_table.append(
+            (
+                lang[utils.KEY_ENG_NAME],
+                branch_node["phrases"] - branch_node["translated"],
+                branch_node["translated"] - branch_node["approved"],
+            )
+        )
+        words_table.append(
+            (
+                lang[utils.KEY_ENG_NAME],
+                branch_node["words"] - branch_node["words_translated"],
+                branch_node["words_translated"] - branch_node["words_approved"],
+            )
         )
 
-    totals_table = [("Total strings", total_strings), ("Total words", total_words)]
-    avg_new_strings = round(sum([row[1] for row in branch_table]) / len(branch_table))
-    avg_new_words = round(sum([row[2] for row in branch_table]) / len(branch_table))
-    branch_table.insert(
-        0, ("** average, all languages **", avg_new_strings, avg_new_words)
-    )
-    branch_table_headers = ["Language", "Strings", "Words"]
+        strings_total = branch_node["phrases"]  # should be the same across languages
+        words_total = branch_node["words"]  # should be the same across languages
 
+    avg_untranslated_strings = round(sum([row[1] for row in strings_table]) / len(strings_table))
+    avg_unapproved_strings = round(sum([row[2] for row in strings_table]) / len(strings_table))
+    strings_table.append(
+        (
+            "Average - all languages",
+            avg_untranslated_strings,
+            avg_unapproved_strings,
+        )
+    )
+    avg_untranslated_words = round(sum([row[1] for row in words_table]) / len(words_table))
+    avg_unapproved_words = round(sum([row[2] for row in words_table]) / len(words_table))
+    words_table.append(
+        (
+            "Average - all languages",
+            avg_untranslated_words,
+            avg_unapproved_words,
+        )
+    )
+    summary_table_headers = ["", "Untranslated", "Needs approval"]
+    summary_table = [
+        ("Words", avg_untranslated_words, avg_unapproved_words),
+        ("Strings", avg_untranslated_strings, avg_unapproved_strings),
+    ]
+    strings_table_headers = ["Language", "Untranslated", "Needs approval"]
+    words_table_headers = ["Language", "Untranslated", "Needs approval"]
     logging.info(
         STATS_TEMPLATE.format(
             branch=branch,
-            totals_table=tabulate(totals_table),
-            branch_table=tabulate(branch_table, headers=branch_table_headers),
+            summary_table=tabulate(summary_table, headers=summary_table_headers),
+            words_total=words_total,
+            words_table=tabulate(words_table, headers=words_table_headers),
+            strings_total=strings_total,
+            strings_table=tabulate(strings_table, headers=strings_table_headers),
         )
     )
 

@@ -11,10 +11,10 @@
     <table class="new-coach-table">
       <thead>
         <tr>
-          <td>{{ $tr('tableHeaderTitle') }}</td>
-          <td>{{ $tr('tableHeaderCompleted') }}</td>
-          <td>{{ $tr('tableHeaderRecipients') }}</td>
-          <td>{{ $tr('tableHeaderStatus') }}</td>
+          <td>{{ coachStrings.$tr('titleLabel') }}</td>
+          <td>{{ coachStrings.$tr('progressLabel') }}</td>
+          <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
+          <td>{{ coachStrings.$tr('statusLabel') }}</td>
         </tr>
       </thead>
       <tbody>
@@ -22,10 +22,18 @@
           <td>
             <KRouterLink
               text="Lesson A"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonPage' }}"
+              :to="newCoachRoute('ReportsLessonReportPage')"
             />
           </td>
-          <td><Completed :count="1" :total="100" /></td>
+          <td>
+            <LearnerProgressRatio
+              :count="1"
+              :total="100"
+              verbosity="0"
+              verb="completed"
+              icon="learners"
+            />
+          </td>
           <td><Recipients :groups="[]" /></td>
           <td><LessonActive :active="true" /></td>
         </tr>
@@ -33,12 +41,26 @@
           <td>
             <KRouterLink
               text="Lesson B"
-              :to="{name: 'NEW_COACH_PAGES', params: { page: 'ReportsLessonPage' }}"
+              :to="newCoachRoute('ReportsLessonReportPage')"
             />
           </td>
-          <td><Completed :count="3" :total="10" /></td>
           <td>
-            <Recipients :groups="[1, 2]" /> &nbsp; <NeedHelp :count="3" />
+            <LearnerProgressRatio
+              :count="3"
+              :total="10"
+              verbosity="0"
+              verb="completed"
+              icon="learners"
+            />
+          </td>
+          <td>
+            <Recipients :groups="['group A', 'group B']" />
+            <LearnerProgressCount
+              verb="needHelp"
+              icon="help"
+              :count="3"
+              :verbosity="0"
+            />
           </td>
           <td><LessonActive :active="false" /></td>
         </tr>
@@ -51,25 +73,15 @@
 
 <script>
 
-  import KSelect from 'kolibri.coreVue.components.KSelect';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import Recipients from './shared/Recipients';
-  import LessonActive from './shared/LessonActive';
-  import Completed from './shared/status/Completed';
-  import NeedHelp from './shared/status/NeedHelp';
+  import imports from './imports';
   import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLessonListPage',
     components: {
-      LessonActive,
-      Recipients,
-      Completed,
-      NeedHelp,
       ReportsHeader,
-      KSelect,
-      KRouterLink,
     },
+    mixins: [imports],
     data() {
       return {
         filter: 'allLessons',
@@ -101,10 +113,6 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      tableHeaderTitle: 'Title',
-      tableHeaderCompleted: 'Completed',
-      tableHeaderRecipients: 'Recipients',
-      tableHeaderStatus: 'Status',
     },
   };
 

@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "Leer la documentación",
+  "DemoServerIndex.demoServerA2": "Descargar e instalar la última versión",
+  "DemoServerIndex.demoServerHeader": "¡Bienvenidas y bienvenidos a la demo de Kolibri en línea!",
+  "DemoServerIndex.demoServerL1": "Estudiante (nombre de usuario: '{user}', contraseña: '{pass}') o acceder como invitado",
+  "DemoServerIndex.demoServerL2": "Tutor (nombre de usuario: '{user}', contraseña: '{pass}')",
+  "DemoServerIndex.demoServerL3": "Administrador (nombre de usuario: '{user}', contraseña: '{pass}')",
+  "DemoServerIndex.demoServerP1": "Podéis navegar usando cualquiera de estos tipos de usuario:",
+  "DemoServerIndex.demoServerP2": "Esta demo de Kolibri en línea incluye todas las características y funcionalidades de la última versión, pero contiene solo una muestra parcial del contenido que está disponible para su uso localmente y fuera de línea. La demo está pensada para servir como el sitio de pruebas y exploración, y los datos de usuarios se borrarán periódicamente.",
+  "DemoServerIndex.demoServerP3": "Para aprender más sobre el uso de Kolibri en contextos fuera de línea, y entender mejor el funcionamiento de la plataforma:"
+}
