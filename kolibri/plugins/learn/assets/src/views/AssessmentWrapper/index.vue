@@ -21,12 +21,13 @@ oriented data synchronization.
     <div>
       <ContentRenderer
         ref="contentRenderer"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
+        :id="id"
+        :kind="kind"
+        :lang="lang"
+        :files="files"
+        :contentId="contentId"
         :channelId="channelId"
-        :available="content.available"
+        :available="available"
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
@@ -148,6 +149,9 @@ oriented data synchronization.
         type: String,
         required: true,
       },
+      lang: {
+        type: Object,
+      },
       kind: {
         type: String,
         required: true,
@@ -208,9 +212,6 @@ oriented data synchronization.
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-      }),
       ...mapState({
         pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
@@ -220,16 +221,6 @@ oriented data synchronization.
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
       }),
-      viewingInLesson() {
-        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
-      },
-      // HACK handle when in viewing in Lesson or not
-      content() {
-        if (this.viewingInLesson) {
-          return this.$store.state.lessonPlaylist.resource.content;
-        }
-        return this.topicsTreeContent;
-      },
       randomize() {
         return this.content.randomize;
       },

@@ -169,11 +169,12 @@
           paddingLeft: padding,
           paddingRight: padding,
         };
+        const isRtl = this.gridMetrics && this.gridMetrics.direction === 'rtl';
         if (this.currentAlignment) {
           // TODO: rename the alignment inputs to 'start' and 'end'
-          if (this.isRtl && this.currentAlignment === 'left') {
+          if (isRtl && this.currentAlignment === 'left') {
             style.textAlign = 'right';
-          } else if (this.isRtl && this.currentAlignment === 'right') {
+          } else if (isRtl && this.currentAlignment === 'right') {
             style.textAlign = 'left';
           } else {
             style.textAlign = this.currentAlignment;
