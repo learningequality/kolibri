@@ -24,9 +24,6 @@ function showExamCreationPage(store, params) {
           store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
         }
         store.commit('SET_PAGE_NAME', pageName);
-        store.commit('SET_TOOLBAR_ROUTE', {
-          name: PageNames.EXAMS,
-        });
         store.dispatch('notLoading');
       },
       error => {
@@ -47,6 +44,9 @@ export function showExamCreationRootPage(store, params) {
         title: channel.name,
         kind: ContentNodeKinds.CHANNEL,
       }));
+      store.commit('SET_TOOLBAR_ROUTE', {
+        name: PageNames.EXAMS,
+      });
       return showExamCreationPage(store, {
         classId: params.classId,
         contentList: channelContentList,
@@ -71,6 +71,10 @@ export function showExamCreationTopicPage(store, params) {
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
       return filterAndAnnotateContentList(childNodes).then(contentList => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
+        });
+
         return showExamCreationPage(store, {
           classId: params.classId,
           contentList,
@@ -140,6 +144,11 @@ export function showExamCreationSearchPage(store, params, query = {}) {
     } else {
       kinds = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
     }
+
+    store.commit('SET_TOOLBAR_ROUTE', {
+      name: PageNames.EXAM_CREATION_ROOT,
+      params: {},
+    });
 
     return ContentNodeSearchResource.fetchCollection({
       getParams: {

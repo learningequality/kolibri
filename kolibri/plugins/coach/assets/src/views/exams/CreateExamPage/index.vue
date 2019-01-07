@@ -10,39 +10,19 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <KGrid>
-      <KGridItem
-        sizes="100, 50, 50"
-        percentage
-      >
-        <h1>{{ $tr('chooseExercises') }}</h1>
-      </KGridItem>
-      <KGridItem
-        sizes="100, 50, 50"
-        percentage
-        alignments="left, right, right"
-      />
-    </KGrid>
+    <h1>{{ $tr('chooseExercises') }}</h1>
 
     <LessonsSearchBox
       class="search-box"
       @searchterm="handleSearchTerm"
     />
 
-    <template v-if="inSearchMode">
-      <KButton
-        :text="$tr('exitSearchButtonLabel')"
-        appearance="raised-button"
-        @click="handleExitSearch"
-      />
-
-      <LessonsSearchFilters
-        v-model="filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-    </template>
-
+    <LessonsSearchFilters
+      v-if="inSearchMode"
+      v-model="filters"
+      :searchTerm="searchTerm"
+      :searchResults="searchResults"
+    />
     <ResourceSelectionBreadcrumbs
       v-else
       :ancestors="ancestors"
@@ -69,7 +49,15 @@
       @moreresults="handleMoreResults"
     />
 
-    <Bottom>
+    <Bottom v-if="inSearchMode">
+      <KRouterLink
+        appearance="raised-button"
+        :text="$tr('exitSearchButtonLabel')"
+        primary
+        :to="toolbarRoute"
+      />
+    </Bottom>
+    <Bottom v-else>
       <KRouterLink
         appearance="flat-button"
         :text="coachStrings.$tr('goBackAction')"
@@ -77,7 +65,7 @@
       />
       <KButton
         :text="$tr('continueButtonlabel')"
-        :primary="true"
+        primary
         @click="continueProcess"
       />
     </Bottom>
@@ -443,25 +431,6 @@
           .catch(() => {
             this.moreResultsState = 'error';
           });
-      },
-      handleExitSearch() {
-        const lastId = this.$route.query.last_id;
-        if (lastId) {
-          this.$router.push({
-            name: PageNames.EXAM_CREATION_TOPIC,
-            params: {
-              classId: this.classId,
-              topicId: lastId,
-            },
-          });
-        } else {
-          this.$router.push({
-            name: PageNames.EXAM_CREATION_ROOT,
-            params: {
-              classId: this.classId,
-            },
-          });
-        }
       },
       continueProcess() {
         if (this.selectionIsInvalidText) {

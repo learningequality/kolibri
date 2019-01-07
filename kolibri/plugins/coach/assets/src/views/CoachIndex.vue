@@ -344,13 +344,12 @@
         const backButtonPages = [
           LessonsPageNames.CONTENT_PREVIEW,
           ...resourceUserPages,
+          LessonsPageNames.SELECTION_SEARCH,
           PageNames.EXAM_REPORT_DETAIL,
           PageNames.EXAM_CREATION_PREVIEW,
           PageNames.EXAM_CREATION_QUESTION_SELECTION,
+          PageNames.EXAM_CREATION_SEARCH,
         ];
-        if (selectionPages.includes(this.pageName) || examCreationPages.includes(this.pageName)) {
-          return null;
-        }
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
         }

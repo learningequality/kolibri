@@ -10,13 +10,6 @@
         sizes="100, 100, 50"
         percentage
       >
-        <KButton
-          v-if="inSearchMode"
-          class="exit-search-button"
-          :text="$tr('exitSearchButtonLabel')"
-          appearance="raised-button"
-          @click="handleExitSearch"
-        />
         <LessonsSearchBox @searchterm="handleSearchTerm" />
       </KGridItem>
 
@@ -63,7 +56,7 @@
 
     <Bottom>
       <KRouterLink
-        text="Finish"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachStrings.$tr('finishAction')"
         primary
         appearance="raised-button"
         :to="toolbarRoute"
@@ -91,6 +84,7 @@
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { topicListingLink, selectionRootLink } from '../lessonsRouterUtils';
   import Bottom from '../../exams/CreateExamPage/Bottom';
+  import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -114,6 +108,7 @@
       ResourceSelectionBreadcrumbs,
       Bottom,
     },
+    mixins: [coachStringsMixin],
     data() {
       return {
         // null corresponds to 'All' filter value
@@ -393,10 +388,6 @@
 
 
 <style lang="scss" scoped>
-
-  .exit-search-button {
-    margin-left: 0;
-  }
 
   .search-filters {
     margin-top: 24px;
