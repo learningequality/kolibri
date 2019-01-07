@@ -117,7 +117,6 @@ oriented data synchronization.
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
-  import { ClassesPageNames } from '../../constants';
   import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
@@ -172,6 +171,18 @@ oriented data synchronization.
         type: Boolean,
         default: false,
       },
+      assessmentIds: {
+        type: Array,
+        required: true,
+      },
+      randomize: {
+        type: Boolean,
+        required: true,
+      },
+      masteryModel: {
+        type: Object,
+        required: true,
+      },
       extraFields: {
         type: Object,
         default: () => {},
@@ -182,17 +193,6 @@ oriented data synchronization.
       },
     },
     data() {
-      let masteryModel;
-      let assessmentIds;
-      // HACK handle if called in context of lesson
-      const { state } = this.$store;
-      if (state.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-        masteryModel = state.lessonPlaylist.resource.content.masteryModel;
-        assessmentIds = state.lessonPlaylist.resource.content.assessmentIds;
-      } else {
-        masteryModel = state.topicsTree.content.masteryModel;
-        assessmentIds = state.topicsTree.content.assessmentIds;
-      }
       return {
         ready: false,
         itemId: '',
@@ -205,9 +205,6 @@ oriented data synchronization.
         // Attempted fix for #1725
         checkingAnswer: false,
         checkWasAttempted: false,
-        // Placing these here so they are available at beforeDestroy
-        masteryModel,
-        assessmentIds,
       };
     },
     computed: {
@@ -221,9 +218,6 @@ oriented data synchronization.
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
       }),
-      randomize() {
-        return this.content.randomize;
-      },
       recentAttempts() {
         if (!this.pastattempts) {
           return [];
