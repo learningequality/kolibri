@@ -1,4 +1,4 @@
-Feature: Guest change language
+Feature: Guest changes language
   Guest needs to be able to change language on sign-in page, and from the user drop down menu while browsing content as a guest
 
   Background:
@@ -20,15 +20,6 @@ Feature: Guest change language
     Given that I am browsing Kolibri content as a guest
     When I open the user menu
       And I click *Change language*
-    Then I see the *Change language* modal
-    When I select <language>
-     And I click *Confirm* button
-    Then the modal closes
-      And I see Kolibri UI in <language> language
-
-  Scenario: Change language from the sidebar
-    When I open the sidebar from the top left icon
-      And I click *Change language* 
     Then I see the *Change language* modal
     When I select <language>
      And I click *Confirm* button
