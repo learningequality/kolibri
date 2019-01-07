@@ -1,4 +1,4 @@
-Feature: Learner engage content channels
+Feature: Learner engages content channels
   Learner needs to engage with content on Channels tab
 
   Background:
