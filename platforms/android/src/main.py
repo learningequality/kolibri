@@ -72,8 +72,9 @@ class Application(pew.ui.PEWApp):
 
         # Set loading screen
         loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
-        loader_url = 'file://{}'.format(loader_page)
-        self.view = pew.ui.WebUIView("Kolibri", loader_url, delegate=self)
+        self.loader_url = 'file://{}'.format(loader_page)
+        self.kolibri_loaded = False
+        self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
         # start thread
         self.thread = pew.ui.PEWThread(target=start_django)
@@ -90,7 +91,7 @@ class Application(pew.ui.PEWApp):
         self.view.show()
         return 0
 
-    def load_complete(self):
+    def page_loaded(self, url):
         """
         This is a PyEverywhere delegate method to let us know the WebView is ready to use.
         """
@@ -99,9 +100,10 @@ class Application(pew.ui.PEWApp):
         # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
         # during load, so we do it here.
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if pew.ui.platform == 'android':
+        if pew.ui.platform == 'android' and not self.kolibri_loaded and url != self.loader_url:
             # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
             # for clarity.
+            self.kolibri_loaded = True
             self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
