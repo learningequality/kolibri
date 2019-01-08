@@ -7,13 +7,13 @@ performance problems due to the locks on the main database.
 
 None of these models will have Morango synchronization
 """
+from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from enum import Enum
 
 from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils import conf
 from kolibri.utils.time import local_now
 
 
@@ -27,7 +27,7 @@ class NotificationsRouter(object):
     """
 
     def __init__(self):
-        self.sqlite = conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite"
+        self.sqlite = settings.DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3'
 
     def db_for_read(self, model, **hints):
         """Send all read operations on Notifications app models to `notifications_db`."""
