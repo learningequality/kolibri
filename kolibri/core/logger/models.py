@@ -243,8 +243,8 @@ class BaseAttemptLog(BaseLogModel):
 
 class AttemptLog(BaseAttemptLog):
     """
-    This model provides a summary of a user's interactions with a question in an exercise.
-    It should probably be called ExerciseAttemptLog to distinguish it from ExamAttemptLog
+    This model provides a summary of a user's interactions with a question in a content node.
+    (Think of it like a ContentNodeAttemptLog to distinguish it from ExamAttemptLog and BaseAttemptLog)
     """
 
     morango_model_name = 'attemptlog'
