@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import warnings
+
 from django.utils.safestring import mark_safe
 
 
@@ -16,7 +18,14 @@ def webpack_asset_render(HookClass, is_async=False, **kwargs):
 
     # Backwards compatibility: The reserved keyword 'async' was used before.
     # May be removed in 0.12+.
-    is_async = kwargs.pop('async', is_async)
+    async_deprecated = kwargs.pop('async', None)
+    if async_deprecated is not None:
+        is_async = async_deprecated
+        warnings.warn(
+            "Using 'async' keyword in webpack_asset_render() is removed in "
+            "kolibri 0.12",
+            DeprecationWarning
+        )
 
     tags = []
     for hook in HookClass().registered_hooks:
