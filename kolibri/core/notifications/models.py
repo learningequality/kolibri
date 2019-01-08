@@ -7,8 +7,6 @@ performance problems due to the locks on the main database.
 
 None of these models will have Morango synchronization
 """
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -17,6 +15,12 @@ from enum import Enum
 from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time import local_now
+
+# Remove NotificationsRouter if sqlite is not being used:
+if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
+    if 'kolibri.core.notifications.models.NotificationsRouter' in settings.DATABASE_ROUTERS:
+        settings.DATABASE_ROUTERS = tuple(filter(lambda x: x != 'kolibri.core.notifications.models.NotificationsRouter',
+                                                 settings.DATABASE_ROUTERS))
 
 
 class NotificationsRouter(object):
@@ -28,18 +32,15 @@ class NotificationsRouter(object):
         `kolibri manage migrate notifications --database=notifications_db`
     """
 
-    def __init__(self):
-        self.sqlite = settings.DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3'
-
     def db_for_read(self, model, **hints):
         """Send all read operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications' and self.sqlite:
+        if model._meta.app_label == 'notifications':
             return 'notifications_db'
         return None
 
     def db_for_write(self, model, **hints):
         """Send all write operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications' and self.sqlite:
+        if model._meta.app_label == 'notifications':
             return 'notifications_db'
         return None
 
@@ -47,8 +48,6 @@ class NotificationsRouter(object):
         """Determine if relationship is allowed between two objects."""
 
         # Allow any relation between two models that are both in the Notifications app.
-        if not self.sqlite:
-            return None
         if obj1._meta.app_label == 'notifications' and obj2._meta.app_label == 'notifications':
             return True
         # No opinion if neither object is in the Notifications app (defer to default or other routers).
@@ -60,8 +59,6 @@ class NotificationsRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the Notifications app's models get created on the right database."""
-        if not self.sqlite:
-            return False
         if app_label == 'notifications':
             # The Notifications app should be migrated only on the notifications_db database.
             return db == 'notifications_db'
