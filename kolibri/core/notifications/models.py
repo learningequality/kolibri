@@ -13,6 +13,7 @@ from enum import Enum
 
 from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
+from kolibri.utils import conf
 from kolibri.utils.time import local_now
 
 
@@ -25,15 +26,18 @@ class NotificationsRouter(object):
         `kolibri manage migrate notifications --database=notifications_db`
     """
 
+    def __init__(self):
+        self.sqlite = conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite"
+
     def db_for_read(self, model, **hints):
         """Send all read operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications':
+        if model._meta.app_label == 'notifications' and self.sqlite:
             return 'notifications_db'
         return None
 
     def db_for_write(self, model, **hints):
         """Send all write operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications':
+        if model._meta.app_label == 'notifications' and self.sqlite:
             return 'notifications_db'
         return None
 
@@ -41,6 +45,8 @@ class NotificationsRouter(object):
         """Determine if relationship is allowed between two objects."""
 
         # Allow any relation between two models that are both in the Notifications app.
+        if not self.sqlite:
+            return None
         if obj1._meta.app_label == 'notifications' and obj2._meta.app_label == 'notifications':
             return True
         # No opinion if neither object is in the Notifications app (defer to default or other routers).
@@ -52,6 +58,8 @@ class NotificationsRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the Notifications app's models get created on the right database."""
+        if not self.sqlite:
+            return False
         if app_label == 'notifications':
             # The Notifications app should be migrated only on the notifications_db database.
             return db == 'notifications_db'
