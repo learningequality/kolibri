@@ -182,6 +182,12 @@ LANGUAGES = [
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
 EXTRA_LANG_INFO = {
+    'ff-cm': {
+        'bidi': False,
+        'code': 'ff-cm',
+        'name': 'Fulfulde (Cameroon)',
+        'name_local': 'Fulfulde Mbororoore',
+    },
     'fr-ht': {
         'bidi': False,
         'code': 'fr-ht',

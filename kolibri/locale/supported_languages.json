@@ -49,6 +49,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "fv",
+    "intl_code": "ff-cm",
+    "language_name": "Fulfulde Mbororoore",
+    "english_name": "Fulfulde (Cameroon)",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "hi",
     "intl_code": "hi-in",
     "language_name": "हिंदी (भारत)",
