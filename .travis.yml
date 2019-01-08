@@ -39,7 +39,10 @@ matrix:
         - TOX_ENV=pythonbuild3.7
     - python: "2.7"
       env:
-        - TOX_ENV=pythonlint
+        - TOX_ENV=pythonlint2
+    - python: "3.6"
+      env:
+        - TOX_ENV=pythonlint3
     - python: "2.7"
       env:
         - TOX_ENV=licenses
