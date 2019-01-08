@@ -2,11 +2,11 @@ Feature: Super admin gives Super admin permissions to a facility user
   Super admin should understand the implications of what it means to make a facility user a Super admin
 
   Background:
-    Given I am signed in to Kolibri as a Super admin
+    Given I am signed in to Kolibri as a super admin
       And I am on the *Device > Permissions* page
       And there is a <username> facility user who does not have device permissions
       
-  Scenario: Super admin can see what happens when they grant Super admin permissions to another user
+  Scenario: Super admin can see what happens when they grant super admin permissions to another user
     When I click *Edit Permissions* for the <username> user 
     Then I see the <full_name> user permissions page
     When I click on the *Make super admin* checkbox

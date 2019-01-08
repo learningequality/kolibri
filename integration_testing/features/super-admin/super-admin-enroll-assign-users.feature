@@ -1,4 +1,4 @@
-Feature: Super admin enroll learners and assign coaches to classes
+Feature: Super admin enrolls learners and assigns coaches to classes
     Super admin needs to be able to enroll learners and assign coaches to classes in the facility
 
   Background:
@@ -19,7 +19,7 @@ Feature: Super admin enroll learners and assign coaches to classes
     Then I see the class <class> page again
       And I see the selected learner user accounts listed under *Learners*
 
-  Scenario: Asign coaches to a class
+  Scenario: Assign coaches to a class
     When I click on class <class>
     Then I see the class <class> page
     When I click the *Assign coaches* button

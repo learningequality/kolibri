@@ -40,7 +40,7 @@ Feature: Admin edit users
     Then the modal closes
       And I see the user with edited type (label or no label depending on the change)
 
-  Scenario: Change class coach user to facilty coach user
+  Scenario: Change class coach user to facility coach user
     Given there is class coach <username> in the facility
     When I click on *Options* button for the user <username>
       And I select *Edit details* option
