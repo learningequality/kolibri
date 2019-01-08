@@ -7,10 +7,11 @@ performance problems due to the locks on the main database.
 
 None of these models will have Morango synchronization
 """
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from enum import Enum
 
 from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
@@ -70,34 +71,41 @@ class NotificationsRouter(object):
         return None
 
 
-class NotificationType(Enum):
-    Resource = "ResourceIndividualCompletion"
-    Quiz = "QuizIndividualCompletion"
-    Help = "LessonResourceIndividualNeedsHelpEvent"
-    Lesson = "LessonIndividualCompletion"
+class myEnum(object):
+    values = dict()
 
-    def __str__(self):
-        return self.name
+    @classmethod
+    def choices(cls):
+        return tuple([(name, value) for name, value in sorted(cls.values.items())])
 
 
-class HelpReason(Enum):
-    Multiple = "MultipleUnsuccessfulAttempts"
+class NotificationType(myEnum):
+    Resource = 'Resource'
+    Quiz = 'Quiz'
+    Help = 'Help'
+    Lesson = 'Lesson'
+    values = {'Resource': 'ResourceIndividualCompletion',
+              'Quiz': 'QuizIndividualCompletion',
+              'Help': 'LessonResourceIndividualNeedsHelpEvent',
+              'Lesson': 'LessonIndividualCompletion'}
 
-    def __str__(self):
-        return self.name
+
+class HelpReason(myEnum):
+    Multiple = 'Multiple'
+    values = {'Multiple': 'MultipleUnsuccessfulAttempts'}
 
 
 @python_2_unicode_compatible
 class LearnerProgressNotification(models.Model):
     id = UUIDField(primary_key=True)
-    notification_type = models.CharField(max_length=200, choices=[(t, t.value) for t in NotificationType], blank=True)
+    notification_type = models.CharField(max_length=200, choices=NotificationType.choices(), blank=True)
     user_id = UUIDField()
     classroom_id = UUIDField()
     contentnode_id = UUIDField(null=True)
     contentnode_id = UUIDField(null=True)
     lesson_id = UUIDField(null=True)
     quiz_id = UUIDField(null=True)
-    reason = models.CharField(max_length=200, choices=[(r, r.value) for r in HelpReason], blank=True)
+    reason = models.CharField(max_length=200, choices=HelpReason.choices(), blank=True)
     timestamp = DateTimeTzField(default=local_now)
 
     def __str__(self):
