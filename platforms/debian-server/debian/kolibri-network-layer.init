@@ -51,7 +51,6 @@ do_start()
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
 		$DAEMON_UWSGI_ARGS \
 		|| return 2
-
 	return 0
 }
 
@@ -91,6 +90,7 @@ case "$1" in
                     0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
                     2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
             esac
+			service reload nginx
         else
             [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
         fi

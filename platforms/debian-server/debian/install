@@ -1,4 +1,3 @@
 kolibri.conf etc/nginx/conf.d/
 kolibri.ini usr/share/kolibri/
 nginx_cache.conf usr/share/kolibri/
-nginx_general.conf usr/share/kolibri/

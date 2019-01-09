@@ -2,4 +2,6 @@
 #export DH_VERBOSE = 1
 
 %:
-	dh $@
+	dh $@ --with=systemd
+override_dh_systemd_enable:
+	dh_systemd_enable --name=kolibri-network-layer
