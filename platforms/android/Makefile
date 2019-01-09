@@ -1,6 +1,11 @@
 VPATH = ./dist/android/
 .PHONY: clean dummy_project_info
 
+ifdef P4A_RELEASE_KEYSTORE
+pew_release_flag = --release
+endif
+
+
 # Clear out apks
 clean:
 	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
@@ -26,7 +31,7 @@ dummy_project_info.json: project_info.template clean
 
 # Buld the debug version of the apk
 Kolibri*.apk: project_info.json
-	pew build android
+	pew build android $(pew_release_flag)
 
 # DOCKER BUILD
 
