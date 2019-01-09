@@ -1,34 +1,35 @@
 """
-This is one of the Kolibri core components, the abstract layer of all contents.
-To access it, please use the public APIs in api.py
+These models are used in the databases of content that get imported from Studio.
 
-The ONLY public object is ContentNode
 
-Developer note: If you modify the schema here, it has implications for the content
-import pipeline, including Kolibri Studio where the imported content databases
-are created.
+*DEVELOPER WARNING regarding updates to these models*
 
-Currently, Kolibri Studio has a modified copy of this models.py for generating backwards compatible
-content databases. Changes here should be propagated to that copy in order to allow for
-generation of databases with the changed schema.
-TODO: (rtibbles) achieve this by abstract base models that are instantiated in both applications.
+If you modify the schema here, it has implications for the content import pipeline
+because other systems also read and write these databases.
 
-As such, if models or fields are added or removed, or their type is changed, the CONTENT_SCHEMA_VERSION
-value must be incremented, with an additional constant added for the new
-version. e.g. a new constant VERSION_3 = '3', should be added, and CONTENT_SCHEMA_VERSION set to
+Specifically, Kolibri Studio has a modified version of this models.py for generating
+backwards-compatible content databases. Changes made here should be propagated to Studio
+in order to allow for generation of databases with the updated schema.
+
+In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value must be
+incremented, with an additional constant added for the new version.
+E.g. a new constant VERSION_3 = '3', might be added, and CONTENT_SCHEMA_VERSION set to
 VERSION_3.
 
 In addition, the new constant should be added to the mappings dict in
 ./utils/channel_import.py with an appropriate ChannelImport class associated.
-The mappings dict is a dict of content schema versions, with an associated ChannelImport class
-that will allow proper import of that content database into the current content schema for Kolibri.
+This map associates content schema versions with associated ChannelImport classes,
+which allows proper importing of that content database into the current content schema
+for Kolibri.
 
 If the new schema requires inference of the field when it is missing from old databases
 (i.e. it does not have a default value, or cannot be null or blank), then all the
-ChannelImport classes for previous versions must be updated to infer this data from old databases.
+ChannelImport classes for previous versions must be updated to infer this data from old
+databases.
 
 A pickled SQLAlchemy schema for the new schema must also be generated using the
-generate_schema management command. This must be generated using an empty, migrated database.
+generate_schema management command. This must be generated using an empty, migrated
+database.
 
 The 'version' parameter passed to the command should be the value of e.g. VERSION_3:
 
@@ -174,8 +175,11 @@ class ContentNodeManager(models.Manager.from_queryset(ContentNodeQueryset), Tree
 @python_2_unicode_compatible
 class ContentNode(MPTTModel):
     """
-    The top layer of the contentDB schema, defines the most common properties that are shared across all different contents.
-    Things it can represent are, for example, video, exercise, audio or document...
+    The primary object type in a content database. Defines the properties that are shared
+    across all content types.
+
+    It represents videos, exercises, audio, documents, and other 'content items' that
+    exist as nodes in content channels.
     """
     id = UUIDField(primary_key=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
