@@ -36,7 +36,7 @@ TUPLE_TYPES = tuple, set, frozenset, list
 if (sys.version_info > (3, 0)):
     VALID_TYPES = int, float, str, bool
 else:
-    VALID_TYPES = int, float, str, unicode, bool
+    VALID_TYPES = int, float, str, unicode, bool  # noqa F821
 
 
 class ParamValidator(object):
