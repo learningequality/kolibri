@@ -124,7 +124,8 @@ class EcosystemTestCase(TestCase):
         s1_url = servers[1].base_url
         s2_alias = servers[2].db_alias
         s2_url = servers[2].base_url
-        servers[0].manage("generateuserdata", no_onboarding=True)
+        servers[0].manage('loaddata', 'content_test')
+        servers[0].manage("generateuserdata", no_onboarding=True, num_content_items=1)
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
         servers[2].manage("fullfacilitysync", base_url=s1_url, username="superuser", password="password")
 
