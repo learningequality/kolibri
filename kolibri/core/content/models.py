@@ -11,6 +11,12 @@ Specifically, Kolibri Studio has a modified version of this models.py for genera
 backwards-compatible content databases. Changes made here should be propagated to Studio
 in order to allow for generation of databases with the updated schema.
 
+However, in the case where the modifications are intended only within Kolibri, such
+as fields that provide a local record of expensive to compute properties, these do
+not need to be added to an importable schema version (and will not be used in Studio).
+To allow use of SQLAlchemy updates (for performance reasons), we also maintain an
+updateable copy of the current Django schema.
+
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value must be
 incremented, with an additional constant added for the new version.
 E.g. a new constant VERSION_3 = '3', might be added, and CONTENT_SCHEMA_VERSION set to
@@ -41,6 +47,13 @@ this file e.g. VERSION_3 should be added to the list.
 The channel import test classes for the previous schema should also be added in
 ./test/test_channel_import.py - it should inherit from the NaiveImportTestCase, and set the
 name property to the previous CONTENT_SCHEMA_VERSION e.g. VERSION_2.
+
+In the case where new fields are added that do not need to be added to an export schema
+the generate_schema command should be run like this:
+
+    `kolibri manage generate_schema current`
+
+This will just regenerate the current schema and not generate any other schema or fixtures.
 """
 from __future__ import print_function
 
@@ -86,8 +99,12 @@ VERSION_2 = "2"
 # When a new schema version is generated, it should be added here, at the top of the list.
 CONTENT_DB_SCHEMA_VERSIONS = [VERSION_2, VERSION_1, NO_VERSION, V040BETA3, V020BETA1]
 
-# The schema version for this version of Kolibri
+# The latest compatible exported schema version for this version of Kolibri
 CONTENT_SCHEMA_VERSION = VERSION_2
+
+# The version name for the current content schema,
+# which may have schema modifications not present in the export schema
+CURRENT_SCHEMA_VERSION = 'current'
 
 
 class UUIDField(models.CharField):
@@ -215,6 +232,10 @@ class ContentNode(MPTTModel):
         max_length=1800, blank=True
     )  # for fuzzy search in title and description
     lang = models.ForeignKey("Language", blank=True, null=True)
+    # Fields used only on Kolibri and not imported from a content database
+    # importable is used to indicate within a particular import scenario
+    # whether a contentnode is importable or not - not used when importing from Studio
+    importable = models.NullBooleanField()
 
     objects = ContentNodeManager()
 
@@ -273,6 +294,10 @@ class File(models.Model):
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
     priority = models.IntegerField(blank=True, null=True, db_index=True)
+    # Fields used only on Kolibri and not imported from a content database
+    # importable is used to indicate within a particular import scenario
+    # whether a file is importable or not - not used when importing from Studio
+    importable = models.NullBooleanField()
 
     class Meta:
         ordering = ["priority"]
@@ -347,6 +372,10 @@ class LocalFile(models.Model):
     )
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
+    # Fields used only on Kolibri and not imported from a content database
+    # importable is used to indicate within a particular import scenario
+    # whether a file is importable or not - not used when importing from Studio
+    importable = models.NullBooleanField()
 
     objects = LocalFileManager()
 
