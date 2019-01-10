@@ -22,13 +22,13 @@ if [ "${P4A_RELEASE_KEYSTORE}" ]; then
   if [ -a ${P4A_RELEASE_KEYSTORE} ]; then
     echo -e "Copying the signing key \n\t From ${P4A_RELEASE_KEYSTORE} to ${CONTAINER_NAME}:${CONTAINER_HOME}"
     # copy keystore to same location on the container
-    docker cp ${P4A_RELEASE_KEYSTORE} ${CONTAINER_NAME}:${CONTAINER_HOME}}
+    docker cp ${P4A_RELEASE_KEYSTORE} ${CONTAINER_NAME}:${CONTAINER_HOME}
   fi
 fi
 
 # run the container, generating the apk
 echo "Starting ${CONTAINER_NAME}"
-docker start -i ${CONTAINER_NAME} | grep -v "Copying /"
+docker start -i ${CONTAINER_NAME}
 
 # copy the apk to our host. Handles permissions.
 echo -e "Coping APK \n\t From ${CONTAINER_NAME}:${CONTAINER_HOME}/dist/ to ${PWD}"
