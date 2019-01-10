@@ -10,7 +10,7 @@ from kolibri.utils import conf
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
-VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\\.[0-9a-z]+")
+VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
 POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
@@ -108,6 +108,12 @@ def get_content_server_url(path, baseurl=None):
 
 def get_info_url(baseurl=None):
     return get_content_server_url("/api/public/info", baseurl=baseurl)
+
+
+def get_file_checksums_url(channel_id, baseurl, version='1'):
+    # This endpoint does not exist on Studio, so a baseurl is required.
+    return get_content_server_url(
+        '/api/public/v{version}/file_checksums/{channel_id}'.format(version=version, channel_id=channel_id))
 
 
 def get_channel_lookup_url(
