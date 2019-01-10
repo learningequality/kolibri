@@ -73,6 +73,14 @@ export default new Resource({
   },
 
   /**
+   * Initiates a Task that annotates the importability of content onto the database
+   * dependent on the current import method.
+   */
+  startAnnotateImportability(params) {
+    return this.postListEndpoint('startannotateimportable', pickBy(params));
+  },
+
+  /**
    * Initiates a Task that creates a csv file with the log data of the logger
    *
    * @param {string} params.logtype - session or summary

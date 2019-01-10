@@ -108,7 +108,7 @@
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
-  import { downloadChannelMetadata } from '../../modules/wizard/utils';
+  import { readyChannelMetadata } from '../../modules/wizard/utils';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import SelectedResourcesSize from './SelectedResourcesSize';
@@ -231,7 +231,7 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
-      downloadChannelMetadata,
+      readyChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
         this.cancelMetadataDownloadTask().then(this.refreshPage);
@@ -247,7 +247,7 @@
         // This could produced unexpected behavior for users.
         this.showUpdateProgressBar = true;
         this.pageWillRefresh = true;
-        return this.downloadChannelMetadata(this.$store)
+        return this.readyChannelMetadata(this.$store)
           .then(() => this.refreshPage())
           .catch(error => {
             if (error.errorType !== 'CHANNEL_TASK_ERROR') {

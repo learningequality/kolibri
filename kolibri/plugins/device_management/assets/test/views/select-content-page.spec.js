@@ -81,7 +81,7 @@ describe('selectContentPage', () => {
     expect(wrapper.text()).toContain('Version 1,000 available');
   });
 
-  it('in LOCALIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
+  it('in LOCALIMPORT, clicking the "update" button triggers a readyChannelMetadata action', () => {
     updateMetaChannel(store, { version: 1000 });
     store.state.manageContent.wizard.transferType = 'localimport';
     store.state.manageContent.wizard.selectedDrive = {
@@ -89,17 +89,17 @@ describe('selectContentPage', () => {
     };
     const wrapper = makeWrapper({ store });
     const updateButton = wrapper.find('button[name="update"]');
-    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
+    const stub = jest.spyOn(wrapper.vm, 'readyChannelMetadata').mockResolvedValue();
     updateButton.trigger('click');
     expect(stub).toHaveBeenCalled();
   });
 
-  it('in REMOTEIMPORT, clicking the "update" button triggers a downloadChannelMetadata action', () => {
+  it('in REMOTEIMPORT, clicking the "update" button triggers a readyChannelMetadata action', () => {
     updateMetaChannel(store, { version: 1000 });
     store.state.manageContent.wizard.transferType = 'remoteimport';
     const wrapper = makeWrapper({ store });
     const updateButton = wrapper.find('button[name="update"]');
-    const stub = jest.spyOn(wrapper.vm, 'downloadChannelMetadata').mockResolvedValue();
+    const stub = jest.spyOn(wrapper.vm, 'readyChannelMetadata').mockResolvedValue();
     updateButton.trigger('click');
     expect(stub).toHaveBeenCalled();
   });

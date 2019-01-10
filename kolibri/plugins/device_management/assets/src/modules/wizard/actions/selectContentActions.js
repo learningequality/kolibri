@@ -1,14 +1,12 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { downloadChannelMetadata } from '../utils';
-import { getChannelWithContentSizes } from '../apiChannelMetadata';
+import { readyChannelMetadata } from '../utils';
 
 /**
  * Transitions the import/export wizard to the 'load-channel-metadata' interstitial state
  *
  */
 export function loadChannelMetadata(store) {
-  let dbPromise;
   const { transferredChannel } = store.state.manageContent.wizard;
   const channelOnDevice = store.getters['manageContent/channelIsInstalled'](transferredChannel.id);
 
@@ -20,13 +18,9 @@ export function loadChannelMetadata(store) {
     channelOnDevice.version < transferredChannel.version;
 
   // Update metadata when no content db has been downloaded or if it is stale
-  if (!channelOnDevice || newChannelDbAvailable) {
-    dbPromise = downloadChannelMetadata(store);
-  } else {
-    // If already on device, then skip the DB download, and use on-device
-    // Channel metadata, since it has root id.
-    dbPromise = getChannelWithContentSizes(transferredChannel.id);
-  }
+  // If already on device, this method will skip the DB download, but still annotate
+  // content importability for this transfer method.
+  const dbPromise = readyChannelMetadata(store, !channelOnDevice || newChannelDbAvailable);
 
   // Hydrating the store with the Channel Metadata
   return dbPromise

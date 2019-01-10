@@ -287,6 +287,56 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(resp)
 
     @list_route(methods=["post"])
+    def startannotateimportable(self, request):
+        '''
+        Annotate the database with importability information for the specific
+        import method specified
+        '''
+
+        # Load the required parameter
+        try:
+            channel_id = request.data["channel_id"]
+        except KeyError:
+            raise serializers.ValidationError("The channel_id field is required.")
+
+        drive_id = request.data.get("drive_id", None)
+        baseurl = request.data.get("baseurl", None)
+
+        if drive_id is None and baseurl is None:
+            raise serializers.ValidationError("The drive_id field is required.")
+
+        job_metadata = {
+            "type": "IMPORTANNOTATION",
+            "started_by": request.user.pk,
+        }
+
+        if drive_id:
+            try:
+                drives = get_mounted_drives_with_channel_info()
+                drive = drives[drive_id]
+                directory = drive.datafolder
+            except KeyError:
+                raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+        else:
+            directory = None
+
+        task_id = get_client().schedule(
+            call_command,
+            "annotateimportable",
+            channel_id,
+            directory=directory,
+            baseurl=baseurl,
+            extra_metadata=job_metadata,
+            track_progress=True,
+            cancellable=True,
+        )
+
+        # attempt to get the created Task, otherwise return pending status
+        resp = _job_to_response(get_client().status(task_id))
+
+        return Response(resp)
+
+    @list_route(methods=["post"])
     def canceltask(self, request):
         """
         Cancel a task with its task id given in the task_id parameter.
