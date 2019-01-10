@@ -825,12 +825,13 @@ export class Resource {
    * (as opposed to an array of objects).
    * Mostly used as a convenience method for defining additional endpoint fetch methods on a
    * resource object.
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id         The id of the model for which this is a detail
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with a single object
+   * @param  {string} detailName      The name given to the detail endpoint
+   * @param  {string} id              The id of the model for which this is a detail
+   * @param  {Object} getParams       Any getParams needed while fetching
+   * @param  {Boolean} [force=false]  whether to respect the cache when fetching
+   * @return {Promise}                Promise that resolves on fetch with a single object
    */
-  fetchDetailModel(detailName, id, getParams = {}) {
+  fetchDetailModel(detailName, id, getParams = {}, force = false) {
     if (!id) {
       throw TypeError('An id must be specified');
     }
@@ -844,7 +845,7 @@ export class Resource {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
-    return this.getModel(id, getParams, detailName).fetch();
+    return this.getModel(id, getParams, detailName).fetch(force);
   }
 
   /**
@@ -852,10 +853,11 @@ export class Resource {
    * (as opposed to a single object).
    * Mostly used as a convenience method for defining additional endpoint fetch methods on a
    * resource object.
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id         The id of the model for which this is a detail
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with an array of objects
+   * @param  {string} detailName      The name given to the detail endpoint
+   * @param  {string} id              The id of the model for which this is a detail
+   * @param  {Object} getParams       Any getParams needed while fetching
+   * @param  {Boolean} [force=false]  whether to respect the cache when fetching
+   * @return {Promise}                Promise that resolves on fetch with an array of objects
    */
   fetchDetailCollection(detailName, id, getParams = {}, force = false) {
     if (!id) {
@@ -878,11 +880,12 @@ export class Resource {
    * Fetch from a custom list endpoint on a resource, that returns an array of JSON objects.
    * Mostly used as a convenience method for defining additional endpoint fethc methods
    * on a resource object.
-   * @param  {string} listName   The name given to the list endpoint
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with an array of objects
+   * @param  {string} listName        The name given to the list endpoint
+   * @param  {Object} getParams       Any getParams needed while fetching
+   * @param  {Boolean} [force=false]  whether to respect the cache when fetching
+   * @return {Promise}                Promise that resolves on fetch with an array of objects
    */
-  fetchListCollection(listName, getParams = {}) {
+  fetchListCollection(listName, getParams = {}, force = false) {
     if (!listName) {
       throw TypeError('A listName must be specified');
     }
@@ -893,7 +896,7 @@ export class Resource {
         logging.error(`${listName} list endpoint does not accept get requests.`);
       }
     }
-    return this.getCollection(getParams, listName).fetch();
+    return this.getCollection(getParams, listName).fetch(force);
   }
 
   /**

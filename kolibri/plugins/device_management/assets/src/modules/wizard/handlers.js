@@ -283,13 +283,20 @@ export function updateTreeViewTopic(store, topic) {
     fetchArgs.for_export = 'true';
   }
   store.commit('CORE_SET_PAGE_LOADING', true);
-  return ContentNodeGranularResource.fetchModel({
-    id: topic.id,
-    getParams: fetchArgs,
-    force: true,
-  })
-    .then(contents => {
-      store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', contents);
+  return ContentNodeGranularResource.fetchDetailCollection('detail', topic.id, fetchArgs, true)
+    .then(children => {
+      if (store.getters['manageContent/wizard/inRemoteImportMode']) {
+        // If importing from Studio, all content will be importable
+        children = children.map(child => {
+          child.importable = true;
+          return child;
+        });
+      }
+      const currentTopic = {
+        ...topic,
+        children,
+      };
+      store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', currentTopic);
       store.dispatch('manageContent/wizard/updatePathBreadcrumbs', topic);
     })
     .catch(() => {

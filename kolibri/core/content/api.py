@@ -787,12 +787,9 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
 
-        parent_serializer = self.get_serializer(instance)
-        parent_data = parent_serializer.data
         child_serializer = self.get_serializer(children, many=True)
-        parent_data["children"] = child_serializer.data
 
-        return Response(parent_data)
+        return Response(child_serializer.data)
 
 
 class ContentNodeProgressFilter(IdFilter):
