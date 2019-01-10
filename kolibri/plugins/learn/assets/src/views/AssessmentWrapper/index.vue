@@ -21,12 +21,13 @@ oriented data synchronization.
     <div>
       <ContentRenderer
         ref="contentRenderer"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
+        :id="id"
+        :kind="kind"
+        :lang="lang"
+        :files="files"
+        :contentId="contentId"
         :channelId="channelId"
-        :available="content.available"
+        :available="available"
         :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
@@ -116,7 +117,6 @@ oriented data synchronization.
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
-  import { ClassesPageNames } from '../../constants';
   import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
@@ -148,6 +148,9 @@ oriented data synchronization.
         type: String,
         required: true,
       },
+      lang: {
+        type: Object,
+      },
       kind: {
         type: String,
         required: true,
@@ -168,6 +171,18 @@ oriented data synchronization.
         type: Boolean,
         default: false,
       },
+      assessmentIds: {
+        type: Array,
+        required: true,
+      },
+      randomize: {
+        type: Boolean,
+        required: true,
+      },
+      masteryModel: {
+        type: Object,
+        required: true,
+      },
       extraFields: {
         type: Object,
         default: () => {},
@@ -178,17 +193,6 @@ oriented data synchronization.
       },
     },
     data() {
-      let masteryModel;
-      let assessmentIds;
-      // HACK handle if called in context of lesson
-      const { state } = this.$store;
-      if (state.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-        masteryModel = state.lessonPlaylist.resource.content.masteryModel;
-        assessmentIds = state.lessonPlaylist.resource.content.assessmentIds;
-      } else {
-        masteryModel = state.topicsTree.content.masteryModel;
-        assessmentIds = state.topicsTree.content.assessmentIds;
-      }
       return {
         ready: false,
         itemId: '',
@@ -201,16 +205,10 @@ oriented data synchronization.
         // Attempted fix for #1725
         checkingAnswer: false,
         checkWasAttempted: false,
-        // Placing these here so they are available at beforeDestroy
-        masteryModel,
-        assessmentIds,
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-      }),
       ...mapState({
         pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
@@ -220,19 +218,6 @@ oriented data synchronization.
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
       }),
-      viewingInLesson() {
-        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
-      },
-      // HACK handle when in viewing in Lesson or not
-      content() {
-        if (this.viewingInLesson) {
-          return this.$store.state.lessonPlaylist.resource.content;
-        }
-        return this.topicsTreeContent;
-      },
-      randomize() {
-        return this.content.randomize;
-      },
       recentAttempts() {
         if (!this.pastattempts) {
           return [];

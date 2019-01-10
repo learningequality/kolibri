@@ -374,6 +374,13 @@ class AnonSignUpTestCase(APITestCase):
         self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertNotEqual(session_key, self.client.session.session_key)
 
+    def test_sign_up_able_no_guest_access(self):
+        self.facility.dataset.allow_guest_access = False
+        self.facility.dataset.save()
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
+
 
 class FacilityDatasetAPITestCase(APITestCase):
 

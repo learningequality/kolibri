@@ -85,9 +85,11 @@ describe('channelsGrid component', () => {
     ]);
     const wrapper = makeWrapper({ store });
     const { channelListItems } = getElements(wrapper);
-    const items = channelListItems();
-    expect(items.at(0).props().channel.id).toEqual('awesome_channel');
-    expect(items.at(1).props().channel.id).toEqual('beautiful_channel');
+    return wrapper.vm.$nextTick().then(() => {
+      const items = channelListItems();
+      expect(items.at(0).props().channel.id).toBe('awesome_channel');
+      expect(items.at(1).props().channel.id).toBe('beautiful_channel');
+    });
   });
 
   it('a modal appears if channel is selected for deletion', () => {

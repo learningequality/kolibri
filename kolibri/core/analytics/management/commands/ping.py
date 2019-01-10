@@ -8,6 +8,7 @@ import requests
 from django.core.management.base import BaseCommand
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
+from django.utils.timezone import localtime
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
@@ -20,6 +21,7 @@ from ...utils import extract_facility_statistics
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils.server import installation_type
 from kolibri.utils.server import vacuum_db_lock
 
 logger = logging.getLogger(__name__)
@@ -100,6 +102,8 @@ class Command(BaseCommand):
             "language": language,
             "timezone": timezone,
             "uptime": int((datetime.now() - self.started).total_seconds() / 60),
+            "timestamp": localtime(),
+            "installer": installation_type(),
         }
 
         logger.debug("Pingback data: {}".format(data))

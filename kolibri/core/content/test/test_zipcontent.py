@@ -5,6 +5,7 @@ import zipfile
 
 from django.test import Client
 from django.test import TestCase
+from le_utils.constants import exercises
 
 from ..models import LocalFile
 from ..utils.paths import get_content_storage_file_path
@@ -22,6 +23,8 @@ class ZipContentTestCase(TestCase):
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
     test_str_2 = "And another test..."
+    test_name_3 = "testfile3.json"
+    test_str_3 = "A test of image placeholder replacement ${placeholder}".format(placeholder=exercises.IMG_PLACEHOLDER)
 
     def setUp(self):
 
@@ -41,6 +44,7 @@ class ZipContentTestCase(TestCase):
         with zipfile.ZipFile(self.zip_path, "w") as zf:
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
+            zf.writestr(self.test_name_3, self.test_str_3)
 
         self.zip_file_obj = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.zip_file_base_url = self.zip_file_obj.get_storage_url()
@@ -82,6 +86,10 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
 
+    def test_content_security_policy_header_http_referer(self):
+        response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_REFERER="http://testserver:1234/iam/a/real/path/#thatsomeonemightuse")
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver:1234")
+
     def test_access_control_allow_origin_header(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
@@ -98,3 +106,17 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
         response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval)
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
+
+    def test_json_image_replacement_http_referer_header(self):
+        server_name = "http://testserver"
+        response = self.client.get(self.zip_file_base_url + self.test_name_3, HTTP_REFERER=server_name)
+        self.assertEqual(
+            response.content.decode('utf-8'),
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name.replace('http:', '') + self.zip_file_base_url)).strip("/"))
+
+    def test_json_image_replacement_no_http_referer_header(self):
+        server_name = "http://testserver"
+        response = self.client.get(self.zip_file_base_url + self.test_name_3)
+        self.assertEqual(
+            response.content.decode('utf-8'),
+            self.test_str_3.replace("$" + exercises.IMG_PLACEHOLDER, (server_name.replace('http:', '') + self.zip_file_base_url)).strip("/"))

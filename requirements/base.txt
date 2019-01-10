@@ -1,7 +1,7 @@
 django-filter==1.1.0
 django-js-reverse==0.8.2
 djangorestframework==3.8.2
-django==1.11.15  # pyup: >=1.11,<2
+django==1.11.17  # pyup: >=1.11,<2
 six==1.11.0
 colorlog==3.1.4
 configobj==5.0.6
@@ -13,7 +13,7 @@ requests==2.20.0
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
 tempora<1.13  # derived no-upper-bounds dependency of cherrypy causing issues  # pyup: <1.13
 cheroot<6.2.0  # 6.2.0 introduced a namespaced pkg # pyup: <6.2.0
-iceqube==0.0.5
+iceqube==0.1b1
 futures==3.1.1  # Temporarily pinning this until we can do a Python 2/3 compatible solution of newer versions # pyup: <=3.1.1
 porter2stemmer==1.0
 unicodecsv==0.14.1
