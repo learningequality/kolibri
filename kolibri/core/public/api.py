@@ -127,7 +127,7 @@ def get_public_file_checksums(request, version, channel_id):
         try:
             channel = ChannelMetadata.objects.get(id=channel_id)
             contentnodes = channel.root.get_descendants(include_self=True)
-            checksums = LocalFile.objects.filter(available=True, files__contentnode__in=contentnodes).values_list('id', flat=True)
+            checksums = LocalFile.objects.filter(available=True, files__contentnode__in=contentnodes).values_list('id', flat=True).distinct()
             return HttpResponse(json.dumps(list(checksums)), content_type='application/json')
         except ChannelMetadata.DoesNotExist:
             pass

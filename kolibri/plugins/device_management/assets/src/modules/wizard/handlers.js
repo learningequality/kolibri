@@ -275,9 +275,11 @@ export function showSelectContentPage(store, params) {
  */
 export function updateTreeViewTopic(store, topic) {
   const fetchArgs = {};
-  if (store.getters['manageContent/wizard/inLocalImportMode']) {
-    const { selectedDrive } = store.state.manageContent.wizard;
-    fetchArgs.importing_from_drive_id = selectedDrive.id;
+  if (
+    store.getters['manageContent/wizard/inLocalImportMode'] ||
+    store.getters['manageContent/wizard/inPeerImportMode']
+  ) {
+    fetchArgs.check_importable = true;
   }
   if (store.getters['manageContent/wizard/inExportMode']) {
     fetchArgs.for_export = 'true';
@@ -285,13 +287,6 @@ export function updateTreeViewTopic(store, topic) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchDetailCollection('detail', topic.id, fetchArgs, true)
     .then(children => {
-      if (store.getters['manageContent/wizard/inRemoteImportMode']) {
-        // If importing from Studio, all content will be importable
-        children = children.map(child => {
-          child.importable = true;
-          return child;
-        });
-      }
       const currentTopic = {
         ...topic,
         children,

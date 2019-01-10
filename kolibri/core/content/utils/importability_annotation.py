@@ -15,7 +15,6 @@ from .paths import get_content_dir_path
 from .paths import get_file_checksums_url
 from .sqlalchemybridge import Bridge
 from kolibri.core.content.apps import KolibriContentConfig
-from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
@@ -131,13 +130,20 @@ def recurse_importability_up_tree(channel_id):
     trans.commit()
 
     elapsed = (datetime.datetime.now() - start)
-    logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
+    logger.debug("Importability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
 
 def annotate_importability(channel_id, checksums):
-    mark_local_files_as_importable(checksums)
+    channel_localfiles = LocalFile.objects.filter(files__contentnode__channel_id=channel_id)
+    if checksums is None:
+        # If None just say everything is importable as we have no better info
+        channel_localfiles.update(importable=True)
+    else:
+        # First clear any existing annotation
+        channel_localfiles.update(importable=False)
+        mark_local_files_as_importable(checksums)
     set_leaf_node_importability_from_local_file_importability(channel_id)
     recurse_importability_up_tree(channel_id)
 
@@ -149,6 +155,7 @@ def annotate_importability_from_remote(channel_id, baseurl):
     response = requests.get(get_file_checksums_url(channel_id, baseurl))
 
     checksums = None
+    logger.info(response.status_code)
 
     # Do something if we got a successful return
     if response.status_code == 200:
@@ -157,15 +164,11 @@ def annotate_importability_from_remote(channel_id, baseurl):
             # Filter to avoid passing in bad
             checksums = [checksum for checksum in checksums if checksum_regex.match(checksum)]
         except (ValueError, TypeError):
+            logger.info(response.content)
             # Bad JSON parsing will throw ValueError
             # If the result of the json.loads is not iterable, a TypeError will be thrown
             # If we end up here, just set checksums to None to allow us to cleanly continue
             checksums = None
-    if checksums is None:
-        # If None just say everything is importable as we have no better info
-        channel = ChannelMetadata.objects.get(id=channel_id)
-        contentnodes = channel.root.get_descendants(include_self=True)
-        checksums = LocalFile.objects.filter(files__contentnode__in=contentnodes).values_list('id', flat=True)
     annotate_importability(channel_id, checksums)
 
 

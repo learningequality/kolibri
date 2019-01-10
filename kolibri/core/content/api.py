@@ -777,7 +777,6 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
     def get_queryset(self):
         return (
             models.ContentNode.objects.all()
-            .prefetch_related("files__local_file")
             .filter(renderable_contentnodes_q_filter)
             .distinct()
         )
@@ -786,6 +785,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         queryset = self.get_queryset()
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
+        if request.query_params.get('check_importable', None):
+            children = children.filter(importable=True)
 
         child_serializer = self.get_serializer(children, many=True)
 

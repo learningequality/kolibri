@@ -563,24 +563,24 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            "id",
-            "available",
-            "coach_content",
-            "importable",
-            "kind",
-            "num_coach_contents",
-            "on_device_resources",
-            "title",
-            "total_resources",
+            'id',
+            'available',
+            'coach_content',
+            'kind',
+            'num_coach_contents',
+            'on_device_resources',
+            'title',
+            'total_resources',
         )
 
     def get_total_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
+        total_resources_query = instance.get_descendants(include_self=True) \
             .filter(renderable_contentnodes_without_topics_q_filter)
-            .distinct()
-            .count()
-        )
+
+        if self.context['request'].query_params.get('check_importable', None):
+            total_resources_query = total_resources_query.filter(importable=True)
+
+        return total_resources_query.distinct().count()
 
     def get_on_device_resources(self, instance):
         return (
