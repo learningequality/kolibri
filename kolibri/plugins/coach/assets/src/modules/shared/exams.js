@@ -8,7 +8,6 @@ export function examState(exam) {
   return {
     id: exam.id,
     title: exam.title,
-    channelId: exam.channel_id,
     collection: exam.collection,
     active: exam.active,
     archive: exam.archive,

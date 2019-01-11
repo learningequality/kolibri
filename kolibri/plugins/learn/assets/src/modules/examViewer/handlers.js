@@ -39,11 +39,6 @@ export function showExam(store, params) {
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttemptLogs]) => {
-        const currentChannel = store.getters.getChannelObject(exam.channel_id);
-        if (!currentChannel) {
-          return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        }
-
         // Local copy of exam attempt logs
         const attemptLogs = {};
 
@@ -128,7 +123,6 @@ export function showExam(store, params) {
               return;
             }
 
-            const channelId = exam.channel_id;
             const currentQuestion = questions[questionNumber];
             const itemId = currentQuestion.question_id;
             const contentId = currentQuestion.exercise_id;
@@ -153,13 +147,11 @@ export function showExam(store, params) {
                 simple_answer: '',
                 interaction_history: [],
                 hinted: false,
-                channel_id: channelId,
                 content_id: contentId,
               };
             }
             store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
             store.commit('examViewer/SET_STATE', {
-              channelId,
               content: contentState(contentNodes.find(node => node.id === contentId)),
               currentAttempt: attemptLogs[contentId][itemId],
               currentQuestion,
