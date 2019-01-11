@@ -27,8 +27,7 @@ Vcs-Browser: https://github.com/learningequality/kolibri-installer-debian
 
 Package: kolibri
 Architecture: all
-Depends: python3 (<< 3.7),
-         python3 (>= 3.4),
+Depends: python3 (>= 3.4),
          python3-pkg-resources,
          adduser
 Recommends: python3-cryptography
