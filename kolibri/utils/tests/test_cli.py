@@ -14,7 +14,6 @@ import pytest
 from mock import patch
 
 import kolibri
-from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
 from kolibri.utils import options
 
