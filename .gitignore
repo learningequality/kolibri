@@ -1,0 +1,127 @@
+*.py[cod]
+
+# Host directory where `make dockerbuild` outputs .pex and .whl files
+# same directory is mounted under /docker/mnt inside containers and
+# can be used to pass in a pre-build pex file or fixtures for tests
+docker/mnt/
+
+# C extensions
+*.so
+
+# Packages
+.cache
+.eggs
+*.egg
+*.egg-info
+dist
+dist-packages-temp
+dist-packages-cache
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+pip
+
+# Build configurations
+kolibri/utils/build_config
+# This can be dynamically changed at build time, and it should never change otherwise
+requirements.txt
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage*
+.tox
+nosetests.xml
+htmlcov/
+kolibrihome_test/
+
+# Translations
+*.mo
+kolibri/locale/en/
+
+# Mr Developer
+.mr.developer.cfg
+.project
+# vscode files
+.vscode
+# pycharm project file
+kolibri.iml
+.pydevproject
+.venv
+.idea
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+
+# node
+node_modules
+npm-debug.log
+yarn-error.log
+lerna-debug.log
+
+# Node coverage data
+coverage
+
+# webpack built files
+kolibri/**/build/*
+kolibri/**/static/*
+js-dist
+
+# Allow static assets to be checked in. For large binary files, use Git LFS
+!kolibri/**/static/assets/
+!kolibri/**/static/assets/*
+!kolibri/**/static/assets/**/*
+
+# swap files
+*.swp
+
+# editor files
+*.sublime-project
+*.sublime-workspace
+
+# Content App
+storage/*
+kolibri/content/content_db/*.sqlite3
+
+# virtual environment
+venv/
+.python-version
+.envrc
+.env
+Pipfile
+
+# leftover from hack day - want to ensure people don't check these in
+kolibri/plugins/learn/assets/src/demo/
+
+# ignore strange OSX icon files. (Note there are special characters after 'Icon')
+# see http://stackoverflow.com/a/30755378
+Icon
+
+#ignore added files with DS_Store
+.DS_Store
+
+# ignore the VERSION file we use to track the version for whl files
+kolibri/VERSION
+
+# Ignore downloaded crowdin client
+build_tools/crowdin-cli.jar
+
+# Ignore pytest cache directory
+.pytest_cache/
+
+# ignore source font files
+*.ttf
+*.ttc
+*.otf
