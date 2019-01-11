@@ -10,7 +10,48 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <h1>{{ $tr('chooseExercises') }}</h1>
+    <h2>{{ detailsString }}</h2>
+
+    <KGrid>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="title"
+          v-model.trim="examTitle"
+          :label="$tr('title')"
+          :autofocus="true"
+          :maxlength="100"
+        />
+      </KGridItem>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="numQuest"
+          v-model.trim.number="numQuestions"
+          type="number"
+          :min="1"
+          :max="50"
+          :label="$tr('numQuestions')"
+          class="number-field"
+        />
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions -= 1"
+        >
+          <mat-svg name="remove" category="content" />
+        </UiIconButton>
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions += 1"
+        >
+          <mat-svg name="add" category="content" />
+        </UiIconButton>
+      </KGridItem>
+    </KGrid>
+
+    <h2>{{ $tr('chooseExercises') }}</h2>
 
     <LessonsSearchBox
       class="search-box"
@@ -77,11 +118,13 @@
 
 <script>
 
-  import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -90,13 +133,17 @@
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
 
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../../../constants/';
   import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
+  import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
   import Bottom from './Bottom';
+
+  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -107,6 +154,7 @@
       };
     },
     components: {
+      KTextbox,
       KRouterLink,
       KButton,
       UiAlert,
@@ -116,6 +164,7 @@
       ContentCardList,
       KGrid,
       KGridItem,
+      UiIconButton,
       Bottom,
     },
     mixins: [responsiveWindow, coachStringsMixin],
@@ -146,8 +195,6 @@
     },
     data() {
       return {
-        examTitle: '',
-        examNumberOfQuestions: 10,
         showError: false,
         moreResultsState: null,
         // null corresponds to 'All' filter value
@@ -174,6 +221,26 @@
         'ancestors',
         'examsModalSet',
       ]),
+      detailsString() {
+        return quizDetailStrings.$tr('details');
+      },
+      examTitle: {
+        get() {
+          return this.$store.state.examCreation.title;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_TITLE', value);
+        },
+      },
+      numQuestions: {
+        get() {
+          return this.$store.state.examCreation.numberOfQuestions;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+          this.$store.dispatch('examCreation/updateSelectedQuestions');
+        },
+      },
       filteredContentList() {
         const { role } = this.filters || {};
         if (!this.inSearchMode) {
@@ -267,14 +334,6 @@
           query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
-    },
-    created() {
-      this.examTitle = this.title;
-      this.examNumberOfQuestions = this.numberOfQuestions;
-      this.$watch('examTitle', () => this.setTitle(this.examTitle));
-      this.$watch('examNumberOfQuestions', () =>
-        this.setNumberOfQuestions(this.examNumberOfQuestions)
-      );
     },
     methods: {
       ...mapActions(['createSnackbar']),
@@ -488,6 +547,11 @@
     display: inline-block;
     margin: 8px;
     list-style: none;
+  }
+
+  .number-field {
+    display: inline-block;
+    margin-right: 8px;
   }
 
 </style>

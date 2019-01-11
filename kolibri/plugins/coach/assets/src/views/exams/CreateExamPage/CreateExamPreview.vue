@@ -169,7 +169,6 @@
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
-
   import CeateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
