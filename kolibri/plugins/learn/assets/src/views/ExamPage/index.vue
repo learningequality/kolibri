@@ -218,7 +218,8 @@
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer(true).then(() => {
+        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+        promise.then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
             params: {
@@ -230,6 +231,15 @@
         });
       },
       toggleModal() {
+        // Flush any existing save event to ensure
+        // that the subit modal contains the latest state
+        if (!this.submitModalOpen) {
+          const promise =
+            this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+          return promise.then(() => {
+            this.submitModalOpen = !this.submitModalOpen;
+          });
+        }
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
