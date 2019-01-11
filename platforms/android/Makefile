@@ -1,9 +1,6 @@
 VPATH = ./dist/android/
 .PHONY: clean dummy_project_info
 
-ifdef P4A_RELEASE_KEYSTORE
-pew_release_flag = --release
-endif
 
 
 # Clear out apks
@@ -28,6 +25,11 @@ project_info.json: project_info.template src/kolibri
 # Generate the dummy project info file, no unpack required
 dummy_project_info.json: project_info.template clean
 	python ./scripts/create_dummy_project_info.py
+
+
+ifdef P4A_RELEASE_KEYSTORE
+pew_release_flag = --release
+endif
 
 # Buld the debug version of the apk
 Kolibri*.apk: project_info.json
