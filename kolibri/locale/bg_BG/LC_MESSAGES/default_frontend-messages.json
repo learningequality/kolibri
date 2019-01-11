@@ -41,7 +41,7 @@
   "DisconnectionSnackbars.tryNow": "Опитай сега",
   "DisconnectionSnackbars.tryingToReconnect": "Опит за повторно свързване…",
   "DownloadButton.downloadContent": "Изтегляне на материалите",
-  "ExamReport.backTo": "Обратно към реаултатите от изпит { title }",
+  "ExamReport.backTo": "Обратно към резултатите от изпит { title }",
   "ExamReport.correctAnswer": "Правилен отговор",
   "ExamReport.correctAnswerCannotBeDisplayed": "Верният отговор не може да бъде показан",
   "ExamReport.question": "Въпрос { questionNumber, number }",
