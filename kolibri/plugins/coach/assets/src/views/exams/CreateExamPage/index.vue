@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <h1>{{ $tr('createNewExam') }}</h1>
     <template v-if="!inSearchMode">
       <KTextbox
         ref="title"
@@ -17,6 +16,8 @@
         ref="numQuest"
         v-model.trim.number="examNumberOfQuestions"
         type="number"
+        :min="1"
+        :max="50"
         :label="$tr('numQuestions')"
         :invalid="numQuestIsInvalid"
         :invalidText="numQuestIsInvalidText"
@@ -32,12 +33,11 @@
       </UiAlert>
 
       <div class="buttons-container">
-        <KButton :text="$tr('preview')" @click="preview" />
         <KButton
-          :text="$tr('saveButtonlabel')"
+          :text="$tr('continueButtonlabel')"
           :primary="true"
           :disabled="submitting"
-          @click="finish"
+          @click="continueProcess"
         />
       </div>
     </template>
@@ -47,10 +47,8 @@
         sizes="100, 50, 50"
         percentage
       >
-        <h2>{{ $tr('chooseExercises') }}</h2>
-
+        <h1>{{ $tr('chooseExercises') }}</h1>
       </KGridItem>
-
       <KGridItem
         sizes="100, 50, 50"
         percentage
@@ -86,6 +84,9 @@
       :topicsLink="topicsLink"
     />
 
+    <h2>{{ topicTitle }}</h2>
+    <p>{{ topicDescription }}</p>
+
     <ContentCardList
       :contentList="filteredContentList"
       :showSelectAll="selectAllIsVisible"
@@ -102,14 +103,16 @@
       @moreresults="handleMoreResults"
     />
 
-    <PreviewNewExamModal
-      v-if="showPreviewNewExamModal"
+    <CreateExamPreview
+      v-if="showCreateExamPreview"
       :examQuestionSources="questionSources"
       :examSeed="examSeed"
       :examNumQuestions="examNumberOfQuestions"
       :exerciseContentNodes="selectedExercises"
       @randomize="randomize"
       @close="setExamsModal(null)"
+      @submit="finish"
+      @cancel="goBack"
     />
 
   </div>
@@ -142,7 +145,7 @@
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
-  import PreviewNewExamModal from './PreviewNewExamModal';
+  import CreateExamPreview from './CreateExamPreview';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -155,7 +158,7 @@
     components: {
       KButton,
       KTextbox,
-      PreviewNewExamModal,
+      CreateExamPreview,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
@@ -166,24 +169,25 @@
     },
     mixins: [responsiveWindow],
     $trs: {
-      createNewExam: 'Create new exam',
+      createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       title: 'Title',
+      duplicateTitle: 'A quiz with that name already exists',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of exam questions.',
+        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
       preview: 'Preview',
-      saveButtonlabel: 'Save',
+      continueButtonlabel: 'Continue',
       // TODO: Interpolate strings correctly
-      added: 'Added',
-      removed: 'Removed',
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
       selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new exam',
+      documentTitle: 'Create new quiz',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:
@@ -192,7 +196,7 @@
     data() {
       return {
         examTitle: '',
-        examNumberOfQuestions: '',
+        examNumberOfQuestions: 10,
         examSeed: null,
         titleBlurred: false,
         numQuestBlurred: false,
@@ -371,7 +375,7 @@
       uniqueSelectedExercises() {
         return uniqBy(this.selectedExercises, 'content_id');
       },
-      showPreviewNewExamModal() {
+      showCreateExamPreview() {
         return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
       },
       channelsLink() {
@@ -381,6 +385,18 @@
             classId: this.classId,
           },
         };
+      },
+      topicTitle() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].title;
+      },
+      topicDescription() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].description;
       },
     },
     watch: {
@@ -497,13 +513,18 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
-        const topicTitle = this.ancestors[this.ancestors.length - 1].title;
         if (isChecked) {
           this.addToSelectedExercises(this.addableExercises);
-          this.createSnackbar({ text: `${this.$tr('added')} ${topicTitle}`, autoDismiss: true });
+          this.createSnackbar({
+            text: this.$tr('added', { item: this.topicTitle }),
+            autoDismiss: true,
+          });
         } else {
           this.removeFromSelectedExercises(this.allExercises);
-          this.createSnackbar({ text: `${this.$tr('removed')} ${topicTitle}`, autoDismiss: true });
+          this.createSnackbar({
+            text: this.$tr('removed', { item: this.topicTitle }),
+            autoDismiss: true,
+          });
         }
       },
       toggleSelected({ checked, contentId }) {
@@ -514,28 +535,28 @@
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('added')} ${contentNode.title}`,
+            text: this.$tr('added', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (checked && !isTopic) {
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('added')} ${contentNode.title}`,
+            text: this.$tr('added', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('removed')} ${contentNode.title}`,
+            text: this.$tr('removed', { item: contentNode.title }),
             autoDismiss: true,
           });
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
-            text: `${this.$tr('removed')} ${contentNode.title}`,
+            text: this.$tr('removed', { item: contentNode.title }),
             autoDismiss: true,
           });
         }
@@ -574,13 +595,16 @@
           });
         }
       },
-      preview() {
+      continueProcess() {
         this.previewOrSubmissionAttempt = true;
         if (this.formIsInvalid) {
           this.focusOnInvalidField();
         } else {
           this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
         }
+      },
+      goBack() {
+        this.setExamsModal(null);
       },
       finish() {
         this.previewOrSubmissionAttempt = true;
@@ -643,8 +667,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .search-box {
     display: inline-block;

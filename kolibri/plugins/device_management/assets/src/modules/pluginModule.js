@@ -3,6 +3,7 @@ import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
 import userPermissions from './userPermissions';
+import coreBase from './coreBase';
 
 export default {
   state: {
@@ -46,5 +47,7 @@ export default {
     userPermissions,
     // MANAGE_CONTENT_PAGE + wizards
     manageContent,
+    // CoreBase properties
+    coreBase,
   },
 };

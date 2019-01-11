@@ -12,7 +12,6 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-import vue from 'vue';
 import vuex from 'vuex';
 import seededshuffle from 'seededshuffle';
 import UiAlert from 'keen-ui/src/UiAlert';
@@ -59,7 +58,6 @@ import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
 import CoreFullscreen from '../views/CoreFullscreen';
-import theme from '../styles/core-theme.scss';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
@@ -97,6 +95,8 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import * as colour from '../utils/colour';
+import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
 
@@ -181,7 +181,6 @@ export default {
   },
   resources,
   styles: {
-    theme,
     definitions,
     keenVars,
     buttonAndLinkStyles,
@@ -189,6 +188,7 @@ export default {
   urls,
   utils: {
     contentNode,
+    colour,
     browser,
     exams,
     validators,

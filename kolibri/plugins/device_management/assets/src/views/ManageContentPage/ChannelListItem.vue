@@ -3,12 +3,12 @@
   <component
     :is="componentTemplate"
     class="channel-list-item"
-    :style="verticalPadding"
+    :style="[verticalPadding, { borderTop: `1px solid ${$coreGrey}` } ]"
   >
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
         <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon">
+        <div v-else class="default-icon" :style="{ backgroundColor: $coreGrey }">
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>
@@ -21,7 +21,7 @@
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version">
+      <div class="version" :style="{ color: $coreTextAnnotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
@@ -32,7 +32,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            class="on-device-icon"
+            :style="{ fill: $coreStatusCorrect }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
@@ -124,6 +124,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreGrey', '$coreStatusCorrect', '$coreTextAnnotation']),
       ...mapGetters('manageContent', ['channelIsInstalled']),
       ...mapState('manageContent', ['taskList']),
       manageChannelActions() {
@@ -205,6 +206,7 @@
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',
+      channelNotAvailable: 'This channel is no longer available',
     },
   };
 
@@ -213,19 +215,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .channel-list-item {
-    border-top: 1px solid $core-grey;
-  }
-
   .title {
     display: inline;
   }
 
   .version {
     font-size: 0.85em;
-    color: $core-text-annotation;
   }
 
   .thumbnail {
@@ -234,16 +229,11 @@
 
   .default-icon {
     text-align: center;
-    background-color: $core-grey;
     svg {
       width: 30%;
       height: 30%;
       margin: 20px;
     }
-  }
-
-  .on-device-icon {
-    fill: $core-status-correct;
   }
 
   .on-device-text {

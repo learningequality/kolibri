@@ -141,8 +141,8 @@ class MetricsMiddleware(MiddlewareMixin):
             path = request.get_full_path()
             duration, memory_before, memory, load_before, load = self.metrics.get_stats()
             max_time = False
-            if duration > MetricsMiddleware.slowest_request_time:
-                MetricsMiddleware.slowest_request_time = duration
+            if int(duration) > MetricsMiddleware.slowest_request_time:
+                MetricsMiddleware.slowest_request_time = int(duration)
                 max_time = True
             timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
             collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))

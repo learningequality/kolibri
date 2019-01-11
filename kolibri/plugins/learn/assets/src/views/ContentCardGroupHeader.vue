@@ -4,7 +4,7 @@
 
     <div class="card-group-details">
 
-      <h2 v-if="header" class="card-group-details-header">
+      <h2 v-if="header" class="card-group-details-header" :style="{ color: $coreTextDefault }">
         {{ header }}
       </h2>
 
@@ -21,6 +21,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   export default {
@@ -34,14 +35,15 @@
       viewMorePageLink: { type: Object },
       showViewMore: { type: Boolean },
     },
+    computed: {
+      ...mapGetters(['$coreTextDefault']),
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   $header-size: 21px;
 
@@ -62,7 +64,6 @@
     margin: 0;
     clear: none;
     font-size: $header-size;
-    color: $core-text-default;
     text-align: left;
   }
 

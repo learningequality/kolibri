@@ -43,7 +43,7 @@ const routes = [
     path: '/permissions/:userid',
     handler: ({ params, name }) => {
       store.dispatch('preparePage', { name });
-      showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+      showUserPermissionsPage(store, params.userid);
     },
   },
   {

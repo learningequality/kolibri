@@ -1,3 +1,5 @@
+import isPlainObject from 'lodash/isPlainObject';
+
 /* eslint-disable no-use-before-define */
 const cloneArray = array => array.map(item => cloneDeep(item));
 
@@ -15,7 +17,7 @@ const cloneDeep = object => {
   if (Array.isArray(object)) {
     // is an array
     return cloneArray(object);
-  } else if (object && typeof object === 'object' && Object.keys(object).length) {
+  } else if (object && isPlainObject(object)) {
     // is an object
     return cloneObject(object);
   }

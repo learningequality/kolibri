@@ -1,6 +1,6 @@
 <template>
 
-  <div class="snackbar">
+  <div class="snackbar" :style="{ backgroundColor: $coreBgCanvas }">
     <div class="table">
       <div class="row">
         <div class="icon-container cell">
@@ -28,6 +28,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
   export default {
@@ -38,14 +39,15 @@
     components: {
       UiIconButton,
     },
+    computed: {
+      ...mapGetters(['$coreBgCanvas']),
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .snackbar {
     position: fixed;
@@ -55,7 +57,6 @@
     width: 304px;
     padding: 8px;
     font-size: 14px;
-    background-color: $core-bg-canvas;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
       0 1px 10px 0 rgba(0, 0, 0, 0.12);
     animation-duration: 0.3s;

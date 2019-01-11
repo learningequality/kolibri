@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <PreviewExamModal
+    <ExamPreview
       v-if="examsModalSet === ExamModals.PREVIEW_EXAM"
       :examQuestionSources="exam.question_sources"
       :examSeed="exam.seed"
@@ -64,7 +64,7 @@
   import { mapState, mapActions } from 'vuex';
   import xorWith from 'lodash/xorWith';
   import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
-  import PreviewExamModal from '../CoachExamsPage/PreviewExamModal';
+  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
@@ -75,7 +75,7 @@
     name: 'ManageExamModals',
     components: {
       AssignmentChangeStatusModal,
-      PreviewExamModal,
+      ExamPreview,
       AssignmentDetailsModal,
       AssignmentCopyModal,
       AssignmentDeleteModal,
@@ -149,17 +149,18 @@
       },
     },
     $trs: {
-      changeExamStatusTitle: 'Change exam status',
-      changeExamStatusDescription: 'Learners can only see active exams',
-      copyExamTitle: 'Copy exam to',
+      changeExamStatusTitle: 'Change quiz status',
+      changeExamStatusDescription: 'Learners can only see active quizzes',
+      copyExamTitle: 'Copy quiz to',
       changeExamStatusActive: 'Active',
       changeExamStatusInactive: 'Inactive',
-      assignmentQuestion: 'Assign exam to',
-      deleteExamTitle: 'Delete exam',
+      assignmentQuestion: 'Assign quiz to',
+      deleteExamTitle: 'Delete quiz',
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
-      deleteExamConfirmation: 'All learner progress on this exam will be lost.',
-      editExamDetails: 'Edit exam details',
-      saveExamError: 'There was a problem saving this exam',
+      deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
+      editExamDetails: 'Edit quiz details',
+      duplicateTitle: 'A quiz with that name already exists',
+      saveExamError: 'There was a problem saving this quiz',
       copyOfExam: 'Copy of { examTitle }',
     },
   };

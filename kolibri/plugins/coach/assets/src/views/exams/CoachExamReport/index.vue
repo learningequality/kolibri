@@ -19,9 +19,9 @@
     :questions="questions"
     :exerciseContentNodes="exerciseContentNodes"
   />
-  <div v-else class="no-exercise-x">
-    <mat-svg category="navigation" name="close" />
-  </div>
+  <p v-else class="no-exercise">
+    {{ $tr('missingContent') }}
+  </p>
 
 </template>
 
@@ -91,7 +91,8 @@
       },
     },
     $trs: {
-      documentTitle: 'Exam Report Detail',
+      documentTitle: 'Quiz report detail',
+      missingContent: 'This quiz cannot be displayed because some content was deleted',
     },
   };
 
@@ -102,10 +103,6 @@
 
   .no-exercise-x {
     text-align: center;
-    svg {
-      width: 200px;
-      height: 200px;
-    }
   }
 
 </style>

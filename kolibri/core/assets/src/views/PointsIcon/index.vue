@@ -21,10 +21,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-</style>

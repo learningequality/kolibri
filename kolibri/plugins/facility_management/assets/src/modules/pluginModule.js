@@ -4,6 +4,7 @@ import classEditManagement from './classEditManagement';
 import classManagement from './classManagement';
 import facilityConfig from './facilityConfig';
 import userManagement from './userManagement';
+import manageCSV from './manageCSV';
 
 export default {
   state: {
@@ -36,5 +37,6 @@ export default {
     classAssignMembers,
     userManagement,
     facilityConfig,
+    manageCSV,
   },
 };

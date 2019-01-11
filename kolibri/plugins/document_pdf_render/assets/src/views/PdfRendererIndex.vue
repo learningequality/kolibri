@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
+    :style="{ backgroundColor: $coreTextDefault }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <KLinearLoader
@@ -83,6 +84,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import urls from 'kolibri.urls';
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
 
@@ -90,7 +92,7 @@
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
-  PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
+  PDFJSLib.PDFJS.workerSrc = urls.static(`${__kolibriModuleName}/pdfJSWorker-${__version}.js`);
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -121,7 +123,7 @@
       updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['sessionTimeSpent', '$coreTextDefault']),
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -339,12 +341,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .pdf-renderer {
     position: relative;
     height: 500px;
-    background-color: $core-text-default;
   }
 
   .controls {

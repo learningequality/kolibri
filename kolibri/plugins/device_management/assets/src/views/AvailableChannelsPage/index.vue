@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header">
+      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
         {{ $tr('channelHeader') }}
       </div>
 
@@ -136,6 +136,7 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
@@ -195,20 +196,20 @@
     watch: {
       // HACK doing it here to avoid moving $trs out of the component
       transferType(val) {
-        this.setToolbarTitle(this.toolbarTitle(val));
+        this.setAppBarTitle(this.toolbarTitle(val));
       },
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
       if (this.status) {
-        this.setToolbarTitle(this.$tr('pageLoadError'));
+        this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
-        this.setToolbarTitle(this.toolbarTitle(this.transferType));
+        this.setAppBarTitle(this.toolbarTitle(this.transferType));
       }
     },
     methods: {
-      ...mapMutations('manageContent', {
-        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      ...mapMutations('coreBase', {
+        setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
@@ -285,12 +286,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-    color: $core-text-annotation;
   }
 
   .top-matter {

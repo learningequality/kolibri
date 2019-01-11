@@ -13,7 +13,7 @@
         >
           <KButton
             ref="decreaseFontSizeButton"
-            class="settings-button"
+            :class="['settings-button', $computedClass(settingsButtonFocus)]"
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
@@ -31,7 +31,7 @@
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
-            class="settings-button"
+            :class="['settings-button', $computedClass(settingsButtonFocus)]"
             @click="$emit('increaseFontSize')"
           >
             <mat-svg
@@ -57,7 +57,7 @@
           :percentage="false"
         >
           <KButton
-            class="settings-button theme-button"
+            :class="['settings-button', 'theme-button', $computedClass(settingsButtonFocus)]"
             :style="{ backgroundColor: value.backgroundColor }"
             :aria-label="generateThemeAriaLabel(key)"
             @click="$emit('setTheme', value)"
@@ -128,6 +128,13 @@
       themes() {
         return THEMES;
       },
+      settingsButtonFocus() {
+        return {
+          ':focus': {
+            outline: this.$coreOutline,
+          },
+        };
+      },
     },
     methods: {
       generateThemeAriaLabel(themeName) {
@@ -158,8 +165,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   @import './EpubStyles';
 
   .settings-button.button.secondary.raised {
@@ -169,9 +174,6 @@
     margin: 2px;
     line-height: unset;
     transition: none;
-    &:focus {
-      outline: $core-outline;
-    }
   }
 
   .theme-button {

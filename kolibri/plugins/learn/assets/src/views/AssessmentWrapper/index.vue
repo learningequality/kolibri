@@ -45,16 +45,20 @@ oriented data synchronization.
     <div
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
+      :style="{ backgroundColor: $coreBgLight }"
     >
       <div class="margin-wrapper">
-        <div class="overall-status">
+        <div class="overall-status" :style="{ color: $coreTextDefault }">
           <mat-svg
             name="stars"
             category="action"
-            :class="success ? 'mastered' : 'not-mastered'"
+            :style="{
+              fill: success ? $coreStatusMastered : $coreGrey,
+              verticalAlign: 0,
+            }"
           />
           <div class="overall-status-text">
-            <div v-if="success" class="completed">
+            <div v-if="success" class="completed" :style="{ color: $coreTextAnnotation }">
               {{ $tr('completed') }}
             </div>
             <div>
@@ -205,7 +209,15 @@ oriented data synchronization.
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        '$coreBgLight',
+        '$coreBgLight',
+        '$coreGrey',
+        '$coreStatusMastered',
+        '$coreTextAnnotation',
+        '$coreTextDefault',
+      ]),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
       }),
@@ -537,7 +549,6 @@ oriented data synchronization.
     margin: 0;
     overflow-x: hidden;
     font-size: 14px;
-    background-color: $core-bg-light;
     box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
       0 6px 30px 5px rgba(0, 0, 0, 0.12);
   }
@@ -553,20 +564,6 @@ oriented data synchronization.
 
   .overall-status {
     margin-bottom: 8px;
-    color: $core-text-default;
-  }
-
-  .mastered,
-  .not-mastered {
-    vertical-align: 0;
-  }
-
-  .mastered {
-    fill: $core-status-mastered;
-  }
-
-  .not-mastered {
-    fill: $core-grey;
   }
 
   .overall-status-text {
@@ -576,7 +573,6 @@ oriented data synchronization.
 
   .completed {
     font-size: 12px;
-    color: $core-text-annotation;
   }
 
   .table {
@@ -606,10 +602,9 @@ oriented data synchronization.
 
   // checkAnswer btn animation
   .shaking {
-    transform: translate3d(0, 0, 0);
+    @extend %enable-gpu-acceleration;
+
     animation: shake 0.8s ease-in-out both;
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   @keyframes shake {

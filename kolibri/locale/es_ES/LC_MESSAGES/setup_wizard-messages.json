@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "Asistente de configuración",
   "SetupWizardIndex.onboardingFinishButton": "Finalizar",
   "SetupWizardIndex.onboardingNextStepButton": "Continuar",
-  "SetupWizardIndex.personalFacilityName": "Kolibri en casa {name}",
+  "SetupWizardIndex.personalFacilityName": "Kolibri de mi casa {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Esta cuenta permite gestionar el centro educativo, el contenido y las cuentas de usuario en este dispositivo",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Crear la cuenta de super administrador",
   "SuperuserCredentialsForm.adminNameFieldLabel": "Nombre completo",

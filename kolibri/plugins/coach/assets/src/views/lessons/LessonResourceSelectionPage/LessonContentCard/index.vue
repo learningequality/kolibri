@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="content-card">
+  <router-link :to="link" class="content-card" :style="{ backgroundColor: $coreBgLight }">
 
     <CardThumbnail
       class="thumbnail"
@@ -9,7 +9,7 @@
       :isMobile="true"
     />
 
-    <div class="text">
+    <div class="text" :style="{ color: $coreTextDefault }">
       <h3
         class="title"
         :class="{'has-message': Boolean(message)}"
@@ -17,10 +17,15 @@
       >
         {{ title }}
       </h3>
-      <div v-if="message" class="message">
+      <div v-if="message" class="message" :style="{ color: $coreTextDefault }">
         {{ message }}
       </div>
-
+      <!--
+      <p class="ancestors">
+        {{ $tr('topic') }} <KRouterLink text="TODO" :to="{}" />
+        {{ $tr('channel') }} <KRouterLink text="TODO" :to="{}" />
+      </p>
+       -->
       <TextTruncator
         :text="description"
         :maxHeight="80"
@@ -32,6 +37,13 @@
         :value="numCoachContents"
         :isTopic="isTopic"
       />
+      <p class="ancestors">
+        <KRouterLink
+          v-if="!isTopic"
+          :text="$tr('previewButtonLabel')"
+          :to="{}"
+        />
+      </p>
     </div>
 
   </router-link>
@@ -41,7 +53,9 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -53,6 +67,7 @@
       CardThumbnail,
       TextTruncator,
       CoachContentLabel,
+      KRouterLink,
     },
     props: {
       title: {
@@ -90,6 +105,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       isTopic() {
         return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },
@@ -98,9 +114,9 @@
       // These strings are not used yet
       resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
       selectedResourcesInTopic: '{selected} of {total} selected',
-      previewButtonLabel: 'Preview',
-      goToTopicButtonLabel: 'Go to topic',
-      searchResultTopicLink: 'From {parentTopic} in {channelName}',
+      previewButtonLabel: 'View',
+      topic: 'Topic:',
+      channel: 'Channel:',
     },
   };
 
@@ -122,7 +138,6 @@
     margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
-    background-color: $core-bg-light;
     border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
@@ -144,7 +159,6 @@
     width: calc(100% - #{$left-offset});
     padding: 16px;
     overflow-y: auto;
-    color: $core-text-default;
   }
 
   .title,
@@ -173,11 +187,15 @@
     font-size: 14px;
   }
 
+  .ancestors {
+    margin-top: 8px;
+    font-size: smaller;
+  }
+
   .message {
     position: absolute;
     top: 16px;
     right: 16px;
-    color: $core-text-default;
   }
 
 </style>

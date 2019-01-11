@@ -16,6 +16,7 @@ function createQuestionList(questionSources) {
       acc.concat(
         Array.from(Array(val.number_of_questions).keys()).map(assessmentItemIndex => ({
           contentId: val.exercise_id,
+          title: val.title,
           assessmentItemIndex,
         }))
       ),
@@ -85,6 +86,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
                   contentNodeMap[question.contentId]
                 ),
                 contentId: question.contentId,
+                title: question.title,
               }));
 
             // When all the Exercises are not available on the server

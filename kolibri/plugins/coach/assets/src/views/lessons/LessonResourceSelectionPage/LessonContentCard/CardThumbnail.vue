@@ -11,6 +11,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
+      :style="{ color: $coreTextAnnotation }"
     />
 
   </div>
@@ -20,6 +21,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import CornerIcon from './CornerIcon';
@@ -42,11 +44,12 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation', '$coreBgLight']),
       thumbnailBackground() {
-        if (this.thumbnail) {
-          return { backgroundImage: `url('${this.thumbnail}')` };
-        }
-        return {};
+        return {
+          backgroundColor: this.$coreBgLight,
+          backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
+        };
       },
     },
   };
@@ -56,14 +59,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './card';
 
   .card-thumbnail-wrapper {
     position: absolute;
     width: $thumb-width;
     height: $thumb-height;
-    background-color: $core-bg-light;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -73,7 +74,6 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    color: $core-text-annotation;
     transform: translate(-50%, -50%) scale(2);
   }
 

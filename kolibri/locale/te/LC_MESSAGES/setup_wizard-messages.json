@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "సెటప్ విజార్డ్",
   "SetupWizardIndex.onboardingFinishButton": "పూర్తయింది",
   "SetupWizardIndex.onboardingNextStepButton": "కొనసాగించు",
-  "SetupWizardIndex.personalFacilityName": "హోమ్ సదుపాయం {name}",
+  "SetupWizardIndex.personalFacilityName": "",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "ఈ పరికరంలో సదుపాయం, కంటెంట్ మరియు వినియోగదారు ఖాతాలను నిర్వహించగలిగేలా ఈ ఖాతా మిమ్మల్ని అనుమతిస్తుంది",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "ప్రధాన నిర్వాహక ఖాతాని సృష్టించండి",
   "SuperuserCredentialsForm.adminNameFieldLabel": "పూర్తి పేరు",

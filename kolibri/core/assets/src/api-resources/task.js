@@ -1,5 +1,5 @@
 import pickBy from 'lodash/pickBy';
-import { Resource } from '../api-resource';
+import { Resource } from 'kolibri.lib.apiResource';
 
 export default new Resource({
   name: 'task',
@@ -58,7 +58,7 @@ export default new Resource({
   },
 
   /**
-   * Initiates a Task that exports Channel Content to a local drive
+   * Initiates a Task that exports) Channel Content to a local drive
    *
    * @param {string} params.channel_id -
    * @param {string} params.drive_id -
@@ -70,6 +70,17 @@ export default new Resource({
   startDiskContentExport(params) {
     // Not naming it after URL to keep internal consistency
     return this.postListEndpoint('startdiskexport', pickBy(params));
+  },
+
+  /**
+   * Initiates a Task that creates a csv file with the log data of the logger
+   *
+   * @param {string} params.logtype - session or summary
+   * @returns {Promise}
+   *
+   */
+  startexportlogcsv(params) {
+    return this.postListEndpoint('startexportlogcsv', pickBy(params));
   },
 
   deleteChannel(channelId) {
@@ -91,5 +102,9 @@ export default new Resource({
 
   clearTasks() {
     return this.postListEndpoint('cleartasks');
+  },
+
+  deleteFinishedTasks() {
+    return this.postListEndpoint('deletefinishedtasks');
   },
 });

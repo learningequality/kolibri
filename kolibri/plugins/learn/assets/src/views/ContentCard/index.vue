@@ -1,11 +1,16 @@
 <template>
 
-  <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile }">
+  <router-link
+    :to="link"
+    class="card"
+    :class="{ 'mobile-card': isMobile }"
+    :style="{ backgroundColor: $coreBgLight }"
+  >
     <CardThumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
-    <div class="text">
+    <div class="text" :style="{ color: $coreTextDefault }">
       <h3 class="title" dir="auto">
         <TextTruncator
           :text="title"
@@ -42,6 +47,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -116,6 +122,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
@@ -154,7 +161,6 @@
     word-break: break-all; // fallback
     word-break: break-word;
     vertical-align: top;
-    background-color: $core-bg-light;
     border-radius: 2px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
       0 1px 5px 0 rgba(0, 0, 0, 0.12);
@@ -170,7 +176,6 @@
     position: relative;
     height: 92px;
     padding: $margin;
-    color: $core-text-default;
   }
 
   .title,
