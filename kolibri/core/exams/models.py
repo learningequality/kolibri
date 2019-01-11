@@ -84,7 +84,6 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
     archive = models.BooleanField(default=False)
 
-
     """
     As we evolve this model in ways that migrations can't handle, certain fields may
     become deprecated, and other fields may need to be interpretted differently. This
