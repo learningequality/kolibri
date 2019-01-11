@@ -82,7 +82,7 @@
   "DeviceInfoPage.hide": "چھپائیں",
   "DeviceInfoPage.kolibriVersion": "کولیبری ترجمہ",
   "DeviceInfoPage.show": "دکھائیں",
-  "DeviceInfoPage.url": "",
+  "DeviceInfoPage.url": "Server {count, plural, one {URL} other {URLs}}",
   "DeviceTopNav.channelsTabLabel": "چینلز",
   "DeviceTopNav.infoLabel": "معلومات",
   "DeviceTopNav.permissionsLabel": "اجازتیں",
