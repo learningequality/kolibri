@@ -27,7 +27,7 @@ dummy_project_info.json: project_info.template clean
 	python ./scripts/create_dummy_project_info.py
 
 
-ifdef P4A_RELEASE_KEYSTORE
+ifdef P4A_RELEASE_KEYSTORE_PASSWD
 pew_release_flag = --release
 endif
 
