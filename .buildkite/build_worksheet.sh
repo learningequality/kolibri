@@ -29,15 +29,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-PIP_CMD="$PIP_PATH install retrying"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
-
 PIP_CMD="$PIP_PATH install PyOpenSSL"
 echo "Running $PIP_CMD..."
 $PIP_CMD
