@@ -1,0 +1,24 @@
+repos:
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v2.0.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: flake8
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+        exclude: '^.+?\.json$'
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v1.3.3
+    hooks:
+    -   id: reorder-python-imports
+        language_version: python2.7
+-   repo: local
+    hooks:
+      -   id: frontend-lint
+          name: Linting of JS, Vue, SCSS and CSS files
+          description: This hook handles all frontend linting for Kolibri
+          entry: yarn run lint -w
+          language: system
+          files: \.(js|vue|scss|css)$

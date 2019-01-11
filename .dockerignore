@@ -1,0 +1,7 @@
+node_modules/*
+**/node_modules/
+build/
+kolibri/kolibri/dist/
+dist/*
+.vscode/
+Dockerfile*
