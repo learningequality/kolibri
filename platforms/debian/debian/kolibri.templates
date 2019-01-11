@@ -13,7 +13,7 @@ Template: kolibri/init-instructions
 Type: note
 Description: The Kolibri system service
  You have chosen to run Kolibri as a system
- service and it will be started automatically. You can
+ service and it has been started automatically. You can
  start/stop/restart Kolibri with the following command
  .
    sudo service kolibri [start, stop, restart]
