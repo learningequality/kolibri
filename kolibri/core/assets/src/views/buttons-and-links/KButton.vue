@@ -66,14 +66,6 @@
         default: false,
       },
     },
-    methods: {
-      handleClick(event) {
-        /**
-         * Emitted when the button is triggered
-         */
-        this.$emit('click', event);
-      },
-    },
     computed: {
       htmlTag() {
         // Necessary to allow basic links to be rendered as 'inline' instead of
@@ -82,6 +74,14 @@
           return 'a';
         }
         return 'button';
+      },
+    },
+    methods: {
+      handleClick(event) {
+        /**
+         * Emitted when the button is triggered
+         */
+        this.$emit('click', event);
       },
     },
   };

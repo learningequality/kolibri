@@ -17,15 +17,15 @@
         <KButton
           :text="$tr('download')"
           :disabled="!availableSessionCSVLog"
-          @click="downloadSessionLog"
           class="download-button"
+          @click="downloadSessionLog"
         />
       </p>
       <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
       <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
       <p v-else>
         <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
-        <GeneratedElapsedTime v-else :date="sessionDateCreated"/>
+        <GeneratedElapsedTime v-else :date="sessionDateCreated" />
         <KButton
           appearance="basic-link"
           :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
@@ -44,8 +44,8 @@
         <KButton
           :text="$tr('download')"
           :disabled="!availableSummaryCSVLog"
-          @click="downloadSummaryLog"
           class="download-button"
+          @click="downloadSummaryLog"
         />
       </p>
       <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
@@ -205,10 +205,10 @@
 
   .infobox {
     padding: 8px;
+    margin-right: -8px;
+    margin-left: -8px;
     font-size: 0.8em;
     border-radius: $radius;
-    margin-left: -8px;
-    margin-right: -8px;
   }
 
   .download-button {
