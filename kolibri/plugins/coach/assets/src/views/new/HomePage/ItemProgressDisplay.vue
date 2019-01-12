@@ -5,10 +5,10 @@
     <p><Recipients :groups="groups" /></p>
 
     <LearnerProgressRatio
-      :count="completedItems"
-      :total="totalItems"
+      :count="completed"
+      :total="total"
       :verbosity="2"
-      :icon="completedItems === totalItems ? 'star' : 'clock'"
+      :icon="progressIcon"
       verb="completed"
     />
 
@@ -42,17 +42,28 @@
         type: Array,
         required: true,
       },
-      completedItems: {
+      completed: {
         type: Number,
         required: true,
       },
-      totalItems: {
+      total: {
         type: Number,
         required: true,
       },
       needHelp: {
         type: Number,
-        required: true,
+        default: 0,
+      },
+    },
+    computed: {
+      progressIcon() {
+        if (this.completed === 0) {
+          return 'nothing';
+        }
+        if (this.completed === this.total) {
+          return 'star';
+        }
+        return 'clock';
       },
     },
   };
