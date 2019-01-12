@@ -3,6 +3,34 @@ Release Notes
 
 List of the most important changes for each release.
 
+0.11.1
+------
+
+Added
+~~~~~
+
+  - Support for RTL EPubs
+  - Support for Python 3.7
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+  - Fullscreen renderer mode now works in Chrome 71
+  - Account sign up now works when guest access is disabled
+  - Navigating in and out of exercise detail views is fixed
+  - Misleading exam submission modal text is now more accurate
+  - Browsing content tree in exam creation is now faster
+  - Unavailable content in coach reports is now viewable
+  - Content import errors are handled better
+  - Added command to restore availability of content after bad upgrade
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   - Added Fufulde Mboroore
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.1>`__ of changes on Github
+
 0.11.0
 ------
 

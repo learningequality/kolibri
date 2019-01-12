@@ -6,6 +6,9 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const propsData = {
     id: 'test',
     kind: 'test',
+    assessmentIds: [],
+    masteryModel: masteryModel || {},
+    randomize: false,
   };
   const store = makeStore();
   store.state.core = {
@@ -19,13 +22,6 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
       user_id: 'test',
     },
   };
-  store.commit('topicsTree/SET_STATE', {
-    content: {
-      assessmentIds: [],
-      masteryModel: masteryModel || {},
-      randomize: false,
-    },
-  });
   const Component = Vue.extend(assessmentWrapper);
   return new Component({ propsData, store });
 };

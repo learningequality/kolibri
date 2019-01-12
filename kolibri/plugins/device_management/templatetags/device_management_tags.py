@@ -33,4 +33,4 @@ def device_management_assets():
 
     :return: HTML of script tags to insert into device_management.html
     """
-    return webpack_asset_render(DeviceManagementSyncHook, async=False)
+    return webpack_asset_render(DeviceManagementSyncHook, is_async=False)

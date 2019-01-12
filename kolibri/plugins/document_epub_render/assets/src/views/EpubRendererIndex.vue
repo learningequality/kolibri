@@ -13,6 +13,7 @@
 
     <div
       v-show="loaded"
+      :dir="dir"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
@@ -107,6 +108,7 @@
           <PreviousButton
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
             @goToPreviousPage="goToPreviousPage"
           />
         </div>
@@ -123,6 +125,7 @@
           <NextButton
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -160,6 +163,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import { getContentLangDir } from 'kolibri.utils.i18n';
 
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
@@ -255,7 +259,7 @@
           color: `${this.textColor}!important`,
         };
         const alignmentStyle = {
-          'text-align': 'left!important',
+          'text-align': `${this.isRtl ? 'right' : 'left'}!important`,
         };
         const fontSizeStyle = this.fontSize ? { 'font-size': `${this.fontSize}!important` } : {};
 
@@ -345,6 +349,12 @@
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
+      dir() {
+        return getContentLangDir(this.lang);
+      },
+      isRtl() {
+        return this.dir === 'rtl';
+      },
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -399,6 +409,10 @@
         }
       },
     },
+    created() {
+      // Try to load the appropriate directional CSS for the particular content
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.dir);
+    },
     beforeMount() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
@@ -409,7 +423,7 @@
       this.fontSize = savedFontSize;
     },
     mounted() {
-      this.book.ready.then(() => {
+      Promise.all([this.cssPromise, this.book.ready]).then(() => {
         if (this.book.navigation) {
           this.toc = this.book.navigation.toc;
         }

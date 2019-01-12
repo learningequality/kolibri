@@ -22,12 +22,14 @@
             <KExternalLink
               href="https://learningequality.org/documentation/"
               :text="$tr('demoServerA1')"
+              target="_blank"
             />
           </li>
           <li>
             <KExternalLink
               href="https://learningequality.org/download/"
               :text="$tr('demoServerA2')"
+              target="_blank"
             />
           </li>
         </ul>
