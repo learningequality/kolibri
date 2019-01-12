@@ -1,4 +1,3 @@
-
 /*
  * This is an auto-generated file, so any manual edits will be overridden.
  *
@@ -330,13 +329,14 @@ ZnJhYwAgbGlnYQAobnVtcgAuAAAAAQABAAAAAgACAAMAAAABAAUAAAABAAAABgAcAA4AHAA0\
 AFgAcAABAAAAAQAIAAEAFABbAAEAAAABAAgAAQAGAF8AAgABAAIABQAAAAYAAAABAAgAAwAB\
 ABIAAQAqAAAAAQAAAAQAAgABAF0AYAAAAAEAAAABAAgAAQAG//wAAgABAGEAZAAAAAQAAAAB\
 AAgAAQA2AAEACAAFAAwAFAAcACIAKABaAAMAJgApAFsAAwAmACwAVwACACYAWAACACkAWQAC\
-ACwAAQABACYAAA==') format('woff');
+ACwAAQABACYAAA==')
+    format('woff');
   font-style: normal;
   font-weight: normal;
-  unicode-range: U+20,U+30-32,U+35,U+41-5A,U+61-7A,U+C0,U+C7-CA,U+CE,U+D4,U+D9,U+DB,U+E0,U+E7-EA,U+EE,U+F4,U+F9,U+FB,U+116-117;
+  unicode-range: U+20, U+30-32, U+35, U+41-5A, U+61-7A, U+C0, U+C7-CA, U+CE, U+D4, U+D9, U+DB, U+E0,
+    U+E7-EA, U+EE, U+F4, U+F9, U+FB, U+116-117;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'noto-subset';
   src: url('data:application/x-font-woff;charset=utf-8;base64,\
@@ -653,9 +653,11 @@ b20AGmZyYWMAIGxpZ2EAKG51bXIALgAAAAEAAQAAAAIAAgADAAAAAQAFAAAAAQAAAAYAHAAO\
 ABwANABYAHAAAQAAAAEACAABABQAWwABAAAAAQAIAAEABgBfAAIAAQACAAUAAAAGAAAAAQAI\
 AAMAAQASAAEAKgAAAAEAAAAEAAIAAQBdAGAAAAABAAAAAQAIAAEABv/8AAIAAQBhAGQAAAAE\
 AAAAAQAIAAEANgABAAgABQAMABQAHAAiACgAWgADACYAKQBbAAMAJgAsAFcAAgAmAFgAAgAp\
-AFkAAgAsAAEAAQAmAAA=') format('woff');
+AFkAAgAsAAEAAQAmAAA=')
+    format('woff');
   font-style: normal;
   font-weight: bold;
-  unicode-range: U+20,U+30-32,U+35,U+41-5A,U+61-7A,U+C0,U+C7-CA,U+CE,U+D4,U+D9,U+DB,U+E0,U+E7-EA,U+EE,U+F4,U+F9,U+FB,U+116-117;
+  unicode-range: U+20, U+30-32, U+35, U+41-5A, U+61-7A, U+C0, U+C7-CA, U+CE, U+D4, U+D9, U+DB, U+E0,
+    U+E7-EA, U+EE, U+F4, U+F9, U+FB, U+116-117;
   font-display: swap;
 }

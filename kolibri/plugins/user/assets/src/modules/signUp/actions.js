@@ -4,8 +4,8 @@ import CatchErrors from 'kolibri.utils.CatchErrors';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
 export function signUpNewUser(store, signUpCreds) {
-  store.commit('SET_SIGN_UP_BUSY', true);
   store.commit('RESET_STATE');
+  store.commit('SET_SIGN_UP_BUSY', true);
   return SignUpResource.saveModel({ data: signUpCreds })
     .then(() => {
       redirectBrowser();

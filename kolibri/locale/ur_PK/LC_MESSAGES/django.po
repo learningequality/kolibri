@@ -79,4 +79,3 @@ msgstr "آپ اپنے موجودہ براؤزر کو اپ ڈیٹ کرنے کی �
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "کوئی مناسب صفحات نہیں ملے۔ ممکن ہے کہ یہ کولیبری بری طرح تشکیل کیا گیا ہے"
-

@@ -79,4 +79,3 @@ msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
-
