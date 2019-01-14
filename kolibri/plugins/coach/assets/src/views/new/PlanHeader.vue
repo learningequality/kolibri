@@ -19,7 +19,7 @@
       />
       <KRouterLink
         :text="coachStrings.$tr('quizzesLabel')"
-        :to="classRoute(PageNames.PlanQuizListPage)"
+        :to="classRoute('EXAMS')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

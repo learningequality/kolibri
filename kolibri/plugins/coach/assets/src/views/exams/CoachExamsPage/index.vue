@@ -1,72 +1,84 @@
 <template>
 
-  <div>
-    <h1>{{ $tr('exams') }}</h1>
-    <div class="filter-and-button">
-      <KSelect
-        v-model="statusSelected"
-        :label="$tr('show')"
-        :options="statusOptions"
-        :inline="true"
-      />
-      <KRouterLink
-        :primary="true"
-        appearance="raised-button"
-        :to="newExamRoute"
-        :text="$tr('newExam')"
-      />
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+    <TopNavbar slot="sub-nav" />
+
+    <div class="new-coach-block">
+      <PlanHeader />
+
+      <h1>{{ $tr('exams') }}</h1>
+      <div class="filter-and-button">
+        <KSelect
+          v-model="statusSelected"
+          :label="$tr('show')"
+          :options="statusOptions"
+          :inline="true"
+        />
+        <KRouterLink
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="$tr('newExam')"
+        />
+      </div>
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('title') }}</th>
+            <th>{{ $tr('assignedGroupsHeader') }}</th>
+            <th>
+              {{ $tr('status') }}
+              <CoreInfoIcon
+                :iconAriaLabel="$tr('statusDescription')"
+                :tooltipText="$tr('statusTooltipText')"
+                tooltipPlacement="bottom"
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr
+            v-for="exam in filteredExams"
+            :key="exam.id"
+          >
+            <td class="core-table-icon-col">
+              <ContentIcon :kind="examKind" />
+            </td>
+
+            <td class="core-table-main-col">
+              <KRouterLink
+                :text="exam.title"
+                :to="genExamRoute(exam.id)"
+              />
+            </td>
+
+            <td> {{ genRecipientsString(exam.assignments) }} </td>
+
+            <td>
+              <StatusIcon :active="exam.active" :type="examKind" />
+            </td>
+          </tr>
+        </tbody>
+      </CoreTable>
+
+      <p v-if="!exams.length">
+        {{ $tr('noExams') }}
+      </p>
+      <p v-else-if="statusSelected.value === $tr('activeExams') && !activeExams.length">
+        {{ $tr('noActiveExams') }}
+      </p>
+      <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
+        {{ $tr('noInactiveExams') }}
+      </p>
     </div>
-    <CoreTable>
-      <thead slot="thead">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('title') }}</th>
-          <th>{{ $tr('assignedGroupsHeader') }}</th>
-          <th>
-            {{ $tr('status') }}
-            <CoreInfoIcon
-              :iconAriaLabel="$tr('statusDescription')"
-              :tooltipText="$tr('statusTooltipText')"
-              tooltipPlacement="bottom"
-            />
-          </th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr
-          v-for="exam in filteredExams"
-          :key="exam.id"
-        >
-          <td class="core-table-icon-col">
-            <ContentIcon :kind="examKind" />
-          </td>
-
-          <td class="core-table-main-col">
-            <KRouterLink
-              :text="exam.title"
-              :to="genExamRoute(exam.id)"
-            />
-          </td>
-
-          <td> {{ genRecipientsString(exam.assignments) }} </td>
-
-          <td>
-            <StatusIcon :active="exam.active" :type="examKind" />
-          </td>
-        </tr>
-      </tbody>
-    </CoreTable>
-
-    <p v-if="!exams.length">
-      {{ $tr('noExams') }}
-    </p>
-    <p v-else-if="statusSelected.value === $tr('activeExams') && !activeExams.length">
-      {{ $tr('noActiveExams') }}
-    </p>
-    <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
-      {{ $tr('noInactiveExams') }}
-    </p>
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -82,6 +94,8 @@
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import StatusIcon from '../../assignments/StatusIcon';
   import { PageNames } from '../../../constants';
+  import imports from '../../new/imports';
+  import PlanHeader from '../../new/PlanHeader';
 
   export default {
     name: 'CoachExamsPage',
@@ -111,6 +125,7 @@
       };
     },
     components: {
+      PlanHeader,
       CoreTable,
       KRouterLink,
       KSelect,
@@ -118,6 +133,7 @@
       ContentIcon,
       StatusIcon,
     },
+    mixins: [imports],
     data() {
       return {
         statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },

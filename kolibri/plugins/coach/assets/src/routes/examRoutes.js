@@ -9,17 +9,8 @@ import {
 } from '../modules/examCreation/handlers';
 import { showExamReportDetailPage } from '../modules/examReportDetail/handlers';
 import { showExamReportPage } from '../modules/examReport/handlers';
-import { showExamsPage } from '../modules/examsRoot/handlers';
 
 export default [
-  {
-    name: PageNames.EXAMS,
-    path: '/old/:classId/exams',
-    handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
-      showExamsPage(store, toRoute.params.classId);
-    },
-  },
   {
     name: PageNames.EXAM_CREATION_ROOT,
     path: '/old/:classId/exams/new/',
