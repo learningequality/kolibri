@@ -12,7 +12,6 @@
     <div class="new-coach-block">
       <PlanHeader />
 
-
       <div class="lesson-summary">
 
         <AssignmentSummary
@@ -63,7 +62,6 @@
     </div>
 
   </CoreBase>
-
 
 </template>
 

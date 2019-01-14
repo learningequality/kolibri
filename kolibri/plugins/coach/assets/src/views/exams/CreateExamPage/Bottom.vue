@@ -42,5 +42,4 @@
     margin: auto;
   }
 
-
 </style>

@@ -1,7 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { showClassListPage, shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
-import { showGroupsPage } from '../modules/groups/handlers';
 import {
   showChannelListForReports,
   showChannelRootReport,
