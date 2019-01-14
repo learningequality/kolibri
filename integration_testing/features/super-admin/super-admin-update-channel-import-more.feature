@@ -1,9 +1,9 @@
-Feature: Super admin import more content
+Feature: Super admin imports more content
     Admin needs to be able to update channels on their device and import new or changed resources when the channel is republished on Studio
 
   Background:
-    Given there is the <channel> channel on the device which has been updated and repubished on Studio since the original import
-      And I am signed in to Kolibri as Super admin, or a user with device permissions to import content
+    Given there is the <channel> channel on the device, which has been updated and repubished on Studio since the original import
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Channels* page
 
   Scenario: Update channel and import new content from Studio
@@ -22,9 +22,10 @@ Feature: Super admin import more content
       And I see the *Select content from '<channel>'* page reload
     When reload finishes
     Then I see previously imported topics with inactive checkboxes and the label *Already on your device*
-      And I see empty checkboxes for the topics not yet imported
+      And I see empty checkboxes for the topics that not yet imported
       And I see the total number and size of <channel> channel resources
       And I see N resources from <channel> channel are listed as *On your device*
+      And I see the *Import* button is inactive 
     When I check the previously not imported <topic> topic checkbox
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
@@ -36,7 +37,7 @@ Feature: Super admin import more content
     When the import process concludes
     Then I see the progress bar at 100%
       And I see the *Finished! Click "Close" button to see changes.* flag
-      And I see the *Close* button
+      And I see the *Close* button is active
     When I click *Close* 
     Then I see the *Channels* page is reloaded 
     When I go to *Learn > Channels* page
