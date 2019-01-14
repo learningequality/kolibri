@@ -1,6 +1,6 @@
 <template>
 
-  <KNavbar>
+  <KNavbar v-if="classId">
     <KNavbarLink
       :title="$tr('home')"
       :link="navRoute(PageNames.HOME_PAGE)"
@@ -44,17 +44,14 @@
       plan: 'Plan',
     },
     computed: {
-      ...mapState('classSummary', { classId: 'id' }),
+      ...mapState(['classId']),
       PageNames() {
         return PageNames;
       },
     },
     methods: {
       navRoute(name) {
-        if (this.classId) {
-          return { name, params: { classId: this.classId } };
-        }
-        return {};
+        return { name, params: { classId: this.classId } };
       },
     },
   };

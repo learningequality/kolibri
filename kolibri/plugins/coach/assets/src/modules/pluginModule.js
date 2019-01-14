@@ -29,6 +29,9 @@ export default {
     oldReports: false,
   },
   mutations: {
+    SET_CLASS_ID(state, id) {
+      state.classId = id;
+    },
     SET_PAGE_NAME(state, pageName) {
       state.pageName = pageName;
     },

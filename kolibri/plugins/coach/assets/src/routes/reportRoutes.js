@@ -16,36 +16,68 @@ export default [
     name: PageNames.ReportsLessonListPage,
     path: '/:classId/reports/lessons',
     component: ReportsLessonListPage,
-    handler() {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', true);
+      store
+        .dispatch('classSummary/loadClassSummary', to.params.classId)
+        .then(
+          () => store.commit('CORE_SET_PAGE_LOADING', false),
+          error => store.dispatch('handleApiError', error)
+        );
     },
   },
   {
     name: PageNames.ReportsQuizListPage,
     path: '/:classId/reports/quizzes',
     component: ReportsQuizListPage,
-    handler() {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', true);
+      store
+        .dispatch('classSummary/loadClassSummary', to.params.classId)
+        .then(
+          () => store.commit('CORE_SET_PAGE_LOADING', false),
+          error => store.dispatch('handleApiError', error)
+        );
     },
   },
   {
     name: PageNames.ReportsGroupListPage,
     path: '/:classId/reports/groups',
     component: ReportsGroupListPage,
-    handler() {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', true);
+      store
+        .dispatch('classSummary/loadClassSummary', to.params.classId)
+        .then(
+          () => store.commit('CORE_SET_PAGE_LOADING', false),
+          error => store.dispatch('handleApiError', error)
+        );
     },
   },
   {
     name: PageNames.ReportsLearnerListPage,
     path: '/:classId/reports/learners',
     component: ReportsLearnerListPage,
-    handler() {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
+      store.commit('CORE_SET_ERROR', null);
+      store.commit('CORE_SET_PAGE_LOADING', true);
+      store
+        .dispatch('classSummary/loadClassSummary', to.params.classId)
+        .then(
+          () => store.commit('CORE_SET_PAGE_LOADING', false),
+          error => store.dispatch('handleApiError', error)
+        );
     },
   },
 ];

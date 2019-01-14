@@ -19,9 +19,10 @@ export default [
     name: PageNames.PlanQuizListPage,
     path: '/:classId/plan/quizzes',
     component: PlanQuizListPage,
-    handler() {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
     },
   },
   {
@@ -30,6 +31,7 @@ export default [
     component: GroupsPage,
     handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
+      store.commit('SET_CLASS_ID', to.params.classId);
       showGroupsPage(store, to.params.classId);
     },
   },
