@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
   purge)
-    rm -f /usr/share/kolibri/nginx_cache.conf
+    rm -f /etc/kolibri/nginx_cache.conf
     ;;
 
   upgrade|remove|failed-upgrade|abort-install|abort-upgrade|disappear)

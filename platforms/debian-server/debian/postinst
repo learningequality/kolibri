@@ -15,7 +15,7 @@ location /static {
 }
  location /content {
     alias   $KOLIBRI_DIR/content/;
-}"> /usr/share/kolibri/nginx_cache.conf
+}"> /etc/kolibri/nginx_cache.conf
     # service kolibri-network-server reload >/dev/null || true
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
