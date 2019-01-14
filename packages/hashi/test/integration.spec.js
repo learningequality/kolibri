@@ -48,7 +48,6 @@ describe('Hashi integration', () => {
         const requestedWith = message.headers['X-Requested-With'];
         let output;
         let headers;
-        console.log(uri);
         if (uri === '/index.html') {
           if (requestedWith && requestedWith === 'XMLHttpRequest') {
             output = html5AppHtml;

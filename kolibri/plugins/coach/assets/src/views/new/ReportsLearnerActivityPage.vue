@@ -35,7 +35,10 @@
         time="4 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "A video assigned to the class"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "A video assigned to the class"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="star"
@@ -43,7 +46,10 @@
         time="6 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "An exercise assigned to the class"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "An exercise assigned to the class"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="star"
@@ -52,7 +58,10 @@
         learnerContext="Group A"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "A video assigned to a group"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "A video assigned to a group"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="star"
@@ -61,7 +70,10 @@
         learnerContext="Group A"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "An exercise assigned to a group"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "An exercise assigned to a group"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="star"
@@ -69,7 +81,10 @@
         time="15 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "Some lesson"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "Some lesson"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="star"
@@ -77,7 +92,10 @@
         time="20 minutes ago"
         contentContext="Some quiz"
       >
-        {{ nStrings.$tr('individualCompleted', {learnerName: "Julie", itemName: "Some quiz"}) }}
+        {{ nStrings.$tr('individualCompleted', {
+          learnerName: "Julie",
+          itemName: "Some quiz"
+        }) }}
       </NotificationCard>
       <NotificationCard
         icon="clock"
@@ -85,7 +103,10 @@
         time="50 minutes ago"
         contentContext="Some lesson"
       >
-        {{ nStrings.$tr('individualStarted', {learnerName: "Julie", itemName: "Some quiz"}) }}
+        {{ nStrings.$tr('individualStarted', {
+          learnerName: "Julie",
+          itemName: "Some quiz"
+        }) }}
       </NotificationCard>
     </div>
 

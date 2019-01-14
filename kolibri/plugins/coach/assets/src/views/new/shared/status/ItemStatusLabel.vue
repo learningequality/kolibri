@@ -10,7 +10,7 @@
 <script>
 
   import LabeledIcon from '../LabeledIcon';
-  import { coachStrings } from '../commonCoachStrings';
+  import { coachStrings } from '../commonCoachStrings'; // eslint-disable-line no-unused-vars
   import StatusIcon from './StatusIcon';
   import { statusStringsMixin, isValidObject, isValidAdjective } from './statusStrings';
 
