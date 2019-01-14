@@ -12,7 +12,7 @@ export default [
     name: PageNames.COACH_CLASS_LIST,
     path: '/',
     component: CoachClassListPage,
-    handler: () => {
+    handler() {
       store.commit('USE_OLD_INDEX_STYLE', false);
       shouldRedirectToClassRootPage().then(classId => {
         if (classId) {
@@ -29,25 +29,16 @@ export default [
     name: PageNames.HOME_PAGE,
     path: '/:classId/home',
     component: HomePage,
-    handler: to => {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', false);
       showHomePage(store, to.params.classId);
     },
   },
-  // {
-  //   name: 'next',
-  //   path: '/url',
-  //   component: Component,
-  //   handler: () => {
-  //     store.commit('USE_OLD_INDEX_STYLE', false);
-  //     store.commit('CORE_SET_PAGE_LOADING', false);
-  //   },
-  // },
   /* COACH - under construction ... */
   {
     name: PageNames.NEW_COACH_PAGES,
     path: '/:page',
-    handler: to => {
+    handler(to) {
       store.commit('USE_OLD_INDEX_STYLE', true);
       showNewPage(store, to.params.page);
     },

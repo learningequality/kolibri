@@ -12,28 +12,28 @@
     <div>
       <KRouterLink
         :text="coachStrings.$tr('lessonsLabel')"
-        :to="newCoachRoute('ReportsLessonListPage')"
+        :to="classRoute(PageNames.ReportsLessonListPage)"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('quizzesLabel')"
-        :to="newCoachRoute('ReportsQuizListPage')"
+        :to="classRoute(PageNames.ReportsQuizListPage)"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('groupsLabel')"
-        :to="newCoachRoute('ReportsGroupListPage')"
+        :to="classRoute(PageNames.ReportsGroupListPage)"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('learnersLabel')"
-        :to="newCoachRoute('ReportsLearnerListPage')"
+        :to="classRoute(PageNames.ReportsLearnerListPage)"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

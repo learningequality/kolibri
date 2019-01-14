@@ -3,19 +3,19 @@
   <KNavbar>
     <KNavbarLink
       :title="$tr('home')"
-      :link="route(PageNames.HOME_PAGE, {classId})"
+      :link="navRoute(PageNames.HOME_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="coachStrings.$tr('reportsLabel')"
-      :link="link('ReportsLessonListPage')"
+      :link="navRoute(PageNames.REPORTS_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
-      :link="link('PlanLessonListPage')"
+      :link="navRoute(PageNames.PLAN_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -26,7 +26,7 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import { PageNames } from '../../constants/newConstants';
@@ -50,16 +50,11 @@
       },
     },
     methods: {
-      route(name, params) {
-        return { name, params };
-      },
-      link(page) {
-        return {
-          name: PageNames.NEW_COACH_PAGES,
-          params: {
-            page,
-          },
-        };
+      navRoute(name) {
+        if (this.classId) {
+          return { name, params: { classId: this.classId } };
+        }
+        return {};
       },
     },
   };

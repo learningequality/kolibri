@@ -1,4 +1,4 @@
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import CoreBase from 'kolibri.coreVue.components.CoreBase';
 import KModal from 'kolibri.coreVue.components.KModal';
 import KButton from 'kolibri.coreVue.components.KButton';
@@ -70,6 +70,12 @@ export default {
   },
   methods: {
     route(name, params) {
+      return { name, params };
+    },
+    classRoute(name, params = {}) {
+      if (this.classId) {
+        params.classId = this.classId;
+      }
       return { name, params };
     },
     // temporary

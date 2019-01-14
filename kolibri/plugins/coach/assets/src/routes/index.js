@@ -19,6 +19,8 @@ import {
 import { PageNames } from '../constants';
 import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
+import reportRoutes from './reportRoutes';
+import planRoutes from './planRoutes';
 import newRoutes from './newRoutes';
 
 export default [
@@ -200,13 +202,7 @@ export default [
       );
     },
   },
-  {
-    name: PageNames.GROUPS,
-    path: '/old/:classId/groups',
-    handler: to => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
-      showGroupsPage(store, to.params.classId);
-    },
-  },
+  ...reportRoutes,
+  ...planRoutes,
   ...newRoutes,
 ];

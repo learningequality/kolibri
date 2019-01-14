@@ -1,9 +1,18 @@
 <template>
 
-  <div class="new-coach-block">
-    <PlanHeader />
-    Quiz list
-  </div>
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+    <TopNavbar slot="sub-nav" />
+    <div class="new-coach-block">
+      <PlanHeader />
+      Quiz list
+    </div>
+  </CoreBase>
 
 </template>
 
