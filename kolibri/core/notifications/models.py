@@ -102,7 +102,6 @@ class LearnerProgressNotification(models.Model):
     user_id = UUIDField()
     classroom_id = UUIDField()
     contentnode_id = UUIDField(null=True)
-    contentnode_id = UUIDField(null=True)
     lesson_id = UUIDField(null=True)
     quiz_id = UUIDField(null=True)
     reason = models.CharField(max_length=200, choices=HelpReason.choices(), blank=True)
