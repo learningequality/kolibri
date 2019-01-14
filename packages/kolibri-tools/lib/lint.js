@@ -268,9 +268,9 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (!silent) {
                 logging.info(`Rewriting a prettier version of ${file}`);
               }
-              resolve({ code });
             });
           }
+          resolve({ code });
         })
         .catch(err => {
           // Something went wrong, return the source to be safe.
