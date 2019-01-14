@@ -7,7 +7,6 @@ export const PageNames = {
 
   PlanHeader: 'PlanHeader',
   PlanLearnerListPage: 'PlanLearnerListPage',
-  PlanLessonListPage: 'PlanLessonListPage',
   PlanQuizListPage: 'PlanQuizListPage',
   ReportsGroupActivityPage: 'ReportsGroupActivityPage',
   ReportsGroupHeader: 'ReportsGroupHeader',

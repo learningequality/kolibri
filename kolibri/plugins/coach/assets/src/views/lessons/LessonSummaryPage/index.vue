@@ -1,51 +1,69 @@
 <template>
 
-  <div class="lesson-summary">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+    <TopNavbar slot="sub-nav" />
 
-    <AssignmentSummary
-      :kind="lessonKind"
-      :title="lessonTitle"
-      :active="lessonActive"
-      :description="lessonDescription"
-      :recipients="lessonAssignments"
-      :groups="learnerGroups"
-      @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
-    >
-      <KDropdownMenu
-        slot="optionsDropdown"
-        :text="$tr('options')"
-        :options="lessonOptions"
-        @select="handleSelectOption"
-      />
-    </AssignmentSummary>
+    <div class="new-coach-block">
+      <PlanHeader />
 
-    <div>
-      <div class="resource-list">
-        <div class="resource-list-header">
-          <div class="resource-list-header-title-block">
-            <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
+
+      <div class="lesson-summary">
+
+        <AssignmentSummary
+          :kind="lessonKind"
+          :title="lessonTitle"
+          :active="lessonActive"
+          :description="lessonDescription"
+          :recipients="lessonAssignments"
+          :groups="learnerGroups"
+          @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
+        >
+          <KDropdownMenu
+            slot="optionsDropdown"
+            :text="$tr('options')"
+            :options="lessonOptions"
+            @select="handleSelectOption"
+          />
+        </AssignmentSummary>
+
+        <div>
+          <div class="resource-list">
+            <div class="resource-list-header">
+              <div class="resource-list-header-title-block">
+                <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
+              </div>
+              <div class="resource-list-header-add-resource-button">
+                <KRouterLink
+                  :to="lessonSelectionRootPage"
+                  :text="$tr('manageResourcesButton')"
+                  :primary="true"
+                  appearance="raised-button"
+                />
+              </div>
+            </div>
           </div>
-          <div class="resource-list-header-add-resource-button">
-            <KRouterLink
-              :to="lessonSelectionRootPage"
-              :text="$tr('manageResourcesButton')"
-              :primary="true"
-              appearance="raised-button"
-            />
-          </div>
+
+          <ResourceListTable v-if="workingResources.length" />
+
+          <p v-else class="no-resources-message">
+            {{ $tr('noResourcesInLesson') }}
+          </p>
+
+          <ManageLessonModals />
         </div>
+
       </div>
 
-      <ResourceListTable v-if="workingResources.length" />
-
-      <p v-else class="no-resources-message">
-        {{ $tr('noResourcesInLesson') }}
-      </p>
-
-      <ManageLessonModals />
     </div>
 
-  </div>
+  </CoreBase>
+
 
 </template>
 
@@ -58,6 +76,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import imports from '../../new/imports';
+  import PlanHeader from '../../new/PlanHeader';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../lessonsRouterUtils';
   import AssignmentSummary from '../../assignments/AssignmentSummary';
@@ -72,12 +92,14 @@
       };
     },
     components: {
+      PlanHeader,
       KDropdownMenu,
       ResourceListTable,
       ManageLessonModals,
       KRouterLink,
       AssignmentSummary,
     },
+    mixins: [imports],
     computed: {
       ...mapState(['classId', 'reportRefreshInterval']),
       ...mapState('lessonSummary', {

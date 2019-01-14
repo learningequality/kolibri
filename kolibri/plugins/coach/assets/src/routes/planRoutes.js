@@ -1,26 +1,19 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants/newConstants';
 
-import PlanLessonListPage from '../views/new/PlanLessonListPage';
 import PlanQuizListPage from '../views/new/PlanQuizListPage';
 import GroupsPage from '../views/GroupsPage';
 
 import { showGroupsPage } from '../modules/groups/handlers';
 
+import lessonsRoutes from './lessonsRoutes';
+
 export default [
+  ...lessonsRoutes,
   {
     name: PageNames.PLAN_PAGE,
     path: '/:classId/plan',
     redirect: '/:classId/plan/lessons',
-  },
-  {
-    name: PageNames.PlanLessonListPage,
-    path: '/:classId/plan/lessons',
-    component: PlanLessonListPage,
-    handler() {
-      store.commit('USE_OLD_INDEX_STYLE', false);
-      store.commit('CORE_SET_PAGE_LOADING', false);
-    },
   },
   {
     name: PageNames.PlanQuizListPage,

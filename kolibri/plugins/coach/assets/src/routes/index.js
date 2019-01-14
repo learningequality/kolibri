@@ -18,13 +18,11 @@ import {
 } from '../modules/exerciseDetail/handlers';
 import { PageNames } from '../constants';
 import examRoutes from './examRoutes';
-import lessonsRoutes from './lessonsRoutes';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 import newRoutes from './newRoutes';
 
 export default [
-  ...lessonsRoutes,
   ...examRoutes,
   {
     name: PageNames.CLASS_LIST,

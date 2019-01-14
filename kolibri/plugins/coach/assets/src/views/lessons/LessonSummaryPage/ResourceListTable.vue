@@ -13,7 +13,7 @@
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
           class="row"
-          cols="12"
+          cols="8"
         >
           <KGridItem size="1" class="relative">
             <UiIconButton
@@ -38,14 +38,10 @@
               <mat-svg name="keyboard_arrow_down" category="hardware" />
             </UiIconButton>
           </KGridItem>
-          <KGridItem size="6">
+          <KGridItem size="4">
             <div class="resource-title">
               <ContentIcon :kind="resourceKind(resourceId)" />
-              <KRouterLink
-                class="link"
-                :to="resourceUserSummaryLink(resourceId)"
-                :text="resourceTitle(resourceId)"
-              />
+              {{ resourceTitle(resourceId) }}
               <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
                 <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                 {{ resourceChannelTitle(resourceId) }}
@@ -57,20 +53,7 @@
               :isTopic="false"
             />
           </KGridItem>
-          <KGridItem size="3">
-            <ProgressBar
-              v-if="resourceProgress(resourceId)!==null"
-              class="resource-progress-bar"
-              :progress="resourceProgress(resourceId)"
-              :showPercentage="false"
-            />
-            <!-- could just use progress bar's? -->
-            <span class="progress-message">
-              {{ resourceProgressMessage(resourceId) }}
-            </span>
-
-          </KGridItem>
-          <KGridItem size="2" alignment="right">
+          <KGridItem size="3" alignment="right">
             <KButton
               :text="$tr('resourceRemovalButtonLabel')"
               appearance="flat-button"
@@ -94,10 +77,8 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import ProgressBar from 'kolibri.coreVue.components.ProgressBar';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { resourceUserSummaryLink } from '../lessonsRouterUtils';
 
   const removalSnackbarTime = 5000;
 
@@ -111,7 +92,6 @@
       KGrid,
       KGridItem,
       KRouterLink,
-      ProgressBar,
       ContentIcon,
     },
     data() {
@@ -132,14 +112,6 @@
         getCachedResource(state) {
           return function getter(resourceId) {
             return state.resourceCache[resourceId] || {};
-          };
-        },
-        numLearnersCompleted(state) {
-          return function counter(contentNodeId) {
-            const report =
-              state.lessonReport.progress.find(p => p.contentnode_id === contentNodeId) || {};
-            // If progress couldn't be found, assume 0 learners completed
-            return report.num_learners_completed || 0;
           };
         },
       }),
@@ -175,7 +147,6 @@
         removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
-      resourceUserSummaryLink,
       resourceTitle(resourceId) {
         return this.resourceContentNodes[resourceId].title;
       },
@@ -184,18 +155,6 @@
       },
       resourceKind(resourceId) {
         return this.resourceContentNodes[resourceId].kind;
-      },
-      resourceProgress(resourceId) {
-        if (this.totalLearners === 0) {
-          return null;
-        }
-        return this.numLearnersCompleted(resourceId) / this.totalLearners;
-      },
-      resourceProgressMessage(resourceId) {
-        return this.$tr('resourceProgressMessage', {
-          completed: this.numLearnersCompleted(resourceId),
-          total: this.totalLearners,
-        });
       },
       removeResource(resourceId) {
         this.firstRemovalTitle = this.resourceTitle(resourceId);
@@ -266,12 +225,10 @@
     $trs: {
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
-      resourceProgressMessage: '{completed, number}/{total, number} completed',
       resourceReorderColumnHeaderForTable:
         'Use buttons in this column to re-order resources in the lesson',
       resourceTypeColumnHeaderForTable: 'Resource type',
       lessonTitleColumnHeaderForTable: 'Title',
-      resourceProgressColumnHeaderForTable: 'Resource progress',
       resourceRemovalColumnHeaderForTable:
         'Use buttons in this column to remove resources from the lesson',
       resourceRemovalButtonLabel: 'Remove',

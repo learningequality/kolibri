@@ -12,7 +12,7 @@
     <div>
       <KRouterLink
         :text="coachStrings.$tr('lessonsLabel')"
-        :to="classRoute(PageNames.PlanLessonListPage)"
+        :to="classRoute('ROOT')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

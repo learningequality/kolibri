@@ -1,88 +1,101 @@
 <template>
 
-  <div>
-    <h1>{{ $tr('classLessons') }}</h1>
-    <div class="filter-and-button">
-      <KSelect
-        v-model="filterSelection"
-        :label="$tr('show')"
-        :options="filterOptions"
-        :inline="true"
-      />
-      <KButton
-        :primary="true"
-        :text="$tr('newLesson')"
-        @click="showModal=true"
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+    <TopNavbar slot="sub-nav" />
+
+    <div class="new-coach-block">
+      <PlanHeader />
+
+      <h1>{{ $tr('classLessons') }}</h1>
+      <div class="filter-and-button">
+        <KSelect
+          v-model="filterSelection"
+          :label="$tr('show')"
+          :options="filterOptions"
+          :inline="true"
+        />
+        <KButton
+          :primary="true"
+          :text="$tr('newLesson')"
+          @click="showModal=true"
+        />
+      </div>
+
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">{{ $tr('title') }}</th>
+            <th>{{ $tr('size') }}</th>
+            <th>{{ $tr('assignedGroupsHeader') }}</th>
+            <th>
+              {{ $tr('status') }}
+              <CoreInfoIcon
+                :iconAriaLabel="$tr('lessonStatusDescription')"
+                :tooltipText="$tr('statusTooltipText')"
+                tooltipPlacement="bottom"
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr
+            v-for="lesson in lessons"
+            v-show="showLesson(lesson)"
+            :key="lesson.id"
+          >
+            <td class="core-table-icon-col">
+              <ContentIcon :kind="lessonKind" />
+            </td>
+            <td class="core-table-main-col lesson-title-col">
+              <KRouterLink
+                :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                :text="lesson.title"
+              />
+            </td>
+            <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
+            <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
+            <td>
+              <StatusIcon :active="lesson.is_active" :type="lessonKind" />
+            </td>
+          </tr>
+        </tbody>
+      </CoreTable>
+
+      <p v-if="!lessons.length">
+        {{ $tr('noLessons') }}
+      </p>
+      <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
+        {{ $tr('noActiveLessons') }}
+      </p>
+      <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
+        {{ $tr('noInactiveLessons') }}
+      </p>
+
+      <AssignmentDetailsModal
+        v-if="showModal"
+        ref="detailsModal"
+        :modalTitle="$tr('newLessonModalTitle')"
+        :submitErrorMessage="$tr('saveLessonError')"
+        :initialDescription="''"
+        :showDescriptionField="true"
+        :isInEditMode="false"
+        :initialTitle="''"
+        :initialSelectedCollectionIds="[classId]"
+        :classId="classId"
+        :groups="learnerGroups"
+        @continue="handleDetailsModalContinue"
+        @cancel="showModal=false"
       />
     </div>
 
-    <CoreTable>
-      <thead slot="thead">
-        <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('title') }}</th>
-          <th>{{ $tr('size') }}</th>
-          <th>{{ $tr('assignedGroupsHeader') }}</th>
-          <th>
-            {{ $tr('status') }}
-            <CoreInfoIcon
-              :iconAriaLabel="$tr('lessonStatusDescription')"
-              :tooltipText="$tr('statusTooltipText')"
-              tooltipPlacement="bottom"
-            />
-          </th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr
-          v-for="lesson in lessons"
-          v-show="showLesson(lesson)"
-          :key="lesson.id"
-        >
-          <td class="core-table-icon-col">
-            <ContentIcon :kind="lessonKind" />
-          </td>
-          <td class="core-table-main-col lesson-title-col">
-            <KRouterLink
-              :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-              :text="lesson.title"
-            />
-          </td>
-          <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
-          <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
-          <td>
-            <StatusIcon :active="lesson.is_active" :type="lessonKind" />
-          </td>
-        </tr>
-      </tbody>
-    </CoreTable>
-
-    <p v-if="!lessons.length">
-      {{ $tr('noLessons') }}
-    </p>
-    <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
-      {{ $tr('noActiveLessons') }}
-    </p>
-    <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
-      {{ $tr('noInactiveLessons') }}
-    </p>
-
-    <AssignmentDetailsModal
-      v-if="showModal"
-      ref="detailsModal"
-      :modalTitle="$tr('newLessonModalTitle')"
-      :submitErrorMessage="$tr('saveLessonError')"
-      :initialDescription="''"
-      :showDescriptionField="true"
-      :isInEditMode="false"
-      :initialTitle="''"
-      :initialSelectedCollectionIds="[classId]"
-      :classId="classId"
-      :groups="learnerGroups"
-      @continue="handleDetailsModalContinue"
-      @cancel="showModal=false"
-    />
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -98,6 +111,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import imports from '../new/imports';
+  import PlanHeader from '../new/PlanHeader';
   import StatusIcon from '../assignments/StatusIcon';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from './lessonsRouterUtils';
@@ -110,6 +125,7 @@
       };
     },
     components: {
+      PlanHeader,
       CoreTable,
       CoreInfoIcon,
       StatusIcon,
@@ -119,6 +135,7 @@
       KSelect,
       AssignmentDetailsModal,
     },
+    mixins: [imports],
     data() {
       return {
         showModal: false,

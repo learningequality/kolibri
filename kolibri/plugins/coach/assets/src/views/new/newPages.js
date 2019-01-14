@@ -2,7 +2,6 @@ import CoachClassListPage from './CoachClassListPage';
 import HomePage from './HomePage';
 import HomeActivityPage from './HomeActivityPage';
 import PlanLearnerListPage from './PlanLearnerListPage';
-import PlanLessonListPage from './PlanLessonListPage';
 import PlanQuizListPage from './PlanQuizListPage';
 import ReportsGroupListPage from './ReportsGroupListPage';
 import ReportsGroupActivityPage from './ReportsGroupActivityPage';
@@ -56,7 +55,6 @@ export const newPageMap = {
   HomePage,
   HomeActivityPage,
   PlanLearnerListPage,
-  PlanLessonListPage,
   PlanQuizListPage,
   ReportsGroupListPage,
   ReportsGroupActivityPage,
