@@ -11,7 +11,13 @@
       aria-valuemin="0"
       aria-valuemax="100"
     >
-      <div class="progress-bar-complete" :style="{ width: percent + '%', backgroundColor: color || $coreActionNormal }">
+      <div
+        class="progress-bar-complete"
+        :style="{
+          width: percent + '%',
+          backgroundColor: color || $coreActionNormal
+        }"
+      >
       </div>
     </div>
     <div v-if="showPercentage" class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>

@@ -16,7 +16,18 @@
       <dt>{{ coachStrings.$tr('learnersLabel') }}</dt>
       <dd>
         <TruncatedItemList
-          :items="['John', 'Alice', 'Julie', 'Lucy', 'Steve', 'Mary', 'Judy', 'George', 'Carol', 'Ken']"
+          :items="[
+            'John',
+            'Alice',
+            'Julie',
+            'Lucy',
+            'Steve',
+            'Mary',
+            'Judy',
+            'George',
+            'Carol',
+            'Ken'
+          ]"
         />
       </dd>
     </dl>

@@ -48,8 +48,8 @@ a.button {
   text-decoration: underline;
   white-space: normal;
   cursor: pointer;
-  transition: $transition;
   user-select: text;
+  transition: $transition;
 
   &:disabled {
     cursor: default;

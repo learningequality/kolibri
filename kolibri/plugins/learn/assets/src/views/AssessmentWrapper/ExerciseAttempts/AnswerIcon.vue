@@ -76,7 +76,7 @@
       },
       svgFill() {
         return {
-          fill: $coreTextAnnotation,
+          fill: this.$coreTextAnnotation,
         };
       },
     },
