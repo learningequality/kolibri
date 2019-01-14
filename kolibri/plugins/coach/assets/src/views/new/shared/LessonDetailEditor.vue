@@ -72,7 +72,7 @@
       lessonTitle: 'Title',
       duplicateTitle: 'A lesson with that name already exists',
       status: 'Lesson status',
-      statusDescription: 'Learners can only see active quizzes',
+      statusDescription: 'Learners can only see active lessons',
       lessonActive: 'Active',
       lessonInactive: 'Inactive',
       recipients: 'Recipients',

@@ -14,7 +14,6 @@ import pytest
 from mock import patch
 
 import kolibri
-from kolibri.core.deviceadmin.tests.test_dbrestore import is_sqlite_settings
 from kolibri.utils import cli
 from kolibri.utils import options
 
@@ -231,19 +230,24 @@ def test_first_run(
 @patch('kolibri.utils.cli.update')
 def test_update(update, version_file=None, orig_version=None):
     """
-    Tests that update() function performs as expected, creating a database
-    backup automatically when version changes
+    Tests that update() function performs as expected
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
-
-    if is_sqlite_settings():
-        with patch('kolibri.core.deviceadmin.utils.dbbackup') as dbbackup:
-            cli.initialize()
-            dbbackup.assert_called_once()
-    else:
-        cli.initialize()
+    cli.initialize()
     update.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_should_back_up():
+    """
+    Tests our db backup logic: skip for dev versions, and backup on change
+    """
+    assert cli.should_back_up('0.10.0', '0.10.1')
+    assert not cli.should_back_up('0.10.0', '0.10.0')
+    assert not cli.should_back_up('0.10.0-dev0', '0.10.0')
+    assert not cli.should_back_up('0.10.0', '0.10.0-dev0')
+    assert not cli.should_back_up('0.10.0-dev0', '0.10.0-dev0')
 
 
 @pytest.mark.django_db

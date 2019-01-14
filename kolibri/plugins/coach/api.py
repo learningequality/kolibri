@@ -107,7 +107,7 @@ class ContentSummaryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         channel_id = self.kwargs['channel_id']
-        return ContentNode.objects.filter(Q(channel_id=channel_id) & Q(available=True)).order_by('lft')
+        return ContentNode.objects.filter(Q(channel_id=channel_id)).order_by('lft')
 
 
 class RecentReportViewSet(ReportBaseViewSet):

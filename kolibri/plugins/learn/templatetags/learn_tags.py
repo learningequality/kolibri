@@ -32,7 +32,7 @@ def learn_assets():
 
     :return: HTML of script tags to insert into management/management.html
     """
-    return webpack_asset_render(hooks.LearnSyncHook, async=False)
+    return webpack_asset_render(hooks.LearnSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -43,4 +43,4 @@ def learn_async_assets():
 
     :return: HTML of script tags to insert into management/management.html
     """
-    return webpack_asset_render(hooks.LearnAsyncHook, async=True)
+    return webpack_asset_render(hooks.LearnAsyncHook, is_async=True)

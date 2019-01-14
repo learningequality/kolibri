@@ -73,6 +73,7 @@ export function showExerciseDetailView(
           interactionIndex,
           summaryLog: summaryLog[0],
           user,
+          channelId,
         };
       });
     },
