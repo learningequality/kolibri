@@ -1,10 +1,21 @@
 <template>
 
-  <div class="new-coach-block">
-    <QuizDetailEditor />
-    <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
-    <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
-  </div>
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+
+    <TopNavbar slot="sub-nav" />
+
+    <div class="new-coach-block">
+      <QuizDetailEditor />
+      <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
+      <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
+    </div>
+  </CoreBase>
 
 </template>
 

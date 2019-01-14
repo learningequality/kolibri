@@ -1,13 +1,24 @@
 <template>
 
-  <div class="new-coach-block">
-    <LessonDetailEditor />
-    <p><KButton :text="coachStrings.$tr('manageResourcesAction')" /></p>
-    <h2>{{ coachStrings.$tr('numberOfResources', { value: 2 }) }}</h2>
-    <pre>ResourceListTable</pre>
-    <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
-    <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
-  </div>
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+
+    <TopNavbar slot="sub-nav" />
+
+    <div class="new-coach-block">
+      <LessonDetailEditor />
+      <p><KButton :text="coachStrings.$tr('manageResourcesAction')" /></p>
+      <h2>{{ coachStrings.$tr('numberOfResources', { value: 2 }) }}</h2>
+      <pre>ResourceListTable</pre>
+      <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
+      <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
+    </div>
+  </CoreBase>
 
 </template>
 

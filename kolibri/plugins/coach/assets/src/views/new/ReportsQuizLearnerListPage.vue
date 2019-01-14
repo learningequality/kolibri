@@ -1,85 +1,96 @@
 <template>
 
-  <div class="new-coach-block">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
 
-    <ReportsQuizHeader />
+    <TopNavbar slot="sub-nav" />
 
-    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-    <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
+    <div class="new-coach-block">
 
-    <table class="new-coach-table">
-      <thead>
-        <tr>
-          <td>{{ coachStrings.$tr('titleLabel') }}</td>
-          <td>{{ coachStrings.$tr('scoreLabel') }}</td>
-          <td>{{ coachStrings.$tr('progressLabel') }}</td>
-          <td>{{ coachStrings.$tr('groupsLabel') }}</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <KRouterLink
-              text="April"
-              :to="newCoachRoute('ReportsQuizLearnerPage')"
-            />
-          </td>
-          <td><Score /></td>
-          <td>
-            <ItemStatusRatio
-              :count="0"
-              :total="10"
-              verbosity="1"
-              obj="question"
-              adjective="completed"
-              icon="clock"
-            />
-          </td>
-          <td><TruncatedItemList :items="[]" /></td>
-        </tr>
-        <tr>
-          <td>
-            <KRouterLink
-              text="Steve"
-              :to="newCoachRoute('ReportsQuizLearnerPage')"
-            />
-          </td>
-          <td><Score /></td>
-          <td>
-            <ItemStatusRatio
-              :count="8"
-              :total="10"
-              verbosity="1"
-              obj="question"
-              adjective="completed"
-              icon="clock"
-            />
-          </td>
-          <td><TruncatedItemList :items="['a', 'b']" /></td>
-        </tr>
-        <tr>
-          <td>
-            <KRouterLink
-              text="John"
-              :to="newCoachRoute('ReportsQuizLearnerPage')"
-            />
-          </td>
-          <td><Score :value="0.1" /></td>
-          <td>
-            <ItemStatusRatio
-              :count="10"
-              :total="10"
-              verbosity="1"
-              obj="question"
-              adjective="completed"
-              icon="star"
-            />
-          </td>
-          <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <ReportsQuizHeader />
+
+      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+      <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
+
+      <table class="new-coach-table">
+        <thead>
+          <tr>
+            <td>{{ coachStrings.$tr('titleLabel') }}</td>
+            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+            <td>{{ coachStrings.$tr('progressLabel') }}</td>
+            <td>{{ coachStrings.$tr('groupsLabel') }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <KRouterLink
+                text="April"
+                :to="newCoachRoute('ReportsQuizLearnerPage')"
+              />
+            </td>
+            <td><Score /></td>
+            <td>
+              <ItemStatusRatio
+                :count="0"
+                :total="10"
+                verbosity="1"
+                obj="question"
+                adjective="completed"
+                icon="clock"
+              />
+            </td>
+            <td><TruncatedItemList :items="[]" /></td>
+          </tr>
+          <tr>
+            <td>
+              <KRouterLink
+                text="Steve"
+                :to="newCoachRoute('ReportsQuizLearnerPage')"
+              />
+            </td>
+            <td><Score /></td>
+            <td>
+              <ItemStatusRatio
+                :count="8"
+                :total="10"
+                verbosity="1"
+                obj="question"
+                adjective="completed"
+                icon="clock"
+              />
+            </td>
+            <td><TruncatedItemList :items="['a', 'b']" /></td>
+          </tr>
+          <tr>
+            <td>
+              <KRouterLink
+                text="John"
+                :to="newCoachRoute('ReportsQuizLearnerPage')"
+              />
+            </td>
+            <td><Score :value="0.1" /></td>
+            <td>
+              <ItemStatusRatio
+                :count="10"
+                :total="10"
+                verbosity="1"
+                obj="question"
+                adjective="completed"
+                icon="star"
+              />
+            </td>
+            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </CoreBase>
 
 </template>
 

@@ -1,32 +1,43 @@
 <template>
 
-  <div class="new-coach-block">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
 
-    <ReportsGroupReportLessonExerciseHeader />
+    <TopNavbar slot="sub-nav" />
 
-    <table class="new-coach-table">
-      <thead>
-        <tr>
-          <td>{{ coachStrings.$tr('questionLabel') }}</td>
-          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
-          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><KRouterLink text="Question 1" :to="questionLink" /></td>
-          <td>
-            <LearnerProgressCount
-              :count="3"
-              :verbosity="1"
-              verb="needHelp"
-              icon="help"
-          /></td>
-          <td><TimeDuration :seconds="60*15" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="new-coach-block">
+
+      <ReportsGroupReportLessonExerciseHeader />
+
+      <table class="new-coach-table">
+        <thead>
+          <tr>
+            <td>{{ coachStrings.$tr('questionLabel') }}</td>
+            <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+            <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><KRouterLink text="Question 1" :to="questionLink" /></td>
+            <td>
+              <LearnerProgressCount
+                :count="3"
+                :verbosity="1"
+                verb="needHelp"
+                icon="help"
+            /></td>
+            <td><TimeDuration :seconds="60*15" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </CoreBase>
 
 </template>
 

@@ -1,65 +1,76 @@
 <template>
 
-  <div class="new-coach-block">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
 
-    <ReportsLessonHeader />
+    <TopNavbar slot="sub-nav" />
 
-    <table class="new-coach-table">
-      <thead>
-        <tr>
-          <td>{{ coachStrings.$tr('titleLabel') }}</td>
-          <td>{{ coachStrings.$tr('progressLabel') }}</td>
-          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <KRouterLink
-              text="Some exercise"
-              :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
-            />
-          </td>
-          <td>
-            <LearnerProgressRatio
-              :count="2"
-              :total="10"
-              verbosity="1"
-              verb="completed"
-              icon="learners"
-            />
-            <LearnerProgressCount
-              verb="needHelp"
-              icon="help"
-              :count="1"
-              :verbosity="0"
-            />
+    <div class="new-coach-block">
 
-          </td>
-          <td><TimeDuration :seconds="360" /></td>
-        </tr>
-        <tr>
-          <td>
-            <KRouterLink
-              text="Some video"
-              :to="newCoachRoute('ReportsLessonResourceLearnerListPage')"
-            />
-          </td>
-          <td>
-            <LearnerProgressRatio
-              :count="3"
-              :total="6"
-              verbosity="1"
-              verb="completed"
-              icon="learners"
-            />
+      <ReportsLessonHeader />
 
-          </td>
-          <td><TimeDuration :seconds="120" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <table class="new-coach-table">
+        <thead>
+          <tr>
+            <td>{{ coachStrings.$tr('titleLabel') }}</td>
+            <td>{{ coachStrings.$tr('progressLabel') }}</td>
+            <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <KRouterLink
+                text="Some exercise"
+                :to="newCoachRoute('ReportsLessonExerciseLearnerListPage')"
+              />
+            </td>
+            <td>
+              <LearnerProgressRatio
+                :count="2"
+                :total="10"
+                verbosity="1"
+                verb="completed"
+                icon="learners"
+              />
+              <LearnerProgressCount
+                verb="needHelp"
+                icon="help"
+                :count="1"
+                :verbosity="0"
+              />
+
+            </td>
+            <td><TimeDuration :seconds="360" /></td>
+          </tr>
+          <tr>
+            <td>
+              <KRouterLink
+                text="Some video"
+                :to="newCoachRoute('ReportsLessonResourceLearnerListPage')"
+              />
+            </td>
+            <td>
+              <LearnerProgressRatio
+                :count="3"
+                :total="6"
+                verbosity="1"
+                verb="completed"
+                icon="learners"
+              />
+
+            </td>
+            <td><TimeDuration :seconds="120" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </CoreBase>
 
 </template>
 

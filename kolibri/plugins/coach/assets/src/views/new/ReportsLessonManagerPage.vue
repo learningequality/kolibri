@@ -1,8 +1,19 @@
 <template>
 
-  <div class="new-coach-block">
-    Resource manager
-  </div>
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+
+    <TopNavbar slot="sub-nav" />
+
+    <div class="new-coach-block">
+      Resource manager
+    </div>
+  </CoreBase>
 
 </template>
 
