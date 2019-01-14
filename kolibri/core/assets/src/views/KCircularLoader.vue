@@ -20,7 +20,7 @@
       <!-- Alternative circle rendering to explore: http://jsfiddle.net/6e3QJ/29/ -->
       <svg
         v-if="type === 'determinate'"
-        class="ui-progress-circular--determinate"
+        class="ui-progress-circular-determinate"
 
         role="progressbar"
         :aria-valuemax="100"
@@ -31,7 +31,7 @@
         :width="size"
       >
         <circle
-          class="ui-progress-circular--determinate-path"
+          class="ui-progress-circular-determinate-path"
           fill="transparent"
           stroke-dashoffset="0"
 
@@ -45,7 +45,7 @@
 
       <svg
         v-else
-        class="ui-progress-circular--indeterminate"
+        class="ui-progress-circular-indeterminate"
         role="progressbar"
 
         viewBox="25 25 50 50"
@@ -55,7 +55,7 @@
         :style="{ stroke: $coreLoading }"
       >
         <circle
-          class="ui-progress-circular--indeterminate-path"
+          class="ui-progress-circular-indeterminate-path"
           cx="50"
           cy="50"
           fill="none"
@@ -67,7 +67,9 @@
       </svg>
     </div>
   </transition>
+
 </template>
+
 
 <script>
 
@@ -102,10 +104,6 @@
       progress: {
         type: Number,
         default: 0,
-      },
-      size: {
-        type: Number,
-        default: 32,
       },
       stroke: Number,
       autoStroke: {
@@ -176,6 +174,7 @@
 
 </script>
 
+
 <style lang="scss">
 
   @import '~keen-ui/src/styles/imports';
@@ -205,16 +204,16 @@
     animation-duration: 0s;
   }
 
-  .ui-progress-circular--determinate {
+  .ui-progress-circular-determinate {
     transform: rotate(270deg);
   }
 
-  .ui-progress-circular--determinate-path {
+  .ui-progress-circular-determinate-path {
     stroke-dashoffset: 0;
     transition: stroke-dashoffset $ui-progress-determinate-transition-duration;
   }
 
-  .ui-progress-circular--indeterminate {
+  .ui-progress-circular-indeterminate {
     position: absolute;
     top: 0;
     right: 0;
@@ -228,7 +227,7 @@
       infinite;
   }
 
-  .ui-progress-circular--indeterminate-path {
+  .ui-progress-circular-indeterminate-path {
     stroke-dasharray: 89, 200;
     stroke-dashoffset: -35px;
     stroke-linecap: round;
@@ -239,40 +238,40 @@
   // ================================================
 
   .ui-progress-circular--color-multi-color {
-    .ui-progress-circular--determinate-path {
+    .ui-progress-circular-determinate-path {
       stroke: $brand-primary-color;
     }
 
-    .ui-progress-circular--indeterminate-path {
+    .ui-progress-circular-indeterminate-path {
       animation: ui-progress-circular-color $ui-progress-indeterminate-color-duration ease-in-out
         infinite;
     }
   }
 
   .ui-progress-circular--color-primary {
-    .ui-progress-circular--determinate-path,
-    .ui-progress-circular--indeterminate-path {
+    .ui-progress-circular-determinate-path,
+    .ui-progress-circular-indeterminate-path {
       stroke: $brand-primary-color;
     }
   }
 
   .ui-progress-circular--color-accent {
-    .ui-progress-circular--determinate-path,
-    .ui-progress-circular--indeterminate-path {
+    .ui-progress-circular-determinate-path,
+    .ui-progress-circular-indeterminate-path {
       stroke: $brand-accent-color;
     }
   }
 
   .ui-progress-circular--color-black {
-    .ui-progress-circular--determinate-path,
-    .ui-progress-circular--indeterminate-path {
+    .ui-progress-circular-determinate-path,
+    .ui-progress-circular-indeterminate-path {
       stroke: $md-grey-900;
     }
   }
 
   .ui-progress-circular--color-white {
-    .ui-progress-circular--determinate-path,
-    .ui-progress-circular--indeterminate-path {
+    .ui-progress-circular-determinate-path,
+    .ui-progress-circular-indeterminate-path {
       stroke: white;
     }
   }

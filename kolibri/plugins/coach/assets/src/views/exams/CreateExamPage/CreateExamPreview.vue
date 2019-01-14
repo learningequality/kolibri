@@ -45,7 +45,9 @@
             class="o-y-auto"
           >
             <div>
-              {{ coachStrings.$tr('numberOfQuestions', { num: availableExamQuestionSources.length }) }}
+              {{ coachStrings.$tr('numberOfQuestions', {
+                num: availableExamQuestionSources.length
+              }) }}
             </div>
             <div>
               <KButton
@@ -64,7 +66,9 @@
                 <AssessmentQuestionListItem
                   v-for="(question, questionIndex) in getExerciseQuestions(exercise.exercise_id)"
                   :key="questionIndex"
-                  :questionNumberWithinExam="getQuestionIndex(question.itemId, exercise.exercise_id) + 1"
+                  :questionNumberWithinExam="getQuestionIndex(
+                    question.itemId,
+                    exercise.exercise_id) + 1"
                   :questionNumberWithinExercise="questionIndex"
                   :totalFromExercise="availableExamQuestionSources.length"
                   :isSelected="isSelected(question.itemId, exercise.exercise_id)"
