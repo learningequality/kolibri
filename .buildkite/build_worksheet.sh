@@ -43,3 +43,5 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't execute '$PYTHON_CMD'."
     exit 1
 fi
+
+buildkite-agent artifact upload '.buildkite/spreadsheet-link.txt'

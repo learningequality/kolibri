@@ -8,6 +8,7 @@
 """
 import logging
 import os
+import sys
 
 import gspread
 from gspread.urls import DRIVE_FILES_API_V2_URL
@@ -16,18 +17,28 @@ from oauth2client.service_account import ServiceAccountCredentials
 logging.getLogger().setLevel(logging.INFO)
 
 SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-SPREADSHEET_TEMPLATE_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
+SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
-SHEET_TAG = os.getenv("BUILDKITE_TAG")
-SHEET_TEMPLATE_COLUMN = 'B'
-SHEET_TEMPLATE_VALUE = 5
+SHEET_TAG = os.getenv("BUILDKITE_BRANCH")
+SHEET_TPL_COLUMN = 'B'
+SHEET_TPL_START_VALUE = 5
 SHEET_INDEX = 0
 
 # Path of all the spreadsheets created by this script.
 SHEET_PARENT_CONTAINER_ID = os.getenv("GOOGLE_DRIVE_SHEETS")
 
 CELL_VALUE_SEPARATOR = "end_feature_index"
+
+if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
+    SHEET_PARENT_CONTAINER_ID = "1wv4FHAmMTcFMWE_F4RAxuaf9YGlV2O1u"
+
+if SHEET_TAG == "" or SHEET_TAG is None:
+    SHEET_TAG = "develop"
+
+if SPREADSHEET_CREDENTIALS == "" or SPREADSHEET_CREDENTIALS is None:
+    logging.info("Spreadsheet credentials not exist")
+    sys.exit()
 
 GIT_FEATURE_LINK = "https://github.com/learningequality/kolibri/blob/%s/integration_testing/features" \
     % (SHEET_TAG)
@@ -48,9 +59,14 @@ def get_role_name(str_arg):
     return str_arg.replace("-", " ").capitalize() + " scenarios"
 
 
+def get_kolibri_path():
+    dir_name = os.path.dirname
+    parent_path = dir_name(dir_name(os.path.abspath(__file__)))
+    return parent_path
+
+
 def get_feature_dir_path():
-    parent_path = os.path.dirname(os.getcwd())
-    return parent_path + "/integration_testing/features/"
+    return get_kolibri_path() + "/integration_testing/features/"
 
 
 def get_worksheet_link(sheet_id, wks_id):
@@ -58,6 +74,7 @@ def get_worksheet_link(sheet_id, wks_id):
     link_arg = "{0}{1}{2}{3}"
     final_link = link_arg.format(sheet_domain, sheet_id, "/edit#gid=", wks_id)
     logging.info('Here is the new integration testing worksheet %s' % final_link)
+    return final_link
 
 
 def check_file_exist(str_arg):
@@ -71,6 +88,14 @@ def check_name(str_arg):
     if str_arg == "" or str_arg[0] == "#":
         return False
     return True
+
+
+def create_artifact(str_arg):
+    buikite_path = get_kolibri_path() + "/.buildkite/"
+    txt_path = buikite_path + 'spreadsheet-link.txt'
+    file = open(txt_path, 'w')
+    file.write(str_arg)
+    file.close()
 
 
 def fetch_feature_files():
@@ -272,7 +297,7 @@ def sheet_container():
 
 
 def create_spreadsheet():
-    spreadsheet = sheet_copy(SPREADSHEET_TEMPLATE_KEY, sheet_container(),
+    spreadsheet = sheet_copy(SPREADSHEET_TPL_KEY, sheet_container(),
                              title=SPREADSHEET_TITLE, copy_permissions=True)
     worksheet = spreadsheet.get_worksheet(SHEET_INDEX)
     feature_cells, feature_contents = fetch_feature_files()
@@ -280,7 +305,7 @@ def create_spreadsheet():
     role_counter = 0
     end_index_counter = 0
     for row in feature_cells:
-        sheet_start_value = SHEET_TEMPLATE_VALUE + 1
+        sheet_start_value = SHEET_TPL_START_VALUE + 1
         row = row - 2
         start_index = end_index_counter
         end_index = end_index_counter + row
@@ -292,8 +317,8 @@ def create_spreadsheet():
         end_index_counter = end_index + 3
         role_counter += 1
 
-    cell_range = SHEET_TEMPLATE_COLUMN + str(SHEET_TEMPLATE_VALUE) \
-        + ":" + SHEET_TEMPLATE_COLUMN + str(SHEET_TEMPLATE_VALUE + len(feature_contents))
+    cell_range = SHEET_TPL_COLUMN + str(SHEET_TPL_START_VALUE) \
+        + ":" + SHEET_TPL_COLUMN + str(SHEET_TPL_START_VALUE + len(feature_contents))
     cell_list = worksheet.range(cell_range)
     cell_counter = 0
     for cell in cell_list:
@@ -310,7 +335,8 @@ def create_spreadsheet():
     spreadsheet.duplicate_sheet(worksheet.id, insert_sheet_index=None, new_sheet_id=None,
                                 new_sheet_name=template_name)
     rename_worksheet(spreadsheet, worksheet, SHEET_TAG)
-    get_worksheet_link(spreadsheet.id, worksheet.id)
+    sheet_link = get_worksheet_link(spreadsheet.id, worksheet.id)
+    create_artifact(sheet_link)
 
 
 def main():
