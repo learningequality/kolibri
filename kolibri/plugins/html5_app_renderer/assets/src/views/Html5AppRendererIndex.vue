@@ -36,7 +36,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import Hashi from '../../../../../../packages/hashi';
+  import Hashi from 'hashi';
 
   export default {
     name: 'Html5AppRendererIndex',

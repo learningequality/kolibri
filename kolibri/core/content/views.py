@@ -1,15 +1,19 @@
+import hashlib
 import mimetypes
 import os
 import zipfile
 
+from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
 from django.http.response import FileResponse
 from django.http.response import HttpResponseNotModified
-from django.urls import reverse
 from django.template import loader
+from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.http import etag
 from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import View
 from le_utils.constants import exercises
@@ -23,6 +27,16 @@ from kolibri.utils.conf import OPTIONS
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
 mimetypes.init([os.path.join(os.path.dirname(__file__), 'constants', 'mime.types')])
+
+HASHI_FILENAME = None
+
+
+def get_hashi_filename():
+    global HASHI_FILENAME
+    if HASHI_FILENAME is None or getattr(settings, 'DEVELOPER_MODE'):
+        with open(os.path.join(os.path.dirname(__file__), './build/hashi_filename')) as f:
+            HASHI_FILENAME = f.read().strip()
+    return HASHI_FILENAME
 
 
 def _add_access_control_headers(request, response):
@@ -71,6 +85,21 @@ def _add_content_security_policy_header(request, response):
     response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
 
 
+def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
+    zipped_path = get_content_storage_file_path(zipped_filename)
+
+    # if no path, or a directory, is being referenced, look for an index.html file
+    if not embedded_filepath or embedded_filepath.endswith("/"):
+        embedded_filepath += "index.html"
+
+    # Are we returning the Hashi bootstrap html? In which case the etag should change
+    # along with the built file asset of the Hashi client library.
+    if (not request.is_ajax()) and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
+        return hashlib.md5(get_hashi_filename()).hexdigest()
+
+    return hashlib.md5(zipped_filename + embedded_filepath).hexdigest()
+
+
 class ZipContentView(View):
 
     @xframe_options_exempt
@@ -85,6 +114,7 @@ class ZipContentView(View):
     @vary_on_headers('X-Requested-With')
     @cache_forever
     @xframe_options_exempt
+    @method_decorator(etag(calculate_zip_content_etag))
     def get(self, request, zipped_filename, embedded_filepath):
         """
         Handles GET requests and serves a static file from within the zip file.
@@ -127,7 +157,8 @@ class ZipContentView(View):
                 bootstrap_content = cache.get(cache_key)
                 if bootstrap_content is None:
                     template = loader.get_template('content/hashi.html')
-                    bootstrap_content = template.render({}, None)
+                    hashi_path = "content/{filename}".format(filename=get_hashi_filename())
+                    bootstrap_content = template.render({"hashi_path": hashi_path}, None)
                     cache.set(cache_key, bootstrap_content)
                 response = HttpResponse(bootstrap_content)
                 _add_access_control_headers(request, response)
