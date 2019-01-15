@@ -56,9 +56,7 @@ export function showExam(store, params) {
         }
 
         if (!canViewExam(exam, store.state.examLog)) {
-          return router
-            .getInstance()
-            .replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
+          return router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
         }
         // Sort through all the exam attempt logs retrieved and organize them into objects
         // keyed first by content_id and then item id under that.

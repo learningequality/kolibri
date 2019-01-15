@@ -1,64 +1,69 @@
 <template>
 
-  <div>
-    <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ $tr('classGroups') }}</h1>
-        <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
-      </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
+    <TopNavbar slot="sub-nav" />
+    <div class="new-coach-block">
+      <PlanHeader />
+      <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
+      <div class="btn">
         <KButton
           class="new-group-button"
           :text="$tr('newGroup')"
           :primary="true"
           @click="openCreateGroupModal"
         />
-      </KGridItem>
-    </KGrid>
+      </div>
 
-    <CreateGroupModal
-      v-if="showCreateGroupModal"
-      :groups="sortedGroups"
-    />
+      <CreateGroupModal
+        v-if="showCreateGroupModal"
+        :groups="sortedGroups"
+      />
 
-    <RenameGroupModal
-      v-if="showRenameGroupModal"
-      :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id"
-      :groups="sortedGroups"
-    />
+      <RenameGroupModal
+        v-if="showRenameGroupModal"
+        :groupName="selectedGroup.name"
+        :groupId="selectedGroup.id"
+        :groups="sortedGroups"
+      />
 
-    <DeleteGroupModal
-      v-if="showDeleteGroupModal"
-      :groupName="selectedGroup.name"
-      :groupId="selectedGroup.id"
-    />
+      <DeleteGroupModal
+        v-if="showDeleteGroupModal"
+        :groupName="selectedGroup.name"
+        :groupId="selectedGroup.id"
+      />
 
-    <MoveLearnersModal
-      v-if="showMoveLearnersModal"
-      :groupId="selectedGroup.id"
-      :groups="sortedGroups"
-      :usersToMove="usersToMove"
-      :isUngrouped="isUngrouped"
-    />
+      <MoveLearnersModal
+        v-if="showMoveLearnersModal"
+        :groupId="selectedGroup.id"
+        :groups="sortedGroups"
+        :usersToMove="usersToMove"
+        :isUngrouped="isUngrouped"
+      />
 
-    <GroupSection
-      v-for="group in sortedGroups"
-      :key="group.id"
-      :canMove="Boolean(sortedGroups.length)"
-      :group="group"
-      @rename="openRenameGroupModal"
-      @delete="openDeleteGroupModal"
-      @move="openMoveLearnersModal"
-    />
+      <GroupSection
+        v-for="group in sortedGroups"
+        :key="group.id"
+        :canMove="Boolean(sortedGroups.length)"
+        :group="group"
+        @rename="openRenameGroupModal"
+        @delete="openDeleteGroupModal"
+        @move="openMoveLearnersModal"
+      />
 
-    <GroupSection
-      :canMove="Boolean(sortedGroups.length)"
-      :group="ungroupedUsersObject"
-      :isUngrouped="true"
-      @move="openMoveLearnersModal"
-    />
-  </div>
+      <GroupSection
+        :canMove="Boolean(sortedGroups.length)"
+        :group="ungroupedUsersObject"
+        :isUngrouped="true"
+        @move="openMoveLearnersModal"
+      />
+    </div>
+  </CoreBase>
 
 </template>
 
@@ -70,8 +75,8 @@
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import imports from '../new/imports';
+  import PlanHeader from '../new/PlanHeader';
   import { GroupModals } from '../../constants';
   import CreateGroupModal from './CreateGroupModal';
   import GroupSection from './GroupSection';
@@ -94,15 +99,15 @@
       };
     },
     components: {
+      PlanHeader,
       KButton,
-      KGrid,
-      KGridItem,
       CreateGroupModal,
       GroupSection,
       RenameGroupModal,
       DeleteGroupModal,
       MoveLearnersModal,
     },
+    mixins: [imports],
     data() {
       return {
         selectedGroup: {
@@ -177,4 +182,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .btn {
+    text-align: right;
+  }
+
+</style>

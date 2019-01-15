@@ -10,6 +10,7 @@ import lessonResourceUserSummary from './lessonResourceUserSummary';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import reports from './reports';
+import classSummary from './classSummary';
 
 export default {
   state: {
@@ -23,10 +24,19 @@ export default {
     toolbarRoute: {},
     toolbarTitle: '',
     reportRefreshInterval: 30000,
+
+    // trying out a new strategy
+    oldReports: false,
   },
   mutations: {
+    SET_CLASS_ID(state, id) {
+      state.classId = id;
+    },
     SET_PAGE_NAME(state, pageName) {
       state.pageName = pageName;
+    },
+    USE_OLD_INDEX_STYLE(state, value) {
+      state.oldReports = value;
     },
     SET_CLASS_INFO(state, { classId, classList, currentClassroom }) {
       state.currentClassroom = currentClassroom;
@@ -55,5 +65,9 @@ export default {
     lessonSummary,
     lessonsRoot,
     reports,
+
+    /* COACH - under construction ... */
+    classSummary,
+    /* ... COACH - under construction */
   },
 };

@@ -1,36 +1,47 @@
 <template>
 
-  <div class="new-coach-block">
+  <CoreBase
+    :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
 
-    <ReportsLessonExerciseHeader />
+    <TopNavbar slot="sub-nav" />
 
-    <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
+    <div class="new-coach-block">
 
-    <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-    <table class="new-coach-table">
-      <thead>
-        <tr>
-          <td>{{ coachStrings.$tr('questionLabel') }}</td>
-          <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
-          <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><KRouterLink text="Question 1" :to="questionLink" /></td>
-          <td>
-            <LearnerProgressCount
-              :count="2"
-              verbosity="1"
-              verb="needHelp"
-              icon="help"
-            />
-          </td>
-          <td><TimeDuration :seconds="60*15" /></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <ReportsLessonExerciseHeader />
+
+      <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
+
+      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+      <table class="new-coach-table">
+        <thead>
+          <tr>
+            <td>{{ coachStrings.$tr('questionLabel') }}</td>
+            <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+            <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><KRouterLink text="Question 1" :to="questionLink" /></td>
+            <td>
+              <LearnerProgressCount
+                :count="2"
+                verbosity="1"
+                verb="needHelp"
+                icon="help"
+              />
+            </td>
+            <td><TimeDuration :seconds="60*15" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </CoreBase>
 
 </template>
 

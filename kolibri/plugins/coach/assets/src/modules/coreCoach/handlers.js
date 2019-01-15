@@ -27,15 +27,3 @@ export function showClassListPage(store) {
     error => store.dispatch('handleApiError', error)
   );
 }
-
-/* COACH - under construction ... */
-export function showNewPage(store) {
-  store.commit('SET_PAGE_NAME', PageNames.NEW_COACH_PAGES);
-  store.commit('CORE_SET_PAGE_LOADING', false);
-  store.commit('SET_CLASS_INFO', {
-    classId: '1',
-    currentClassroom: null,
-    classList: [],
-  });
-}
-/* ... COACH - under construction */

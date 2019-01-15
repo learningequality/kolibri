@@ -1,11 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
-import {
-  showClassListPage,
-  shouldRedirectToClassRootPage,
-  showNewPage, // ... COACH - under construction
-} from '../modules/coreCoach/handlers';
-import { showGroupsPage } from '../modules/groups/handlers';
+import { showClassListPage, shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
 import {
   showChannelListForReports,
   showChannelRootReport,
@@ -22,15 +17,17 @@ import {
 } from '../modules/exerciseDetail/handlers';
 import { PageNames } from '../constants';
 import examRoutes from './examRoutes';
-import lessonsRoutes from './lessonsRoutes';
+import reportRoutes from './reportRoutes';
+import planRoutes from './planRoutes';
+import newRoutes from './newRoutes';
 
 export default [
-  ...lessonsRoutes,
   ...examRoutes,
   {
     name: PageNames.CLASS_LIST,
     path: '/old/',
     handler: () => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       return shouldRedirectToClassRootPage().then(classId => {
         if (classId) {
           return router.replace({
@@ -53,6 +50,7 @@ export default [
     name: PageNames.RECENT_CHANNELS,
     path: '/old/:classId/recent',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showChannelListForReports(store, { ...to.params, showRecentOnly: true });
     },
   },
@@ -60,6 +58,7 @@ export default [
     name: PageNames.RECENT_ITEMS_FOR_CHANNEL,
     path: '/old/:classId/recent/:channelId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showRecentItemsForChannel(store, to.params);
     },
   },
@@ -67,6 +66,7 @@ export default [
     name: PageNames.RECENT_LEARNERS_FOR_ITEM,
     path: '/old/:classId/recent/:channelId/:contentId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showLearnerReportsForItem(store, { ...to.params, showRecentOnly: true });
     },
   },
@@ -79,6 +79,7 @@ export default [
     name: PageNames.RECENT_LEARNER_ITEM_DETAILS,
     path: '/old/:classId/recent/:channelId/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showRecentLearnerItemDetails(
         store,
         to.params.classId,
@@ -94,6 +95,7 @@ export default [
     name: PageNames.TOPIC_CHANNELS,
     path: '/old/:classId/topics',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showChannelListForReports(store, { ...to.params, showRecentOnly: false });
     },
   },
@@ -101,6 +103,7 @@ export default [
     name: PageNames.TOPIC_CHANNEL_ROOT,
     path: '/old/:classId/topics/:channelId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showChannelRootReport(store, to.params);
     },
   },
@@ -108,6 +111,7 @@ export default [
     name: PageNames.TOPIC_ITEM_LIST,
     path: '/old/:classId/topics/:channelId/topic/:topicId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showItemListReports(store, to.params);
     },
   },
@@ -115,6 +119,7 @@ export default [
     name: PageNames.TOPIC_LEARNERS_FOR_ITEM,
     path: '/old/:classId/topics/:channelId/item/:contentId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showLearnerReportsForItem(store, { ...to.params, showRecentOnly: false });
     },
   },
@@ -128,6 +133,7 @@ export default [
     path:
       '/old/:classId/topics/:channelId/item/:contentId/:userId/:attemptLogIndex/:interactionIndex',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showTopicLearnerItemDetails(
         store,
         to.params.classId,
@@ -143,6 +149,7 @@ export default [
     name: PageNames.LEARNER_LIST,
     path: '/old/:classId/learners',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showLearnerList(store, to.params.classId);
     },
   },
@@ -150,6 +157,7 @@ export default [
     name: PageNames.LEARNER_CHANNELS,
     path: '/old/:classId/learners/:userId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showLearnerChannels(store, to.params);
     },
   },
@@ -157,6 +165,7 @@ export default [
     name: PageNames.LEARNER_CHANNEL_ROOT,
     path: '/old/:classId/learners/:userId/:channelId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showChannelRootReport(store, to.params);
     },
   },
@@ -164,6 +173,7 @@ export default [
     name: PageNames.LEARNER_ITEM_LIST,
     path: '/old/:classId/learners/:userId/:channelId/topic/:topicId',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showItemListReports(store, to.params);
     },
   },
@@ -177,6 +187,7 @@ export default [
     path:
       '/old/:classId/learners/:userId/:channelId/item/:contentId/:attemptLogIndex/:interactionIndex',
     handler: to => {
+      store.commit('USE_OLD_INDEX_STYLE', true);
       showLearnerItemDetails(
         store,
         to.params.classId,
@@ -188,24 +199,7 @@ export default [
       );
     },
   },
-  {
-    name: PageNames.GROUPS,
-    path: '/old/:classId/groups',
-    handler: to => {
-      showGroupsPage(store, to.params.classId);
-    },
-  },
-  /* COACH - under construction ... */
-  {
-    name: PageNames.NEW_COACH_PAGES,
-    path: '/:page',
-    handler: to => {
-      showNewPage(store, to.params.page);
-    },
-  },
-  /* ... COACH - under construction */
-  {
-    path: '*',
-    redirect: '/CoachClassListPage',
-  },
+  ...reportRoutes,
+  ...planRoutes,
+  ...newRoutes,
 ];

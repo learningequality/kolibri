@@ -1,58 +1,78 @@
 <template>
 
-  <div>
-    <h1>
-      {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
-    </h1>
+  <CoreBase
+    :immersivePage="true"
+    immersivePageIcon="close"
+    immersivePagePrimary
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+  >
 
-    <KGrid>
-      <KGridItem
-        sizes="100, 100, 50"
-        percentage
-      >
-        <LessonsSearchBox @searchterm="handleSearchTerm" />
-      </KGridItem>
+    <div>
+      <h1>
+        {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
+      </h1>
 
-      <KGridItem
-        sizes="100, 100, 50"
-        percentage
-        alignments="left, left, right"
-      >
-        <p>
-          {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
-        </p>
-      </KGridItem>
-    </KGrid>
+      <KGrid>
+        <KGridItem
+          sizes="100, 100, 50"
+          percentage
+        >
+          <KButton
+            v-if="inSearchMode"
+            class="exit-search-button"
+            :text="$tr('exitSearchButtonLabel')"
+            appearance="raised-button"
+            @click="handleExitSearch"
+          />
+          <LessonsSearchBox @searchterm="handleSearchTerm" />
+        </KGridItem>
 
-    <LessonsSearchFilters
-      v-if="inSearchMode"
-      v-model="filters"
-      class="search-filters"
-      :searchTerm="searchTerm"
-      :searchResults="searchResults"
-    />
+        <KGridItem
+          sizes="100, 100, 50"
+          percentage
+          alignments="left, left, right"
+        >
+          <p>
+            {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
+          </p>
+        </KGridItem>
+      </KGrid>
 
-    <ResourceSelectionBreadcrumbs
-      v-if="!inSearchMode"
-      :ancestors="ancestors"
-      :channelsLink="channelsLink"
-      :topicsLink="topicsLink"
-    />
+      <LessonsSearchFilters
+        v-if="inSearchMode"
+        v-model="filters"
+        class="search-filters"
+        :searchTerm="searchTerm"
+        :searchResults="searchResults"
+      />
 
-    <ContentCardList
-      v-if="!isExiting"
-      :contentList="filteredContentList"
-      :showSelectAll="selectAllIsVisible"
-      :viewMoreButtonState="viewMoreButtonState"
-      :selectAllChecked="addableContent.length === 0"
-      :contentIsChecked="contentIsInLesson"
-      :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-      :contentCardMessage="selectionMetadata"
-      :contentCardLink="contentLink"
-      @changeselectall="toggleTopicInWorkingResources"
-      @change_content_card="toggleSelected"
-      @moreresults="handleMoreResults"
-    />
+      <ResourceSelectionBreadcrumbs
+        v-if="!inSearchMode"
+        :ancestors="ancestors"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
+
+      <ContentCardList
+        v-if="!isExiting"
+        :contentList="filteredContentList"
+        :showSelectAll="selectAllIsVisible"
+        :viewMoreButtonState="viewMoreButtonState"
+        :selectAllChecked="addableContent.length === 0"
+        :contentIsChecked="contentIsInLesson"
+        :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+        :contentCardMessage="selectionMetadata"
+        :contentCardLink="contentLink"
+        @changeselectall="toggleTopicInWorkingResources"
+        @change_content_card="toggleSelected"
+        @moreresults="handleMoreResults"
+      />
+
+    </div>
 
     <Bottom>
       <KRouterLink
@@ -63,7 +83,7 @@
       />
     </Bottom>
 
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -81,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import imports from '../../new/imports';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { topicListingLink, selectionRootLink } from '../lessonsRouterUtils';
   import Bottom from '../../exams/CreateExamPage/Bottom';
@@ -108,7 +129,7 @@
       ResourceSelectionBreadcrumbs,
       Bottom,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, imports],
     data() {
       return {
         // null corresponds to 'All' filter value

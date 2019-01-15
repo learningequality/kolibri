@@ -3,16 +3,16 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('CoachClassListPage')"
+        :to="route(PageNames.COACH_CLASS_LIST)"
         :text="$tr('back')"
       />
     </p>
-    <h1>Class name</h1>
+    <h1>{{ $store.state.classSummary.name }}</h1>
     <dl>
-      <dt>{{ $tr('coach', {count: 2}) }}</dt>
-      <dd><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></dd>
-      <dt>{{ $tr('learner', {count: 12}) }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 12}) }}</dd>
+      <dt>{{ $tr('coach', {count: coachNames.length}) }}</dt>
+      <dd><TruncatedItemList :items="coachNames" /></dd>
+      <dt>{{ $tr('learner', {count: learnerNames.length}) }}</dt>
+      <dd>{{ coachStrings.$tr('integer', {value: learnerNames.length}) }}</dd>
     </dl>
   </div>
 
@@ -32,6 +32,14 @@
       changeClass: 'Change class',
       coach: '{count, plural, one {Coach} other {Coaches}}',
       learner: '{count, plural, one {Learner} other {Learners}}',
+    },
+    computed: {
+      coachNames() {
+        return this.$store.state.classSummary.coaches.map(coach => coach.name);
+      },
+      learnerNames() {
+        return this.$store.state.classSummary.learners.map(learner => learner.name);
+      },
     },
   };
 

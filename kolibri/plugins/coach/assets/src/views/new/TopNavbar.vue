@@ -1,21 +1,21 @@
 <template>
 
-  <KNavbar>
+  <KNavbar v-if="classId">
     <KNavbarLink
       :title="$tr('home')"
-      :link="link('HomePage')"
+      :link="navRoute(PageNames.HOME_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="coachStrings.$tr('reportsLabel')"
-      :link="link('ReportsLessonListPage')"
+      :link="navRoute(PageNames.REPORTS_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
-      :link="link('PlanLessonListPage')"
+      :link="navRoute(PageNames.PLAN_PAGE)"
     >
       <mat-svg name="bubble_chart" category="editor" />
     </KNavbarLink>
@@ -26,10 +26,11 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import { PageNames } from '../../constants';
-  import imports from './imports';
+  import { PageNames } from '../../constants/newConstants';
+  import { coachStringsMixin } from './shared/commonCoachStrings';
 
   export default {
     name: 'TopNavbar',
@@ -37,19 +38,20 @@
       KNavbar,
       KNavbarLink,
     },
-    mixins: [imports],
+    mixins: [coachStringsMixin],
     $trs: {
       home: 'Class Home',
       plan: 'Plan',
     },
+    computed: {
+      ...mapState(['classId']),
+      PageNames() {
+        return PageNames;
+      },
+    },
     methods: {
-      link(page) {
-        return {
-          name: PageNames.NEW_COACH_PAGES,
-          params: {
-            page,
-          },
-        };
+      navRoute(name) {
+        return { name, params: { classId: this.classId } };
       },
     },
   };

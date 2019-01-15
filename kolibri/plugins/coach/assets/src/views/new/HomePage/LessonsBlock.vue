@@ -12,22 +12,22 @@
     <div>
       <ItemProgressDisplay
         name="Some lesson"
-        :completedItems="2"
-        :totalItems="5"
+        :completed="2"
+        :total="5"
         :needHelp="3"
         :groups="[]"
       />
       <ItemProgressDisplay
         name="Read these!"
-        :completedItems="2"
-        :totalItems="4"
+        :completed="2"
+        :total="4"
         :needHelp="0"
         :groups="[1, 2, 3]"
       />
       <ItemProgressDisplay
         name="Item name"
-        :completedItems="2"
-        :totalItems="50"
+        :completed="2"
+        :total="50"
         :needHelp="0"
         :groups="[1, 2]"
       />
