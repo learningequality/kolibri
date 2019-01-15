@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'kolibri.core.auth.apps.KolibriAuthConfig',
     'kolibri.core.content',
     'kolibri.core.logger',
+    'kolibri.core.notifications.apps.KolibriNotificationsConfig',
     'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
@@ -151,8 +152,17 @@ if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
             'OPTIONS': {
                 'timeout': 100,
             }
+        },
+        'notifications_db': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(conf.KOLIBRI_HOME, 'notifications.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
     }
+    DATABASE_ROUTERS = ('kolibri.core.notifications.models.NotificationsRouter', )
+
 elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
     DATABASES = {
         'default': {

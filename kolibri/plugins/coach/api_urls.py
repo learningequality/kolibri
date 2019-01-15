@@ -2,6 +2,7 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework import routers
 
+from .api import ClassroomNotificationsViewset
 from .api import ContentReportViewSet
 from .api import ContentSummaryViewSet
 from .api import LessonReportViewset
@@ -14,13 +15,10 @@ router = routers.DefaultRouter()
 router.register(r'userreport', UserReportViewSet, base_name='userreport')
 router.register(r'contentreport', ContentReportViewSet, base_name='contentreport')
 router.register(r'recentreport', RecentReportViewSet, base_name='recentreport')
-
 router.register(r'contentsummary', ContentSummaryViewSet, base_name='contentsummary')
-
 router.register(r'lessonreport', LessonReportViewset, base_name='lessonreport')
-
 router.register(r'classsummary', ClassSummaryViewSet, base_name='classsummary')
-
+router.register(r'notifications', ClassroomNotificationsViewset, base_name='notifications')
 
 urlpatterns = [
     url(r'^', include(router.urls))
