@@ -18,9 +18,9 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.notifications.models import HelpReason
 from kolibri.core.notifications.models import LearnerProgressNotification
-from kolibri.core.notifications.models import NotificationType
+from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.notifications.models import NotificationObjectType
 
 
 class UserReportSerializer(serializers.ModelSerializer):
@@ -308,15 +308,16 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         value = super(LearnerNotificationSerializer, self).to_representation(instance)
 
-        if instance.notification_type == NotificationType.Help:
-            value['reason'] = HelpReason.values[instance.reason]
+        if instance.notification_event == NotificationEventType.Help:
+            value['reason'] = instance.reason
 
-        if instance.notification_type == NotificationType.Quiz:
+        if instance.notification_object == NotificationObjectType.Quiz:
             value['quiz_id'] = instance.quiz_id
 
-        if instance.notification_type == NotificationType.Help or\
-           instance.notification_type == NotificationType.Resource:
+        if instance.notification_object == NotificationObjectType.Resource:
             value['contentnode_id'] = instance.contentnode_id
-
-        value['type'] = NotificationType.values[instance.notification_type]
+        value['object'] = instance.notification_object
+        value['event'] = instance.notification_event
+        value['type'] = '{object}{event}'.format(object=instance.notification_object,
+                                                 event=instance.notification_event)
         return value

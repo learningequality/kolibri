@@ -72,33 +72,35 @@ class NotificationsRouter(object):
 
 
 class myEnum(object):
-    values = dict()
 
     @classmethod
     def choices(cls):
-        return tuple([(name, value) for name, value in sorted(cls.values.items())])
+        choices_list = [(m, getattr(cls, m)) for m in cls.__dict__ if isinstance(getattr(cls, m), str) and m[0] != '_']
+        return tuple(choices_list)
 
 
-class NotificationType(myEnum):
+class NotificationObjectType(myEnum):
     Resource = 'Resource'
     Quiz = 'Quiz'
     Help = 'Help'
     Lesson = 'Lesson'
-    values = {'Resource': 'ResourceIndividualCompletion',
-              'Quiz': 'QuizIndividualCompletion',
-              'Help': 'LessonResourceIndividualNeedsHelpEvent',
-              'Lesson': 'LessonIndividualCompletion'}
+
+
+class NotificationEventType(myEnum):
+    Started = 'Started'
+    Completed = 'Completed'
+    Help = 'NeedsHelp'
 
 
 class HelpReason(myEnum):
-    Multiple = 'Multiple'
-    values = {'Multiple': 'MultipleUnsuccessfulAttempts'}
+    Multiple = 'MultipleUnsuccessfulAttempts'
 
 
 @python_2_unicode_compatible
 class LearnerProgressNotification(models.Model):
     id = UUIDField(primary_key=True)
-    notification_type = models.CharField(max_length=200, choices=NotificationType.choices(), blank=True)
+    notification_object = models.CharField(max_length=200, choices=NotificationObjectType.choices(), blank=True)
+    notification_event = models.CharField(max_length=200, choices=NotificationEventType.choices(), blank=True)
     user_id = UUIDField()
     classroom_id = UUIDField()
     contentnode_id = UUIDField(null=True)
@@ -108,7 +110,7 @@ class LearnerProgressNotification(models.Model):
     timestamp = DateTimeTzField(default=local_now)
 
     def __str__(self):
-        return str(self.notification_type)
+        return '{object} - {event}'.format(object=self.notification_object, event=self.notification_event)
 
     class Meta:
         app_label = 'notifications'

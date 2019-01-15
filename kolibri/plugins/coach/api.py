@@ -164,5 +164,6 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             return None
         today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
         return LearnerProgressNotification.objects.filter(classroom_id=classroom_id,
-                                                          timestamp__gte=today).order_by('notification_type',
+                                                          timestamp__gte=today).order_by('notification_object',
+                                                                                         'notification_event',
                                                                                          'timestamp')
