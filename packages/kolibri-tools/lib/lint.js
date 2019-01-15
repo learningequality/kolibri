@@ -260,15 +260,15 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           }
           // Only write if the formatted file is different to the source file.
           if (write && formatted !== source) {
-            fs.writeFile(file, formatted, { encoding }, error => {
-              if (error) {
-                reject({ error: error.message, code: errorOrChange });
-                return;
-              }
+            try {
+              fs.writeFileSync(file, formatted, { encoding });
               if (!silent) {
                 logging.info(`Rewriting a prettier version of ${file}`);
               }
-            });
+            } catch (error) {
+              reject({ error: error.message, code: errorOrChange });
+              return;
+            }
           }
           resolve({ code });
         })
