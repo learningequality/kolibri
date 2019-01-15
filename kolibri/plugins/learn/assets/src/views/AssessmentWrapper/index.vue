@@ -113,7 +113,7 @@ oriented data synchronization.
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
-  import seededShuffle from 'kolibri.lib.seededshuffle';
+  import shuffle from 'kolibri.lib.shuffle';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -442,11 +442,8 @@ oriented data synchronization.
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
         if (this.randomize) {
-          if (this.userid) {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, this.userid, true)[index];
-          } else {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, Date.now(), true)[index];
-          }
+          const seed = this.userid ? this.userid : Date.now();
+          this.itemId = shuffle(this.assessmentIds.slice(0), seed)[index];
         } else {
           this.itemId = this.assessmentIds[index];
         }

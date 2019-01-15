@@ -83,9 +83,21 @@ class ExamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
         fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'collection', 'archive', 'assignments', 'creator',
+            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'active', 'collection', 'archive', 'assignments', 'creator', 'data_model_version',
+            'learners_see_fixed_order'
         )
+        read_only_fields = ('data_model_version',)
+
+    def validate_question_sources(self, value):
+        for question in value:
+            if 'exercise_id' not in question:
+                raise serializers.ValidationError("Question missing 'exercise_id'")
+            if 'question_id' not in question:
+                raise serializers.ValidationError("Question missing 'question_id'")
+            if 'title' not in question:
+                raise serializers.ValidationError("Question missing 'title'")
+        return value
 
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
@@ -100,6 +112,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         assignees = validated_data.pop('assignments')
+        validated_data['data_model_version'] = 1
         new_exam = Exam.objects.create(**validated_data)
         # Create all of the new ExamAssignment
         for assignee in assignees:
@@ -150,16 +163,17 @@ class UserExamSerializer(serializers.ModelSerializer):
         # defined as they are directly attached to a particular user's collection.
         model = ExamAssignment
         read_only_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'score', 'archive', 'answer_count', 'closed',
+            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'active', 'score', 'archive', 'answer_count', 'closed', 'data_model_version',
+            'learners_see_fixed_order'
         )
         fields = '__all__'
 
     def to_representation(self, obj):
         output = {}
         exam_fields = (
-            'id', 'title', 'channel_id', 'question_count', 'question_sources', 'seed',
-            'active', 'archive',
+            'id', 'title', 'question_count', 'question_sources', 'seed',
+            'active', 'archive', 'data_model_version', 'learners_see_fixed_order'
         )
         for field in exam_fields:
             output[field] = getattr(obj.exam, field)

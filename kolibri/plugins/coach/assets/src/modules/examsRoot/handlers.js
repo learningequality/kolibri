@@ -2,7 +2,7 @@ import { ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
-import { _examsState } from '../shared/exams';
+import { examsState } from '../shared/exams';
 
 export function showExamsPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -20,7 +20,7 @@ export function showExamsPage(store, classId) {
     samePageCheckGenerator(store),
     ([exams]) => {
       store.commit('examsRoot/SET_STATE', {
-        exams: _examsState(exams),
+        exams: examsState(exams),
         examsModalSet: false,
         busy: false,
       });

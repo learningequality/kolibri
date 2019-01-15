@@ -77,9 +77,15 @@ function showResourceSelectionPage(store, params) {
               store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
             }
             store.commit('SET_PAGE_NAME', pageName);
-            store.commit('SET_TOOLBAR_ROUTE', {
-              name: LessonsPageNames.SUMMARY,
-            });
+            if (pageName === LessonsPageNames.SELECTION_SEARCH) {
+              store.commit('SET_TOOLBAR_ROUTE', {
+                name: LessonsPageNames.SELECTION_ROOT,
+              });
+            } else {
+              store.commit('SET_TOOLBAR_ROUTE', {
+                name: LessonsPageNames.SUMMARY,
+              });
+            }
             store.dispatch('notLoading');
           }
         );

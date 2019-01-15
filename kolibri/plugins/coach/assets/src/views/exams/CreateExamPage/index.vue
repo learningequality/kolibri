@@ -1,82 +1,69 @@
 <template>
 
   <div>
-    <template v-if="!inSearchMode">
-      <KTextbox
-        ref="title"
-        v-model.trim="examTitle"
-        :label="$tr('title')"
-        :autofocus="true"
-        :invalid="titleIsInvalid"
-        :invalidText="titleIsInvalidText"
-        :maxlength="100"
-        @blur="titleBlurred = true"
-      />
-      <KTextbox
-        ref="numQuest"
-        v-model.trim.number="examNumberOfQuestions"
-        type="number"
-        :min="1"
-        :max="50"
-        :label="$tr('numQuestions')"
-        :invalid="numQuestIsInvalid"
-        :invalidText="numQuestIsInvalidText"
-        @blur="numQuestBlurred = true"
-      />
 
-      <UiAlert
-        v-if="selectionIsInvalid"
-        type="error"
-        :dismissible="false"
-      >
-        {{ selectionIsInvalidText }}
-      </UiAlert>
+    <UiAlert
+      v-if="showError && !inSearchMode"
+      type="error"
+      :dismissible="false"
+    >
+      {{ selectionIsInvalidText }}
+    </UiAlert>
 
-      <div class="buttons-container">
-        <KButton
-          :text="$tr('continueButtonlabel')"
-          :primary="true"
-          :disabled="submitting"
-          @click="continueProcess"
-        />
-      </div>
-    </template>
+    <h2>{{ detailsString }}</h2>
 
     <KGrid>
-      <KGridItem
-        sizes="100, 50, 50"
-        percentage
-      >
-        <h1>{{ $tr('chooseExercises') }}</h1>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="title"
+          v-model.trim="examTitle"
+          :label="$tr('title')"
+          :autofocus="true"
+          :maxlength="100"
+        />
       </KGridItem>
-      <KGridItem
-        sizes="100, 50, 50"
-        percentage
-        alignments="left, right, right"
-      >
-        <p>{{ $tr('selected', { count: selectedExercises.length }) }}</p>
+      <KGridItem sizes="100, 100, 50" percentage>
+        <KTextbox
+          ref="numQuest"
+          v-model.trim.number="numQuestions"
+          type="number"
+          :min="1"
+          :max="50"
+          :label="$tr('numQuestions')"
+          class="number-field"
+        />
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions -= 1"
+        >
+          <mat-svg name="remove" category="content" />
+        </UiIconButton>
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          class="number-btn"
+          @click="numQuestions += 1"
+        >
+          <mat-svg name="add" category="content" />
+        </UiIconButton>
       </KGridItem>
     </KGrid>
+
+    <h2>{{ $tr('chooseExercises') }}</h2>
 
     <LessonsSearchBox
       class="search-box"
       @searchterm="handleSearchTerm"
     />
 
-    <template v-if="inSearchMode">
-      <KButton
-        :text="$tr('exitSearchButtonLabel')"
-        appearance="raised-button"
-        @click="handleExitSearch"
-      />
-
-      <LessonsSearchFilters
-        v-model="filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-    </template>
-
+    <LessonsSearchFilters
+      v-if="inSearchMode"
+      v-model="filters"
+      :searchTerm="searchTerm"
+      :searchResults="searchResults"
+    />
     <ResourceSelectionBreadcrumbs
       v-else
       :ancestors="ancestors"
@@ -103,17 +90,26 @@
       @moreresults="handleMoreResults"
     />
 
-    <CreateExamPreview
-      v-if="showCreateExamPreview"
-      :examQuestionSources="questionSources"
-      :examSeed="examSeed"
-      :examNumQuestions="examNumberOfQuestions"
-      :exerciseContentNodes="selectedExercises"
-      @randomize="randomize"
-      @close="setExamsModal(null)"
-      @submit="finish"
-      @cancel="goBack"
-    />
+    <Bottom v-if="inSearchMode">
+      <KRouterLink
+        appearance="raised-button"
+        :text="$tr('exitSearchButtonLabel')"
+        primary
+        :to="toolbarRoute"
+      />
+    </Bottom>
+    <Bottom v-else>
+      <KRouterLink
+        appearance="flat-button"
+        :text="coachStrings.$tr('goBackAction')"
+        :to="toolbarRoute"
+      />
+      <KButton
+        :text="$tr('continueButtonlabel')"
+        primary
+        @click="continueProcess"
+      />
+    </Bottom>
 
   </div>
 
@@ -122,30 +118,32 @@
 
 <script>
 
-  import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
-  import uniqBy from 'lodash/uniqBy';
-  import shuffle from 'lodash/shuffle';
-  import orderBy from 'lodash/orderBy';
-  import random from 'lodash/random';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
 
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../../../constants/';
-  import { Modals as ExamModals } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
-  import CreateExamPreview from './CreateExamPreview';
+  import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
+  import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
+  import Bottom from './Bottom';
+
+  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -156,9 +154,9 @@
       };
     },
     components: {
-      KButton,
       KTextbox,
-      CreateExamPreview,
+      KRouterLink,
+      KButton,
       UiAlert,
       LessonsSearchBox,
       LessonsSearchFilters,
@@ -166,8 +164,10 @@
       ContentCardList,
       KGrid,
       KGridItem,
+      UiIconButton,
+      Bottom,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, coachStringsMixin],
     $trs: {
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
@@ -195,14 +195,7 @@
     },
     data() {
       return {
-        examTitle: '',
-        examNumberOfQuestions: 10,
-        examSeed: null,
-        titleBlurred: false,
-        numQuestBlurred: false,
-        selectionMade: false,
-        previewOrSubmissionAttempt: false,
-        submitting: false,
+        showError: false,
         moreResultsState: null,
         // null corresponds to 'All' filter value
         filters: {
@@ -213,7 +206,7 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'pageName']),
+      ...mapState(['classId', 'pageName', 'toolbarRoute']),
       ...mapGetters({
         channels: 'getChannels',
       }),
@@ -221,7 +214,6 @@
       ...mapState('examCreation', [
         'title',
         'numberOfQuestions',
-        'seed',
         'contentList',
         'selectedExercises',
         'availableQuestions',
@@ -229,6 +221,26 @@
         'ancestors',
         'examsModalSet',
       ]),
+      detailsString() {
+        return quizDetailStrings.$tr('details');
+      },
+      examTitle: {
+        get() {
+          return this.$store.state.examCreation.title;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_TITLE', value);
+        },
+      },
+      numQuestions: {
+        get() {
+          return this.$store.state.examCreation.numberOfQuestions;
+        },
+        set(value) {
+          this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+          this.$store.dispatch('examCreation/updateSelectedQuestions');
+        },
+      },
       filteredContentList() {
         const { role } = this.filters || {};
         if (!this.inSearchMode) {
@@ -268,22 +280,6 @@
         }
         return this.addableExercises.length !== this.allExercises.length;
       },
-      questionSources() {
-        const questionSources = [];
-        for (let i = 0; i < this.examNumberOfQuestions; i++) {
-          const questionSourcesIndex = i % this.uniqueSelectedExercises.length;
-          if (questionSources[questionSourcesIndex]) {
-            questionSources[questionSourcesIndex].number_of_questions += 1;
-          } else {
-            questionSources.push({
-              exercise_id: this.uniqueSelectedExercises[i].id,
-              number_of_questions: 1,
-              title: this.uniqueSelectedExercises[i].title,
-            });
-          }
-        }
-        return orderBy(questionSources, [exercise => exercise.title.toLowerCase()]);
-      },
       inSearchMode() {
         return this.pageName === PageNames.EXAM_CREATION_SEARCH;
       },
@@ -305,78 +301,11 @@
         }
         return 'visible';
       },
-
-      titleIsInvalidText() {
-        if (this.titleBlurred || this.previewOrSubmissionAttempt) {
-          if (this.examTitle === '') {
-            return this.$tr('examRequiresTitle');
-          }
-        }
-        return '';
-      },
-      titleIsInvalid() {
-        return Boolean(this.titleIsInvalidText);
-      },
-      numQuestExceedsSelection() {
-        return this.examNumberOfQuestions > this.availableQuestions;
-      },
-      exercisesAreSelected() {
-        return this.selectedExercises.length > 0;
-      },
-      numQuestIsInvalidText() {
-        if (this.numQuestBlurred || this.previewOrSubmissionAttempt) {
-          if (this.examNumberOfQuestions === '') {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (this.examNumberOfQuestions < 1 || this.examNumberOfQuestions > 50) {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (!Number.isInteger(this.examNumberOfQuestions)) {
-            return this.$tr('numQuestionsBetween');
-          }
-          if (this.exercisesAreSelected && this.numQuestExceedsSelection) {
-            return this.$tr('numQuestionsExceed', {
-              inputNumQuestions: this.examNumberOfQuestions,
-              maxQuestionsFromSelection: this.availableQuestions,
-            });
-          }
-        }
-        return '';
-      },
-      numQuestIsInvalid() {
-        return Boolean(this.numQuestIsInvalidText);
-      },
       selectionIsInvalidText() {
-        if (this.selectionMade || this.previewOrSubmissionAttempt) {
-          if (!this.exercisesAreSelected) {
-            return this.$tr('noneSelected');
-          }
+        if (this.selectedExercises.length === 0) {
+          return this.$tr('noneSelected');
         }
-        return '';
-      },
-      selectionIsInvalid() {
-        return Boolean(this.selectionIsInvalidText);
-      },
-      formIsInvalidText() {
-        if (this.titleIsInvalid) {
-          return this.titleIsInvalidText;
-        }
-        if (this.numQuestIsInvalid) {
-          return this.numQuestIsInvalidText;
-        }
-        if (this.selectionIsInvalid) {
-          return this.selectionIsInvalidText;
-        }
-        return '';
-      },
-      formIsInvalid() {
-        return Boolean(this.formIsInvalidText);
-      },
-      uniqueSelectedExercises() {
-        return uniqBy(this.selectedExercises, 'content_id');
-      },
-      showCreateExamPreview() {
-        return this.examsModalSet === ExamModals.PREVIEW_NEW_EXAM;
+        return null;
       },
       channelsLink() {
         return {
@@ -406,16 +335,6 @@
         });
       },
     },
-    created() {
-      this.examTitle = this.title;
-      this.examNumberOfQuestions = this.numberOfQuestions;
-      this.examSeed = this.seed || this.generateRandomSeed();
-      this.$watch('examTitle', () => this.setTitle(this.examTitle));
-      this.$watch('examNumberOfQuestions', () =>
-        this.setNumberOfQuestions(this.examNumberOfQuestions)
-      );
-      this.$watch('examSeed', () => this.setSeed(this.examSeed));
-    },
     methods: {
       ...mapActions(['createSnackbar']),
       ...mapActions('examCreation', [
@@ -423,14 +342,7 @@
         'removeFromSelectedExercises',
         'setSelectedExercises',
         'fetchAdditionalSearchResults',
-        'createExamAndRoute',
       ]),
-      ...mapMutations('examCreation', {
-        setExamsModal: 'SET_EXAMS_MODAL',
-        setTitle: 'SET_TITLE',
-        setNumberOfQuestions: 'SET_NUMBER_OF_QUESTIONS',
-        setSeed: 'SET_SEED',
-      }),
       contentLink(content) {
         if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
           return {
@@ -514,6 +426,7 @@
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
+          this.showError = false;
           this.addToSelectedExercises(this.addableExercises);
           this.createSnackbar({
             text: this.$tr('added', { item: this.topicTitle }),
@@ -532,6 +445,7 @@
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
+          this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
@@ -539,6 +453,7 @@
             autoDismiss: true,
           });
         } else if (checked && !isTopic) {
+          this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
@@ -576,68 +491,12 @@
             this.moreResultsState = 'error';
           });
       },
-      handleExitSearch() {
-        const lastId = this.$route.query.last_id;
-        if (lastId) {
-          this.$router.push({
-            name: PageNames.EXAM_CREATION_TOPIC,
-            params: {
-              classId: this.classId,
-              topicId: lastId,
-            },
-          });
-        } else {
-          this.$router.push({
-            name: PageNames.EXAM_CREATION_ROOT,
-            params: {
-              classId: this.classId,
-            },
-          });
-        }
-      },
       continueProcess() {
-        this.previewOrSubmissionAttempt = true;
-        if (this.formIsInvalid) {
-          this.focusOnInvalidField();
+        if (this.selectionIsInvalidText) {
+          this.showError = true;
         } else {
-          this.setExamsModal(ExamModals.PREVIEW_NEW_EXAM);
+          this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
         }
-      },
-      goBack() {
-        this.setExamsModal(null);
-      },
-      finish() {
-        this.previewOrSubmissionAttempt = true;
-        if (this.formIsInvalid) {
-          this.focusOnInvalidField();
-        } else {
-          this.submitting = true;
-          const dummyChannelId = this.channels[0].id;
-          const exam = {
-            collection: this.classId,
-            channel_id: dummyChannelId,
-            title: this.examTitle,
-            question_count: this.examNumberOfQuestions,
-            question_sources: this.questionSources,
-            seed: this.examSeed,
-            assignments: [{ collection: this.classId }],
-          };
-          this.createExamAndRoute(exam);
-        }
-      },
-      focusOnInvalidField() {
-        if (this.titleIsInvalid) {
-          this.$refs.title.focus();
-        } else if (this.numQuestIsInvalid) {
-          this.$refs.numQuest.focus();
-        }
-      },
-      generateRandomSeed() {
-        return random(1000);
-      },
-      randomize() {
-        this.examSeed = this.generateRandomSeed();
-        this.setSelectedExercises(shuffle(this.selectedExercises));
       },
       handleSearchTerm(searchTerm) {
         const lastId = this.$route.query.last_id || this.$route.params.topicId;
@@ -678,6 +537,21 @@
     button {
       margin: 0 0 0 16px;
     }
+  }
+
+  .items {
+    display: inline-block;
+  }
+
+  .numItems {
+    display: inline-block;
+    margin: 8px;
+    list-style: none;
+  }
+
+  .number-field {
+    display: inline-block;
+    margin-right: 8px;
   }
 
 </style>

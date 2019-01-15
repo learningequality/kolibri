@@ -2,13 +2,16 @@ import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
+import shuffle from 'kolibri.lib.shuffle';
+import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { _createExam } from '../shared/exams';
+import { createExam } from '../shared/exams';
+import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
   newExamCreated: 'New quiz created',
@@ -87,11 +90,21 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store, exam) {
+export function createExamAndRoute(store) {
+  const exam = {
+    collection: store.rootState.classId,
+    title: store.state.title,
+    seed: store.state.seed,
+    question_count: store.state.numberOfQuestions,
+    question_sources: store.state.selectedQuestions,
+    assignments: [{ collection: store.rootState.classId }],
+    learners_see_fixed_order: store.state.learnersSeeFixedOrder,
+  };
+
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  _createExam(store, exam).then(
+  createExam(store, exam).then(
     () => {
-      router.getInstance().push({ name: PageNames.EXAMS });
+      router.push({ name: PageNames.EXAMS });
       store.dispatch(
         'createSnackbar',
         {
@@ -167,6 +180,51 @@ export function filterAndAnnotateContentList(childNodes) {
         thumbnail: getContentNodeThumbnail(node),
       }));
       resolve(contentList);
+    });
+  });
+}
+
+export function updateSelectedQuestions(store) {
+  if (!store.state.selectedExercises.length) {
+    store.commit('SET_SELECTED_QUESTIONS', []);
+    return Promise.resolve();
+  }
+
+  return new Promise(resolve => {
+    // If there are more exercises than questions, no need to fetch them all so
+    // choose N at random where N is the the number of questions.
+    const exerciseIds = shuffle(
+      uniq(store.state.selectedExercises.map(exercise => exercise.id)),
+      store.state.seed
+    ).slice(0, store.state.numberOfQuestions);
+
+    store.commit('LOADING_NEW_QUESTIONS', true);
+
+    // The selectedExercises don't have the assessment metadata yet so fetch that
+    ContentNodeResource.fetchCollection({
+      getParams: { ids: exerciseIds },
+    }).then(contentNodes => {
+      store.commit('UPDATE_SELECTED_EXERCISES', contentNodes); // update with full metadata
+      const exercises = {};
+      contentNodes.forEach(exercise => {
+        exercises[exercise.id] = exercise;
+      });
+      const exerciseTitles = exerciseIds.map(id => exercises[id].title);
+      const questionIdArrays = exerciseIds.map(
+        id => assessmentMetaDataState(exercises[id]).assessmentIds
+      );
+      store.commit(
+        'SET_SELECTED_QUESTIONS',
+        selectQuestions(
+          store.state.numberOfQuestions,
+          exerciseIds,
+          exerciseTitles,
+          questionIdArrays,
+          store.state.seed
+        )
+      );
+      store.commit('LOADING_NEW_QUESTIONS', false);
+      resolve();
     });
   });
 }

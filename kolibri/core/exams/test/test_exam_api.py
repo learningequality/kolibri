@@ -22,7 +22,6 @@ class UserExamAPITestCase(APITestCase):
         user = FacilityUser.objects.create(username="admin", facility=self.facility)
         self.exam = models.Exam.objects.create(
             title="title",
-            channel_id="test",
             question_count=1,
             active=True,
             collection=self.facility,
@@ -72,7 +71,6 @@ class ExamAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
         self.exam = models.Exam.objects.create(
             title="title",
-            channel_id="test",
             question_count=1,
             active=True,
             collection=self.facility,
@@ -103,10 +101,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [],
         }, format="json")
         self.assertEqual(response.status_code, 201)
@@ -117,10 +116,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [{
                 "collection": self.facility.id,
             }],
@@ -134,10 +134,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [{
                 "collection": self.facility.id,
             }],
@@ -145,10 +146,11 @@ class ExamAPITestCase(APITestCase):
         exam_id = models.Exam.objects.get(title="title next").id
         response = self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [],
             "creator": self.admin.id,
         }, format="json")
@@ -161,10 +163,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [{
                 "collection": self.facility.id,
             }],
@@ -173,10 +176,11 @@ class ExamAPITestCase(APITestCase):
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
         response = self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [{
                 "collection": group.id,
             }],
@@ -192,10 +196,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [{
                 "collection": self.facility.id,
             }],
@@ -204,10 +209,11 @@ class ExamAPITestCase(APITestCase):
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
         response = self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': exam_id}), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [
                 {
                     "collection": group.id,
@@ -233,10 +239,11 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:exam-list"), {
             "title": "title next",
-            "channel_id": "test",
             "question_count": 1,
             "active": True,
             "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
             "assignments": [],
         }, format="json")
         self.assertEqual(response.status_code, 403)
@@ -247,7 +254,6 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': self.exam.id}), {
             "title": "title",
-            "channel_id": "test",
             "question_count": 2,
             "active": True,
             "collection": self.facility.id,
@@ -264,7 +270,6 @@ class ExamAPITestCase(APITestCase):
 
         response = self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': self.exam.id}), {
             "title": "title",
-            "channel_id": "test",
             "question_count": 2,
             "active": True,
             "collection": self.facility.id,
@@ -281,7 +286,6 @@ class ExamAssignmentAPITestCase(APITestCase):
         self.facility.add_admin(self.admin)
         self.exam = models.Exam.objects.create(
             title="title",
-            channel_id="test",
             question_count=1,
             active=True,
             collection=self.facility,

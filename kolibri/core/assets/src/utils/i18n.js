@@ -155,6 +155,15 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
+/**
+ * Returns a Translator instance that can grab strings from another component.
+ * Use sparingly, e.g. to bypass string freeze. Try to remove post-string-freeze.
+ * @param {Component} Component - An imported component.
+ */
+export function crossComponentTranslator(Component) {
+  return new Translator(Component.name, Component.$trs);
+}
+
 function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.

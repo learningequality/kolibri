@@ -1,4 +1,3 @@
-import seededShuffle from 'seededshuffle';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
   ExamResource,
@@ -10,23 +9,58 @@ import {
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
-function createQuestionList(questionSources) {
-  return questionSources.reduce(
+/*
+ * Converts from v0 exam structures to v1
+ *
+ * @param {array} questionSources - array of v0 objects, which have the form:
+ *    { exercise_id, number_of_questions: N, title: <exercise_title> }
+ * @param {number} seed - an integer used to seed the PRNG
+ * @param {number} numberOfQs - how many questions to return
+ * @param {object} questionIds - map of `content_id`s to arrays of assessment_item_ids
+ *
+ * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
+ *    { exercise_id, question_id }
+ */
+function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
+  // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
+  // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
+  // (For more reliable seeded shuffling in other parts of the code base, use
+  // the knuth-shuffle-seeded package which uses the more reliable PRNG from the
+  // https://github.com/davidbau/seedrandom package.)
+  function seededShuffle(arr, seed) {
+    const shuffled = arr.slice(0);
+    const size = arr.length;
+    const map = new Array(size);
+    for (var x = 0; x < size; x++) {
+      // Don't change these magic numbers or the spell will be broken
+      map[x] = (((seed = (seed * 9301 + 49297) % 233280) / 233280.0) * size) | 0;
+    }
+    for (var i = size - 1; i > 0; i--) {
+      shuffled[i] = shuffled.splice(map[size - 1 - i], 1, shuffled[i])[0];
+    }
+    return shuffled;
+  }
+  const examQuestions = questionSources.reduce(
     (acc, val) =>
       acc.concat(
-        Array.from(Array(val.number_of_questions).keys()).map(assessmentItemIndex => ({
-          contentId: val.exercise_id,
+        Array.from(Array(val.number_of_questions).keys()).map(questionNumber => ({
+          exercise_id: val.exercise_id,
           title: val.title,
-          assessmentItemIndex,
+          questionNumber,
         }))
       ),
     []
   );
-}
-
-function selectQuestionFromExercise(index, seed, contentNode) {
-  const assessmentmetadata = assessmentMetaDataState(contentNode);
-  return seededShuffle.shuffle(assessmentmetadata.assessmentIds, seed, true)[index];
+  const shuffledExamQuestions = seededShuffle(examQuestions, seed);
+  const shuffledExerciseQuestions = {};
+  Object.keys(questionIds).forEach(key => {
+    shuffledExerciseQuestions[key] = seededShuffle(questionIds[key], seed);
+  });
+  return shuffledExamQuestions.map(question => ({
+    exercise_id: question.exercise_id,
+    question_id: shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
+    title: question.title,
+  }));
 }
 
 // idk the best place to place this function
@@ -51,10 +85,8 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
       samePageCheckGenerator(store),
       ([exam, examLogs, examAttempts, user]) => {
         const examLog = examLogs[0] || {};
-        const seed = exam.seed;
         const questionSources = exam.question_sources;
 
-        const questionList = createQuestionList(questionSources);
         let contentPromise;
 
         if (questionSources.length) {
@@ -70,24 +102,15 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
         contentPromise.only(
           samePageCheckGenerator(store),
           contentNodes => {
-            const contentNodeMap = {};
-
+            const questionIds = {};
             contentNodes.forEach(node => {
-              contentNodeMap[node.id] = node;
+              questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-
-            // Only pick questions that are still on server
-            const questions = questionList
-              .filter(question => contentNodeMap[question.contentId])
-              .map(question => ({
-                itemId: selectQuestionFromExercise(
-                  question.assessmentItemIndex,
-                  seed,
-                  contentNodeMap[question.contentId]
-                ),
-                contentId: question.contentId,
-                title: question.title,
-              }));
+            const questions = convertExamQuestionSourcesV0V1(
+              questionSources,
+              exam.seed,
+              questionIds
+            );
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
@@ -96,7 +119,7 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
 
             const allQuestions = questions.map((question, index) => {
               const attemptLog = examAttempts.filter(
-                log => log.item === question.itemId && log.content_id === question.contentId
+                log => log.item === question.question_id && log.content_id === question.exercise_id
               );
               let examAttemptLog = attemptLog[0]
                 ? attemptLog[0]
@@ -120,8 +143,8 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
             const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.itemId;
-            const exercise = contentNodeMap[currentQuestion.contentId];
+            const itemId = currentQuestion.question_id;
+            const exercise = contentNodes.find(node => node.id === currentQuestion.exercise_id);
             const currentAttempt = allQuestions[questionNumber];
             // filter out interactions without answers but keep hints and errors
             const currentInteractionHistory = currentAttempt.interaction_history.filter(
@@ -168,10 +191,4 @@ function canViewExamReport(exam, examLog) {
   return !canViewExam(exam, examLog);
 }
 
-export {
-  createQuestionList,
-  selectQuestionFromExercise,
-  getExamReport,
-  canViewExam,
-  canViewExamReport,
-};
+export { convertExamQuestionSourcesV0V1, getExamReport, canViewExam, canViewExamReport };

@@ -8,6 +8,7 @@ import {
   ChannelResource,
 } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import { filterAndAnnotateContentList } from './actions';
 
@@ -23,9 +24,6 @@ function showExamCreationPage(store, params) {
           store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
         }
         store.commit('SET_PAGE_NAME', pageName);
-        store.commit('SET_TOOLBAR_ROUTE', {
-          name: PageNames.EXAMS,
-        });
         store.dispatch('notLoading');
       },
       error => {
@@ -46,6 +44,9 @@ export function showExamCreationRootPage(store, params) {
         title: channel.name,
         kind: ContentNodeKinds.CHANNEL,
       }));
+      store.commit('SET_TOOLBAR_ROUTE', {
+        name: PageNames.EXAMS,
+      });
       return showExamCreationPage(store, {
         classId: params.classId,
         contentList: channelContentList,
@@ -70,6 +71,10 @@ export function showExamCreationTopicPage(store, params) {
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
       return filterAndAnnotateContentList(childNodes).then(contentList => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
+        });
+
         return showExamCreationPage(store, {
           classId: params.classId,
           contentList,
@@ -140,6 +145,11 @@ export function showExamCreationSearchPage(store, params, query = {}) {
       kinds = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
     }
 
+    store.commit('SET_TOOLBAR_ROUTE', {
+      name: PageNames.EXAM_CREATION_ROOT,
+      params: {},
+    });
+
     return ContentNodeSearchResource.fetchCollection({
       getParams: {
         search: params.searchTerm,
@@ -166,4 +176,24 @@ export function showExamCreationSearchPage(store, params, query = {}) {
       });
     });
   });
+}
+
+const creationPages = [
+  PageNames.EXAM_CREATION_ROOT,
+  PageNames.EXAM_CREATION_TOPIC,
+  PageNames.EXAM_CREATION_PREVIEW,
+  PageNames.EXAM_CREATION_SEARCH,
+];
+
+export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute) {
+  // if we got here from somewhere else, start over
+  if (!creationPages.includes(fromRoute.name)) {
+    router.replace({
+      name: PageNames.EXAM_CREATION_ROOT,
+      params: toRoute.params,
+    });
+  }
+  store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
+  store.commit('SET_TOOLBAR_ROUTE', { name: fromRoute.name, params: fromRoute.params });
+  store.dispatch('examCreation/updateSelectedQuestions');
 }

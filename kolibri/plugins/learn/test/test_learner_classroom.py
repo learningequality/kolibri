@@ -47,7 +47,6 @@ class LearnerClassroomTestCase(APITestCase):
         # One active and inactive exam
         exam_1 = Exam.objects.create(
             title='Exam',
-            channel_id='abc',
             collection=self.own_classroom,
             question_count=10,
             creator=self.coach_user,
@@ -55,7 +54,6 @@ class LearnerClassroomTestCase(APITestCase):
         )
         exam_2 = Exam.objects.create(
             title='Inactive Exam',
-            channel_id='abc',
             collection=self.own_classroom,
             question_count=10,
             creator=self.coach_user,
@@ -84,7 +82,6 @@ class LearnerClassroomTestCase(APITestCase):
         # One active exam and two inactive exams, but one attempted
         exam_1 = Exam.objects.create(
             title='Exam',
-            channel_id='abc',
             collection=self.own_classroom,
             question_count=10,
             creator=self.coach_user,
@@ -92,7 +89,6 @@ class LearnerClassroomTestCase(APITestCase):
         )
         exam_2 = Exam.objects.create(
             title='Inactive Exam',
-            channel_id='abc',
             collection=self.own_classroom,
             question_count=10,
             creator=self.coach_user,
@@ -100,7 +96,6 @@ class LearnerClassroomTestCase(APITestCase):
         )
         exam_3 = Exam.objects.create(
             title='Inactive Attempted Exam',
-            channel_id='abc',
             collection=self.own_classroom,
             question_count=10,
             creator=self.coach_user,
