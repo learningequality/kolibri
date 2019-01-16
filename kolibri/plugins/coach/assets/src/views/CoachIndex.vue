@@ -183,6 +183,9 @@
         examPreviewQuestions: state => state.preview.questions,
         examPreviewCompletionData: state => state.preview.completionData,
       }),
+      currentClassroomId() {
+        return this.$route.params.classId;
+      },
 
       currentPage() {
         /* COACH - under construction ... */
@@ -346,6 +349,12 @@
       },
       marginBottom() {
         return examCreationPages.includes(this.pageName) ? 72 : 0;
+      },
+    },
+    watch: {
+      currentClassroomId(newVal, oldVal) {
+        // TODO manage the classroomNotifications module with this
+        console.log(newVal);
       },
     },
     methods: {

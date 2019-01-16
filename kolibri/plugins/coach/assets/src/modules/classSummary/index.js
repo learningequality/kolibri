@@ -70,6 +70,18 @@ export default {
     lessonMap(state) {
       return itemMap(state.lessons, 'id');
     },
+    // Adapter used in 'coachNotifications' module. Make sure this getter is updated
+    // whenever this module's state changes.
+    notificationModuleData(state) {
+      return {
+        learners: state.learners,
+        learnerGroups: state.groups,
+        lessons: state.lessons,
+        exams: state.exams,
+        classId: state.id,
+        className: state.name,
+      };
+    },
   },
   mutations: {
     SET_STATE(state, payload) {

@@ -319,6 +319,12 @@ def get_user_name(user_id):
     return user.full_name if user else ''
 
 
+@memoize
+def get_resource_kind(resource_id):
+    node = ContentNode.objects.get(pk=resource_id)
+    return node.kind if node else ''
+
+
 class LearnerNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearnerProgressNotification
@@ -335,6 +341,7 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
 
         if instance.notification_object == NotificationObjectType.Resource:
             value['contentnode_id'] = instance.contentnode_id
+            value['contentnode_kind'] = get_resource_kind(instance.contentnode_id)
             value['resource'] = get_resource_title(instance.contentnode_id)
 
         value['object'] = instance.notification_object

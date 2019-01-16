@@ -9,6 +9,10 @@
           class="icon"
         />
         <div class="icon-spacer">
+          <ContentIcon
+            :kind="contentIcon"
+            :showTooltip="false"
+          />
           <slot></slot>
         </div>
       </KGridItem>
@@ -34,12 +38,14 @@
 
 <script>
 
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import imports from '../../imports';
   import StatusIcon from '../status/StatusIcon';
 
   export default {
     name: 'NotificationCard',
     components: {
+      ContentIcon,
       StatusIcon,
     },
     mixins: [imports],
@@ -48,7 +54,13 @@
         type: String,
         required: false,
       },
+      // Primary icon ('star', 'help', or 'clock')
       icon: {
+        type: String,
+        required: true,
+      },
+      // Content icon (see validateContentNodeKind utility for valid values)
+      contentIcon: {
         type: String,
         required: true,
       },

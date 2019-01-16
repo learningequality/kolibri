@@ -11,6 +11,7 @@ import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import reports from './reports';
 import classSummary from './classSummary';
+import coachNotifications from './coachNotifications';
 
 export default {
   state: {
@@ -62,6 +63,7 @@ export default {
 
     /* COACH - under construction ... */
     classSummary,
+    coachNotifications,
     /* ... COACH - under construction */
   },
 };
