@@ -1,7 +1,7 @@
 Feature: Learner sign-in
     Learners should be able to sign in to access Kolibri
     If the simplified sign-in setting is on, learner should be able to login only with the username
-    If the learner account is registered correctly, they should arrive at the Learn > Classes page upon sign-in
+    If the learner account is registered correctly, they should arrive at the *Learn > Classes* page upon sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page

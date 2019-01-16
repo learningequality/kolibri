@@ -1,4 +1,4 @@
-Feature: Admin create users
+Feature: Admin creates users
   Admin needs to be able to create user accounts for each role in the facility
 
   Background:

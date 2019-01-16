@@ -1,18 +1,24 @@
-Feature: Super admin select import content location
+Feature: Super admin selects import content location
     Super admin needs to be able to select where to import content from Kolibri Studio, local network or attached drive 
 
   Background:
-    Given I am signed in to Kolibri as Super admin, or a user with device permissions to import content
+    Given I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on *Device > Channels* page
 
   Scenario: Import content channels from Kolibri Studio
     Given the device has Internet connection available
     When I click on *Import* button
     Then I see *Select a source* modal
-    When I select *Kolibri Studio* 
+    When I select *Kolibri Studio (online)* 
       And I click *Continue*
     Then I see the *Loading channels* message
       And I see the *Kolibri Studio* page with the list of available content *Channels*
+
+  Scenario: Studio is not available
+    Given the device does not have Internet connection available, or the network is down temporarily
+    When I click on *Import* button
+    Then I see *Select a source* modal
+    When I see *Kolibri Studio (online)* option is disabled
 
   Scenario: Import content channels from local network
     Given the device has Internet connection available, or an access to another Kolibri server instance in the local network
@@ -29,7 +35,7 @@ Feature: Super admin select import content location
     # If the connection is established successfully
       And I see the snackbar confirmation that the address has been added
     # If the connection is not established
-      And I see the error message *Could not connect to network
+      And I see the error message *Could not connect to network*
     # If there are several added networks
     When I select <network_name>
       And I click *Continue*
@@ -46,6 +52,16 @@ Feature: Super admin select import content location
     When I select <drive> local drive
       And I click *Continue*
     Then I see the *Import from '<drive>'* page with the list of available content *Channels* on the <drive> local drive
+
+  Scenario: No attached drive are available
+    Given there is no local drives attached to the device
+    When I click on *Import* button
+    Then I see *Select a source* modal
+    When I select *Attached drive or memory card* 
+      And I click *Continue*
+    Then I see Kolibri searching for local drives
+      And I see the *Select a drive* modal
+      And I see the *No drives with Kolibri content are connected to the server*
 
 Examples:
 | drive       | network_name  |
