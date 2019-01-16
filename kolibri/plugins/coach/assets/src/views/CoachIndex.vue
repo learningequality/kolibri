@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="oldReports">
+  <div v-if="false">
     <CoreBase
       :immersivePage="currentPageIsImmersive"
       :appBarTitle="appBarTitle"
@@ -12,26 +12,6 @@
       :showSubNav="Boolean(classId) && showCoachNav && !currentPageIsImmersive"
       :marginBottom="marginBottom"
     >
-
-      <!-- COACH - under construction ... -->
-      <NewCoachTopNav v-if="isNewPage" slot="sub-nav" />
-      <CoachTopNav v-else slot="sub-nav" />
-
-      <div v-if="isNewPage" class="coach-debug">
-        <pre>{{ $route.params.page }}</pre>
-        <p class="coach-warning">
-          PROTOTYPE: not the final design or functionality
-        </p>
-      </div>
-      <!-- ... COACH - under construction -->
-
-      <template v-if="showCoachNav && !isNewPage">
-        <NavTitle
-          class="nav-title"
-          :className="className"
-          :classCoaches="classCoaches"
-        />
-      </template>
       <LessonContentPreviewPage
         v-if="isPreviewPage"
         :currentContentNode="currentContentNode"
@@ -64,8 +44,6 @@
   import logger from 'kolibri.lib.logging';
   import { PageNames } from '../constants';
   import { LessonsPageNames } from '../constants/lessonsConstants';
-  import CoachTopNav from './CoachTopNav';
-  import NewCoachTopNav from './new/TopNavbar';
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
@@ -78,7 +56,6 @@
   import ChannelListPage from './reports/ChannelListPage';
   import ItemListPage from './reports/ItemListPage';
   import LearnerListPage from './reports/LearnerListPage';
-  import NavTitle from './NavTitle';
   import LessonsRootPage from './lessons/LessonsRootPage';
   import LessonSummaryPage from './lessons/LessonSummaryPage';
   import LessonContentPreviewPage from './lessons/LessonContentPreviewPage';
@@ -186,10 +163,7 @@
       reportLessonResourceManagerTitle: 'Manage resources',
     },
     components: {
-      CoachTopNav,
-      NewCoachTopNav,
       CoreBase,
-      NavTitle,
       LessonContentPreviewPage,
     },
     computed: {
@@ -223,7 +197,6 @@
       },
       isPreviewPage() {
         return [
-          PageNames.EXAM_CREATION_PREVIEW,
           LessonsPageNames.CONTENT_PREVIEW,
           LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
           LessonsPageNames.SELECTION_CONTENT_PREVIEW,
@@ -406,15 +379,6 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .nav-title {
-    margin-bottom: 32px;
-  }
-
-</style>
 
 
 <style lang="scss">

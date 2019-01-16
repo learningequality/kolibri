@@ -20,7 +20,6 @@ export default [
     path: '/:classId/plan/quizzes',
     component: CoachExamsPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       showExamsPage(store, to.params.classId);
     },
@@ -30,7 +29,6 @@ export default [
     path: '/:classId/plan/groups',
     component: GroupsPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       showGroupsPage(store, to.params.classId);
     },

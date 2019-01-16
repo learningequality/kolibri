@@ -6,9 +6,7 @@
       :options="{animation:150}"
       @input="handleDrag($event)"
     >
-      <transition-group
-        :moveClass="$computedClass(resourceReorderMoveStyle)"
-      >
+      <transition-group :style="resourceReorderMoveStyle">
         <KGrid
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
@@ -76,7 +74,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
@@ -91,7 +88,6 @@
       KButton,
       KGrid,
       KGridItem,
-      KRouterLink,
       ContentIcon,
     },
     data() {

@@ -1,151 +1,164 @@
 <template>
 
-  <div class="wrapper">
-    <h2>{{ detailsString }}</h2>
-    <KGrid>
-      <KGridItem sizes="100, 100, 50" percentage>
-        <KTextbox
-          ref="title"
-          v-model.trim="examTitle"
-          :label="moreStrings.$tr('title')"
-          :autofocus="true"
-          :maxlength="100"
-          :invalid="Boolean(showError && titleIsInvalidText)"
-          :invalidText="titleIsInvalidText"
-        />
-      </KGridItem>
-      <KGridItem sizes="100, 100, 50" percentage>
-        <KTextbox
-          ref="numQuest"
-          v-model.trim.number="numQuestions"
-          type="number"
-          :min="1"
-          :max="50"
-          :label="moreStrings.$tr('numQuestions')"
-          :invalid="Boolean(showError && numQuestIsInvalidText)"
-          :invalidText="numQuestIsInvalidText"
-          class="number-field"
-        />
-        <UiIconButton
-          type="flat"
-          aria-hidden="true"
-          class="number-btn"
-          @click="numQuestions -= 1"
-        >
-          <mat-svg name="remove" category="content" />
-        </UiIconButton>
-        <UiIconButton
-          type="flat"
-          aria-hidden="true"
-          class="number-btn"
-          @click="numQuestions += 1"
-        >
-          <mat-svg name="add" category="content" />
-        </UiIconButton>
-      </KGridItem>
-    </KGrid>
-    <div>
-      <UiIconButton
-        type="flat"
-        aria-hidden="true"
-        @click="getNewQuestionSet"
-      >
-        <mat-svg name="refresh" category="navigation" />
-      </UiIconButton>
-      <KButton
-        :text="$tr('randomize')"
-        appearance="basic-link"
-        :primary="false"
-        @click="getNewQuestionSet"
-      />
-    </div>
-    <h2 class="header-margin">{{ $tr('questionOrder') }}</h2>
-    <div>
-      <KRadioButton
-        v-model="fixedOrder"
-        :label="coachStrings.$tr('orderRandomLabel')"
-        :description="coachStrings.$tr('orderRandomDescription')"
-        :value="false"
-      />
-      <KRadioButton
-        v-model="fixedOrder"
-        :label="coachStrings.$tr('orderFixedLabel')"
-        :description="coachStrings.$tr('orderFixedDescription')"
-        :value="true"
-      />
-    </div>
-    <h2 class="header-margin">{{ $tr('questions') }}</h2>
-    <KGrid v-if="!loadingNewQuestions">
-      <KGridItem sizes="4, 4, 5" class="list-wrapper">
-        <ul v-if="fixedOrder" class="question-list">
-          <Draggable
-            :value="selectedQuestions"
-            :options="draggableOptions"
-            @input="handleDrag"
-            @end="handleEnd"
+  <CoreBase
+    :immersivePage="true"
+    immersivePageIcon="arrow_back"
+    immersivePagePrimary
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+  >
+
+    <div class="new-coach-block">
+
+      <h2>{{ detailsString }}</h2>
+      <KGrid>
+        <KGridItem sizes="100, 100, 50" percentage>
+          <KTextbox
+            ref="title"
+            v-model.trim="examTitle"
+            :label="moreStrings.$tr('title')"
+            :autofocus="true"
+            :maxlength="100"
+            :invalid="Boolean(showError && titleIsInvalidText)"
+            :invalidText="titleIsInvalidText"
+          />
+        </KGridItem>
+        <KGridItem sizes="100, 100, 50" percentage>
+          <KTextbox
+            ref="numQuest"
+            v-model.trim.number="numQuestions"
+            type="number"
+            :min="1"
+            :max="50"
+            :label="moreStrings.$tr('numQuestions')"
+            :invalid="Boolean(showError && numQuestIsInvalidText)"
+            :invalidText="numQuestIsInvalidText"
+            class="number-field"
+          />
+          <UiIconButton
+            type="flat"
+            aria-hidden="true"
+            class="number-btn"
+            @click="numQuestions -= 1"
           >
+            <mat-svg name="remove" category="content" />
+          </UiIconButton>
+          <UiIconButton
+            type="flat"
+            aria-hidden="true"
+            class="number-btn"
+            @click="numQuestions += 1"
+          >
+            <mat-svg name="add" category="content" />
+          </UiIconButton>
+        </KGridItem>
+      </KGrid>
+      <div>
+        <UiIconButton
+          type="flat"
+          aria-hidden="true"
+          @click="getNewQuestionSet"
+        >
+          <mat-svg name="refresh" category="navigation" />
+        </UiIconButton>
+        <KButton
+          :text="$tr('randomize')"
+          appearance="basic-link"
+          :primary="false"
+          @click="getNewQuestionSet"
+        />
+      </div>
+      <h2 class="header-margin">{{ $tr('questionOrder') }}</h2>
+      <div>
+        <KRadioButton
+          v-model="fixedOrder"
+          :label="coachStrings.$tr('orderRandomLabel')"
+          :description="coachStrings.$tr('orderRandomDescription')"
+          :value="false"
+        />
+        <KRadioButton
+          v-model="fixedOrder"
+          :label="coachStrings.$tr('orderFixedLabel')"
+          :description="coachStrings.$tr('orderFixedDescription')"
+          :value="true"
+        />
+      </div>
+      <h2 class="header-margin">{{ $tr('questions') }}</h2>
+      <KGrid v-if="!loadingNewQuestions">
+        <KGridItem sizes="4, 4, 5" class="list-wrapper">
+          <ul v-if="fixedOrder" class="question-list">
+            <Draggable
+              :value="selectedQuestions"
+              :options="draggableOptions"
+              @input="handleDrag"
+              @end="handleEnd"
+            >
+              <AssessmentQuestionListItem
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+                :draggable="true"
+                :isSelected="isSelected(question)"
+                :exerciseName="question.title"
+                :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+                @click="currentQuestionIndex = questionIndex"
+              />
+            </Draggable>
+          </ul>
+          <ul v-else class="question-list">
             <AssessmentQuestionListItem
               v-for="(question, questionIndex) in selectedQuestions"
               :key="questionIndex"
-              :draggable="true"
+              :draggable="false"
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
               @click="currentQuestionIndex = questionIndex"
             />
-          </Draggable>
-        </ul>
-        <ul v-else class="question-list">
-          <AssessmentQuestionListItem
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-            :draggable="false"
-            :isSelected="isSelected(question)"
-            :exerciseName="question.title"
-            :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-            @click="currentQuestionIndex = questionIndex"
+          </ul>
+          <ol v-if="fixedOrder" class="numbers">
+            <li
+              v-for="(question, questionIndex) in selectedQuestions"
+              :key="questionIndex"
+            ></li>
+          </ol>
+        </KGridItem>
+        <KGridItem sizes="4, 4, 7">
+          <h3 class="question-title">{{ currentQuestion.title }}</h3>
+          <ContentRenderer
+            v-if="content && questionId"
+            :id="content.id"
+            ref="contentRenderer"
+            :kind="content.kind"
+            :files="content.files"
+            :contentId="content.content_id"
+            :available="content.available"
+            :extraFields="content.extra_fields"
+            :itemId="questionId"
+            :assessment="true"
+            :allowHints="false"
+            :showCorrectAnswer="true"
+            :interactive="false"
           />
-        </ul>
-        <ol v-if="fixedOrder" class="numbers">
-          <li
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-          ></li>
-        </ol>
-      </KGridItem>
-      <KGridItem sizes="4, 4, 7">
-        <h3 class="question-title">{{ currentQuestion.title }}</h3>
-        <ContentRenderer
-          v-if="content && questionId"
-          :id="content.id"
-          ref="contentRenderer"
-          :kind="content.kind"
-          :files="content.files"
-          :contentId="content.content_id"
-          :available="content.available"
-          :extraFields="content.extra_fields"
-          :itemId="questionId"
-          :assessment="true"
-          :allowHints="false"
-          :showCorrectAnswer="true"
-          :interactive="false"
+        </KGridItem>
+      </KGrid>
+      <Bottom>
+        <KRouterLink
+          appearance="flat-button"
+          :text="coachStrings.$tr('goBackAction')"
+          :to="toolbarRoute"
         />
-      </KGridItem>
-    </KGrid>
-    <Bottom>
-      <KRouterLink
-        appearance="flat-button"
-        :text="coachStrings.$tr('goBackAction')"
-        :to="$store.state.toolbarRoute"
-      />
-      <KButton
-        :text="coachStrings.$tr('finishAction')"
-        :disabled="loadingNewQuestions"
-        primary
-        @click="submit"
-      />
-    </Bottom>
-  </div>
+        <KButton
+          :text="coachStrings.$tr('finishAction')"
+          :disabled="loadingNewQuestions"
+          primary
+          @click="submit"
+        />
+      </Bottom>
+    </div>
+
+  </CoreBase>
 
 </template>
 
@@ -167,6 +180,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
+  import imports from '../../new/imports';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
@@ -203,7 +217,7 @@
       Bottom,
       KTextbox,
     },
-    mixins: [responsiveWindow, coachStringsMixin],
+    mixins: [responsiveWindow, coachStringsMixin, imports],
     data() {
       return {
         currentQuestionIndex: 0,
@@ -211,6 +225,7 @@
       };
     },
     computed: {
+      ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['selectedQuestions', 'loadingNewQuestions']),
       detailsString() {
         return quizDetailStrings.$tr('details');
@@ -379,11 +394,6 @@
 
   .sortable-ghost * {
     visibility: hidden;
-  }
-
-  .wrapper {
-    padding: 16px;
-    background-color: white;
   }
 
 </style>

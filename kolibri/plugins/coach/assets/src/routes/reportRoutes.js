@@ -17,7 +17,6 @@ export default [
     path: '/:classId/reports/lessons',
     component: ReportsLessonListPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_PAGE_LOADING', true);
@@ -34,7 +33,6 @@ export default [
     path: '/:classId/reports/quizzes',
     component: ReportsQuizListPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_PAGE_LOADING', true);
@@ -51,7 +49,6 @@ export default [
     path: '/:classId/reports/groups',
     component: ReportsGroupListPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_PAGE_LOADING', true);
@@ -68,7 +65,6 @@ export default [
     path: '/:classId/reports/learners',
     component: ReportsLearnerListPage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('CORE_SET_ERROR', null);
       store.commit('CORE_SET_PAGE_LOADING', true);

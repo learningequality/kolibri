@@ -176,7 +176,7 @@
     methods: {
       genExamRoute(examId) {
         return {
-          name: PageNames.EXAM_REPORT,
+          name: PageNames.EXAM_PREVIEW,
           params: { examId },
         };
       },

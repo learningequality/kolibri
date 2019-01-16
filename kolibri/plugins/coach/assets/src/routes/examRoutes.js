@@ -3,72 +3,53 @@ import { PageNames } from '../constants';
 import {
   showExamCreationRootPage,
   showExamCreationTopicPage,
-  showExamCreationPreviewPage,
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
 } from '../modules/examCreation/handlers';
-import { showExamReportDetailPage } from '../modules/examReportDetail/handlers';
-import { showExamReportPage } from '../modules/examReport/handlers';
+import CreateExamPage from '../views/exams/CreateExamPage';
+import CreateExamPreview from '../views/exams/CreateExamPage/CreateExamPreview.vue';
+import PlanQuizPreviewPage from '../views/new/PlanQuizPreviewPage';
 
 export default [
   {
     name: PageNames.EXAM_CREATION_ROOT,
-    path: '/old/:classId/exams/new/',
+    path: '/:classId/plan/quizzes/new/',
+    component: CreateExamPage,
     handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationRootPage(store, toRoute.params);
     },
   },
   {
     name: PageNames.EXAM_CREATION_TOPIC,
-    path: '/old/:classId/exams/new/topic/:topicId',
+    path: '/:classId/plan/quizzes/new/topic/:topicId',
+    component: CreateExamPage,
     handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationTopicPage(store, toRoute.params);
-    },
-  },
-  {
-    name: PageNames.EXAM_CREATION_PREVIEW,
-    path: '/old/:classId/exams/new/preview/:contentId',
-    handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
-      showExamCreationPreviewPage(store, toRoute.params, toRoute.query);
     },
   },
   {
     name: PageNames.EXAM_CREATION_SEARCH,
     path: '/old/:classId/exams/new/search/:searchTerm',
+    component: CreateExamPage,
     handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
       showExamCreationSearchPage(store, toRoute.params, toRoute.query);
     },
   },
   {
     name: PageNames.EXAM_CREATION_QUESTION_SELECTION,
-    path: '/old/:classId/exams/new/finalize',
+    path: '/:classId/quizzes/new/finalize',
+    component: CreateExamPreview,
     handler: (toRoute, fromRoute) => {
       showExamCreationQuestionSelectionPage(store, toRoute, fromRoute);
     },
   },
   {
-    name: PageNames.EXAM_REPORT,
-    path: '/old/:classId/exams/:examId',
-    handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
-      showExamReportPage(store, toRoute.params);
-    },
-  },
-  {
-    name: PageNames.EXAM_REPORT_DETAIL_ROOT,
-    path: '/old/:classId/exams/:examId/users/:userId',
-    redirect: '/old/:classId/exams/:examId/users/:userId/0/0',
-  },
-  {
-    name: PageNames.EXAM_REPORT_DETAIL,
-    path: '/old/:classId/exams/:examId/users/:userId/:question/:interaction',
-    handler: toRoute => {
-      store.commit('USE_OLD_INDEX_STYLE', true);
-      showExamReportDetailPage(store, toRoute.params);
+    name: PageNames.EXAM_PREVIEW,
+    path: '/:classId/quizzes/preview/:examId',
+    component: PlanQuizPreviewPage,
+    handler: () => {
+      // todo
+      store.dispatch('notLoading');
     },
   },
 ];
