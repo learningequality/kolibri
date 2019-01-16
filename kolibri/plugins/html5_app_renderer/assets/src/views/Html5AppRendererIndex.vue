@@ -69,12 +69,26 @@
       });
       this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
+      this.startTime = now();
+      this.pollProgress();
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
+    },
+    methods: {
+      recordProgress() {
+        const totalTime = now() - this.startTime;
+        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        this.pollProgress();
+      },
+      pollProgress() {
+        this.timeout = setTimeout(() => {
+          this.recordProgress();
+        }, 15000);
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
