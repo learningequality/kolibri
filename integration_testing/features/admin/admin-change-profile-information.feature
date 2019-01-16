@@ -1,4 +1,4 @@
-Feature: Admin change profile information
+Feature: Admin changes profile information
   Admin needs to be able to change their own profile information
 
   Background:
