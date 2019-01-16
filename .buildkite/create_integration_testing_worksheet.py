@@ -16,22 +16,22 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 logging.getLogger().setLevel(logging.INFO)
 
-SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_SPREADSHEET_CREDENTIALS")
 SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
-SHEET_TAG = os.getenv("BUILDKITE_BRANCH")
+SHEET_TAG = os.getenv("BUILDKITE_TAG")
 SHEET_TPL_COLUMN = 'B'
 SHEET_TPL_START_VALUE = 5
 SHEET_INDEX = 0
 
 # Path of all the spreadsheets created by this script.
-SHEET_PARENT_CONTAINER_ID = os.getenv("GOOGLE_DRIVE_SHEETS")
+SHEET_PARENT_CONTAINER_ID = os.getenv("GOOGLE_DRIVE_SPREADSHEETS")
 
 CELL_VALUE_SEPARATOR = "end_feature_index"
 
 if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
-    SHEET_PARENT_CONTAINER_ID = "1wv4FHAmMTcFMWE_F4RAxuaf9YGlV2O1u"
+    SHEET_PARENT_CONTAINER_ID = "10bMsasxKvpi_9U1NU9rq7YBnFBiCkYrc"
 
 if SHEET_TAG == "" or SHEET_TAG is None:
     SHEET_TAG = "develop"
@@ -102,23 +102,24 @@ def fetch_feature_files():
     """
         Fetch all the .features scenarios at the Integration testing directory
         The order of the scenarios at the spreadsheet will based on the ORDER.txt
+        This will return a list and a count of .features scenarios
     """
     feature_dir = get_feature_dir_path()
     order_name = "/ORDER.txt"
-    role_order_path = feature_dir + order_name
+    order_txt_path = feature_dir + order_name
     sheet_contents = []
     sheet_cell_count = []
     counter = 0
-    with open(role_order_path, 'r') as read_role:
-        role_lines = read_role.readlines()
-        for role in role_lines:
-            role_file_name = role.strip()
-            role_path = feature_dir + role_file_name + "/"
-            role_order_path = role_path + order_name
-            if check_name(role_file_name):
-                with open(role_order_path, 'r') as read_feature:
+    with open(order_txt_path, 'r') as read_txt:
+        txt_lines = read_txt.readlines()
+        for line in txt_lines:
+            file_name = line.strip()
+            role_path = feature_dir + file_name + "/"
+            order_txt_path = role_path + order_name
+            if check_name(file_name):
+                with open(order_txt_path, 'r') as read_feature:
                     feature_lines = read_feature.readlines()
-                    role_cell_name = get_role_name(role_file_name)
+                    role_cell_name = get_role_name(file_name)
 
                     sheet_contents.append(CELL_VALUE_SEPARATOR)
                     sheet_contents.append(role_cell_name)
@@ -129,7 +130,7 @@ def fetch_feature_files():
                         if check_name(feature_file_name):
                             feature_name = get_feature_name(feature_file_name)
                             cell_val = '=HYPERLINK("%s/%s/%s","%s")' % (GIT_FEATURE_LINK,
-                                                                        role_file_name,
+                                                                        file_name,
                                                                         feature_file_name,
                                                                         feature_name)
                             if not check_file_exist(feature_path):
@@ -139,7 +140,7 @@ def fetch_feature_files():
                     sheet_cell_count.append(counter)
                     counter = 0
                 read_feature.close()
-    read_role.close()
+    read_txt.close()
     return sheet_cell_count, sheet_contents
 
 

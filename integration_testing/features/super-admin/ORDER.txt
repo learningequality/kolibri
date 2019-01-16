@@ -5,7 +5,6 @@ super-admin-profile-command.feature
 super-admin-change-profile-information.feature
 super-admin-select-import-content-location.feature
 super-admin-import-new-content-channel-from-studio.feature
-super-admin-app-bar-user-dropdown.feature
 super-admin-benchmark-command.feature
 super-admin-import-new-content-channel-from-local-drive.feature
 super-admin-manage-import-network-addresses.feature

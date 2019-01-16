@@ -9,7 +9,6 @@ admin-enroll-assign-users.feature
 admin-delete-user.feature
 admin-delete-class.feature
 admin-change-facility-settings.feature
-admin-manage-channel-sizes.feature
+admin-manage-content.feature
 admin-export-data.feature
-admin-import-content.feature
 admin-sign-out.feature
