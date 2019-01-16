@@ -96,7 +96,6 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import xor from 'lodash/xor';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -121,7 +120,6 @@
     components: {
       ContentCardList,
       KRouterLink,
-      KButton,
       KGrid,
       KGridItem,
       LessonsSearchFilters,
