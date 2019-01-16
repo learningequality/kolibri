@@ -75,8 +75,9 @@ class myEnum(object):
 
     @classmethod
     def choices(cls):
-        choices_list = [(m, getattr(cls, m)) for m in cls.__dict__ if isinstance(getattr(cls, m), str) and m[0] != '_']
-        return tuple(choices_list)
+        choices_list = [(u'{}'.format(m),
+                         getattr(cls, m)) for m in cls.__dict__ if m[0] != '_']
+        return tuple(sorted(choices_list))
 
 
 class NotificationObjectType(myEnum):
@@ -98,7 +99,7 @@ class HelpReason(myEnum):
 
 @python_2_unicode_compatible
 class LearnerProgressNotification(models.Model):
-    id = UUIDField(primary_key=True)
+    id = models.AutoField(auto_created=True, primary_key=True, serialize=True, verbose_name='ID'),
     notification_object = models.CharField(max_length=200, choices=NotificationObjectType.choices(), blank=True)
     notification_event = models.CharField(max_length=200, choices=NotificationEventType.choices(), blank=True)
     user_id = UUIDField()
