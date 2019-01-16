@@ -1,28 +1,9 @@
 <template>
 
-  <div>
-    <KGrid class="headers">
-      <KGridItem size="1">
-        <span class="visuallyhidden">
-          {{ $tr('resourceReorderColumnHeaderForTable') }}
-        </span>
-      </KGridItem>
-      <KGridItem size="6">
-        {{ $tr('lessonTitleColumnHeaderForTable') }}
-      </KGridItem>
-      <KGridItem size="3">
-        {{ $tr('resourceProgressColumnHeaderForTable') }}
-      </KGridItem>
-      <KGridItem size="2">
-        <span class="visuallyhidden">
-          {{ $tr('resourceRemovalColumnHeaderForTable') }}
-        </span>
-      </KGridItem>
-    </KGrid>
+  <div class="wrapper">
     <Draggable
       :value="workingResources"
       :options="{animation:150}"
-      :noTransitionOnDrag="true"
       @input="handleDrag($event)"
     >
       <transition-group
@@ -32,31 +13,36 @@
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"
           class="row"
+          cols="12"
         >
           <KGridItem size="1" class="relative">
             <UiIconButton
+              v-if="index !== 0"
               type="flat"
               :ariaLabel="$tr('moveResourceUpButtonDescription')"
-              :disabled="index === 0"
-              class="position-adjustment-button"
+              class="move-button up"
               @click="moveUpOne(index)"
             >
               <mat-svg name="keyboard_arrow_up" category="hardware" />
             </UiIconButton>
+            <div class="move-handle">
+              <mat-svg name="drag_handle" category="editor" />
+            </div>
             <UiIconButton
+              v-if="index !== (workingResources.length - 1)"
               type="flat"
               :ariaLabel="$tr('moveResourceDownButtonDescription')"
-              :disabled="index === (workingResources.length - 1)"
-              class="position-adjustment-button"
+              class="move-button down"
               @click="moveDownOne(index)"
             >
               <mat-svg name="keyboard_arrow_down" category="hardware" />
             </UiIconButton>
-            <ContentIcon :kind="resourceKind(resourceId)" class="type-icon" />
           </KGridItem>
           <KGridItem size="6">
             <div class="resource-title">
+              <ContentIcon :kind="resourceKind(resourceId)" />
               <KRouterLink
+                class="link"
                 :to="resourceUserSummaryLink(resourceId)"
                 :text="resourceTitle(resourceId)"
               />
@@ -132,6 +118,7 @@
       return {
         workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
         firstRemovalTitle: '',
+        enableTransitions: false,
       };
     },
     computed: {
@@ -172,10 +159,13 @@
         });
       },
       resourceReorderMoveStyle() {
-        return {
-          backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
-          transition: 'transform 0.5s',
-        };
+        if (this.enableTransitions) {
+          return {
+            backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
+            transition: 'transform 0.5s',
+          };
+        }
+        return {};
       },
     },
     methods: {
@@ -232,10 +222,14 @@
         });
       },
       moveUpOne(oldIndex) {
+        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex - 1);
+        setTimeout(() => (this.enableTransitions = false), 500);
       },
       moveDownOne(oldIndex) {
+        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex + 1);
+        setTimeout(() => (this.enableTransitions = false), 500);
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.workingResources];
@@ -296,14 +290,21 @@
 
   @import '~kolibri.styles.definitions';
 
+  .wrapper {
+    margin-top: 16px;
+  }
+
   .relative {
     position: relative;
   }
 
-  .type-icon {
-    position: absolute;
-    top: 25px;
-    right: 10px;
+  .link {
+    margin-left: 8px;
+  }
+
+  .row {
+    padding: 8px;
+    cursor: grab;
   }
 
   .headers {
@@ -324,9 +325,22 @@
     vertical-align: top;
   }
 
-  .position-adjustment-button {
-    display: block;
-    margin: 0;
+  .move-button {
+    position: absolute;
+  }
+
+  .move-button.up {
+    top: -8px;
+  }
+
+  .move-handle {
+    position: absolute;
+    top: 16px;
+    left: 18px;
+  }
+
+  .move-button.down {
+    top: 30px;
   }
 
   .progress-message {
@@ -342,10 +356,6 @@
   }
 
   .sortable-ghost {
-    border: 1px solid grey;
-  }
-
-  .sortable-ghost * {
     visibility: hidden;
   }
 

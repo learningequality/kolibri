@@ -1,4 +1,4 @@
-Feature: Super admin sign-out
+Feature: Super admin signs-out
     Super admin need to be able to sign out when finished using Kolibri
 
   Background:
@@ -13,3 +13,4 @@ Feature: Super admin sign-out
     When I open the sidebar from the top left icon
       And I click *Sign out* 
     Then I am signed out and back on the sign-in page
+    

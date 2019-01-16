@@ -31,7 +31,6 @@
 </template>
 
 
-
 <script>
 
   import imports from '../imports';

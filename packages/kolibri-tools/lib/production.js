@@ -7,9 +7,8 @@ const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
 
 function webpackConfig(pluginData) {
-  const pluginBundle = webpackBaseConfig(pluginData);
+  const pluginBundle = webpackBaseConfig(pluginData, { mode: 'production' });
 
-  pluginBundle.mode = 'production';
   pluginBundle.stats = 'normal';
   pluginBundle.plugins = pluginBundle.plugins.concat([
     new webpack.LoaderOptionsPlugin({

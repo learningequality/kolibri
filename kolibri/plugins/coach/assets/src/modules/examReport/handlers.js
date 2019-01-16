@@ -1,4 +1,5 @@
-import { LearnerGroupResource, ContentNodeSlimResource, ExamResource } from 'kolibri.resources';
+import uniq from 'lodash/uniq';
+import { LearnerGroupResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
@@ -16,11 +17,9 @@ export function showExamReportPage(store, params) {
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
         ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
         exam.question_sources.length
-          ? ContentNodeSlimResource.fetchCollection({
+          ? ContentNodeResource.fetchCollection({
               getParams: {
-                ids: exam.question_sources.map(item => item.exercise_id),
-                fields: ['id'],
-                include_fields: ['num_coach_contents'],
+                ids: uniq(exam.question_sources.map(item => item.exercise_id)),
               },
             })
           : ConditionalPromise.resolve([]),

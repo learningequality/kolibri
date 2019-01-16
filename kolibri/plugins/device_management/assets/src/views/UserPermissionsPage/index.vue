@@ -46,7 +46,12 @@
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
-        <ul class="checkbox-description" :style="{ color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation }">
+        <ul
+          class="checkbox-description"
+          :style="{
+            color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation
+          }"
+        >
           <li>{{ $tr('superAdminExplanation1') }}</li>
           <li>{{ $tr('superAdminExplanation2') }}</li>
         </ul>

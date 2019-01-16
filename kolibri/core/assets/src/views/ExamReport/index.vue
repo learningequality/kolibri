@@ -153,8 +153,8 @@
       ...mapGetters(['$coreBgLight']),
       attemptLogs() {
         return this.examAttempts.map(attempt => {
-          const questionId = this.questions[attempt.questionNumber - 1].contentId;
-          const num_coach_contents = find(this.exerciseContentNodes, { id: questionId })
+          const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
+          const num_coach_contents = find(this.exerciseContentNodes, { id: exerciseId })
             .num_coach_contents;
           return { ...attempt, num_coach_contents };
         });

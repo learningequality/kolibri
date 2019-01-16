@@ -90,14 +90,14 @@ def _woff_font_path(name, is_bold):
 
 def _load_font(path):
     guess = mimetypes.guess_type(path)
-    if guess[0] not in ["font/ttc", "font/ttf", "font/otf", "font/woff"]:
+    if guess[0] not in ["font/ttc", "font/ttf", "font/otf", "font/woff", "application/font-sfnt", "application/font-woff"]:
         logging.error("Not a font file: {}".format(path))
         logging.error("Guessed mimetype: '{}'".format(guess[0]))
         logging.error("If this is a text file: do you have Git LFS installed?")
         sys.exit(1)
     try:
         return subset.load_font(path, FONT_TOOLS_OPTIONS, dontLoadGlyphNames=True)
-    except FileNotFoundError as e:
+    except FileNotFoundError as e:  # noqa F821
         logging.error("Could not load font: {}".format(str(e)))
         logging.error("You may need to run: `make i18n-download-source-fonts`")
         sys.exit(1)
@@ -388,7 +388,7 @@ def _get_lang_strings(locale_dir):
             lang_strings = json.load(f).values()
 
         for s in lang_strings:
-            s = re.sub("\W", " ", s)  # clean whitespace
+            s = re.sub(r"\W", " ", s)  # clean whitespace
             strings.append(s)
             strings.append(s.upper())
 

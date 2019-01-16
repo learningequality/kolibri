@@ -1,6 +1,6 @@
 Feature: Admin sign-in
-  Facility admins should be able to sign in to access Kolibri
-  If the admin account is registered correctly, they should arrive at the Facility > Classes page upon sign-in
+  Facility admins need to be able to sign in to access Kolibri
+  If the admin account is registered correctly, they will arrive at the Facility > Classes page upon sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page

@@ -10,6 +10,7 @@
       :authorized="userCanAccessPage"
       authorizedRole="adminOrCoach"
       :showSubNav="Boolean(classId) && showCoachNav && !currentPageIsImmersive"
+      :marginBottom="marginBottom"
     >
 
       <!-- COACH - under construction ... -->
@@ -19,8 +20,7 @@
       <div v-if="isNewPage" class="coach-debug">
         <pre>{{ $route.params.page }}</pre>
         <p class="coach-warning">
-          MOCKUP FOR TRANSLATION:<br>
-          not the final design or functionality
+          PROTOTYPE: not the final design or functionality
         </p>
       </div>
       <!-- ... COACH - under construction -->
@@ -66,6 +66,7 @@
   import ClassListPage from './ClassListPage';
   import ExamsPage from './exams/CoachExamsPage';
   import ExamCreationPage from './exams/CreateExamPage';
+  import CreateExamPreview from './exams/CreateExamPage/CreateExamPreview';
   import ExamReportPage from './exams/ExamReportPage';
   import ExamReportDetailPage from './exams/CoachExamReport';
   import GroupsPage from './GroupsPage';
@@ -99,6 +100,15 @@
     LessonsPageNames.RESOURCE_USER_REPORT,
   ];
 
+  const examCreationPages = [
+    PageNames.EXAM_REPORT_DETAIL,
+    PageNames.EXAM_CREATION_ROOT,
+    PageNames.EXAM_CREATION_TOPIC,
+    PageNames.EXAM_CREATION_PREVIEW,
+    PageNames.EXAM_CREATION_SEARCH,
+    PageNames.EXAM_CREATION_QUESTION_SELECTION,
+  ];
+
   const immersivePages = [
     ...selectionPages,
     ...resourceUserPages,
@@ -111,6 +121,7 @@
     PageNames.EXAM_CREATION_TOPIC,
     PageNames.EXAM_CREATION_PREVIEW,
     PageNames.EXAM_CREATION_SEARCH,
+    PageNames.EXAM_CREATION_QUESTION_SELECTION,
   ];
 
   const pageNameToComponentMap = {
@@ -122,6 +133,7 @@
     [PageNames.EXAM_CREATION_TOPIC]: ExamCreationPage,
     [PageNames.EXAM_CREATION_PREVIEW]: LessonContentPreviewPage,
     [PageNames.EXAM_CREATION_SEARCH]: ExamCreationPage,
+    [PageNames.EXAM_CREATION_QUESTION_SELECTION]: CreateExamPreview,
 
     // reports
     [PageNames.RECENT_CHANNELS]: ChannelListPage,
@@ -320,6 +332,7 @@
               PageNames.EXAM_CREATION_ROOT,
               PageNames.EXAM_CREATION_TOPIC,
               PageNames.EXAM_CREATION_SEARCH,
+              PageNames.EXAM_CREATION_QUESTION_SELECTION,
             ].includes(this.pageName)
           ) {
             return this.$tr('createNewExam');
@@ -331,8 +344,11 @@
         const backButtonPages = [
           LessonsPageNames.CONTENT_PREVIEW,
           ...resourceUserPages,
+          LessonsPageNames.SELECTION_SEARCH,
           PageNames.EXAM_REPORT_DETAIL,
           PageNames.EXAM_CREATION_PREVIEW,
+          PageNames.EXAM_CREATION_QUESTION_SELECTION,
+          PageNames.EXAM_CREATION_SEARCH,
         ];
         if (backButtonPages.includes(this.pageName)) {
           return 'arrow_back';
@@ -351,6 +367,9 @@
           return false;
         }
         return true;
+      },
+      marginBottom() {
+        return examCreationPages.includes(this.pageName) ? 72 : 0;
       },
     },
     methods: {

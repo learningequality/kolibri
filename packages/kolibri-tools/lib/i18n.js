@@ -10,7 +10,6 @@ const webpackBaseConfig = require('./webpack.config.base');
 function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData);
 
-  pluginBundle.mode = 'development';
   pluginBundle.output.path = os.tmpdir();
   return pluginBundle;
 }

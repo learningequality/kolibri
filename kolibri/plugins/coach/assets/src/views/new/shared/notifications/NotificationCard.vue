@@ -1,4 +1,5 @@
 <template>
+
   <div class="notification">
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
@@ -104,7 +105,7 @@
   }
 
   .context {
-    margin-top: 4;
+    margin-top: 4px;
     margin-bottom: 4px;
     font-size: small;
     color: gray;

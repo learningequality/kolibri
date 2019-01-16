@@ -234,9 +234,12 @@
       },
       mainWrapperStyles() {
         if (this.fullScreen) {
-          return { top: 0 };
+          return { top: 0, bottom: 0 };
         }
-        return { top: this.fixedAppBar ? `${this.appbarHeight}px` : 0 };
+        return {
+          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
+          bottom: `${this.marginBottom}px`,
+        };
       },
       contentStyles() {
         if (this.fullScreen) {
@@ -248,12 +251,12 @@
         }
         return {
           marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
-          marginBottom: `${this.marginBottom + 128}px`,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
       fixedAppBar() {
-        return this.windowIsLarge || this.immersivePage;
+        return this.windowIsLarge;
+        // return this.windowIsLarge || this.immersivePage;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
@@ -313,6 +316,7 @@
   .content {
     max-width: 1000px;
     margin-right: auto;
+    margin-bottom: 128px;
     margin-left: auto;
   }
 

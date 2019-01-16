@@ -23,7 +23,7 @@ def user_assets():
     by any concrete hook that subclasses UserSyncHook.
     :return: HTML of script tags to insert into user/user.html
     """
-    return webpack_asset_render(hooks.UserSyncHook, async=False)
+    return webpack_asset_render(hooks.UserSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -33,4 +33,4 @@ def user_async_assets():
     by any concrete hook that subclasses UserSyncHook.
     :return: HTML of script tags to insert into user/user.html
     """
-    return webpack_asset_render(hooks.UserAsyncHook, async=True)
+    return webpack_asset_render(hooks.UserAsyncHook, is_async=True)

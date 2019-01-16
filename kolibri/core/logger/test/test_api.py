@@ -424,7 +424,7 @@ class ExamAttemptLogAPITestCase(APITestCase):
         provision_device()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
-        self.exam = Exam.objects.create(title="", channel_id="", question_count=1,
+        self.exam = Exam.objects.create(title="", question_count=1,
                                         collection=self.facility,
                                         creator=self.user2, active=True)
         self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)

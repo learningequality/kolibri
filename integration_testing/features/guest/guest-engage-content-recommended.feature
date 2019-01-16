@@ -1,9 +1,9 @@
-Feature: Guest engage recommended content
+Feature: Guest engages recommended content
   Guest needs to engage with content on Recommended tab
 
   Background:
     Given I am on Kolibri sign in page
-      And I click *Continue as guest* button
+      And I click *Explore without account* button
       And there is one or more channels imported on the device
       And I am on *Learn > Recommended* page
 

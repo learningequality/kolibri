@@ -1,4 +1,4 @@
-Feature: Learner change profile information
+Feature: Learner changes profile information
 	Learner needs to be able to change their own profile information
 
   Background:

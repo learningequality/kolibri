@@ -13,8 +13,8 @@
 // e.g. 'content-icon' (although this can be used as a value in module).
 
 import vuex from 'vuex';
-import seededshuffle from 'seededshuffle';
 import UiAlert from 'keen-ui/src/UiAlert';
+import shuffle from 'knuth-shuffle-seeded';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -109,7 +109,7 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    seededshuffle,
+    shuffle,
     tetherDrop,
     tetherTooltip,
   },

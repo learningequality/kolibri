@@ -43,6 +43,10 @@
           return ['black', 'white'].includes(val);
         },
       },
+      isRtl: {
+        type: Boolean,
+        required: true,
+      },
     },
   };
 
