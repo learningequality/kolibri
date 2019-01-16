@@ -1,14 +1,11 @@
+VPATH = ./dist/android/
+.PHONY: clean dummy_project_info
+
+
 
 # Clear out apks
 clean:
-	# Make bin directory, where APK is held. Empty if it exists.
-	mkdir -p bin
-	rm -f bin/*.apk 2> /dev/null
-	rm -rf ./src/kolibri 2> /dev/null
-
-# Update build system (download NDK/SDK, build Python, etc)
-updatedependencies:
-	buildozer android update
+	- rm -rf dist/android/*.apk project_info.json ./src/kolibri
 
 # Replace the default loading page, so that it will be replaced with our own version
 replaceloadingpage:
@@ -17,45 +14,36 @@ replaceloadingpage:
 	cp ./assets/loading-spinner.gif .buildozer/android/platform/build/dists/kolibri/webview_includes/
 
 # Extract the whl file
-extractkolibriwhl:
-	unzip -q "src/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
+src/kolibri:
+	unzip -q "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
-# Generate the andoid version
-generateversion:
-	python ./scripts/generateversion.py
+# Generate the project info file
+project_info.json: project_info.template src/kolibri
+	python ./scripts/create_project_info.py
+
+# PHONY
+# Generate the dummy project info file, no unpack required
+dummy_project_info.json: project_info.template clean
+	python ./scripts/create_dummy_project_info.py
+
+
+ifdef P4A_RELEASE_KEYSTORE_PASSWD
+pew_release_flag = --release
+endif
 
 # Buld the debug version of the apk
-builddebugapk:
-	buildozer android debug
-
-# Buld the release version of the apk
-buildreleaseapk:
-	buildozer android release
-
+Kolibri*.apk: project_info.json
+	pew build android $(pew_release_flag)
 
 # DOCKER BUILD
 
-# Build the docker image
-builddocker:
-	docker build -t kolibrikivy .
+# Build the docker image. Should only ever need to be rebuilt if project requirements change.
+# Makes dummy file
+build_docker: project_info.template Dockerfile
+	docker build -t android_kolibri .
+	touch build_docker
 
-# Run the docker image
-rundocker: clean builddocker
+# Run the docker image.
+# TODO Would be better to just specify the file here?
+run_docker: build_docker clean
 	./scripts/rundocker.sh
-
-# NON DOCKER BUILD
-
-# Build non-docker local apk
-buildapklocally: clean updatedependencies replaceloadingpage extractkolibriwhl generateversion builddebugapk
-
-# Deploys the apk on a device
-installapk:
-	buildozer android deploy
-
-# Run apk on device
-runapk:
-	buildozer android run
-	buildozer android adb -- logcat | grep -i python
-
-uninstallapk:
-	adb uninstall org.le.kolibri

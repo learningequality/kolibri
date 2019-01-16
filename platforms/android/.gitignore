@@ -1,7 +1,14 @@
-.buildozer/
 src/kolibri
-src/*.dist-info
+whl/*
+
+# File format for signing key
+*.jks
+
+# Generated for pew
+project_info.json
+# pew output folder
+dist/
+
+*.pyc
+build_docker
 bin/
-*.apk
-*.whl
-ANDROID_VERSION

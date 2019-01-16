@@ -1,8 +1,6 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as build
 LABEL maintainer="Learning Equality <info@learningequality.org>" tag="kolibrikivy"
 ENV DEBIAN_FRONTEND noninteractive
-
-WORKDIR /home/kivy
 
 # Install the dependencies for the build system
 RUN dpkg --add-architecture i386 && \
@@ -31,34 +29,34 @@ RUN dpkg --add-architecture i386 && \
     xsel \
     zlib1g-dev \
     zlib1g:i386 \
-    && apt-get clean && \
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && \
-    pip install cython buildozer
+    python-wxgtk3.0 \
+    && apt-get clean
 
-# would be nice if we could batch this into the bash file
-# Copy over files vital to build environment
-# NOTE: Technically, the only file necessary here is buildozer.spec
-COPY buildozer.spec ./
+# install python dependencies
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+  python get-pip.py && \
+  pip install cython virtualenv && \
+  # get kevin's custom packages
+  pip install -e git+https://github.com/kollivier/pyeverywhere@dev#egg=pyeverywhere && \
+  pip install -e git+https://github.com/kollivier/python-for-android@webview_plus#egg=python-for-android && \
+  useradd -lm kivy
 
-# Set up build environment
-RUN useradd -l kivy && \
-  chown kivy:kivy /home/kivy && \
-  su kivy -c "buildozer android update"
+USER kivy:kivy
+WORKDIR /home/kivy
 
-COPY Makefile .git ./
+# Needed to setup & install necessary p4a environment
+COPY --chown=kivy:kivy whitelist.txt Makefile project_info.template ./
+COPY --chown=kivy:kivy scripts/version_utils.py scripts/create_dummy_project_info.py scripts/
 
-# Keeping these copies separate to keep cache valid as long as possible in setup
-# for kolibri builds. Buildozer takes a while to rebuild itself
-COPY scripts scripts/
-COPY assets assets/
-# Copy over kolibri-apk specific build files
-COPY src  src/
+# Makes a dummy project_info, pretty mutch just ot get pew init to run
+# Downlads p4a and all python dependencies for packaging in android
+RUN make dummy_project_info.json && pew init android
+
+COPY --chown=kivy:kivy assets assets
+
+# Could probably include this earlier on
+COPY --chown=kivy:kivy icon.png .
+COPY --chown=kivy:kivy src/main.py src/
 
 # Extract .whl files and build the apk
-RUN chown kivy:kivy /home/kivy/src && \
-  su kivy -c "\
-    make replaceloadingpage && \
-    make extractkolibriwhl && \
-    make generateversion && \
-    make builddebugapk"
+CMD make Kolibri*.apk
