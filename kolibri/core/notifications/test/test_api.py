@@ -90,7 +90,6 @@ class ContentSessionLogAPITestCase(APITestCase):
 
         self.exam = Exam.objects.create(
             title="title",
-            channel_id="test",
             question_count=1,
             active=True,
             collection=self.classroom,
