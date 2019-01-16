@@ -30,7 +30,6 @@ const fakeExams = [
   {
     id: '1',
     title: 'UNIT 1 Exam',
-    channel_id: 'item_1',
     collection: 'collection_id',
     active: true,
     archive: false,
@@ -65,7 +64,6 @@ const fakeExams = [
   {
     id: '2',
     title: 'UNIT 1 Quiz',
-    channel_id: 'item_1',
     collection: 'collection_id',
     active: false,
     archive: false,
@@ -114,7 +112,6 @@ const fakeExams = [
   {
     id: '3',
     title: 'Newer quiz style',
-    channel_id: 'item_1',
     collection: 'collection_id',
     active: false,
     archive: false,
@@ -171,7 +168,6 @@ const fakeExamState = [
   {
     id: '1',
     title: 'UNIT 1 Exam',
-    channelId: 'item_1',
     collection: 'collection_id',
     active: true,
     archive: false,
@@ -206,7 +202,6 @@ const fakeExamState = [
   {
     id: '2',
     title: 'UNIT 1 Quiz',
-    channelId: 'item_1',
     collection: 'collection_id',
     active: false,
     archive: false,
@@ -255,7 +250,6 @@ const fakeExamState = [
   {
     id: '3',
     title: 'Newer quiz style',
-    channelId: 'item_1',
     collection: 'collection_id',
     active: false,
     archive: false,
