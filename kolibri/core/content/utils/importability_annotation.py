@@ -33,19 +33,15 @@ def mark_local_files_as_importable(checksums):
     """
 
     bridge = Bridge(app_name=CONTENT_APP_NAME)
+    connection = bridge.get_connection()
 
-    LocalFileClass = bridge.get_class(LocalFile)
+    LocalFileTable = bridge.get_table(LocalFile)
 
     logger.info('Setting importability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
 
-    for i in range(0, len(checksums), CHUNKSIZE):
-        bridge.session.bulk_update_mappings(LocalFileClass, ({
-            'id': checksum,
-            'importable': True
-        } for checksum in checksums[i:i + CHUNKSIZE]))
-        bridge.session.flush()
-
-    bridge.session.commit()
+    connection.execute(LocalFileTable.update().where(
+        LocalFileTable.c.id.in_(checksums)
+    ).values(importable=True).execution_options(autocommit=True))
 
     bridge.end()
 
@@ -173,8 +169,10 @@ def annotate_importability_from_remote(channel_id, baseurl):
 
 
 def annotate_importability_from_disk(channel_id, basepath):
-    content_dir = get_content_dir_path(basepath)
+    content_dir = get_content_dir_path(datafolder=basepath)
+
     checksums = []
+
     for _, _, files in os.walk(content_dir):
         for name in files:
             checksum = os.path.splitext(name)[0]
