@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import transaction
 from le_utils.constants import content_kinds
 
@@ -77,7 +75,6 @@ def create_notification(notification_object, notification_event, user_id, group_
                         contentnode_id=None,
                         quiz_id=None, reason=None):
     notification = LearnerProgressNotification()
-    notification.id = uuid.uuid4().hex
     notification.user_id = user_id
     notification.classroom_id = group_id
     notification.notification_object = notification_object
