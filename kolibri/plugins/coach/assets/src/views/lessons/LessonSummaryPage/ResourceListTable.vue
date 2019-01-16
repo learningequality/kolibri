@@ -76,7 +76,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
@@ -91,7 +90,6 @@
       KButton,
       KGrid,
       KGridItem,
-      KRouterLink,
       ContentIcon,
     },
     data() {
