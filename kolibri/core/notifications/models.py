@@ -90,7 +90,7 @@ class NotificationObjectType(myEnum):
 class NotificationEventType(myEnum):
     Started = 'Started'
     Completed = 'Completed'
-    Help = 'NeedsHelp'
+    Help = 'HelpNeeded'
 
 
 class HelpReason(myEnum):

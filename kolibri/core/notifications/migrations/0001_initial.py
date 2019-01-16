@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                                                                               ('Quiz', 'Quiz'),
                                                                               ('Resource', 'Resource')], max_length=200)),
                 ('notification_event', models.CharField(blank=True, choices=[('Completed', 'Completed'),
-                                                                             ('Help', 'NeedsHelp'),
+                                                                             ('Help', 'HelpNeeded'),
                                                                              ('Started', 'Started')], max_length=200)),
                 ('user_id', kolibri.core.content.models.UUIDField()),
                 ('classroom_id', kolibri.core.content.models.UUIDField()),
