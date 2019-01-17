@@ -416,6 +416,10 @@ oriented data synchronization.
           if (this.complete) {
             // Otherwise only save if the attempt is now complete
             this.saveAttemptLogMasterLog();
+          } else if (this.currentInteractions % 4 === 0) {
+            // After every 4 interactions in this exercise, update the attemptlog
+            // so needsHelp notification can be triggered
+            this.saveAttemptLogMasterLog();
           }
         }
       },
