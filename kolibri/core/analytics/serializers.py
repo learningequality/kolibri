@@ -5,6 +5,7 @@ from .models import PingbackNotificationDismissed
 
 
 class PingbackNotificationSerializer(serializers.ModelSerializer):
+    i18n = serializers.JSONField(default='{}')
 
     class Meta:
         model = PingbackNotification

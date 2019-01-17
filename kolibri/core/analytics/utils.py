@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import json
 
+import semver
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Min
@@ -166,3 +167,9 @@ def extract_channel_statistics(channel):
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
     }
+
+
+def cmp_semver(kolibri_version, version_range):
+    if version_range == '*':
+        return True
+    return semver.match(kolibri_version, version_range)

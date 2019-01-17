@@ -23,3 +23,6 @@ class PingbackNotificationDismissed(models.Model):
 
     user = models.ForeignKey(FacilityUser)
     notification = models.ForeignKey(PingbackNotification)
+
+    class Meta:
+        unique_together = (("user", "notification"),)

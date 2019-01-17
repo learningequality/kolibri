@@ -19,24 +19,24 @@ class PingbackNotificationTestCase(APITestCase):
         self.facility = FacilityFactory.create()
         self.user = FacilityUserFactory(facility=self.facility)
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        data = {'id': 'ping', 'version_range': '0.11.0', 'timestamp': timezone.now(), 'link_url': 'le.org', 'i18n': {'en': {'linkText': None}}}
-        self.notification1 = PingbackNotification.objects.create(**data)
-        data = {'id': 'pong', 'version_range': '1.0.0', 'timestamp': timezone.now(), 'link_url': 'le.org', 'i18n': {'en': {'linkText': None}}}
-        self.notification2 = PingbackNotification.objects.create(**data)
+        data = {'id': 'ping', 'version_range': '<2.0.0', 'timestamp': timezone.now()}
+        self.notification = PingbackNotification.objects.create(**data)
 
     def test_get_notification(self):
-        response = self.client.get(reverse('kolibri:core:pingbacknotification-detail', kwargs={'pk': self.notification2.id}), format='json')
-        self.assertEqual(response.data['version_range'], self.notification2.version_range)
-
-    def test_list_notification(self):
-        response = self.client.get(reverse('kolibri:core:pingbacknotification-list'))
-        self.assertEqual(len(response.data), 2)
+        response = self.client.get(reverse('kolibri:core:pingbacknotification-detail', kwargs={'pk': self.notification.id}), format='json')
+        self.assertEqual(response.data['version_range'], self.notification.version_range)
 
     def test_do_not_get_dismissed_notifications(self):
-        PingbackNotificationDismissed.objects.create(user=self.user, notification=self.notification1)
+        PingbackNotificationDismissed.objects.create(user=self.user, notification=self.notification)
         response = self.client.get(reverse('kolibri:core:pingbacknotification-list'))
         expected_output = PingbackNotification.objects.count() - PingbackNotificationDismissed.objects.count()
         self.assertEqual(len(response.data), expected_output)
+
+    def test_filter_by_semantic_versioning(self):
+        data = {'id': 'pang', 'version_range': '<0.0.1', 'timestamp': timezone.now()}
+        PingbackNotification.objects.create(**data)
+        response = self.client.get(reverse('kolibri:core:pingbacknotification-list'))
+        self.assertEqual(len(response.data), PingbackNotification.objects.count() - 1)
 
 
 class PingbackNotificationDismissedTestCase(APITestCase):
@@ -49,7 +49,7 @@ class PingbackNotificationDismissedTestCase(APITestCase):
         self.user = FacilityUserFactory(facility=self.facility)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
 
-        data = {'id': 'ping', 'version_range': '<0.11.0', 'timestamp': timezone.now(), 'link_url': 'le.org', 'i18n': {'en': {'linkText': None}}}
+        data = {'id': 'ping', 'version_range': '<0.11.0', 'timestamp': timezone.now()}
         self.notification = PingbackNotification.objects.create(**data)
 
     def test_create_notification(self):
