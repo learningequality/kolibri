@@ -303,7 +303,7 @@ class LessonReportSerializer(serializers.ModelSerializer):
 class LearnerNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearnerProgressNotification
-        fields = ('timestamp', 'user_id', 'classroom_id', 'lesson_id')
+        fields = ('id', 'timestamp', 'user_id', 'classroom_id', 'lesson_id')
 
     def to_representation(self, instance):
         value = super(LearnerNotificationSerializer, self).to_representation(instance)

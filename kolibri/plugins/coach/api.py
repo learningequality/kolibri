@@ -155,15 +155,21 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = (KolibriReportPermissions,)
     serializer_class = LearnerNotificationSerializer
+    pagination_class = OptionalPageNumberPagination
 
     def get_queryset(self):
         classroom_id = self.kwargs['collection_id']
+
+        notifications_after = self.request.query_params.get('after', None)
+
         try:
             Collection.objects.get(pk=classroom_id)
         except (Collection.DoesNotExist, ValueError):
             return None
-        today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
-        return LearnerProgressNotification.objects.filter(classroom_id=classroom_id,
-                                                          timestamp__gte=today).order_by('notification_object',
-                                                                                         'notification_event',
-                                                                                         'timestamp')
+        notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+        if notifications_after:
+            notifications_query = notifications_query.filter(id__gt=int(notifications_after))
+        else:
+            today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
+            notifications_query = notifications_query.filter(timestamp__gte=today)
+        return notifications_query.order_by('id')
