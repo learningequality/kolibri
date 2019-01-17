@@ -125,7 +125,7 @@ def get_progress_and_last_active(target_nodes, **kwargs):
             # (about half the size of the dict from 'values' method)
             # Remove topics in generator comprehension, rather than using .exclude as kind is not indexed
             # Use set to remove repeated content
-            leaf_nodes = set(node for node in target_node.getModelViewSet_descendants(include_self=False).order_by().values_list(
+            leaf_nodes = set(node for node in target_node.get_descendants(include_self=False).order_by().values_list(
                 'content_id', 'kind') if node[1] != content_kinds.TOPIC)
             # Get a unique set of all non-topic content kinds
             leaf_kinds = sorted(set(leaf_node[1] for leaf_node in leaf_nodes))
