@@ -13,6 +13,7 @@ from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from .utils.return_users import get_members_or_user
+from kolibri.core.analytics.pskolibri.common import memoize
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
@@ -124,7 +125,7 @@ def get_progress_and_last_active(target_nodes, **kwargs):
             # (about half the size of the dict from 'values' method)
             # Remove topics in generator comprehension, rather than using .exclude as kind is not indexed
             # Use set to remove repeated content
-            leaf_nodes = set(node for node in target_node.get_descendants(include_self=False).order_by().values_list(
+            leaf_nodes = set(node for node in target_node.getModelViewSet_descendants(include_self=False).order_by().values_list(
                 'content_id', 'kind') if node[1] != content_kinds.TOPIC)
             # Get a unique set of all non-topic content kinds
             leaf_kinds = sorted(set(leaf_node[1] for leaf_node in leaf_nodes))
@@ -300,6 +301,24 @@ class LessonReportSerializer(serializers.ModelSerializer):
             return response
 
 
+@memoize
+def get_lesson_title(lesson_id):
+    lesson = Lesson.objects.get(pk=lesson_id)
+    return lesson.title if lesson else ''
+
+
+@memoize
+def get_resource_title(resource_id):
+    node = ContentNode.objects.get(pk=resource_id)
+    return node.title if node else ''
+
+
+@memoize
+def get_user_name(user_id):
+    user = FacilityUser.objects.get(pk=user_id)
+    return user.full_name if user else ''
+
+
 class LearnerNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearnerProgressNotification
@@ -316,8 +335,12 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
 
         if instance.notification_object == NotificationObjectType.Resource:
             value['contentnode_id'] = instance.contentnode_id
+            value['resource'] = get_resource_title(instance.contentnode_id)
+
         value['object'] = instance.notification_object
         value['event'] = instance.notification_event
         value['type'] = '{object}{event}'.format(object=instance.notification_object,
                                                  event=instance.notification_event)
+        value['user'] = get_user_name(instance.user_id)
+        value['lesson'] = get_lesson_title(instance.lesson_id)
         return value
