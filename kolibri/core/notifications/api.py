@@ -187,8 +187,8 @@ def parse_summary_log(summarylog):
 @memoize
 def exist_exam_notification(user_id, exam_id):
     return LearnerProgressNotification.objects.filter(user_id=user_id,
-                                                      quizz_id=exam_id,
-                                                      event_type=NotificationEventType.Started).exists()
+                                                      quiz_id=exam_id,
+                                                      notification_event=NotificationEventType.Started).exists()
 
 
 def parse_exam_log(examlog):
@@ -196,8 +196,6 @@ def parse_exam_log(examlog):
         # Checks to add an 'Started' event
         if exist_exam_notification(examlog.user_id, examlog.exam_id):
             return  # the event has already been triggered
-        elif examlog.exam.progress.answer_count == 0:
-            return  # the exam has not started yet
         event_type = NotificationEventType.Started
         exist_exam_notification.cache_clear()
     else:
