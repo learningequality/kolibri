@@ -95,7 +95,7 @@ class ExamAttemptLogSerializer(KolibriModelSerializer):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ('id', 'examlog', 'start_timestamp', 'channel_id', 'content_id',
+        fields = ('id', 'examlog', 'start_timestamp', 'content_id',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history')
 
