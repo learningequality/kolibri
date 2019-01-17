@@ -482,7 +482,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
         url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
 
     def test_create_class_membership_group_membership_different_class(self):
         self.classroom2_membership.delete()
