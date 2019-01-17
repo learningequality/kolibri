@@ -12,6 +12,7 @@
   >
 
     <div>
+      {{ isExiting }}
       <h1>
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
@@ -21,13 +22,6 @@
           sizes="100, 100, 50"
           percentage
         >
-          <KButton
-            v-if="inSearchMode"
-            class="exit-search-button"
-            :text="$tr('exitSearchButtonLabel')"
-            appearance="raised-button"
-            @click="handleExitSearch"
-          />
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
 
@@ -246,6 +240,7 @@
         })
           .then(() => {
             this.clearSnackbar();
+            this.isExiting = false;
             next();
           })
           .catch(() => {
@@ -254,6 +249,7 @@
             next(false);
           });
       } else {
+        this.isExiting = false;
         next();
       }
     },
@@ -351,7 +347,6 @@
         }
       },
       handleSearchTerm(searchTerm) {
-        this.isExiting = true;
         const lastId = this.$route.query.last_id || this.$route.params.topicId;
         this.$router.push({
           name: LessonsPageNames.SELECTION_SEARCH,

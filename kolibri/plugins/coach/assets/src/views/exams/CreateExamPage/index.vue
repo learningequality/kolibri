@@ -1,117 +1,129 @@
 <template>
 
-  <div>
+  <CoreBase
+    :immersivePage="true"
+    immersivePageIcon="arrow_back"
+    immersivePagePrimary
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+  >
 
-    <UiAlert
-      v-if="showError && !inSearchMode"
-      type="error"
-      :dismissible="false"
-    >
-      {{ selectionIsInvalidText }}
-    </UiAlert>
+    <div class="new-coach-block">
 
-    <h2>{{ detailsString }}</h2>
+      <UiAlert
+        v-if="showError && !inSearchMode"
+        type="error"
+        :dismissible="false"
+      >
+        {{ selectionIsInvalidText }}
+      </UiAlert>
 
-    <KGrid>
-      <KGridItem sizes="100, 100, 50" percentage>
-        <KTextbox
-          ref="title"
-          v-model.trim="examTitle"
-          :label="$tr('title')"
-          :autofocus="true"
-          :maxlength="100"
+      <h2>{{ detailsString }}</h2>
+
+      <KGrid>
+        <KGridItem sizes="100, 100, 50" percentage>
+          <KTextbox
+            ref="title"
+            v-model.trim="examTitle"
+            :label="$tr('title')"
+            :autofocus="true"
+            :maxlength="100"
+          />
+        </KGridItem>
+        <KGridItem sizes="100, 100, 50" percentage>
+          <KTextbox
+            ref="numQuest"
+            v-model.trim.number="numQuestions"
+            type="number"
+            :min="1"
+            :max="50"
+            :label="$tr('numQuestions')"
+            class="number-field"
+          />
+          <UiIconButton
+            type="flat"
+            aria-hidden="true"
+            class="number-btn"
+            @click="numQuestions -= 1"
+          >
+            <mat-svg name="remove" category="content" />
+          </UiIconButton>
+          <UiIconButton
+            type="flat"
+            aria-hidden="true"
+            class="number-btn"
+            @click="numQuestions += 1"
+          >
+            <mat-svg name="add" category="content" />
+          </UiIconButton>
+        </KGridItem>
+      </KGrid>
+
+      <h2>{{ $tr('chooseExercises') }}</h2>
+
+      <LessonsSearchBox
+        class="search-box"
+        @searchterm="handleSearchTerm"
+      />
+
+      <LessonsSearchFilters
+        v-if="inSearchMode"
+        v-model="filters"
+        :searchTerm="searchTerm"
+        :searchResults="searchResults"
+      />
+      <ResourceSelectionBreadcrumbs
+        v-else
+        :ancestors="ancestors"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
+
+      <h2>{{ topicTitle }}</h2>
+      <p>{{ topicDescription }}</p>
+
+      <ContentCardList
+        :contentList="filteredContentList"
+        :showSelectAll="selectAllIsVisible"
+        :viewMoreButtonState="viewMoreButtonState"
+        :selectAllChecked="selectAllChecked"
+        :selectAllIndeterminate="selectAllIndeterminate"
+        :contentIsChecked="contentIsSelected"
+        :contentIsIndeterminate="contentIsIndeterminate"
+        :contentHasCheckbox="contentHasCheckbox"
+        :contentCardMessage="selectionMetadata"
+        :contentCardLink="contentLink"
+        @changeselectall="toggleTopicInWorkingResources"
+        @change_content_card="toggleSelected"
+        @moreresults="handleMoreResults"
+      />
+
+      <Bottom v-if="inSearchMode">
+        <KRouterLink
+          appearance="raised-button"
+          :text="$tr('exitSearchButtonLabel')"
+          primary
+          :to="toolbarRoute"
         />
-      </KGridItem>
-      <KGridItem sizes="100, 100, 50" percentage>
-        <KTextbox
-          ref="numQuest"
-          v-model.trim.number="numQuestions"
-          type="number"
-          :min="1"
-          :max="50"
-          :label="$tr('numQuestions')"
-          class="number-field"
+      </Bottom>
+      <Bottom v-else>
+        <KRouterLink
+          appearance="flat-button"
+          :text="coachStrings.$tr('goBackAction')"
+          :to="toolbarRoute"
         />
-        <UiIconButton
-          type="flat"
-          aria-hidden="true"
-          class="number-btn"
-          @click="numQuestions -= 1"
-        >
-          <mat-svg name="remove" category="content" />
-        </UiIconButton>
-        <UiIconButton
-          type="flat"
-          aria-hidden="true"
-          class="number-btn"
-          @click="numQuestions += 1"
-        >
-          <mat-svg name="add" category="content" />
-        </UiIconButton>
-      </KGridItem>
-    </KGrid>
+        <KButton
+          :text="$tr('continueButtonlabel')"
+          primary
+          @click="continueProcess"
+        />
+      </Bottom>
 
-    <h2>{{ $tr('chooseExercises') }}</h2>
+    </div>
 
-    <LessonsSearchBox
-      class="search-box"
-      @searchterm="handleSearchTerm"
-    />
-
-    <LessonsSearchFilters
-      v-if="inSearchMode"
-      v-model="filters"
-      :searchTerm="searchTerm"
-      :searchResults="searchResults"
-    />
-    <ResourceSelectionBreadcrumbs
-      v-else
-      :ancestors="ancestors"
-      :channelsLink="channelsLink"
-      :topicsLink="topicsLink"
-    />
-
-    <h2>{{ topicTitle }}</h2>
-    <p>{{ topicDescription }}</p>
-
-    <ContentCardList
-      :contentList="filteredContentList"
-      :showSelectAll="selectAllIsVisible"
-      :viewMoreButtonState="viewMoreButtonState"
-      :selectAllChecked="selectAllChecked"
-      :selectAllIndeterminate="selectAllIndeterminate"
-      :contentIsChecked="contentIsSelected"
-      :contentIsIndeterminate="contentIsIndeterminate"
-      :contentHasCheckbox="contentHasCheckbox"
-      :contentCardMessage="selectionMetadata"
-      :contentCardLink="contentLink"
-      @changeselectall="toggleTopicInWorkingResources"
-      @change_content_card="toggleSelected"
-      @moreresults="handleMoreResults"
-    />
-
-    <Bottom v-if="inSearchMode">
-      <KRouterLink
-        appearance="raised-button"
-        :text="$tr('exitSearchButtonLabel')"
-        primary
-        :to="toolbarRoute"
-      />
-    </Bottom>
-    <Bottom v-else>
-      <KRouterLink
-        appearance="flat-button"
-        :text="coachStrings.$tr('goBackAction')"
-        :to="toolbarRoute"
-      />
-      <KButton
-        :text="$tr('continueButtonlabel')"
-        primary
-        @click="continueProcess"
-      />
-    </Bottom>
-
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -141,6 +153,7 @@
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
+  import imports from '../../new/imports';
   import Bottom from './Bottom';
 
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
@@ -167,7 +180,7 @@
       UiIconButton,
       Bottom,
     },
-    mixins: [responsiveWindow, coachStringsMixin],
+    mixins: [responsiveWindow, coachStringsMixin, imports],
     $trs: {
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',

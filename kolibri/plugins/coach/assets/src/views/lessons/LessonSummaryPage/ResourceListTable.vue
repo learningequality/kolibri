@@ -6,9 +6,7 @@
       :options="{animation:150}"
       @input="handleDrag($event)"
     >
-      <transition-group
-        :moveClass="$computedClass(resourceReorderMoveStyle)"
-      >
+      <transition-group :style="resourceReorderMoveStyle">
         <KGrid
           v-for="(resourceId, index) in workingResources"
           :key="resourceId"

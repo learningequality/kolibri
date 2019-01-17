@@ -24,9 +24,6 @@ export default {
     toolbarRoute: {},
     toolbarTitle: '',
     reportRefreshInterval: 30000,
-
-    // trying out a new strategy
-    oldReports: false,
   },
   mutations: {
     SET_CLASS_ID(state, id) {
@@ -34,9 +31,6 @@ export default {
     },
     SET_PAGE_NAME(state, pageName) {
       state.pageName = pageName;
-    },
-    USE_OLD_INDEX_STYLE(state, value) {
-      state.oldReports = value;
     },
     SET_CLASS_INFO(state, { classId, classList, currentClassroom }) {
       state.currentClassroom = currentClassroom;

@@ -12,7 +12,6 @@ export default [
     path: '/',
     component: CoachClassListPage,
     handler() {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       shouldRedirectToClassRootPage().then(classId => {
         if (classId) {
           router.replace({
@@ -38,7 +37,6 @@ export default [
     path: '/:classId/home',
     component: HomePage,
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', false);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('CORE_SET_PAGE_LOADING', true);
       store.commit('SET_PAGE_NAME', PageNames.HOME_PAGE);
@@ -56,7 +54,6 @@ export default [
     name: PageNames.NEW_COACH_PAGES,
     path: '/:page',
     handler(to) {
-      store.commit('USE_OLD_INDEX_STYLE', true);
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('SET_PAGE_NAME', PageNames.NEW_COACH_PAGES);
       store.commit('CORE_SET_PAGE_LOADING', false);
