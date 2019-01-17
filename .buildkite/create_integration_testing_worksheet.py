@@ -20,6 +20,7 @@ SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_SPREADSHEET_CREDENTIALS")
 SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
+# Use to get the Kolibri version, for the integration testing spreadsheet
 SHEET_TAG = os.getenv("BUILDKITE_TAG")
 SHEET_TPL_COLUMN = 'B'
 SHEET_TPL_START_VALUE = 5
@@ -34,7 +35,11 @@ if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
     SHEET_PARENT_CONTAINER_ID = "10bMsasxKvpi_9U1NU9rq7YBnFBiCkYrc"
 
 if SHEET_TAG == "" or SHEET_TAG is None:
-    SHEET_TAG = "develop"
+    buildkite_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    if buildkite_branch != "" or buildkite_branch is not None:
+        SHEET_TAG = buildkite_branch
+    else:
+        SHEET_TAG = "develop"
 
 if SPREADSHEET_CREDENTIALS == "" or SPREADSHEET_CREDENTIALS is None:
     logging.info("Spreadsheet credentials not exist")
