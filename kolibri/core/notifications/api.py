@@ -13,6 +13,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 
 
+@memoize
 def get_assignments(instance, summarylog, attempt=False):
     """
     Returns all Lessons assigned to the user having the content_id
@@ -91,43 +92,94 @@ def create_notification(notification_object, notification_event, user_id, group_
     return notification
 
 
-def parse_summary_log(summarylog):
-    if summarylog.progress < 1.0:
-        return
-    lessons = get_assignments(summarylog, summarylog)
-    notifications = []
-    for lesson, contentnode_id in lessons:
-        # Check if the notification has been previously saved:
-        if LearnerProgressNotification.objects.filter(user_id=summarylog.user_id,
+def check_and_created_completed_resource(lesson, user_id, contentnode_id):
+    notification = None
+    # Check if the notification has been previously saved:
+    if not LearnerProgressNotification.objects.filter(user_id=user_id,
                                                       notification_object=NotificationObjectType.Resource,
                                                       notification_event=NotificationEventType.Completed,
                                                       lesson_id=lesson.id,
                                                       contentnode_id=contentnode_id).exists():
-            continue
-        # Let's create an ResourceIndividualCompletion
+        # Let's create an Resource Completion notification
         notification = create_notification(NotificationObjectType.Resource,
                                            NotificationEventType.Completed,
-                                           summarylog.user_id,
+                                           user_id,
                                            lesson.collection_id,
                                            lesson_id=lesson.id,
                                            contentnode_id=contentnode_id)
-        notifications.append(notification)
-        lesson_content_ids = [resource['content_id'] for resource in lesson.resources]
+    return notification
 
-        # Let's check if an LessonResourceIndividualCompletion needs to be created
-        user_completed = ContentSummaryLog.objects.filter(user_id=summarylog.user_id,
-                                                          content_id__in=lesson_content_ids,
-                                                          progress=1.0).count()
-        if user_completed == len(lesson_content_ids):
-            if not LearnerProgressNotification.objects.filter(user_id=summarylog.user_id,
-                                                              notification_object=NotificationObjectType.Lesson,
-                                                              notification_event=NotificationEventType.Completed,
-                                                              lesson_id=lesson.id,
-                                                              classroom_id=lesson.collection_id).exists():
-                lesson_notification = create_notification(NotificationObjectType.Lesson, NotificationEventType.Completed,
-                                                          summarylog.user_id,
-                                                          lesson.collection_id, lesson_id=lesson.id)
-                notifications.append(lesson_notification)
+
+def check_and_created_completed_lesson(lesson, user_id):
+    notification = None
+    # Check if the notification has been previously saved:
+    if not LearnerProgressNotification.objects.filter(user_id=user_id,
+                                                      notification_object=NotificationObjectType.Lesson,
+                                                      notification_event=NotificationEventType.Completed,
+                                                      lesson_id=lesson.id,
+                                                      classroom_id=lesson.collection_id).exists():
+        # Let's create an Lesson Completion notification
+        notification = create_notification(NotificationObjectType.Lesson, NotificationEventType.Completed,
+                                           user_id,
+                                           lesson.collection_id, lesson_id=lesson.id)
+    return notification
+
+
+def check_and_created_started(lesson, user_id, contentnode_id):
+    # If the Resource started notification exists, nothing to do here:
+    if LearnerProgressNotification.objects.filter(user_id=user_id,
+                                                  notification_object=NotificationObjectType.Resource,
+                                                  notification_event=NotificationEventType.Started,
+                                                  lesson_id=lesson.id,
+                                                  contentnode_id=contentnode_id).exists():
+        return []
+
+    notifications = []
+    # Let's create an Resource Started notification
+    notifications.append(create_notification(NotificationObjectType.Resource,
+                                             NotificationEventType.Started,
+                                             user_id,
+                                             lesson.collection_id,
+                                             lesson_id=lesson.id,
+                                             contentnode_id=contentnode_id))
+
+    # Check if the Lesson started  has already been created:
+    if not LearnerProgressNotification.objects.filter(user_id=user_id,
+                                                      notification_object=NotificationObjectType.Lesson,
+                                                      notification_event=NotificationEventType.Started,
+                                                      lesson_id=lesson.id,
+                                                      classroom_id=lesson.collection_id).exists():
+        # and create it if that's not the case
+        notifications.append(create_notification(NotificationObjectType.Lesson, NotificationEventType.Started,
+                                                 user_id,
+                                                 lesson.collection_id, lesson_id=lesson.id))
+    return notifications
+
+
+def parse_summary_log(summarylog):
+    lessons = get_assignments(summarylog, summarylog)
+    notifications = []
+    for lesson, contentnode_id in lessons:
+        notifications_started = check_and_created_started(lesson, summarylog.user_id, contentnode_id)
+        notifications += notifications_started
+
+        # Now let's check completed resources and lessons:
+        if summarylog.progress >= 1.0:
+            notification_completed = check_and_created_completed_resource(lesson, summarylog.user_id, contentnode_id)
+            if notification_completed:
+                notifications.append(notification_completed)
+            else:
+                continue
+            lesson_content_ids = [resource['content_id'] for resource in lesson.resources]
+
+            # Let's check if an LessonResourceIndividualCompletion needs to be created
+            user_completed = ContentSummaryLog.objects.filter(user_id=summarylog.user_id,
+                                                              content_id__in=lesson_content_ids,
+                                                              progress=1.0).count()
+            if user_completed == len(lesson_content_ids):
+                notification_completed = check_and_created_completed_lesson(lesson, summarylog.user_id)
+                if notification_completed:
+                    notifications.append(notification_completed)
 
     save_notifications(notifications)
 
