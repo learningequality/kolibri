@@ -1,10 +1,10 @@
 """
 # Requirements:
-    * Generate a service account key for your Google API credentials, then create environment variable GOOGLE_APPLICATION_CREDENTIALS.
-        - e.g export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json.
+    * Generate a service account key for your Google API credentials, then create environment variable GOOGLE_SPREADSHEET_CREDENTIALS.
+        - e.g export GOOGLE_SPREADSHEET_CREDENTIALS=/path/to/credentials.json.
 
 # Environment Variable/s:
-    * GOOGLE_APPLICATION_CREDENTIALS = Your service account key.
+    * GOOGLE_SPREADSHEET_CREDENTIALS = Your service account key.
 """
 import logging
 import os
