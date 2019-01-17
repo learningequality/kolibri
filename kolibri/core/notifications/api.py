@@ -5,6 +5,7 @@ from .models import HelpReason
 from .models import LearnerProgressNotification
 from .models import NotificationEventType
 from .models import NotificationObjectType
+from .utils import memoize
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -131,15 +132,31 @@ def parse_summary_log(summarylog):
     save_notifications(notifications)
 
 
+@memoize
+def exist_exam_notification(user_id, exam_id):
+    return LearnerProgressNotification.objects.filter(user_id=user_id,
+                                                      quizz_id=exam_id,
+                                                      event_type=NotificationEventType.Started).exists()
+
+
 def parse_exam_log(examlog):
     if not examlog.closed:
-        return
+        # Checks to add an 'Started' event
+        if exist_exam_notification(examlog.user_id, examlog.exam_id):
+            return  # the event has already been triggered
+        elif examlog.exam.progress.answer_count == 0:
+            return  # the exam has not started yet
+        event_type = NotificationEventType.Started
+        exist_exam_notification.cache_clear()
+    else:
+        event_type = NotificationEventType.Completed
+
     user_classrooms = examlog.user.memberships.all()
 
     touched_groups = get_exam_group(user_classrooms, examlog.exam_id)
     notifications = []
     for group in touched_groups:
-        notification = create_notification(NotificationObjectType.Quiz, NotificationEventType.Completed,
+        notification = create_notification(NotificationObjectType.Quiz, event_type,
                                            examlog.user_id, group, quiz_id=examlog.exam_id)
         notifications.append(notification)
 

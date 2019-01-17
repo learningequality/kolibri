@@ -13,7 +13,6 @@ from le_utils.constants import content_kinds
 from rest_framework import serializers
 
 from .utils.return_users import get_members_or_user
-from kolibri.core.analytics.pskolibri.common import memoize
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
@@ -22,6 +21,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
+from kolibri.core.notifications.utils import memoize
 
 
 class UserReportSerializer(serializers.ModelSerializer):
