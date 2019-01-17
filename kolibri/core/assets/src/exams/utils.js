@@ -25,7 +25,7 @@ function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
-  // the knuth-shuffle-seeded package which uses the more reliable PRNG from the
+  // the kolibri.utils.shuffled function which uses the more reliable PRNG from the
   // https://github.com/davidbau/seedrandom package.)
   function seededShuffle(arr, seed) {
     const shuffled = arr.slice(0);
