@@ -28,6 +28,20 @@ export default {
   },
   getters: {
     summarizedNotifications,
+    notificationsByUserId(state) {
+      return function byUserId(userId) {
+        return state.notifications.filter(notification => notification.user_id === userId);
+      };
+    },
+    notificationsByLearnerGroupId(state, getters, rootState, rootGetters) {
+      return function byLearnerGroupId(groupId) {
+        const groupMembers =
+          rootGetters['classSummary/notificationModuleData'].learnerGroups[groupId].member_ids;
+        return state.notifications.filter(notification =>
+          groupMembers.includes(notification.user_id)
+        );
+      };
+    },
   },
   actions: {
     fetchNotificationsForClass(store, classroomId) {
