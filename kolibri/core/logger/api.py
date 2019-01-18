@@ -35,10 +35,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.exams.models import Exam
-from kolibri.core.notifications.api import parse_attempts_log
-from kolibri.core.notifications.api import parse_exam_log
-from kolibri.core.notifications.api import parse_summary_log
-from kolibri.core.notifications.tasks import add_to_save_queue
 
 
 class BaseLogFilter(FilterSet):
@@ -92,15 +88,6 @@ class LoggerViewSet(viewsets.ModelViewSet):
             if method_name:
                 method = getattr(serializer.root, method_name)
                 default_response[field] = method(instance)
-
-        def calculate_notifications():
-            notification_functions = {'contentsummarylog': parse_summary_log,
-                                      'examlog': parse_exam_log,
-                                      'attemptlog': parse_attempts_log}
-            if self.basename in notification_functions:
-                notification_functions[self.basename](instance)
-        add_to_save_queue(calculate_notifications)
-
         return Response(default_response)
 
 

@@ -156,30 +156,52 @@ def check_and_created_started(lesson, user_id, contentnode_id):
     return notifications
 
 
-def parse_summary_log(summarylog):
+def create_summarylog(summarylog):
+    """
+    Method called by the ContentSummaryLogSerializer when the
+    summarylog is created.
+    It creates the Resource and, if needed, the Lesson Started event
+    """
     lessons = get_assignments(summarylog, summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
         notifications_started = check_and_created_started(lesson, summarylog.user_id, contentnode_id)
         notifications += notifications_started
 
+    save_notifications(notifications)
+
+
+def parse_summarylog(summarylog):
+    """
+    Method called by the ContentSummaryLogSerializer everytime the
+    summarylog is updated.
+    It creates the Resource Completed notification.
+    It also checks if the Lesson is completed to create the
+    Lesson Completed notification.
+    """
+
+    if summarylog.progress < 1.0:
+        return
+
+    lessons = get_assignments(summarylog, summarylog)
+    notifications = []
+    for lesson, contentnode_id in lessons:
         # Now let's check completed resources and lessons:
-        if summarylog.progress >= 1.0:
-            notification_completed = check_and_created_completed_resource(lesson, summarylog.user_id, contentnode_id)
+        notification_completed = check_and_created_completed_resource(lesson, summarylog.user_id, contentnode_id)
+        if notification_completed:
+            notifications.append(notification_completed)
+        else:
+            continue
+        lesson_content_ids = [resource['content_id'] for resource in lesson.resources]
+
+        # Let's check if an LessonResourceIndividualCompletion needs to be created
+        user_completed = ContentSummaryLog.objects.filter(user_id=summarylog.user_id,
+                                                          content_id__in=lesson_content_ids,
+                                                          progress=1.0).count()
+        if user_completed == len(lesson_content_ids):
+            notification_completed = check_and_created_completed_lesson(lesson, summarylog.user_id)
             if notification_completed:
                 notifications.append(notification_completed)
-            else:
-                continue
-            lesson_content_ids = [resource['content_id'] for resource in lesson.resources]
-
-            # Let's check if an LessonResourceIndividualCompletion needs to be created
-            user_completed = ContentSummaryLog.objects.filter(user_id=summarylog.user_id,
-                                                              content_id__in=lesson_content_ids,
-                                                              progress=1.0).count()
-            if user_completed == len(lesson_content_ids):
-                notification_completed = check_and_created_completed_lesson(lesson, summarylog.user_id)
-                if notification_completed:
-                    notifications.append(notification_completed)
 
     save_notifications(notifications)
 
@@ -191,16 +213,7 @@ def exist_exam_notification(user_id, exam_id):
                                                       notification_event=NotificationEventType.Started).exists()
 
 
-def parse_exam_log(examlog):
-    if not examlog.closed:
-        # Checks to add an 'Started' event
-        if exist_exam_notification(examlog.user_id, examlog.exam_id):
-            return  # the event has already been triggered
-        event_type = NotificationEventType.Started
-        exist_exam_notification.cache_clear()
-    else:
-        event_type = NotificationEventType.Completed
-
+def created_quiz_notification(examlog, event_type):
     user_classrooms = examlog.user.memberships.all()
 
     touched_groups = get_exam_group(user_classrooms, examlog.exam_id)
@@ -213,7 +226,39 @@ def parse_exam_log(examlog):
     save_notifications(notifications)
 
 
-def parse_attempts_log(attemptlog):
+def create_examlog(examlog):
+    """
+    Method called by the ExamLogSerializer when the
+    examlog is created.
+    It creates the Quiz Started notification
+    """
+    # Checks to add an 'Started' event
+    if exist_exam_notification(examlog.user_id, examlog.exam_id):
+        return  # the event has already been triggered
+    event_type = NotificationEventType.Started
+    exist_exam_notification.cache_clear()
+    created_quiz_notification(examlog, event_type)
+
+
+def parse_examlog(examlog):
+    """
+    Method called by the ExamLogSerializer everytime the
+    summarylog is updated.
+    It the exam is finished it creates the Quiz Completed notification
+    """
+    if not examlog.closed:
+        return
+    event_type = NotificationEventType.Completed
+    created_quiz_notification(examlog, event_type)
+
+
+def parse_attemptslog(attemptlog):
+    """
+    Method called by the AttemptLogSerializer everytime the
+    attemptlog is updated.
+    It more than 3 failed attempts exists, it creates a NeededHelp notification
+    for the user & resource
+    """
     # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
     lessons = get_assignments(attemptlog, attemptlog.masterylog.summarylog, attempt=True)
     if not lessons:
