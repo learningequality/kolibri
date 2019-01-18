@@ -5,19 +5,19 @@
       :title="$tr('home')"
       :link="navRoute(PageNames.HOME_PAGE)"
     >
-      <mat-svg name="bubble_chart" category="editor" />
+      <mat-svg name="dashboard" category="action" />
     </KNavbarLink>
     <KNavbarLink
       :title="coachStrings.$tr('reportsLabel')"
       :link="navRoute(PageNames.REPORTS_PAGE)"
     >
-      <mat-svg name="bubble_chart" category="editor" />
+      <mat-svg name="insert_chart" category="editor" />
     </KNavbarLink>
     <KNavbarLink
       :title="$tr('plan')"
       :link="navRoute(PageNames.PLAN_PAGE)"
     >
-      <mat-svg name="bubble_chart" category="editor" />
+      <mat-svg name="edit" category="image" />
     </KNavbarLink>
   </KNavbar>
 
