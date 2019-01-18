@@ -41,6 +41,7 @@
                 tooltipPlacement="bottom"
               />
             </th>
+            <th><span class="visuallyhidden">{{ examReportPageStrings.$tr('options') }}</span></th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -53,16 +54,23 @@
             </td>
 
             <td class="core-table-main-col">
-              <KRouterLink
-                :text="exam.title"
-                :to="genExamRoute(exam.id)"
-              />
+              {{ exam.title }}
             </td>
 
-            <td> {{ genRecipientsString(exam.assignments) }} </td>
+            <td> {{ genRecipientsString(exam.groups) }} </td>
 
             <td>
               <StatusIcon :active="exam.active" :type="examKind" />
+            </td>
+
+            <td class="options">
+              <KDropdownMenu
+                slot="optionsDropdown"
+                :text="examReportPageStrings.$tr('options')"
+                :options="actionOptions"
+                appearance="flat-button"
+                @select="showModal(exam)"
+              />
             </td>
           </tr>
         </tbody>
@@ -78,6 +86,26 @@
         {{ $tr('noInactiveExams') }}
       </p>
     </div>
+
+    <AssignmentDetailsModal
+      v-if="showEditModal"
+      ref="detailsModal"
+      :modalTitle="manageExamModalStrings.$tr('editExamDetails')"
+      :submitErrorMessage="manageExamModalStrings.$tr('saveExamError')"
+      :showDescriptionField="false"
+      :isInEditMode="true"
+      :initialTitle="editExam.title"
+      :initialSelectedCollectionIds="editExam.groups"
+      :classId="classId"
+      :groups="groups"
+      :showActiveOption="true"
+      :initialActive="editExam.active"
+      :modalActiveOption="manageExamModalStrings.$tr('changeExamStatusActive')"
+      :modalInactiveOption="manageExamModalStrings.$tr('changeExamStatusInactive')"
+      @save="handleExamDetails"
+      @cancel="showEditModal = false"
+    />
+
   </CoreBase>
 
 </template>
@@ -85,17 +113,25 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import StatusIcon from '../../assignments/StatusIcon';
   import { PageNames } from '../../../constants';
   import imports from '../../new/imports';
   import PlanHeader from '../../new/PlanHeader';
+  import ManageExamModals from '../ExamReportPage/ManageExamModals';
+  import ExamReportPage from '../ExamReportPage';
+  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
+  import { AssignmentActions } from '../../../constants/assignmentsConstants';
+
+  const examReportPageStrings = crossComponentTranslator(ExamReportPage);
+  const manageExamModalStrings = crossComponentTranslator(ManageExamModals);
 
   export default {
     name: 'CoachExamsPage',
@@ -132,15 +168,26 @@
       CoreInfoIcon,
       ContentIcon,
       StatusIcon,
+      AssignmentDetailsModal,
     },
     mixins: [imports],
     data() {
       return {
         statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
+        showEditModal: false,
+        editExam: {},
       };
     },
     computed: {
-      ...mapState('examsRoot', ['exams']),
+      ...mapState(['classId']),
+      ...mapState('classSummary', ['exams', 'groups']),
+      ...mapGetters('classSummary', ['examsMap', 'groupMap']),
+      examReportPageStrings() {
+        return examReportPageStrings;
+      },
+      manageExamModalStrings() {
+        return manageExamModalStrings;
+      },
       examKind() {
         return ContentNodeKinds.EXAM;
       },
@@ -152,6 +199,19 @@
           { label: this.$tr('allExams'), value: this.$tr('allExams') },
           { label: this.$tr('activeExams'), value: this.$tr('activeExams') },
           { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
+        ];
+      },
+      actionOptions() {
+        return [
+          {
+            label: this.examReportPageStrings.$tr('editDetails'),
+            value: AssignmentActions.EDIT_DETAILS,
+          },
+          {
+            label: this.examReportPageStrings.$tr('copyExamOptionLabel'),
+            value: AssignmentActions.COPY,
+          },
+          { label: this.examReportPageStrings.$tr('delete'), value: AssignmentActions.DELETE },
         ];
       },
       activeExams() {
@@ -174,19 +234,26 @@
       },
     },
     methods: {
+      ...mapActions('examReport', ['updateExamDetails']),
+      showModal(exam) {
+        this.editExam = exam;
+        this.showEditModal = true;
+      },
+      handleExamDetails(details) {
+        this.updateExamDetails({ examId: this.editExam.id, payload: details });
+        this.showEditModal = false;
+      },
       genExamRoute(examId) {
         return {
           name: PageNames.EXAM_PREVIEW,
           params: { examId },
         };
       },
-      genRecipientsString(assignments) {
-        if (!assignments.length) {
-          return this.$tr('nobody');
-        } else if (assignments[0].collection_kind === CollectionKinds.CLASSROOM) {
+      genRecipientsString(groups) {
+        if (!groups.length) {
           return this.$tr('entireClass');
-        } else if (assignments[0].collection_kind === CollectionKinds.LEARNERGROUP) {
-          return this.$tr('groups', { count: assignments.length });
+        } else {
+          return this.$tr('groups', { count: groups.length });
         }
       },
     },
@@ -208,6 +275,10 @@
 
   .center-text {
     text-align: center;
+  }
+
+  .options {
+    text-align: right;
   }
 
 </style>
