@@ -111,11 +111,11 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-  import imports from '../new/imports';
-  import PlanHeader from '../new/PlanHeader';
-  import StatusIcon from '../assignments/StatusIcon';
-  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
-  import { lessonSummaryLink } from '../lessons/lessonsRouterUtils';
+  import imports from '../../new/imports';
+  import PlanHeader from '../../new/PlanHeader';
+  import StatusIcon from '../../assignments/StatusIcon';
+  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
+  import { lessonSummaryLink } from '../../lessons/lessonsRouterUtils';
 
   export default {
     name: 'LessonsRootPage',
