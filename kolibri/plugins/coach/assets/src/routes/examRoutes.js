@@ -6,8 +6,8 @@ import {
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
 } from '../modules/examCreation/handlers';
-import CreateExamPage from '../views/exams/CreateExamPage';
-import CreateExamPreview from '../views/exams/CreateExamPage/CreateExamPreview.vue';
+import CreateExamPage from '../views/plan/CreateExamPage';
+import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
 import PlanQuizPreviewPage from '../views/new/PlanQuizPreviewPage';
 
 export default [

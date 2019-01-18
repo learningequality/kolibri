@@ -96,7 +96,7 @@
   import imports from '../../new/imports';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { topicListingLink, selectionRootLink } from '../../lessons/lessonsRouterUtils';
-  import Bottom from '../../exams/CreateExamPage/Bottom';
+  import Bottom from '../../plan/CreateExamPage/Bottom';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
