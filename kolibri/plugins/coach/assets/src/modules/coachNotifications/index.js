@@ -28,7 +28,7 @@ export default {
       return notificationsResource
         .fetchCollection({
           getParams: {
-            collection_id: classroomId || 'ba115ca8cf2675293dbff1dbb85f1403',
+            collection_id: classroomId,
           },
         })
         .then(data => {
@@ -38,10 +38,9 @@ export default {
         });
     },
     startPolling(store) {
-      const poller = setInterval(() => {
-        console.log('yo');
-      }, 5000);
-      store.commit('SET_POLLER', poller);
+      // const poller = setInterval(() => {
+      // }, 5000);
+      store.commit('SET_POLLER', 1);
     },
     stopPolling(store) {
       clearInterval(store.state.poller);

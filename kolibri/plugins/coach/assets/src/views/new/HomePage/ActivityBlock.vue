@@ -35,6 +35,18 @@
   import NotificationCard from '../shared/notifications/NotificationCard';
   import { nStringsMixin } from '../shared/notifications/notificationStrings';
 
+  const NotificationObjects = {
+    RESOURCE: 'Resource',
+    LESSON: 'Lesson',
+    QUIZ: 'Quiz',
+  };
+
+  const NotificationEvents = {
+    COMPLETED: 'Completed',
+    HELP_NEEDED: 'HelpNeeded',
+    STARTED: 'Started',
+  };
+
   export default {
     name: 'ActivityBlock',
     components: {
@@ -49,27 +61,27 @@
       },
     },
     beforeMount() {
-      this.fetchNotificationsForClass();
+      this.fetchNotificationsForClass(this.$route.params.classId);
     },
     methods: {
       ...mapActions('coachNotifications', ['fetchNotificationsForClass']),
       cardPropsForNotification(notification) {
         let icon = '';
         let contentIcon = '';
+        const { event, collection, assignment, object, resource } = notification;
         // Notification needs to have the object type to determine targetPage
         icon = {
           Completed: 'star',
           Started: 'clock',
           HelpNeeded: 'help',
-        }[notification.event];
+        }[event];
 
-        const learnerContext =
-          notification.collection.type === 'learnergroup' ? notification.collection.name : '';
+        const learnerContext = collection.type === 'learnergroup' ? collection.name : '';
 
-        if (notification.object === 'Lesson' || notification.object === 'Quiz') {
-          contentIcon = notification.assignment.type;
+        if (object === NotificationObjects.LESSON || object === NotificationObjects.QUIZ) {
+          contentIcon = assignment.type;
         } else {
-          contentIcon = notification.resource.type;
+          contentIcon = resource.type;
         }
 
         return {
@@ -87,15 +99,15 @@
           learnerName: learnerSummary.firstUserName,
         };
 
-        if (object === 'Resource') {
+        if (object === NotificationObjects.RESOURCE) {
           stringDetails.itemName = resource.name;
         }
 
-        if (object === 'Lesson' || object === 'Quiz') {
+        if (object === NotificationObjects.LESSON || object === NotificationObjects.QUIZ) {
           stringDetails.itemName = notification.assignment.name;
         }
 
-        if (event === 'Completed' || event === 'Started') {
+        if (event === NotificationEvents.COMPLETED || event === NotificationEvents.STARTED) {
           if (learnerSummary.completesCollection) {
             if (collection.type === 'classroom') {
               stringType = `wholeClass${event}`;
@@ -114,7 +126,7 @@
           }
         }
 
-        if (event === 'HelpNeeded') {
+        if (event === NotificationEvents.HELP_NEEDED) {
           if (learnerSummary.total === 1) {
             stringType = 'individualNeedsHelp';
           } else {
