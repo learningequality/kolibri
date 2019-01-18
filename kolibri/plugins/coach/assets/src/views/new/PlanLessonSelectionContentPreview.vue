@@ -26,7 +26,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import LessonContentPreviewPage from '../lessons/LessonContentPreviewPage';
+  import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
   import Index from '../CoachIndex';
   import imports from './imports';
 
