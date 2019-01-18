@@ -4,11 +4,13 @@ import hashlib
 import json
 
 import semver
+from django.db import transaction
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
 
+from .models import PingbackNotification
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import LocalFile
@@ -43,6 +45,12 @@ def dump_zipped_json(data):
     except:  # noqa
         pass
     return jsondata
+
+
+def cmp_semver(kolibri_version, version_range):
+    if version_range == '*':
+        return True
+    return semver.match(kolibri_version, version_range)
 
 
 def extract_facility_statistics(facility):
@@ -169,7 +177,19 @@ def extract_channel_statistics(channel):
     }
 
 
-def cmp_semver(kolibri_version, version_range):
-    if version_range == '*':
-        return True
-    return semver.match(kolibri_version, version_range)
+@transaction.atomic
+def create_and_update_notifications(data, source):
+    if data.get('messages'):
+        excluded_ids = [obj.get('msg_id') for obj in data['messages'] if obj.get('msg_id')]
+        if excluded_ids:
+            PingbackNotification.objects.filter(source=source).exclude(id__in=excluded_ids).update(active=False)
+        for msg in data['messages']:
+            new_msg = {}
+            if msg.get('msg_id'):
+                new_msg['id'] = msg['msg_id']
+                new_msg['version_range'] = msg.get('version_range')
+                new_msg['link_url'] = msg.get('link_url')
+                new_msg['i18n'] = msg.get('i18n')
+                new_msg['timestamp'] = msg.get('timestamp')
+                new_msg['source'] = source
+                PingbackNotification.objects.update_or_create(defaults=new_msg, id=new_msg['id'])
