@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: kolibri-network-layer
-Source: https://github.com/learningequality/kolibri-network-layer
+Upstream-Name: kolibri-server
+Source: https://github.com/learningequality/kolibri-server
 
 Files: kolibri.conf
        kolibri.ini

@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          kolibri-network-layer
+# Provides:          kolibri-server
 # Required-Start:    $local_fs $network $remote_fs $syslog $named nginx
 # Required-Stop:     $local_fs $network $remote_fs $syslog $named
 # Default-Start:     2 3 4 5
@@ -12,8 +12,8 @@
 # Do NOT "set -e"
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="kolibri-network-layer"
-NAME=kolibri-network-layer
+DESC="kolibri-server"
+NAME=kolibri-server
 DAEMON_UWSGI=/usr/bin/uwsgi
 MAIN=/usr/bin/kolibri
 CONFIG_FILE=/etc/default/kolibri

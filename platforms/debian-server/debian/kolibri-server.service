@@ -1,5 +1,5 @@
-# This provides the Kolibri network layer service, started by invoking the old
-# style /etc/init.d/kolibri-network-layer service for backwards-compatibility.
+# This provides the Kolibri server service, started by invoking the old
+# style /etc/init.d/kolibri-server service for backwards-compatibility.
 
 [Unit]
 Description=A high performance web server setup for Kolibri
@@ -10,8 +10,8 @@ Wants=network-online.target
 Type=simple
 #TimeoutStartSec=infinity
 #TimeoutStopSec=infinity
-ExecStart=/etc/init.d/kolibri-network-layer start
-ExecStop=/etc/init.d/kolibri-network-layer stop
+ExecStart=/etc/init.d/kolibri-server start
+ExecStop=/etc/init.d/kolibri-server stop
 
 [Install]
 WantedBy=multi-user.target

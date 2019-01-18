@@ -1,4 +1,4 @@
-Source: kolibri-network-layer
+Source: kolibri-server
 Section: education
 Priority: extra
 Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
@@ -8,7 +8,7 @@ Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.8
 Homepage: https://learningequality.org/kolibri
 
-Package: kolibri-network-layer
+Package: kolibri-server
 Architecture: all
 Depends: kolibri, nginx-light | nginx, uwsgi, uwsgi-plugin-python3
 Description: Improve Kolibri server network configuration
