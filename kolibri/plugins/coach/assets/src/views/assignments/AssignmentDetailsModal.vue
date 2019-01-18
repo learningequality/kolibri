@@ -37,12 +37,12 @@
       <legend>{{ coachStrings.$tr('statusLabel') }}</legend>
       <KRadioButton
         v-model="activeIsSelected"
-        :label="modalActiveOption"
+        :label="modalActiveText"
         :value="true"
       />
       <KRadioButton
         v-model="activeIsSelected"
-        :label="modalInactiveOption"
+        :label="modalInactiveText"
         :value="false"
       />
     </fieldset>
@@ -126,11 +126,11 @@
         type: Boolean,
         required: false,
       },
-      modalActiveOption: {
+      modalActiveText: {
         type: String,
         required: false,
       },
-      modalInactiveOption: {
+      modalInactiveText: {
         type: String,
         required: false,
       },
