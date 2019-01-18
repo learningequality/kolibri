@@ -1,4 +1,3 @@
-import find from 'lodash/find';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
 import { CollectionTypes } from '../../constants/lessonsConstants';
@@ -23,9 +22,9 @@ export function partitionCollectionByEvents({
   const userIsInEvent = id => eventsUserIds.includes(id);
 
   if (collectionType === CollectionTypes.CLASSROOM) {
-    partitioned = partition(map(learners, 'id'), userIsInEvent);
+    partitioned = partition(Object.keys(learners), userIsInEvent);
   } else {
-    const match = find(learnerGroups, { id: collectionId });
+    const match = learnerGroups[collectionId];
     // If no match, Learner Group must have been deleted
     if (!match) return null;
     partitioned = partition(match.member_ids, userIsInEvent);
@@ -45,9 +44,9 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
   const { exams, lessons, classId, className, learnerGroups } = classSummary;
   let assignmentMatch;
   if (assignmentType === 'lesson') {
-    assignmentMatch = find(lessons, { id: assignmentId });
+    assignmentMatch = lessons[assignmentId];
   } else {
-    assignmentMatch = find(exams, { id: assignmentId });
+    assignmentMatch = exams[assignmentId];
   }
 
   // If lesson or exam wasn't found in classSummary, then it was probably deleted.
@@ -64,7 +63,7 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
     });
   } else {
     groups.forEach(groupId => {
-      const groupMatch = find(learnerGroups, { id: groupId });
+      const groupMatch = learnerGroups[groupId];
       if (groupMatch) {
         collections.push({
           collection_kind: CollectionTypes.LEARNERGROUP,

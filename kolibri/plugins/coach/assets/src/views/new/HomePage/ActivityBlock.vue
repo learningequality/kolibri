@@ -17,6 +17,9 @@
       >
         {{ cardTextForNotification(notification) }}
       </NotificationCard>
+      <div v-if="notifications.length === 0">
+        {{ $tr('noActivity') }}
+      </div>
     </div>
   </div>
 
@@ -102,6 +105,7 @@
         if (event === COMPLETED || event === STARTED) {
           if (learnerSummary.completesCollection) {
             if (collection.type === CollectionTypes.CLASSROOM) {
+              // When concatenated, should match the keys in 'nStrings' (e.g. 'wholeClassCompleted')
               stringType = `wholeClass${event}`;
               stringDetails.className = collection.name;
             } else {

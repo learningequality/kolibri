@@ -111,10 +111,10 @@ export default {
     // whenever this module's state changes.
     notificationModuleData(state) {
       return {
-        learners: state.learners,
-        learnerGroups: state.groups,
-        lessons: state.lessons,
-        exams: state.exams,
+        learners: state.learnerMap,
+        learnerGroups: state.groupMap,
+        lessons: state.lessonMap,
+        exams: state.examMap,
         classId: state.id,
         className: state.name,
       };
