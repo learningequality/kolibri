@@ -48,7 +48,7 @@ export function deactivateExam(store, examId) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     createExam(store, exam).then(
       () => {
         store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
