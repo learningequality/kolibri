@@ -9,9 +9,7 @@ from django import db
 from django.conf import settings
 
 import kolibri
-from kolibri.utils.conf import KOLIBRI_HOME
-# Import db instead of db.connections because we want to use an instance of
-# connections that might be updated from outside.
+from kolibri.utils import conf
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +30,7 @@ class IncompatibleDatabase(Exception):
 
 
 def default_backup_folder():
-    return os.path.join(KOLIBRI_HOME, 'backups')
+    return os.path.join(conf.KOLIBRI_HOME, 'backups')
 
 
 def get_dtm_from_backup_name(fname):

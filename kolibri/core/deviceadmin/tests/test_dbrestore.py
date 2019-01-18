@@ -57,25 +57,25 @@ def mock_status_not_running():
     raise NotRunning(STATUS_UNKNOWN)
 
 
-def test_latest():
+def test_latest(dbbackup_test_home):
 
     with pytest.raises(RuntimeError):
         call_command("dbrestore", latest=True)
 
 
-def test_illegal_command():
+def test_illegal_command(dbbackup_test_home):
 
     with pytest.raises(CommandError):
         call_command("dbrestore", latest=True, dump_file="wup wup")
 
 
-def test_no_restore_from_no_file():
+def test_no_restore_from_no_file(dbbackup_test_home):
 
     with pytest.raises(CommandError):
         call_command("dbrestore", dump_file="does not exist")
 
 
-def test_active_kolibri():
+def test_active_kolibri(dbbackup_test_home):
     """
     Tests that we cannot restore while kolibri is active
     """
@@ -89,36 +89,35 @@ def test_active_kolibri():
             gs.assert_called_once()
 
 
-def test_inactive_kolibri():
+def test_inactive_kolibri(dbbackup_test_home):
     """
     Tests that we cannot restore while kolibri is active
     """
 
     with patch(
-        "kolibri.utils.server.get_status",
-        side_effect=mock_status_not_running
-    ) as gs:
-        # Since there's no backups available during a test, this should fail!
-        with pytest.raises(RuntimeError):
-            call_command("dbrestore", latest=True)
-            gs.assert_called_once()
+            "kolibri.utils.server.get_status",
+            side_effect=mock_status_not_running
+    ) as gs, pytest.raises(RuntimeError):
+
+        call_command("dbrestore", latest=True)
+        gs.assert_called_once()
 
 
-def test_not_sqlite():
+def test_not_sqlite(dbbackup_test_home):
     if is_sqlite_settings():
         return
     with pytest.raises(IncompatibleDatabase):
         dbrestore("/doesnt/matter.file")
 
 
-def test_fail_on_unknown_file():
+def test_fail_on_unknown_file(dbbackup_test_home):
     with pytest.raises(ValueError):
         get_dtm_from_backup_name("this-file-has-no-time")
 
 
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
-def test_restore_from_latest():
+def test_restore_from_latest(dbbackup_test_home):
     """
     Tests that we cannot restore while kolibri is active
     """
@@ -156,7 +155,7 @@ def test_restore_from_latest():
 
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
-def test_restore_from_file_to_memory():
+def test_restore_from_file_to_memory(dbbackup_test_home):
     """
     Restores from a file dump to a database stored in memory and reads contents
     from the new database.
@@ -187,7 +186,7 @@ def test_restore_from_file_to_memory():
 
 @pytest.mark.django_db
 @pytest.mark.filterwarnings('ignore:Overriding setting DATABASES')
-def test_restore_from_file_to_file():
+def test_restore_from_file_to_file(dbbackup_test_home):
     """
     Restores from a file dump to a database stored in a file and reads contents
     from the new database.
@@ -222,7 +221,7 @@ def test_restore_from_file_to_file():
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
 
 
-def test_search_latest():
+def test_search_latest(dbbackup_test_home):
 
     search_root = tempfile.mkdtemp()
 

@@ -5,9 +5,18 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import importlib
 import sys
 
 from pkg_resources import parse_version as _parse_version
+
+
+def reload_module(mod):
+    """Reload a module, given differences in Python 2.7 and 3.4+"""
+    if hasattr(importlib, "reload"):
+        importlib.reload(mod)
+    else:
+        reload(mod)  # noqa: F821
 
 
 def module_exists(module_path):
