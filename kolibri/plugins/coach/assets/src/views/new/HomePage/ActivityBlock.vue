@@ -18,10 +18,6 @@
         {{ cardTextForNotification(notification) }}
       </NotificationCard>
     </div>
-    <pre>
-      {{ JSON.stringify(notifications, null, 2) }}
-    </pre>
-
   </div>
 
 </template>
@@ -34,18 +30,14 @@
   import imports from '../imports';
   import NotificationCard from '../shared/notifications/NotificationCard';
   import { nStringsMixin } from '../shared/notifications/notificationStrings';
+  import {
+    NotificationObjects,
+    NotificationEvents,
+  } from '../../../constants/notificationsConstants';
+  import { CollectionTypes } from '../../../constants/lessonsConstants';
 
-  const NotificationObjects = {
-    RESOURCE: 'Resource',
-    LESSON: 'Lesson',
-    QUIZ: 'Quiz',
-  };
-
-  const NotificationEvents = {
-    COMPLETED: 'Completed',
-    HELP_NEEDED: 'HelpNeeded',
-    STARTED: 'Started',
-  };
+  const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
+  const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
 
   export default {
     name: 'ActivityBlock',
@@ -53,7 +45,6 @@
       NotificationCard,
     },
     mixins: [nStringsMixin, imports],
-    props: {},
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
@@ -71,14 +62,15 @@
         const { event, collection, assignment, object, resource } = notification;
         // Notification needs to have the object type to determine targetPage
         icon = {
-          Completed: 'star',
-          Started: 'clock',
-          HelpNeeded: 'help',
+          [COMPLETED]: 'star',
+          [STARTED]: 'clock',
+          [HELP_NEEDED]: 'help',
         }[event];
 
-        const learnerContext = collection.type === 'learnergroup' ? collection.name : '';
+        const learnerContext =
+          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
 
-        if (object === NotificationObjects.LESSON || object === NotificationObjects.QUIZ) {
+        if (object === LESSON || object === QUIZ) {
           contentIcon = assignment.type;
         } else {
           contentIcon = resource.type;
@@ -99,17 +91,17 @@
           learnerName: learnerSummary.firstUserName,
         };
 
-        if (object === NotificationObjects.RESOURCE) {
+        if (object === RESOURCE) {
           stringDetails.itemName = resource.name;
         }
 
-        if (object === NotificationObjects.LESSON || object === NotificationObjects.QUIZ) {
+        if (object === LESSON || object === QUIZ) {
           stringDetails.itemName = notification.assignment.name;
         }
 
-        if (event === NotificationEvents.COMPLETED || event === NotificationEvents.STARTED) {
+        if (event === COMPLETED || event === STARTED) {
           if (learnerSummary.completesCollection) {
-            if (collection.type === 'classroom') {
+            if (collection.type === CollectionTypes.CLASSROOM) {
               stringType = `wholeClass${event}`;
               stringDetails.className = collection.name;
             } else {
@@ -126,7 +118,7 @@
           }
         }
 
-        if (event === NotificationEvents.HELP_NEEDED) {
+        if (event === HELP_NEEDED) {
           if (learnerSummary.total === 1) {
             stringType = 'individualNeedsHelp';
           } else {

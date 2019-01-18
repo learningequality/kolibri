@@ -1,6 +1,7 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
+import { CollectionTypes } from '../../constants/lessonsConstants';
 
 // Utility functions that need to access data in 'classSummary' module
 // The classSummary argument to these functions is a reference to a special
@@ -21,7 +22,7 @@ export function partitionCollectionByEvents({
   const eventsUserIds = map(events, 'user_id');
   const userIsInEvent = id => eventsUserIds.includes(id);
 
-  if (collectionType === 'classroom') {
+  if (collectionType === CollectionTypes.CLASSROOM) {
     partitioned = partition(map(learners, 'id'), userIsInEvent);
   } else {
     const match = find(learnerGroups, { id: collectionId });
@@ -57,7 +58,7 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
   if (groups.length === 1 && groups[0] === classId) {
     // Matches the shape of the Collection API
     collections.push({
-      collection_kind: 'classroom',
+      collection_kind: CollectionTypes.CLASSROOM,
       collection: classId,
       name: className,
     });
@@ -66,7 +67,7 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
       const groupMatch = find(learnerGroups, { id: groupId });
       if (groupMatch) {
         collections.push({
-          collection_kind: 'learnergroup',
+          collection_kind: CollectionTypes.LEARNERGROUP,
           collection: groupMatch.id,
           name: groupMatch.name,
         });
