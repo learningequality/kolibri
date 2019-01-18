@@ -17,7 +17,7 @@ from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
-from kolibri.core.notifications.tasks import add_to_save_queue
+from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.core.serializers import KolibriModelSerializer
 
 
@@ -58,13 +58,13 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         instance = super(ExamLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        add_to_save_queue(parse_examlog(instance))
+        wrap_to_save_queue(parse_examlog, instance)
         return instance
 
     def create(self, validated_data):
         instance = super(ExamLogSerializer, self).create(validated_data)
         # to check if a notification must be created:
-        add_to_save_queue(create_examlog(instance))
+        wrap_to_save_queue(create_examlog, instance)
         return instance
 
 
@@ -112,7 +112,7 @@ class AttemptLogSerializer(KolibriModelSerializer):
     def update(self, instance, validated_data):
         instance = super(AttemptLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        add_to_save_queue(parse_attemptslog(instance))
+        wrap_to_save_queue(parse_attemptslog, instance)
         return instance
 
 
@@ -159,13 +159,13 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
     def create(self, validated_data):
         instance = super(ContentSummaryLogSerializer, self).create(validated_data)
         # to check if a notification must be created:
-        add_to_save_queue(create_summarylog(instance))
+        wrap_to_save_queue(create_summarylog, instance)
         return instance
 
     def update(self, instance, validated_data):
         instance = super(ContentSummaryLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        add_to_save_queue(parse_summarylog(instance))
+        wrap_to_save_queue(parse_summarylog, instance)
         return instance
 
 
