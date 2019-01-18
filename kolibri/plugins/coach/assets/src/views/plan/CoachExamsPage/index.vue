@@ -147,12 +147,12 @@
   import { PageNames } from '../../../constants';
   import imports from '../../new/imports';
   import PlanHeader from '../../new/PlanHeader';
-  import ManageExamModals from '../../exams/ExamReportPage/ManageExamModals';
-  import ExamReportPage from '../../exams/ExamReportPage';
   import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
+  import ExamReportPage from './ExamReportPage';
+  import ManageExamModals from './ManageExamModals';
 
   const examReportPageStrings = crossComponentTranslator(ExamReportPage);
   const manageExamModalStrings = crossComponentTranslator(ManageExamModals);
