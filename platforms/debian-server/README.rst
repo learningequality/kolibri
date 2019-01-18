@@ -1,4 +1,4 @@
-Kolibri network setup installer source for Debian
+Kolibri server installer source for Debian
 =================================================
 
 This package automates the configuration of a proper web server setup to use Kolibri in intensive traffic scenarios.
