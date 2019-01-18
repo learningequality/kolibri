@@ -95,6 +95,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         type,
         object,
         event,
+        groupCode,
         lastTimestamp,
         assignment,
         resource,

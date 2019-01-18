@@ -11,8 +11,8 @@
     </p>
     <div>
       <NotificationCard
-        v-for="(notification, idx) in notifications"
-        :key="idx"
+        v-for="notification in notifications"
+        :key="notification.groupCode"
         v-bind="cardPropsForNotification(notification)"
       >
         {{ cardTextForNotification(notification) }}
