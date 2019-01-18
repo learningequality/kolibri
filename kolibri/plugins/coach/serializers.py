@@ -301,7 +301,6 @@ class LessonReportSerializer(serializers.ModelSerializer):
             return response
 
 
-@memoize
 def get_lesson_title(lesson_id):
     lesson = Lesson.objects.get(pk=lesson_id)
     return lesson.title if lesson else ''

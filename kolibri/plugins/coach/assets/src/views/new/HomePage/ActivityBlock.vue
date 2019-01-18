@@ -79,10 +79,12 @@
           contentIcon = resource.type;
         }
 
+        let targetPage = 'ReportsLessonExerciseLearnerListPage';
+
         return {
           icon,
           contentIcon,
-          targetPage: 'ReportsLessonExerciseLearnerListPage',
+          targetPage,
           learnerContext,
           contentContext: notification.assignment.name,
         };

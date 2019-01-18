@@ -89,6 +89,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       // that has been deleted.
       if (partitioning === null || partitioning.hasEvent.length === 0) continue;
 
+      const firstUser = find(allEvents, { user_id: partitioning.hasEvent[0] });
+
       summaryEvents.push({
         type,
         object,
@@ -102,7 +104,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
           name: collection.name,
         },
         learnerSummary: {
-          firstUserName: find(allEvents, { user_id: partitioning.hasEvent[0] }).user,
+          firstUserName: firstUser.user,
+          firstUserId: firstUser.user_id,
           total: partitioning.hasEvent.length,
           completesCollection: partitioning.rest.length === 0, // not used for Needs Help
         },
