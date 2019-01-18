@@ -43,8 +43,8 @@
       viewAll: 'All quizzes',
     },
     computed: {
-      ...mapGetters('classSummary', ['groupMap', 'examStatusMap']),
-      ...mapState('classSummary', ['learners', 'exams', 'exam_learner_status']),
+      ...mapState('classSummary', ['groupMap', 'examStatusMap']),
+      ...mapGetters('classSummary', ['learners', 'exams']),
       recentQuizzes() {
         const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
         return recent.map(exam => {

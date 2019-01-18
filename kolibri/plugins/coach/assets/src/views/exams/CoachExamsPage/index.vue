@@ -180,8 +180,8 @@
     },
     computed: {
       ...mapState(['classId']),
-      ...mapState('classSummary', ['exams', 'groups']),
-      ...mapGetters('classSummary', ['examsMap', 'groupMap']),
+      ...mapGetters('classSummary', ['exams', 'groups']),
+      ...mapState('classSummary', ['examsMap', 'groupMap']),
       examReportPageStrings() {
         return examReportPageStrings;
       },
