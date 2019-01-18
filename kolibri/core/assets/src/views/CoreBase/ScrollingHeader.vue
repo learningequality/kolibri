@@ -300,4 +300,9 @@
     transition-property: transform;
   }
 
+  // Makes the KModal take up the entire vertical height of the window
+  /deep/ .modal-overlay {
+    height: 100vh;
+  }
+
 </style>
