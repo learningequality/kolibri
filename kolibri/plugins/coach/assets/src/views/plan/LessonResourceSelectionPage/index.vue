@@ -95,7 +95,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import imports from '../../new/imports';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { topicListingLink, selectionRootLink } from '../../lessons/lessonsRouterUtils';
+  import { topicListingLink, selectionRootLink } from '../../../routes/lessonsRouterUtils';
   import Bottom from '../../plan/CreateExamPage/Bottom';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';

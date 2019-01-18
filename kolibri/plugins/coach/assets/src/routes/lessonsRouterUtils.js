@@ -1,4 +1,4 @@
-import { LessonsPageNames } from '../../constants/lessonsConstants';
+import { LessonsPageNames } from '../constants/lessonsConstants';
 
 // IDEA kill these in favor of using vuex param autocomplete
 // Creates a Link to the Lesson Summary Page
