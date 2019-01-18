@@ -1,7 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 
 import { PageNames } from '../constants/newConstants';
-import GroupsPage from '../views/GroupsPage';
+import GroupsPage from '../views/plan/GroupsPage';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showGroupsPage } from '../modules/groups/handlers';
 import { showExamsPage } from '../modules/examsRoot/handlers';

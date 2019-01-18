@@ -75,9 +75,9 @@
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import imports from '../new/imports';
-  import PlanHeader from '../new/PlanHeader';
-  import { GroupModals } from '../../constants';
+  import imports from '../../new/imports';
+  import PlanHeader from '../../new/PlanHeader';
+  import { GroupModals } from '../../../constants';
   import CreateGroupModal from './CreateGroupModal';
   import GroupSection from './GroupSection';
   import RenameGroupModal from './RenameGroupModal';
