@@ -147,10 +147,10 @@
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../../../constants/';
-  import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
-  import LessonsSearchFilters from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
-  import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
-  import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList';
+  import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
+  import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
+  import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
+  import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
   import imports from '../../new/imports';

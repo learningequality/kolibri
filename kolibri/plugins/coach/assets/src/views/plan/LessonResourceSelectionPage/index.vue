@@ -12,7 +12,6 @@
   >
 
     <div>
-      {{ isExiting }}
       <h1>
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
@@ -96,7 +95,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import imports from '../../new/imports';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { topicListingLink, selectionRootLink } from '../lessonsRouterUtils';
+  import { topicListingLink, selectionRootLink } from '../../lessons/lessonsRouterUtils';
   import Bottom from '../../exams/CreateExamPage/Bottom';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
@@ -105,6 +104,7 @@
   import ContentCardList from './ContentCardList';
 
   export default {
+    // this is inaccurately named because it applies to exams also
     name: 'LessonResourceSelectionPage',
     metaInfo() {
       return {
