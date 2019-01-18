@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 
-from .permissions import UserCanManageDevicePermissions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
@@ -18,7 +17,6 @@ class DevicePermissions(models.Model):
     """
     This class stores metadata about device permissions for FacilityUsers.
     """
-    permissions = UserCanManageDevicePermissions()
     user = models.OneToOneField(
         FacilityUser,
         on_delete=models.CASCADE,
