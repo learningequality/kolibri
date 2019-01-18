@@ -5,7 +5,7 @@
     immersivePageIcon="arrow_back"
     immersivePagePrimary
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('classesLabel')"
+    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
