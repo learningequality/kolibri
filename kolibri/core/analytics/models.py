@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from jsonfield import JSONField
 
+from .constants import nutrition_endpoints
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.general import IsOwn
 
@@ -15,6 +16,8 @@ class PingbackNotification(models.Model):
     timestamp = models.DateField(max_length=50)
     link_url = models.CharField(max_length=50, blank=True)
     i18n = JSONField(default={})
+    active = models.BooleanField(default=True)
+    source = models.CharField(max_length=20, choices=nutrition_endpoints.choices)
 
 
 class PingbackNotificationDismissed(models.Model):

@@ -25,7 +25,7 @@ class PingbackNotificationViewSet(viewsets.ReadOnlyModelViewSet):
             kolibri_version = re.split('([a-zA-Z])', kolibri_version)[0]
 
         user = self.request.user
-        queryset = PingbackNotification.objects.all().order_by('-timestamp')
+        queryset = PingbackNotification.objects.filter(active=True).order_by('-timestamp')
         # filter out notifications already dismissed by the user
         if user.is_authenticated():
             notification_ids = PingbackNotificationDismissed.objects.filter(user=user).values_list('notification', flat=True)

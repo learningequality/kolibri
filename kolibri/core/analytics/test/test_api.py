@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from ..constants.nutrition_endpoints import PINGBACK
 from ..models import PingbackNotification
 from ..models import PingbackNotificationDismissed
 from kolibri.core.auth.constants import role_kinds
@@ -19,7 +20,7 @@ class PingbackNotificationTestCase(APITestCase):
         self.facility = FacilityFactory.create()
         self.user = FacilityUserFactory(facility=self.facility)
         self.client.login(username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility)
-        data = {'id': 'ping', 'version_range': '<2.0.0', 'timestamp': timezone.now()}
+        data = {'id': 'ping', 'version_range': '<2.0.0', 'timestamp': timezone.now(), 'source': PINGBACK}
         self.notification = PingbackNotification.objects.create(**data)
 
     def test_get_notification(self):
@@ -33,7 +34,7 @@ class PingbackNotificationTestCase(APITestCase):
         self.assertEqual(len(response.data), expected_output)
 
     def test_filter_by_semantic_versioning(self):
-        data = {'id': 'pang', 'version_range': '<0.0.1', 'timestamp': timezone.now()}
+        data = {'id': 'pong', 'version_range': '<0.0.1', 'timestamp': timezone.now(), 'source': PINGBACK}
         PingbackNotification.objects.create(**data)
         response = self.client.get(reverse('kolibri:core:pingbacknotification-list'))
         self.assertEqual(len(response.data), PingbackNotification.objects.count() - 1)
@@ -49,7 +50,7 @@ class PingbackNotificationDismissedTestCase(APITestCase):
         self.user = FacilityUserFactory(facility=self.facility)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
 
-        data = {'id': 'ping', 'version_range': '<0.11.0', 'timestamp': timezone.now()}
+        data = {'id': 'ping', 'version_range': '<0.11.0', 'timestamp': timezone.now(), 'source': PINGBACK}
         self.notification = PingbackNotification.objects.create(**data)
 
     def test_create_notification(self):
