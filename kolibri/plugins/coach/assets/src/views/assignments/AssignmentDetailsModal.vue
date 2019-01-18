@@ -33,7 +33,19 @@
       :maxlength="200"
       :disabled="formIsSubmitted"
     />
-
+    <fieldset v-if="showActiveOption">
+      <legend>{{ coachStrings.$tr('statusLabel') }}</legend>
+      <KRadioButton
+        v-model="activeIsSelected"
+        :label="modalActiveText"
+        :value="true"
+      />
+      <KRadioButton
+        v-model="activeIsSelected"
+        :label="modalInactiveText"
+        :value="false"
+      />
+    </fieldset>
     <fieldset>
       <legend>{{ $tr('assignedGroupsLabel') }}</legend>
       <RecipientSelector
@@ -53,7 +65,9 @@
   import xor from 'lodash/xor';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import { coachStringsMixin } from '../new/shared/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   export default {
@@ -61,9 +75,11 @@
     components: {
       KModal,
       KTextbox,
+      KRadioButton,
       RecipientSelector,
       UiAlert,
     },
+    mixins: [coachStringsMixin],
     props: {
       modalTitle: {
         type: String,
@@ -102,6 +118,22 @@
         type: Array,
         required: true,
       },
+      showActiveOption: {
+        type: Boolean,
+        default: false,
+      },
+      initialActive: {
+        type: Boolean,
+        required: false,
+      },
+      modalActiveText: {
+        type: String,
+        required: false,
+      },
+      modalInactiveText: {
+        type: String,
+        required: false,
+      },
     },
     data() {
       return {
@@ -109,6 +141,7 @@
         title: this.initialTitle,
         description: this.initialDescription,
         selectedCollectionIds: this.initialSelectedCollectionIds,
+        activeIsSelected: this.initialActive,
         titleIsVisited: false,
         formIsSubmitted: false,
         showServerError: false,
@@ -120,6 +153,7 @@
           title: this.title,
           description: this.description,
           assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
+          active: this.activeIsSelected,
         };
       },
       titleIsInvalidText() {
@@ -145,7 +179,8 @@
         return (
           this.initialTitle !== this.title ||
           this.initialDescription !== this.description ||
-          this.groupsHaveChanged
+          this.groupsHaveChanged ||
+          this.initialActive !== this.activeIsSelected
         );
       },
     },

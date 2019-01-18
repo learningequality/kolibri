@@ -1,25 +1,62 @@
+import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/new/classSummary';
 
 function defaultState() {
   return {
     id: null,
     name: '',
-    // [{ id, name, username }, ...]
-    coaches: [],
-    // [{ id, name, username }, ...]
-    learners: [],
-    // [{ id, name, member_ids: [id, ...] }, ...]
-    groups: [],
-    // [{ id, active, title, node_ids: [id, ...], groups: [id, ...] }, ...]
-    exams: [],
-    // [{ exam_id, learner_id, status, last_activity }, ...]
-    exam_learner_status: [],
-    // [{ content_id, node_id, kind, title }, ...]
-    content: [],
-    // [{ content_id, learner_id, status, last_activity }, ...]
-    content_learner_status: [],
-    // [{ id, active, title, node_ids: [id, ...], groups: [id, ...] }, ...]
-    lessons: [],
+    /*
+      coachMap := {
+        [id]: { id, name, username }
+      }
+    */
+    coachMap: {},
+    /*
+      learnerMap := {
+        [id]: { id, name, username }
+      }
+    */
+    learnerMap: {},
+    /*
+      groupMap := {
+        [id]: { id, name, member_ids: [id, ...] }
+      }
+    */
+    groupMap: {},
+    /*
+      examMap := {
+        [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
+      }
+    */
+    examMap: {},
+    /*
+      examLearnerStatusMap := {
+        [exam_id]: {
+          [learner_id]: { exam_id, learner_id, status, last_activity }
+        }
+      }
+    */
+    examLearnerStatusMap: {},
+    /*
+      contentMap := {
+        [id]: { content_id, node_id, kind, title }
+      }
+    */
+    contentMap: {},
+    /*
+      contentLearnerStatusMap := {
+        [content_id]: {
+          [learner_id]: { content_id, learner_id, status, last_activity }
+        }
+      }
+    */
+    contentLearnerStatusMap: {},
+    /*
+      lessonMap := {
+        [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
+      }
+    */
+    lessonMap: {},
   };
 }
 
@@ -46,29 +83,29 @@ export default {
   namespaced: true,
   state: defaultState(),
   getters: {
-    coachMap(state) {
-      return itemMap(state.coaches, 'id');
+    coaches(state) {
+      return Object.values(state.coachMap);
     },
-    learnerMap(state) {
-      return itemMap(state.learners, 'id');
+    learners(state) {
+      return Object.values(state.learnerMap);
     },
-    groupMap(state) {
-      return itemMap(state.groups, 'id');
+    groups(state) {
+      return Object.values(state.groupMap);
     },
-    examMap(state) {
-      return itemMap(state.exams, 'id');
+    exams(state) {
+      return Object.values(state.examMap);
     },
-    examStatusMap(state) {
-      return statusMap(state.exam_learner_status, 'exam_id', state.exams.map(exam => exam.id));
+    examLearnerStatuses(state) {
+      return Object.values(state.examLearnerStatusMap);
     },
-    contentMap(state) {
-      return itemMap(state.content, 'content_id');
+    content(state) {
+      return Object.values(state.contentMap);
     },
-    contentNodeMap(state) {
-      return itemMap(state.content, 'node_id');
+    contentLearnerStatuses(state) {
+      return Object.values(state.contentLearnerStatusMap);
     },
-    lessonMap(state) {
-      return itemMap(state.lessons, 'id');
+    lessons(state) {
+      return Object.values(state.lessonMap);
     },
     // Adapter used in 'coachNotifications' module. Make sure this getter is updated
     // whenever this module's state changes.
@@ -87,6 +124,18 @@ export default {
     SET_STATE(state, payload) {
       Object.assign(state, payload);
     },
+    CREATE_ITEM(state, { map, id, object }) {
+      state[map] = {
+        ...state[map],
+        [id]: object,
+      };
+    },
+    UPDATE_ITEM(state, { map, id, object }) {
+      Object.assign(state[map][id], object);
+    },
+    DELETE_ITEM(state, { map, id }) {
+      Vue.delete(state[map], id);
+    },
   },
   actions: {
     loadClassSummary(store, classId) {
@@ -98,7 +147,22 @@ export default {
         summary.content_learner_status.forEach(status => {
           status.last_activity = new Date(status.last_activity);
         });
-        store.commit('SET_STATE', summary);
+        store.commit('SET_STATE', {
+          id: summary.id,
+          name: summary.name,
+          coachMap: itemMap(summary.coaches, 'id'),
+          learnerMap: itemMap(summary.learners, 'id'),
+          groupMap: itemMap(summary.groups, 'id'),
+          examMap: itemMap(summary.exams, 'id'),
+          examStatusMap: statusMap(
+            summary.exam_learner_status,
+            'exam_id',
+            summary.exams.map(exam => exam.id)
+          ),
+          contentMap: itemMap(summary.content, 'content_id'),
+          contentNodeMap: itemMap(summary.content, 'node_id'),
+          lessonMap: itemMap(summary.lessons, 'id'),
+        });
       });
     },
   },

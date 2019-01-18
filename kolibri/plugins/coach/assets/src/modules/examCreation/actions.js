@@ -2,7 +2,7 @@ import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
-import shuffle from 'kolibri.lib.shuffle';
+import shuffled from 'kolibri.utils.shuffled';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -193,7 +193,7 @@ export function updateSelectedQuestions(store) {
   return new Promise(resolve => {
     // If there are more exercises than questions, no need to fetch them all so
     // choose N at random where N is the the number of questions.
-    const exerciseIds = shuffle(
+    const exerciseIds = shuffled(
       uniq(store.state.selectedExercises.map(exercise => exercise.id)),
       store.state.seed
     ).slice(0, store.state.numberOfQuestions);

@@ -21,6 +21,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import imports from '../imports';
 
   export default {
@@ -34,11 +35,12 @@
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
     computed: {
+      ...mapGetters('classSummary', ['coaches', 'learners']),
       coachNames() {
-        return this.$store.state.classSummary.coaches.map(coach => coach.name);
+        return this.coaches.map(coach => coach.name);
       },
       learnerNames() {
-        return this.$store.state.classSummary.learners.map(learner => learner.name);
+        return this.learners.map(learner => learner.name);
       },
     },
   };

@@ -1,5 +1,5 @@
 import sortBy from 'lodash/sortBy';
-import shuffle from 'kolibri.lib.shuffle';
+import shuffled from 'kolibri.utils.shuffled';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -36,14 +36,14 @@ export default function selectQuestions(
   }
 
   // helps iterate over exercises pseudo-randomly, in case there are too many exercises
-  const randomIndexes = shuffle(Array.from(Array(exerciseIds.length).keys()), seed);
+  const randomIndexes = shuffled(Array.from(Array(exerciseIds.length).keys()), seed);
   function get(array, i) {
     return array[randomIndexes[i]];
   }
 
   // copy and shuffle the question IDs
   const shuffledQuestionIdArrays = questionIdArrays.map(questionArray =>
-    shuffle(questionArray.slice(0), seed)
+    shuffled(questionArray, seed)
   );
 
   // fill up the output list

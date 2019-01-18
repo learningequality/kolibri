@@ -14,7 +14,6 @@
 
 import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
-import shuffle from 'knuth-shuffle-seeded';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -96,6 +95,7 @@ import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import * as colour from '../utils/colour';
+import shuffled from '../utils/shuffled';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
@@ -109,7 +109,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    shuffle,
     tetherDrop,
     tetherTooltip,
   },
@@ -198,5 +197,6 @@ export default {
     samePageCheckGenerator,
     CatchErrors,
     UserType,
+    shuffled,
   },
 };

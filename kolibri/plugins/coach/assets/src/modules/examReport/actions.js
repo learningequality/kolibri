@@ -48,21 +48,24 @@ export function deactivateExam(store, examId) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  createExam(store, exam).then(
-    () => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.dispatch('setExamsModal', false);
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: snackbarTranslator.$tr('copiedExamToClass', { className }),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
-    },
-    error => store.dispatch('handleApiError', error, { root: true })
-  );
+  return new Promise((resolve, reject) => {
+    createExam(store, exam).then(
+      () => {
+        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+        store.dispatch('setExamsModal', false);
+        store.dispatch(
+          'createSnackbar',
+          {
+            text: snackbarTranslator.$tr('copiedExamToClass', { className }),
+            autoDismiss: true,
+          },
+          { root: true }
+        );
+        resolve(exam);
+      },
+      error => store.dispatch('handleApiError', error, { root: true })
+    );
+  });
 }
 
 export function updateExamDetails(store, { examId, payload }) {
