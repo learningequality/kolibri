@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-01 17:22\n"
+"PO-Revision-Date: 2019-01-19 02:09\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
@@ -79,3 +79,4 @@ msgstr "يمكنك أيضاً محاولة تحديث متصفحك الحالي.
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "لم يتم العثور على صفحات. يبدو أنّ عملية تهيئة منصة كوليبري لم تتم بالشكل الصحيح"
+

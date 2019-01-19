@@ -11,7 +11,7 @@
   "SearchSideBar.loadingResults": "O n ko èsì po",
   "SearchSideBar.noSearchResults": "Ko si èsì",
   "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, eyookan {esi} other {esi}}",
-  "SearchSideBar.overCertainNumberOfSearchResults": "Ju lo {num, number, integer} {num, plural, one {result} other {results}}",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {esi} other {awon esi}}",
   "SearchSideBar.searchThroughBook": "Se iṣàwárí ninu iwe",
   "SearchSideBar.submitSearchQuery": "Fi èrèdí siṣàwárí ṣọwó",
   "SettingsButton.toggleSettingsSideBar": "Ṣèpapòdà àtòpọ̀ Atẹ́pẹpẹlẹ́gbẹ̀ẹ́",

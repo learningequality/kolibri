@@ -456,7 +456,7 @@
   "LessonDetailEditor.recipientsDescription": "La lección será visible para:",
   "LessonDetailEditor.save": "Guardar",
   "LessonDetailEditor.status": "Estado de lección",
-  "LessonDetailEditor.statusDescription": "Estudiantes solo pueden ver pruebas activas",
+  "LessonDetailEditor.statusDescription": "Estudiantes solo pueden ver lecciones activas",
   "LessonResourceSelectionPage.documentTitle": "Gestionar materiales en '{lessonName}'",
   "LessonResourceSelectionPage.exitSearchButtonLabel": "Salir del buscador",
   "LessonResourceSelectionPage.resourcesAddedSnackbarText": "{count, number, integer} {count, plural, one {material añadido} other {materiales añadidos}} a esta lección",
