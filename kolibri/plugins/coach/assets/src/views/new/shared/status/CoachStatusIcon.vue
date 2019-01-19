@@ -38,7 +38,7 @@
   import { mapGetters } from 'vuex';
 
   export default {
-    name: 'StatusIcon',
+    name: 'CoachStatusIcon',
     props: {
       icon: {
         type: String,

@@ -1,7 +1,7 @@
 <template>
 
   <LabeledIcon :label="text">
-    <StatusIcon :icon="icon" />
+    <CoachStatusIcon :icon="icon" />
   </LabeledIcon>
 
 </template>
@@ -11,13 +11,13 @@
 
   import LabeledIcon from '../LabeledIcon';
   import { coachStrings } from '../commonCoachStrings'; // eslint-disable-line no-unused-vars
-  import StatusIcon from './StatusIcon';
+  import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidObject, isValidAdjective } from './statusStrings';
 
   export default {
     name: 'ItemStatusLabel',
     components: {
-      StatusIcon,
+      CoachStatusIcon,
       LabeledIcon,
     },
     mixins: [statusStringsMixin],

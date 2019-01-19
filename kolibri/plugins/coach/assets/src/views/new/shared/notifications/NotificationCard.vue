@@ -4,7 +4,7 @@
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
       <KGridItem :size="time ? 50 : 75" percentage>
-        <StatusIcon
+        <CoachStatusIcon
           :icon="icon"
           class="icon"
         />
@@ -43,13 +43,13 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import imports from '../../imports';
-  import StatusIcon from '../status/StatusIcon';
+  import CoachStatusIcon from '../status/CoachStatusIcon';
 
   export default {
     name: 'NotificationCard',
     components: {
       ContentIcon,
-      StatusIcon,
+      CoachStatusIcon,
     },
     mixins: [imports],
     props: {
