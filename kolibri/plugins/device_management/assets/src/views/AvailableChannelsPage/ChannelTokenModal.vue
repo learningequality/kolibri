@@ -35,6 +35,7 @@
 
 <script>
 
+  import { mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -66,14 +67,25 @@
       },
     },
     methods: {
+      ...mapMutations('manageContent/wizard', {
+        setAvailableChannels: 'SET_AVAILABLE_CHANNELS',
+      }),
       submitForm() {
         this.tokenLookupFailed = false;
         this.formIsSubmitted = true;
         if (this.tokenIsValid) {
           this.formIsDisabled = true;
           return this.lookupToken(this.token)
-            .then(([channel]) => {
-              this.$emit('channelfound', channel);
+            .then(channels => {
+              // unsure how many channels are returned from a single token so coerce to array
+              // resource layer appends id to object, so filter it out
+              const channelsList = Object.values(channels).filter(obj => obj !== this.token);
+              if (channelsList.length > 1) {
+                this.setAvailableChannels(channelsList);
+                this.$emit('closemodal');
+              } else {
+                this.$emit('channelfound', channelsList[0]);
+              }
             })
             .catch(error => {
               if (error.status.code === 404) {
