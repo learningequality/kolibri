@@ -4,7 +4,7 @@ import { PageNames } from '../constants/newConstants';
 import { shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
 
 import CoachClassListPage from '../views/new/CoachClassListPage';
-import HomePage from '../views/new/HomePage';
+import HomePage from '../views/home/HomePage';
 
 export default [
   {
