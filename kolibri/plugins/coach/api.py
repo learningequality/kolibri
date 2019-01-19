@@ -159,16 +159,21 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         classroom_id = self.kwargs['collection_id']
-
         notifications_after = self.request.query_params.get('after', None)
+        after = None
+        if notifications_after:
+            try:
+                after = int(notifications_after)
+            except ValueError:
+                pass  # if after has not a valid format, let's not use it
 
         try:
             Collection.objects.get(pk=classroom_id)
         except (Collection.DoesNotExist, ValueError):
             return None
         notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
-        if notifications_after:
-            notifications_query = notifications_query.filter(id__gt=int(notifications_after))
+        if after:
+            notifications_query = notifications_query.filter(id__gt=after)
         else:
             today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
             notifications_query = notifications_query.filter(timestamp__gte=today)
