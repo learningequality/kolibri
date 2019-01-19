@@ -3,7 +3,7 @@ import router from 'kolibri.coreVue.router';
 import { PageNames } from '../constants/newConstants';
 import { shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
 
-import CoachClassListPage from '../views/new/CoachClassListPage';
+import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
 
 export default [
