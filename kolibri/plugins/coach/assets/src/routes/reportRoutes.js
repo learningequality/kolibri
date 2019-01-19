@@ -1,5 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { PageNames } from '../constants/newConstants';
+import { PageNames } from '../constants';
 
 import ReportsLessonListPage from '../views/reports/ReportsLessonListPage';
 import ReportsQuizListPage from '../views/reports/ReportsQuizListPage';

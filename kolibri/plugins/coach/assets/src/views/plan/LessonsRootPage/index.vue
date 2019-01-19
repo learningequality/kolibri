@@ -115,7 +115,7 @@
   import PlanHeader from '../../plan/PlanHeader';
   import StatusIcon from '../../plan/assignments/StatusIcon';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
-  import { lessonSummaryLink } from '../../../routes/lessonsRouterUtils';
+  import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
 
   export default {
     name: 'LessonsRootPage',

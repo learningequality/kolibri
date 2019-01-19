@@ -1,30 +1,16 @@
 import store from 'kolibri.coreVue.vuex.store';
+import { PageNames } from '../constants';
 
-import { PageNames } from '../constants/newConstants';
 import GroupsPage from '../views/plan/GroupsPage';
-import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showGroupsPage } from '../modules/groups/handlers';
-import { showExamsPage } from '../modules/examsRoot/handlers';
-import lessonsRoutes from './lessonsRoutes';
+import planLessonsRoutes from './planLessonsRoutes';
+import planExamRoutes from './planExamRoutes';
 
 export default [
-  ...lessonsRoutes,
   {
     name: PageNames.PLAN_PAGE,
     path: '/:classId/plan',
     redirect: '/:classId/plan/lessons',
-  },
-
-  {
-    name: 'EXAMS',
-    path: '/:classId/plan/quizzes',
-    component: CoachExamsPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.dispatch('classSummary/loadClassSummary', to.params.classId).then(() => {
-        showExamsPage(store, to.params.classId);
-      });
-    },
   },
   {
     name: 'GROUPS',
@@ -35,4 +21,6 @@ export default [
       showGroupsPage(store, to.params.classId);
     },
   },
+  ...planLessonsRoutes,
+  ...planExamRoutes,
 ];

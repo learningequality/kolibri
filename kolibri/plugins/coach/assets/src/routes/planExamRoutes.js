@@ -9,8 +9,21 @@ import {
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
+import CoachExamsPage from '../views/plan/CoachExamsPage';
+import { showExamsPage } from '../modules/examsRoot/handlers';
 
 export default [
+  {
+    name: 'EXAMS',
+    path: '/:classId/plan/quizzes',
+    component: CoachExamsPage,
+    handler(to) {
+      store.commit('SET_CLASS_ID', to.params.classId);
+      store.dispatch('classSummary/loadClassSummary', to.params.classId).then(() => {
+        showExamsPage(store, to.params.classId);
+      });
+    },
+  },
   {
     name: PageNames.EXAM_CREATION_ROOT,
     path: '/:classId/plan/quizzes/new/',
@@ -29,7 +42,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_SEARCH,
-    path: '/old/:classId/exams/new/search/:searchTerm',
+    path: '/:classId/plan/quizzes/new/search/:searchTerm',
     component: CreateExamPage,
     handler: toRoute => {
       showExamCreationSearchPage(store, toRoute.params, toRoute.query);
@@ -37,7 +50,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_QUESTION_SELECTION,
-    path: '/:classId/quizzes/new/finalize',
+    path: '/:classId/plan/quizzes/new/finalize',
     component: CreateExamPreview,
     handler: (toRoute, fromRoute) => {
       showExamCreationQuestionSelectionPage(store, toRoute, fromRoute);
@@ -45,7 +58,7 @@ export default [
   },
   {
     name: PageNames.EXAM_PREVIEW,
-    path: '/:classId/quizzes/preview/:examId',
+    path: '/:classId/plan/quizzes/preview/:examId',
     component: PlanQuizPreviewPage,
     handler: () => {
       // todo

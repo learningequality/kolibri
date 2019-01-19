@@ -1,6 +1,13 @@
 import { LessonsPageNames } from './lessonsConstants';
 
 export const PageNames = {
+  COACH_CLASS_LIST: 'COACH_CLASS_LIST',
+  HOME_PAGE: 'HOME_PAGE',
+  REPORTS_PAGE: 'REPORTS_PAGE',
+  PLAN_PAGE: 'PLAN_PAGE',
+  NEW_COACH_PAGES: 'NEW_COACH_PAGES',
+  // ... COACH - under construction
+
   CLASS_LIST: 'CLASS_LIST',
   CLASS_ROOT: 'CLASS_ROOT',
   RECENT_CHANNELS: 'RECENT_CHANNELS',
@@ -32,7 +39,6 @@ export const PageNames = {
   EXAM_REPORT_DETAIL_ROOT: 'EXAM_REPORT_DETAIL_ROOT',
   LEARNERS: 'LEARNERS',
   GROUPS: 'GROUPS',
-  NEW_COACH_PAGES: 'NEW_COACH_PAGES', // ... COACH - under construction
 };
 
 export const RecentReports = [

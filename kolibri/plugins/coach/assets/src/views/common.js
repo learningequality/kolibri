@@ -8,7 +8,7 @@ import KGrid from 'kolibri.coreVue.components.KGrid';
 import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
-import { PageNames } from '../constants/newConstants';
+import { PageNames } from '../constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';

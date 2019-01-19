@@ -29,7 +29,7 @@
   import { mapState } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import { PageNames } from '../constants/newConstants';
+  import { PageNames } from '../constants';
   import { coachStringsMixin } from './common/commonCoachStrings';
 
   export default {

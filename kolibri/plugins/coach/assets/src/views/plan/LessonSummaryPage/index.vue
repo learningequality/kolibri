@@ -77,7 +77,7 @@
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
-  import { selectionRootLink } from '../../../routes/lessonsRouterUtils';
+  import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
