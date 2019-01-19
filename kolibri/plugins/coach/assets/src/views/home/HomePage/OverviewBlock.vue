@@ -22,7 +22,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import imports from '../imports';
+  import imports from '../../new/imports';
 
   export default {
     name: 'OverviewBlock',

@@ -28,7 +28,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import sortBy from 'lodash/sortBy';
-  import imports from '../imports';
+  import imports from '../../new/imports';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   const MAX_QUIZZES = 3;

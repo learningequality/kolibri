@@ -36,7 +36,7 @@
 
 <script>
 
-  import imports from '../imports';
+  import imports from '../../new/imports';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';

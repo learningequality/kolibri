@@ -31,9 +31,9 @@
 
   import { mapActions, mapGetters } from 'vuex';
   import orderBy from 'lodash/orderBy';
-  import imports from '../imports';
-  import NotificationCard from '../shared/notifications/NotificationCard';
-  import { nStringsMixin } from '../shared/notifications/notificationStrings';
+  import imports from '../../new/imports';
+  import NotificationCard from '../../new/shared/notifications/NotificationCard';
+  import { nStringsMixin } from '../../new/shared/notifications/notificationStrings';
 
   const NotificationObjects = {
     RESOURCE: 'Resource',

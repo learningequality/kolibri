@@ -28,7 +28,7 @@
 
 <script>
 
-  import imports from '../imports';
+  import imports from '../../new/imports';
 
   export default {
     name: 'ItemProgressDisplay',

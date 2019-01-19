@@ -39,7 +39,7 @@
 
 <script>
 
-  import imports from '../imports';
+  import imports from '../../new/imports';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   export default {
