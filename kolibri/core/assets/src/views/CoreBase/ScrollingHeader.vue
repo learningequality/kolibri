@@ -286,8 +286,6 @@
   @import '~kolibri.styles.definitions';
 
   .scrolling-header {
-    @extend %enable-gpu-acceleration;
-
     top: 0;
     right: 0;
     left: 0;
