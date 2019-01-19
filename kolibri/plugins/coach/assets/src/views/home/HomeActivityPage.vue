@@ -274,11 +274,11 @@
 
 <script>
 
-  import imports from './imports';
-  import NotificationsFilter from './shared/notifications/NotificationsFilter';
+  import imports from '../new/imports';
+  import NotificationsFilter from '../new/shared/notifications/NotificationsFilter';
 
-  import NotificationCard from './shared/notifications/NotificationCard';
-  import { nStringsMixin } from './shared/notifications/notificationStrings';
+  import NotificationCard from '../new/shared/notifications/NotificationCard';
+  import { nStringsMixin } from '../new/shared/notifications/notificationStrings';
 
   export default {
     name: 'HomeActivityPage',
