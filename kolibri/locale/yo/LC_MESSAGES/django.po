@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-01 17:26\n"
+"PO-Revision-Date: 2019-01-19 02:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -79,3 +79,4 @@ msgstr "O tún lè gbìyànjú láti lo ìlujá ìwádìí tuntun."
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Kò sí àwọn ojú ewé tí ò ń wá. Ó ṣeé ṣe kó jẹ́ pé ìkànnì Kolibri kò ṣiṣẹ́ bó ṣe yẹ"
+

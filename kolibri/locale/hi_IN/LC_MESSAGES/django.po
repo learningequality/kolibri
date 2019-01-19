@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-01 17:25\n"
+"PO-Revision-Date: 2019-01-19 02:11\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -30,11 +30,11 @@ msgstr "पाठक समूह"
 
 #: kolibri/core/content/api.py:132
 msgid "Content"
-msgstr ""
+msgstr "सामग्री"
 
 #: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं हैं"
 
 #: kolibri/core/content/models.py:278
 msgid "Unknown format"
@@ -79,3 +79,4 @@ msgstr "आप अपने वर्तमान ब्राउज़र क�
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "कोई उपयुक्त रीडायरेक्ट पृष्ठ नहीं मिले । संभावना है कि कोलिब्री की व्यवस्था ठीक से नहीं की गई है"
+
