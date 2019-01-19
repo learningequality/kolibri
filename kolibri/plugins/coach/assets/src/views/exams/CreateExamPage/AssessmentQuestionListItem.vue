@@ -1,29 +1,21 @@
 <template>
 
-  <button
+  <li
     class="item-wrapper"
     :class="{selected: isSelected, draggable }"
-    @click="handleSelect"
   >
-    <span class="text">{{ text }}</span>
-    <CoachContentLabel
-      class="coach-content-label"
-      :value="isCoachContent ? 1 : 0"
-      :isTopic="false"
-    />
+    <button @click="handleSelect">
+      <span class="text">{{ text }}</span>
+      <CoachContentLabel
+        class="coach-content-label"
+        :value="isCoachContent ? 1 : 0"
+        :isTopic="false"
+      />
+    </button>
     <div v-if="draggable" class="handle">
       <DragIndicator />
     </div>
-    <div class="hidden-buttons">
-      <UiIconButton
-        type="flat"
-        ariaLabel="down"
-        class="position-adjustment-button"
-      >
-        <mat-svg name="keyboard_arrow_down" category="hardware" />
-      </UiIconButton>
-    </div>
-  </button>
+  </li>
 
 </template>
 

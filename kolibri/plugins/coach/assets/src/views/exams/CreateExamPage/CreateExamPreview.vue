@@ -117,7 +117,7 @@
               @click="currentQuestionIndex = questionIndex"
             />
           </ul>
-          <ol v-if="fixedOrder" class="numbers">
+          <ol v-if="fixedOrder" class="numbers" aria-hidden>
             <li
               v-for="(question, questionIndex) in selectedQuestions"
               :key="questionIndex"
