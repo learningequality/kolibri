@@ -1,0 +1,5 @@
+Configuration of Kolibri's Nginx site
+
+All files in /etc/kolibri/nginx.d/ with the extension .conf will be read
+by the kolibri nginx after loading defaults defined in
+/etc/nginx/sites-available/kolibri.conf (don't change this file)

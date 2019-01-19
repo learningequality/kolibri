@@ -26,7 +26,7 @@ PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 
 # I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
 DAEMON_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
-DAEMON_UWSGI_ARGS="--ini /etc/kolibri/kolibri.ini --uid=$KOLIBRI_USER \
+DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
 	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
 
 # Load the VERBOSE setting and other rcS variables
