@@ -52,7 +52,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     if (object === QUIZ) {
       assignment = {
         id: firstEvent.quiz_id,
-        type: 'quiz',
+        type: 'exam', // using 'exam' here since it matches string used in ContentIcon
         name: firstEvent.quiz,
       };
     }

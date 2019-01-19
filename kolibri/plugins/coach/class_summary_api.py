@@ -88,7 +88,7 @@ class LessonSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = LessonNodeIdsField(default=[], source="resources")
 
-    # 'lesson_assignments' seems to only include groups
+    # classrooms are in here, and filtered out later
     groups = LessonAssignmentsField(
         many=True, read_only=True, source="lesson_assignments"
     )
@@ -148,6 +148,10 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         # filter classes out of exam assignments
         for exam in exam_data:
             exam["groups"] = [g for g in exam["groups"] if g != pk]
+
+        # filter classes out of lesson assignments
+        for lesson in lesson_data:
+            lesson["groups"] = [g for g in lesson["groups"] if g != pk]
 
         all_node_ids = set()
         for lesson in lesson_data:

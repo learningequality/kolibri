@@ -54,7 +54,9 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
 
   const { groups } = assignmentMatch;
 
-  if (groups.length === 1 && groups[0] === classId) {
+  // In classSummary, if (exam|lesson).groups is empty, it means it was
+  // assigned to the entire class
+  if (groups.length === 0) {
     // Matches the shape of the Collection API
     collections.push({
       collection_kind: CollectionTypes.CLASSROOM,
