@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-10 17:35-0700\n"
-"PO-Revision-Date: 2019-01-10 22:39\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-01-19 02:12\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fv\n"
-"X-Crowdin-File: /release-v0.11.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,11 +28,11 @@ msgstr "Suudu janngirde"
 msgid "Learner group"
 msgstr "Kawtal fukaraaɓe"
 
-#: kolibri/core/content/api.py:131
+#: kolibri/core/content/api.py:132
 msgid "Content"
 msgstr "Ko woni nder"
 
-#: kolibri/core/content/api.py:672
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
 msgstr "Wuro janngugo ngo ngiɗɗa walaa nder senndirɗum jannginillum"
 
