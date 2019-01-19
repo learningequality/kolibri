@@ -113,8 +113,8 @@
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import imports from '../../new/imports';
   import PlanHeader from '../../new/PlanHeader';
-  import StatusIcon from '../../assignments/StatusIcon';
-  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
+  import StatusIcon from '../../plan/assignments/StatusIcon';
+  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/lessonsRouterUtils';
 
   export default {

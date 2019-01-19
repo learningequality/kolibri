@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
+import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
   initialDescription: '',

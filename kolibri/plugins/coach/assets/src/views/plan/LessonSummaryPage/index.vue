@@ -78,7 +78,7 @@
   import PlanHeader from '../../new/PlanHeader';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../../../routes/lessonsRouterUtils';
-  import AssignmentSummary from '../../assignments/AssignmentSummary';
+  import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
 

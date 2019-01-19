@@ -54,10 +54,10 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
-  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
-  import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
-  import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
+  import AssignmentChangeStatusModal from '../../plan/assignments/AssignmentChangeStatusModal';
+  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
+  import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
+  import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
 
   export default {

@@ -61,11 +61,11 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import xorWith from 'lodash/xorWith';
-  import AssignmentChangeStatusModal from '../../assignments/AssignmentChangeStatusModal';
+  import AssignmentChangeStatusModal from '../../plan/assignments/AssignmentChangeStatusModal';
   import ExamPreview from '../../plan/CoachExamsPage/ExamPreview';
-  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
-  import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
-  import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
+  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
+  import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
+  import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
 

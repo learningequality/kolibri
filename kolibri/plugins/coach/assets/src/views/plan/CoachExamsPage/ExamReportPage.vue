@@ -99,7 +99,7 @@
   import { PageNames } from '../../../constants';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
-  import AssignmentSummary from '../../assignments/AssignmentSummary';
+  import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
   import ManageExamModals from './ManageExamModals';
 
   export default {

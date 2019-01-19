@@ -143,13 +143,13 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import StatusIcon from '../../assignments/StatusIcon';
+  import StatusIcon from '../../plan/assignments/StatusIcon';
   import { PageNames } from '../../../constants';
   import imports from '../../new/imports';
   import PlanHeader from '../../new/PlanHeader';
-  import AssignmentDetailsModal from '../../assignments/AssignmentDetailsModal';
-  import AssignmentCopyModal from '../../assignments/AssignmentCopyModal';
-  import AssignmentDeleteModal from '../../assignments/AssignmentDeleteModal';
+  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
+  import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
+  import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import ExamReportPage from './ExamReportPage';
   import ManageExamModals from './ManageExamModals';
