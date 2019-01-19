@@ -32,7 +32,7 @@
 
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import DragIndicator from '../../new/shared/DragIndicator';
+  import DragIndicator from '../../common/DragIndicator';
 
   export default {
     name: 'AssessmentQuestionListItem',

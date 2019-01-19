@@ -145,8 +145,8 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import StatusIcon from '../../plan/assignments/StatusIcon';
   import { PageNames } from '../../../constants';
-  import imports from '../../new/imports';
-  import PlanHeader from '../../new/PlanHeader';
+  import commonCoach from '../../common';
+  import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
@@ -196,7 +196,7 @@
       AssignmentCopyModal,
       AssignmentDeleteModal,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     data() {
       return {
         statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },

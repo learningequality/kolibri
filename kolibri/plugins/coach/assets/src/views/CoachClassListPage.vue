@@ -49,12 +49,12 @@
 <script>
 
   import { mapState } from 'vuex';
-  import imports from './new/imports';
+  import commonCoach from './common';
 
   export default {
     name: 'CoachClassListPage',
     components: {},
-    mixins: [imports],
+    mixins: [commonCoach],
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
       classNameLabel: 'Class name',

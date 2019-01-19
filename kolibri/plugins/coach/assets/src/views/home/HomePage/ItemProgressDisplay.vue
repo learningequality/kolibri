@@ -28,11 +28,11 @@
 
 <script>
 
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
 
   export default {
     name: 'ItemProgressDisplay',
-    mixins: [imports],
+    mixins: [commonCoach],
     props: {
       name: {
         type: String,

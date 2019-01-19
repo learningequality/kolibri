@@ -13,7 +13,7 @@ import { LessonsPageNames } from '../constants/lessonsConstants';
 import LessonsRootPage from '../views/plan/LessonsRootPage';
 import LessonSummaryPage from '../views/plan/LessonSummaryPage';
 import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPage';
-import PlanLessonSelectionContentPreview from '../views/new/PlanLessonSelectionContentPreview';
+import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 
 export default [
   {

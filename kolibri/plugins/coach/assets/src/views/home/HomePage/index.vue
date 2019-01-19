@@ -36,7 +36,7 @@
 
 <script>
 
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
@@ -50,7 +50,7 @@
       LessonsBlock,
       QuizzesBlock,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     $trs: {},
   };
 

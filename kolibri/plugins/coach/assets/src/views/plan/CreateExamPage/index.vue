@@ -151,9 +151,8 @@
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
-  import { coachStringsMixin } from '../../new/shared/commonCoachStrings.js';
-  import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
-  import imports from '../../new/imports';
+  import QuizDetailEditor from '../../common/QuizDetailEditor';
+  import commonCoach from '../../common';
   import Bottom from './Bottom';
 
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
@@ -180,7 +179,7 @@
       UiIconButton,
       Bottom,
     },
-    mixins: [responsiveWindow, coachStringsMixin, imports],
+    mixins: [responsiveWindow, commonCoach],
     $trs: {
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',

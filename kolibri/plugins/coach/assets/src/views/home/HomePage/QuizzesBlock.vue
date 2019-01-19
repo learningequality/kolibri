@@ -28,7 +28,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import sortBy from 'lodash/sortBy';
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   const MAX_QUIZZES = 3;
@@ -38,7 +38,7 @@
     components: {
       ItemProgressDisplay,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     $trs: {
       viewAll: 'All quizzes',
     },

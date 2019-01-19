@@ -178,9 +178,8 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
-  import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
-  import imports from '../../new/imports';
+  import QuizDetailEditor from '../../common/QuizDetailEditor';
+  import commonCoach from '../../common';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
@@ -217,7 +216,7 @@
       Bottom,
       KTextbox,
     },
-    mixins: [responsiveWindow, coachStringsMixin, imports],
+    mixins: [responsiveWindow, commonCoach],
     data() {
       return {
         currentQuestionIndex: 0,

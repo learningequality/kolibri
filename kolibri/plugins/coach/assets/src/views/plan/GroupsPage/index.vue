@@ -75,8 +75,8 @@
   import orderBy from 'lodash/orderBy';
   import flatMap from 'lodash/flatMap';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import imports from '../../new/imports';
-  import PlanHeader from '../../new/PlanHeader';
+  import commonCoach from '../../common';
+  import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
   import CreateGroupModal from './CreateGroupModal';
   import GroupSection from './GroupSection';
@@ -107,7 +107,7 @@
       DeleteGroupModal,
       MoveLearnersModal,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     data() {
       return {
         selectedGroup: {

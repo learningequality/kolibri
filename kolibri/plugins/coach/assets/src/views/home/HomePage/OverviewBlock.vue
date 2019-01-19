@@ -22,12 +22,12 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
 
   export default {
     name: 'OverviewBlock',
     components: {},
-    mixins: [imports],
+    mixins: [commonCoach],
     $trs: {
       back: 'All classes',
       changeClass: 'Change class',

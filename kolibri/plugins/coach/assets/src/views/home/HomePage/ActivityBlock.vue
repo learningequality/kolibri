@@ -30,9 +30,9 @@
 
   import { mapActions, mapGetters } from 'vuex';
   import orderBy from 'lodash/orderBy';
-  import imports from '../../new/imports';
-  import NotificationCard from '../../new/shared/notifications/NotificationCard';
-  import { nStringsMixin } from '../../new/shared/notifications/notificationStrings';
+  import commonCoach from '../../common';
+  import NotificationCard from '../../common/notifications/NotificationCard';
+  import { nStringsMixin } from '../../common/notifications/notificationStrings';
   import {
     NotificationObjects,
     NotificationEvents,
@@ -47,7 +47,7 @@
     components: {
       NotificationCard,
     },
-    mixins: [nStringsMixin, imports],
+    mixins: [nStringsMixin, commonCoach],
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {

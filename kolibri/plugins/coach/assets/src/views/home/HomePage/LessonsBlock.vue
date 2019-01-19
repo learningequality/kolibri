@@ -39,7 +39,7 @@
 
 <script>
 
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   export default {
@@ -47,7 +47,7 @@
     components: {
       ItemProgressDisplay,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     $trs: {
       viewAll: 'All lessons',
     },

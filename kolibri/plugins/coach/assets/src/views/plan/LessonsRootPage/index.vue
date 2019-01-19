@@ -111,8 +111,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-  import imports from '../../new/imports';
-  import PlanHeader from '../../new/PlanHeader';
+  import commonCoach from '../../common';
+  import PlanHeader from '../../plan/PlanHeader';
   import StatusIcon from '../../plan/assignments/StatusIcon';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/lessonsRouterUtils';
@@ -135,7 +135,7 @@
       KSelect,
       AssignmentDetailsModal,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     data() {
       return {
         showModal: false,

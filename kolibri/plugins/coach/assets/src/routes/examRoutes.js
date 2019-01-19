@@ -8,7 +8,7 @@ import {
 } from '../modules/examCreation/handlers';
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
-import PlanQuizPreviewPage from '../views/new/PlanQuizPreviewPage';
+import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
 
 export default [
   {

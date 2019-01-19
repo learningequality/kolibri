@@ -74,8 +74,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import imports from '../../new/imports';
-  import PlanHeader from '../../new/PlanHeader';
+  import commonCoach from '../../common';
+  import PlanHeader from '../../plan/PlanHeader';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../../../routes/lessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
@@ -97,7 +97,7 @@
       KRouterLink,
       AssignmentSummary,
     },
-    mixins: [imports],
+    mixins: [commonCoach],
     computed: {
       ...mapState(['classId', 'reportRefreshInterval']),
       ...mapState('lessonSummary', {

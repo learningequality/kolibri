@@ -1,10 +1,10 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants/newConstants';
 
-import ReportsLessonListPage from '../views/new/ReportsLessonListPage';
-import ReportsQuizListPage from '../views/new/ReportsQuizListPage';
-import ReportsGroupListPage from '../views/new/ReportsGroupListPage';
-import ReportsLearnerListPage from '../views/new/ReportsLearnerListPage';
+import ReportsLessonListPage from '../views/reports/ReportsLessonListPage';
+import ReportsQuizListPage from '../views/reports/ReportsQuizListPage';
+import ReportsGroupListPage from '../views/reports/ReportsGroupListPage';
+import ReportsLearnerListPage from '../views/reports/ReportsLearnerListPage';
 
 export default [
   {

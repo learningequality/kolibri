@@ -67,7 +67,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   export default {

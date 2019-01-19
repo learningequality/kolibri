@@ -93,11 +93,10 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import imports from '../../new/imports';
+  import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { topicListingLink, selectionRootLink } from '../../../routes/lessonsRouterUtils';
   import Bottom from '../../plan/CreateExamPage/Bottom';
-  import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -121,7 +120,7 @@
       ResourceSelectionBreadcrumbs,
       Bottom,
     },
-    mixins: [coachStringsMixin, imports],
+    mixins: [commonCoach],
     data() {
       return {
         // null corresponds to 'All' filter value

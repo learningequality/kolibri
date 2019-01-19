@@ -274,11 +274,11 @@
 
 <script>
 
-  import imports from '../new/imports';
-  import NotificationsFilter from '../new/shared/notifications/NotificationsFilter';
+  import commonCoach from '../common';
+  import NotificationsFilter from '../common/notifications/NotificationsFilter';
 
-  import NotificationCard from '../new/shared/notifications/NotificationCard';
-  import { nStringsMixin } from '../new/shared/notifications/notificationStrings';
+  import NotificationCard from '../common/notifications/NotificationCard';
+  import { nStringsMixin } from '../common/notifications/notificationStrings';
 
   export default {
     name: 'HomeActivityPage',
@@ -286,7 +286,7 @@
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [imports, nStringsMixin],
+    mixins: [commonCoach, nStringsMixin],
     $trs: {
       back: 'Class home',
       classActivity: 'Class activity',
