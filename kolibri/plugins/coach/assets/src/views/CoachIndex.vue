@@ -33,10 +33,7 @@
       },
     },
     watch: {
-      currentClassroomId(newVal, oldVal) {
-        // TODO manage the classroomNotifications module with this
-        console.log(newVal);
-      },
+      currentClassroomId() {},
     },
   };
 
