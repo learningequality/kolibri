@@ -73,6 +73,9 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       assignment,
     });
 
+    // If 'assigneeCollections' is null, then the quiz or lesson was deleted
+    if (assigneeCollections === null) continue;
+
     // Iterate through each of the assignee collections and create one
     // summarizing notification for each.
     for (let collIdx in assigneeCollections) {

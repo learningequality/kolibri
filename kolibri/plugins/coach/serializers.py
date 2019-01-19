@@ -367,6 +367,7 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
             value['contentnode_id'] = instance.contentnode_id
             value['contentnode_kind'] = get_resource_kind(instance.contentnode_id)
             value['resource'] = get_resource_title(instance.contentnode_id)
+            value['lesson'] = get_lesson_title(instance.lesson_id)
 
         value['object'] = instance.notification_object
         value['event'] = instance.notification_event
