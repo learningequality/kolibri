@@ -74,6 +74,12 @@ def add_to_save_queue(fn):
     log_queue.append(fn)
 
 
+def wrap_to_save_queue(fn, *args):
+    def wrapper():
+        fn(*args)
+    log_queue.append(wrapper)
+
+
 class AsyncNotificationsThread(threading.Thread):
 
     @classmethod

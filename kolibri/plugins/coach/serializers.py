@@ -17,6 +17,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.exams.models import Exam
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
@@ -301,28 +302,47 @@ class LessonReportSerializer(serializers.ModelSerializer):
             return response
 
 
-@memoize
 def get_lesson_title(lesson_id):
-    lesson = Lesson.objects.get(pk=lesson_id)
-    return lesson.title if lesson else ''
+    try:
+        lesson = Lesson.objects.get(pk=lesson_id)
+        return lesson.title
+    except Lesson.DoesNotExist:
+        return ''
+
+
+def get_quiz_title(quiz_id):
+    try:
+        quiz = Exam.objects.get(pk=quiz_id)
+        return quiz.title
+    except Exam.DoesNotExist:
+        return ''
 
 
 @memoize
 def get_resource_title(resource_id):
-    node = ContentNode.objects.get(pk=resource_id)
-    return node.title if node else ''
+    try:
+        node = ContentNode.objects.get(pk=resource_id)
+        return node.title
+    except ContentNode.DoesNotExist:
+        return ''
 
 
 @memoize
 def get_user_name(user_id):
-    user = FacilityUser.objects.get(pk=user_id)
-    return user.full_name if user else ''
+    try:
+        user = FacilityUser.objects.get(pk=user_id)
+        return user.full_name
+    except FacilityUser.DoesNotExist:
+        return ''
 
 
 @memoize
 def get_resource_kind(resource_id):
-    node = ContentNode.objects.get(pk=resource_id)
-    return node.kind if node else ''
+    try:
+        node = ContentNode.objects.get(pk=resource_id)
+        return node.kind
+    except ContentNode.DoesNotExist:
+        return ''
 
 
 class LearnerNotificationSerializer(serializers.ModelSerializer):
@@ -338,16 +358,20 @@ class LearnerNotificationSerializer(serializers.ModelSerializer):
 
         if instance.notification_object == NotificationObjectType.Quiz:
             value['quiz_id'] = instance.quiz_id
+            value['quiz'] = get_quiz_title(instance.quiz_id)
+
+        if instance.notification_object == NotificationObjectType.Lesson:
+            value['lesson'] = get_lesson_title(instance.lesson_id)
 
         if instance.notification_object == NotificationObjectType.Resource:
             value['contentnode_id'] = instance.contentnode_id
             value['contentnode_kind'] = get_resource_kind(instance.contentnode_id)
             value['resource'] = get_resource_title(instance.contentnode_id)
+            value['lesson'] = get_lesson_title(instance.lesson_id)
 
         value['object'] = instance.notification_object
         value['event'] = instance.notification_event
         value['type'] = '{object}{event}'.format(object=instance.notification_object,
                                                  event=instance.notification_event)
         value['user'] = get_user_name(instance.user_id)
-        value['lesson'] = get_lesson_title(instance.lesson_id)
         return value

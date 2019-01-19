@@ -1,6 +1,6 @@
-import find from 'lodash/find';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
+import { CollectionTypes } from '../../constants/lessonsConstants';
 
 // Utility functions that need to access data in 'classSummary' module
 // The classSummary argument to these functions is a reference to a special
@@ -21,10 +21,10 @@ export function partitionCollectionByEvents({
   const eventsUserIds = map(events, 'user_id');
   const userIsInEvent = id => eventsUserIds.includes(id);
 
-  if (collectionType === 'classroom') {
-    partitioned = partition(map(learners, 'id'), userIsInEvent);
+  if (collectionType === CollectionTypes.CLASSROOM) {
+    partitioned = partition(Object.keys(learners), userIsInEvent);
   } else {
-    const match = find(learnerGroups, { id: collectionId });
+    const match = learnerGroups[collectionId];
     // If no match, Learner Group must have been deleted
     if (!match) return null;
     partitioned = partition(match.member_ids, userIsInEvent);
@@ -44,9 +44,9 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
   const { exams, lessons, classId, className, learnerGroups } = classSummary;
   let assignmentMatch;
   if (assignmentType === 'lesson') {
-    assignmentMatch = find(lessons, { id: assignmentId });
+    assignmentMatch = lessons[assignmentId];
   } else {
-    assignmentMatch = find(exams, { id: assignmentId });
+    assignmentMatch = exams[assignmentId];
   }
 
   // If lesson or exam wasn't found in classSummary, then it was probably deleted.
@@ -54,19 +54,21 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
 
   const { groups } = assignmentMatch;
 
-  if (groups.length === 1 && groups[0] === classId) {
+  // In classSummary, if (exam|lesson).groups is empty, it means it was
+  // assigned to the entire class
+  if (groups.length === 0) {
     // Matches the shape of the Collection API
     collections.push({
-      collection_kind: 'classroom',
+      collection_kind: CollectionTypes.CLASSROOM,
       collection: classId,
       name: className,
     });
   } else {
     groups.forEach(groupId => {
-      const groupMatch = find(learnerGroups, { id: groupId });
+      const groupMatch = learnerGroups[groupId];
       if (groupMatch) {
         collections.push({
-          collection_kind: 'learnergroup',
+          collection_kind: CollectionTypes.LEARNERGROUP,
           collection: groupMatch.id,
           name: groupMatch.name,
         });

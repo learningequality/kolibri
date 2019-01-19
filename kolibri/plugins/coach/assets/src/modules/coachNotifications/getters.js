@@ -2,8 +2,10 @@ import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
 import map from 'lodash/map';
 import max from 'date-fns/max';
-
+import { NotificationObjects } from '../../constants/notificationsConstants';
 import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
+
+const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
 
 export function summarizedNotifications(state, getters, rootState, rootGetters) {
   const summaryEvents = [];
@@ -13,14 +15,14 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   // Resource Completed/Needs Help - Same Node and Lesson
   // Lesson/Quiz Completed - Same Lesson/Quiz
   const groupedNotifications = groupBy(state.notifications, n => {
-    if (n.object === 'Resource') {
+    if (n.object === RESOURCE) {
       // Contains both Needs Help and Resource Completed-typed notifications
       return `${n.type}_${n.lesson_id}_${n.contentnode_id}`;
     }
-    if (n.object === 'Lesson') {
+    if (n.object === LESSON) {
       return `${n.type}_${n.lesson_id}`;
     }
-    if (n.object === 'Quiz') {
+    if (n.object === QUIZ) {
       return `${n.type}_${n.quiz_id}`;
     }
   });
@@ -39,7 +41,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     // Set details about Lesson or Quiz
     let assignment;
 
-    if (object === 'Resource' || object === 'Lesson') {
+    if (object === RESOURCE || object === LESSON) {
       assignment = {
         id: firstEvent.lesson_id,
         type: 'lesson',
@@ -47,10 +49,10 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       };
     }
 
-    if (object === 'Quiz') {
+    if (object === QUIZ) {
       assignment = {
         id: firstEvent.quiz_id,
-        type: 'quiz',
+        type: 'exam', // using 'exam' here since it matches string used in ContentIcon
         name: firstEvent.quiz,
       };
     }
@@ -58,7 +60,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     // If notification is for a single Resource, set up details about it
     let resource = {};
 
-    if (object === 'Resource') {
+    if (object === RESOURCE) {
       resource = {
         id: firstEvent.contentnode_id,
         type: firstEvent.contentnode_kind,
@@ -70,6 +72,9 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       classSummary,
       assignment,
     });
+
+    // If 'assigneeCollections' is null, then the quiz or lesson was deleted
+    if (assigneeCollections === null) continue;
 
     // Iterate through each of the assignee collections and create one
     // summarizing notification for each.
@@ -87,10 +92,13 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       // that has been deleted.
       if (partitioning === null || partitioning.hasEvent.length === 0) continue;
 
+      const firstUser = find(allEvents, { user_id: partitioning.hasEvent[0] });
+
       summaryEvents.push({
         type,
         object,
         event,
+        groupCode,
         lastTimestamp,
         assignment,
         resource,
@@ -100,7 +108,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
           name: collection.name,
         },
         learnerSummary: {
-          firstUserName: find(allEvents, { user_id: partitioning.hasEvent[0] }).user,
+          firstUserName: firstUser.user,
+          firstUserId: firstUser.user_id,
           total: partitioning.hasEvent.length,
           completesCollection: partitioning.rest.length === 0, // not used for Needs Help
         },

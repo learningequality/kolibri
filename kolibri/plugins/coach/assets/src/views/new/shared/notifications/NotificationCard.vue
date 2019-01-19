@@ -10,10 +10,13 @@
         />
         <div class="icon-spacer">
           <ContentIcon
+            class="content-icon"
             :kind="contentIcon"
             :showTooltip="false"
           />
-          <slot></slot>
+          <span class="message">
+            <slot></slot>
+          </span>
         </div>
       </KGridItem>
       <KGridItem v-if="time" :size="25" percentage alignment="center">
@@ -105,6 +108,14 @@
 
   .icon-spacer {
     margin-left: 40px;
+  }
+
+  .content-icon {
+    margin-right: 8px;
+  }
+
+  .message {
+    font-weight: bold;
   }
 
   .notification {

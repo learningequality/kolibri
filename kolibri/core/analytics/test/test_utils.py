@@ -173,8 +173,7 @@ class BaseDeviceSetupMixin(object):
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
                             correct=1,
-                            content_id=uuid.uuid4().hex,
-                            channel_id=self.channel.id,
+                            content_id=uuid.uuid4().hex
                         )
 
 
@@ -202,7 +201,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "llc": 20,  # learner_login_count
             "cc": 1,  # coaches_count
             "clc": 1,  # coach_login_count
-            "f" : "2018-10-11",  # first interaction
+            "f": "2018-10-11",  # first interaction
             "l": "2019-10-11",  # last interaction
             "ss": 20,  # summarylog_started
             "sc": 20,  # summarylog_complete

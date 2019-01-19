@@ -21,12 +21,14 @@ from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_notification
+from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import get_assignments
 from kolibri.core.notifications.api import get_exam_group
-from kolibri.core.notifications.api import parse_attempts_log
-from kolibri.core.notifications.api import parse_exam_log
-from kolibri.core.notifications.api import parse_summary_log
+from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import parse_examlog
+from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
 from kolibri.utils.time import local_now
@@ -132,35 +134,49 @@ class ContentSessionLogAPITestCase(APITestCase):
         assert notification.user_id == self.user1.id
 
     @patch('kolibri.core.notifications.api.save_notifications')
-    def test_parse_summary_log(self, save_notifications):
-        # parse_summary_log(self.summarylog1)
-        # assert save_notifications.called is False
+    def test_parse_summarylog(self, save_notifications):
+        parse_summarylog(self.summarylog1)
+        assert save_notifications.called is False
         self.summarylog1.progress = 1.0
-        parse_summary_log(self.summarylog1)
+        parse_summarylog(self.summarylog1)
         assert save_notifications.called
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Resource
-        assert (
-            notification.notification_event == NotificationEventType.Completed
-            or notification.notification_event == NotificationEventType.Started  # noqa: W503
-        )
+        assert notification.notification_event == NotificationEventType.Completed
         assert notification.lesson_id == self.lesson.id
         assert notification.contentnode_id == self.node_1.id
 
     @patch('kolibri.core.notifications.api.save_notifications')
-    def test_parse_exam_log(self, save_notifications):
+    def test_create_summarylog(self, save_notifications):
+        create_summarylog(self.summarylog1)
+        assert save_notifications.called is True
+        notification = save_notifications.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Resource
+        assert notification.notification_event == NotificationEventType.Started
+
+    @patch('kolibri.core.notifications.api.save_notifications')
+    def test_parse_examlog(self, save_notifications):
         examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
-        # parse_exam_log(examlog)
-        # assert save_notifications.called is False
+        parse_examlog(examlog)
+        assert save_notifications.called is False
         examlog.closed = True
-        parse_exam_log(examlog)
+        parse_examlog(examlog)
         assert save_notifications.called
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Quiz
         assert notification.notification_event == NotificationEventType.Completed
 
     @patch('kolibri.core.notifications.api.save_notifications')
-    def test_parse_attempts_log(self, save_notifications):
+    def test_create_examlog(self, save_notifications):
+        examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
+        create_examlog(examlog)
+        assert save_notifications.called
+        notification = save_notifications.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Quiz
+        assert notification.notification_event == NotificationEventType.Started
+
+    @patch('kolibri.core.notifications.api.save_notifications')
+    def test_parse_attemptslog(self, save_notifications):
         log = ContentSessionLogFactory(user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex)
         now = local_now()
         masterylog = MasteryLog.objects.create(summarylog=self.summarylog1, user=self.user1,
@@ -174,7 +190,7 @@ class ContentSessionLogAPITestCase(APITestCase):
                                                 hinted=False, error=False,
                                                 interaction_history=interactions
                                                 )
-        parse_attempts_log(attemptlog1)
+        parse_attemptslog(attemptlog1)
         assert save_notifications.called is False
         # more than 3 attempts will trigger the help notification
         interactions.append({"type": "answer", "correct": 0})
@@ -185,7 +201,7 @@ class ContentSessionLogAPITestCase(APITestCase):
                                                 hinted=False, error=False,
                                                 interaction_history=interactions
                                                 )
-        parse_attempts_log(attemptlog2)
+        parse_attemptslog(attemptlog2)
         assert save_notifications.called
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Resource

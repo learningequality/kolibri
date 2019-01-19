@@ -433,7 +433,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
             examlog=self.examlog,
             user=self.user1,
             content_id=uuid.uuid4().hex,
-            channel_id=uuid.uuid4().hex,
             start_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
             end_timestamp=str(datetime.datetime.now().replace(minute=x, hour=x, second=x)),
             correct=0
@@ -478,7 +477,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
             "user": self.user1,
             "examlog": self.examlog,
             "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
-            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
         }
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
@@ -499,7 +497,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
             "user": self.user1,
             "examlog": self.examlog,
             "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
-            "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
         }
         self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
