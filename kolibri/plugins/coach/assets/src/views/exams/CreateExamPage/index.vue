@@ -567,4 +567,11 @@
     margin-right: 8px;
   }
 
+  .number-btn {
+    position: relative;
+    top: 16px;
+    display: inline-block;
+    vertical-align: top;
+  }
+
 </style>
