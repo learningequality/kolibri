@@ -88,6 +88,7 @@
 
     z-index: 8;
     cursor: grabbing;
+    border-radius: $radius;
   }
 
   .draggable-source--is-dragging {
