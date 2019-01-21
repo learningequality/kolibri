@@ -70,9 +70,11 @@ def create_superuser(username=None, password=None, interactive=False):
             confirm = get_user_response("Confirm password for the super user: ")
 
     if username and password:
-        FacilityUser.objects.create_superuser(username, password)
-        logger.info("Superuser created with username {username}.".format(username=username))
-
+        if not FacilityUser.objects.filter(username__icontains=username).exists():
+            FacilityUser.objects.create_superuser(username, password)
+            logger.info("Superuser created with username {username}.".format(username=username))
+        else:
+            logger.warn("An account with username {username} already exists, not creating user account.".format(username=username))
 
 def create_device_settings(language_id=None, facility=None, interactive=False):
     if language_id is None and interactive:
