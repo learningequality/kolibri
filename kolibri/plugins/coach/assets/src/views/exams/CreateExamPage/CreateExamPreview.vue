@@ -187,15 +187,15 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
+  import KDraggable from 'kolibri.coreVue.components.KDraggable';
+  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
   import imports from '../../new/imports';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
-  import KDragContainer from './kSortable/KDragContainer';
-  import KDraggable from './kSortable/KDraggable';
-  import KDragHandle from './kSortable/KDragHandle';
   import CeateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);

@@ -81,11 +81,10 @@
 
 <style lang="scss" scoped>
 
-  @import './materialDesignElevations';
   @import '~kolibri.styles.definitions';
 
   .draggable-mirror {
-    @extend %md-whiteframe-8dp;
+    @extend %dropshadow-8dp;
 
     z-index: 8;
     cursor: grabbing;

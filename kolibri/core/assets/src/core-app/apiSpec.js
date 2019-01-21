@@ -78,6 +78,10 @@ import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
+import KDraggable from '../views/kSortable/KDraggable';
+import KDragHandle from '../views/kSortable/KDragHandle';
+import KDragContainer from '../views/kSortable/KDragContainer';
+import KDragIcon from '../views/kSortable/KDragIcon';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -170,6 +174,10 @@ export default {
       UserTypeDisplay,
       TechnicalTextBlock,
       KTooltip,
+      KDraggable,
+      KDragHandle,
+      KDragContainer,
+      KDragIcon,
     },
     router,
     mixins: {

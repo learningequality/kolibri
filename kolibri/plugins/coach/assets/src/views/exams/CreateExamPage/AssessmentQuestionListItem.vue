@@ -13,7 +13,7 @@
       />
     </a>
     <div v-if="draggable" class="handle">
-      <DragIndicator />
+      <KDragIcon />
     </div>
   </li>
 
@@ -23,7 +23,7 @@
 <script>
 
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import DragIndicator from '../../new/shared/DragIndicator';
+  import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
 
   export default {
     name: 'AssessmentQuestionListItem',
@@ -38,7 +38,7 @@
     },
     components: {
       CoachContentLabel,
-      DragIndicator,
+      KDragIcon,
     },
     props: {
       draggable: {
