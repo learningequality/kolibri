@@ -90,12 +90,12 @@
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
           <KDragContainer
             v-if="fixedOrder"
-            :items="selectedQuestions"
+            :items="annotatedQuestions"
             @sort="handleUserSort"
           >
             <ol class="question-list fixed">
               <KDraggable
-                v-for="(question, questionIndex) in selectedQuestions"
+                v-for="(question, questionIndex) in annotatedQuestions"
                 :key="listKey(question)"
               >
                 <KDragHandle>
@@ -104,6 +104,7 @@
                     :isSelected="isSelected(question)"
                     :exerciseName="question.title"
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+                    :questionNumberOfExercise="question.counterInExercise"
                     @select="currentQuestionIndex = questionIndex"
                   />
                 </KDragHandle>
@@ -112,12 +113,13 @@
           </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
-              v-for="(question, questionIndex) in selectedQuestions"
+              v-for="(question, questionIndex) in annotatedQuestions"
               :key="listKey(question)"
               :draggable="false"
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+              :questionNumberOfExercise="question.counterInExercise"
               @select="currentQuestionIndex = questionIndex"
             />
           </ul>
@@ -237,6 +239,17 @@
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
+      annotatedQuestions() {
+        const counts = {};
+        return this.selectedQuestions.map(question => {
+          if (!counts[question.exercise_id]) {
+            counts[question.exercise_id] = 0;
+          }
+          question.counterInExercise = counts[question.exercise_id];
+          counts[question.exercise_id] += 1;
+          return question;
+        });
+      },
       detailsString() {
         return quizDetailStrings.$tr('details');
       },
