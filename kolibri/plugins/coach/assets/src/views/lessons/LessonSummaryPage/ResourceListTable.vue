@@ -76,7 +76,6 @@
 <script>
 
   import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
   import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
@@ -97,7 +96,6 @@
       KDragHandle,
       KDragIcon,
       CoachContentLabel,
-      UiIconButton,
       KButton,
       KGrid,
       KGridItem,

@@ -393,11 +393,6 @@
 
   @import '~kolibri.styles.definitions';
 
-  .number-btn {
-    position: relative;
-    top: 24px;
-  }
-
   .number-field {
     display: inline-block;
     margin-right: 8px;
