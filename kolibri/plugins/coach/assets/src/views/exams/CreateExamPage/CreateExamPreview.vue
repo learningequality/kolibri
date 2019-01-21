@@ -11,7 +11,7 @@
   >
 
     <div class="new-coach-block">
-
+      <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
       <h2>{{ detailsString }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -190,6 +190,7 @@
   import { coachStringsMixin } from '../../new/shared/commonCoachStrings';
   import QuizDetailEditor from '../../new/shared/QuizDetailEditor';
   import imports from '../../new/imports';
+  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import KDragContainer from './kSortable/KDragContainer';
@@ -199,6 +200,7 @@
 
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
+  const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
   const MAX_QUESTIONS = 50;
 
@@ -262,6 +264,9 @@
       },
       moreStrings() {
         return createExamPageStrings;
+      },
+      previewQuizStrings() {
+        return previewQuizStrings;
       },
       draggableOptions() {
         return {

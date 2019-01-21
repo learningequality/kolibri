@@ -12,6 +12,8 @@
 
     <div class="new-coach-block">
 
+      <h1>{{ $tr('createNewExam') }}</h1>
+
       <UiAlert
         v-if="showError && !inSearchMode"
         type="error"
