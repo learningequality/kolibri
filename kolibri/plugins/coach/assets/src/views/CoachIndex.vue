@@ -351,12 +351,12 @@
         return examCreationPages.includes(this.pageName) ? 72 : 0;
       },
     },
-    watch: {
-      currentClassroomId(newVal, oldVal) {
-        // TODO manage the classroomNotifications module with this
-        console.log(newVal);
-      },
-    },
+    // watch: {
+    //   currentClassroomId(newVal, oldVal) {
+    //     // TODO manage the classroomNotifications module with this
+    //     console.log(newVal);
+    //   },
+    // },
     methods: {
       ...mapActions(['createSnackbar']),
       ...mapActions('lessonSummary', ['addToResourceCache']),
