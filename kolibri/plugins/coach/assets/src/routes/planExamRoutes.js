@@ -57,7 +57,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_PREVIEW,
-    path: '/:classId/plan/quizzes/preview/:examId',
+    path: '/:classId/plan/quizzes/new/preview/',
     component: PlanQuizPreviewPage,
     handler: toRoute => {
       showExamCreationPreviewPage(store, toRoute.params);
