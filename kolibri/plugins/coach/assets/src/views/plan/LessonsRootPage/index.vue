@@ -144,7 +144,7 @@
       };
     },
     computed: {
-      ...mapState(['classId']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       filterOptions() {
         const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];

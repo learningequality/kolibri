@@ -127,7 +127,8 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'reportRefreshInterval']),
+      ...mapState(['reportRefreshInterval']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('examReport', ['examTakers', 'exam', 'learnerGroups']),
       ...mapGetters('examReport', ['learnerIsExamAssignee']),
       viewByGroupsIsDisabled() {

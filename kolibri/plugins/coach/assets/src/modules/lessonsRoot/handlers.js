@@ -12,7 +12,6 @@ export function showLessonsRootPage(store, classId) {
       // Fetch learner groups for the New Lesson Modal
       LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
       store.dispatch('lessonsRoot/refreshClassLessons', classId),
-      store.dispatch('classSummary/loadClassSummary', classId),
     ];
     return Promise.all(loadRequirements).then(
       ([learnerGroups]) => {

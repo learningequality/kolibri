@@ -1,6 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
-
 import ReportsLessonListPage from '../views/reports/ReportsLessonListPage';
 import ReportsQuizListPage from '../views/reports/ReportsQuizListPage';
 import ReportsGroupListPage from '../views/reports/ReportsGroupListPage';
@@ -13,67 +12,35 @@ export default [
     redirect: '/:classId/reports/lessons',
   },
   {
-    name: PageNames.ReportsLessonListPage,
+    name: ReportsLessonListPage.name,
     path: '/:classId/reports/lessons',
     component: ReportsLessonListPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', true);
-      store
-        .dispatch('classSummary/loadClassSummary', to.params.classId)
-        .then(
-          () => store.commit('CORE_SET_PAGE_LOADING', false),
-          error => store.dispatch('handleApiError', error)
-        );
+    handler() {
+      store.dispatch('notLoading');
     },
   },
   {
-    name: PageNames.ReportsQuizListPage,
+    name: ReportsQuizListPage.name,
     path: '/:classId/reports/quizzes',
     component: ReportsQuizListPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', true);
-      store
-        .dispatch('classSummary/loadClassSummary', to.params.classId)
-        .then(
-          () => store.commit('CORE_SET_PAGE_LOADING', false),
-          error => store.dispatch('handleApiError', error)
-        );
+    handler() {
+      store.dispatch('notLoading');
     },
   },
   {
-    name: PageNames.ReportsGroupListPage,
+    name: ReportsGroupListPage.name,
     path: '/:classId/reports/groups',
     component: ReportsGroupListPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', true);
-      store
-        .dispatch('classSummary/loadClassSummary', to.params.classId)
-        .then(
-          () => store.commit('CORE_SET_PAGE_LOADING', false),
-          error => store.dispatch('handleApiError', error)
-        );
+    handler() {
+      store.dispatch('notLoading');
     },
   },
   {
-    name: PageNames.ReportsLearnerListPage,
+    name: ReportsLearnerListPage.name,
     path: '/:classId/reports/learners',
     component: ReportsLearnerListPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', true);
-      store
-        .dispatch('classSummary/loadClassSummary', to.params.classId)
-        .then(
-          () => store.commit('CORE_SET_PAGE_LOADING', false),
-          error => store.dispatch('handleApiError', error)
-        );
+    handler() {
+      store.dispatch('notLoading');
     },
   },
 ];

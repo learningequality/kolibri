@@ -16,7 +16,6 @@ import coachNotifications from './coachNotifications';
 export default {
   state: {
     busy: false,
-    classId: null,
     classList: [],
     pageName: '',
     toolbarRoute: {},
@@ -24,9 +23,6 @@ export default {
     reportRefreshInterval: 30000,
   },
   mutations: {
-    SET_CLASS_ID(state, id) {
-      state.classId = id;
-    },
     SET_PAGE_NAME(state, pageName) {
       state.pageName = pageName;
     },
@@ -76,6 +72,22 @@ export default {
       if (moduleName) {
         store.commit(`${moduleName}/RESET_STATE`);
       }
+    },
+    initClassInfo(store, classId) {
+      store.dispatch('clearError');
+      // only wait around for the results if the class is switching
+      if (store.state.classSummary.id !== classId) {
+        store.dispatch('loading');
+        return Promise.all([
+          store.dispatch('classSummary/loadClassSummary', classId),
+          store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
+        ]);
+      }
+      // otherwise refresh but don't block
+      store
+        .dispatch('classSummary/loadClassSummary', classId)
+        .catch(error => this.store.dispatch('handleApiError', error));
+      Promise.resolve();
     },
   },
   modules: {

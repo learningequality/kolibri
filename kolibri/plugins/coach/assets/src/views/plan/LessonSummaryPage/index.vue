@@ -99,7 +99,8 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState(['classId', 'reportRefreshInterval']),
+      ...mapState(['reportRefreshInterval']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', {
         // IDEA refactor, make actions get all this information themselves.
         lessonId: state => state.currentLesson.id,

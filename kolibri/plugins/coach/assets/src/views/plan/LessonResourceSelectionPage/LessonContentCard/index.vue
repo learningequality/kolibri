@@ -158,7 +158,6 @@
     left: $left-offset;
     width: calc(100% - #{$left-offset});
     padding: 16px;
-    overflow-y: auto;
   }
 
   .title,

@@ -6,7 +6,7 @@ import { LessonsPageNames } from '../../constants/lessonsConstants';
  */
 export function showLessonResourceUserSummaryPage(store, params) {
   const { classId, lessonId, contentId } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
 
   const loadRequirements = [
     // Used to get Lesson.learner_ids
@@ -42,10 +42,10 @@ export function showLessonResourceUserSummaryPage(store, params) {
     .then(() => {
       store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });
       store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_SUMMARY);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading');
     })
     .catch(error => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading');
       return store.dispatch('handleApiError', error);
     });
 }

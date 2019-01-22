@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapActions, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import NotificationCard from '../../common/notifications/NotificationCard';
@@ -54,11 +54,7 @@
         return orderBy(this.summarizedNotifications, 'lastTimestamp', ['desc']);
       },
     },
-    beforeMount() {
-      this.fetchNotificationsForClass(this.$route.params.classId);
-    },
     methods: {
-      ...mapActions('coachNotifications', ['fetchNotificationsForClass']),
       cardPropsForNotification(notification) {
         let icon = '';
         let contentIcon = '';

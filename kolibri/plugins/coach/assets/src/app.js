@@ -12,7 +12,6 @@ class CoachToolsModule extends KolibriApp {
   get routes() {
     return routes;
   }
-  // IDEA swap base page components at root level?
   get RootVue() {
     return RootVue;
   }
@@ -20,11 +19,20 @@ class CoachToolsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    return super.ready().then(() => {
-      router.afterEach((toRoute, fromRoute) => {
-        this.store.dispatch('resetModuleState', { toRoute, fromRoute });
-      });
+    router.beforeEach((to, from, next) => {
+      this.store.commit('SET_PAGE_NAME', to.name);
+      if (to.name !== 'CoachClassListPage') {
+        this.store
+          .dispatch('initClassInfo', to.params.classId)
+          .then(next, error => this.store.dispatch('handleApiError', error));
+      } else {
+        next();
+      }
     });
+    router.afterEach((toRoute, fromRoute) => {
+      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+    });
+    return super.ready();
   }
 }
 

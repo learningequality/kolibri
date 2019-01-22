@@ -1,9 +1,5 @@
 import VueRouter from 'vue-router';
 
-import Vue from 'vue';
-
-Vue.use(VueRouter);
-
 /** Wrapper around Vue Router.
  *  Implements URL mapping to Vuex actions in addition to Vue components.
  *  Otherwise intended as a mostly transparent replacement to vue-router.
@@ -13,7 +9,15 @@ class Router {
    * Create a Router instance.
    */
   constructor() {
-    this._vueRouter = undefined;
+    this._vueRouter = new VueRouter({
+      scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+          return savedPosition;
+        } else {
+          return { x: 0, y: 0 };
+        }
+      },
+    });
     this._actions = {};
   }
 
@@ -21,33 +25,22 @@ class Router {
     if (this._actions[toRoute.name]) {
       this._actions[toRoute.name](toRoute, fromRoute);
     }
-    if (next) {
-      next();
-    }
+    next();
   }
 
   init(routes) {
     routes.forEach(route => {
       if (route.handler) {
-        // route.component = {};
         this._actions[route.name] = route.handler;
         delete route.handler;
       }
     });
-    this._vueRouter = new VueRouter(
-      Object.assign({
-        routes,
-        scrollBehavior(to, from, savedPosition) {
-          if (savedPosition) {
-            return savedPosition;
-          } else {
-            return { x: 0, y: 0 };
-          }
-        },
-      })
-    );
-    this._vueRouter.beforeEach(this._hook.bind(this));
+    this._vueRouter.addRoutes(routes);
     return this._vueRouter;
+  }
+
+  enableHandlers() {
+    this._vueRouter.beforeEach(this._hook.bind(this));
   }
 
   /****************************/

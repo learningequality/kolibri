@@ -42,12 +42,15 @@
 
 <style lang="scss">
 
+  @import '~kolibri.styles.definitions';
+
   // COACH - under construction ...
   .new-coach-block {
+    @extend %dropshadow-1dp;
+
     padding: 8px 24px 24px;
     margin-top: 24px;
     background-color: white;
-    border: 1px solid rgb(240, 240, 240);
     border-radius: 4px;
   }
 

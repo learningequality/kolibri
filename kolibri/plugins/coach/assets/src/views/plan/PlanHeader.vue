@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        :to="route(PageNames.COACH_CLASS_LIST)"
+        :to="route('CoachClassListPage')"
         :text="$tr('back')"
       />
     </p>
@@ -26,7 +26,7 @@
       />
       <KRouterLink
         :text="coachStrings.$tr('groupsLabel')"
-        :to="classRoute(PageNames.PLAN_GROUPS_PAGE)"
+        :to="classRoute('GroupsPage')"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

@@ -5,7 +5,7 @@ import { PageNames } from '../../constants';
 import { examsState } from '../examShared/exams';
 
 export function showExamsPage(store, classId) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
@@ -13,7 +13,6 @@ export function showExamsPage(store, classId) {
       getParams: { collection: classId },
       force: true,
     }),
-    store.dispatch('classSummary/loadClassSummary', classId),
   ];
 
   return ConditionalPromise.all(promises).only(
@@ -24,8 +23,8 @@ export function showExamsPage(store, classId) {
         examsModalSet: false,
         busy: false,
       });
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('clearError');
+      store.dispatch('notLoading');
     },
     error => store.dispatch('handleError', error)
   );

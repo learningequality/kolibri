@@ -21,7 +21,6 @@ export default [
     path: '/:classId/plan/lessons',
     component: LessonsRootPage,
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       showLessonsRootPage(store, toRoute.params.classId);
     },
   },
@@ -30,7 +29,6 @@ export default [
     path: '/:classId/plan/lessons/:lessonId',
     component: LessonSummaryPage,
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       return showLessonSummaryPage(store, toRoute.params);
     },
   },
@@ -39,7 +37,6 @@ export default [
     path: '/:classId/plan/lessons/:lessonId/selection',
     component: LessonResourceSelectionPage,
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       showLessonResourceSelectionRootPage(store, toRoute.params);
     },
   },
@@ -48,7 +45,6 @@ export default [
     path: '/:classId/plan/lessons/:lessonId/selection/topic/:topicId',
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       // HACK if last page was LessonContentPreviewPage, then we need to make sure
       // to immediately autosave just in case a change was made there. This gets
       // called whether or not a change is made, because we don't track changes
@@ -72,7 +68,6 @@ export default [
     path: '/:classId/plan/lessons/:lessonId/selection/search/:searchTerm',
     component: LessonResourceSelectionPage,
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
     },
   },
@@ -81,7 +76,6 @@ export default [
     path: '/:classId/plan/lessons/:lessonId/selection/preview/:contentId',
     component: PlanLessonSelectionContentPreview,
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
     },
   },
@@ -89,7 +83,6 @@ export default [
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
     path: '/:classId/plan/lessons/:lessonId/resource/preview/:contentId',
     handler(toRoute) {
-      store.commit('SET_CLASS_ID', toRoute.params.classId);
       showLessonResourceContentPreview(store, toRoute.params);
     },
   },

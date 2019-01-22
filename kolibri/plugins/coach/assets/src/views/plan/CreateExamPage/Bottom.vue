@@ -1,6 +1,6 @@
 <template>
 
-  <div class="bottom">
+  <div class="bottom" :style="{backgroundColor: $coreBgLight}">
     <div class="inner-bottom">
       <slot></slot>
     </div>
@@ -11,8 +11,13 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
+
   export default {
     name: 'Bottom',
+    computed: {
+      ...mapGetters(['$coreBgLight']),
+    },
   };
 
 </script>
@@ -20,7 +25,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .bottom {
+    @extend %dropshadow-8dp;
+
     position: fixed;
     right: 0;
     bottom: 0;
@@ -32,9 +41,6 @@
     overflow-x: hidden;
     font-size: 14px;
     text-align: right;
-    background-color: white;
-    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
-      0 6px 30px 5px rgba(0, 0, 0, 0.12);
   }
 
   .inner-bottom {

@@ -3,7 +3,7 @@
   <KNavbar v-if="classId">
     <KNavbarLink
       :title="$tr('home')"
-      :link="navRoute(PageNames.HOME_PAGE)"
+      :link="navRoute('HomePage')"
     >
       <mat-svg name="dashboard" category="action" />
     </KNavbarLink>
@@ -44,7 +44,7 @@
       plan: 'Plan',
     },
     computed: {
-      ...mapState(['classId']),
+      ...mapState('classSummary', { classId: 'id' }),
       PageNames() {
         return PageNames;
       },

@@ -15,11 +15,10 @@ export default [
     redirect: '/:classId/plan/lessons',
   },
   {
-    name: PageNames.PLAN_GROUPS_PAGE,
+    name: GroupsPage.name,
     path: '/:classId/plan/groups',
     component: GroupsPage,
     handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
       showGroupsPage(store, to.params.classId);
     },
   },

@@ -7,7 +7,7 @@ import { PageNames } from '../../constants';
 
 export function showExamReportPage(store, params) {
   const { classId, examId } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
   ExamResource.fetchModel({ id: examId }).only(
@@ -23,7 +23,6 @@ export function showExamReportPage(store, params) {
               },
             })
           : ConditionalPromise.resolve([]),
-        store.dispatch('classSummary/loadClassSummary', classId),
       ];
       ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),
@@ -38,8 +37,8 @@ export function showExamReportPage(store, params) {
           });
           // Needs to be called after SET_STATE, since it relies on state.learnerGroups
           return store.dispatch('examReport/setTableData', { classId, examId }).then(() => {
-            store.commit('CORE_SET_ERROR', null);
-            store.commit('CORE_SET_PAGE_LOADING', false);
+            store.dispatch('clearError');
+            store.dispatch('notLoading');
           });
         },
         error => {

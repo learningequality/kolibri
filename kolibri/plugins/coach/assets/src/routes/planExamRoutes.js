@@ -18,9 +18,8 @@ export default [
     name: PageNames.EXAMS,
     path: '/:classId/plan/quizzes',
     component: CoachExamsPage,
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      showExamsPage(store, to.params.classId);
+    handler(toRoute) {
+      showExamsPage(store, toRoute.params.classId);
     },
   },
   {
@@ -57,7 +56,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_PREVIEW,
-    path: '/:classId/plan/quizzes/preview/:examId',
+    path: '/:classId/plan/quizzes/new/preview/',
     component: PlanQuizPreviewPage,
     handler: toRoute => {
       showExamCreationPreviewPage(store, toRoute.params);

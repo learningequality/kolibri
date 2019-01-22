@@ -70,6 +70,9 @@ export default class KolibriApp extends KolibriModule {
       store.registerModule(name, module);
     });
 
+    // enable handlers for all routes
+    router.enableHandlers();
+
     return this.store.dispatch('getCurrentSession').then(() => {
       return Promise.all([
         // Invoke each of the state setters before initializing the app.

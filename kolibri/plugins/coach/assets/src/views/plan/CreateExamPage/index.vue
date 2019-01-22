@@ -224,7 +224,7 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'pageName', 'toolbarRoute']),
+      ...mapState(['pageName', 'toolbarRoute']),
       ...mapGetters({
         channels: 'getChannels',
       }),

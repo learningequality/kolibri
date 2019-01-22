@@ -27,7 +27,7 @@
             <td>
               <KRouterLink
                 :text="classObj.name"
-                :to="route(PageNames.HOME_PAGE, { classId: classObj.id })"
+                :to="route('HomePage', { classId: classObj.id })"
               />
             </td>
             <td>
