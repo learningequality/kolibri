@@ -12,6 +12,8 @@
 
     <div class="new-coach-block">
 
+      <h1>{{ $tr('createNewExam') }}</h1>
+
       <UiAlert
         v-if="showError && !inSearchMode"
         type="error"
@@ -38,7 +40,7 @@
             v-model.trim.number="numQuestions"
             type="number"
             :min="1"
-            :max="50"
+            :max="maxQs"
             :label="$tr('numQuestions')"
             class="number-field"
           />
@@ -46,6 +48,7 @@
             type="flat"
             aria-hidden="true"
             class="number-btn"
+            :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
           >
             <mat-svg name="remove" category="content" />
@@ -54,6 +57,7 @@
             type="flat"
             aria-hidden="true"
             class="number-btn"
+            :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
           >
             <mat-svg name="add" category="content" />
@@ -157,6 +161,8 @@
 
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
+  const MAX_QUESTIONS = 50;
+
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
@@ -233,6 +239,9 @@
         'ancestors',
         'examsModalSet',
       ]),
+      maxQs() {
+        return MAX_QUESTIONS;
+      },
       detailsString() {
         return quizDetailStrings.$tr('details');
       },
@@ -249,8 +258,10 @@
           return this.$store.state.examCreation.numberOfQuestions;
         },
         set(value) {
-          this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
-          this.$store.dispatch('examCreation/updateSelectedQuestions');
+          if (value && value >= 1 && value <= this.maxQs) {
+            this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+            this.$store.dispatch('examCreation/updateSelectedQuestions');
+          }
         },
       },
       filteredContentList() {
@@ -564,6 +575,13 @@
   .number-field {
     display: inline-block;
     margin-right: 8px;
+  }
+
+  .number-btn {
+    position: relative;
+    top: 16px;
+    display: inline-block;
+    vertical-align: top;
   }
 
 </style>

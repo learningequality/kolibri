@@ -11,7 +11,7 @@
   >
 
     <div class="new-coach-block">
-
+      <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
       <h2>{{ detailsString }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -31,7 +31,7 @@
             v-model.trim.number="numQuestions"
             type="number"
             :min="1"
-            :max="50"
+            :max="maxQs"
             :label="moreStrings.$tr('numQuestions')"
             :invalid="Boolean(showError && numQuestIsInvalidText)"
             :invalidText="numQuestIsInvalidText"
@@ -41,6 +41,7 @@
             type="flat"
             aria-hidden="true"
             class="number-btn"
+            :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
           >
             <mat-svg name="remove" category="content" />
@@ -49,6 +50,7 @@
             type="flat"
             aria-hidden="true"
             class="number-btn"
+            :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
           >
             <mat-svg name="add" category="content" />
@@ -88,41 +90,49 @@
       <h2 class="header-margin">{{ $tr('questions') }}</h2>
       <KGrid v-if="!loadingNewQuestions">
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
-          <ul v-if="fixedOrder" class="question-list">
-            <Draggable
-              :value="selectedQuestions"
-              :options="draggableOptions"
-              @input="handleDrag"
-              @end="handleEnd"
-            >
-              <AssessmentQuestionListItem
-                v-for="(question, questionIndex) in selectedQuestions"
-                :key="questionIndex"
-                :draggable="true"
-                :isSelected="isSelected(question)"
-                :exerciseName="question.title"
-                :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-                @click="currentQuestionIndex = questionIndex"
-              />
-            </Draggable>
-          </ul>
+          <KDragContainer
+            v-if="fixedOrder"
+            :items="annotatedQuestions"
+            @sort="handleUserSort"
+          >
+            <ol class="question-list fixed">
+              <KDraggable
+                v-for="(question, questionIndex) in annotatedQuestions"
+                :key="listKey(question)"
+              >
+                <KDragHandle>
+                  <AssessmentQuestionListItem
+                    :draggable="true"
+                    :isSelected="isSelected(question)"
+                    :exerciseName="question.title"
+                    :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+                    :questionNumberOfExercise="question.counterInExercise"
+                    @select="currentQuestionIndex = questionIndex"
+                  />
+                </KDragHandle>
+              </KDraggable>
+            </ol>
+          </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
-              v-for="(question, questionIndex) in selectedQuestions"
-              :key="questionIndex"
+              v-for="(question, questionIndex) in annotatedQuestions"
+              :key="listKey(question)"
               :draggable="false"
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-              @click="currentQuestionIndex = questionIndex"
+              :questionNumberOfExercise="question.counterInExercise"
+              @select="currentQuestionIndex = questionIndex"
             />
           </ul>
-          <ol v-if="fixedOrder" class="numbers">
-            <li
-              v-for="(question, questionIndex) in selectedQuestions"
-              :key="questionIndex"
-            ></li>
-          </ol>
+          <transition name="fade-numbers">
+            <ol v-if="fixedOrder" class="numbers" aria-hidden>
+              <li
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+              ></li>
+            </ol>
+          </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
           <h3 class="question-title">{{ currentQuestion.title }}</h3>
@@ -167,7 +177,6 @@
 
   import { mapState } from 'vuex';
 
-  import Draggable from 'vuedraggable';
   import UiIconButton from 'keen-ui/src/UiIconButton';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
@@ -178,14 +187,21 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import QuizDetailEditor from '../../common/QuizDetailEditor';
+  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
+  import KDraggable from 'kolibri.coreVue.components.KDraggable';
+  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import commonCoach from '../../common';
+  import QuizDetailEditor from '../../common/QuizDetailEditor';
+  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
+  const previewQuizStrings = crossComponentTranslator(ExamPreview);
+
+  const MAX_QUESTIONS = 50;
 
   export default {
     name: 'CreateExamPreview',
@@ -204,7 +220,6 @@
       newQuestions: 'New question set created',
     },
     components: {
-      Draggable,
       UiIconButton,
       ContentRenderer,
       KRouterLink,
@@ -215,6 +230,9 @@
       KGridItem,
       Bottom,
       KTextbox,
+      KDraggable,
+      KDragContainer,
+      KDragHandle,
     },
     mixins: [responsiveWindow, commonCoach],
     data() {
@@ -225,12 +243,29 @@
     },
     computed: {
       ...mapState(['toolbarRoute']),
-      ...mapState('examCreation', ['selectedQuestions', 'loadingNewQuestions']),
+      ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
+      annotatedQuestions() {
+        const counts = {};
+        return this.selectedQuestions.map(question => {
+          if (!counts[question.exercise_id]) {
+            counts[question.exercise_id] = 0;
+          }
+          question.counterInExercise = counts[question.exercise_id];
+          counts[question.exercise_id] += 1;
+          return question;
+        });
+      },
+      maxQs() {
+        return MAX_QUESTIONS;
+      },
       detailsString() {
         return quizDetailStrings.$tr('details');
       },
       moreStrings() {
         return createExamPageStrings;
+      },
+      previewQuizStrings() {
+        return previewQuizStrings;
       },
       draggableOptions() {
         return {
@@ -268,8 +303,10 @@
           return this.$store.state.examCreation.numberOfQuestions;
         },
         set(value) {
-          this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
-          this.$store.dispatch('examCreation/updateSelectedQuestions');
+          if (value && value >= 1 && value <= this.maxQs) {
+            this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+            this.$store.dispatch('examCreation/updateSelectedQuestions');
+          }
         },
       },
       fixedOrder: {
@@ -306,6 +343,18 @@
       },
     },
     methods: {
+      handleUserSort({ newArray, newIndex, oldIndex }) {
+        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', newArray);
+        if (this.isSelected(this.selectedQuestions[oldIndex])) {
+          // switch immediately
+          this.currentQuestionIndex = newIndex;
+        } else {
+          // wait for the bounce animation to complete before switching
+          setTimeout(() => {
+            this.currentQuestionIndex = newIndex;
+          }, 250);
+        }
+      },
       getNewQuestionSet() {
         this.$store.commit('examCreation/RANDOMIZE_SEED');
         this.$store.dispatch('examCreation/updateSelectedQuestions');
@@ -319,12 +368,6 @@
           this.currentQuestion.exercise_id === question.exercise_id
         );
       },
-      handleDrag(questions) {
-        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', questions);
-      },
-      handleEnd(event) {
-        this.currentQuestionIndex = event.newIndex;
-      },
       submit() {
         if (this.numQuestIsInvalidText) {
           this.showError = true;
@@ -336,6 +379,9 @@
           this.$store.dispatch('examCreation/createExamAndRoute');
         }
       },
+      listKey(question) {
+        return question.exercise_id + question.question_id;
+      },
     },
   };
 
@@ -346,14 +392,16 @@
 
   @import '~kolibri.styles.definitions';
 
-  .number-btn {
-    position: relative;
-    top: 24px;
-  }
-
   .number-field {
     display: inline-block;
     margin-right: 8px;
+  }
+
+  .number-btn {
+    position: relative;
+    top: 16px;
+    display: inline-block;
+    vertical-align: top;
   }
 
   .header-margin {
@@ -368,6 +416,10 @@
     padding: 0;
     margin-top: 0;
     list-style: none;
+  }
+
+  .question-list.fixed {
+    margin-left: 40px;
   }
 
   .question-title {
@@ -393,6 +445,14 @@
 
   .sortable-ghost * {
     visibility: hidden;
+  }
+
+  .fade-numbers-enter-active {
+    transition: opacity $core-time;
+  }
+
+  .fade-numbers-enter {
+    opacity: 0;
   }
 
 </style>

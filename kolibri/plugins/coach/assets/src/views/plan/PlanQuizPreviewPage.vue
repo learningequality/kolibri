@@ -1,13 +1,22 @@
 <template>
 
   <CoreBase
-    :immersivePage="false"
+    :immersivePage="true"
+    immersivePageIcon="arrow_back"
+    :immersivePageRoute="toolbarRoute"
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
-    TODO
+    <LessonContentPreviewPage
+      :currentContentNode="currentContentNode"
+      :isSelected="isSelected"
+      :questions="preview.questions"
+      :displaySelectOptions="true"
+      :completionData="preview.completionData"
+      @addResource="handleAddResource"
+      @removeResource="handleRemoveResource"
+    />
   </CoreBase>
 
 </template>
@@ -15,15 +24,23 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
+  import Index from '../CoachIndex';
+
+  const indexStrings = crossComponentTranslator(Index);
 
   export default {
     name: 'PlanQuizPreviewPage',
-    components: {},
+    components: {
+      LessonContentPreviewPage,
+    },
     mixins: [commonCoach],
     $trs: {},
     computed: {
+      ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['preview', 'selectedExercises', 'currentContentNode']),
       isSelected() {
         return (
@@ -31,6 +48,21 @@
             exercise => exercise.id === this.currentContentNode.id
           ) !== -1
         );
+      },
+    },
+    methods: {
+      ...mapActions(['createSnackbar']),
+      ...mapActions(['createSnackbar']),
+      ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
+      handleAddResource(content) {
+        this.addToSelectedExercises([content]);
+        const text = indexStrings.$tr('added', { item: this.currentContentNode.title });
+        this.createSnackbar({ text, autoDismiss: true });
+      },
+      handleRemoveResource(content) {
+        this.removeFromSelectedExercises([content]);
+        const text = indexStrings.$tr('removed', { item: this.currentContentNode.title });
+        this.createSnackbar({ text, autoDismiss: true });
       },
     },
   };

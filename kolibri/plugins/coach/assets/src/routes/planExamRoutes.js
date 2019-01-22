@@ -5,6 +5,7 @@ import {
   showExamCreationTopicPage,
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
+  showExamCreationPreviewPage,
 } from '../modules/examCreation/handlers';
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
@@ -57,12 +58,11 @@ export default [
     },
   },
   {
-    name: PageNames.EXAM_PREVIEW,
+    name: PageNames.EXAM_CREATION_PREVIEW,
     path: '/:classId/plan/quizzes/preview/:examId',
     component: PlanQuizPreviewPage,
-    handler: () => {
-      // todo
-      store.dispatch('notLoading');
+    handler: toRoute => {
+      showExamCreationPreviewPage(store, toRoute.params);
     },
   },
 ];

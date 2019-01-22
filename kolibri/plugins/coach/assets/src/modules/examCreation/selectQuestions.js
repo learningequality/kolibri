@@ -21,15 +21,15 @@ export default function selectQuestions(
   seed
 ) {
   if (exerciseIds.length !== questionIdArrays.length) {
-    throw new Error('exerciseIds and questionIdArrays must have the same length');
+    logging.error('exerciseIds and questionIdArrays must have the same length');
   }
   if (exerciseIds.length !== exerciseTitles.length) {
-    throw new Error('exerciseIds and exerciseTitles must have the same length');
+    logging.error('exerciseIds and exerciseTitles must have the same length');
   }
   if (
     questionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) < numQuestions
   ) {
-    throw new Error('Not enough questions to reach numQuestions');
+    logging.error('Not enough questions to reach numQuestions');
   }
   if (numQuestions < exerciseIds.length) {
     logging.warn(`Selecting ${numQuestions} questions from ${exerciseIds.length} exercises`);

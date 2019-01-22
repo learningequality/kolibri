@@ -4,6 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
+    "@shopify/draggable": "^1.0.0-beta.8",
     "aphrodite": "https://github.com/learningequality/aphrodite/",
     "array-includes": "^3.0.3",
     "clipboard": "^2.0.1",
@@ -34,7 +35,6 @@
     "vue-meta": "^1.5.0",
     "vue-popperjs": "^1.5.4",
     "vue-router": "^2.1.1",
-    "vuedraggable": "^2.17.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

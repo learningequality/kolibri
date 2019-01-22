@@ -1,38 +1,29 @@
 <template>
 
-  <button
+  <li
     class="item-wrapper"
     :class="{selected: isSelected, draggable }"
-    @click="handleSelect"
   >
-    <span class="text">{{ text }}</span>
-    <CoachContentLabel
-      class="coach-content-label"
-      :value="isCoachContent ? 1 : 0"
-      :isTopic="false"
-    />
+    <a @click="handleSelect">
+      <span class="text">{{ text }}</span>
+      <CoachContentLabel
+        class="coach-content-label"
+        :value="isCoachContent ? 1 : 0"
+        :isTopic="false"
+      />
+    </a>
     <div v-if="draggable" class="handle">
-      <DragIndicator />
+      <KDragIcon />
     </div>
-    <div class="hidden-buttons">
-      <UiIconButton
-        type="flat"
-        ariaLabel="down"
-        class="position-adjustment-button"
-      >
-        <mat-svg name="keyboard_arrow_down" category="hardware" />
-      </UiIconButton>
-    </div>
-  </button>
+  </li>
 
 </template>
 
 
 <script>
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import DragIndicator from '../../common/DragIndicator';
+  import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
 
   export default {
     name: 'AssessmentQuestionListItem',
@@ -46,9 +37,8 @@
       moveExerciseDown: 'Move this exercise down by one position',
     },
     components: {
-      UiIconButton,
       CoachContentLabel,
-      DragIndicator,
+      KDragIcon,
     },
     props: {
       draggable: {
@@ -85,7 +75,7 @@
     },
     methods: {
       handleSelect() {
-        this.$emit('click');
+        this.$emit('select');
       },
     },
   };
@@ -105,17 +95,19 @@
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
+    user-select: none;
     background-color: white;
     border-radius: 4px;
   }
 
   .selected {
-    background-color: #d8d8d8;
+    background-color: #e8e8e8;
   }
 
   .draggable {
     padding-right: 50px;
-    padding-left: 50px;
+    padding-left: 8px;
+    cursor: move; /* fallback if grab cursor is unsupported */
     cursor: grab;
   }
 
@@ -130,11 +122,19 @@
   .handle {
     position: absolute;
     top: 6px;
-    right: 8px;
+    right: 4px;
   }
 
   .hidden-buttons {
     display: none;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 1s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
 
 </style>

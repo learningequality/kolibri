@@ -1,67 +1,74 @@
 <template>
 
-  <div class="wrapper">
-    <Draggable
-      :value="workingResources"
-      :options="{animation:150}"
-      @input="handleDrag($event)"
-    >
-      <transition-group :style="resourceReorderMoveStyle">
-        <KGrid
-          v-for="(resourceId, index) in workingResources"
-          :key="resourceId"
-          class="row"
-          cols="8"
-        >
-          <KGridItem size="1" class="relative">
-            <UiIconButton
-              v-if="index !== 0"
-              type="flat"
-              :ariaLabel="$tr('moveResourceUpButtonDescription')"
-              class="move-button up"
-              @click="moveUpOne(index)"
-            >
-              <mat-svg name="keyboard_arrow_up" category="hardware" />
-            </UiIconButton>
-            <div class="move-handle">
-              <mat-svg name="drag_handle" category="editor" />
-            </div>
-            <UiIconButton
-              v-if="index !== (workingResources.length - 1)"
-              type="flat"
-              :ariaLabel="$tr('moveResourceDownButtonDescription')"
-              class="move-button down"
-              @click="moveDownOne(index)"
-            >
-              <mat-svg name="keyboard_arrow_down" category="hardware" />
-            </UiIconButton>
-          </KGridItem>
-          <KGridItem size="4">
-            <div class="resource-title">
-              <ContentIcon :kind="resourceKind(resourceId)" />
-              {{ resourceTitle(resourceId) }}
-              <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
-                <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-                {{ resourceChannelTitle(resourceId) }}
-              </p>
-            </div>
-            <CoachContentLabel
-              class="coach-content-label"
-              :value="getCachedResource(resourceId).num_coach_contents"
-              :isTopic="false"
-            />
-          </KGridItem>
-          <KGridItem size="3" alignment="right">
-            <KButton
-              :text="$tr('resourceRemovalButtonLabel')"
-              appearance="flat-button"
-              @click="removeResource(resourceId)"
-            />
-          </KGridItem>
-        </KGrid>
-      </transition-group>
-    </Draggable>
-  </div>
+  <KDragContainer
+    :items="workingResources"
+    @sort="handleDrag"
+  >
+    <div class="wrapper">
+      <KDraggable
+        v-for="(resourceId) in workingResources"
+        :key="resourceId"
+      >
+        <KDragHandle>
+          <KGrid
+            class="row"
+            :style="{ backgroundColor: $coreBgLight }"
+            cols="8"
+          >
+            <KGridItem size="1" class="relative">
+              <!--
+               <UiIconButton
+                v-if="index !== 0"
+                type="flat"
+                :ariaLabel="$tr('moveResourceUpButtonDescription')"
+                class="move-button up"
+                @click="moveUpOne(index)"
+              >
+                <mat-svg name="keyboard_arrow_up" category="hardware" />
+              </UiIconButton>
+               -->
+              <div class="move-handle">
+                <KDragIcon />
+              </div>
+              <!--
+              <UiIconButton
+                v-if="index !== (workingResources.length - 1)"
+                type="flat"
+                :ariaLabel="$tr('moveResourceDownButtonDescription')"
+                class="move-button down"
+                @click="moveDownOne(index)"
+              >
+                <mat-svg name="keyboard_arrow_down" category="hardware" />
+              </UiIconButton>
+               -->
+            </KGridItem>
+            <KGridItem size="4">
+              <div class="resource-title">
+                <ContentIcon :kind="resourceKind(resourceId)" />
+                {{ resourceTitle(resourceId) }}
+                <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
+                  <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+                  {{ resourceChannelTitle(resourceId) }}
+                </p>
+              </div>
+              <CoachContentLabel
+                class="coach-content-label"
+                :value="getCachedResource(resourceId).num_coach_contents"
+                :isTopic="false"
+              />
+            </KGridItem>
+            <KGridItem size="3" alignment="right">
+              <KButton
+                :text="$tr('resourceRemovalButtonLabel')"
+                appearance="flat-button"
+                @click="removeResource(resourceId)"
+              />
+            </KGridItem>
+          </KGrid>
+        </KDragHandle>
+      </KDraggable>
+    </div>
+  </KDragContainer>
 
 </template>
 
@@ -69,8 +76,10 @@
 <script>
 
   import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
-  import Draggable from 'vuedraggable';
+  import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
+  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
+  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
+  import KDraggable from 'kolibri.coreVue.components.KDraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -82,9 +91,11 @@
   export default {
     name: 'ResourceListTable',
     components: {
-      Draggable,
+      KDraggable,
+      KDragContainer,
+      KDragHandle,
+      KDragIcon,
       CoachContentLabel,
-      UiIconButton,
       KButton,
       KGrid,
       KGridItem,
@@ -98,7 +109,7 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation']),
+      ...mapGetters(['$coreTextAnnotation', '$coreBgLight']),
       ...mapState('lessonSummary', {
         lessonId: state => state.currentLesson.id,
         workingResources: state => state.workingResources,
@@ -200,9 +211,9 @@
           autoDismiss: true,
         });
       },
-      handleDrag(resources) {
-        this.setWorkingResources(resources);
-        this.autoSave(this.lessonId, resources);
+      handleDrag({ newArray }) {
+        this.setWorkingResources(newArray);
+        this.autoSave(this.lessonId, newArray);
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
           autoDismiss: true,
@@ -258,6 +269,7 @@
   .row {
     padding: 8px;
     cursor: grab;
+    user-select: none;
   }
 
   .headers {
@@ -269,7 +281,6 @@
 
   .resource-title {
     display: inline-block;
-    max-width: 75%;
     margin-right: 8px;
   }
 
