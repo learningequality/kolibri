@@ -17,7 +17,7 @@ import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelection
 
 export default [
   {
-    name: LessonsPageNames.ROOT,
+    name: LessonsPageNames.PLAN_LESSONS_ROOT,
     path: '/:classId/plan/lessons',
     component: LessonsRootPage,
     handler(toRoute) {

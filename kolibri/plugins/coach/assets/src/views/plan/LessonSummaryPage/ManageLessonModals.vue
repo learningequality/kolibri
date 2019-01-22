@@ -69,7 +69,8 @@
       AssignmentDeleteModal,
     },
     computed: {
-      ...mapState(['classId', 'classList', 'className']),
+      ...mapState(['classList']),
+      ...mapState('classSummary', { classId: 'id', className: 'name' }),
       ...mapState('lessonSummary', ['currentLesson', 'lessonsModalSet', 'learnerGroups']),
       AssignmentActions() {
         return AssignmentActions;

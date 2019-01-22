@@ -1,15 +1,13 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import { ClassroomResource } from 'kolibri.resources';
 import { PageNames } from '../constants';
-import { shouldRedirectToClassRootPage } from '../modules/coreCoach/handlers';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
-import planLessonsRoutes from './planLessonsRoutes';
 
 export default [
-  ...planLessonsRoutes,
   ...planRoutes,
   ...reportRoutes,
   {
@@ -17,17 +15,21 @@ export default [
     path: '/',
     component: CoachClassListPage,
     handler() {
-      shouldRedirectToClassRootPage().then(classId => {
-        if (classId) {
+      const classroomsPromise = ClassroomResource.fetchCollection({
+        getParams: { role: 'coach' },
+        force: true,
+      });
+      classroomsPromise.then(classrooms => {
+        if (classrooms.length === 1) {
           router.replace({
             name: PageNames.HOME_PAGE,
-            params: { classId },
+            params: { classId: classrooms[0].id },
           });
           return;
         }
         store.commit('CORE_SET_PAGE_LOADING', true);
         store.commit('SET_PAGE_NAME', PageNames.CLASS_LIST);
-        store.dispatch('setClassState').then(
+        store.dispatch('setClassList').then(
           () => {
             store.commit('CORE_SET_PAGE_LOADING', false);
             store.commit('CORE_SET_ERROR', null);
@@ -62,11 +64,7 @@ export default [
       store.commit('SET_CLASS_ID', to.params.classId);
       store.commit('SET_PAGE_NAME', PageNames.NEW_COACH_PAGES);
       store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('SET_CLASS_INFO', {
-        classId: '1',
-        currentClassroom: null,
-        classList: [],
-      });
+      store.commit('SET_CLASS_LIST', []);
     },
   },
   /* ... COACH - under construction */

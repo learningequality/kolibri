@@ -5,9 +5,8 @@ export const PageNames = {
   HOME_PAGE: 'HOME_PAGE',
   REPORTS_PAGE: 'REPORTS_PAGE',
   PLAN_PAGE: 'PLAN_PAGE',
+  PLAN_GROUPS_PAGE: 'PLAN_GROUPS_PAGE',
   NEW_COACH_PAGES: 'NEW_COACH_PAGES',
-  // ... COACH - under construction
-
   CLASS_LIST: 'CLASS_LIST',
   CLASS_ROOT: 'CLASS_ROOT',
   RECENT_CHANNELS: 'RECENT_CHANNELS',
@@ -97,7 +96,7 @@ export const pageNameToModuleMap = {
   [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [PageNames.GROUPS]: 'groups',
-  [LessonsPageNames.ROOT]: 'lessonsRoot',
+  [LessonsPageNames.PLAN_LESSONS_ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
   // Omitting modules for resource selection, exam creation, and preview to prevent

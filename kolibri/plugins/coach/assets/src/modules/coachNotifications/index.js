@@ -1,4 +1,4 @@
-import notificationsResource from '../../apiResources/new/notifications';
+import notificationsResource from '../../apiResources/notifications';
 import { summarizedNotifications } from './getters';
 
 export default {

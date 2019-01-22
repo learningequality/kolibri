@@ -127,7 +127,7 @@ export function deleteLesson(store, { lessonId, classId }) {
   LessonResource.deleteModel({ id: lessonId })
     .then(() => {
       router.replace({
-        name: LessonsPageNames.ROOT,
+        name: LessonsPageNames.PLAN_LESSONS_ROOT,
         params: {
           classId,
           lessonId,

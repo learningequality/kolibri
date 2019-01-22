@@ -23,7 +23,7 @@ export function showExamReportPage(store, params) {
               },
             })
           : ConditionalPromise.resolve([]),
-        store.dispatch('setClassState', classId),
+        store.dispatch('classSummary/loadClassSummary', classId),
       ];
       ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),

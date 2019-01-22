@@ -79,7 +79,8 @@
       AssignmentDeleteModal,
     },
     computed: {
-      ...mapState(['classId', 'className', 'classList']),
+      ...mapState(['classList']),
+      ...mapState('classSummary', { classId: 'id', className: 'name' }),
       ...mapState('examReport', ['exam', 'examsModalSet', 'learnerGroups', 'exerciseContentNodes']),
       ...mapGetters('examReport', ['examQuestions']),
       AssignmentActions() {

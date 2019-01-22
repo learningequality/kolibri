@@ -14,7 +14,7 @@ import { showExamsPage } from '../modules/examsRoot/handlers';
 
 export default [
   {
-    name: 'EXAMS',
+    name: PageNames.EXAMS,
     path: '/:classId/plan/quizzes',
     component: CoachExamsPage,
     handler(to) {

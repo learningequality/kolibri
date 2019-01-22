@@ -7,13 +7,15 @@ import planLessonsRoutes from './planLessonsRoutes';
 import planExamRoutes from './planExamRoutes';
 
 export default [
+  ...planLessonsRoutes,
+  ...planExamRoutes,
   {
     name: PageNames.PLAN_PAGE,
     path: '/:classId/plan',
     redirect: '/:classId/plan/lessons',
   },
   {
-    name: 'GROUPS',
+    name: PageNames.PLAN_GROUPS_PAGE,
     path: '/:classId/plan/groups',
     component: GroupsPage,
     handler(to) {
@@ -21,6 +23,4 @@ export default [
       showGroupsPage(store, to.params.classId);
     },
   },
-  ...planLessonsRoutes,
-  ...planExamRoutes,
 ];

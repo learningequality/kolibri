@@ -1,5 +1,5 @@
 import Vue from 'kolibri.lib.vue';
-import ClassSummaryResource from '../../apiResources/new/classSummary';
+import ClassSummaryResource from '../../apiResources/classSummary';
 
 function defaultState() {
   return {

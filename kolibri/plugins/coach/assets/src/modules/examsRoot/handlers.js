@@ -13,7 +13,7 @@ export function showExamsPage(store, classId) {
       getParams: { collection: classId },
       force: true,
     }),
-    store.dispatch('setClassState', classId),
+    store.dispatch('classSummary/loadClassSummary', classId),
   ];
 
   return ConditionalPromise.all(promises).only(

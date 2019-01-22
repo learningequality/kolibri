@@ -62,7 +62,7 @@ export function showExerciseDetailView(
         }),
         FacilityUserResource.fetchModel({ id: userId }),
         ContentNodeSlimResource.fetchAncestors(contentId),
-        store.dispatch('setClassState', classId),
+        store.dispatch('classSummary/loadClassSummary', classId),
       ];
       return Promise.all(promises).then(([attemptLogs, summaryLog, user, ancestors]) => {
         Object.assign(exercise, { ancestors });
