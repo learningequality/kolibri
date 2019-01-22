@@ -1,4 +1,3 @@
-import getters from './coreCoach/getters';
 import * as actions from './coreCoach/actions';
 import examCreation from './examCreation';
 import examReport from './examReport';
@@ -9,7 +8,6 @@ import groups from './groups';
 import lessonResourceUserSummary from './lessonResourceUserSummary';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
-import reports from './reports';
 import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 
@@ -48,7 +46,6 @@ export default {
     },
   },
   actions,
-  getters,
   modules: {
     examCreation,
     examReport,
@@ -59,7 +56,6 @@ export default {
     lessonResourceUserSummary,
     lessonSummary,
     lessonsRoot,
-    reports,
 
     /* COACH - under construction ... */
     classSummary,
