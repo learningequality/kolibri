@@ -1,3 +1,4 @@
+import maxBy from 'lodash/maxBy';
 import notificationsResource from '../../apiResources/notifications';
 import { summarizedNotifications } from './getters';
 
@@ -15,9 +16,6 @@ export default {
     },
     APPEND_NOTIFICATIONS(state, notifications) {
       state.notifications = [...notifications, ...state.notifications];
-    },
-    SET_LAST_POLLED_TO_NOW(state) {
-      state.lastPolled = Date.now();
     },
     SET_POLLER(state, poller) {
       state.poller = poller;
@@ -42,13 +40,16 @@ export default {
         );
       };
     },
+    maxNotificationIndex(state) {
+      const match = maxBy(state.notifications, 'id');
+      return match ? match.id : 0;
+    },
   },
   actions: {
     fetchNotificationsForClass(store, classroomId) {
       if (!store.state.currentClassroomId) {
         store.commit('SET_CURRENT_CLASSROOM_ID', classroomId);
       }
-      const after = Date.now();
       return notificationsResource
         .fetchCollection({
           getParams: {
@@ -58,7 +59,7 @@ export default {
         .then(data => {
           store.commit('SET_NOTIFICATIONS', data);
           if (!store.state.poller) {
-            store.dispatch('startPolling', after);
+            store.dispatch('startPolling');
           }
         });
     },
@@ -69,6 +70,7 @@ export default {
             collection_id: classroomId,
             after,
           },
+          force: true,
         })
         .then(data => {
           if (data.length > 0) {
@@ -76,21 +78,18 @@ export default {
           }
         });
     },
-    startPolling(store, after) {
-      let lastPolled = after;
+    startPolling(store) {
       const poller = setInterval(() => {
-        const afterCopy = lastPolled;
-        // This just gets everything, until I figure out how time fiter works
         store.dispatch('updateNotificationsForClass', {
           classroomId: store.state.currentClassroomId,
-          after: afterCopy,
+          after: store.getters.maxNotificationIndex,
         });
-        lastPolled = Date.now();
       }, 5000);
       store.commit('SET_POLLER', poller);
     },
-    stopPolling(store) {
+    stopPollingAndClear(store) {
       clearInterval(store.state.poller);
+      store.commit('SET_NOTIFICATIONS', null);
       store.commit('SET_POLLER', null);
     },
   },
