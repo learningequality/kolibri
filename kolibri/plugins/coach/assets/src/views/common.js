@@ -60,7 +60,7 @@ export default {
   mixins: [coachStringsMixin],
   computed: {
     ...mapGetters(['isAdmin', 'isCoach', 'isSuperuser']),
-    ...mapState('classSummary', { classId: 'id' }),
+    ...mapState('classSummary', { classId: 'id', className: 'name' }),
     userIsAuthorized() {
       return this.isCoach || this.isAdmin || this.isSuperuser;
     },

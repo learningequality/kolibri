@@ -60,7 +60,7 @@
       };
     },
     computed: {
-      ...mapState(['classId']),
+      ...mapState('classSummary', { classId: 'id' }),
       duplicateName() {
         const index = this.groups.findIndex(
           group => group.name.toUpperCase() === this.name.toUpperCase()

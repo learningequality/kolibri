@@ -1,6 +1,5 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
-import ClassSummary from '../src/apiResources/classSummary.js';
 import { showExamsPage } from '../src/modules/examsRoot/handlers';
 import examReportStore from '../src/modules/examReport';
 import makeStore from './makeStore';
@@ -8,7 +7,6 @@ import makeStore from './makeStore';
 jestMockResource(ClassroomResource);
 jestMockResource(ContentNodeResource);
 jestMockResource(ExamResource);
-jestMockResource(ClassSummary);
 
 // fakes for data, since they have similar shape
 const fakeItems = [
@@ -390,17 +388,6 @@ describe('exam report state', () => {
   });
 });
 
-const fakeSummary = {
-  coaches: [],
-  learners: [],
-  groups: [],
-  exams: [],
-  exam_learner_status: [],
-  content_learner_status: [],
-  content: [],
-  lessons: [],
-};
-
 describe('showPage actions for coach exams section', () => {
   let store;
   beforeEach(() => {
@@ -408,7 +395,6 @@ describe('showPage actions for coach exams section', () => {
     ClassroomResource.__resetMocks();
     ContentNodeResource.__resetMocks();
     ExamResource.__resetMocks();
-    ClassSummary.__resetMocks();
   });
 
   describe('showExamsPage', () => {
@@ -416,12 +402,10 @@ describe('showPage actions for coach exams section', () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns(fakeExams);
       ExamResource.__getCollectionFetchReturns(fakeExams);
-      ClassSummary.__getModelFetchReturns(fakeSummary);
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
       await showExamsPage(store, classId)._promise;
-      expect(ClassSummary.getModel).toHaveBeenCalledWith('item_1', {});
       expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
       expect(store.state.examsRoot).toMatchObject({
         exams: fakeExamState,
@@ -433,7 +417,6 @@ describe('showPage actions for coach exams section', () => {
     it('store is properly set up when there are errors', async () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns('channel error', true);
-      ClassSummary.__getModelFetchReturns(fakeSummary);
       try {
         await showExamsPage(store, 'class_1')._promise;
       } catch (error) {

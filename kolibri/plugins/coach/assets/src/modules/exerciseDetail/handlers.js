@@ -10,7 +10,7 @@ import { PageNames } from '../../constants';
 
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
 }
 
 // Consolidates the duplicated logic for the item detail pages
@@ -21,7 +21,7 @@ function _showItemDetailPage(pageName, ...args) {
   }
   return showExerciseDetailView(...args).then(exerciseDetailState => {
     store.commit('exerciseDetail/SET_STATE', exerciseDetailState);
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('notLoading');
   });
 }
 
@@ -62,7 +62,6 @@ export function showExerciseDetailView(
         }),
         FacilityUserResource.fetchModel({ id: userId }),
         ContentNodeSlimResource.fetchAncestors(contentId),
-        store.dispatch('classSummary/loadClassSummary', classId),
       ];
       return Promise.all(promises).then(([attemptLogs, summaryLog, user, ancestors]) => {
         Object.assign(exercise, { ancestors });
@@ -98,7 +97,7 @@ export function refreshLessonReport(store, lessonId) {
  */
 export function showLessonResourceUserReportPage(store, params) {
   const { classId, contentId, userId, attemptLogIndex, interactionIndex } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
   store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.RESOURCE_USER_SUMMARY });
   return ContentNodeResource.fetchModel({ id: contentId }).then(
@@ -114,11 +113,11 @@ export function showLessonResourceUserReportPage(store, params) {
         Number(interactionIndex)
       ).then(reportState => {
         store.commit('exerciseDetail/SET_STATE', reportState);
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('notLoading');
       });
     },
     error => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading');
       return store.dispatch('handleApiError', error);
     }
   );

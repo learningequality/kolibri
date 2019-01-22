@@ -17,7 +17,6 @@ export function showLessonSummaryPage(store, params) {
       store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
       LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
       store.dispatch('lessonSummary/setLessonReportTableData', { lessonId }),
-      store.dispatch('classSummary/loadClassSummary', classId),
     ];
 
     Promise.all(loadRequirements)

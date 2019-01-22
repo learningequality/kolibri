@@ -135,7 +135,8 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'pageName', 'toolbarRoute']),
+      ...mapState(['pageName', 'toolbarRoute']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       ...mapState('lessonSummary/resources', [
         'ancestorCounts',

@@ -382,7 +382,7 @@
           this.showError = true;
           this.$refs.title.focus();
         } else {
-          this.$store.dispatch('examCreation/createExamAndRoute');
+          this.$store.dispatch('examCreation/createExamAndRoute', this.classId);
         }
       },
       listKey(question) {

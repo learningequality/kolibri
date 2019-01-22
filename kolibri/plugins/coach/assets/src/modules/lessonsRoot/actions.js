@@ -32,7 +32,7 @@ export function createLesson(store, { classId, payload }) {
       },
     })
       .then(newLesson => {
-        router.push(lessonSummaryLink({ classId: classId, lessonId: newLesson.id }));
+        router.push(lessonSummaryLink({ classId, lessonId: newLesson.id }));
         store.dispatch(
           'createSnackbar',
           {

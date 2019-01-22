@@ -207,7 +207,7 @@
       };
     },
     computed: {
-      ...mapState(['classId', 'classList']),
+      ...mapState(['classList']),
       ...mapGetters('classSummary', ['exams', 'groups']),
       ...mapState('classSummary', ['examsMap', 'groupMap']),
       ...mapState('examsRoot', { fullExamInfo: 'exams' }),
