@@ -29,7 +29,7 @@ function showResourceSelectionPage(store, params) {
 
     const loadRequirements = [
       store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
-      store.dispatch('setClassState', classId),
+      store.dispatch('classSummary/loadClassSummary', classId),
     ];
     return Promise.all(loadRequirements).then(
       ([currentLesson]) => {

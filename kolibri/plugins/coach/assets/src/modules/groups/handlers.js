@@ -39,7 +39,7 @@ export function showGroupsPage(store, classId) {
       getParams: { parent: classId },
       force: true,
     }),
-    store.dispatch('setClassState', classId),
+    store.dispatch('classSummary/loadClassSummary', classId),
   ];
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),

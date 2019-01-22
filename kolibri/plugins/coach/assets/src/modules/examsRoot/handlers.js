@@ -2,7 +2,7 @@ import { ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
-import { examsState } from '../shared/exams';
+import { examsState } from '../examShared/exams';
 
 export function showExamsPage(store, classId) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -13,7 +13,7 @@ export function showExamsPage(store, classId) {
       getParams: { collection: classId },
       force: true,
     }),
-    store.dispatch('setClassState', classId),
+    store.dispatch('classSummary/loadClassSummary', classId),
   ];
 
   return ConditionalPromise.all(promises).only(

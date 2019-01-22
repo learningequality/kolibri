@@ -3,7 +3,7 @@ import { ExamResource, ExamLogResource, FacilityUserResource } from 'kolibri.res
 import { createTranslator } from 'kolibri.utils.i18n';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
-import { createExam, examState } from '../shared/exams';
+import { createExam, examState } from '../examShared/exams';
 
 export function setExamsModal(store, modalName) {
   store.commit('SET_EXAMS_MODAL', modalName);

@@ -16,7 +16,7 @@ function showExamCreationPage(store, params) {
   const { classId, contentList, pageName, ancestors = [], searchResults = null } = params;
 
   return store.dispatch('loading').then(() => {
-    return store.dispatch('setClassState', classId).then(
+    return store.dispatch('classSummary/loadClassSummary', classId).then(
       () => {
         store.commit('examCreation/SET_ANCESTORS', ancestors);
         store.commit('examCreation/SET_CONTENT_LIST', contentList);

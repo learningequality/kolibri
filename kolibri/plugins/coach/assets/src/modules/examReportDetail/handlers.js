@@ -17,7 +17,7 @@ export function showExamReportDetailPage(store, params) {
   }
   const promises = [
     getExamReport(store, examId, userId, question, interaction),
-    store.dispatch('setClassState', classId),
+    store.dispatch('classSummary/loadClassSummary', classId),
   ];
   ConditionalPromise.all(promises).then(
     ([examReport]) => {

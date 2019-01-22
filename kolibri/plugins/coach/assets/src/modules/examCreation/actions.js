@@ -10,7 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { createExam } from '../shared/exams';
+import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {

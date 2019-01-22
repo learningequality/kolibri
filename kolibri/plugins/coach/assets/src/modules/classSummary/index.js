@@ -1,5 +1,5 @@
 import Vue from 'kolibri.lib.vue';
-import ClassSummaryResource from '../../apiResources/new/classSummary';
+import ClassSummaryResource from '../../apiResources/classSummary';
 
 function defaultState() {
   return {
@@ -139,7 +139,7 @@ export default {
   },
   actions: {
     loadClassSummary(store, classId) {
-      return ClassSummaryResource.fetchModel({ id: classId }).then(summary => {
+      return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
         // convert dates
         summary.exam_learner_status.forEach(status => {
           status.last_activity = new Date(status.last_activity);

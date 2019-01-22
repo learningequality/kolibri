@@ -1,10 +1,6 @@
 import datetime
 
-from dateutil.parser import parse
-from django.db import connection
-from django.db.models import Min
 from django.db.models import Q
-from django.utils import timezone
 from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import permissions
@@ -23,8 +19,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 
 
@@ -108,40 +102,6 @@ class ContentSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         channel_id = self.kwargs['channel_id']
         return ContentNode.objects.filter(Q(channel_id=channel_id)).order_by('lft')
-
-
-class RecentReportViewSet(ReportBaseViewSet):
-
-    pagination_class = OptionalPageNumberPagination
-    serializer_class = ContentReportSerializer
-
-    def get_queryset(self):
-        channel_id = self.kwargs['channel_id']
-        attempted_mastery_logs = MasteryLog.objects.filter(attemptlogs__isnull=False)
-        query_node = ContentNode.objects.get(pk=self.kwargs['content_node_id'])
-        if self.request.query_params.get('last_active_time'):
-            # Last active time specified
-            datetime_cutoff = parse(self.request.query_params.get('last_active_time'))
-        else:
-            datetime_cutoff = timezone.now() - datetime.timedelta(7)
-        # Set on the kwargs to pass into the serializer
-        self.kwargs['last_active_time'] = datetime_cutoff.isoformat()
-        recent_content_items = ContentSummaryLog.objects.filter_by_topic(query_node).filter(
-            Q(progress__gt=0) | Q(masterylogs__in=attempted_mastery_logs),
-            user__in=list(get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])),
-            end_timestamp__gte=datetime_cutoff).values_list('content_id', flat=True)
-        if connection.vendor == 'postgresql':
-            pks_with_unique_content_ids = ContentNode.objects.order_by('content_id').distinct('content_id').filter(
-                channel_id=channel_id, content_id__in=recent_content_items).values_list('pk', flat=True)
-        else:
-            # note from rtibbles:
-            # As good as either I or jamalex could come up with to ensure that we only return
-            # unique content_id'ed ContentNodes from the coach recent report endpoint.
-            # Would have loved to use distinct('content_id'), but unfortunately DISTINCT ON is Postgresql only
-            pks_with_unique_content_ids = ContentNode.objects.filter(
-                channel_id=channel_id, content_id__in=recent_content_items).values('content_id').order_by('lft').annotate(
-                pk=Min('pk')).values_list('pk', flat=True)
-        return ContentNode.objects.filter(pk__in=pks_with_unique_content_ids).order_by('lft')
 
 
 class LessonReportViewset(viewsets.ReadOnlyModelViewSet):

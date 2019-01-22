@@ -1,6 +1,12 @@
 import { LessonsPageNames } from './lessonsConstants';
 
 export const PageNames = {
+  COACH_CLASS_LIST: 'COACH_CLASS_LIST',
+  HOME_PAGE: 'HOME_PAGE',
+  REPORTS_PAGE: 'REPORTS_PAGE',
+  PLAN_PAGE: 'PLAN_PAGE',
+  PLAN_GROUPS_PAGE: 'PLAN_GROUPS_PAGE',
+  NEW_COACH_PAGES: 'NEW_COACH_PAGES',
   CLASS_LIST: 'CLASS_LIST',
   CLASS_ROOT: 'CLASS_ROOT',
   RECENT_CHANNELS: 'RECENT_CHANNELS',
@@ -32,7 +38,6 @@ export const PageNames = {
   EXAM_REPORT_DETAIL_ROOT: 'EXAM_REPORT_DETAIL_ROOT',
   LEARNERS: 'LEARNERS',
   GROUPS: 'GROUPS',
-  NEW_COACH_PAGES: 'NEW_COACH_PAGES', // ... COACH - under construction
 };
 
 export const RecentReports = [
@@ -91,7 +96,7 @@ export const pageNameToModuleMap = {
   [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [PageNames.GROUPS]: 'groups',
-  [LessonsPageNames.ROOT]: 'lessonsRoot',
+  [LessonsPageNames.PLAN_LESSONS_ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
   // Omitting modules for resource selection, exam creation, and preview to prevent
