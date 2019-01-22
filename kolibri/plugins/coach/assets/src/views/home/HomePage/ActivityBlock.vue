@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <button @click="moveNots">Move</button>
     <h2>{{ $tr('classActivity') }}</h2>
     <p>
       <KRouterLink
@@ -10,13 +11,16 @@
       />
     </p>
     <div>
-      <NotificationCard
-        v-for="notification in notifications"
-        :key="notification.groupCode"
-        v-bind="cardPropsForNotification(notification)"
-      >
-        {{ cardTextForNotification(notification) }}
-      </NotificationCard>
+      <transition-group name="list">
+        <NotificationCard
+          v-for="notification in notifications"
+          :key="notification.groupCode + String(notification.lastTimestamp)"
+          v-bind="cardPropsForNotification(notification)"
+        >
+          {{ cardTextForNotification(notification) }}
+        </NotificationCard>
+
+      </transition-group>
       <div v-if="notifications.length === 0">
         {{ $tr('noActivity') }}
       </div>
@@ -55,6 +59,9 @@
       },
     },
     methods: {
+      moveNots() {
+        this.$store.commit('coachNotifications/TEST_MOVE_LAST');
+      },
       cardPropsForNotification(notification) {
         let icon = '';
         let contentIcon = '';
@@ -83,6 +90,7 @@
           targetPage,
           learnerContext,
           contentContext: notification.assignment.name,
+          lastTimestamp: String(notification.lastTimestamp),
         };
       },
       cardTextForNotification(notification) {
@@ -144,4 +152,32 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  $time: 0.25s;
+
+  .list-move {
+    transition: transform $time;
+  }
+
+  .list-enter,
+  .list-leave-to {
+    opacity: 0;
+  }
+
+  .list-leave,
+  .list-enter-to {
+    opacity: 1;
+  }
+
+  .list-enter-active {
+    transition: opacity $time;
+    transition-timing-function: ease-in;
+  }
+
+  .list-leave-active {
+    transition: all $time;
+    transition-timing-function: ease-out;
+  }
+
+</style>

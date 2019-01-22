@@ -1,4 +1,6 @@
 import maxBy from 'lodash/maxBy';
+import df from 'date-fns';
+
 import notificationsResource from '../../apiResources/notifications';
 import { summarizedNotifications } from './getters';
 
@@ -22,6 +24,17 @@ export default {
     },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
+    },
+    TEST_MOVE_LAST(state) {
+      const len = state.notifications.length;
+      const max = df.max.apply(null, state.notifications.map(n => n.timestamp));
+      if (len > 1) {
+        const modded = {
+          ...state.notifications[len - 1],
+          timestamp: df.addSeconds(max, 10),
+        };
+        state.notifications = [modded, ...state.notifications.slice(0, len - 1)];
+      }
     },
   },
   getters: {
