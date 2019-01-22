@@ -12,7 +12,7 @@
 <script>
 
   export default {
-    name: 'DragIndicator',
+    name: 'KDragIcon',
   };
 
 </script>
