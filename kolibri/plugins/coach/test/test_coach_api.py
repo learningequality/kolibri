@@ -4,7 +4,6 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.constants import collection_kinds

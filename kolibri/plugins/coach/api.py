@@ -1,10 +1,6 @@
 import datetime
 
-from dateutil.parser import parse
-from django.db import connection
-from django.db.models import Min
 from django.db.models import Q
-from django.utils import timezone
 from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import permissions
@@ -23,8 +19,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 
 
