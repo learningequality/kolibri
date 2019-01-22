@@ -178,15 +178,17 @@ class ContentSummaryLogAPITestCase(APITestCase):
         summary_serializer = ContentSummaryLogSerializer(log)
         self.assertEqual(response.data['content_id'], summary_serializer.data['content_id'])
 
-    # def test_admin_can_create_summarylog(self):
-    #     self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-    #     response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_admin_can_create_summarylog(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+        with patch('kolibri.core.logger.serializers.wrap_to_save_queue'):
+            response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    # def test_learner_can_create_summarylog(self):
-    #     self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
-    #     response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_learner_can_create_summarylog(self):
+        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+        with patch('kolibri.core.logger.serializers.wrap_to_save_queue'):
+            response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_summarylog_for_learner(self):
         response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
