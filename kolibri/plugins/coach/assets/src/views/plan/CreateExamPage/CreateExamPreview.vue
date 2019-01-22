@@ -246,12 +246,18 @@
       ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
       annotatedQuestions() {
         const counts = {};
-        return this.selectedQuestions.map(question => {
-          if (!counts[question.exercise_id]) {
-            counts[question.exercise_id] = 0;
+        const totals = {};
+        this.selectedQuestions.forEach(question => {
+          if (!totals[question.exercise_id]) {
+            totals[question.exercise_id] = 0;
           }
-          question.counterInExercise = counts[question.exercise_id];
-          counts[question.exercise_id] += 1;
+          totals[question.exercise_id] += 1;
+          counts[this.listKey(question)] = totals[question.exercise_id];
+        });
+        return this.selectedQuestions.map(question => {
+          if (totals[question.exercise_id] > 1) {
+            question.counterInExercise = counts[this.listKey(question)];
+          }
           return question;
         });
       },

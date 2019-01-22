@@ -69,7 +69,7 @@
         }
         return this.$tr('nthExerciseName', {
           name: this.exerciseName,
-          number: this.questionNumberOfExercise + 1,
+          number: this.questionNumberOfExercise,
         });
       },
     },
