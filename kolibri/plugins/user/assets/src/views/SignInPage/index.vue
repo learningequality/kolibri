@@ -469,11 +469,12 @@
   }
 
   .box {
+    @extend %dropshadow-16dp;
+
     width: 300px;
     padding: 16px 32px;
     margin: 16px auto;
     border-radius: $radius;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.33);
   }
 
   .login-form {
@@ -503,8 +504,9 @@
   }
 
   .footer-cell {
+    @extend %dropshadow-8dp;
+
     padding: 16px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.33);
   }
 
   .footer-cell .small-text {
@@ -512,6 +514,8 @@
   }
 
   .suggestions {
+    @extend %dropshadow-1dp;
+
     position: absolute;
     z-index: 8;
     width: 100%;
@@ -521,7 +525,6 @@
     margin-top: -2em;
     list-style-type: none;
     background-color: white;
-    box-shadow: 1px 2px 8px #e6e6e6;
   }
 
   .textbox-enter-active {

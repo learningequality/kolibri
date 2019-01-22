@@ -10,12 +10,12 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KGrid :gutter="8">
+    <KGrid :gutter="16">
       <KGridItem size="100" percentage>
         <OverviewBlock class="new-coach-block" />
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
-        <KGrid :gutter="8">
+        <KGrid :gutter="16">
           <KGridItem size="100" percentage>
             <QuizzesBlock class="new-coach-block" />
           </KGridItem>
@@ -60,7 +60,7 @@
 <style lang="scss" scoped>
 
   .new-coach-block {
-    margin-top: 8px;
+    margin-top: 16px;
   }
 
 </style>

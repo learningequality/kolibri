@@ -300,7 +300,7 @@
   }
 
   .app-bar {
-    @extend %ui-toolbar-box-shadow;
+    @extend %dropshadow-4dp;
 
     width: 100%;
   }
