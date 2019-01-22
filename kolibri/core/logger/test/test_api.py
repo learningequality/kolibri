@@ -178,15 +178,15 @@ class ContentSummaryLogAPITestCase(APITestCase):
         summary_serializer = ContentSummaryLogSerializer(log)
         self.assertEqual(response.data['content_id'], summary_serializer.data['content_id'])
 
-    def test_admin_can_create_summarylog(self):
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    # def test_admin_can_create_summarylog(self):
+    #     self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
+    #     response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_learner_can_create_summarylog(self):
-        self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
-        response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    # def test_learner_can_create_summarylog(self):
+    #     self.client.login(username=self.user1.username, password=DUMMY_PASSWORD, facility=self.facility)
+    #     response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_summarylog_for_learner(self):
         response = self.client.post(reverse('kolibri:core:contentsummarylog-list'), data=self.payload, format='json')
@@ -203,16 +203,16 @@ class ContentSummaryLogAPITestCase(APITestCase):
         expected_count = ContentSummaryLog.objects.filter(user__pk=self.user2.id).count()
         self.assertEqual(len(response.data), expected_count)
 
-    # def test_facility_log_filtering(self):
-    #     response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-    #     # add user3 to new facility
-    #     self.facility2 = FacilityFactory.create()
-    #     self.user3 = FacilityUserFactory.create(facility=self.facility2)
-    #     [ContentSummaryLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex,
-    #                                      channel_id=uuid.uuid4().hex) for _ in range(1)]
-    #     response = self.client.get(reverse('kolibri:core:contentsummarylog-list'), data={"facility": self.facility2.id})
-    #     expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility2.id).count()
-    #     self.assertEqual(len(response.data), expected_count)
+    def test_facility_log_filtering(self):
+        response = self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        # add user3 to new facility
+        self.facility2 = FacilityFactory.create()
+        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+        [ContentSummaryLogFactory.create(user=self.user3, content_id=uuid.uuid4().hex,
+                                         channel_id=uuid.uuid4().hex) for _ in range(1)]
+        response = self.client.get(reverse('kolibri:core:contentsummarylog-list'), data={"facility": self.facility2.id})
+        expected_count = ContentSummaryLog.objects.filter(user__facility_id=self.facility2.id).count()
+        self.assertEqual(len(response.data), expected_count)
 
     def test_classroom_log_filtering(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD, facility=self.facility)
