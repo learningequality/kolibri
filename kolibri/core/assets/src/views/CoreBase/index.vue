@@ -84,7 +84,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
@@ -212,6 +212,7 @@
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
+      ...mapGetters(['$coreBgCanvas']),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
@@ -239,6 +240,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
+          backgroundColor: this.$coreBgCanvas,
         };
       },
       contentStyles() {
