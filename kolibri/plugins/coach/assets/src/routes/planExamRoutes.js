@@ -20,9 +20,7 @@ export default [
     component: CoachExamsPage,
     handler(to) {
       store.commit('SET_CLASS_ID', to.params.classId);
-      store.dispatch('classSummary/loadClassSummary', to.params.classId).then(() => {
-        showExamsPage(store, to.params.classId);
-      });
+      showExamsPage(store, to.params.classId);
     },
   },
   {
