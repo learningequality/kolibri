@@ -1,3 +1,4 @@
+import findKey from 'lodash/findKey';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
 import { CollectionTypes } from '../../constants/lessonsConstants';
@@ -77,4 +78,103 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
   }
 
   return collections;
+}
+
+// Data used for 'notificationLink' helper.
+// object, isMultiple, and wholeClass are meant to be pattern matched
+// makeRoute takes the notification object and forms the Link object from it
+const pageNameToNotificationPropsMap = {
+  ReportsGroupReportLessonExerciseLearnerListPage: {
+    object: 'Exercise',
+    isMultiple: true,
+    isWholeClass: false,
+  },
+  ReportsGroupReportLessonResourceLearnerListPage: {
+    object: 'NonExercise',
+    isMultiple: true,
+    isWholeClass: false,
+  },
+  ReportsGroupReportLessonPage: {
+    object: 'Lesson',
+    isMultiple: true,
+    isWholeClass: false,
+  },
+  ReportsGroupReportQuizLearnerListPage: {
+    object: 'Quiz',
+    isMultiple: true,
+    isWholeClass: false,
+  },
+  ReportsLessonExerciseLearnerListPage: {
+    object: 'Exercise',
+    isMultiple: true,
+    isWholeClass: true,
+  },
+  ReportsLessonResourceLearnerListPage: {
+    object: 'NonExercise',
+    isMultiple: true,
+    isWholeClass: true,
+  },
+  ReportsLessonLearnerListPage: {
+    object: 'Lesson',
+    isMultiple: true,
+    isWholeClass: true,
+  },
+  ReportsQuizLearnerListPage: {
+    object: 'Quiz',
+    isMultiple: true,
+    isWholeClass: true,
+  },
+  ReportsGroupReportLessonExerciseLearnerPage: {
+    object: 'Exercise',
+    isMultiple: false,
+    isWholeClass: false,
+  },
+  ReportsGroupLearnerReportLessonPage: {
+    object: 'Lesson',
+    isMultiple: false,
+    isWholeClass: false,
+  },
+  ReportsGroupLearnerReportQuizPage: {
+    object: 'Quiz',
+    isMultiple: false,
+    isWholeClass: false,
+  },
+  ReportsLessonLearnerExercisePage: {
+    object: 'Exercise',
+    isMultiple: false,
+    isWholeClass: true,
+  },
+  ReportsLessonLearnerPage: {
+    object: 'Lesson',
+    isMultiple: false,
+    isWholeClass: true,
+  },
+  ReportsQuizLearnerPage: {
+    object: 'Quiz',
+    isMultiple: false,
+    isWholeClass: true,
+  },
+};
+
+export function notificationLink(notification) {
+  let object;
+  if (notification.object === 'Resource') {
+    // Individual resources
+    object = notification.resource.type === 'exercise' ? 'Exercise' : 'NonExercise';
+  } else {
+    // Quizzes or whole Lessons
+    object = notification.object;
+  }
+
+  const matchingPageType = findKey(pageNameToNotificationPropsMap, {
+    object,
+    isMultiple: notification.learnerSummary.total > 1,
+    isWholeClass: notification.collection.type === 'classroom',
+  });
+
+  if (matchingPageType) {
+    return pageNameToNotificationPropsMap[matchingPageType].makeRoute(notification);
+  } else {
+    return null;
+  }
 }
