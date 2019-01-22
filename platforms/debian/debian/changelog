@@ -1,3 +1,32 @@
+kolibri-source (0.11.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Removing upper limit on Python 3 that prohibited Python 3.7
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Jan 2019 21:54:45 +0100
+
+kolibri-source (0.11.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release 
+
+ --  Lingyi Wang <lingyi@learningequality.org>  Tue, 06 Nov 2018 22:39:29 +0000
+
+kolibri-source (0.11.0~b2-0ubuntu1) trusty; urgency=medium
+
+  * New beta release for Kolibri 0.11
+
+ --  Lingyi Wang <lingyi@learningequality.org>  Wed, 17 Oct 2018 19:33:27 +0000
+
+kolibri-source (0.10.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Fixes from 0.9.5 have entered 0.10.3
+  * Mexican Spanish and Bulgarian added
+  * Several bug fixes
+  * Details upstream: https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.3
+
+ --  <benjamin+buildserver@learningequality.org>  Tue, 16 Oct 2018 21:46:54 +0000
+
 kolibri-source (0.10.2-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
