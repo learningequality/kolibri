@@ -21,6 +21,9 @@ export function setAndSaveCurrentExamAttemptLog(
   store,
   { contentId, itemId, currentAttemptLog, examId }
 ) {
+  // Clear the learner classroom cache here as its progress data is now
+  // stale
+  LearnerClassroomResource.clearCache();
   setExamAttemptLog(store, { contentId, itemId, attemptLog: currentAttemptLog });
 
   // If a save has already been fired for this particular attempt log,

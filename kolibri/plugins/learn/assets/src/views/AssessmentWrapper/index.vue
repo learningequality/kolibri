@@ -476,6 +476,7 @@ oriented data synchronization.
       updateExerciseProgressMethod() {
         this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
+        this.$emit('updateProgress', this.exerciseProgress);
       },
       sessionInitialized() {
         if (this.isUserLoggedIn) {
