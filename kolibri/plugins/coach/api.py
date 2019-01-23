@@ -118,7 +118,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
     pagination_class = OptionalPageNumberPagination
     pagination_class.page_size = 10
 
-    def check_after(self, query):
+    def check_after(self):
         """
         Check if after parameter must be used for the query
         """
@@ -131,7 +131,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 pass  # if after has not a valid format, let's not use it
         return after
 
-    def check_learner(self, query):
+    def apply_learner_filter(self, query):
         """
         Filter the notifications by learner_id if applicable
         """
@@ -142,11 +142,10 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the notifications according to the params provided in the url
-        By default it sends today's notifications.
-        If page parameter is used, the date limitation is removed, thus all the
-        existing notifications fulfilling the other conditions are sent.
-        Notifications are always reversely sorted (latest first)
+        Returns the notifications in reverse-chronological order, filtered by the query parameters.
+        By default it sends only notifications from the past day.
+        If a 'page_size' parameter is used, that sets a maximum number of results.
+        If a 'page' parameter is used, the past day limit is not applied.
 
         Some url examples:
         /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f
@@ -159,7 +158,6 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         :param: after integer: all the notifications after this id will be sent.
         :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
         :param: page integer: sets the page to provide when paginating.
-
         """
         classroom_id = self.kwargs['collection_id']
 
@@ -170,8 +168,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 return []
 
         notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
-        notifications_query = self.check_learner(notifications_query)
-        after = self.check_after(notifications_query)
+        notifications_query = self.apply_learner_filter(notifications_query)
+        after = self.check_after()
 
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
