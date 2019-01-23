@@ -433,22 +433,31 @@ class MembershipCascadeDeletion(APITestCase):
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
+        self.other_user = FacilityUserFactory.create(facility=self.facility)
         self.classroom = ClassroomFactory.create(parent=self.facility)
         self.lg = LearnerGroupFactory.create(parent=self.classroom)
         self.classroom_membership = models.Membership.objects.create(collection=self.classroom, user=self.user)
         models.Membership.objects.create(collection=self.lg, user=self.user)
+        # create other user memberships
+        models.Membership.objects.create(collection=self.classroom, user=self.other_user)
+        models.Membership.objects.create(collection=self.lg, user=self.other_user)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_delete_classroom_membership(self):
         url = reverse('kolibri:core:membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
 
     def test_delete_detail(self):
-        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
+
+    def test_delete_does_not_affect_other_user_memberships(self):
+        expected_count = models.Membership.objects.filter(user=self.other_user).count()
+        self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
+        self.assertEqual(models.Membership.objects.filter(user=self.other_user).count(), expected_count)
 
 
 class GroupMembership(APITestCase):
