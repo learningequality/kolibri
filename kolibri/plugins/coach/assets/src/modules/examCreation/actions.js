@@ -101,21 +101,24 @@ export function createExamAndRoute(store, classId) {
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
   };
 
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  createExam(store, exam).then(
-    () => {
-      router.push({ name: PageNames.EXAMS });
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: snackbarTranslator.$tr('newExamCreated'),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
-    },
-    error => store.dispatch('handleApiError', error, { root: true })
-  );
+  return new Promise((resolve, reject) => {
+    createExam(store, exam)
+      .then(() => {
+        router.push({ name: PageNames.EXAMS });
+        store.dispatch(
+          'createSnackbar',
+          {
+            text: snackbarTranslator.$tr('newExamCreated'),
+            autoDismiss: true,
+          },
+          { root: true }
+        );
+        resolve();
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
 }
 
 function _getTopicsWithExerciseDescendants(topicIds = []) {

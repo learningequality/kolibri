@@ -145,7 +145,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
 
         validators = [
             UniqueTogetherValidator(
-                queryset=Classroom.objects.all(),
+                queryset=LearnerGroup.objects.all(),
                 fields=('parent', 'name')
             )
         ]

@@ -115,6 +115,13 @@ class LearnerGroupAPITestCase(APITestCase):
             self.assertItemsEqual(group.pop('user_ids'), expected[i].pop('user_ids'))
         self.assertItemsEqual(response.data, expected)
 
+    def test_cannot_create_learnergroup_same_name(self):
+        classroom_id = self.classrooms[0].id
+        learner_group_name = models.LearnerGroup.objects.filter(parent_id=classroom_id).first().name
+        response = self.client.post(reverse('kolibri:core:learnergroup-list'), {'parent': classroom_id, 'name': learner_group_name},
+                                    format='json')
+        self.assertEqual(response.status_code, 400)
+
 
 class ClassroomAPITestCase(APITestCase):
 
@@ -147,6 +154,12 @@ class ClassroomAPITestCase(APITestCase):
             'coaches': []
         }
         self.assertDictEqual(response.data, expected)
+
+    def test_cannot_create_classroom_same_name(self):
+        classroom_name = self.classrooms[0].name
+        response = self.client.post(reverse('kolibri:core:classroom-list'), {'parent': self.facility.id, 'name': classroom_name},
+                                    format='json')
+        self.assertEqual(response.status_code, 400)
 
 
 class FacilityAPITestCase(APITestCase):

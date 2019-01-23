@@ -200,3 +200,11 @@ class LessonAPITestCase(APITestCase):
             "collection": self.facility.id,
         })
         self.assertEqual(response.status_code, 403)
+
+    def test_cannot_create_lesson_same_title(self):
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
+            "title": "title",
+            "is_active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 400)

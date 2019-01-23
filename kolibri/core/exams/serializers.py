@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django.db.models import Sum
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.validators import UniqueTogetherValidator
 
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
@@ -88,6 +89,13 @@ class ExamSerializer(serializers.ModelSerializer):
             'learners_see_fixed_order'
         )
         read_only_fields = ('data_model_version',)
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Exam.objects.all(),
+                fields=('collection', 'title')
+            )
+        ]
 
     def validate_question_sources(self, value):
         for question in value:

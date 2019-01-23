@@ -276,6 +276,15 @@ class ExamAPITestCase(APITestCase):
         })
         self.assertEqual(response.status_code, 403)
 
+    def test_cannot_create_exam_same_title(self):
+        response = self.client.post(reverse("kolibri:core:exam-list"), {
+            "title": "title",
+            "question_count": 2,
+            "active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, 400)
+
 
 class ExamAssignmentAPITestCase(APITestCase):
 
