@@ -18,253 +18,39 @@
         />
       </p>
       <h2>{{ $tr('classActivity') }}</h2>
-      <NotificationsFilter />
+      <NotificationsFilter
+        :resourceFilter.sync="resourceFilter"
+        :progressFilter.sync="progressFilter"
+      />
       <br>
 
       <div>
-        <NotificationCard
-          icon="star"
-          time="1 minute ago"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Adam",
-            itemName: "A video"
-          }) }}
-        </NotificationCard>
+        <p v-if="notifications.length === 0">
+          {{ $tr('noActivity') }}
+        </p>
 
         <NotificationCard
-          icon="star"
-          targetPage=""
-          time="2 minutes ago"
+          v-for="notification in notifications"
+          v-show="showNotification(notification)"
+          :key="notification.id"
+          v-bind="cardProps(notification)"
         >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Betsy",
-            itemName: "An exercise"
-          }) }}
+          {{ cardTextForNotification(notification) }}
         </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="3 minutes ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Adam",
-            itemName: "A video assigned to the class"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="4 minutes ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Betsy",
-            itemName: "An exercise assigned to the class"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="5 minutes ago"
-          learnerContext="Group A"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Carol",
-            itemName: "A video assigned to a group"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="6 minutes ago"
-          learnerContext="Group A"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Darren",
-            itemName: "An exercise assigned to a group"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="10 minutes ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Edward",
-            itemName: "Some lesson"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="star"
-          targetPage=""
-          time="15 minutes ago"
-          contentContext="Some quiz"
-        >
-          {{ nStrings.$tr('individualCompleted', {
-            learnerName: "Frank",
-            itemName: "Some quiz"
-          }) }}
-        </NotificationCard>
-
-
-
-
-
-        <!-- Individual needs help -->
-        <NotificationCard
-          icon="help"
-          targetPage=""
-          time="20 minutes ago"
-        >
-          {{ nStrings.$tr('individualNeedsHelp', {
-            learnerName: "Betsy",
-            itemName: "An exercise"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="help"
-          targetPage=""
-          time="25 minutes ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualNeedsHelp', {
-            learnerName: "Betsy",
-            itemName: "An exercise assigned to the class"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="help"
-          targetPage=""
-          time="30 minutes ago"
-          learnerContext="Group A"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualNeedsHelp', {
-            learnerName: "Darren",
-            itemName: "An exercise assigned to a group"
-          }) }}
-        </NotificationCard>
-
-
-
-
-
-        <!-- Individual started -->
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="40 minutes ago"
-        >
-          {{ nStrings.$tr('individualStarted', {learnerName: "Adam", itemName: "A video"}) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="50 minutes ago"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Betsy",
-            itemName: "An exercise"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="1 hour ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Adam",
-            itemName: "A video assigned to the class"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="1 hour ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Betsy",
-            itemName: "An exercise assigned to the class"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="1 hour ago"
-          learnerContext="Group A"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Carol",
-            itemName: "A video assigned to a group"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="2 hours ago"
-          learnerContext="Group A"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Darren",
-            itemName: "An exercise assigned to a group"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="5 hours ago"
-          contentContext="Some lesson"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Edward",
-            itemName: "Some lesson"
-          }) }}
-        </NotificationCard>
-
-        <NotificationCard
-          icon="clock"
-          targetPage=""
-          time="3 days ago"
-          contentContext="Some quiz"
-        >
-          {{ nStrings.$tr('individualStarted', {
-            learnerName: "Frank",
-            itemName: "Some quiz"
-          }) }}
-        </NotificationCard>
-
-
-
-
-
       </div>
 
-      <KButton
-        :text="coachStrings.$tr('showMoreAction')"
-      />
+      <div class="show-more">
+        <transition mode="out-in">
+          <KLinearLoader v-if="loading" :delay="false" />
+          <template v-else>
+            <KButton
+              v-if="moreResults"
+              :text="coachStrings.$tr('showMoreAction')"
+              @click="fetchNotifications"
+            />
+          </template>
+        </transition>
+      </div>
 
     </div>
   </CoreBase>
@@ -274,19 +60,180 @@
 
 <script>
 
+  import find from 'lodash/find';
+  import { mapState } from 'vuex';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import commonCoach from '../common';
   import NotificationsFilter from '../common/notifications/NotificationsFilter';
-
-  import NotificationCard from '../common/notifications/NotificationCard';
+  import NotificationCard from '../common/notifications/NotificationCardNoLink';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
+  import notificationsResource from '../../apiResources/notifications';
 
   export default {
     name: 'HomeActivityPage',
     components: {
+      KLinearLoader,
       NotificationsFilter,
       NotificationCard,
     },
     mixins: [commonCoach, nStringsMixin],
+    data() {
+      return {
+        loading: true,
+        error: false,
+        moreResults: true,
+        nextPage: 1,
+        progressFilter: 'all',
+        resourceFilter: 'all',
+        notifications: [],
+      };
+    },
+    computed: {
+      ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'learnerMap', 'name']),
+    },
+    beforeMount() {
+      this.fetchNotifications();
+    },
+    methods: {
+      fetchNotifications() {
+        this.loading = true;
+        return notificationsResource
+          .fetchCollection({
+            getParams: {
+              collection_id: this.$route.params.classId,
+              page_size: 20,
+              page: this.nextPage,
+            },
+            force: true,
+          })
+          .then(data => {
+            const filtered = data.results.filter(this.filterNotifications);
+            this.notifications = [...this.notifications, ...filtered.map(this.reshapeNotification)];
+            this.moreResults = data.next !== null;
+            this.nextPage = this.nextPage + 1;
+            this.loading = false;
+          });
+      },
+      showNotification(notification) {
+        if (this.progressFilter === 'all' && this.resourceFilter === 'all') {
+          return true;
+        }
+        let progressPasses = true;
+        let resourcePasses = true;
+        if (this.progressFilter !== 'all') {
+          progressPasses = notification.event === this.progressFilter;
+        }
+        if (this.resourceFilter !== 'all') {
+          if (this.resourceFilter === 'lesson') {
+            resourcePasses = notification.object === 'Lesson';
+          } else if (this.resourceFilter === 'quiz') {
+            resourcePasses = notification.object === 'Quiz';
+          } else {
+            resourcePasses = notification.resource.type === this.resourceFilter;
+          }
+        }
+        return progressPasses && resourcePasses;
+      },
+      // Used to filter out notifications with deleted references
+      filterNotifications(notification) {
+        if (notification.user === '') {
+          return false;
+        }
+        if (notification.object === 'Quiz' && notification.quiz === '') {
+          return false;
+        }
+        if (notification.object === 'Lesson' || notification.object === 'Resource') {
+          return notification.lesson !== '' && notification.resource !== '';
+        }
+        return true;
+      },
+      // Takes the raw notification and reshapes it to match the objects
+      // created by the summarizedNotifications getter.
+      reshapeNotification(notification) {
+        const { object } = notification;
+        // Finds the first group the user_id is in and just uses that label.
+        // Does not make additional notifications if the user is in more than
+        // one group that has been assigned lesson or quiz.
+        let groups;
+        if (object === 'Quiz') {
+          groups = [...this.examMap[notification.quiz_id].groups];
+        } else if (object === 'Lesson' || object === 'Resource') {
+          groups = [...this.lessonMap[notification.lesson_id].groups];
+        }
+        const wholeClass = groups.length === 0;
+        let collection = {};
+        if (wholeClass) {
+          collection = {
+            name: this.name,
+            type: 'classroom',
+          };
+        } else {
+          const groupMatch = find(groups, groupId => {
+            const found = this.groupMap[groupId];
+            if (found) {
+              return found.member_ids.includes(notification.user_id);
+            }
+            return false;
+          });
+          if (groupMatch) {
+            collection = {
+              name: this.groupMap[groupMatch].name,
+              type: 'learnergroup',
+            };
+          } else {
+            // If learner group was deleted, then just give it the header
+            // for the whole class
+            collection = {
+              name: this.name,
+              type: 'classroom',
+            };
+          }
+        }
+
+        return {
+          event: notification.event,
+          object,
+          timestamp: notification.timestamp,
+          collection,
+          assignment: {
+            name: object === 'Quiz' ? notification.quiz : notification.lesson,
+            type: object === 'Quiz' ? 'exam' : 'lesson',
+          },
+          resource: {
+            name: notification.resource || '',
+            type: notification.contentnode_kind,
+          },
+          learnerSummary: {
+            firstUserName: notification.user,
+            total: 1,
+          },
+        };
+      },
+      cardProps(notification) {
+        let icon = '';
+        let contentIcon = '';
+        const { assignment, collection, object, event, resource } = notification;
+        icon = {
+          Completed: 'star',
+          Started: 'clock',
+          HelpNeeded: 'help',
+        }[event];
+
+        if (object === 'Lesson' || object === 'Quiz') {
+          contentIcon = assignment.type;
+        } else {
+          contentIcon = resource.type;
+        }
+
+        return {
+          icon,
+          contentIcon,
+          contentContext: assignment.name,
+          learnerContext: collection.type === 'learnergroup' ? collection.name : '',
+          time: notification.timestamp,
+        };
+      },
+    },
     $trs: {
       back: 'Class home',
       classActivity: 'Class activity',
@@ -298,4 +245,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .show-more {
+    height: 100px;
+  }
+
+</style>

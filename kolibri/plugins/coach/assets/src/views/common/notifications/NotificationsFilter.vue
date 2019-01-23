@@ -6,12 +6,14 @@
       :options="resourceTypeOptions"
       :inline="true"
       :value="resourceType"
+      @change="$emit('update:resourceFilter', $event.value)"
     />
     <KSelect
       :label="$tr('progressTypeLabel')"
       :options="progressTypeOptions"
       :inline="true"
       :value="progressType"
+      @change="$emit('update:progressFilter', $event.value)"
     />
   </div>
 
@@ -56,15 +58,15 @@
           },
           {
             label: this.coachStrings.$tr('helpNeededLabel'),
-            value: 'needsHelp',
+            value: 'HelpNeeded',
           },
           {
             label: this.coachStrings.$tr('startedLabel'),
-            value: 'started',
+            value: 'Started',
           },
           {
             label: this.coachStrings.$tr('completedLabel'),
-            value: 'completed',
+            value: 'Completed',
           },
         ];
       },
@@ -76,19 +78,19 @@
           },
           {
             label: this.coachStrings.$tr('lessonsLabel'),
-            value: 'lessons',
+            value: 'lesson',
           },
           {
             label: this.coachStrings.$tr('quizzesLabel'),
-            value: 'quizzes',
+            value: 'quiz',
           },
           {
             label: this.$tr('exercisesLabel'),
-            value: 'exercises',
+            value: 'exercise',
           },
           {
             label: this.$tr('videosLabel'),
-            value: 'videos',
+            value: 'video',
           },
           {
             label: this.$tr('audioLabel'),
@@ -96,11 +98,11 @@
           },
           {
             label: this.$tr('documentsLabel'),
-            value: 'documents',
+            value: 'document',
           },
           {
             label: this.$tr('appsLabel'),
-            value: 'apps',
+            value: 'html5',
           },
         ];
       },

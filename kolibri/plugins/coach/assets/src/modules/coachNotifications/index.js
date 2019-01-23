@@ -1,6 +1,5 @@
 import maxBy from 'lodash/maxBy';
 import df from 'date-fns';
-
 import notificationsResource from '../../apiResources/notifications';
 import { summarizedNotifications } from './getters';
 
@@ -70,7 +69,7 @@ export default {
           },
         })
         .then(data => {
-          store.commit('SET_NOTIFICATIONS', data);
+          store.commit('SET_NOTIFICATIONS', data.results);
           if (!store.state.poller) {
             store.dispatch('startPolling');
           }
@@ -86,8 +85,8 @@ export default {
           force: true,
         })
         .then(data => {
-          if (data.length > 0) {
-            store.commit('APPEND_NOTIFICATIONS', data);
+          if (data.count > 0) {
+            store.commit('APPEND_NOTIFICATIONS', data.results);
           }
         });
     },

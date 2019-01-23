@@ -4,6 +4,7 @@ import { ClassroomResource } from 'kolibri.resources';
 import { PageNames } from '../constants';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
+import HomeActivityPage from '../views/home/HomeActivityPage';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 
@@ -41,6 +42,14 @@ export default [
     name: HomePage.name,
     path: '/:classId/home',
     component: HomePage,
+    handler() {
+      store.dispatch('notLoading');
+    },
+  },
+  {
+    name: HomeActivityPage.name,
+    path: '/:classId/activity',
+    component: HomeActivityPage,
     handler() {
       store.dispatch('notLoading');
     },

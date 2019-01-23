@@ -7,7 +7,7 @@
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="newCoachRoute('HomeActivityPage')"
+        :to="route('HomeActivityPage')"
       />
     </p>
     <div>
@@ -43,7 +43,7 @@
   } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
 
-  const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
+  const { LESSON, QUIZ } = NotificationObjects;
   const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
 
   export default {
@@ -92,52 +92,6 @@
           contentContext: notification.assignment.name,
           lastTimestamp: String(notification.lastTimestamp),
         };
-      },
-      cardTextForNotification(notification) {
-        const { collection, resource, learnerSummary, object, event } = notification;
-        let stringType;
-        let stringDetails = {
-          learnerName: learnerSummary.firstUserName,
-        };
-
-        if (object === RESOURCE) {
-          stringDetails.itemName = resource.name;
-        }
-
-        if (object === LESSON || object === QUIZ) {
-          stringDetails.itemName = notification.assignment.name;
-        }
-
-        if (event === COMPLETED || event === STARTED) {
-          if (learnerSummary.completesCollection) {
-            if (collection.type === CollectionTypes.CLASSROOM) {
-              // When concatenated, should match the keys in 'nStrings' (e.g. 'wholeClassCompleted')
-              stringType = `wholeClass${event}`;
-              stringDetails.className = collection.name;
-            } else {
-              stringType = `wholeGroup${event}`;
-              stringDetails.groupName = collection.name;
-            }
-          } else {
-            if (learnerSummary.total === 1) {
-              stringType = `individual${event}`;
-            } else {
-              stringType = `multiple${event}`;
-              stringDetails.numOthers = learnerSummary.total - 1;
-            }
-          }
-        }
-
-        if (event === HELP_NEEDED) {
-          if (learnerSummary.total === 1) {
-            stringType = 'individualNeedsHelp';
-          } else {
-            stringType = 'multipleNeedHelp';
-            stringDetails.numOthers = learnerSummary.total - 1;
-          }
-        }
-
-        return this.nStrings.$tr(stringType, stringDetails);
       },
     },
     $trs: {
