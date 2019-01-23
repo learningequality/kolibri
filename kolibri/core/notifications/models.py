@@ -19,9 +19,9 @@ from kolibri.utils.time import local_now
 
 # Remove NotificationsRouter if sqlite is not being used:
 if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
-    if 'kolibri.core.notifications.models.NotificationsRouter' in settings.DATABASE_ROUTERS:
-        settings.DATABASE_ROUTERS = tuple(filter(lambda x: x != 'kolibri.core.notifications.models.NotificationsRouter',
-                                                 settings.DATABASE_ROUTERS))
+    ROUTER_ID = 'kolibri.core.notifications.models.NotificationsRouter'
+    if ROUTER_ID in settings.DATABASE_ROUTERS:
+        settings.DATABASE_ROUTERS = tuple(filter(lambda x: x != ROUTER_ID, settings.DATABASE_ROUTERS))
 
 
 class NotificationsRouter(object):
@@ -122,6 +122,9 @@ class NotificationsLog(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True, serialize=True, verbose_name='ID'),
     coach_id = UUIDField()
     timestamp = DateTimeTzField(default=local_now)
+
+    def __str__(self):
+        return self.coach_id
 
     class Meta:
         app_label = 'notifications'
