@@ -116,10 +116,25 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
     permission_classes = (KolibriReportPermissions,)
     serializer_class = LearnerNotificationSerializer
     pagination_class = OptionalPageNumberPagination
+    pagination_class.page_size = 10
 
     def get_queryset(self):
+        """
+        Returns the notifications according to the params provided in the url
+        url_example:
+        /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f&after=8&page=2
+        /coach/api/notifications/?page_size=5&page=2&collection_id=9da65157a8603788fd3db890d2035a9f&learner_id=94117bb5868a1ef529b8be60f17ff41a
+
+        :param: collection_id uuid: classroom or learner group identifier (mandatory)
+        :param: user_id uuid: user identifier
+        :param: after integer: all the notifications after this id will be sent.
+        :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
+        :param: page integer: sets the page to provide when pagination
+
+        """
         classroom_id = self.kwargs['collection_id']
         notifications_after = self.request.query_params.get('after', None)
+        learner_id = self.request.query_params.get('learner_id', None)
         after = None
         if notifications_after:
             try:
@@ -127,14 +142,25 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             except ValueError:
                 pass  # if after has not a valid format, let's not use it
 
-        try:
-            Collection.objects.get(pk=classroom_id)
-        except (Collection.DoesNotExist, ValueError):
-            return None
+        if classroom_id:
+            try:
+                Collection.objects.get(pk=classroom_id)
+            except (Collection.DoesNotExist, ValueError):
+                return []
+        if learner_id:
+            try:
+                FacilityUser.objects.get(id=learner_id)
+            except (FacilityUser.DoesNotExist, ValueError):
+                return []
+
         notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+
+        if learner_id:
+            notifications_query = notifications_query.filter(user_id=learner_id)
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         else:
             today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
             notifications_query = notifications_query.filter(timestamp__gte=today)
+
         return notifications_query.order_by('id')
