@@ -94,6 +94,34 @@ option_spec = {
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
+    "Debug": {
+        "SENTRY_BACKEND_ENABLED": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_ENABLED", ),
+        },
+        "SENTRY_BACKEND_PUBLIC_KEY": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_PUBLIC_KEY", ),
+        },
+        "SENTRY_BACKEND_PROJECT_ID": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_PROJECT_ID", ),
+        },
+        "SENTRY_FRONTEND_ENABLED": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_ENABLED", ),
+        },
+        "SENTRY_FRONTEND_PUBLIC_KEY": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_PUBLIC_KEY", ),
+        },
+        "SENTRY_FRONTEND_PROJECT_ID": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_PROJECT_ID", ),
+        },
+    },
 }
 
 

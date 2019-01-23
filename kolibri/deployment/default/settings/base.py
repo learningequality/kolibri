@@ -394,3 +394,25 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+
+if conf.OPTIONS['Debug']['SENTRY_BACKEND_ENABLED']:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    print("Sentry error logging is enabled")
+
+    if not conf.OPTIONS['Debug']['SENTRY_BACKEND_PUBLIC_KEY']:
+        print('SENTRY_BACKEND_PUBLIC_KEY is not defined')
+
+    if not conf.OPTIONS['Debug']['SENTRY_BACKEND_PROJECT_ID']:
+        print('SENTRY_BACKEND_PROJECT_ID is not defined')
+
+    sentry_sdk.init(
+        dsn="https://{}@sentry.io/{}".format(
+            conf.OPTIONS['Debug']['SENTRY_BACKEND_PUBLIC_KEY'],
+            conf.OPTIONS['Debug']['SENTRY_BACKEND_PROJECT_ID'],
+        ),
+        integrations=[DjangoIntegration()],
+        release=kolibri.__version__,
+    )
