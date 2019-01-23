@@ -143,9 +143,10 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         """
         Returns the notifications according to the params provided in the url
-        By default it sends today's notifications. If page parameter is used,
-        notifications are sent in reverse order, and the date limitation is removed, thus all the
+        By default it sends today's notifications.
+        If page parameter is used, the date limitation is removed, thus all the
         existing notifications fulfilling the other conditions are sent.
+        Notifications are always reversely sorted (latest first)
 
         Some url examples:
         /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f
@@ -157,7 +158,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         :param: learner_id uuid: user identifier
         :param: after integer: all the notifications after this id will be sent.
         :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
-        :param: page integer: sets the page to provide when paginating. Notifications are sent in reverse order.
+        :param: page integer: sets the page to provide when paginating.
 
         """
         classroom_id = self.kwargs['collection_id']
@@ -172,13 +173,10 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         notifications_query = self.check_learner(notifications_query)
         after = self.check_after(notifications_query)
 
-        paginating = self.request.query_params.get('page', None)
-
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
-        elif not paginating:
+        elif self.request.query_params.get('page', None) is None:
             today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
             notifications_query = notifications_query.filter(timestamp__gte=today)
 
-        order_field = '-id' if paginating else 'id'
-        return notifications_query.order_by(order_field)
+        return notifications_query.order_by('-id')
