@@ -404,3 +404,16 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+
+if conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN']:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN'],
+        integrations=[DjangoIntegration()],
+        release=kolibri.__version__,
+    )
+
+    print("Sentry backend error logging is enabled")
