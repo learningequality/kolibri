@@ -118,6 +118,28 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
     pagination_class = OptionalPageNumberPagination
     pagination_class.page_size = 10
 
+    def check_after(self, query):
+        """
+        Check if after parameter must be used for the query
+        """
+        notifications_after = self.request.query_params.get('after', None)
+        after = None
+        if notifications_after:
+            try:
+                after = int(notifications_after)
+            except ValueError:
+                pass  # if after has not a valid format, let's not use it
+        return after
+
+    def check_learner(self, query):
+        """
+        Filter the notifications by learner_id if applicable
+        """
+        learner_id = self.request.query_params.get('learner_id', None)
+        if learner_id:
+            return query.filter(user_id=learner_id)
+        return query
+
     def get_queryset(self):
         """
         Returns the notifications according to the params provided in the url
@@ -126,6 +148,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         existing notifications fulfilling the other conditions are sent.
 
         Some url examples:
+        /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f
         /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f&after=8&page=2
         /coach/api/notifications/?page_size=5&page=2&collection_id=9da65157a8603788fd3db890d2035a9f&learner_id=94117bb5868a1ef529b8be60f17ff41a
         /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f&page=2
@@ -138,30 +161,19 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
         """
         classroom_id = self.kwargs['collection_id']
-        notifications_after = self.request.query_params.get('after', None)
-        learner_id = self.request.query_params.get('learner_id', None)
-        after = None
-        if notifications_after:
-            try:
-                after = int(notifications_after)
-            except ValueError:
-                pass  # if after has not a valid format, let's not use it
 
         if classroom_id:
             try:
                 Collection.objects.get(pk=classroom_id)
             except (Collection.DoesNotExist, ValueError):
                 return []
-        if learner_id:
-            try:
-                FacilityUser.objects.get(id=learner_id)
-            except (FacilityUser.DoesNotExist, ValueError):
-                return []
 
         notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+        notifications_query = self.check_learner(notifications_query)
+        after = self.check_after(notifications_query)
+
         paginating = self.request.query_params.get('page', None)
-        if learner_id:
-            notifications_query = notifications_query.filter(user_id=learner_id)
+
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         elif not paginating:
