@@ -2,6 +2,7 @@ import base64
 import datetime
 import hashlib
 import json
+import re
 
 import semver
 from django.db import transaction
@@ -47,10 +48,52 @@ def dump_zipped_json(data):
     return jsondata
 
 
-def cmp_semver(kolibri_version, version_range):
+#  Copied from https://github.com/learningequality/nutritionfacts/commit/b33e19400ae639cbcf2b2e9b312d37493eb1e566#diff-5b7513e7bc7d64d348fd8d3f2222b573
+#  TODO: move to le-utils package
+def version_matches_range(version, version_range):
+
     if version_range == '*':
         return True
-    return semver.match(kolibri_version, version_range)
+
+    # support having multiple comma-delimited version criteria
+    if "," in version_range:
+        return all([version_matches_range(version, vrange) for vrange in version_range.split(",")])
+
+    # extract and normalize version strings
+    operator, range_version = re.match(r"([<>=!]*)(\d.*)""", version_range).groups()
+    range_version = normalize_version_to_semver(range_version)
+    version = normalize_version_to_semver(version)
+
+    # check whether the version is in the range
+    return semver.match(version, operator + range_version)
+
+
+def normalize_version_to_semver(version):
+
+    initial, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
+
+    # clean up after some funny versions we've seen (e.g. 0.8.0-alpha-0)
+    initial = initial.split("-")[0].split("+")[0]
+
+    # extract the numeric semver component and the stuff that comes after
+    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", version).groups()
+
+    # clean up the different variations of the post-numeric component to ease checking
+    after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
+
+    # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
+    after_pieces = re.match(r"([a-z])(\d+)", after)
+    if after_pieces:
+        after = ".".join([piece for piece in after_pieces.groups() if piece])
+
+    # position final releases between alphas, betas, and further dev
+    if not dev:
+        after = (after + ".c").strip(".")
+
+    # make sure dev versions are sorted nicely relative to one another
+    dev = (dev or "").replace("+", ".").replace("-", ".")
+
+    return "{}-{}{}".format(numeric, after, dev).strip("-")
 
 
 def extract_facility_statistics(facility):
@@ -179,17 +222,16 @@ def extract_channel_statistics(channel):
 
 @transaction.atomic
 def create_and_update_notifications(data, source):
-    if data.get('messages'):
-        excluded_ids = [obj.get('msg_id') for obj in data['messages'] if obj.get('msg_id')]
-        if excluded_ids:
-            PingbackNotification.objects.filter(source=source).exclude(id__in=excluded_ids).update(active=False)
-        for msg in data['messages']:
-            new_msg = {}
-            if msg.get('msg_id'):
-                new_msg['id'] = msg['msg_id']
-                new_msg['version_range'] = msg.get('version_range')
-                new_msg['link_url'] = msg.get('link_url')
-                new_msg['i18n'] = msg.get('i18n')
-                new_msg['timestamp'] = msg.get('timestamp')
-                new_msg['source'] = source
-                PingbackNotification.objects.update_or_create(defaults=new_msg, id=new_msg['id'])
+    messages = data.get('messages', [])
+    excluded_ids = [obj.get('msg_id') for obj in messages if obj.get('msg_id')]
+    PingbackNotification.objects.filter(source=source).exclude(id__in=excluded_ids).update(active=False)
+    for msg in messages:
+        new_msg = {}
+        if msg.get('msg_id'):
+            new_msg['id'] = msg['msg_id']
+            new_msg['version_range'] = msg.get('version_range')
+            new_msg['link_url'] = msg.get('link_url')
+            new_msg['i18n'] = msg.get('i18n')
+            new_msg['timestamp'] = msg.get('timestamp')
+            new_msg['source'] = source
+            PingbackNotification.objects.update_or_create(defaults=new_msg, id=new_msg['id'])

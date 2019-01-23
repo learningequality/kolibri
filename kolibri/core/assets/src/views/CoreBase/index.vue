@@ -297,7 +297,7 @@
           id: notification.id,
           title: notification.i18n[languageCode].title,
           msg: notification.i18n[languageCode].msg,
-          linkText: notification.i18n[languageCode].linkText,
+          linkText: notification.i18n[languageCode].link_text,
           linkUrl: notification.link_url,
         };
       },

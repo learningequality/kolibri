@@ -254,9 +254,9 @@ class CreateUpdateNotificationsTestCase(TestCase):
         self.data = {'i18n': {}, 'id': 'message', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0', 'source': PINGBACK}
         PingbackNotification.objects.create(**self.data)
 
-    def test_no_messages_no_updates(self):
+    def test_no_messages_still_updates(self):
         create_and_update_notifications(self.messages, PINGBACK)
-        self.assertTrue(PingbackNotification.objects.get(id='message').active)
+        self.assertFalse(PingbackNotification.objects.get(id='message').active)
 
     def test_create_and_update_notification(self):
         self.messages['messages'].append(self.msg)
