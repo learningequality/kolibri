@@ -17,7 +17,7 @@ OSX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) \((?P<filesystem
 #  /dev/sdb2 on /media/user/KEEPOD type ext4 (rw,nosuid,nodev,uhelper=udisks2)
 LINUX_MOUNT_PARSER = re.compile("^(?P<device>\S+) on (?P<path>.+) type (?P<filesystem>\S+)", flags=re.MULTILINE)
 
-# Regex parser for the output of 'mount' on Android, which contains raws that looks like:
+# Regex parser for the output of 'mount' on Android, which contains rows that looks like:
 #  /dev/block/bootdevice/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,noauto_da_alloc,data=ordered 0 0
 # Note that access to /proc/ is restricted in later versions of Android. Will break the app.
 RAW_MOUNT_PARSER = re.compile("^(?P<device>\S+) (?P<path>\S+) (?P<filesystem>\S+)", flags=re.MULTILINE)
