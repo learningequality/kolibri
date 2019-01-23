@@ -107,15 +107,17 @@ Collecting client and server errors using Sentry
 
 `Sentry <https://docs.sentry.io/>`__ clients are available for both backend and frontend error reporting. This can be particularly useful to have running on beta and demo servers in order to catch errors "in the wild".
 
-To set up error reporting, you'll need an `public key and a project ID <https://docs.sentry.io/error-reporting/quickstart>`__. You can set these either in options.ini or as environment variables.
+To set up error reporting, you'll need a `Sentry DSN <https://docs.sentry.io/error-reporting/quickstart>`__. These are available from your project settings at ``https://sentry.io/settings/[org_name]/[project_name]/keys/``
+
+You can set these either in options.ini or as environment variables.
 
 If using options.ini, under a ``Debug`` header you can use these options:
 
- * ``SENTRY_BACKEND_ENABLED``
- * ``SENTRY_BACKEND_PUBLIC_KEY``
- * ``SENTRY_BACKEND_PROJECT_ID``
- * ``SENTRY_FRONTEND_ENABLED``
- * ``SENTRY_FRONTEND_PUBLIC_KEY``
- * ``SENTRY_FRONTEND_PROJECT_ID``
+ * ``SENTRY_BACKEND_DSN``
+ * ``SENTRY_FRONTEND_DSN``
 
-If using environment variables, the names are the same but with ``KOLIBRI_DEBUG_`` prepended - for example ``KOLIBRI_DEBUG_SENTRY_BACKEND_ENABLED = 1``.
+Or if using environment variables:
+
+ * ``KOLIBRI_DEBUG_SENTRY_BACKEND_DSN``
+ * ``KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN``
+

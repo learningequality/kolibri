@@ -237,31 +237,16 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
 @register.simple_tag()
 def kolibri_sentry_error_reporting():
 
-    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_ENABLED']:
+    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN']:
         return ''
-
-    warning = """
-      <script>console.warn("Sentry error reporting is enabled but {} is not defined.");</script>
-    """
-    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_PUBLIC_KEY']:
-        logger.warn('SENTRY_FRONTEND_PUBLIC_KEY is not defined')
-        return mark_safe(warning.format('SENTRY_FRONTEND_PUBLIC_KEY'))
-    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_PROJECT_ID']:
-        logger.warn('SENTRY_FRONTEND_PROJECT_ID is not defined')
-        return mark_safe(warning.format('SENTRY_FRONTEND_PROJECT_ID'))
 
     template = """
       <script>
-        var sentryEnabled = true;
-        var sentryConfig = {{
-          publicKey: '{}',
-          projectId: '{}',
-        }};
+        var sentryDSN = '{}';
       </script>
     """
     return mark_safe(
         template.format(
-            conf.OPTIONS['Debug']['SENTRY_FRONTEND_PUBLIC_KEY'],
-            conf.OPTIONS['Debug']['SENTRY_FRONTEND_PROJECT_ID'],
+            conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN'],
         )
     )

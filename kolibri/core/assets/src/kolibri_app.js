@@ -3,23 +3,7 @@ import router from 'kolibri.coreVue.router';
 import Vue from 'kolibri.lib.vue';
 import store from 'kolibri.coreVue.vuex.store';
 import heartbeat from 'kolibri.heartbeat';
-import * as Sentry from '@sentry/browser';
-import logger from 'kolibri.lib.logging';
 import KolibriModule from 'kolibri_module';
-
-export const logging = logger.getLogger(__filename);
-
-if (global.sentryEnabled) {
-  logging.warn('Sentry error logging is enabled - this disables all local error reporting!');
-  logging.warn(
-    '(see https://github.com/vuejs/vue/issues/8433 and https://docs.sentry.io/platforms/javascript/vue/)'
-  );
-  Sentry.init({
-    dsn: `https://${global.sentryConfig.publicKey}@sentry.io/${global.sentryConfig.projectId}`,
-    release: __version,
-    integrations: [new Sentry.Integrations.Vue({ Vue })],
-  });
-}
 
 /*
  * A class for single page apps that control routing and vuex state.
