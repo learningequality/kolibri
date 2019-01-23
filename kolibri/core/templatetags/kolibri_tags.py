@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 
 import copy
 import json
+import logging
 import re
 
 import user_agents
@@ -36,6 +37,8 @@ from kolibri.utils import conf
 from kolibri.utils import i18n
 
 register = template.Library()
+
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag()
@@ -229,3 +232,21 @@ def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs)
     response = view(request, **view_kwargs)
     _replace_dict_values(str(''), None, kwargs)
     return response, kwargs
+
+
+@register.simple_tag()
+def kolibri_sentry_error_reporting():
+
+    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN']:
+        return ''
+
+    template = """
+      <script>
+        var sentryDSN = '{}';
+      </script>
+    """
+    return mark_safe(
+        template.format(
+            conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN'],
+        )
+    )
