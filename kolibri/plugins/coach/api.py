@@ -20,7 +20,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.notifications.models import LearnerProgressNotification
-
+from kolibri.core.notifications.models import NotificationsLog
 
 collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
 
@@ -178,3 +178,26 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             notifications_query = notifications_query.filter(timestamp__gte=today)
 
         return notifications_query.order_by('-id')
+
+    def list(self, request, *args, **kwargs):
+        """
+        It provides the list of ClassroomNotificationsViewset from DRF.
+        Then it fetches and saves the needed information to know how many coaches
+        are requesting notificatios in the last five minutes
+        """
+        response = super(viewsets.ReadOnlyModelViewSet, self).list(request, *args, **kwargs)
+
+        # L
+        logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
+        logged_notifications = (
+            NotificationsLog.objects.filter(timestamp__gte=logging_interval).values('coach_id').distinct().count()
+        )
+        # if there are more than 10 notifications we limit the answer to 10
+        if logged_notifications < 10:
+            notification_info = NotificationsLog()
+            notification_info.coach_id = request.user.id
+            notification_info.save()
+            NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
+
+        response.data['coaches_polling'] = logged_notifications
+        return response

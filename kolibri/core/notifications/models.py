@@ -115,3 +115,13 @@ class LearnerProgressNotification(models.Model):
 
     class Meta:
         app_label = 'notifications'
+
+
+@python_2_unicode_compatible
+class NotificationsLog(models.Model):
+    id = models.AutoField(auto_created=True, primary_key=True, serialize=True, verbose_name='ID'),
+    coach_id = UUIDField()
+    timestamp = DateTimeTzField(default=local_now)
+
+    class Meta:
+        app_label = 'notifications'
