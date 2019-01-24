@@ -11,6 +11,7 @@
         v-for="notification in notifications"
         :key="notification.groupCode + String(notification.lastTimestamp)"
         v-bind="cardPropsForNotification(notification)"
+        class="block-item"
       >
         {{ cardTextForNotification(notification) }}
       </NotificationCard>

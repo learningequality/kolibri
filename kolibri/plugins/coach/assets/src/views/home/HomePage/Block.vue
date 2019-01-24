@@ -67,7 +67,7 @@
     top: 4px;
   }
 
-  .block-item:not(:last-child) {
+  /deep/ .block-item:not(:last-child) {
     padding-right: 24px;
     padding-bottom: 16px;
     padding-left: 24px;

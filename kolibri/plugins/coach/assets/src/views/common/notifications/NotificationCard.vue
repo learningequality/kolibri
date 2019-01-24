@@ -122,11 +122,9 @@
 
   .notification {
     position: relative;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    margin-bottom: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     text-decoration: none;
-    border-top: 1px solid rgb(223, 223, 223);
   }
 
   .context {
