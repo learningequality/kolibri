@@ -21,7 +21,8 @@ import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
-
+import HeaderTable from './common/HeaderTable';
+import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import LearnerProgressRatio from './common/status/LearnerProgressRatio';
 import LearnerProgressCount from './common/status/LearnerProgressCount';
 import LearnerProgressLabel from './common/status/LearnerProgressLabel';
@@ -51,6 +52,8 @@ export default {
     Score,
     TimeDuration,
     QuizActive,
+    HeaderTable,
+    HeaderTableRow,
     LearnerProgressRatio,
     LearnerProgressCount,
     LearnerProgressLabel,
