@@ -35,10 +35,11 @@
 
 <script>
 
+  import { mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { getRemoteChannelByToken } from '../../modules/wizard/utils';
+  import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
   export default {
     name: 'ChannelTokenModal',
@@ -66,14 +67,23 @@
       },
     },
     methods: {
+      ...mapMutations('manageContent/wizard', {
+        setAvailableChannels: 'SET_AVAILABLE_CHANNELS',
+      }),
       submitForm() {
         this.tokenLookupFailed = false;
         this.formIsSubmitted = true;
         if (this.tokenIsValid) {
           this.formIsDisabled = true;
           return this.lookupToken(this.token)
-            .then(([channel]) => {
-              this.$emit('channelfound', channel);
+            .then(channels => {
+              // tokens can return one or more channels
+              if (channels.length > 1) {
+                this.setAvailableChannels(channels);
+                this.$emit('closemodal');
+              } else {
+                this.$emit('channelfound', channels[0]);
+              }
             })
             .catch(error => {
               if (error.status.code === 404) {
@@ -89,7 +99,7 @@
         return Promise.resolve();
       },
       lookupToken(token) {
-        return getRemoteChannelByToken(token);
+        return getRemoteChannelBundleByToken(token);
       },
     },
     $trs: {

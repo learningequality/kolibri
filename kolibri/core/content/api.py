@@ -447,10 +447,9 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
                 # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-                    user=user).values_list('content_id', flat=True)).filter(
-                    Q(has_prerequisite__in=completed_content_nodes) |
-                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes)
+                    | Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
                 ).order_by()
 
         serializer = self.get_serializer(queryset, many=True)
@@ -770,6 +769,13 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
+
+    @detail_route(methods=['get'])
+    def retrieve_list(self, request, pk=None):
+        baseurl = request.GET.get("baseurl", None)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl, keyword=keyword, language=language)
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):

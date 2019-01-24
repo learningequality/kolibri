@@ -14,6 +14,10 @@ export function getRemoteChannelByToken(token) {
   return RemoteChannelResource.fetchModel({ id: token, force: true });
 }
 
+export function getRemoteChannelBundleByToken(token) {
+  return RemoteChannelResource.fetchChannelList(token);
+}
+
 /**
  * Starts Task that downloads a Channel Metadata database.
  * NOTE: cannot be normally dispatched as an action, since it uses
