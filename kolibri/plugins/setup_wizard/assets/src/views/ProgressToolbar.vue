@@ -2,7 +2,7 @@
 
   <UiToolbar
     class="progress-toolbar"
-    type="colored"
+    type="clear"
     textColor="white"
   >
     <UiIconButton
