@@ -7,7 +7,6 @@ import examReportDetail from './examReportDetail';
 import examsRoot from './examsRoot';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
-import lessonResourceUserSummary from './lessonResourceUserSummary';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import classSummary from './classSummary';
@@ -99,7 +98,6 @@ export default {
     examsRoot,
     exerciseDetail,
     groups,
-    lessonResourceUserSummary,
     lessonSummary,
     lessonsRoot,
   },
