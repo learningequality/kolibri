@@ -7,8 +7,10 @@ import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 import KGrid from 'kolibri.coreVue.components.KGrid';
 import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import KSelect from 'kolibri.coreVue.components.KSelect';
 import router from 'kolibri.coreVue.router';
+import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import { PageNames } from '../constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
@@ -34,6 +36,7 @@ export default {
   name: 'ReportsQuizHeader',
   components: {
     CoreBase,
+    ContentIcon,
     TopNavbar,
     KModal,
     KButton,
@@ -70,6 +73,12 @@ export default {
     },
     PageNames() {
       return PageNames;
+    },
+    ContentNodeKinds() {
+      return ContentNodeKinds;
+    },
+    CollectionKinds() {
+      return CollectionKinds;
     },
   },
   methods: {

@@ -17,15 +17,15 @@
       <KGridItem sizes="100, 100, 50" percentage>
         <KGrid :gutter="16">
           <KGridItem size="100" percentage>
-            <QuizzesBlock class="new-coach-block" />
+            <QuizzesBlock />
           </KGridItem>
           <KGridItem size="100" percentage>
-            <!-- <LessonsBlock class="new-coach-block" /> -->
+            <!-- <LessonsBlock /> -->
           </KGridItem>
         </KGrid>
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
-        <ActivityBlock class="new-coach-block" />
+        <ActivityBlock />
       </KGridItem>
     </KGrid>
 
@@ -57,11 +57,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .new-coach-block {
-    min-width: auto;
-    margin-top: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

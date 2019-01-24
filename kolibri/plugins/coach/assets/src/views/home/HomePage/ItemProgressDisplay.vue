@@ -1,6 +1,6 @@
 <template>
 
-  <div class="item">
+  <div>
     <h3>{{ name }}</h3>
     <p><Recipients :groups="groups" /></p>
 
@@ -18,7 +18,6 @@
       :verbosity="0"
       icon="help"
       verb="needHelp"
-      class="float"
     />
 
   </div>
@@ -54,6 +53,10 @@
         type: Number,
         default: 0,
       },
+      isLast: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       progressIcon() {
@@ -71,15 +74,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .item {
-    margin-bottom: 8px;
-    border-top: 1px solid gray;
-  }
-
-  .float {
-    float: right;
-  }
-
-</style>
+<style lang="scss" scoped></style>

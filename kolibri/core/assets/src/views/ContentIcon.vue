@@ -1,4 +1,4 @@
-<template>
+class<template>
 
   <span>
     <UiIcon ref="icon">
@@ -54,6 +54,12 @@
         v-if="is(ContentNodeKinds.LESSON)"
         category="communication"
         name="import_contacts"
+        :class="[colorClass]"
+      />
+      <mat-svg
+        v-if="is(ContentNodeKinds.ACTIVITY)"
+        category="device"
+        name="access_time"
         :class="[colorClass]"
       />
       <mat-svg
