@@ -36,16 +36,23 @@
             </td>
             <td>
               <LearnerProgressRatio
-                :count="1"
-                :total="data.numLearnersAssigned(lesson.groups)"
+                :count="numCompleted(lesson)"
+                :total="dataHelpers.learnersForGroups(lesson.groups).length"
                 verbosity="0"
                 verb="completed"
                 icon="learners"
               />
+              <LearnerProgressCount
+                v-if="numNeedingHelp(lesson)"
+                :count="numNeedingHelp(lesson)"
+                verbosity="0"
+                verb="needHelp"
+                icon="help"
+              />
             </td>
             <td>
               <Recipients
-                :groups="data.groupNames(lesson.groups)"
+                :groups="dataHelpers.groupNames(lesson.groups)"
               />
             </td>
             <td><LessonActive :active="lesson.active" /></td>
@@ -115,6 +122,22 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
+    },
+    methods: {
+      numCompleted(lesson) {
+        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        );
+        return statuses.filter(status => status === 'completed').length;
+      },
+      numNeedingHelp(lesson) {
+        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        );
+        return statuses.filter(status => status === 'help_needed').length;
+      },
     },
   };
 

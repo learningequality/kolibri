@@ -44,6 +44,12 @@ function defaultState() {
     */
     contentMap: {},
     /*
+      contentMap := {
+        [node_id]: { content_id, node_id, kind, title }
+      }
+    */
+    contentNodeMap: {},
+    /*
       contentLearnerStatusMap := {
         [content_id]: {
           [learner_id]: { content_id, learner_id, status, last_activity }
@@ -98,15 +104,15 @@ export default {
     exams(state) {
       return Object.values(state.examMap);
     },
-    examLearnerStatuses(state) {
-      return Object.values(state.examLearnerStatusMap);
-    },
+    // examLearnerStatuses(state) {
+    //   return Object.values(state.examLearnerStatusMap);
+    // },
     content(state) {
       return Object.values(state.contentMap);
     },
-    contentLearnerStatuses(state) {
-      return Object.values(state.contentLearnerStatusMap);
-    },
+    // contentLearnerStatuses(state) {
+    //   return Object.values(state.contentLearnerStatusMap);
+    // },
     lessons(state) {
       return Object.values(state.lessonMap);
     },
@@ -167,7 +173,7 @@ export default {
           contentLearnerStatusMap: statusMap(
             summary.content_learner_status,
             'content_id',
-            summary.content.map(content => content.id)
+            summary.content.map(content => content.content_id)
           ),
           lessonMap: itemMap(summary.lessons, 'id'),
         });

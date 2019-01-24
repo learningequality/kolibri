@@ -12,7 +12,7 @@ import KSelect from 'kolibri.coreVue.components.KSelect';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import { PageNames } from '../constants';
-import data from '../modules/classSummary/helpers';
+import dataHelpers from '../modules/classSummary/dataHelpers';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
@@ -85,8 +85,8 @@ export default {
     CollectionKinds() {
       return CollectionKinds;
     },
-    data() {
-      return data;
+    dataHelpers() {
+      return dataHelpers;
     },
   },
   methods: {
