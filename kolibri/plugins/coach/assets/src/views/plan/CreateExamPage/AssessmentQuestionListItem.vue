@@ -22,6 +22,7 @@
 
 <script>
 
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
 

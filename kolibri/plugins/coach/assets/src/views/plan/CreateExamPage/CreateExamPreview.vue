@@ -177,7 +177,7 @@
 
   import { mapState } from 'vuex';
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';

@@ -2,7 +2,7 @@
 
   <!--
    This component was forked from the Keen library in order to handle
-   internationalization of the max length validation.
+   dynamic styling of the drop down text color.
 
    The formatting has been changed to match our linters. We may eventually
    want to simply consolidate it with our component and remove any unused

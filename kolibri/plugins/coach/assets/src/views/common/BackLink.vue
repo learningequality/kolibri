@@ -29,7 +29,7 @@
 
   import { mapGetters } from 'vuex';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'BackLink',

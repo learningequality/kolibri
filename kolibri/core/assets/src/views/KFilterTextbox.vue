@@ -42,7 +42,7 @@
 
   import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   /**
    * Used to filter items via text input
    */

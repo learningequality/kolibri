@@ -80,6 +80,7 @@
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';

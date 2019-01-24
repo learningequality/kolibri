@@ -93,7 +93,7 @@
   import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import Mark from 'mark.js';
   import SideBar from './SideBar';
 
