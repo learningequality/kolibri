@@ -27,51 +27,28 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr v-for="lesson in table" :key="lesson.id">
             <td>
               <KRouterLink
-                text="Lesson A"
-                :to="classRoute('ReportsLessonReportPage', {})"
+                :text="lesson.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: lesson.id })"
               />
             </td>
             <td>
               <LearnerProgressRatio
                 :count="1"
-                :total="100"
-                verbosity="0"
-                verb="completed"
-                icon="learners"
-              />
-            </td>
-            <td><Recipients :groups="[]" /></td>
-            <td><LessonActive :active="true" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Lesson B"
-                :to="classRoute('ReportsLessonReportPage', {})"
-              />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="10"
+                :total="data.numLearnersAssigned(lesson.groups)"
                 verbosity="0"
                 verb="completed"
                 icon="learners"
               />
             </td>
             <td>
-              <Recipients :groups="['group A', 'group B']" />
-              <LearnerProgressCount
-                verb="needHelp"
-                icon="help"
-                :count="3"
-                :verbosity="0"
+              <Recipients
+                :groups="data.groupNames(lesson.groups)"
               />
             </td>
-            <td><LessonActive :active="false" /></td>
+            <td><LessonActive :active="lesson.active" /></td>
           </tr>
         </tbody>
       </table>
@@ -83,6 +60,7 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -98,6 +76,8 @@
       };
     },
     computed: {
+      ...mapState('classSummary', []),
+      ...mapGetters('classSummary', ['lessons']),
       filterOptions() {
         return [
           {
@@ -113,6 +93,18 @@
             value: 'inactiveLessons',
           },
         ];
+      },
+      table() {
+        return this.lessons.filter(lesson => {
+          // console.log(lesson.active);
+          if (this.filter.value === 'allLessons') {
+            return true;
+          } else if (this.filter.value === 'activeLessons') {
+            return lesson.active;
+          } else if (this.filter.value === 'inactiveLessons') {
+            return !this.active;
+          }
+        });
       },
     },
     beforeMount() {
