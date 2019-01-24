@@ -74,11 +74,6 @@
     border-bottom: 1px solid rgb(223, 223, 223);
   }
 
-  .new-coach-tab.router-link-active {
-    border-bottom: 3px solid black;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
   // ... COACH - under construction
 
 </style>

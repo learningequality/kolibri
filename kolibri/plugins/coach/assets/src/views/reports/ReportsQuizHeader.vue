@@ -43,22 +43,16 @@
       </HeaderTableRow>
     </HeaderTable>
 
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="link('ReportsQuizLearnerListPage')"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="link('ReportsQuizQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 

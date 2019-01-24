@@ -35,30 +35,20 @@
         </template>
       </HeaderTableRow>
     </HeaderTable>
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportsLabel')"
         :to="classRoute('ReportsGroupReportPage', {})"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('membersLabel')"
         :to="classRoute('ReportsGroupLearnerListPage', {})"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
         :to="classRoute('ReportsGroupActivityPage', {})"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>

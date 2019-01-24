@@ -25,6 +25,8 @@ import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
 import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
+import HeaderTabs from './common/HeaderTabs';
+import HeaderTab from './common/HeaderTabs/HeaderTab';
 import LearnerProgressRatio from './common/status/LearnerProgressRatio';
 import LearnerProgressCount from './common/status/LearnerProgressCount';
 import LearnerProgressLabel from './common/status/LearnerProgressLabel';
@@ -57,6 +59,8 @@ export default {
     QuizActive,
     HeaderTable,
     HeaderTableRow,
+    HeaderTabs,
+    HeaderTab,
     LearnerProgressRatio,
     LearnerProgressCount,
     LearnerProgressLabel,

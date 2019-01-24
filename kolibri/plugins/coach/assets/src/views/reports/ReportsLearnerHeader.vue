@@ -42,23 +42,16 @@
         <template slot="value">{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</template>
       </HeaderTableRow>
     </HeaderTable>
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportsLabel')"
         :to="classRoute('ReportsLearnerReportPage', {})"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
         :to="classRoute('ReportsLearnerActivityPage', {})"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>

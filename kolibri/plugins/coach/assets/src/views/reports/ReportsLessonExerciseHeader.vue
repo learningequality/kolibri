@@ -18,22 +18,20 @@
 
     <KButton :text="coachStrings.$tr('previewAction')" />
 
-    <div>
+    <HeaderTabs>
       <KRouterLink
         appearance="flat-button"
+        :to="link('ReportsLessonExerciseLearnerListPage')"
         class="new-coach-tab"
         :text="coachStrings.$tr('reportLabel')"
-        :to="link('ReportsLessonExerciseLearnerListPage')"
       />
       <KRouterLink
         appearance="flat-button"
+        :to="link('ReportsLessonExerciseQuestionListPage')"
         class="new-coach-tab"
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        :to="link('ReportsLessonExerciseQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 

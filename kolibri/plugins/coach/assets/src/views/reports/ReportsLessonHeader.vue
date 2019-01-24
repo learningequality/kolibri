@@ -30,20 +30,17 @@
       </HeaderTableRow>
     </HeaderTable>
 
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="classRoute('ReportsLessonReportPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('learnersLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
-    </div>
+    </HeaderTabs>
 
   </div>
 
