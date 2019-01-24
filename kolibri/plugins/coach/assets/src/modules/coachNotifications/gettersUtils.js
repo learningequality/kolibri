@@ -80,9 +80,22 @@ export function getCollectionsForAssignment({ classSummary, assignment }) {
   return collections;
 }
 
+// Just makes an params object that should work with all the paths.
+// It has extra params that may not be used by some routes.
+// See reportRoutes.js for details on param naming.
+function makeParams(notification) {
+  return {
+    groupId: notification.collection.id,
+    lessonId: notification.assignment.id,
+    quizId: notification.assignment.id,
+    resourceId: notification.resource.id,
+    exerciseId: notification.resource.id,
+    learnerId: notification.learnerSummary.firstUserId,
+  };
+}
+
 // Data used for 'notificationLink' helper.
 // object, isMultiple, and wholeClass are meant to be pattern matched
-// makeRoute takes the notification object and forms the Link object from it
 const pageNameToNotificationPropsMap = {
   ReportsGroupReportLessonExerciseLearnerListPage: {
     object: 'Exercise',
@@ -158,6 +171,7 @@ const pageNameToNotificationPropsMap = {
 
 export function notificationLink(notification) {
   let object;
+  const { learnerSummary } = notification;
   if (notification.object === 'Resource') {
     // Individual resources
     object = notification.resource.type === 'exercise' ? 'Exercise' : 'NonExercise';
@@ -166,14 +180,29 @@ export function notificationLink(notification) {
     object = notification.object;
   }
 
+  let isMultiple;
+
+  if (notification.event === 'HelpNeeded') {
+    isMultiple = false;
+  } else if (learnerSummary.total === 1 && learnerSummary.completesCollection) {
+    isMultiple = true;
+  } else if (learnerSummary.total === 1 && !learnerSummary.completesCollection) {
+    isMultiple = false;
+  } else {
+    isMultiple = learnerSummary.total > 1;
+  }
+
   const matchingPageType = findKey(pageNameToNotificationPropsMap, {
     object,
-    isMultiple: notification.learnerSummary.total > 1,
+    isMultiple,
     isWholeClass: notification.collection.type === 'classroom',
   });
 
   if (matchingPageType) {
-    return pageNameToNotificationPropsMap[matchingPageType].makeRoute(notification);
+    return {
+      name: matchingPageType,
+      params: makeParams(notification),
+    };
   } else {
     return null;
   }
