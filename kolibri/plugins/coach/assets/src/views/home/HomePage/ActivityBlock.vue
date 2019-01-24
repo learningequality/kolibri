@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <button @click="moveNots">Move</button>
+    <!-- <button @click="moveNots">Move</button> -->
     <h2>{{ $tr('classActivity') }}</h2>
     <p>
       <KRouterLink
