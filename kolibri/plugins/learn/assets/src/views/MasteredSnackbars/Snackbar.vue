@@ -49,7 +49,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .snackbar {
+    @extend %dropshadow-12dp;
+
     position: fixed;
     right: 8px;
     bottom: 8px;
@@ -57,8 +61,6 @@
     width: 304px;
     padding: 8px;
     font-size: 14px;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-      0 1px 10px 0 rgba(0, 0, 0, 0.12);
     animation-duration: 0.3s;
     animation-timing-function: ease;
     animation-fill-mode: both;

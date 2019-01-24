@@ -4,13 +4,12 @@ import {
   ContentSummaryLogResource,
   FacilityUserResource,
 } from 'kolibri.resources';
-import LessonReportResource from '../../apiResources/lessonReport';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { PageNames } from '../../constants';
 
 function preparePageNameAndTitle(store, pageName) {
   store.commit('SET_PAGE_NAME', pageName);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
 }
 
 // Consolidates the duplicated logic for the item detail pages
@@ -21,7 +20,7 @@ function _showItemDetailPage(pageName, ...args) {
   }
   return showExerciseDetailView(...args).then(exerciseDetailState => {
     store.commit('exerciseDetail/SET_STATE', exerciseDetailState);
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    store.dispatch('notLoading');
   });
 }
 
@@ -62,7 +61,6 @@ export function showExerciseDetailView(
         }),
         FacilityUserResource.fetchModel({ id: userId }),
         ContentNodeSlimResource.fetchAncestors(contentId),
-        store.dispatch('setClassState', classId),
       ];
       return Promise.all(promises).then(([attemptLogs, summaryLog, user, ancestors]) => {
         Object.assign(exercise, { ancestors });
@@ -83,22 +81,13 @@ export function showExerciseDetailView(
   );
 }
 
-/* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
- * data on the Lesson Summary Page.
- */
-export function refreshLessonReport(store, lessonId) {
-  LessonReportResource.fetchModel({ id: lessonId, force: true }).then(lessonReport => {
-    store.commit('SET_LESSON_REPORT', lessonReport);
-  });
-}
-
 /*
  * Shows the attempt log for an Exercise. Shares exerciseDetail module
  * with normal coach reports.
  */
 export function showLessonResourceUserReportPage(store, params) {
   const { classId, contentId, userId, attemptLogIndex, interactionIndex } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', LessonsPageNames.RESOURCE_USER_REPORT);
   store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.RESOURCE_USER_SUMMARY });
   return ContentNodeResource.fetchModel({ id: contentId }).then(
@@ -114,11 +103,11 @@ export function showLessonResourceUserReportPage(store, params) {
         Number(interactionIndex)
       ).then(reportState => {
         store.commit('exerciseDetail/SET_STATE', reportState);
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('notLoading');
       });
     },
     error => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading');
       return store.dispatch('handleApiError', error);
     }
   );

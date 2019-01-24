@@ -10,7 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 function showResourceSelectionPage(store, params) {
-  const { classId, lessonId, contentList, pageName, ancestors = [] } = params;
+  const { lessonId, contentList, pageName, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const lessonSummaryState = {
@@ -27,10 +27,7 @@ function showResourceSelectionPage(store, params) {
       ancestors: [],
     });
 
-    const loadRequirements = [
-      store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
-      store.dispatch('setClassState', classId),
-    ];
+    const loadRequirements = [store.dispatch('lessonSummary/updateCurrentLesson', lessonId)];
     return Promise.all(loadRequirements).then(
       ([currentLesson]) => {
         // TODO make a state mapper

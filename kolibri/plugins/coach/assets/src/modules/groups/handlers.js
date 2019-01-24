@@ -1,7 +1,6 @@
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { LearnerGroupResource, FacilityUserResource } from 'kolibri.resources';
-import { PageNames } from '../../constants';
 
 function _userState(user) {
   return {
@@ -28,8 +27,7 @@ function _groupsState(groups) {
 }
 
 export function showGroupsPage(store, classId) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('SET_PAGE_NAME', PageNames.GROUPS);
+  store.dispatch('loading');
   const promises = [
     FacilityUserResource.fetchCollection({
       getParams: { member_of: classId },
@@ -39,7 +37,6 @@ export function showGroupsPage(store, classId) {
       getParams: { parent: classId },
       force: true,
     }),
-    store.dispatch('setClassState', classId),
   ];
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
@@ -63,8 +60,8 @@ export function showGroupsPage(store, classId) {
             groups,
             groupModalShown: false,
           });
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          store.commit('CORE_SET_ERROR', null);
+          store.dispatch('notLoading');
+          store.dispatch('clearError');
         },
         error => store.dispatch('handleError', error)
       );

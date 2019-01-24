@@ -301,13 +301,14 @@
 
   // TODO: margins for stacked buttons.
   .modal {
+    @extend %dropshadow-16dp;
+
     position: absolute;
     top: 50%;
     left: 50%;
     margin: 0 auto;
     overflow-y: auto;
     border-radius: $radius;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
     transform: translate(-50%, -50%);
 
     &:focus {

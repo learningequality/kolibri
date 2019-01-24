@@ -11,7 +11,7 @@
 
   import { mapState } from 'vuex';
   import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
-  import { PageNames, LearnerReports } from '../../../constants';
+  import { PageNames } from '../../../constants';
   import LearnerExerciseReportOld from './LearnerExerciseReportOld';
 
   export default {
@@ -32,7 +32,8 @@
       LearnerExerciseReportOld,
     },
     computed: {
-      ...mapState(['classId', 'pageName']),
+      ...mapState(['pageName']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('exerciseDetail', ['exercise', 'user']),
       channelId() {
         return this.$route.params.channelId;
@@ -82,9 +83,9 @@
         return undefined;
       },
       backPageText() {
-        if (LearnerReports.includes(this.pageName)) {
-          return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
-        }
+        // if (LearnerReports.includes(this.pageName)) {
+        //   return this.$tr('backPrompt', { backTitle: this.parentTopic.title });
+        // }
         return this.$tr('backPrompt', { backTitle: this.exercise.title });
       },
       parentTopic() {

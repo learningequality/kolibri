@@ -1,5 +1,5 @@
 import sortBy from 'lodash/sortBy';
-import shuffle from 'kolibri.lib.shuffle';
+import shuffled from 'kolibri.utils.shuffled';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -21,29 +21,29 @@ export default function selectQuestions(
   seed
 ) {
   if (exerciseIds.length !== questionIdArrays.length) {
-    throw new Error('exerciseIds and questionIdArrays must have the same length');
+    logging.error('exerciseIds and questionIdArrays must have the same length');
   }
   if (exerciseIds.length !== exerciseTitles.length) {
-    throw new Error('exerciseIds and exerciseTitles must have the same length');
+    logging.error('exerciseIds and exerciseTitles must have the same length');
   }
   if (
     questionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) < numQuestions
   ) {
-    throw new Error('Not enough questions to reach numQuestions');
+    logging.error('Not enough questions to reach numQuestions');
   }
   if (numQuestions < exerciseIds.length) {
     logging.warn(`Selecting ${numQuestions} questions from ${exerciseIds.length} exercises`);
   }
 
   // helps iterate over exercises pseudo-randomly, in case there are too many exercises
-  const randomIndexes = shuffle(Array.from(Array(exerciseIds.length).keys()), seed);
+  const randomIndexes = shuffled(Array.from(Array(exerciseIds.length).keys()), seed);
   function get(array, i) {
     return array[randomIndexes[i]];
   }
 
   // copy and shuffle the question IDs
   const shuffledQuestionIdArrays = questionIdArrays.map(questionArray =>
-    shuffle(questionArray.slice(0), seed)
+    shuffled(questionArray, seed)
   );
 
   // fill up the output list

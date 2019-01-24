@@ -164,6 +164,10 @@ export function handleError(store, errorString) {
   store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
+export function clearError(store) {
+  store.commit('CORE_SET_ERROR', null);
+}
+
 export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {

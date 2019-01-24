@@ -10,6 +10,7 @@ import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
+import shuffled from 'kolibri.utils.shuffled';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
@@ -56,9 +57,7 @@ export function showExam(store, params) {
         }
 
         if (!canViewExam(exam, store.state.examLog)) {
-          return router
-            .getInstance()
-            .replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
+          return router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
         }
         // Sort through all the exam attempt logs retrieved and organize them into objects
         // keyed first by content_id and then item id under that.
@@ -99,10 +98,16 @@ export function showExam(store, params) {
             });
 
             // If necessary, convert the question source info
-            const questions =
+            let questions =
               exam.data_model_version === 0
                 ? convertExamQuestionSourcesV0V1(exam.question_sources, exam.seed, questionIds)
                 : exam.question_sources;
+
+            // When necessary, randomize the questions for the learner.
+            // Seed based on the user ID so they see a consistent order each time.
+            if (!exam.learners_see_fixed_order) {
+              questions = shuffled(questions, store.state.core.session.user_id);
+            }
 
             // Exam is drawing solely on malformed exercise data, best to quit now
             if (questions.some(question => !question.question_id)) {

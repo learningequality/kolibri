@@ -2,7 +2,7 @@ import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
-import shuffle from 'kolibri.lib.shuffle';
+import shuffled from 'kolibri.utils.shuffled';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -10,7 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { createExam } from '../shared/exams';
+import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
@@ -90,14 +90,14 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store) {
+export function createExamAndRoute(store, classId) {
   const exam = {
-    collection: store.rootState.classId,
+    collection: classId,
     title: store.state.title,
     seed: store.state.seed,
     question_count: store.state.numberOfQuestions,
     question_sources: store.state.selectedQuestions,
-    assignments: [{ collection: store.rootState.classId }],
+    assignments: [{ collection: classId }],
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
   };
 
@@ -193,7 +193,7 @@ export function updateSelectedQuestions(store) {
   return new Promise(resolve => {
     // If there are more exercises than questions, no need to fetch them all so
     // choose N at random where N is the the number of questions.
-    const exerciseIds = shuffle(
+    const exerciseIds = shuffled(
       uniq(store.state.selectedExercises.map(exercise => exercise.id)),
       store.state.seed
     ).slice(0, store.state.numberOfQuestions);

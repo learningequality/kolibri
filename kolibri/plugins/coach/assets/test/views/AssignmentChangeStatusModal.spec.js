@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import AssignmentChangeStatusModal from '../../src/views/assignments/AssignmentChangeStatusModal';
+import AssignmentChangeStatusModal from '../../src/views/plan/assignments/AssignmentChangeStatusModal';
 
 const defaultProps = {
   modalTitle: '',

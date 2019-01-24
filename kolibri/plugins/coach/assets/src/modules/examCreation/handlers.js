@@ -13,24 +13,16 @@ import { PageNames } from '../../constants';
 import { filterAndAnnotateContentList } from './actions';
 
 function showExamCreationPage(store, params) {
-  const { classId, contentList, pageName, ancestors = [], searchResults = null } = params;
+  const { contentList, pageName, ancestors = [], searchResults = null } = params;
 
   return store.dispatch('loading').then(() => {
-    return store.dispatch('setClassState', classId).then(
-      () => {
-        store.commit('examCreation/SET_ANCESTORS', ancestors);
-        store.commit('examCreation/SET_CONTENT_LIST', contentList);
-        if (searchResults) {
-          store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
-        }
-        store.commit('SET_PAGE_NAME', pageName);
-        store.dispatch('notLoading');
-      },
-      error => {
-        store.dispatch('notLoading');
-        return store.dispatch('handleApiError', error);
-      }
-    );
+    store.commit('examCreation/SET_ANCESTORS', ancestors);
+    store.commit('examCreation/SET_CONTENT_LIST', contentList);
+    if (searchResults) {
+      store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
+    }
+    store.commit('SET_PAGE_NAME', pageName);
+    store.dispatch('notLoading');
   });
 }
 
