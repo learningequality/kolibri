@@ -28,7 +28,6 @@ export const pageNameToModuleMap = {
   [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [LessonsPageNames.PLAN_LESSONS_ROOT]: 'lessonsRoot',
-  [LessonsPageNames.RESOURCE_USER_SUMMARY]: 'lessonResourceUserSummary',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
   // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.
