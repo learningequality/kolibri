@@ -247,6 +247,12 @@ if path_prefix != '/':
 STATIC_URL = urljoin(path_prefix, 'static/')
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
+# This call is done here, pending a better suggestion of where to locate it.
+# For now, we recommend that people using a custom DJANGO_SETTINGS_MODULE and
+# wanting the nginx.conf snippet to call this function in their own settings
+# module or call it again after importing DJANGO_SETTINGS_MODULE
+conf.save_nginx_conf_include(STATIC_ROOT)
+
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
