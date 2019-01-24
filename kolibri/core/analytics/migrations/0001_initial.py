@@ -22,11 +22,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.CharField(max_length=50, primary_key=True, serialize=False)),
                 ('version_range', models.CharField(max_length=50)),
-                ('timestamp', models.DateField(max_length=50)),
-                ('link_url', models.CharField(blank=True, max_length=50)),
+                ('timestamp', models.DateField()),
+                ('link_url', models.CharField(blank=True, max_length=150)),
                 ('i18n', jsonfield.fields.JSONField(default={})),
                 ('active', models.BooleanField(default=True)),
-                ('source', models.CharField(choices=[(b'pingback', 'Pingback'), (b'statistics', 'Statistics')], max_length=20)),
+                ('source', models.CharField(choices=[('pingback', 'Pingback'), ('statistics', 'Statistics')], max_length=20)),
             ],
         ),
         migrations.CreateModel(
