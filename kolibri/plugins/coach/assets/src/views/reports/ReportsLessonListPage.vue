@@ -26,7 +26,7 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group is="tbody" name="list">
           <tr v-for="lesson in table" :key="lesson.id">
             <td>
               <KRouterLink
@@ -50,7 +50,7 @@
             </td>
             <td><LessonActive :active="lesson.active" /></td>
           </tr>
-        </tbody>
+        </transition-group>
       </table>
     </div>
   </CoreBase>
@@ -102,7 +102,7 @@
           } else if (this.filter.value === 'activeLessons') {
             return lesson.active;
           } else if (this.filter.value === 'inactiveLessons') {
-            return !this.active;
+            return !lesson.active;
           }
         });
       },
@@ -121,4 +121,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/list-transition';
+
+</style>

@@ -1,0 +1,25 @@
+$time: 0.25s;
+
+.list-move {
+  transition: transform $time;
+}
+
+.list-enter,
+.list-leave-to {
+  opacity: 0;
+}
+
+.list-leave,
+.list-enter-to {
+  opacity: 1;
+}
+
+.list-enter-active {
+  transition: opacity $time;
+  transition-timing-function: ease-in;
+}
+
+.list-leave-active {
+  transition: all $time;
+  transition-timing-function: ease-out;
+}
