@@ -8,29 +8,33 @@
       />
     </p>
     <h1>Group A</h1>
-    <dl>
-      <dt>{{ coachStrings.$tr('avgQuizScoreLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('percentage', {value: 0.4}) }}</dd>
-    </dl>
-    <dl>
-      <dt>{{ coachStrings.$tr('learnersLabel') }}</dt>
-      <dd>
-        <TruncatedItemList
-          :items="[
-            'John',
-            'Alice',
-            'Julie',
-            'Lucy',
-            'Steve',
-            'Mary',
-            'Judy',
-            'George',
-            'Carol',
-            'Ken'
-          ]"
-        />
-      </dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', {value: 0.4}) }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('learnersLabel') }}</template>
+        <template slot="value">
+          <TruncatedItemList
+            :items="[
+              'John',
+              'Alice',
+              'Julie',
+              'Lucy',
+              'Steve',
+              'Mary',
+              'Judy',
+              'George',
+              'Carol',
+              'Ken'
+            ]"
+          />
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
     <div>
       <KRouterLink
         :text="coachStrings.$tr('reportsLabel')"

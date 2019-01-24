@@ -8,12 +8,16 @@
       />
     </p>
     <h1>{{ $store.state.classSummary.name }}</h1>
-    <dl>
-      <dt>{{ $tr('coach', {count: coachNames.length}) }}</dt>
-      <dd><TruncatedItemList :items="coachNames" /></dd>
-      <dt>{{ $tr('learner', {count: learnerNames.length}) }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: learnerNames.length}) }}</dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ $tr('coach', {count: coachNames.length}) }}</template>
+        <template slot="value"><TruncatedItemList :items="coachNames" /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ $tr('learner', {count: learnerNames.length}) }}</template>
+        <template slot="value">{{ coachStrings.$tr('integer', {value: learnerNames.length}) }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
   </div>
 
 </template>

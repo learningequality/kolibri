@@ -14,7 +14,7 @@
       <slot name="optionsDropdown"></slot>
     </div>
 
-    <dl>
+    <HeaderTable>
       <dt class="term" :style="{ color: $coreTextAnnotation }">
         {{ $tr('status') }}
         <CoreInfoIcon
@@ -64,7 +64,7 @@
           </li>
         </ul>
       </dd>
-    </dl>
+    </HeaderTable>
 
   </div>
 

@@ -3,12 +3,16 @@
   <div>
     <h1>Julie</h1>
     <p>{{ $tr('quizPerformanceLabel', {quiz: 'Some quiz'}) }}</p>
-    <dl>
-      <dt>{{ coachStrings.$tr('scoreLabel') }}</dt>
-      <dd><Score :value="0.5" /></dd>
-      <dt>{{ coachStrings.$tr('questionsCorrectLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {value:6, total: 12}) }}</dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('scoreLabel') }}</template>
+        <template slot="value"><Score :value="0.5" /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('questionsCorrectLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('ratio', {value:6, total: 12}) }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
     <p>{{ coachStrings.$tr('answersLabel') }}</p>
     <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
     <p>{{ coachStrings.$tr('showCorrectAnswerLabel') }}</p>

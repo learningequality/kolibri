@@ -2,19 +2,23 @@
 
   <div>
     <h1>Julie</h1>
-    <dl>
-      <dt>{{ coachStrings.$tr('masteryModelLabel') }}</dt>
-      <dd><MasteryModel /></dd>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd>
-        <LearnerProgressLabel
-          :count="1"
-          :verbosity="1"
-          verb="completed"
-          icon="star"
-        />
-      </dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('masteryModelLabel') }}</template>
+        <template slot="value"><MasteryModel /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="value">
+          <LearnerProgressLabel
+            :count="1"
+            :verbosity="1"
+            verb="completed"
+            icon="star"
+          />
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
     <p>{{ coachStrings.$tr('answerHistoryLabel') }}</p>
     <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
     <p>{{ coachStrings.$tr('showCorrectAnswerLabel') }}</p>

@@ -22,12 +22,16 @@
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
 
-      <dl>
-        <dt>{{ coachStrings.$tr('avgTimeSpentLabel') }}</dt>
-        <dd><TimeDuration :seconds="360" /></dd>
-        <dt>{{ $tr('avgNumViews') }}</dt>
-        <dd>{{ coachStrings.$tr('integer', {value: 3}) }}</dd>
-      </dl>
+      <HeaderTable>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('avgTimeSpentLabel') }}</template>
+          <template slot="value"><TimeDuration :seconds="360" /></template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ $tr('avgNumViews') }}</template>
+          <template slot="value">{{ coachStrings.$tr('integer', {value: 3}) }}</template>
+        </HeaderTableRow>
+      </HeaderTable>
 
       <p>
         <LearnerProgressCount
