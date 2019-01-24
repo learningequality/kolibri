@@ -176,6 +176,7 @@ export function handleApiError(store, errorObject) {
     error = errorObject.toString();
   }
   handleError(store, error);
+  throw errorObject;
 }
 
 /**

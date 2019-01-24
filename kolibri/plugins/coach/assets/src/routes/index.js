@@ -44,7 +44,7 @@ export default [
     },
   },
   {
-    path: '/:classId/activity',
+    path: '/:classId/home/activity',
     component: HomeActivityPage,
     handler() {
       store.dispatch('notLoading');

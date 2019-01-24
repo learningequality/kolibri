@@ -26,54 +26,38 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group is="tbody" name="list">
+          <tr v-for="lesson in table" :key="lesson.id">
             <td>
               <KRouterLink
-                text="Lesson A"
-                :to="classRoute('ReportsLessonReportPage', {})"
+                :text="lesson.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: lesson.id })"
               />
             </td>
             <td>
               <LearnerProgressRatio
-                :count="1"
-                :total="100"
+                :count="numCompleted(lesson)"
+                :total="dataHelpers.learnersForGroups(lesson.groups).length"
                 verbosity="0"
                 verb="completed"
                 icon="learners"
               />
-            </td>
-            <td><Recipients :groups="[]" /></td>
-            <td><LessonActive :active="true" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Lesson B"
-                :to="classRoute('ReportsLessonReportPage', {})"
-              />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="10"
-                verbosity="0"
-                verb="completed"
-                icon="learners"
-              />
-            </td>
-            <td>
-              <Recipients :groups="['group A', 'group B']" />
               <LearnerProgressCount
+                v-if="numNeedingHelp(lesson)"
+                :count="numNeedingHelp(lesson)"
+                verbosity="0"
                 verb="needHelp"
                 icon="help"
-                :count="3"
-                :verbosity="0"
               />
             </td>
-            <td><LessonActive :active="false" /></td>
+            <td>
+              <Recipients
+                :groups="dataHelpers.groupNames(lesson.groups)"
+              />
+            </td>
+            <td><LessonActive :active="lesson.active" /></td>
           </tr>
-        </tbody>
+        </transition-group>
       </table>
     </div>
   </CoreBase>
@@ -83,6 +67,7 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -98,6 +83,8 @@
       };
     },
     computed: {
+      ...mapState('classSummary', []),
+      ...mapGetters('classSummary', ['lessons']),
       filterOptions() {
         return [
           {
@@ -114,6 +101,18 @@
           },
         ];
       },
+      table() {
+        return this.lessons.filter(lesson => {
+          // console.log(lesson.active);
+          if (this.filter.value === 'allLessons') {
+            return true;
+          } else if (this.filter.value === 'activeLessons') {
+            return lesson.active;
+          } else if (this.filter.value === 'inactiveLessons') {
+            return !lesson.active;
+          }
+        });
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -124,9 +123,29 @@
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
     },
+    methods: {
+      numCompleted(lesson) {
+        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        );
+        return statuses.filter(status => status === 'completed').length;
+      },
+      numNeedingHelp(lesson) {
+        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        );
+        return statuses.filter(status => status === 'help_needed').length;
+      },
+    },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/list-transition';
+
+</style>

@@ -44,6 +44,12 @@ function defaultState() {
     */
     contentMap: {},
     /*
+      contentMap := {
+        [node_id]: { content_id, node_id, kind, title }
+      }
+    */
+    contentNodeMap: {},
+    /*
       contentLearnerStatusMap := {
         [content_id]: {
           [learner_id]: { content_id, learner_id, status, last_activity }
@@ -74,6 +80,9 @@ function statusMap(statuses, key, itemIds) {
   const statusMap = {};
   itemIds.forEach(id => (statusMap[id] = {}));
   statuses.forEach(status => {
+    if (!statusMap[status[key]]) {
+      statusMap[status[key]] = {};
+    }
     statusMap[status[key]][status.learner_id] = status;
   });
   return statusMap;
@@ -95,15 +104,15 @@ export default {
     exams(state) {
       return Object.values(state.examMap);
     },
-    examLearnerStatuses(state) {
-      return Object.values(state.examLearnerStatusMap);
-    },
+    // examLearnerStatuses(state) {
+    //   return Object.values(state.examLearnerStatusMap);
+    // },
     content(state) {
       return Object.values(state.contentMap);
     },
-    contentLearnerStatuses(state) {
-      return Object.values(state.contentLearnerStatusMap);
-    },
+    // contentLearnerStatuses(state) {
+    //   return Object.values(state.contentLearnerStatusMap);
+    // },
     lessons(state) {
       return Object.values(state.lessonMap);
     },
@@ -161,6 +170,11 @@ export default {
           ),
           contentMap: itemMap(summary.content, 'content_id'),
           contentNodeMap: itemMap(summary.content, 'node_id'),
+          contentLearnerStatusMap: statusMap(
+            summary.content_learner_status,
+            'content_id',
+            summary.content.map(content => content.content_id)
+          ),
           lessonMap: itemMap(summary.lessons, 'id'),
         });
       });

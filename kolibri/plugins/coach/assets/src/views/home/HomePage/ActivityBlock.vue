@@ -11,6 +11,7 @@
         v-for="notification in notifications"
         :key="notification.groupCode + String(notification.lastTimestamp)"
         v-bind="cardPropsForNotification(notification)"
+        class="block-item"
       >
         {{ cardTextForNotification(notification) }}
       </NotificationCard>
@@ -102,30 +103,6 @@
 
 <style lang="scss" scoped>
 
-  $time: 0.25s;
-
-  .list-move {
-    transition: transform $time;
-  }
-
-  .list-enter,
-  .list-leave-to {
-    opacity: 0;
-  }
-
-  .list-leave,
-  .list-enter-to {
-    opacity: 1;
-  }
-
-  .list-enter-active {
-    transition: opacity $time;
-    transition-timing-function: ease-in;
-  }
-
-  .list-leave-active {
-    transition: all $time;
-    transition-timing-function: ease-out;
-  }
+  @import '../../common/list-transition';
 
 </style>
