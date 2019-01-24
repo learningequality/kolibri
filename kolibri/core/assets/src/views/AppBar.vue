@@ -43,7 +43,7 @@
             name="person"
             category="social"
           />
-          <template v-if="isUserLoggedIn">{{ username }}</template>
+          <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
           <mat-svg name="arrow_drop_down" category="navigation" />
         </UiButton>
 
@@ -199,6 +199,12 @@
     svg {
       fill: white;
     }
+  }
+
+  .username {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .user-menu-dropdown {

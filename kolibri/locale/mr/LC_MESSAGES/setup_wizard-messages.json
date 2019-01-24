@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "सेटअप व्हीझर्ड",
   "SetupWizardIndex.onboardingFinishButton": "संपवा",
   "SetupWizardIndex.onboardingNextStepButton": "पुढे जा",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "मुख्य केंद्र {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "हे खाते वापरुन तुम्ही या उपकरणावरील सुविधा, मजकूर आणि युझर खात्यांचे व्यवस्थापन करू शकता",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "सुपर अॅडमिन खाते उघडा",
   "SuperuserCredentialsForm.adminNameFieldLabel": "पूर्ण नाव",

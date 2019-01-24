@@ -1,8 +1,8 @@
-Feature: Guest sign up for account
+Feature: Guest signs up for an account
     Guest should be able to sign up for an account, if permitted by respective facility setting
 
   Background:
-    Given that *Allow learners to sign-up on this device* setting is activated on *Facility > Settings*
+    Given that *Allow learners to create accounts* setting is activated in *Facility > Settings*
       And that I am on the Kolibri sign-in page
 
   Scenario: Sign up for an account
@@ -17,7 +17,7 @@ Feature: Guest sign up for account
 
   Scenario: Username is already taken
     Given A user already exists with some username
-    When I try to sign up for a new account with that username
+    When I try to sign up for a new account with that same username
     Then I get a validation message shown next to the username field that the name is already taken
 
   Examples:

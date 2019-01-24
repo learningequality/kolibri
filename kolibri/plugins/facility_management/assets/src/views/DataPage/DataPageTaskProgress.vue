@@ -35,9 +35,9 @@
   }
 
   .loader {
-    display: inline-block;
     position: absolute;
     top: -2px;
+    display: inline-block;
   }
 
   .message {

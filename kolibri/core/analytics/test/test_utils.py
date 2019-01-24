@@ -177,8 +177,7 @@ class BaseDeviceSetupMixin(object):
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
                             correct=1,
-                            content_id=uuid.uuid4().hex,
-                            channel_id=self.channel.id,
+                            content_id=uuid.uuid4().hex
                         )
 
 
@@ -206,7 +205,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "llc": 20,  # learner_login_count
             "cc": 1,  # coaches_count
             "clc": 1,  # coach_login_count
-            "f" : "2018-10-11",  # first interaction
+            "f": "2018-10-11",  # first interaction
             "l": "2019-10-11",  # last interaction
             "ss": 20,  # summarylog_started
             "sc": 20,  # summarylog_complete
@@ -222,6 +221,31 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sat": 20,  # sess_anon_time
         }
         assert actual == expected
+
+    def test_regression_4606_no_usersessions(self):
+        UserSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
+    def test_regression_4606_no_contentsessions(self):
+        ContentSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
+    def test_regression_4606_no_contentsessions_or_usersessions(self):
+        ContentSessionLog.objects.all().delete()
+        UserSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] is None
+        assert actual["l"] is None
 
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):

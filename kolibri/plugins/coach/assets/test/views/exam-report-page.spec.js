@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ExamReportPage from '../../src/views/exams/ExamReportPage';
+import ExamReportPage from '../../src/views/plan/CoachExamsPage/ExamReportPage';
 import makeStore from '../makeStore';
 
 function makeWrapper(options = {}) {

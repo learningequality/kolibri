@@ -14,6 +14,7 @@
       :id="content.id"
       class="content-renderer"
       :kind="content.kind"
+      :lang="content.lang"
       :files="content.files"
       :contentId="contentId"
       :channelId="channelId"
@@ -33,6 +34,10 @@
       class="content-renderer"
       :kind="content.kind"
       :files="content.files"
+      :lang="content.lang"
+      :randomize="content.randomize"
+      :masteryModel="content.masteryModel"
+      :assessmentIds="content.assessmentIds"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
@@ -41,7 +46,7 @@
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
       @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
+      @updateProgress="updateExerciseProgress"
       @updateContentState="updateContentState"
     />
 
@@ -263,6 +268,10 @@
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateExerciseProgress(progressPercent) {
+        this.$emit('updateProgress', progressPercent);
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });

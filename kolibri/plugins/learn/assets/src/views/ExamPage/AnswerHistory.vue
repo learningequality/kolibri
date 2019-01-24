@@ -61,7 +61,7 @@
         return this.$tr('question', { num });
       },
       isAnswered(question) {
-        return ((this.attemptLogs[question.contentId] || {})[question.itemId] || {}).answer;
+        return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
     },
   };

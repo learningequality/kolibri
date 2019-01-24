@@ -262,52 +262,15 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         ids = ids.split(',')
         kind = self.request.query_params.get('descendant_kind', None)
         nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
-        descendants = nodes.get_descendants(include_self=False).filter(available=True).distinct()
-        if kind and kind != content_kinds.TOPIC:
-            # Include topics in the query as we need to use these to find duplicated ancestors.
-            descendants = descendants.filter(kind__in=[kind, content_kinds.TOPIC])
-        elif kind == content_kinds.TOPIC:
-            descendants.filter(kind=kind)
-        query_data = list(descendants.annotate(ancestor_id=Subquery(nodes.filter(
-            tree_id=OuterRef('tree_id'),
-            lft__lt=OuterRef('lft'),
-            rght__gt=OuterRef('rght'),
-            # Order by reverse level, so nodes are annotated with their nearest ancestor
-        ).order_by('-level').values_list('id', flat=True)[:1])).values('id', 'title', 'kind', 'content_id', 'ancestor_id'))
         data = []
-        # Now that we have the data annotated with the nearest ancestor
-        # Look through each of the original ids that were passed in and find any topics that
-        # have these ids as ancestors
-        for node_id in ids:
-
-            def copy_node(node):
-                new_node = dict(node)
-                new_node['ancestor_id'] = node_id
+        for node in nodes:
+            def copy_node(new_node):
+                new_node['ancestor_id'] = node.id
                 return new_node
-
-            # Find any topics that are descendants of this node
-            descendant_topics = list(filter(lambda x: x['ancestor_id'] == node_id and x['kind'] == content_kinds.TOPIC, query_data))
-            # Loop through these topics while they exist
-            while descendant_topics:
-                # Create a new list of descendant topics of additional topics that we find
-                # during this search for descendant items from this node
-                new_descendant_topics = []
-                for topic in descendant_topics:
-                    # Find all descendant items that have this topic as an ancestor
-                    descendant_items = list(filter(lambda x: x['ancestor_id'] == topic['id'], query_data))
-                    # Filter these items to find any topics, as we will then need to check for any contents of these
-                    new_descendant_topics += list(filter(lambda x: x['kind'] == content_kinds.TOPIC, descendant_items))
-                    # Add a copy of all these descendant items to the data we will return, but change the ancestor_id
-                    # to the current node
-                    data += list(map(copy_node, descendant_items))
-                # Set descendant topics to the new descendant topics we discovered during this iteration
-                # If this is empty it will halt the iteration
-                descendant_topics = new_descendant_topics
-        # Combine the new data we found while iterating over the descendants with the original query data
-        data = query_data + data
-        if kind:
-            # If we are filtering by kind, filter out any data that does not match the kind
-            data = list(filter(lambda x: x['kind'] == kind, data))
+            node_data = node.get_descendants()
+            if kind:
+                node_data = node_data.filter(kind=kind)
+            data += map(copy_node, node_data.values('id', 'title', 'kind', 'content_id'))
         return Response(data)
 
     @list_route(methods=['get'])
@@ -484,10 +447,9 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
                 # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-                    user=user).values_list('content_id', flat=True)).filter(
-                    Q(has_prerequisite__in=completed_content_nodes) |
-                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes)
+                    | Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
                 ).order_by()
 
         serializer = self.get_serializer(queryset, many=True)
@@ -807,6 +769,13 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
+
+    @detail_route(methods=['get'])
+    def retrieve_list(self, request, pk=None):
+        baseurl = request.GET.get("baseurl", None)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl, keyword=keyword, language=language)
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):

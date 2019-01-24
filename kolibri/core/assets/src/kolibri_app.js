@@ -19,10 +19,6 @@ export default class KolibriApp extends KolibriModule {
     return [];
   }
 
-  get routerInstance() {
-    return router.getInstance();
-  }
-
   /*
    * @return {Object} A component definition for the root component of this single page app.
    */
@@ -73,6 +69,9 @@ export default class KolibriApp extends KolibriModule {
     forEach(this.pluginModule.modules, (module, name) => {
       store.registerModule(name, module);
     });
+
+    // enable handlers for all routes
+    router.enableHandlers();
 
     return this.store.dispatch('getCurrentSession').then(() => {
       return this.store.dispatch('getNotifications').then(() => {

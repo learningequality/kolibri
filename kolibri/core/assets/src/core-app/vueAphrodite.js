@@ -1,4 +1,4 @@
-import { css, StyleSheet } from 'aphrodite';
+import { css, StyleSheet, setStyleTagSuffix } from 'aphrodite';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -8,6 +8,7 @@ const logging = logger.getLogger(__filename);
  * @param {Function} Vue - the Vue constructor.
  */
 export default function VueAphrodite(Vue) {
+  setStyleTagSuffix('kolibriVue');
   // Keep a record of all generated class names to avoid recalculating
   // if needed.
   const __classNameCache = {};

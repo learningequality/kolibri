@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "Assistant de configuration",
   "SetupWizardIndex.onboardingFinishButton": "Terminer",
   "SetupWizardIndex.onboardingNextStepButton": "Continuer",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "Installation maison {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Ce compte vous permet de gérer les établissements, contenu et les comptes utilisateur sur cet appareil",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Créer un compte super admin",
   "SuperuserCredentialsForm.adminNameFieldLabel": "Nom complet",

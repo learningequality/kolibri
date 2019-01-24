@@ -5,6 +5,7 @@ import json
 import re
 
 import semver
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import Count
 from django.db.models import Max
@@ -38,7 +39,7 @@ facility_settings = [
 
 
 def dump_zipped_json(data):
-    jsondata = json.dumps(data)
+    jsondata = json.dumps(data, sort_keys=True, cls=DjangoJSONEncoder)
     try:
         # perform the import in here as zlib isn't available on some platforms
         import zlib
@@ -116,9 +117,13 @@ def extract_facility_statistics(facility):
                     .filter(start_timestamp__gt=datetime.datetime(2016, 1, 1))
                     .aggregate(first=Min("start_timestamp"), last=Max("end_timestamp")))
 
+    # extract the first and last times we've seen logs, ignoring any that are None
+    first_times = [d["first"] for d in [usersess_agg, contsess_agg] if d["first"]]
+    last_times = [d["last"] for d in [usersess_agg, contsess_agg] if d["last"]]
+
     # since newly provisioned devices won't have logs, we don't know whether we have an available datetime object
-    first_interaction_timestamp = getattr(min(usersess_agg["first"], contsess_agg["first"]), 'strftime', None)
-    last_interaction_timestamp = getattr(max(usersess_agg["last"], contsess_agg["last"]), 'strftime', None)
+    first_interaction_timestamp = getattr(min(first_times), 'strftime', None) if first_times else None
+    last_interaction_timestamp = getattr(max(last_times), 'strftime', None) if last_times else None
 
     sesslogs_by_kind = contsessions.order_by("kind").values("kind").annotate(count=Count("kind"))
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}

@@ -305,13 +305,13 @@
 
   .content-carousel-next-control-button,
   .content-carousel-previous-control-button {
+    @extend %dropshadow-1dp;
     // center align within hitbox
     position: absolute;
     top: 50%;
     left: 50%;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     &:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
+      @extend %dropshadow-8dp;
     }
   }
 

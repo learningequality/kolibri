@@ -13,7 +13,6 @@
 // e.g. 'content-icon' (although this can be used as a value in module).
 
 import vuex from 'vuex';
-import seededshuffle from 'seededshuffle';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
@@ -79,6 +78,10 @@ import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
+import KDraggable from '../views/kSortable/KDraggable';
+import KDragHandle from '../views/kSortable/KDragHandle';
+import KDragContainer from '../views/kSortable/KDragContainer';
+import KDragIcon from '../views/kSortable/KDragIcon';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -96,6 +99,7 @@ import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import * as colour from '../utils/colour';
+import shuffled from '../utils/shuffled';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
@@ -109,7 +113,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    seededshuffle,
     tetherDrop,
     tetherTooltip,
   },
@@ -171,6 +174,10 @@ export default {
       UserTypeDisplay,
       TechnicalTextBlock,
       KTooltip,
+      KDraggable,
+      KDragHandle,
+      KDragContainer,
+      KDragIcon,
     },
     router,
     mixins: {
@@ -198,5 +205,6 @@ export default {
     samePageCheckGenerator,
     CatchErrors,
     UserType,
+    shuffled,
   },
 };

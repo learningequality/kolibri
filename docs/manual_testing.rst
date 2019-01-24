@@ -100,3 +100,24 @@ In order to do this, a management command is available::
   kolibri manage generateuserdata
 
 This will generate user data for the each currently existing channel on the system. Use the `--help` flag for options.
+
+
+Collecting client and server errors using Sentry
+------------------------------------------------
+
+`Sentry <https://docs.sentry.io/>`__ clients are available for both backend and frontend error reporting. This can be particularly useful to have running on beta and demo servers in order to catch errors "in the wild".
+
+To set up error reporting, you'll need a `Sentry DSN <https://docs.sentry.io/error-reporting/quickstart>`__. These are available from your project settings at ``https://sentry.io/settings/[org_name]/[project_name]/keys/``
+
+You can set these either in options.ini or as environment variables.
+
+If using options.ini, under a ``Debug`` header you can use these options:
+
+ * ``SENTRY_BACKEND_DSN``
+ * ``SENTRY_FRONTEND_DSN``
+
+Or if using environment variables:
+
+ * ``KOLIBRI_DEBUG_SENTRY_BACKEND_DSN``
+ * ``KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN``
+

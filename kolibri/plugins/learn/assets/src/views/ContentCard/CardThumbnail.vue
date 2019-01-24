@@ -51,7 +51,8 @@
         class="progress-bar"
         :style="{
           width: `${progress * 100}%`,
-          backgroundColor: isMastered ? $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+          backgroundColor: isMastered ?
+            $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
         }"
       >
       </div>

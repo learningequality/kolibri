@@ -64,6 +64,11 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
+      <div v-if="debug" class="debug">
+        <div>{{ contentComponentName }}</div>
+        <div>{{ routePath }}</div>
+      </div>
+
       <AuthMessage
         v-if="notAuthorized"
         :authorizedRole="authorizedRole"
@@ -194,6 +199,10 @@
         type: Boolean,
         default: false,
       },
+      debug: {
+        type: Boolean,
+        default: false,
+      },
     },
     metaInfo() {
       return {
@@ -227,6 +236,7 @@
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
       }),
+      ...mapGetters(['$coreBgCanvas']),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
@@ -249,9 +259,13 @@
       },
       mainWrapperStyles() {
         if (this.fullScreen) {
-          return { top: 0 };
+          return { top: 0, bottom: 0 };
         }
-        return { top: this.fixedAppBar ? `${this.appbarHeight}px` : 0 };
+        return {
+          top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
+          bottom: `${this.marginBottom}px`,
+          backgroundColor: this.$coreBgCanvas,
+        };
       },
       contentStyles() {
         if (this.fullScreen) {
@@ -263,12 +277,12 @@
         }
         return {
           marginTop: `${this.fixedAppBar ? 0 : this.appbarHeight}px`,
-          marginBottom: `${this.marginBottom + 128}px`,
           padding: `${this.windowIsSmall ? 16 : 32}px`,
         };
       },
       fixedAppBar() {
-        return this.windowIsLarge || this.immersivePage;
+        return this.windowIsLarge;
+        // return this.windowIsLarge || this.immersivePage;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
@@ -301,6 +315,15 @@
           linkUrl: notification.link_url,
         };
       },
+      contentComponentName() {
+        return this.$slots.default[0].context.$options.name;
+      },
+      routePath() {
+        if (this.$router.getRouteDefinition(this.contentComponentName)) {
+          return this.$router.getRouteDefinition(this.contentComponentName).path;
+        }
+        return '';
+      },
     },
     methods: {
       handleScroll(e) {
@@ -328,7 +351,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: scroll; // has to be scroll, not auto
     -webkit-overflow-scrolling: touch; // iOS momentum scrolling
   }
@@ -343,7 +366,7 @@
   }
 
   .app-bar {
-    @extend %ui-toolbar-box-shadow;
+    @extend %dropshadow-4dp;
 
     width: 100%;
   }
@@ -361,7 +384,15 @@
   .content {
     max-width: 1000px;
     margin-right: auto;
+    margin-bottom: 128px;
     margin-left: auto;
+  }
+
+  .debug {
+    font-family: monospace;
+    font-size: large;
+    font-weight: bold;
+    line-height: 2em;
   }
 
 </style>

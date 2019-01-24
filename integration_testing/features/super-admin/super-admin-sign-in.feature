@@ -1,6 +1,6 @@
-Feature: Super admin sign-in
+Feature: Super admin signs-in
     Super admin should be able to sign in to access Kolibri
-    If the admin account is registered correctly, they should arrive at the Facility > Classes page upon sign-in
+    If the admin account is registered correctly, they should arrive at the *Facility > Classes* page upon sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page

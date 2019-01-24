@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "सेटअप विज़र्ड",
   "SetupWizardIndex.onboardingFinishButton": "समाप्त",
   "SetupWizardIndex.onboardingNextStepButton": "जारी रखें",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "घर पर सुविधा {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "यह खाता आपको इस उपकरण पर सुविधा, सामग्री और उपयोगकर्ता खातों को प्रबंधित करने की अनुमति देता है",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "सुपर एडमिन खाता बनाएं",
   "SuperuserCredentialsForm.adminNameFieldLabel": "पूरा नाम",

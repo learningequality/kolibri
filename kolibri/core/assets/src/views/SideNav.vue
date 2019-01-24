@@ -244,22 +244,17 @@
 
   @import '~kolibri.styles.definitions';
 
-  // matches angular material's spec
-  $side-nav-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
-
   .side-nav-wrapper {
     overflow-x: hidden;
   }
 
   .side-nav {
-    @extend %ui-toolbar-box-shadow;
+    @extend %dropshadow-16dp;
 
     position: fixed;
     top: 0;
     bottom: 0;
     z-index: 16;
-    box-shadow: $side-nav-box-shadow;
   }
 
   .side-nav-enter {

@@ -49,7 +49,7 @@
             </UiIcon>
           </td>
           <td>
-            <span dir="auto">
+            <span dir="auto" class="maxwidth">
               {{ user.full_name }}
             </span>
             <UserTypeDisplay
@@ -66,7 +66,7 @@
           <td class="visuallyhidden">
             {{ user.kind }}
           </td>
-          <td>{{ user.username }}</td>
+          <td><span class="maxwidth">{{ user.username }}</span></td>
           <td v-if="$scopedSlots.action" class="user-action-button">
             <slot name="action" :user="user"></slot>
           </td>
@@ -191,7 +191,15 @@
     margin-left: 8px;
     font-size: small;
     white-space: nowrap;
+    vertical-align: top;
     border-radius: 0.5em;
+  }
+
+  .maxwidth {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>

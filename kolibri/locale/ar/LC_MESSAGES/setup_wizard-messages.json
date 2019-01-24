@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "معالج الإعداد",
   "SetupWizardIndex.onboardingFinishButton": "إنهاء",
   "SetupWizardIndex.onboardingNextStepButton": "تابع",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "الشبكة المنزلية {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "هذا الحساب يسمح لك بإدارة المَرْفق التعليمي والمحتوى على هذا الجهاز",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "إنشاء حساب المشرف المتميز الخاص بك",
   "SuperuserCredentialsForm.adminNameFieldLabel": "الاسم الكامل",

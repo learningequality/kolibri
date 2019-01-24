@@ -1,4 +1,4 @@
-Feature: Super admin change profile information
+Feature: Super admin changes their own profile information
 	Super admin needs to be able to change their own profile information
 
   Background:

@@ -169,6 +169,8 @@ program
           const options_data = JSON.stringify(buildOptions);
           const childProcess = fork(modulePath, {
             env: {
+              // needed to keep same context for child process (e.g. launching editors)
+              ...process.env,
               data,
               index,
               options: options_data,

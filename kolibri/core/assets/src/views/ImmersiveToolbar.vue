@@ -3,9 +3,12 @@
   <UiToolbar
     :title="appBarTitle"
     textColor="white"
-    type="colored"
+    type="clear"
     :showIcon="showIcon"
-    :style="{ height: height + 'px' }"
+    :style="{
+      height: height + 'px',
+      backgroundColor: primary ? $coreActionNormal : $coreTextDefault,
+    }"
     @nav-icon-click="$emit('navIconClick')"
   >
     <router-link
@@ -126,10 +129,12 @@
       },
       linkStyle() {
         const hoverAndFocus = {
-          backgroundColor: this.primary ? this.$coreActionDark : darken(this.$coreTextDefault, 0.1),
+          backgroundColor: this.primary
+            ? this.$coreActionDark
+            : darken(this.$coreTextDefault, '25%'),
         };
         return {
-          backgroundColor: this.primary ? '' : this.$coreTextDefault,
+          backgroundColor: this.primary ? this.coreActionNormal : this.$coreTextDefault,
           ':hover': hoverAndFocus,
         };
       },

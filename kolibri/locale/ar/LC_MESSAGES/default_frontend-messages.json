@@ -47,7 +47,7 @@
   "ExamReport.question": "السؤال { questionNumber, number }",
   "ExamReport.showCorrectAnswerLabel": "أظهِر الإجابة الصحيحة",
   "ExamReport.yourAnswer": "إجابتك",
-  "InteractionList.currAnswer": "",
+  "InteractionList.currAnswer": "محاولة {value, number, integer}",
   "InteractionList.noInteractions": "لا توجد محاولات للإجابة على هذا السؤال",
   "KFilterTextbox.clear": "إزالة",
   "KFilterTextbox.filter": "إظهار نتائج البحث",
