@@ -191,6 +191,7 @@
     margin-left: 8px;
     font-size: small;
     white-space: nowrap;
+    vertical-align: top;
     border-radius: 0.5em;
   }
 

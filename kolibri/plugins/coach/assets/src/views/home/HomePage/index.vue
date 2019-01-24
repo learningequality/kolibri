@@ -60,6 +60,7 @@
 <style lang="scss" scoped>
 
   .new-coach-block {
+    min-width: auto;
     margin-top: 16px;
   }
 

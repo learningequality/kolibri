@@ -303,7 +303,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: scroll; // has to be scroll, not auto
     -webkit-overflow-scrolling: touch; // iOS momentum scrolling
   }

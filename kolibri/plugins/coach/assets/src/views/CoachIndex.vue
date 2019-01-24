@@ -48,6 +48,7 @@
   .new-coach-block {
     @extend %dropshadow-1dp;
 
+    min-width: 600px;
     padding: 8px 24px 24px;
     margin-top: 24px;
     background-color: white;
@@ -56,7 +57,6 @@
 
   .new-coach-table {
     width: 100%;
-    min-width: 600px;
     thead {
       font-size: smaller;
       border-bottom: 1px solid rgb(223, 223, 223);
