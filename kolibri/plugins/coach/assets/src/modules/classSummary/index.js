@@ -74,6 +74,9 @@ function statusMap(statuses, key, itemIds) {
   const statusMap = {};
   itemIds.forEach(id => (statusMap[id] = {}));
   statuses.forEach(status => {
+    if (!statusMap[status[key]]) {
+      statusMap[status[key]] = {};
+    }
     statusMap[status[key]][status.learner_id] = status;
   });
   return statusMap;
@@ -161,6 +164,11 @@ export default {
           ),
           contentMap: itemMap(summary.content, 'content_id'),
           contentNodeMap: itemMap(summary.content, 'node_id'),
+          contentLearnerStatusMap: statusMap(
+            summary.content_learner_status,
+            'content_id',
+            summary.content.map(content => content.id)
+          ),
           lessonMap: itemMap(summary.lessons, 'id'),
         });
       });
