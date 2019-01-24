@@ -28,7 +28,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
                     text="Some lesson"
                   />
                 </td>
@@ -44,7 +44,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
                     text="Another lesson"
                   />
                 </td>
@@ -60,7 +60,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
                     text="Lesson 1"
                   />
                 </td>
@@ -76,7 +76,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportLessonPage')"
+                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
                     text="Lesson 2"
                   />
                 </td>
@@ -106,7 +106,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                    :to="classRoute('ReportsLearnerReportQuizPage', {})"
                     text="Some quiz"
                   />
                 </td>
@@ -123,7 +123,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsLearnerReportQuizPage')"
+                    :to="classRoute('ReportsLearnerReportQuizPage', {})"
                     text="Another quiz"
                   />
                 </td>

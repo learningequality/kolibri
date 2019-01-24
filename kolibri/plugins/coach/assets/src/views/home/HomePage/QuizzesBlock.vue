@@ -1,25 +1,21 @@
 <template>
 
-  <div>
-    <h2>{{ coachStrings.$tr('quizzesLabel') }}</h2>
-    <p>
-      <KRouterLink
-        appearance="flat-button"
-        :text="$tr('viewAll')"
-        :to="newCoachRoute('ReportsQuizListPage')"
-      />
-    </p>
-    <div>
-      <ItemProgressDisplay
-        v-for="quiz in recentQuizzes"
-        :key="quiz.key"
-        :name="quiz.name"
-        :completed="quiz.completed"
-        :total="quiz.total"
-        :groups="quiz.groups"
-      />
-    </div>
-  </div>
+  <Block
+    :title="coachStrings.$tr('quizzesLabel')"
+    :allLinkText="$tr('viewAll')"
+    :allLinkRoute="classRoute('ReportsQuizListPage', {})"
+  >
+    <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
+    <ItemProgressDisplay
+      v-for="quiz in recentQuizzes"
+      :key="quiz.key"
+      :name="quiz.name"
+      :completed="quiz.completed"
+      :total="quiz.total"
+      :groups="quiz.groups"
+      class="block-item"
+    />
+  </Block>
 
 </template>
 
@@ -29,6 +25,7 @@
   import { mapGetters, mapState } from 'vuex';
   import sortBy from 'lodash/sortBy';
   import commonCoach from '../../common';
+  import Block from './Block';
   import ItemProgressDisplay from './ItemProgressDisplay';
 
   const MAX_QUIZZES = 3;
@@ -37,6 +34,7 @@
     name: 'QuizzesBlock',
     components: {
       ItemProgressDisplay,
+      Block,
     },
     mixins: [commonCoach],
     $trs: {

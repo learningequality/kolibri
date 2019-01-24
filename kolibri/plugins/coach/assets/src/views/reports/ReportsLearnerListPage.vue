@@ -63,7 +63,7 @@
     mixins: [commonCoach],
     computed: {
       link() {
-        return this.newCoachRoute('ReportsLearnerReportPage');
+        return this.classRoute('ReportsLearnerReportPage', {});
       },
     },
     $trs: {},

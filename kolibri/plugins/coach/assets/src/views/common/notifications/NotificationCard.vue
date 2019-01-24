@@ -29,7 +29,7 @@
             appearance="flat-button"
             class="show-btn"
             :text="coachStrings.$tr('showAction')"
-            :to="newCoachRoute(targetPage)"
+            :to="classRoute(targetPage, {})"
           />
         </div>
       </KGridItem>

@@ -3,58 +3,52 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsGroupListPage')"
+        :to="classRoute('ReportsGroupListPage', {})"
         :text="$tr('back')"
       />
     </p>
     <h1>Group A</h1>
-    <dl>
-      <dt>{{ coachStrings.$tr('avgQuizScoreLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('percentage', {value: 0.4}) }}</dd>
-    </dl>
-    <dl>
-      <dt>{{ coachStrings.$tr('learnersLabel') }}</dt>
-      <dd>
-        <TruncatedItemList
-          :items="[
-            'John',
-            'Alice',
-            'Julie',
-            'Lucy',
-            'Steve',
-            'Mary',
-            'Judy',
-            'George',
-            'Carol',
-            'Ken'
-          ]"
-        />
-      </dd>
-    </dl>
-    <div>
-      <KRouterLink
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', {value: 0.4}) }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('learnersLabel') }}</template>
+        <template slot="value">
+          <TruncatedItemList
+            :items="[
+              'John',
+              'Alice',
+              'Julie',
+              'Lucy',
+              'Steve',
+              'Mary',
+              'Judy',
+              'George',
+              'Carol',
+              'Ken'
+            ]"
+          />
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportsLabel')"
-        :to="newCoachRoute('ReportsGroupReportPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsGroupReportPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('membersLabel')"
-        :to="newCoachRoute('ReportsGroupLearnerListPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsGroupLearnerListPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
-        :to="newCoachRoute('ReportsGroupActivityPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsGroupActivityPage', {})"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>

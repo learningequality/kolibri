@@ -17,15 +17,15 @@
       <KGridItem sizes="100, 100, 50" percentage>
         <KGrid :gutter="16">
           <KGridItem size="100" percentage>
-            <QuizzesBlock class="new-coach-block" />
+            <QuizzesBlock />
           </KGridItem>
           <KGridItem size="100" percentage>
-            <LessonsBlock class="new-coach-block" />
+            <!-- <LessonsBlock /> -->
           </KGridItem>
         </KGrid>
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
-        <ActivityBlock class="new-coach-block" />
+        <ActivityBlock />
       </KGridItem>
     </KGrid>
 
@@ -39,7 +39,7 @@
   import commonCoach from '../../common';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
-  import LessonsBlock from './LessonsBlock';
+  // import LessonsBlock from './LessonsBlock';
   import QuizzesBlock from './QuizzesBlock';
 
   export default {
@@ -47,7 +47,7 @@
     components: {
       OverviewBlock,
       ActivityBlock,
-      LessonsBlock,
+      // LessonsBlock,
       QuizzesBlock,
     },
     mixins: [commonCoach],
@@ -57,10 +57,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .new-coach-block {
-    margin-top: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

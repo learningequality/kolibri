@@ -13,21 +13,27 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsLearnerReportPage')"
+          :to="classRoute('ReportsLearnerReportPage', {})"
           text="Julie"
         />
       </p>
       <h1>
         {{ coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'}) }}
       </h1>
-      <dl>
-        <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-        <dd><LessonActive :active="true" /></dd>
-        <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-        <dd>Group 1, Group 2</dd>
-        <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-        <dd>Ipsum lorem</dd>
-      </dl>
+      <HeaderTable>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+          <template slot="value"><LessonActive :active="true" /></template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+          <template slot="value">Group 1, Group 2</template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+          <template slot="value">Ipsum lorem</template>
+        </HeaderTableRow>
+      </HeaderTable>
 
       <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
       <table class="new-coach-table">
@@ -43,7 +49,7 @@
             <td>
               <KRouterLink
                 text="Some exercise"
-                :to="newCoachRoute('ReportsLearnerReportLessonExercisePage')"
+                :to="classRoute('ReportsLearnerReportLessonExercisePage', {})"
               />
             </td>
             <td>

@@ -1,31 +1,24 @@
 <template>
 
-  <div>
-    <button @click="moveNots">Move</button>
-    <h2>{{ $tr('classActivity') }}</h2>
-    <p>
-      <KRouterLink
-        appearance="flat-button"
-        :text="$tr('viewAll')"
-        :to="route('HomeActivityPage')"
-      />
-    </p>
-    <div>
-      <transition-group name="list">
-        <NotificationCard
-          v-for="notification in notifications"
-          :key="notification.groupCode + String(notification.lastTimestamp)"
-          v-bind="cardPropsForNotification(notification)"
-        >
-          {{ cardTextForNotification(notification) }}
-        </NotificationCard>
-
-      </transition-group>
-      <div v-if="notifications.length === 0">
-        {{ $tr('noActivity') }}
-      </div>
+  <Block
+    :title="$tr('classActivity')"
+    :allLinkText="$tr('viewAll')"
+    :allLinkRoute="$router.getRoute('HomeActivityPage')"
+  >
+    <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
+    <transition-group name="list">
+      <NotificationCard
+        v-for="notification in notifications"
+        :key="notification.groupCode + String(notification.lastTimestamp)"
+        v-bind="cardPropsForNotification(notification)"
+      >
+        {{ cardTextForNotification(notification) }}
+      </NotificationCard>
+    </transition-group>
+    <div v-if="notifications.length === 0">
+      {{ $tr('noActivity') }}
     </div>
-  </div>
+  </Block>
 
 </template>
 
@@ -42,6 +35,7 @@
     NotificationEvents,
   } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import Block from './Block';
 
   const { LESSON, QUIZ } = NotificationObjects;
   const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
@@ -50,6 +44,7 @@
     name: 'ActivityBlock',
     components: {
       NotificationCard,
+      Block,
     },
     mixins: [nStringsMixin, commonCoach],
     computed: {

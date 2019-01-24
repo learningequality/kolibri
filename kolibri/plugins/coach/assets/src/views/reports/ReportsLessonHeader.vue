@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLessonListPage')"
+        :to="classRoute('ReportsLessonListPage', {})"
         :text="$tr('back')"
       />
     </p>
@@ -15,29 +15,32 @@
       appearance="raised-button"
       @select="goTo($event.value)"
     />
-    <dl>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><LessonActive :active="true" /></dd>
-      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-      <dd>Group 1, Group 2</dd>
-      <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-      <dd>Ipsum lorem</dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="value"><LessonActive :active="true" /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="value">Group 1, Group 2</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+        <template slot="value">Ipsum lorem</template>
+      </HeaderTableRow>
+    </HeaderTable>
 
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-        :to="newCoachRoute('ReportsLessonReportPage')"
+        :to="classRoute('ReportsLessonReportPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('learnersLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-        :to="newCoachRoute('ReportsLessonLearnerListPage')"
+        :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
-    </div>
+    </HeaderTabs>
 
   </div>
 

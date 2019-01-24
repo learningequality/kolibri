@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsQuizListPage')"
+        :to="classRoute('ReportsQuizListPage', {})"
         :text="$tr('back')"
       />
     </p>
@@ -16,41 +16,43 @@
       appearance="raised-button"
       @select="goTo($event.value)"
     />
-    <dl>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><QuizActive :active="true" /></dd>
-      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-      <dd><Recipients :groups="[]" /></dd>
-      <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
-      <dd>
-        <LearnerProgressRatio
-          :count="1"
-          :total="3"
-          :verbosity="2"
-          verb="completed"
-          icon="clock"
-        />
-      </dd>
-      <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
-    </dl>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="value"><QuizActive :active="true" /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="value"><Recipients :groups="[]" /></template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('progressLabel') }}</template>
+        <template slot="value">
+          <LearnerProgressRatio
+            :count="1"
+            :total="3"
+            :verbosity="2"
+            verb="completed"
+            icon="clock"
+          />
+        </template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
 
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="link('ReportsQuizLearnerListPage')"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
         :to="link('ReportsQuizQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 
@@ -75,10 +77,10 @@
     },
     methods: {
       goTo(page) {
-        this.$router.push(this.newCoachRoute(page));
+        this.$router.push(this.classRoute(page, {}));
       },
       link(page) {
-        return this.newCoachRoute(page);
+        return this.classRoute(page, {});
       },
     },
     $trs: {

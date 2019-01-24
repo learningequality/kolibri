@@ -74,7 +74,7 @@
     },
     computed: {
       questionLink() {
-        return this.newCoachRoute('ReportsQuizQuestionPage');
+        return this.classRoute('ReportsQuizQuestionPage', {});
       },
     },
     methods: {

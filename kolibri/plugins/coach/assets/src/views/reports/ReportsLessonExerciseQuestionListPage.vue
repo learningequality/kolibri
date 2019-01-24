@@ -64,7 +64,7 @@
     },
     computed: {
       questionLink() {
-        return this.newCoachRoute('ReportsLessonExerciseQuestionPage');
+        return this.classRoute('ReportsLessonExerciseQuestionPage', {});
       },
     },
     methods: {

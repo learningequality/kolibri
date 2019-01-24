@@ -48,6 +48,7 @@
   .new-coach-block {
     @extend %dropshadow-1dp;
 
+    min-width: 600px;
     padding: 8px 24px 24px;
     margin-top: 24px;
     background-color: white;
@@ -56,7 +57,6 @@
 
   .new-coach-table {
     width: 100%;
-    min-width: 600px;
     thead {
       font-size: smaller;
       border-bottom: 1px solid rgb(223, 223, 223);
@@ -74,28 +74,6 @@
     border-bottom: 1px solid rgb(223, 223, 223);
   }
 
-  .coach-debug {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    height: 100px;
-    font-weight: bold;
-    text-align: center;
-    background-color: white;
-    border-top: 1px solid gray;
-
-    .coach-warning {
-      color: red;
-    }
-  }
-
-  .new-coach-tab.router-link-active {
-    border-bottom: 3px solid black;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
   // ... COACH - under construction
 
 </style>

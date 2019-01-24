@@ -7,7 +7,10 @@ import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 import KGrid from 'kolibri.coreVue.components.KGrid';
 import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import router from 'kolibri.coreVue.router';
+import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import { PageNames } from '../constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
@@ -20,7 +23,10 @@ import Recipients from './common/Recipients';
 import Score from './common/Score';
 import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
-
+import HeaderTable from './common/HeaderTable';
+import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
+import HeaderTabs from './common/HeaderTabs';
+import HeaderTab from './common/HeaderTabs/HeaderTab';
 import LearnerProgressRatio from './common/status/LearnerProgressRatio';
 import LearnerProgressCount from './common/status/LearnerProgressCount';
 import LearnerProgressLabel from './common/status/LearnerProgressLabel';
@@ -32,6 +38,7 @@ export default {
   name: 'ReportsQuizHeader',
   components: {
     CoreBase,
+    ContentIcon,
     TopNavbar,
     KModal,
     KButton,
@@ -50,6 +57,10 @@ export default {
     Score,
     TimeDuration,
     QuizActive,
+    HeaderTable,
+    HeaderTableRow,
+    HeaderTabs,
+    HeaderTab,
     LearnerProgressRatio,
     LearnerProgressCount,
     LearnerProgressLabel,
@@ -67,20 +78,19 @@ export default {
     PageNames() {
       return PageNames;
     },
+    ContentNodeKinds() {
+      return ContentNodeKinds;
+    },
+    CollectionKinds() {
+      return CollectionKinds;
+    },
   },
   methods: {
-    route(name, params) {
-      return { name, params };
-    },
     classRoute(name, params = {}) {
       if (this.classId) {
         params.classId = this.classId;
       }
-      return { name, params };
-    },
-    // temporary
-    newCoachRoute(page) {
-      return { name: 'NEW_COACH_PAGES', params: { page } };
+      return router.getRoute(name, params);
     },
   },
 };

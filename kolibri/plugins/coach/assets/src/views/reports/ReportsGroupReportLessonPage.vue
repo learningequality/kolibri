@@ -13,18 +13,22 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsGroupReportPage')"
+          :to="classRoute('ReportsGroupReportPage', {})"
           text="Group A"
         />
       </p>
       <h1>Group A</h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: 'Lesson 1'}) }}</p>
-      <dl>
-        <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-        <dd><LessonActive :active="true" /></dd>
-        <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-        <dd>Ipsum lorem</dd>
-      </dl>
+      <HeaderTable>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+          <template slot="value"><LessonActive :active="true" /></template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+          <template slot="value">Ipsum lorem</template>
+        </HeaderTableRow>
+      </HeaderTable>
 
       <table class="new-coach-table">
         <thead>
@@ -39,7 +43,7 @@
             <td>
               <KRouterLink
                 text="Some exercise"
-                :to="newCoachRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
+                :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage', {})"
               />
             </td>
             <td>
@@ -57,7 +61,7 @@
             <td>
               <KRouterLink
                 text="Some video"
-                :to="newCoachRoute('ReportsGroupReportLessonResourceLearnerListPage')"
+                :to="classRoute('ReportsGroupReportLessonResourceLearnerListPage', {})"
               />
             </td>
             <td>

@@ -116,7 +116,7 @@
     },
     computed: {
       learnerLink() {
-        return this.newCoachRoute('ReportsGroupReportLessonExerciseLearnerPage');
+        return this.classRoute('ReportsGroupReportLessonExerciseLearnerPage', {});
       },
     },
     methods: {

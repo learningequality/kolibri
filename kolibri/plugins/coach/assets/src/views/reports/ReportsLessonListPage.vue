@@ -31,7 +31,7 @@
             <td>
               <KRouterLink
                 text="Lesson A"
-                :to="newCoachRoute('ReportsLessonReportPage')"
+                :to="classRoute('ReportsLessonReportPage', {})"
               />
             </td>
             <td>
@@ -50,7 +50,7 @@
             <td>
               <KRouterLink
                 text="Lesson B"
-                :to="newCoachRoute('ReportsLessonReportPage')"
+                :to="classRoute('ReportsLessonReportPage', {})"
               />
             </td>
             <td>
