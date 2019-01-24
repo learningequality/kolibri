@@ -44,6 +44,9 @@
       this.$slots.tbody.forEach(tbody => {
         if (tbody.children) {
           tbody.children.forEach(child => {
+            if (!child.data) {
+              child.data = {};
+            }
             if (!child.data.class) {
               child.data.class = [];
             } else if (child.data.class && !Array.isArray(child.data.class)) {

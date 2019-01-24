@@ -85,7 +85,7 @@ export default {
           force: true,
         })
         .then(data => {
-          if (data.count > 0) {
+          if (data.results.length > 0) {
             store.commit('APPEND_NOTIFICATIONS', data.results);
           }
           store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
