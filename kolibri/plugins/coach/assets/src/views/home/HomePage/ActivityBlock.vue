@@ -35,6 +35,7 @@
     NotificationEvents,
   } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import Block from './Block';
 
   const { LESSON, QUIZ } = NotificationObjects;
@@ -77,12 +78,10 @@
           contentIcon = resource.type;
         }
 
-        let targetPage = 'ReportsLessonExerciseLearnerListPage';
-
         return {
           icon,
           contentIcon,
-          targetPage,
+          targetPage: notificationLink(notification),
           learnerContext,
           contentContext: notification.assignment.name,
           lastTimestamp: String(notification.lastTimestamp),
