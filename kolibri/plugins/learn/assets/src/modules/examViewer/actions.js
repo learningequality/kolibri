@@ -1,4 +1,4 @@
-import { ExamAttemptLogResource, ExamLogResource, UserExamResource } from 'kolibri.resources';
+import { ExamAttemptLogResource, ExamLogResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { now } from 'kolibri.utils.serverClock';
 import { ClassesPageNames } from '../../constants';
@@ -21,12 +21,6 @@ export function setAndSaveCurrentExamAttemptLog(
   store,
   { contentId, itemId, currentAttemptLog, examId }
 ) {
-  // As soon as this has happened, we should clear any previous cache for the
-  // UserExamResource - as that data has now changed.
-  UserExamResource.clearCache();
-  // Not sure why, but need to clear cache for PATCHing to not fail
-  ExamAttemptLogResource.clearCache();
-
   setExamAttemptLog(store, { contentId, itemId, attemptLog: currentAttemptLog });
 
   // If a save has already been fired for this particular attempt log,
@@ -79,7 +73,6 @@ export function closeExam(store) {
     },
   })
     .then(() => {
-      UserExamResource.clearCache();
       LearnerClassroomResource.clearCache();
     })
     .catch(error => {

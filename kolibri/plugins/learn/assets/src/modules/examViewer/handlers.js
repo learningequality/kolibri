@@ -1,16 +1,17 @@
 import {
   ContentNodeResource,
-  UserExamResource,
+  ExamResource,
   ExamLogResource,
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { canViewExam, convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
+import { convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import shuffled from 'kolibri.utils.shuffled';
+import { canViewExam } from '../../utils/exams';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
@@ -32,7 +33,7 @@ export function showExam(store, params) {
     questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
 
     const promises = [
-      UserExamResource.fetchModel({ id: examId }),
+      ExamResource.fetchModel({ id: examId }),
       ExamLogResource.fetchCollection({ getParams: examParams }),
       ExamAttemptLogResource.fetchCollection({ getParams: examParams }),
       store.dispatch('setAndCheckChannels'),
