@@ -17,6 +17,7 @@ from ..constants import role_kinds
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
+from kolibri.core import error_constants
 
 
 # A weird hack because of http://bugs.python.org/issue17866
@@ -121,6 +122,7 @@ class LearnerGroupAPITestCase(APITestCase):
         response = self.client.post(reverse('kolibri:core:learnergroup-list'), {'parent': classroom_id, 'name': learner_group_name},
                                     format='json')
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
 class ClassroomAPITestCase(APITestCase):
@@ -160,6 +162,7 @@ class ClassroomAPITestCase(APITestCase):
         response = self.client.post(reverse('kolibri:core:classroom-list'), {'parent': self.facility.id, 'name': classroom_name},
                                     format='json')
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
 class FacilityAPITestCase(APITestCase):
