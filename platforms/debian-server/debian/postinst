@@ -13,7 +13,11 @@ location /static {
 }
  location /content {
     alias   $KOLIBRI_HOME/content/;
-}"> /etc/kolibri/nginx.d/001-content.conf
+}
+"> $KOLIBRI_HOME/nginx.conf
+
+    echo "include $KOLIBRI_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+
     # service kolibri-network-server reload >/dev/null || true
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
