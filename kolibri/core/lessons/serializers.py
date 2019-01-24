@@ -5,6 +5,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Lesson
 from .models import LessonAssignment
@@ -52,6 +53,13 @@ class LessonSerializer(ModelSerializer):
             'created_by',
             'learner_ids',
         )
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Lesson.objects.all(),
+                fields=('collection', 'title')
+            )
+        ]
 
     def get_learner_ids(self, data):
         return [user.id for user in data.get_all_learners()]

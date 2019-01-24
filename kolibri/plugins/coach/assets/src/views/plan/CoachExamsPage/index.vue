@@ -89,7 +89,9 @@
 
     <AssignmentDetailsModal
       v-if="showEditModal"
+      ref="detailsModal"
       :modalTitle="manageExamModalStrings.$tr('editExamDetails')"
+      :modalTitleErrorMessage="manageExamModalStrings.$tr('duplicateTitle')"
       :submitErrorMessage="manageExamModalStrings.$tr('saveExamError')"
       :showDescriptionField="false"
       :isInEditMode="true"
@@ -141,8 +143,9 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import StatusIcon from '../../plan/assignments/StatusIcon';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
@@ -301,16 +304,25 @@
           active: result.active,
           assignments: this.serverAssignmentPayload(listOfIDs),
         };
-        this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload }).then(() => {
-          const object = {
-            id: this.editExam.id,
-            title: result.title,
-            groups: this.clientAssigmentState(listOfIDs),
-            active: result.active,
-          };
-          this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
-          this.showEditModal = false;
-        });
+        this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload })
+          .then(() => {
+            const object = {
+              id: this.editExam.id,
+              title: result.title,
+              groups: this.clientAssigmentState(listOfIDs),
+              active: result.active,
+            };
+            this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
+            this.showEditModal = false;
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else {
+              this.$refs.detailsModal.handleSubmitFailure();
+            }
+          });
       },
       handleExamCopy(selectedClassroomId, listOfIDs) {
         const title = manageExamModalStrings

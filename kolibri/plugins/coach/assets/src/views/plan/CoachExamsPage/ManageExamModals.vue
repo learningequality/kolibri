@@ -23,6 +23,7 @@
       v-else-if="examsModalSet === AssignmentActions.EDIT_DETAILS"
       ref="detailsModal"
       :modalTitle="$tr('editExamDetails')"
+      :modalTitleErrorMessage="$tr('duplicateTitle')"
       :submitErrorMessage="$tr('saveExamError')"
       :showDescriptionField="false"
       :isInEditMode="true"
@@ -61,6 +62,8 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import xorWith from 'lodash/xorWith';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import AssignmentChangeStatusModal from '../../plan/assignments/AssignmentChangeStatusModal';
   import ExamPreview from '../../plan/CoachExamsPage/ExamPreview';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
@@ -130,7 +133,14 @@
         }
         this.updateExamDetails({ examId: this.exam.id, payload })
           .then()
-          .catch(() => this.$refs.detailsModal.handleSubmitFailure());
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else {
+              this.$refs.detailsModal.handleSubmitFailure();
+            }
+          });
       },
       handleCopyExam(selectedClassroomId, selectedCollectionIds) {
         let title = this.$tr('copyOfExam', { examTitle: this.exam.title })

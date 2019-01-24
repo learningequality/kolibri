@@ -25,6 +25,7 @@
       :invalidText="titleIsInvalidText"
       :disabled="formIsSubmitted"
       @blur="titleIsVisited = true"
+      @input="showTitleError = false"
     />
     <KTextbox
       v-if="showDescriptionField"
@@ -84,6 +85,10 @@
       modalTitle: {
         type: String,
         required: true,
+      },
+      modalTitleErrorMessage: {
+        type: String,
+        required: false,
       },
       submitErrorMessage: {
         type: String,
@@ -145,6 +150,7 @@
         titleIsVisited: false,
         formIsSubmitted: false,
         showServerError: false,
+        showTitleError: false,
       };
     },
     computed: {
@@ -161,6 +167,9 @@
         if (this.titleIsVisited) {
           if (this.title === '') {
             return this.$tr('fieldRequiredErro');
+          }
+          if (this.showTitleError) {
+            return this.modalTitleErrorMessage;
           }
         }
         return '';
@@ -187,6 +196,7 @@
     methods: {
       submitData() {
         this.showServerError = false;
+        this.showTitleError = false;
         // Return immediately if "submit" has already been clicked
         if (this.formIsSubmitted) {
           // IDEA a loading indictor or something would probably be handy
@@ -209,14 +219,18 @@
           this.$refs.titleField.focus();
         }
       },
-      // NOTE: this method is not used inside the method, but may be called
+      closeModal() {
+        this.$emit('cancel');
+      },
+      // NOTE: These methods are not used inside the component, but may be called
       // from a parent component
       handleSubmitFailure() {
         this.formIsSubmitted = false;
         this.showServerError = true;
       },
-      closeModal() {
-        this.$emit('cancel');
+      handleSubmitTitleFailure() {
+        this.formIsSubmitted = false;
+        this.showTitleError = true;
       },
     },
     $trs: {
