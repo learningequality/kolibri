@@ -3,7 +3,7 @@
   <div>
     <BackLink
       text="Counting with big numbers"
-      :to="newCoachRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
+      :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage', {})"
     />
     <LearnerExerciseReport />
   </div>

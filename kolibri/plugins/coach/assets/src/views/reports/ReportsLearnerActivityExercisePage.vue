@@ -3,7 +3,7 @@
   <div>
     <BackLink
       :text="coachStrings.$tr('activityLabel')"
-      :to="newCoachRoute('ReportsLearnerActivityPage')"
+      :to="classRoute('ReportsLearnerActivityPage', {})"
     />
     <LearnerExerciseReport />
   </div>

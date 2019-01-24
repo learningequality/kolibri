@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLearnerListPage')"
+        :to="classRoute('ReportsLearnerListPage', {})"
         :text="$tr('back')"
       />
     </p>
@@ -29,14 +29,14 @@
     <div>
       <KRouterLink
         :text="coachStrings.$tr('reportsLabel')"
-        :to="newCoachRoute('ReportsLearnerReportPage')"
+        :to="classRoute('ReportsLearnerReportPage', {})"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"
       />
       <KRouterLink
         :text="coachStrings.$tr('activityLabel')"
-        :to="newCoachRoute('ReportsLearnerActivityPage')"
+        :to="classRoute('ReportsLearnerActivityPage', {})"
         :primary="false"
         appearance="flat-button"
         class="new-coach-tab"

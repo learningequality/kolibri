@@ -6,7 +6,7 @@
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="newCoachRoute('ReportsLessonListPage')"
+        :to="classRoute('ReportsLessonListPage', {})"
       />
     </p>
     <div>

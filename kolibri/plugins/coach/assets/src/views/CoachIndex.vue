@@ -74,23 +74,6 @@
     border-bottom: 1px solid rgb(223, 223, 223);
   }
 
-  .coach-debug {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    height: 100px;
-    font-weight: bold;
-    text-align: center;
-    background-color: white;
-    border-top: 1px solid gray;
-
-    .coach-warning {
-      color: red;
-    }
-  }
-
   .new-coach-tab.router-link-active {
     border-bottom: 3px solid black;
     border-bottom-right-radius: 0;

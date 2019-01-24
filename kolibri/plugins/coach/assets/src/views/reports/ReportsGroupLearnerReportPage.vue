@@ -28,7 +28,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Some lesson"
                   />
                 </td>
@@ -44,7 +44,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Another lesson"
                   />
                 </td>
@@ -60,7 +60,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Lesson 1"
                   />
                 </td>
@@ -76,7 +76,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Lesson 2"
                   />
                 </td>
@@ -106,7 +106,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
+                    :to="classRoute('ReportsGroupLearnerReportQuizPage', {})"
                     text="Some quiz"
                   />
                 </td>
@@ -123,7 +123,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
+                    :to="classRoute('ReportsGroupLearnerReportQuizPage', {})"
                     text="Another quiz"
                   />
                 </td>

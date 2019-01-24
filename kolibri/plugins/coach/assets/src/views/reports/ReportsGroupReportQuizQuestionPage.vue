@@ -29,7 +29,7 @@
     mixins: [commonCoach],
     computed: {
       backLink() {
-        return this.newCoachRoute('ReportsGroupReportQuizQuestionListPage');
+        return this.classRoute('ReportsGroupReportQuizQuestionListPage', {});
       },
     },
     $trs: {

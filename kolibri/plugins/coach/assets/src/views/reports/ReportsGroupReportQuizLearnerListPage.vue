@@ -30,7 +30,7 @@
             <td>
               <KRouterLink
                 text="April"
-                :to="newCoachRoute('ReportsGroupReportQuizLearnerPage')"
+                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
               />
             </td>
             <td><Score /></td>
@@ -47,7 +47,7 @@
             <td>
               <KRouterLink
                 text="Steve"
-                :to="newCoachRoute('ReportsGroupReportQuizLearnerPage')"
+                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
               />
             </td>
             <td><Score /></td>
@@ -64,7 +64,7 @@
             <td>
               <KRouterLink
                 text="John"
-                :to="newCoachRoute('ReportsGroupReportQuizLearnerPage')"
+                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
               />
             </td>
             <td><Score :value="0.1" /></td>

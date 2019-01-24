@@ -28,7 +28,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportLessonPage')"
+                    :to="classRoute('ReportsGroupReportLessonPage', { lessonId: '___' })"
                     text="Some lesson"
                   />
                 </td>
@@ -44,7 +44,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportLessonPage')"
+                    :to="classRoute('ReportsGroupReportLessonPage', { lessonId: '___' })"
                     text="Another lesson"
                   />
                 </td>
@@ -61,7 +61,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportLessonPage')"
+                    :to="classRoute('ReportsGroupReportLessonPage', { lessonId: '___' })"
                     text="Lesson 1"
                   />
                 </td>
@@ -83,7 +83,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportLessonPage')"
+                    :to="classRoute('ReportsGroupReportLessonPage', { lessonId: '___' })"
                     text="Lesson 2"
                   />
                 </td>
@@ -113,7 +113,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportQuizLearnerListPage')"
+                    :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: '___' })"
                     text="Some quiz"
                   />
                 </td>
@@ -130,7 +130,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupReportQuizLearnerListPage')"
+                    :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: '___' })"
                     text="Another quiz"
                   />
                 </td>
@@ -169,7 +169,7 @@
     mixins: [commonCoach],
     computed: {
       link() {
-        return this.newCoachRoute('ReportsLearnerPage');
+        return this.classRoute('ReportsLearnerPage', {});
       },
     },
     $trs: {},

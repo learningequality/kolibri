@@ -58,7 +58,7 @@
     mixins: [commonCoach],
     computed: {
       link() {
-        return this.newCoachRoute('ReportsGroupLearnerReportPage');
+        return this.classRoute('ReportsGroupLearnerReportPage', { learnerId: '___' });
       },
     },
     $trs: {},

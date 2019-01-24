@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsGroupReportLessonPage')"
+        :to="classRoute('ReportsGroupReportLessonPage', {})"
         :text="$tr('back', { lesson: lessonName })"
       />
     </p>

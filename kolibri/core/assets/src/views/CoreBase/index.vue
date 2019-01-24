@@ -64,6 +64,11 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
+      <div v-if="debug" class="debug">
+        <div>{{ contentComponentName }}</div>
+        <div>{{ routePath }}</div>
+      </div>
+
       <AuthMessage
         v-if="notAuthorized"
         :authorizedRole="authorizedRole"
@@ -183,6 +188,10 @@
         type: Boolean,
         default: false,
       },
+      debug: {
+        type: Boolean,
+        default: true,
+      },
     },
     metaInfo() {
       return {
@@ -264,6 +273,15 @@
       throttledHandleScroll() {
         return throttle(this.handleScroll);
       },
+      contentComponentName() {
+        return this.$slots.default[0].context.$options.name;
+      },
+      routePath() {
+        if (this.$router.getRouteDefinition(this.contentComponentName)) {
+          return this.$router.getRouteDefinition(this.contentComponentName).path;
+        }
+        return '';
+      },
     },
     methods: {
       handleScroll(e) {
@@ -320,6 +338,13 @@
     margin-right: auto;
     margin-bottom: 128px;
     margin-left: auto;
+  }
+
+  .debug {
+    font-family: monospace;
+    font-size: large;
+    font-weight: bold;
+    line-height: 2em;
   }
 
 </style>

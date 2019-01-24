@@ -76,9 +76,5 @@ export default {
       }
       return router.getRoute(name, params);
     },
-    // temporary
-    newCoachRoute(page) {
-      return { name: 'NEW_COACH_PAGES', params: { page } };
-    },
   },
 };

@@ -178,7 +178,7 @@
     },
     computed: {
       learnerLink() {
-        return this.newCoachRoute('ReportsLessonExerciseLearnerPage');
+        return this.classRoute('ReportsLessonExerciseLearnerPage', {});
       },
     },
     methods: {

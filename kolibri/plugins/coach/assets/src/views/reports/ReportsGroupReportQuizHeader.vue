@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsGroupReportPage')"
+        :to="classRoute('ReportsGroupReportPage', {})"
         text="Group A"
       />
     </p>
@@ -63,10 +63,10 @@
     computed: {},
     methods: {
       goTo(page) {
-        this.$router.push(this.newCoachRoute(page));
+        this.$router.push(this.classRoute(page, {}));
       },
       link(page) {
-        return this.newCoachRoute(page);
+        return this.classRoute(page, {});
       },
     },
     $trs: {

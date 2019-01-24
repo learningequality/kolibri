@@ -58,6 +58,11 @@ class Router {
       return { name, params };
     };
 
+    // attach a helper method that returns original route definition
+    this._vueRouter.getRouteDefinition = this.getRouteDefinition = name => {
+      return this._routes[name];
+    };
+
     // return a copy of underlying router
     return this._vueRouter;
   }

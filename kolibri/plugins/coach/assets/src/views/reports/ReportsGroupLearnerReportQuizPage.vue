@@ -3,7 +3,7 @@
   <div>
     <BackLink
       text="Julie"
-      :to="newCoachRoute('ReportsGroupLearnerReportPage')"
+      :to="classRoute('ReportsGroupLearnerReportPage', {})"
     />
     <LearnerQuizReport />
   </div>

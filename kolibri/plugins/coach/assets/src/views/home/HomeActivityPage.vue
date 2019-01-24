@@ -13,7 +13,7 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('HomePage')"
+          :to="classRoute('HomePage', {})"
           :text="$tr('back')"
         />
       </p>

@@ -13,7 +13,7 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsGroupReportLessonPage')"
+          :to="classRoute('ReportsGroupReportLessonPage', {})"
           :text="$tr('back', { lesson: 'Lesson 1' })"
         />
       </p>

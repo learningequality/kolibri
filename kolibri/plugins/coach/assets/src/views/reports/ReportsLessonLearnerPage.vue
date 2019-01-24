@@ -13,7 +13,7 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsLessonLearnerListPage')"
+          :to="classRoute('ReportsLessonLearnerListPage', {})"
           text="Some lesson"
         />
       </p>
@@ -43,7 +43,7 @@
             <td>
               <KRouterLink
                 text="Some exercise"
-                :to="newCoachRoute('ReportsLessonLearnerExercisePage')"
+                :to="classRoute('ReportsLessonLearnerExercisePage', {})"
               />
             </td>
             <td>

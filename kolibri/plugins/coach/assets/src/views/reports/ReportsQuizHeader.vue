@@ -4,7 +4,7 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsQuizListPage')"
+        :to="classRoute('ReportsQuizListPage', {})"
         :text="$tr('back')"
       />
     </p>
@@ -75,10 +75,10 @@
     },
     methods: {
       goTo(page) {
-        this.$router.push(this.newCoachRoute(page));
+        this.$router.push(this.classRoute(page, {}));
       },
       link(page) {
-        return this.newCoachRoute(page);
+        return this.classRoute(page, {});
       },
     },
     $trs: {

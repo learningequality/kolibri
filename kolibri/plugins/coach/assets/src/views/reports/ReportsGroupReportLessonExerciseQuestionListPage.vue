@@ -60,7 +60,7 @@
     },
     computed: {
       questionLink() {
-        return this.newCoachRoute('ReportsGroupReportLessonExerciseQuestionPage');
+        return this.classRoute('ReportsGroupReportLessonExerciseQuestionPage', {});
       },
     },
     methods: {
