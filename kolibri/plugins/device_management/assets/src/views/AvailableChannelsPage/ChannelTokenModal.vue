@@ -39,7 +39,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import { getRemoteChannelByToken } from '../../modules/wizard/utils';
+  import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
   export default {
     name: 'ChannelTokenModal',
@@ -77,14 +77,12 @@
           this.formIsDisabled = true;
           return this.lookupToken(this.token)
             .then(channels => {
-              // unsure how many channels are returned from a single token so coerce to array
-              // resource layer appends id to object, so filter it out
-              const channelsList = Object.values(channels).filter(obj => obj !== this.token);
-              if (channelsList.length > 1) {
-                this.setAvailableChannels(channelsList);
+              // tokens can return one or more channels
+              if (channels.length > 1) {
+                this.setAvailableChannels(channels);
                 this.$emit('closemodal');
               } else {
-                this.$emit('channelfound', channelsList[0]);
+                this.$emit('channelfound', channels[0]);
               }
             })
             .catch(error => {
@@ -101,7 +99,7 @@
         return Promise.resolve();
       },
       lookupToken(token) {
-        return getRemoteChannelByToken(token);
+        return getRemoteChannelBundleByToken(token);
       },
     },
     $trs: {
