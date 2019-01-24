@@ -1,6 +1,5 @@
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import find from 'lodash/find';
-import UserReportResource from '../../apiResources/userReport';
 import { CollectionTypes } from '../../constants/lessonsConstants';
 
 export function setUserData(store, params) {

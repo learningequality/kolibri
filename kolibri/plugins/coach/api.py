@@ -1,22 +1,15 @@
 import datetime
 
-from django.db.models import Q
-from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
 
-from .serializers import ContentReportSerializer
-from .serializers import ContentSummarySerializer
 from .serializers import LearnerNotificationSerializer
 from .serializers import LessonReportSerializer
-from .serializers import UserReportSerializer
-from .utils.return_users import get_members_or_user
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.content.models import ContentNode
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.notifications.models import LearnerProgressNotification
@@ -65,43 +58,6 @@ class KolibriReportPermissions(permissions.BasePermission):
                 return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
         except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
             return False
-
-
-@query_params_required(channel_id=str, content_node_id=str, collection_kind=collection_kind_choices, collection_id=str)
-class ReportBaseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
-    permission_classes = (KolibriReportPermissions,)
-
-
-class UserReportViewSet(ReportBaseViewSet):
-
-    pagination_class = OptionalPageNumberPagination
-    serializer_class = UserReportSerializer
-
-    def get_queryset(self):
-        assert 'user' != self.kwargs['collection_kind'], 'only a `collection` should be passed to this endpoint'
-        return get_members_or_user(self.kwargs['collection_kind'], self.kwargs['collection_id'])
-
-
-class ContentReportViewSet(ReportBaseViewSet):
-
-    pagination_class = OptionalPageNumberPagination
-    serializer_class = ContentReportSerializer
-
-    def get_queryset(self):
-        content_node_id = self.kwargs['content_node_id']
-        return ContentNode.objects.filter(Q(parent=content_node_id) & Q(available=True)).order_by('lft')
-
-
-@query_params_required(channel_id=str, collection_kind=collection_kind_choices, collection_id=str)
-class ContentSummaryViewSet(viewsets.ReadOnlyModelViewSet):
-
-    permission_classes = (KolibriReportPermissions,)
-    serializer_class = ContentSummarySerializer
-
-    def get_queryset(self):
-        channel_id = self.kwargs['channel_id']
-        return ContentNode.objects.filter(Q(channel_id=channel_id)).order_by('lft')
 
 
 class LessonReportViewset(viewsets.ReadOnlyModelViewSet):

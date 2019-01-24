@@ -4,7 +4,6 @@ import {
   ContentSummaryLogResource,
   FacilityUserResource,
 } from 'kolibri.resources';
-import LessonReportResource from '../../apiResources/lessonReport';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 import { PageNames } from '../../constants';
 
@@ -80,15 +79,6 @@ export function showExerciseDetailView(
       store.dispatch('handleCoachPageError', error);
     }
   );
-}
-
-/* Refreshes the Lesson Report (resource vs. fraction of learners-who-completed-it)
- * data on the Lesson Summary Page.
- */
-export function refreshLessonReport(store, lessonId) {
-  LessonReportResource.fetchModel({ id: lessonId, force: true }).then(lessonReport => {
-    store.commit('SET_LESSON_REPORT', lessonReport);
-  });
 }
 
 /*

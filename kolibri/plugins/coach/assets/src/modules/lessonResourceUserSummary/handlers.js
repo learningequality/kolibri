@@ -31,13 +31,13 @@ export function showLessonResourceUserSummaryPage(store, params) {
         currentLesson: lesson,
       });
 
-      // This needs to be called after SET_STATE since action depends learnerGroups
-      // and currentLesson
-      return store.dispatch('lessonResourceUserSummary/setUserData', {
-        channelId: contentNode.channel_id,
-        contentNodeId: contentNode.id,
-        classId,
-      });
+      // // This needs to be called after SET_STATE since action depends learnerGroups
+      // // and currentLesson
+      // return store.dispatch('lessonResourceUserSummary/setUserData', {
+      //   channelId: contentNode.channel_id,
+      //   contentNodeId: contentNode.id,
+      //   classId,
+      // });
     })
     .then(() => {
       store.commit('SET_TOOLBAR_ROUTE', { name: LessonsPageNames.SUMMARY });

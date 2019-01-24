@@ -115,7 +115,6 @@
         workingResources: state => state.workingResources,
         // consider loading this async?
         resourceContentNodes: state => state.resourceCache,
-        totalLearners: state => state.lessonReport.total_learners,
         getCachedResource(state) {
           return function getter(resourceId) {
             return state.resourceCache[resourceId] || {};
