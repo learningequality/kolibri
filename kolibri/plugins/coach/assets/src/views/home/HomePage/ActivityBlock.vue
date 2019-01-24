@@ -7,7 +7,7 @@
       <KRouterLink
         appearance="flat-button"
         :text="$tr('viewAll')"
-        :to="route('HomeActivityPage')"
+        :to="$router.getRoute('HomeActivityPage')"
       />
     </p>
     <div>

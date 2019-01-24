@@ -8,6 +8,7 @@ import KGrid from 'kolibri.coreVue.components.KGrid';
 import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import router from 'kolibri.coreVue.router';
 import { PageNames } from '../constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
@@ -69,14 +70,11 @@ export default {
     },
   },
   methods: {
-    route(name, params) {
-      return { name, params };
-    },
     classRoute(name, params = {}) {
       if (this.classId) {
         params.classId = this.classId;
       }
-      return { name, params };
+      return router.getRoute(name, params);
     },
     // temporary
     newCoachRoute(page) {
