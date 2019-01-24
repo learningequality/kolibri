@@ -183,12 +183,4 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
   });
 }
 
-function canViewExam(exam, examLog) {
-  return exam.active && !examLog.closed;
-}
-
-function canViewExamReport(exam, examLog) {
-  return !canViewExam(exam, examLog);
-}
-
-export { convertExamQuestionSourcesV0V1, getExamReport, canViewExam, canViewExamReport };
+export { convertExamQuestionSourcesV0V1, getExamReport };

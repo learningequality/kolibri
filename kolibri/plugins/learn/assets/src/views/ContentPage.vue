@@ -46,7 +46,7 @@
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
       @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
+      @updateProgress="updateExerciseProgress"
       @updateContentState="updateContentState"
     />
 
@@ -268,6 +268,10 @@
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateExerciseProgress(progressPercent) {
+        this.$emit('updateProgress', progressPercent);
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
