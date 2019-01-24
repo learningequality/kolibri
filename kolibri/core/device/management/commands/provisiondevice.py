@@ -76,6 +76,7 @@ def create_superuser(username=None, password=None, interactive=False):
         else:
             logger.warn("An account with username {username} already exists, not creating user account.".format(username=username))
 
+
 def create_device_settings(language_id=None, facility=None, interactive=False):
     if language_id is None and interactive:
         language_id = get_user_response(
