@@ -72,7 +72,6 @@
     line-height: 36px;
     text-align: center;
     text-decoration: none;
-    text-decoration: none;
     text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;

@@ -1,4 +1,4 @@
-class<template>
+<template>
 
   <span>
     <UiIcon ref="icon">

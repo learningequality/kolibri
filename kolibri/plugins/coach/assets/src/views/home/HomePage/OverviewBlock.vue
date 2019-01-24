@@ -15,7 +15,9 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ $tr('learner', {count: learnerNames.length}) }}</template>
-        <template slot="value">{{ coachStrings.$tr('integer', {value: learnerNames.length}) }}</template>
+        <template slot="value">
+          {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
+        </template>
       </HeaderTableRow>
     </HeaderTable>
   </div>
