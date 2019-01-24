@@ -65,7 +65,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'LessonsSearchBox',

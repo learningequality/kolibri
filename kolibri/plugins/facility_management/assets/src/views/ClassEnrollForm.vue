@@ -81,7 +81,7 @@
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';

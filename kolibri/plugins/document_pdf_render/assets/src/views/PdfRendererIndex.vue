@@ -86,7 +86,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath

@@ -23,8 +23,8 @@
 
 <script>
 
-  import UiSelect from 'keen-ui/src/UiSelect';
   import isObject from 'lodash/isObject';
+  import UiSelect from './KeenUiSelect';
 
   function areValidOptions(array) {
     return array.every(object => {

@@ -149,7 +149,7 @@
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../../../constants/';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';

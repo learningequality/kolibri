@@ -98,6 +98,7 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import UiIconButton from '../views/KeenUiIconButton.vue';
 import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import vue from './kolibriVue';
@@ -170,6 +171,7 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      UiIconButton,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,

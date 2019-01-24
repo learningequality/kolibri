@@ -72,7 +72,7 @@
 
   import { mapGetters } from 'vuex';
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { darken } from 'kolibri.utils.colour';
   import { validateLinkObject } from 'kolibri.utils.validators';
 

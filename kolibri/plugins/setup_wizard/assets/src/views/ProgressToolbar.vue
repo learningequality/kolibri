@@ -25,7 +25,7 @@
 <script>
 
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
