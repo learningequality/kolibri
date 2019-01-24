@@ -13,7 +13,7 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="newCoachRoute('HomePage')"
+          :to="route('HomePage')"
           :text="$tr('back')"
         />
       </p>
@@ -39,7 +39,7 @@
         </NotificationCard>
       </div>
 
-      <div class="show-more">
+      <div v-if="showShowMore" class="show-more">
         <transition mode="out-in">
           <KLinearLoader v-if="loading" :delay="false" />
           <template v-else>
@@ -90,6 +90,9 @@
     },
     computed: {
       ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'learnerMap', 'name']),
+      showShowMore() {
+        return this.progressFilter === 'all' && this.resourceFilter === 'all';
+      },
     },
     beforeMount() {
       this.fetchNotifications();
