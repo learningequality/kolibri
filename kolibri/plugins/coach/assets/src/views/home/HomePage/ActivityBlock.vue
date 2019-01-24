@@ -14,7 +14,7 @@
       <transition-group name="list">
         <NotificationCard
           v-for="notification in notifications"
-          :key="notification.groupCode + String(notification.lastTimestamp)"
+          :key="notification.groupCode + String(notification.lastId)"
           v-bind="cardPropsForNotification(notification)"
         >
           {{ cardTextForNotification(notification) }}
@@ -55,13 +55,10 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, 'lastTimestamp', ['desc']);
+        return orderBy(this.summarizedNotifications, 'lastId', ['desc']);
       },
     },
     methods: {
-      moveNots() {
-        this.$store.commit('coachNotifications/TEST_MOVE_LAST');
-      },
       cardPropsForNotification(notification) {
         let icon = '';
         let contentIcon = '';
@@ -90,7 +87,6 @@
           targetPage,
           learnerContext,
           contentContext: notification.assignment.name,
-          lastTimestamp: String(notification.lastTimestamp),
         };
       },
     },
