@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import PreviousButton from '../src/views/PreviousButton';
 
 function createWrapper() {
-  return mount(PreviousButton);
+  return mount(PreviousButton, { store });
 }
 
 describe('Previous button', () => {
