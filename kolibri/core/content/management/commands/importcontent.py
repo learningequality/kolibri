@@ -197,15 +197,6 @@ class Command(AsyncCommand):
             original_progress = self.progresstrackers[0].get_progress()
 
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
-                # If size of the source file is smaller than the the size
-                # indicated in the database, it's very likely that the source
-                # file is corrupted. Skip this file.
-                if filetransfer.total_size < f.file_size:
-                    e = "File {} is corrupted.".format(filetransfer.source)
-                    logger.error("An error occurred during content import: {}".format(e))
-                    overall_progress_update(f.file_size)
-                    return True, 1
-
                 for chunk in filetransfer:
                     if self.is_cancelled():
                         filetransfer.cancel()
@@ -213,6 +204,18 @@ class Command(AsyncCommand):
                     length = len(chunk)
                     overall_progress_update(length)
                     file_dl_progress_update(length)
+
+                # If size of the destination file is smaller than the size
+                # indicated in the database, it's very likely that the source
+                # file is corrupted. Skip importing this file.
+                dest_file_size_on_disk = os.path.getsize(filetransfer.dest)
+                if dest_file_size_on_disk < f.file_size:
+                    e = "File {} is corrupted.".format(filetransfer.source)
+                    logger.error("An error occurred during content import: {}".format(e))
+                    os.remove(filetransfer.dest)
+                    overall_progress_update(f.file_size - dest_file_size_on_disk)
+                    return True, 1
+
             return True, 2
 
         except Exception as e:
