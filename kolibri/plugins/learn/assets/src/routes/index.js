@@ -3,7 +3,7 @@ import router from 'kolibri.coreVue.router';
 import { showSearch } from '../modules/search/handlers';
 import {
   showTopicsTopic,
-  showTopicsChannel,
+  showKnowledgeMap,
   showTopicsContent,
 } from '../modules/topicsTree/handlers';
 import {
@@ -63,7 +63,7 @@ export default [
     name: PageNames.TOPICS_CHANNEL,
     path: '/topics/:channel_id',
     handler: toRoute => {
-      showTopicsChannel(store, toRoute.params.channel_id);
+      showKnowledgeMap(store, toRoute.params.channel_id);
     },
   },
   {

@@ -54,7 +54,10 @@
         let crumbs = [];
 
         // Channels have no previous topics
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+        if (
+          this.pageName === PageNames.TOPICS_CHANNEL ||
+          this.pageName === PageNames.KNOWLEDGE_MAP
+        ) {
           return crumbs;
         }
 
@@ -78,7 +81,10 @@
         return crumbs;
       },
       lastTopicBreadcrumb() {
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
+        if (
+          this.pageName === PageNames.TOPICS_CHANNEL ||
+          this.pageName === PageNames.KNOWLEDGE_MAP
+        ) {
           return { text: this.channelTitle };
         } else if (this.pageName === PageNames.TOPICS_CONTENT) {
           return { text: this.contentTitle };

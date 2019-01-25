@@ -24,6 +24,7 @@ export default {
       state.isRoot = payload.isRoot || null;
       state.topic = payload.topic || {};
       state.recommended = payload.recommended || [];
+      state.childrenChildren = payload.childrenChildren || null;
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());

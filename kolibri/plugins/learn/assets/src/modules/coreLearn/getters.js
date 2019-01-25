@@ -6,6 +6,7 @@ export function pageMode(state) {
     PageNames.TOPICS_CHANNEL,
     PageNames.TOPICS_TOPIC,
     PageNames.TOPICS_CONTENT,
+    PageNames.KNOWLEDGE_MAP,
   ];
   const examPages = [PageNames.EXAM_LIST, PageNames.EXAM];
   const pageNameMatches = page => page === state.pageName;
