@@ -25,6 +25,8 @@ PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 [ -r $CONFIG_FILE ] && . $CONFIG_FILE
 
 # I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
+DAEMON_HOME="$(su $KOLIBRI_USER -c "readlink -m $KOLIBRI_HOME")"
+
 DAEMON_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/kolibri.ini --uid=$KOLIBRI_USER \
 	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
@@ -39,13 +41,16 @@ DAEMON_UWSGI_ARGS="--ini /etc/kolibri/kolibri.ini --uid=$KOLIBRI_USER \
 
 do_start()
 {
-	mkdir -p /var/run/$NAME
-	chown "$KOLIBRI_USER" /var/run/$NAME
 	# Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
 
+	# ensure kolibri application is running:
+	service kolibri start
+
+	mkdir -p /var/run/$NAME
+	chown "$KOLIBRI_USER" /var/run/$NAME
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
 		|| return 1
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
@@ -74,6 +79,7 @@ do_stop_uwsgi()
 
 do_stop() {
     do_stop_uwsgi
+
     retval=$?
 
     [ $retval -eq 0 ]
@@ -90,7 +96,7 @@ case "$1" in
                     0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
                     2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
             esac
-			service reload nginx
+			service nginx reload
         else
             [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
         fi
@@ -106,22 +112,14 @@ case "$1" in
   status)
 	status_of_proc "$DAEMON_UWSGI" "uwsgi" && exit 0 || exit $?
 	;;
-  #reload|force-reload)
-	#
-	# If do_reload() is not implemented then leave this commented out
-	# and leave 'force-reload' as an alias for 'restart'.
-	#
-	#log_daemon_msg "Reloading $DESC" "$NAME"
-	#do_reload
-	#log_end_msg $?
-	#;;
+
   restart|force-reload)
 	#
 	# If the "reload" option is implemented then remove the
 	# 'force-reload' alias
 	#
 	log_daemon_msg "Restarting $DESC" "$NAME"
-	do_stop
+	#do_stop
 	case "$?" in
 	  0|1)
             if [ -s "$CONFIG_FILE" ]; then

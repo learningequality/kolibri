@@ -3,15 +3,16 @@
 
 [Unit]
 Description=A high performance web server setup for Kolibri
-After=local-fs.target remote-fs.target network-online.target
+After=kolibri.service
 Wants=network-online.target
+Requires=kolibri.service
 
 [Service]
-Type=simple
-#TimeoutStartSec=infinity
-#TimeoutStopSec=infinity
+Type=forking
 ExecStart=/etc/init.d/kolibri-server start
 ExecStop=/etc/init.d/kolibri-server stop
+TimeoutStopSec=5
+KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
