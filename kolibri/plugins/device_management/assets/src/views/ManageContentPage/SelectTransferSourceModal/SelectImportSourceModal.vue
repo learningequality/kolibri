@@ -10,30 +10,36 @@
     @cancel="resetContentWizardState"
   >
     <UiAlert
-      v-if="formIsDisabled"
+      v-if="formIsDisabled && !initialDelay"
       type="info"
       :dismissible="false"
+      class="delay"
     >
       {{ $tr('loadingMessage') }}
     </UiAlert>
 
-    <div v-else>
+    <div>
       <KRadioButton
+        v-model="source"
         :label="$tr('network')"
-        v-model="source"
         :value="ContentSources.KOLIBRI_STUDIO"
-        :disabled="kolibriStudioIsOffline"
+        :disabled="kolibriStudioIsOffline || formIsDisabled"
         :autofocus="!kolibriStudioIsOffline"
+        :description="$tr('studioDescription')"
       />
       <KRadioButton
+        v-model="source"
         :label="$tr('localNetworkOrInternet')"
-        v-model="source"
         :value="ContentSources.PEER_KOLIBRI_SERVER"
+        :disabled="formIsDisabled"
+        :description="$tr('networkDescription')"
       />
       <KRadioButton
-        :label="$tr('localDrives')"
         v-model="source"
+        :label="$tr('localDrives')"
         :value="ContentSources.LOCAL_DRIVE"
+        :disabled="formIsDisabled"
+        :description="$tr('localDescription')"
       />
     </div>
   </KModal>
@@ -60,6 +66,7 @@
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,
+        initialDelay: true, // hide everything for a second to prevent flicker
         formIsDisabled: true,
         kolibriStudioIsOffline: false,
         ContentSources,
@@ -69,6 +76,9 @@
       ...mapGetters('manageContent/wizard', ['isImportingMore']),
     },
     created() {
+      setTimeout(() => {
+        this.initialDelay = false;
+      }, 1000);
       RemoteChannelResource.getKolibriStudioStatus().then(({ entity }) => {
         if (entity.status === 'offline') {
           this.source = ContentSources.PEER_KOLIBRI_SERVER;
@@ -85,6 +95,12 @@
       localDrives: 'Attached drive or memory card',
       selectLocalRemoteSourceTitle: 'Select a source',
       loadingMessage: 'Loading connections…',
+      studioDescription:
+        "Import content channels from Learning Equality's library if you are connected to the internet",
+      networkDescription:
+        'Import content channels from Kolibri running on another device, either in the same local network or on the internet',
+      localDescription:
+        'Import content channels from a drive. Channels must first be exported onto the drive from another Kolibri device with existing content',
     },
     methods: {
       ...mapActions('manageContent/wizard', ['goForwardFromSelectImportSourceModal']),

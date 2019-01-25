@@ -10,4 +10,4 @@ def cascade_delete_membership(sender, instance=None, *args, **kwargs):
     For a given membership instance and the collection associated with it,
     we delete all membership objects whose collection is a child of the instance's collection.
     """
-    Membership.objects.filter(collection__parent_id=instance.collection_id).delete()
+    Membership.objects.filter(collection__parent_id=instance.collection_id, user=instance.user).delete()

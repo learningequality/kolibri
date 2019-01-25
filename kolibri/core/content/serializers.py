@@ -75,7 +75,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
                 if 'total_resources' in include_fields:
                     # count the total number of renderable non-topic resources in the channel
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value['total_resources'] = channel_nodes.count() - unrenderable_nodes.count()
+                    value['total_resources'] = channel_nodes.dedupe_by_content_id().count() - unrenderable_nodes.dedupe_by_content_id().count()
 
                 if 'total_file_size' in include_fields:
                     # count the total file size of files associated with renderable content nodes
@@ -83,12 +83,12 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
                     value['total_file_size'] = _total_file_size(channel_nodes) - _total_file_size(unrenderable_nodes)
 
                 if 'on_device_resources' in include_fields:
-                    # count the total number of resources from the channel already available
-                    value['on_device_resources'] = channel_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+                    # read the precalculated total number of resources from the channel already available
+                    value['on_device_resources'] = instance.total_resource_count
 
                 if 'on_device_file_size' in include_fields:
-                    # count the total size of available files associated with the channel
-                    value['on_device_file_size'] = _total_file_size(_files_for_nodes(channel_nodes).filter(available=True))
+                    # read the precalculated total size of available files associated with the channel
+                    value['on_device_file_size'] = instance.published_size
 
         return value
 
@@ -438,7 +438,6 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
     subset of ContentNode fields necessary for functional content browsing
     """
-    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileThumbnailSerializer(many=True, read_only=True)
 
@@ -450,22 +449,24 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
             'description',
             'channel_id',
             'content_id',
-            'num_coach_contents',
             'kind',
             'files',
             'title',
         )
 
-    def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # exclude anon users
-            # cache the user roles query on the instance
-            if getattr(self, "user_roles_exists", None) is None:
-                self.user_roles_exists = user.roles.exists()
-            if self.user_roles_exists or user.is_superuser:  # must have coach role or higher
-                return get_num_coach_contents(instance)
-        # all other conditions return 0
-        return 0
+    def to_representation(self, instance):
+        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
+        # if the request includes a GET param 'include_fields', add the requested calculated fields
+        if 'request' in self.context:
+
+            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
+
+            if include_fields:
+
+                if 'num_coach_contents' in include_fields:
+                    value['num_coach_contents'] = get_num_coach_contents(instance)
+
+        return value
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):

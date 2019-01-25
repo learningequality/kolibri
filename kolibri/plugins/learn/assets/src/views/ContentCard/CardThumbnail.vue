@@ -10,6 +10,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
+      :style="{ color: $coreTextAnnotation }"
     />
 
     <ProgressIcon
@@ -44,11 +45,15 @@
     <div
       v-if="progress!==undefined"
       class="progress-bar-wrapper"
+      :style="{ backgroundColor: $coreGrey }"
     >
       <div
         class="progress-bar"
-        :style="{ width: `${progress * 100}%` }"
-        :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+        :style="{
+          width: `${progress * 100}%`,
+          backgroundColor: isMastered ?
+            $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+        }"
       >
       </div>
     </div>
@@ -60,6 +65,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
@@ -99,6 +105,13 @@
       },
     },
     computed: {
+      ...mapGetters([
+        '$coreGrey',
+        '$coreBgLight',
+        '$coreStatusMastered',
+        '$coreStatusProgress',
+        '$coreTextAnnotation',
+      ]),
       isMastered() {
         return this.progress === 1;
       },
@@ -106,10 +119,10 @@
         return this.progress > 0 && this.progress < 1;
       },
       thumbnailBackground() {
-        if (this.thumbnail) {
-          return { backgroundImage: `url('${this.thumbnail}')` };
-        }
-        return {};
+        return {
+          backgroundColor: this.$coreBgLight,
+          backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
+        };
       },
       contentIconBgCoords() {
         const topLeft = '0,0';
@@ -140,14 +153,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './card';
 
   .card-thumbnail-wrapper {
     position: relative;
     width: $thumb-width-desktop;
     height: $thumb-height-desktop;
-    background-color: $core-bg-light;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -157,7 +168,6 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    color: $core-text-annotation;
     transform: translate(-50%, -50%) scale(3);
   }
 
@@ -192,20 +202,11 @@
     bottom: 0;
     width: 100%;
     height: 5px;
-    background-color: $core-grey;
     opacity: 0.9;
   }
 
   .progress-bar {
     height: 100%;
-  }
-
-  .progress-bar-mastered {
-    background-color: $core-status-mastered;
-  }
-
-  .progress-bar-progress {
-    background-color: $core-status-progress;
   }
 
   /* MOBILE OVERRIDES */

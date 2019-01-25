@@ -68,6 +68,8 @@ docs/_build
 # node
 node_modules
 npm-debug.log
+yarn-error.log
+lerna-debug.log
 
 # Node coverage data
 coverage
@@ -76,6 +78,11 @@ coverage
 kolibri/**/build/*
 kolibri/**/static/*
 js-dist
+
+# Allow static assets to be checked in. For large binary files, use Git LFS
+!kolibri/**/static/assets/
+!kolibri/**/static/assets/*
+!kolibri/**/static/assets/**/*
 
 # swap files
 *.swp
@@ -114,5 +121,7 @@ build_tools/crowdin-cli.jar
 # Ignore pytest cache directory
 .pytest_cache/
 
-# Do not ignore this lib dir
-!eslint-plugin-kolibri/**/lib/
+# ignore source font files
+*.ttf
+*.ttc
+*.otf

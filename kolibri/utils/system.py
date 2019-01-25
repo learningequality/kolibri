@@ -97,15 +97,16 @@ def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
     except OSError as e:
         sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
         os._exit(1)
-
-    si = open('/dev/null', 'r')
-    so = open(out_log, 'a+', buffering)
-    se = open(err_log, 'a+', buffering)
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-    # Set custom file descriptors so that they get proper buffering.
-    sys.stdout, sys.stderr = so, se
+    if sys.platform != 'darwin':  # This block breaks on OS X
+        # Fix courtesy of https://github.com/serverdensity/python-daemon/blob/master/daemon.py#L94
+        si = open('/dev/null', 'r')
+        so = open(out_log, 'a+', buffering)
+        se = open(err_log, 'a+', buffering)
+        os.dup2(si.fileno(), sys.stdin.fileno())
+        os.dup2(so.fileno(), sys.stdout.fileno())
+        os.dup2(se.fileno(), sys.stderr.fileno())
+        # Set custom file descriptors so that they get proper buffering.
+        sys.stdout, sys.stderr = so, se
 
 
 def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0o022):
@@ -153,7 +154,7 @@ def get_free_space(path=KOLIBRI_HOME):
             raise ctypes.winError()
         result = free.value
     else:
-        st = os.statvfs(path)
+        st = os.statvfs(os.path.realpath(path))
         result = st.f_bavail * st.f_frsize
 
     return result

@@ -1,6 +1,6 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
     :style="epubRendererStyle"
@@ -9,10 +9,11 @@
 
     <LoadingError v-if="errorLoading" />
 
-    <LoadingScreen v-show="!loaded && !errorLoading" />
+    <LoadingScreen v-else-if="!loaded" />
 
     <div
       v-show="loaded"
+      :dir="dir"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
@@ -65,13 +66,11 @@
             ref="settingsSideBar"
             class="side-bar side-bar-right"
             :theme="theme"
-            :textAlignment="textAlignment"
             :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
             :increaseFontSizeDisabled="increaseFontSizeDisabled"
             @decreaseFontSize="decreaseFontSize"
             @increaseFontSize="increaseFontSize"
             @setTheme="setTheme"
-            @setTextAlignment="setTextAlignment"
           />
         </transition>
       </FocusLock>
@@ -107,9 +106,10 @@
           :style="navigationButtonContainerStyle"
         >
           <PreviousButton
-            @goToPreviousPage="goToPreviousPage"
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
+            @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
@@ -125,6 +125,7 @@
           <NextButton
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -139,7 +140,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 
@@ -148,11 +149,12 @@
 
   import Epub from 'epubjs/src/epub';
   import defaultManager from 'epubjs/src/managers/default';
-  import iFrameView from 'epubjs/src/managers/views/iframe';
   import { EVENTS } from 'epubjs/src/utils/constants';
 
   import Mark from 'mark.js';
   import debounce from 'lodash/debounce';
+  import isEqual from 'lodash/isEqual';
+  import Lockr from 'lockr';
 
   import FocusLock from 'vue-focus-lock';
 
@@ -161,7 +163,9 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import { getContentLangDir } from 'kolibri.utils.i18n';
 
+  import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
   import TopBar from './TopBar';
@@ -175,25 +179,11 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
-  import { TEXT_ALIGNMENTS, THEMES } from './EpubConstants';
+  import { THEMES } from './EpubConstants';
 
-  const FONT_SIZES = {
-    px: {
-      step: 4,
-      min: 8,
-      max: 32,
-    },
-    em: {
-      step: 0.25,
-      min: 0.5,
-      max: 2,
-    },
-    rem: {
-      step: 0.25,
-      min: 0.5,
-      max: 2,
-    },
-  };
+  const FONT_SIZE_MIN = 8;
+  const FONT_SIZE_MAX = 32;
+  const FONT_SIZE_STEP = 4;
 
   const SIDE_BARS = {
     TOC: 'TOC',
@@ -205,6 +195,8 @@
   const BOTTOM_BAR_HEIGHT = 54;
 
   const LOCATIONS_INTERVAL = 1000;
+
+  const EPUB_RENDERER_SETTINGS_KEY = 'kolibriEpubRendererSettings';
 
   export default {
     name: 'EpubRendererIndex',
@@ -234,8 +226,6 @@
       errorLoading: false,
       sideBarOpen: null,
       theme: THEMES.WHITE,
-      textAlignment: TEXT_ALIGNMENTS.LEFT,
-      defaultFontSize: null,
       fontSize: null,
       isInFullscreen: false,
       markInstance: null,
@@ -243,10 +233,17 @@
       searchQuery: null,
       sliderValue: 0,
 
-      currentLocationCfi: null,
+      currentLocation: null,
+      updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['sessionTimeSpent', '$coreBgLight']),
+      savedLocation() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.savedLocation;
+        }
+        return null;
+      },
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -262,7 +259,7 @@
           color: `${this.textColor}!important`,
         };
         const alignmentStyle = {
-          'text-align': `${this.textAlignment}!important`,
+          'text-align': `${this.isRtl ? 'right' : 'left'}!important`,
         };
         const fontSizeStyle = this.fontSize ? { 'font-size': `${this.fontSize}!important` } : {};
 
@@ -293,10 +290,15 @@
       },
       epubRendererStyle() {
         const ratio = this.windowIsSmall ? 11 / 8.5 : 8.5 / 11;
-        return { height: `${this.elementWidth * ratio}px` };
+        return {
+          height: `${this.elementWidth * ratio}px`,
+          backgroundColor: this.$coreBgLight,
+        };
       },
       navigationButtonColor() {
-        return [THEMES.BLACK, THEMES.GREY].includes(this.theme) ? 'white' : 'black';
+        return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
+          ? 'white'
+          : 'black';
       },
       navigationAndEpubjsStyle() {
         return {
@@ -335,10 +337,10 @@
         return 1;
       },
       decreaseFontSizeDisabled() {
-        return this.fontSize === `${FONT_SIZES.px.min}px`;
+        return this.fontSize === `${FONT_SIZE_MIN}px`;
       },
       increaseFontSizeDisabled() {
-        return this.fontSize === `${FONT_SIZES.px.max}px`;
+        return this.fontSize === `${FONT_SIZE_MAX}px`;
       },
       expectedTimeToRead() {
         const WORDS_PER_MINUTE = 300;
@@ -346,6 +348,12 @@
         const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
+      },
+      dir() {
+        return getContentLangDir(this.lang);
+      },
+      isRtl() {
+        return this.dir === 'rtl';
       },
     },
     watch: {
@@ -380,6 +388,10 @@
       themeStyle(newTheme) {
         if (this.rendition) {
           this.updateRenditionTheme(newTheme);
+          Lockr.set(EPUB_RENDERER_SETTINGS_KEY, {
+            theme: this.theme,
+            fontSize: this.fontSize,
+          });
         }
       },
       elementHeight(newHeight) {
@@ -397,12 +409,21 @@
         }
       },
     },
+    created() {
+      // Try to load the appropriate directional CSS for the particular content
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.dir);
+    },
     beforeMount() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
+
+      const { savedTheme = THEMES.WHITE, savedFontSize } =
+        Lockr.get(EPUB_RENDERER_SETTINGS_KEY) || {};
+      this.theme = savedTheme;
+      this.fontSize = savedFontSize;
     },
     mounted() {
-      this.book.ready.then(() => {
+      Promise.all([this.cssPromise, this.book.ready]).then(() => {
         if (this.book.navigation) {
           this.toc = this.book.navigation.toc;
         }
@@ -418,27 +439,14 @@
           minSpreadWidth: 600,
         });
 
-        this.rendition.display().then(() => {
-          this.defaultFontSize = this.getCurrentFontSize();
-          this.updateRenditionTheme(this.themeStyle);
+        if (this.savedLocation) {
+          this.rendition
+            .display(this.savedLocation)
+            .then(() => this.handleReadyRendition(width, height));
+        } else {
+          this.rendition.display().then(() => this.handleReadyRendition(width, height));
+        }
 
-          // this is not working, hence the delay via the debounce
-          // this.resizeRendition(width, height);
-          this.debounceResizeRendition(width, height);
-
-          this.rendition.on('relocated', location => this.relocatedHandler(location));
-          this.rendition.on('keyup', this.handleKeyUps);
-          this.rendition.on('click', () => this.closeSideBar());
-
-          window.addEventListener('mousedown', this.handleMouseDown, true);
-
-          this.loaded = true;
-
-          this.book.locations.generate(LOCATIONS_INTERVAL).then(locations => {
-            this.locations = locations;
-            this.$emit('startTracking');
-          });
-        });
         this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
           this.errorLoading = true;
         });
@@ -448,15 +456,42 @@
       });
     },
     beforeDestroy() {
-      // TODO
+      this.updateContentState();
       this.updateProgress();
       this.$emit('stopTracking');
-      window.removeEventListener('mousedown', this.handleMouseDown, true);
+      window.removeEventListener('mousedown', this.handleMouseDown, { passive: true });
+      clearInterval(this.updateContentStateInterval);
     },
     destroyed() {
       delete global.ePub;
     },
     methods: {
+      updateProgress() {
+        if (this.locations.length > 0) {
+          this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
+        }
+      },
+      handleReadyRendition(width, height) {
+        this.updateRenditionTheme(this.themeStyle);
+
+        // this is not working, hence the delay via the debounce
+        // this.resizeRendition(width, height);
+        this.debounceResizeRendition(width, height);
+
+        this.rendition.on(EVENTS.RENDITION.RELOCATED, location => this.relocatedHandler(location));
+        this.rendition.on('keyup', this.handleKeyUps);
+        this.rendition.on('click', () => this.closeSideBar());
+
+        window.addEventListener('mousedown', this.handleMouseDown, { passive: true });
+
+        this.loaded = true;
+
+        this.book.locations.generate(LOCATIONS_INTERVAL).then(locations => {
+          this.locations = locations;
+          this.$emit('startTracking');
+          this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+        });
+      },
       updateRenditionTheme(newTheme) {
         const themeName = JSON.stringify(newTheme);
         this.rendition.themes.register(themeName, newTheme);
@@ -544,58 +579,23 @@
       increaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
         const fontSizeNumericValue = parseFloat(currentFontSize);
-        let newFontSizeNumericValue;
-
-        if (currentFontSize.endsWith('px')) {
-          newFontSizeNumericValue = Math.min(
-            fontSizeNumericValue + FONT_SIZES.px.step,
-            FONT_SIZES.px.max
-          );
-          this.fontSize = `${newFontSizeNumericValue}px`;
-        } else if (currentFontSize.endsWith('rem')) {
-          newFontSizeNumericValue = Math.min(
-            fontSizeNumericValue + FONT_SIZES.rem.step,
-            FONT_SIZES.rem.max
-          );
-          this.fontSize = `${newFontSizeNumericValue}rem`;
-        } else if (currentFontSize.endsWith('em')) {
-          newFontSizeNumericValue = Math.min(
-            fontSizeNumericValue + FONT_SIZES.em.step,
-            FONT_SIZES.em.max
-          );
-          this.fontSize = `${newFontSizeNumericValue}em`;
-        }
+        const newFontSizeNumericValue = Math.min(
+          fontSizeNumericValue + FONT_SIZE_STEP,
+          FONT_SIZE_MAX
+        );
+        this.fontSize = `${newFontSizeNumericValue}px`;
       },
       decreaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
         const fontSizeNumericValue = parseFloat(currentFontSize);
-        let newFontSizeNumericValue;
-
-        if (currentFontSize.endsWith('px')) {
-          newFontSizeNumericValue = Math.max(
-            fontSizeNumericValue - FONT_SIZES.px.step,
-            FONT_SIZES.px.min
-          );
-          this.fontSize = `${newFontSizeNumericValue}px`;
-        } else if (currentFontSize.endsWith('rem')) {
-          newFontSizeNumericValue = Math.max(
-            fontSizeNumericValue - FONT_SIZES.rem.step,
-            FONT_SIZES.rem.min
-          );
-          this.fontSize = `${newFontSizeNumericValue}rem`;
-        } else if (currentFontSize.endsWith('em')) {
-          newFontSizeNumericValue = Math.max(
-            fontSizeNumericValue - FONT_SIZES.em.step,
-            FONT_SIZES.em.min
-          );
-          this.fontSize = `${newFontSizeNumericValue}em`;
-        }
+        const newFontSizeNumericValue = Math.max(
+          fontSizeNumericValue - FONT_SIZE_STEP,
+          FONT_SIZE_MIN
+        );
+        this.fontSize = `${newFontSizeNumericValue}px`;
       },
       setTheme(theme) {
         this.theme = theme;
-      },
-      setTextAlignment(textAlignment) {
-        this.textAlignment = textAlignment;
       },
       handleNewSearchQuery(searchQuery) {
         this.searchQuery = searchQuery;
@@ -649,8 +649,9 @@
       relocatedHandler(location) {
         this.sliderValue = location.start.percentage * 100;
         this.updateCurrentSection(location.start);
+        this.currentLocation = location.start.cfi;
+        this.updateContentState();
       },
-
       handleSliderChanged(newSliderValue) {
         const indexOfLocationToJumpTo = Math.floor(
           (this.locations.length - 1) * (newSliderValue / 100)
@@ -667,27 +668,33 @@
           const currentLocation = this.rendition.currentLocation();
           if (currentLocation.start && currentLocation.start.cfi) {
             cfiToJumpTo = currentLocation.start.cfi;
-          } else if (this.currentLocationCfi) {
-            cfiToJumpTo = this.currentLocationCfi;
+          } else if (this.currentLocation) {
+            cfiToJumpTo = this.currentLocation;
           } else if (this.locations[0]) {
             cfiToJumpTo = this.locations[0];
           } else {
             return;
           }
-          this.currentLocationCfi = cfiToJumpTo;
+          this.currentLocation = cfiToJumpTo;
           this.rendition.resize(width, height);
 
           if (this.$refs.epubjsContainer && !this.getIframe()) {
             // Re-render since resize currently breaks
-            this.jumpToLocation(this.currentLocationCfi);
+            this.jumpToLocation(this.currentLocation);
           }
         }
       },
-      // TODO
-      updateProgress() {
-        if (this.locations.length > 0) {
-          this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
+      updateContentState() {
+        let contentState;
+        if (this.extraFields) {
+          contentState = {
+            ...this.extraFields.contentState,
+            savedLocation: this.currentLocation || this.savedLocation,
+          };
+        } else {
+          contentState = { savedLocation: this.currentLocation || this.savedLocation };
         }
+        this.$emit('updateContentState', contentState);
       },
     },
   };
@@ -697,14 +704,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .epub-renderer {
     position: relative;
     height: 500px;
     font-size: smaller;
-    background-color: $core-bg-light;
   }
 
   .top-bar {

@@ -12,8 +12,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
-import json
 import os
 
 import pytz
@@ -63,6 +61,7 @@ INSTALLED_APPS = [
     'kolibri.core.auth.apps.KolibriAuthConfig',
     'kolibri.core.content',
     'kolibri.core.logger',
+    'kolibri.core.notifications.apps.KolibriNotificationsConfig',
     'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
@@ -88,6 +87,7 @@ MIDDLEWARE = [
     'kolibri.core.device.middleware.IgnoreGUIMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
+    'kolibri.core.analytics.middleware.MetricsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'kolibri.core.device.middleware.KolibriLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -105,6 +105,17 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
+
+CACHES = {
+    # Default cache
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    # Cache for builtfiles - frontend assets that only change on upgrade.
+    'built_files': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+}
 
 ROOT_URLCONF = 'kolibri.deployment.default.urls'
 
@@ -141,8 +152,17 @@ if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
             'OPTIONS': {
                 'timeout': 100,
             }
+        },
+        'notifications_db': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(conf.KOLIBRI_HOME, 'notifications.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
     }
+    DATABASE_ROUTERS = ('kolibri.core.notifications.models.NotificationsRouter', )
+
 elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
     DATABASES = {
         'default': {
@@ -163,12 +183,21 @@ elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # http://helpsharepointvision.nevron.com/Culture_Table.html
 
-with io.open(os.path.join(KOLIBRI_MODULE_PATH, "locale", "supported_languages.json"), encoding="utf-8") as f:
-    LANGUAGES = i18n.parse_supported_languages(json.load(f))
+# django-specific format, e.g.: [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
+LANGUAGES = [
+    (lang["intl_code"], lang["language_name"])
+    for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+]
 
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
 EXTRA_LANG_INFO = {
+    'ff-cm': {
+        'bidi': False,
+        'code': 'ff-cm',
+        'name': 'Fulfulde (Cameroon)',
+        'name_local': 'Fulfulde Mbororoore',
+    },
     'fr-ht': {
         'bidi': False,
         'code': 'fr-ht',
@@ -179,7 +208,7 @@ EXTRA_LANG_INFO = {
         'bidi': False,
         'code': 'nyn',
         'name': 'Chichewa, Chewa, Nyanja',
-        'name_local': 'chinyanja',
+        'name_local': 'Chinyanja',
     },
     'yo': {
         'bidi': False,
@@ -294,7 +323,7 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join(conf.KOLIBRI_HOME, 'kolibri.log'),
             'formatter': 'simple_date',
-        },
+        }
     },
     'loggers': {
         'django': {
@@ -309,6 +338,7 @@ LOGGING = {
         'kolibri': {
             'handlers': ['console', 'mail_admins', 'file', 'file_debug'],
             'level': 'INFO',
+            'propagate': False,
         },
         'iceqube': {
             'handlers': ['file', 'console'],
@@ -319,7 +349,7 @@ LOGGING = {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
-        },
+        }
     }
 }
 
@@ -374,3 +404,16 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+
+if conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN']:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN'],
+        integrations=[DjangoIntegration()],
+        release=kolibri.__version__,
+    )
+
+    print("Sentry backend error logging is enabled")

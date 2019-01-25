@@ -2,7 +2,6 @@ import * as actions from './actions';
 
 function defaultState() {
   return {
-    channelId: '',
     content: {},
     currentAttempt: {},
     currentQuestion: {},

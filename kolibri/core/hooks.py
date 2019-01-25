@@ -30,6 +30,10 @@ class NavigationHook(KolibriHook):
     # : A string or lazy proxy for the url
     url = "/"
 
+    # Set this to True so that any time this is mixed in with a
+    # frontend asset hook, the resulting frontend code will be rendered inline.
+    inline = True
+
     def get_menu(self):
         menu = {}
         for hook in self.registered_hooks:

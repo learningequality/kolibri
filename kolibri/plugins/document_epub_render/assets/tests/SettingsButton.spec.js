@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import SettingsButton from '../src/views/SettingsButton';
 
 function createWrapper() {
-  return mount(SettingsButton);
+  return mount(SettingsButton, { store });
 }
 
 describe('Settings button', () => {

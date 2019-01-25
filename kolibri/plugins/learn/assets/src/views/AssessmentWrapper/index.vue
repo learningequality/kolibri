@@ -20,14 +20,15 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
+        :id="id"
         ref="contentRenderer"
-        :id="content.id"
-        :kind="content.kind"
-        :files="content.files"
-        :contentId="content.content_id"
+        :kind="kind"
+        :lang="lang"
+        :files="files"
+        :contentId="contentId"
         :channelId="channelId"
-        :available="content.available"
-        :extraFields="content.extra_fields"
+        :available="available"
+        :extraFields="extraFields"
         :assessment="true"
         :itemId="itemId"
         :initSession="initSession"
@@ -38,22 +39,27 @@ oriented data synchronization.
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
+        @updateContentState="updateContentState"
       />
     </div>
 
     <div
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
+      :style="{ backgroundColor: $coreBgLight }"
     >
       <div class="margin-wrapper">
-        <div class="overall-status">
+        <div class="overall-status" :style="{ color: $coreTextDefault }">
           <mat-svg
             name="stars"
             category="action"
-            :class="success ? 'mastered' : 'not-mastered'"
+            :style="{
+              fill: success ? $coreStatusMastered : $coreGrey,
+              verticalAlign: 0,
+            }"
           />
           <div class="overall-status-text">
-            <div v-if="success" class="completed">
+            <div v-if="success" class="completed" :style="{ color: $coreTextAnnotation }">
               {{ $tr('completed') }}
             </div>
             <div>
@@ -107,15 +113,13 @@ oriented data synchronization.
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
-  import seededShuffle from 'kolibri.lib.seededshuffle';
+  import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
-  import { ClassesPageNames } from '../../constants';
   import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
@@ -125,7 +129,6 @@ oriented data synchronization.
       ContentRenderer,
       KButton,
       UiAlert,
-      KRouterLink,
     },
     mixins: [responsiveWindow],
     $trs: {
@@ -147,6 +150,9 @@ oriented data synchronization.
         type: String,
         required: true,
       },
+      lang: {
+        type: Object,
+      },
       kind: {
         type: String,
         required: true,
@@ -167,9 +173,21 @@ oriented data synchronization.
         type: Boolean,
         default: false,
       },
+      assessmentIds: {
+        type: Array,
+        required: true,
+      },
+      randomize: {
+        type: Boolean,
+        required: true,
+      },
+      masteryModel: {
+        type: Object,
+        required: true,
+      },
       extraFields: {
-        type: String,
-        default: '{}',
+        type: Object,
+        default: () => {},
       },
       initSession: {
         type: Function,
@@ -177,17 +195,6 @@ oriented data synchronization.
       },
     },
     data() {
-      let masteryModel;
-      let assessmentIds;
-      // HACK handle if called in context of lesson
-      const { state } = this.$store;
-      if (state.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-        masteryModel = state.lessonPlaylist.resource.content.masteryModel;
-        assessmentIds = state.lessonPlaylist.resource.content.assessmentIds;
-      } else {
-        masteryModel = state.topicsTree.content.masteryModel;
-        assessmentIds = state.topicsTree.content.assessmentIds;
-      }
       return {
         ready: false,
         itemId: '',
@@ -200,13 +207,18 @@ oriented data synchronization.
         // Attempted fix for #1725
         checkingAnswer: false,
         checkWasAttempted: false,
-        // Placing these here so they are available at beforeDestroy
-        masteryModel,
-        assessmentIds,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        '$coreBgLight',
+        '$coreBgLight',
+        '$coreGrey',
+        '$coreStatusMastered',
+        '$coreTextAnnotation',
+        '$coreTextDefault',
+      ]),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
       }),
@@ -219,19 +231,6 @@ oriented data synchronization.
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
         userid: state => state.core.session.user_id,
       }),
-      viewingInLesson() {
-        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
-      },
-      // HACK handle when in viewing in Lesson or not
-      content() {
-        if (this.viewingInLesson) {
-          return this.$store.state.lessonPlaylist.resource.content;
-        }
-        return this.topicsTreeContent;
-      },
-      randomize() {
-        return this.content.randomize;
-      },
       recentAttempts() {
         if (!this.pastattempts) {
           return [];
@@ -417,6 +416,10 @@ oriented data synchronization.
           if (this.complete) {
             // Otherwise only save if the attempt is now complete
             this.saveAttemptLogMasterLog();
+          } else if (this.currentInteractions % 4 === 0) {
+            // After every 4 interactions in this exercise, update the attemptlog
+            // so needsHelp notification can be triggered
+            this.saveAttemptLogMasterLog();
           }
         }
       },
@@ -443,11 +446,8 @@ oriented data synchronization.
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
         if (this.randomize) {
-          if (this.userid) {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, this.userid, true)[index];
-          } else {
-            this.itemId = seededShuffle.shuffle(this.assessmentIds, Date.now(), true)[index];
-          }
+          const seed = this.userid ? this.userid : Date.now();
+          this.itemId = shuffled(this.assessmentIds, seed)[index];
         } else {
           this.itemId = this.assessmentIds[index];
         }
@@ -476,6 +476,7 @@ oriented data synchronization.
       updateExerciseProgressMethod() {
         this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
+        this.$emit('updateProgress', this.exerciseProgress);
       },
       sessionInitialized() {
         if (this.isUserLoggedIn) {
@@ -508,6 +509,9 @@ oriented data synchronization.
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
       },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
+      },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
       },
@@ -535,7 +539,6 @@ oriented data synchronization.
     margin: 0;
     overflow-x: hidden;
     font-size: 14px;
-    background-color: $core-bg-light;
     box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
       0 6px 30px 5px rgba(0, 0, 0, 0.12);
   }
@@ -551,20 +554,6 @@ oriented data synchronization.
 
   .overall-status {
     margin-bottom: 8px;
-    color: $core-text-default;
-  }
-
-  .mastered,
-  .not-mastered {
-    vertical-align: 0;
-  }
-
-  .mastered {
-    fill: $core-status-mastered;
-  }
-
-  .not-mastered {
-    fill: $core-grey;
   }
 
   .overall-status-text {
@@ -574,7 +563,6 @@ oriented data synchronization.
 
   .completed {
     font-size: 12px;
-    color: $core-text-annotation;
   }
 
   .table {
@@ -604,10 +592,9 @@ oriented data synchronization.
 
   // checkAnswer btn animation
   .shaking {
-    transform: translate3d(0, 0, 0);
+    @extend %enable-gpu-acceleration;
+
     animation: shake 0.8s ease-in-out both;
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   @keyframes shake {

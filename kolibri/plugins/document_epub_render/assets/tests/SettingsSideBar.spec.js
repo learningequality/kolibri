@@ -1,13 +1,14 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import SettingsSideBar from '../src/views/SettingsSideBar';
-import { THEMES, TEXT_ALIGNMENTS } from '../src/views/EpubConstants';
+import { THEMES } from '../src/views/EpubConstants';
 
-function createWrapper({ theme = THEMES.BEIGE, textAlignment = TEXT_ALIGNMENTS.JUSTIFY } = {}) {
+function createWrapper({ theme = THEMES.BEIGE } = {}) {
   return mount(SettingsSideBar, {
     propsData: {
       theme,
-      textAlignment,
     },
+    store,
   });
 }
 
@@ -35,16 +36,5 @@ describe('Settings side bar', () => {
     const wrapper = createWrapper();
     wrapper.find('.theme-button').trigger('click');
     expect(wrapper.emitted().setTheme[0][0]).toBe(THEMES.WHITE);
-  });
-
-  it('should emit an event if the left alignment button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find({ ref: 'leftAlignmentButton' }).trigger('click');
-    expect(wrapper.emitted().setTextAlignment[0][0]).toBe(TEXT_ALIGNMENTS.LEFT);
-  });
-  it('should emit an event if the justified alignment button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find({ ref: 'justifiedAlignmentButton' }).trigger('click');
-    expect(wrapper.emitted().setTextAlignment[0][0]).toBe(TEXT_ALIGNMENTS.JUSTIFY);
   });
 });

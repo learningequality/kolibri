@@ -11,40 +11,48 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
+      :lang="content.lang"
       :files="content.files"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields"
+      :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
     />
 
     <AssessmentWrapper
       v-else
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
       :files="content.files"
+      :lang="content.lang"
+      :randomize="content.randomize"
+      :masteryModel="content.masteryModel"
+      :assessmentIds="content.assessmentIds"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
-      :extraFields="content.extra_fields"
+      :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateExerciseProgress"
+      @updateContentState="updateContentState"
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
-    <p v-html="description" dir="auto"></p>
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <p dir="auto" v-html="description"></p>
 
 
     <section class="metadata">
@@ -121,7 +129,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
@@ -182,6 +190,7 @@
       ...mapState({
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
+        extraFields: state => state.core.logging.summary.extra_fields,
       }),
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -243,6 +252,7 @@
         updateProgressAction: 'updateProgress',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
+        updateContentNodeState: 'updateContentState',
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
@@ -255,8 +265,16 @@
         });
       },
       updateProgress(progressPercent, forceSave = false) {
-        const summaryProgress = this.updateProgressAction({ progressPercent, forceSave });
-        updateContentNodeProgress(this.channelId, this.contentNodeId, summaryProgress);
+        this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
+          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+        );
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateExerciseProgress(progressPercent) {
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateContentState(contentState, forceSave = true) {
+        this.updateContentNodeState({ contentState, forceSave });
       },
       markAsComplete() {
         this.wasIncomplete = false;

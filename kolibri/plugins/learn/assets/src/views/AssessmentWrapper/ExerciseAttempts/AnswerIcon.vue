@@ -7,27 +7,35 @@
         category="action"
         name="check_circle"
         class="correct"
+        :style="{ fill: $coreStatusCorrect }"
       />
       <mat-svg
         v-else-if="answer === 'wrong'"
         category="navigation"
         name="close"
+        :style="svgFill"
       />
       <mat-svg
         v-else-if="answer === 'hint'"
         category="action"
         name="lightbulb_outline"
+        :style="svgFill"
       />
       <mat-svg
         v-else-if="answer === 'rectified'"
         category="image"
         name="lens"
         class="rectified"
+        :style="svgFill"
       />
     </div>
-    <UiTooltip trigger="icon">
+    <KTooltip
+      reference="icon"
+      :refs="$refs"
+      placement="right"
+    >
       {{ tooltipText }}
-    </UiTooltip>
+    </KTooltip>
   </div>
 
 </template>
@@ -35,12 +43,13 @@
 
 <script>
 
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import { mapGetters } from 'vuex';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'AnswerIcon',
     components: {
-      UiTooltip,
+      KTooltip,
     },
     props: {
       answer: {
@@ -52,6 +61,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreStatusCorrect', '$coreTextAnnotation']),
       tooltipText() {
         switch (this.answer) {
           case 'right':
@@ -63,6 +73,11 @@
           case 'rectified':
             return this.$tr('incorrectFirstTry');
         }
+      },
+      svgFill() {
+        return {
+          fill: this.$coreTextAnnotation,
+        };
       },
     },
     $trs: {
@@ -82,12 +97,7 @@
 
   svg {
     height: 30px;
-    fill: $core-text-annotation;
     transition: transform $core-time ease-in;
-  }
-
-  .correct {
-    fill: $core-status-correct;
   }
 
   .rectified {

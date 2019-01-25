@@ -3,18 +3,18 @@ import { ExamResource, ExamLogResource, FacilityUserResource } from 'kolibri.res
 import { createTranslator } from 'kolibri.utils.i18n';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
-import { _createExam, _examState } from '../shared/exams';
+import { createExam, examState } from '../examShared/exams';
 
 export function setExamsModal(store, modalName) {
   store.commit('SET_EXAMS_MODAL', modalName);
 }
 
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
-  changesToExamSaved: 'Changes to exam saved',
-  copiedExamToClass: 'Copied exam to { className }',
-  examDeleted: 'Exam deleted',
-  examIsNowActive: 'Exam is now active',
-  examIsNowInactive: 'Exam is now inactive',
+  changesToExamSaved: 'Changes to quiz saved',
+  copiedExamToClass: 'Copied quiz to { className }',
+  examDeleted: 'Quiz deleted',
+  examIsNowActive: 'Quiz is now active',
+  examIsNowInactive: 'Quiz is now inactive',
 });
 
 function updateExamStatus(store, { examId, isActive }) {
@@ -48,21 +48,24 @@ export function deactivateExam(store, examId) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  _createExam(store, exam).then(
-    () => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.dispatch('setExamsModal', false);
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: snackbarTranslator.$tr('copiedExamToClass', { className }),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
-    },
-    error => store.dispatch('handleApiError', error, { root: true })
-  );
+  return new Promise(resolve => {
+    createExam(store, exam).then(
+      () => {
+        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+        store.dispatch('setExamsModal', false);
+        store.dispatch(
+          'createSnackbar',
+          {
+            text: snackbarTranslator.$tr('copiedExamToClass', { className }),
+            autoDismiss: true,
+          },
+          { root: true }
+        );
+        resolve(exam);
+      },
+      error => store.dispatch('handleApiError', error, { root: true })
+    );
+  });
 }
 
 export function updateExamDetails(store, { examId, payload }) {
@@ -75,7 +78,7 @@ export function updateExamDetails(store, { examId, payload }) {
       exam => {
         const exams = store.state.exams;
         const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex] = _examState(exam);
+        exams[examIndex] = examState(exam);
 
         store.commit('SET_EXAMS', exams);
         // Update state.exam if it was just saved.

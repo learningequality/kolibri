@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <ContentPage>
+    <ContentPage
+      @updateProgress="updateProgress"
+    >
       <div slot="below_content" class="below-content-area">
         <template v-if="nextLessonResource">
           <h1>{{ $tr('nextInLesson') }}</h1>
@@ -28,6 +30,7 @@
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../ContentCard';
   import ContentPage from '../ContentPage';
+  import { LearnerClassroomResource } from '../../apiResources';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   // HACK replace computed properties since they use different module in Lessons
@@ -75,6 +78,11 @@
     },
     methods: {
       getContentNodeThumbnail,
+      updateProgress() {
+        // Clear the learner classroom cache here as its progress data is now
+        // stale
+        LearnerClassroomResource.clearCache();
+      },
     },
     $trs: {
       nextInLesson: 'Next in lesson',

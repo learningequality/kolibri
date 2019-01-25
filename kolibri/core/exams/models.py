@@ -12,7 +12,7 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 
 class Exam(AbstractFacilityDataModel):
     """
-    This class stores metadata about teacher created exams to test current student knowledge.
+    This class stores metadata about teacher-created quizzes to test current student knowledge.
     """
 
     morango_model_name = "exam"
@@ -26,22 +26,57 @@ class Exam(AbstractFacilityDataModel):
     ) | UserCanReadExamData()
 
     title = models.CharField(max_length=200)
-    # The channel this Exam is associated with.
-    channel_id = models.CharField(max_length=32)
-    # Number of total questions this exam has
+
+    # Total number of questions in the exam. Equal to the length of the question_sources array.
     question_count = models.IntegerField()
-    # JSON blob describing exercise node pks for the assessments this exam draws from, and how many
-    # questions each assessment contributes to the exam. e.g.:
-    #
-    # [
-    #     {"exercise_id": <exercise_pk1>, "number_of_questions": 6},
-    #     {"exercise_id": <exercise_pk2>, "number_of_questions": 5}
-    # ]
+
+    """
+    This field contains different values depending on the 'data_model_version' field.
+
+    V1:
+        JSON array describing the questions in this exam and the exercises they come from:
+        [
+            {
+                "exercise_id": <exercise_pk>,
+                "question_id": <item_id_within_exercise>,
+                "title": <exercise_title>,
+            },
+            ...
+        ]
+    V0:
+        JSON array describing exercise nodes this exam draws questions from,
+        how many from each, and the node titles at the time of exam creation:
+        [
+            {
+                "exercise_id": <exercise_pk>,
+                "number_of_questions": 6,
+                "title": <exercise_title>
+            },
+            ...
+        ]
+    """
     question_sources = JSONField(default=[], blank=True)
-    # The random seed we use to decide which questions are in the exam
+
+    """
+    This field is interpretted differently depending on the 'data_model_version' field.
+
+    V1:
+        Used to help select new questions from exercises at quiz creation time
+
+    V0:
+        Used to decide which questions are in an exam at runtime.
+        See convertExamQuestionSourcesV0V1 in exams/utils.js for details.
+    """
     seed = models.IntegerField(default=1)
+
+    # When True, learners see questions in the order they appear in 'question_sources'.
+    # When False, each learner sees questions in a random (but consistent) order seeded
+    #   by their user's UUID.
+    learners_see_fixed_order = models.BooleanField(default=False)
+
     # Is this exam currently active and visible to students to whom it is assigned?
     active = models.BooleanField(default=False)
+
     # Exams are scoped to a particular class (usually) as they are associated with a Coach
     # who creates them in the context of their class, this stores that relationship but does
     # not assign exam itself to the class - for that see the ExamAssignment model.
@@ -49,8 +84,20 @@ class Exam(AbstractFacilityDataModel):
     creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
     archive = models.BooleanField(default=False)
 
+    """
+    As we evolve this model in ways that migrations can't handle, certain fields may
+    become deprecated, and other fields may need to be interpretted differently. This
+    may happen when multiple versions of the model need to coexist in the same database.
+
+    The 'data_model_version' field is used to keep track of the version of the model.
+
+    Certain fields that are only relevant for older model versions get prefixed
+    with their version numbers.
+    """
+    data_model_version = models.SmallIntegerField(default=0)
+
     def infer_dataset(self, *args, **kwargs):
-        return self.creator.dataset
+        return self.creator.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
@@ -81,7 +128,7 @@ class ExamAssignment(AbstractFacilityDataModel):
     assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_exams', blank=False, null=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset
+        return self.assigned_by.dataset_id
 
     def calculate_source_id(self):
         return "{exam_id}:{collection_id}".format(exam_id=self.exam_id, collection_id=self.collection_id)

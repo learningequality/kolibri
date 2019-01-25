@@ -4,11 +4,14 @@ coach template tags
 ========================
 Tags for including plugin javascript assets into a template.
 """
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from __future__ import absolute_import, print_function, unicode_literals
 from django import template
-from kolibri.core.webpack.utils import webpack_asset_render
+
 from .. import hooks
+from kolibri.core.webpack.utils import webpack_asset_render
 
 register = template.Library()
 
@@ -20,7 +23,7 @@ def coach_assets():
     by any concrete hook that subclasses CoachSyncHook.
     :return: HTML of script tags to insert into coach/coach.html
     """
-    return webpack_asset_render(hooks.CoachSyncHook, async=False)
+    return webpack_asset_render(hooks.CoachSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -30,4 +33,4 @@ def coach_async_assets():
     by any concrete hook that subclasses CoachSyncHook.
     :return: HTML of script tags to insert into coach/coach.html
     """
-    return webpack_asset_render(hooks.CoachAsyncHook, async=True)
+    return webpack_asset_render(hooks.CoachAsyncHook, is_async=True)

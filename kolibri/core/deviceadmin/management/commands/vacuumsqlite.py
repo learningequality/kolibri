@@ -1,9 +1,12 @@
+import datetime
 import logging
 import time
 
 from django.core.management.base import BaseCommand
 from django.db import connections
 from django.db import DEFAULT_DB_ALIAS
+
+from kolibri.utils.server import vacuum_db_lock
 
 logger = logging.getLogger(__name__)
 
@@ -17,20 +20,32 @@ class Command(BaseCommand):
             help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
         parser.add_argument(
-            '--interval', action='store', dest='interval', default=0, type=int,
-            help='Specifies the interval (in minutes) to run the process continuosly. If 0, no repetition will happen',
+            '--scheduled', action='store', dest='scheduled', default=False, type=bool,
+            help='Flag to specify whether to run the process continuosly (currently set every day at 3AM). If False, no repetition will happen',
         )
 
     def handle(self, *args, **options):
         database = options['database']
         connection = connections[database]
-        interval = options['interval']
+        scheduled = options['scheduled']
         if connection.vendor == "sqlite":
             while True:
-                self.perform_vacuum(connection)
-                if not interval:
+                with vacuum_db_lock:
+                    self.perform_vacuum(connection)
+                if not scheduled:
                     break
-                logger.info("Next Vacuum in {interval} minutes.".format(interval=interval))
+                current_dt = datetime.datetime.now()
+                _3AM = datetime.time(hour=3)
+                # calculate how many minutes until 3AM
+                if current_dt.time() < _3AM:
+                    calculated_time = current_dt.combine(current_dt.date(), _3AM)
+                    diff = calculated_time - current_dt
+                    interval = diff.seconds / 60  # minutes
+                else:  # calculate how many minutes until 3AM the next day
+                    calculated_time = current_dt.combine(current_dt.date(), _3AM) + datetime.timedelta(days=1)
+                    diff = calculated_time - current_dt
+                    interval = diff.seconds / 60  # minutes
+                logger.info("Next Vacuum at 3AM local server time (in {} minutes).".format(interval))
                 time.sleep(interval * 60)
 
     def perform_vacuum(self, connection):

@@ -22,19 +22,10 @@ matrix:
   include:
     - python: "2.7"
       env:
-        - TOX_ENV=pythonbuild2.7
-    - python: "3.4"
-      env:
-        - TOX_ENV=pythonbuild3.4
-    - python: "3.5"
-      env:
-        - TOX_ENV=pythonbuild3.5
+        - TOX_ENV=pythonlint2
     - python: "3.6"
       env:
-        - TOX_ENV=pythonbuild3.6
-    - python: "2.7"
-      env:
-        - TOX_ENV=pythonlint
+        - TOX_ENV=pythonlint3
     - python: "2.7"
       env:
         - TOX_ENV=licenses
@@ -53,15 +44,20 @@ matrix:
     - python: "3.6"
       env:
         - TOX_ENV=py3.6
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env:
+        - TOX_ENV=py3.7
     - python: "2.7"
       env:
-        - TOX_ENV=node6.x
+        - TOX_ENV=node10.x
     - python: "3.5"
       env:
         - TOX_ENV=postgres
     - python: "2.7"
       env:
-        - TOX_ENV=npmbuild
+        - TOX_ENV=frontendlint
     - python: "2.7"
       env:
         - TOX_ENV=nocext
@@ -81,13 +77,22 @@ before_install:
   - sudo apt-get update --option Acquire::Retries=100 --option Acquire::http::Timeout="60"
   - pip install -U pip codecov tox
   - . $HOME/.nvm/nvm.sh
-  - nvm install 6
-  - nvm use 6
+  - nvm install 10
+  - nvm use 10
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
+  - psql -c 'create database eco_test1;' -U postgres
+  - psql -c 'create database eco_test2;' -U postgres
+  - psql -c 'create database eco_test3;' -U postgres
+
+  - psql -c 'create database eco2_test1;' -U postgres
+  - psql -c 'create database eco2_test2;' -U postgres
+  - psql -c 'create database eco2_test3;' -U postgres
+  - psql -c 'create database eco2_test4;' -U postgres
+  - psql -c 'create database eco2_test5;' -U postgres
 
 # command to run tests
 script:

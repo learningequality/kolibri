@@ -3,8 +3,8 @@
   <form @submit.prevent="$emit('submit', selectedUsers)">
     <div class="actions-header">
       <KFilterTextbox
-        :placeholder="$tr('searchForUser')"
         v-model.trim="filterInput"
+        :placeholder="$tr('searchForUser')"
         @input="pageNum = 1"
       />
     </div>
@@ -79,12 +79,9 @@
 <script>
 
   import differenceWith from 'lodash/differenceWith';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
@@ -94,11 +91,8 @@
     name: 'ClassEnrollForm',
     components: {
       KButton,
-      KCheckbox,
       UiIconButton,
       KFilterTextbox,
-      KGrid,
-      KGridItem,
       UserTable,
     },
     mixins: [responsiveWindow],
@@ -133,12 +127,14 @@
         required: true,
       },
     },
-    data: () => ({
-      filterInput: '',
-      perPage: 10,
-      pageNum: 1,
-      selectedUsers: [],
-    }),
+    data() {
+      return {
+        filterInput: '',
+        perPage: 10,
+        pageNum: 1,
+        selectedUsers: [],
+      };
+    },
     computed: {
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
@@ -213,8 +209,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .actions-header,
   .footer,

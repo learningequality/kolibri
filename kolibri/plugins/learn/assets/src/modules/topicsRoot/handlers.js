@@ -12,8 +12,12 @@ export function showChannels(store) {
         return;
       }
       const channelRootIds = channels.map(channel => channel.root);
+      const include_fields = [];
+      if (store.getters.isCoach || store.getters.isAdmin) {
+        include_fields.push('num_coach_contents');
+      }
       ContentNodeSlimResource.fetchCollection({
-        getParams: { ids: channelRootIds, by_role: true },
+        getParams: { ids: channelRootIds, by_role: true, include_fields },
       }).then(channelCollection => {
         // we want them to be in the same order as the channels list
         const rootNodes = channels

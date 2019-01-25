@@ -2,14 +2,17 @@
 
   <div>
     <div v-if="viewAllText">{{ text }}</div>
-    <div
-      v-else
-      ref="shaveEl"
-      :title="tooltipText"
-    >
-      {{ text }}
-    </div>
-    <div class="ar">
+    <template v-else>
+      <div ref="shaveEl">{{ text }}</div>
+      <KTooltip
+        reference="shaveEl"
+        :refs="$refs"
+        :disabled="!tooltipText"
+      >
+        {{ tooltipText }}
+      </KTooltip>
+    </template>
+    <div class="show-more">
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
@@ -25,13 +28,16 @@
 <script>
 
   import shave from 'shave';
+  import debounce from 'lodash/debounce';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'TextTruncator',
     components: {
       KButton,
+      KTooltip,
     },
     mixins: [responsiveElement],
     props: {
@@ -70,23 +76,27 @@
         }
         return this.text;
       },
+      currentDimensions() {
+        return {
+          text: this.text,
+          maxHeight: this.maxHeight,
+          elementWidth: this.elementWidth,
+          elementHeight: this.elementHeight,
+        };
+      },
+      debouncedHandleUpdate() {
+        return debounce(this.handleUpdate, 50);
+      },
     },
     watch: {
-      text() {
-        this.handleUpdate();
-      },
-      maxHeight() {
-        this.handleUpdate();
-      },
-      elementWidth() {
-        this.handleUpdate();
-      },
-      elementHeight() {
-        this.handleUpdate();
+      currentDimensions() {
+        this.debouncedHandleUpdate();
       },
     },
     methods: {
       handleUpdate() {
+        // TODO make "View Less" disappear when user expands window
+        // and text isn't truncated any more.
         shave(this.$refs.shaveEl, this.maxHeight);
         this.$nextTick(() => {
           this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
@@ -104,7 +114,8 @@
 
 <style lang="scss" scoped>
 
-  .ar {
+  .show-more {
+    margin-top: 8px;
     text-align: right;
   }
 

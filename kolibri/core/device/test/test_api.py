@@ -1,3 +1,4 @@
+import os
 import platform
 import sys
 from collections import namedtuple
@@ -199,7 +200,7 @@ class FreeSpaceTestCase(APITestCase):
 
                 response = self.client.get(reverse("kolibri:core:freespace"), {'path': 'test'})
 
-                os_statvfs_mock.assert_called_with('test')
+                os_statvfs_mock.assert_called_with(os.path.realpath('test'))
                 self.assertEqual(response.data, {'freespace': 2})
 
     def test_win_freespace_fail(self):

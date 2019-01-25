@@ -7,13 +7,27 @@
     @submit="setLang"
     @cancel="closeModal"
   >
-    <KRadioButton
-      v-for="language in languageOptions"
-      :key="language.id"
-      :value="language.id"
-      :label="language.lang_name"
-      v-model="selectedLanguage"
-    />
+    <KGrid>
+      <KGridItem
+        v-for="(languageCol, index) in splitLanguageOptions"
+        :key="index"
+        :class="{ 'offset-col': windowIsSmall && index === 1 }"
+        sizes="100, 50, 50"
+        percentage
+        alignment="left"
+      >
+        <KRadioButton
+          v-for="language in languageCol"
+          :key="language.id"
+          v-model="selectedLanguage"
+          :value="language.id"
+          :label="language.lang_name"
+          :title="language.english_name"
+          class="language-name"
+        />
+      </KGridItem>
+    </KGrid>
+
   </KModal>
 
 </template>
@@ -24,12 +38,20 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { currentLanguage } from 'kolibri.utils.i18n';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { KModal, KRadioButton },
-    mixins: [languageSwitcherMixin],
+    components: {
+      KModal,
+      KGrid,
+      KGridItem,
+      KRadioButton,
+    },
+    mixins: [languageSwitcherMixin, responsiveWindow],
     $trs: {
       changeLanguageModalHeader: 'Change language',
       cancelButtonText: 'Cancel',
@@ -39,6 +61,14 @@
       return {
         selectedLanguage: currentLanguage,
       };
+    },
+    computed: {
+      splitLanguageOptions() {
+        let secondCol = this.languageOptions;
+        let firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
+
+        return [firstCol, secondCol];
+      },
     },
     methods: {
       closeModal() {
@@ -53,4 +83,16 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import './language-names';
+
+  .language-name {
+    @include font-family-language-names;
+  }
+
+  .offset-col {
+    margin-top: -8px;
+  }
+
+</style>

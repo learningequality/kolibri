@@ -1,5 +1,5 @@
-# Specifies the targets that should ALWAYS have their recipies run
-.PHONY: help clean clean-pyc clean-build clean-assets writeversion lint test test-all coverage docs release translation-crowdin-upload translation-crowdin-download
+# List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
 
 help:
 	@echo "Usage:"
@@ -35,11 +35,15 @@ help:
 	@echo "Internationalization"
 	@echo "--------------------"
 	@echo ""
-	@echo "translation-extract: extract all strings from application (both front- and back-end)"
-	@echo "translation-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
-	@echo "translation-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
-	@echo "translation-crowdin-install: installs the Crowdin CLI"
-	@echo "translation-django-compilemessages: compiles .po files to .mo files for Django"
+	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
+	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
+	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
+	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
+	@echo "i18n-regenerate-fonts: regenerate font files"
+	@echo "i18n-update branch=<crowdin-branch>: i18n-download + i18n-regenerate-fonts"
+	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
+	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
+	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -153,7 +157,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract-frontend assets translation-django-compilemessages
+dist: writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
 	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel --static
 	ls -l dist
@@ -161,31 +165,44 @@ dist: writeversion staticdeps staticdeps-cext buildconfig translation-extract-fr
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-translation-extract-backend:
+i18n-extract-backend:
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
-translation-extract-frontend:
+i18n-extract-frontend:
 	yarn run makemessages
 
-translation-extract: translation-extract-frontend translation-extract-backend
+i18n-extract: i18n-extract-frontend i18n-extract-backend
 
-translation-django-compilemessages:
+i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
 	# finds only the .po files nested there.
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
-translation-crowdin-install:
-	@`[ -f build_tools/crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget -O build_tools/crowdin-cli.jar https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
+i18n-upload: i18n-extract
+	python build_tools/i18n/crowdin.py upload ${branch}
+	python build_tools/i18n/crowdin.py pre-translate ${branch}
+	python build_tools/i18n/crowdin.py stats ${branch}
 
-translation-crowdin-upload:
-	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${branch}
+i18n-download:
+	python build_tools/i18n/crowdin.py rebuild ${branch}
+	python build_tools/i18n/crowdin.py download ${branch}
+	yarn run generate-locale-data
+	$(MAKE) i18n-django-compilemessages
 
-# This rule must depend on translation-extract, such that source files have been generated
-# for CrowdIn CLI's pattern matching. If they are not in place, stuff will break.
-# See: https://github.com/learningequality/kolibri/pull/4121
-translation-crowdin-download: clean translation-extract
-	@echo "\nWhen doing new releases: Remember to build the project on CrowdIn\n\n"
-	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${branch}
+i18n-download-source-fonts:
+	python build_tools/i18n/fonts.py download-source-fonts
+
+i18n-regenerate-fonts:
+	python build_tools/i18n/fonts.py generate-full-fonts
+	python build_tools/i18n/fonts.py generate-subset-fonts
+
+i18n-update: i18n-download i18n-regenerate-fonts
+
+i18n-stats:
+	python build_tools/i18n/crowdin.py stats ${branch}
+
+i18n-install-font:
+	python build_tools/i18n/fonts.py add-source-font ${name}
 
 docker-clean:
 	docker container prune -f

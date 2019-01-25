@@ -7,16 +7,15 @@
   >
     <div class="tr">
 
-      <div class="k-checkbox" :class="{ 'k-checkbox-active': isActive }">
+      <div class="k-checkbox">
         <input
+          :id="id"
           ref="kCheckboxInput"
           type="checkbox"
           class="k-checkbox-input"
-          :id="id"
           :checked="isCurrentlyChecked"
           :indeterminate.prop="isCurrentlyIndeterminate"
           :disabled="disabled"
-          :title="label"
           @click.stop="toggleCheck"
           @focus="isActive = true"
           @blur="markInactive"
@@ -24,21 +23,21 @@
 
         <mat-svg
           v-if="isCurrentlyIndeterminate"
+          :style="notBlank"
           category="toggle"
           name="indeterminate_check_box"
-          class="k-checkbox-indeterminate"
         />
         <mat-svg
           v-else-if="!isCurrentlyIndeterminate && isCurrentlyChecked"
+          :style="[ notBlank, activeOutline ]"
           category="toggle"
           name="check_box"
-          class="k-checkbox-checked"
         />
         <mat-svg
           v-else
+          :style="[ blank, activeOutline ]"
           category="toggle"
           name="check_box_outline_blank"
-          class="k-checkbox-unchecked"
         />
 
       </div>
@@ -48,7 +47,8 @@
         dir="auto"
         class="k-checkbox-label"
         :for="id"
-        :class="{ 'visuallyhidden': !showLabel }"
+        :class="{ 'visuallyhidden' : !showLabel }"
+        :style="labelStyle"
         @click.prevent
       >
         {{ label }}
@@ -61,6 +61,8 @@
 
 
 <script>
+
+  import { mapGetters } from 'vuex';
 
   /**
    * Used for toggling boolean user input
@@ -110,8 +112,35 @@
       isActive: false,
     }),
     computed: {
+      ...mapGetters([
+        '$coreActionNormal',
+        '$coreTextAnnotation',
+        '$coreOutline',
+        '$coreGrey300',
+        '$coreTextDisabled',
+      ]),
       id() {
         return `k-checkbox-${this._uid}`;
+      },
+      blank() {
+        return {
+          fill: this.disabled ? this.$coreGrey300 : this.$coreTextAnnotation,
+        };
+      },
+      notBlank() {
+        return {
+          fill: this.disabled ? this.$coreGrey300 : this.$coreActionNormal,
+        };
+      },
+      activeOutline() {
+        return {
+          outline: this.isActive ? this.$coreOutline : '',
+        };
+      },
+      labelStyle() {
+        return {
+          color: this.disabled ? this.$coreTextDisabled : '',
+        };
       },
     },
     watch: {
@@ -153,8 +182,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $checkbox-height: 24px;
 
   .k-checkbox-container {
@@ -185,26 +212,6 @@
     transform: translate(-50%, -50%);
   }
 
-  .k-checkbox-checked,
-  .k-checkbox-indeterminate {
-    fill: $core-action-normal;
-  }
-
-  .k-checkbox-unchecked {
-    fill: $core-text-annotation;
-  }
-
-  .k-checkbox-active {
-    .k-checkbox-checked,
-    .k-checkbox-indeterminate {
-      outline: $core-outline;
-    }
-
-    .k-checkbox-unchecked {
-      outline: $core-outline;
-    }
-  }
-
   .k-checkbox-label {
     display: table-cell;
     padding-left: 8px;
@@ -214,18 +221,10 @@
   }
 
   .k-checkbox-disabled {
-    svg {
-      fill: $core-grey-300;
-    }
-
     .k-checkbox,
     .k-checkbox-input,
     .k-checkbox-label {
       cursor: default;
-    }
-
-    .k-checkbox-label {
-      color: $core-text-disabled;
     }
   }
 

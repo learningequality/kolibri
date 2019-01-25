@@ -30,7 +30,7 @@ describe('KGridItem component', () => {
       allowableCols.forEach(j => {
         if (i <= j) {
           const wrapper = makeWrapper({ size: i }, { numCols: j, gutterWidth: 16 });
-          expect(isAllowed(wrapper.classes()[0])).toEqual(true);
+          expect(isAllowed(wrapper.classes()[1])).toEqual(true);
         }
       });
     });
@@ -39,7 +39,7 @@ describe('KGridItem component', () => {
     responsiveLayouts.forEach(numCols => {
       allowedPercentages.forEach(size => {
         const wrapper = makeWrapper({ size, percentage: true }, { numCols, gutterWidth: 16 });
-        expect(isAllowed(wrapper.classes()[0])).toEqual(true);
+        expect(isAllowed(wrapper.classes()[1])).toEqual(true);
       });
     });
   });
@@ -84,48 +84,48 @@ describe('KGridItem component', () => {
   it('should handle text-based responsive sizes - small', () => {
     const wrapper = makeWrapper({ sizes: '1, 2, 3' }, SMALL_GRID);
     wrapper.vm._updateWindow({ width: 400, height: 400 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-6-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-6-24');
   });
 
   it('should handle text-based responsive sizes - medium', () => {
     const wrapper = makeWrapper({ sizes: '1, 2, 3' }, MEDIUM_GRID);
     wrapper.vm._updateWindow({ width: 700, height: 700 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-6-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-6-24');
   });
 
   it('should handle text-based responsive sizes - large', () => {
     const wrapper = makeWrapper({ sizes: '1, 2, 3' }, LARGE_GRID);
     wrapper.vm._updateWindow({ width: 900, height: 900 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-6-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-6-24');
   });
 
   it('should handle array-based responsive sizes - small', () => {
     const wrapper = makeWrapper({ sizes: [3, 5, 9] }, SMALL_GRID);
     wrapper.vm._updateWindow({ width: 400, height: 400 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-18-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-18-24');
   });
 
   it('should handle array-based responsive sizes - medium', () => {
     const wrapper = makeWrapper({ sizes: [3, 5, 9] }, MEDIUM_GRID);
     wrapper.vm._updateWindow({ width: 700, height: 700 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-15-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-15-24');
   });
 
   it('should handle array-based responsive sizes - large', () => {
     const wrapper = makeWrapper({ sizes: [3, 5, 9] }, LARGE_GRID);
     wrapper.vm._updateWindow({ width: 900, height: 900 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-18-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-18-24');
   });
 
   it('should handle array-based responsive percentage sizes - large', () => {
     const wrapper = makeWrapper({ sizes: [25, 50, 25], percentage: true }, LARGE_GRID);
     wrapper.vm._updateWindow({ width: 900, height: 900 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-6-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-6-24');
   });
 
   it('should handle text-based non-responsive percentage size', () => {
     const wrapper = makeWrapper({ size: '50', percentage: true }, MEDIUM_GRID);
     wrapper.vm._updateWindow({ width: 700, height: 700 });
-    expect(wrapper.classes()[0]).toEqual('pure-u-12-24');
+    expect(wrapper.classes()[1]).toEqual('pure-u-12-24');
   });
 });

@@ -9,13 +9,13 @@
     <template v-else>
       <TaskProgress
         v-if="showUpdateProgressBar"
+        id="updatingchannel"
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
         @cleartask="cancelUpdateChannel()"
-        id="updatingchannel"
       />
       <TaskProgress
         v-else-if="metadataDownloadTask"
@@ -38,12 +38,12 @@
           </UiAlert>
         </section>
         <section
-          class="updates"
           v-if="transferredChannel && onDeviceInfoIsReady"
+          class="updates"
         >
           <div
-            class="updates-available"
             v-if="newVersionAvailable"
+            class="updates-available"
           >
             <span>
               {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
@@ -63,7 +63,7 @@
         />
 
         <UiAlert
-          v-if="status!==''"
+          v-if="status !== ''"
           type="error"
           :dismissible="false"
         >
@@ -79,7 +79,7 @@
         </UiAlert>
         <!-- Contains size estimates + submit button -->
         <SelectedResourcesSize
-          v-if="availableSpace!==null"
+          v-if="availableSpace !== null"
           :mode="mode"
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
@@ -99,7 +99,6 @@
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
@@ -124,7 +123,6 @@
       ChannelContentsSummary,
       ContentTreeViewer,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       SelectedResourcesSize,
       TaskProgress,
@@ -204,15 +202,15 @@
       },
       transferredChannel(val) {
         if (val.name) {
-          this.setToolbarTitle(this.$tr('selectContent', { channelName: val.name }));
+          this.setAppBarTitle(this.$tr('selectContent', { channelName: val.name }));
         }
       },
     },
     mounted() {
       if (this.wholePageError) {
-        this.setToolbarTitle(this.$tr('pageLoadError'));
+        this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
-        this.setToolbarTitle(
+        this.setAppBarTitle(
           this.$tr('selectContent', { channelName: this.transferredChannel.name })
         );
       }
@@ -221,8 +219,8 @@
       this.cancelMetadataDownloadTask();
     },
     methods: {
-      ...mapMutations('manageContent', {
-        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      ...mapMutations('coreBase', {
+        setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
       downloadChannelMetadata,

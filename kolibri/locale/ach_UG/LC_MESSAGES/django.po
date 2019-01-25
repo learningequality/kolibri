@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:12\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-01-01 17:27\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -14,69 +14,69 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ach\n"
-"X-Crowdin-File: /release-v0.11.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "crwdns43933:0crwdne43933:0"
+msgstr "crwdns68642:0crwdne68642:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "crwdns43934:0crwdne43934:0"
+msgstr "crwdns68644:0crwdne68644:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "crwdns43935:0crwdne43935:0"
+msgstr "crwdns68646:0crwdne68646:0"
 
-#: kolibri/core/content/api.py:114
+#: kolibri/core/content/api.py:132
 msgid "Content"
-msgstr "crwdns43936:0crwdne43936:0"
+msgstr "crwdns68648:0crwdne68648:0"
 
-#: kolibri/core/content/api.py:655
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr "crwdns43937:0crwdne43937:0"
+msgstr "crwdns68650:0crwdne68650:0"
 
-#: kolibri/core/content/models.py:279
+#: kolibri/core/content/models.py:278
 msgid "Unknown format"
-msgstr "crwdns43938:0crwdne43938:0"
+msgstr "crwdns68652:0crwdne68652:0"
 
 #: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
-msgstr "crwdns43939:0crwdne43939:0"
+msgstr "crwdns68654:0crwdne68654:0"
 
 #: kolibri/core/tasks/api.py:32
 msgid "There was a network error."
-msgstr "crwdns43940:0crwdne43940:0"
+msgstr "crwdns68656:0crwdne68656:0"
 
 #: kolibri/core/tasks/api.py:34
 msgid "There was a disk access error."
-msgstr "crwdns43941:0crwdne43941:0"
+msgstr "crwdns68658:0crwdne68658:0"
 
 #: kolibri/core/tasks/api.py:36
 msgid "There was an unknown error."
-msgstr "crwdns43942:0crwdne43942:0"
+msgstr "crwdns68660:0crwdne68660:0"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "crwdns43943:0crwdne43943:0"
+msgstr "crwdns68662:0crwdne68662:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr "crwdns43944:0crwdne43944:0"
+msgstr "crwdns68664:0crwdne68664:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr "crwdns43945:0crwdne43945:0"
+msgstr "crwdns68666:0crwdne68666:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "crwdns43946:0crwdne43946:0"
+msgstr "crwdns68668:0crwdne68668:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr "crwdns43947:0crwdne43947:0"
+msgstr "crwdns68670:0crwdne68670:0"
 
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "crwdns43948:0crwdne43948:0"
+msgstr "crwdns68672:0crwdne68672:0"
 

@@ -1,15 +1,25 @@
 <template>
 
-  <div class="whole-page">
-    <div class="top-bar">
+  <div
+    class="whole-page"
+    :style="{ backgroundColor: $coreBgCanvas }"
+  >
+    <div
+      class="top-bar"
+      :style="{ backgroundColor: $coreActionDark }"
+    >
       <router-link class="back-btn" :to="backPageLink">
         <mat-svg
           class="back svg-back"
+          :style="{ fill: $coreBgLight }"
           category="navigation"
           name="arrow_back"
           :class="{ 'rtl-icon': isRtl }"
         />
-        <p class="back">{{ backPageText }}</p>
+        <p
+          class="back"
+          :style="{ color: $coreBgLight }"
+        >{{ backPageText }}</p>
       </router-link>
     </div>
     <div class="wrapper">
@@ -27,6 +37,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
@@ -42,6 +53,9 @@
       backPageText: {
         type: String,
       },
+    },
+    computed: {
+      ...mapGetters(['$coreBgCanvas', '$coreActionDark', '$coreBgLight']),
     },
   };
 
@@ -59,13 +73,12 @@
     z-index: 24;
     width: 100%;
     height: 100%;
-    background-color: $core-bg-canvas;
   }
 
   .top-bar {
+    @extend %dropshadow-4dp;
+
     height: 60px;
-    background-color: $core-action-dark;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
   .back-btn {
@@ -79,14 +92,12 @@
 
   .svg-back {
     margin-right: 10px;
-    fill: $core-bg-light;
   }
 
   .back {
     float: left;
     font-size: 1.2em;
     font-weight: bold;
-    color: $core-bg-light;
   }
 
   p {

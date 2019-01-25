@@ -1,5 +1,6 @@
+repos:
 -   repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: a11d9314b22d8f8c7556443875b731ef05965464
+    rev: v2.0.0
     hooks:
     -   id: trailing-whitespace
     -   id: flake8
@@ -7,29 +8,17 @@
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
-        exclude: '^.+?\/locale\/.+?\/LC_MESSAGES\/.+?\.json$'
+        exclude: '^.+?\.json$'
 -   repo: https://github.com/asottile/reorder_python_imports
-    sha: v0.3.5
+    rev: v1.3.3
     hooks:
     -   id: reorder-python-imports
         language_version: python2.7
 -   repo: local
     hooks:
-      -   id: frontend-prettify
-          name: Prettier Linting of JS and Vue files
-          description: This hook rewrites JS and the JS portion of Vue files to conform to prettier standards.
-          entry: yarn run lint-js -- -w
+      -   id: frontend-lint
+          name: Linting of JS, Vue, SCSS and CSS files
+          description: This hook handles all frontend linting for Kolibri
+          entry: yarn run lint -w
           language: system
-          files: \.(js|vue)$
-      -   id: frontend-eslint
-          name: ESLinting of JS and Vue files
-          description: This hook rewrites JS and the JS portion of Vue files to conform to our ESLint standards.
-          entry: node node_modules/eslint/bin/eslint.js
-          language: system
-          files: \.(js|vue)$
-      -   id: frontend-stylelint
-          name: Lint SCSS
-          description: This hook checks that SCSS conforms to our Stylelint standards.
-          entry: node node_modules/stylelint/bin/stylelint.js
-          language: system
-          files: \.(scss|vue)$
+          files: \.(js|vue|scss|css)$

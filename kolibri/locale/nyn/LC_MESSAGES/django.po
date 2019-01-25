@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:11\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-01-01 17:27\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ny\n"
-"X-Crowdin-File: /release-v0.11.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,15 +28,15 @@ msgstr "Kalasi"
 msgid "Learner group"
 msgstr "Gulu lophunzirira pamodzi"
 
-#: kolibri/core/content/api.py:114
+#: kolibri/core/content/api.py:132
 msgid "Content"
-msgstr "Zam'kati"
+msgstr "Zimene zilipo"
 
-#: kolibri/core/content/api.py:655
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
 msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 
-#: kolibri/core/content/models.py:279
+#: kolibri/core/content/models.py:278
 msgid "Unknown format"
 msgstr "Fomati yosadziwika"
 
@@ -78,5 +78,5 @@ msgstr "Mungayesenso kupanga apudeti bulawuza imene mukugwiritsa ntchito panopo.
 
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr ""
+msgstr "Palibe tsamba limene latseguka. N'kutheka kuti simunaike bwino Kolibri"
 

@@ -1,12 +1,90 @@
 Release Notes
 =============
 
-Changes are ordered reverse-chronologically.
+List of the most important changes for each release.
+
+0.11.1
+------
+
+Added
+~~~~~
+
+  - Support for RTL EPubs
+  - Support for Python 3.7
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+  - Fullscreen renderer mode now works in Chrome 71
+  - Account sign up now works when guest access is disabled
+  - Navigating in and out of exercise detail views is fixed
+  - Misleading exam submission modal text is now more accurate
+  - Browsing content tree in exam creation is now faster
+  - Unavailable content in coach reports is now viewable
+  - Content import errors are handled better
+  - Added command to restore availability of content after bad upgrade
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   - Added Fufulde Mboroore
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.1>`__ of changes on Github
 
 0.11.0
 ------
 
-- Setting for enabling/disabling guest access has been added
+Added
+~~~~~
+
+ - Support for EPUB-format electronic books
+ - Upgrades to exam and lesson creation, including search functionality and auto-save
+ - New error handling and reporting functionality
+ - Channel import from custom network locations
+ - Setting for enabling or disabling guest access
+ - Basic commands to help with GDPR compliance
+ - Privacy information to help users and admins understand how their data is stored
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+ - Improvements to rendering of some pages on smaller screens
+ - Improvements to search behavior in filtering and handling of large result sets
+ - Improvements to the setup wizard based on user feedback and testing
+ - Improvements to user management, particularly for admins and super admins
+ - Fix: Allow usernames in non-latin alphabets
+ - Fix: Drive listing and space availability reporting
+ - Auto-refresh in coach reports
+ - Added more validation to help with log-in
+ - Security: upgraded Python cryptography and pyopenssl libraries for CVE-2018-10903
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
+ - Improved consistency of language across the application, and renamed "Superuser" to "Super admin"
+ - Many fixes to translation and localization
+ - Consistent font rendering across all languages
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.11.0>`__ of changes on Github
+
+
+0.10.3
+------
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ - Added Mexican Spanish (es_MX) and Bulgarian (bg)
+
+Fixed
+~~~~~
+
+ - Upgrade issue upon username conflict between device owner and facility user
+ - Channel import listing of USB devices when non-US locale
+ - Counts for coach-specific content would in some cases be wrongly displayed
+
+See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.3+label%3Achangelog>`_ of changes on Github
 
 
 0.10.2
@@ -15,7 +93,7 @@ Changes are ordered reverse-chronologically.
  - Performance improvements and bug fixes for content import
  - Exam creation optimizations
 
-See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.2+label%3Achangelog+is%3Aclosed>`_ of changes on Github
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.2>`__ of changes on Github
 
 
 0.10.1
@@ -26,7 +104,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=i
  - Fixes for SSL issues on low-spec devices / unstable connectivity
  - Compatibility fixes for older system libraries
 
-See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=is%3Apr+milestone%3A0.10.1+label%3Achangelog+is%3Aclosed>`_ of changes on Github
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.10.1>`__ of changes on Github
 
 
 0.10.0
@@ -45,7 +123,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/pulls?q=i
  - Command to migrate content directory location
  - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Kannada, Marathi, Burmese, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.10.0+label%3Achangelog>`__ of changes on Github.
 
 
 0.9.3
@@ -54,7 +132,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Compressed database upload
  - Various bug fixes
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.3+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.3+label%3Achangelog>`__ of changes on Github.
 
 
 0.9.2
@@ -63,7 +141,7 @@ See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=
  - Various bug fixes
  - Languages: English, Arabic, Bengali, Chinyanja, Farsi, French, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Yoruba, and Zulu
 
-See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.2+label%3Achangelog>`_ of changes on Github.
+See a `more detailed list <https://github.com/learningequality/kolibri/issues?q=milestone%3A0.9.2+label%3Achangelog>`__ of changes on Github.
 
 
 0.9.1

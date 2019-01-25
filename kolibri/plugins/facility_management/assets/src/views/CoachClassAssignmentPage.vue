@@ -4,9 +4,9 @@
     <h1>{{ $tr('pageHeader', {className}) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
     <ClassEnrollForm
-      @submit="assignCoaches"
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
+      @submit="assignCoaches"
     />
   </div>
 

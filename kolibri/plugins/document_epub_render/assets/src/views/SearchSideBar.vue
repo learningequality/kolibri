@@ -7,11 +7,11 @@
     >
       <div class="d-tr">
         <input
-          class="d-tc search-input"
           ref="searchInput"
+          v-model.trim="searchQuery"
+          class="d-tc search-input"
           type="search"
           :aria-label="$tr('enterSearchQuery')"
-          v-model.trim="searchQuery"
           @keyup.esc.stop
         >
 
@@ -34,6 +34,7 @@
       <p
         v-if="!searchHasBeenMade"
         key="no-search"
+        :style="paragraphStyle"
       >
         {{ $tr('searchThroughBook') }}
       </p>
@@ -42,13 +43,14 @@
         v-else-if="searchIsLoading"
         key="loading-true"
       >
-        <p>{{ $tr('loadingResults') }}</p>
+        <p :style="paragraphStyle">{{ $tr('loadingResults') }}</p>
         <KCircularLoader :delay="false" />
       </div>
 
       <p
         v-else-if="searchResults.length === 0"
         key="results-false"
+        :style="paragraphStyle"
       >
         {{ $tr('noSearchResults') }}
       </p>
@@ -56,20 +58,22 @@
       <p
         v-else-if="searchResults.length > 0"
         key="results-true"
+        :style="paragraphStyle"
       >
         {{ numberOfSearchResults }}
       </p>
     </transition>
 
     <ol
+      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
       ref="searchResultsList"
       class="search-results-list"
-      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
     >
       <li
         v-for="(item, index) in searchResults"
         :key="index"
         class="search-results-list-item"
+        :style="{ borderTop: `solid 1px ${$coreGrey}` }"
       >
         <KButton
           :text="item.excerpt"
@@ -86,9 +90,10 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import Mark from 'mark.js';
   import SideBar from './SideBar';
 
@@ -154,11 +159,17 @@
       markInstance: null,
     }),
     computed: {
+      ...mapGetters(['$coreTextAnnotation', '$coreGrey']),
       numberOfSearchResults() {
         if (this.maxSearchResultsExceeded) {
           return this.$tr('overCertainNumberOfSearchResults', { num: MAX_SEARCH_RESULTS });
         }
         return this.$tr('numberOfSearchResults', { num: this.searchResults.length });
+      },
+      paragraphStyle() {
+        return {
+          color: this.$coreTextAnnotation,
+        };
       },
     },
     methods: {
@@ -221,7 +232,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .d-t {
@@ -250,15 +260,10 @@
   .search-results-list-item {
     padding-top: 8px;
     padding-bottom: 8px;
-    border-top: solid 1px $core-grey;
   }
 
   .search-results-list-item-button {
     @include epub-basic-link;
-  }
-
-  p {
-    color: $core-text-annotation;
   }
 
 </style>

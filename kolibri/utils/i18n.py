@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
 import importlib
+import io
+import json
 import os
+
+import kolibri
 
 EXTERNAL_PLUGINS_PREFIX = "kolibri_"
 
@@ -30,12 +35,13 @@ def get_installed_app_locale_path(appname):
         return module_locale_path
 
 
-def parse_supported_languages(language_list):
-    languages = []
-    for language in language_list:
-        lang = language.get("language_code", "")
-        for key in ["language_script", "script_code", "territory_code"]:
-            if key in language:
-                lang += "-" + language[key]
-        languages.append((lang, language["language_name"]))
-    return languages
+def _get_supported_language_info():
+    file_path = os.path.join(
+        os.path.dirname(kolibri.__file__), "locale", "supported_languages.json"
+    )
+    with io.open(file_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+# Kolibri format
+KOLIBRI_SUPPORTED_LANGUAGES = _get_supported_language_info()

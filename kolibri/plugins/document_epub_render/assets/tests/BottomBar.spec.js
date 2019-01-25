@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import BottomBar from '../src/views/BottomBar';
 
 function createWrapper({
@@ -14,6 +15,7 @@ function createWrapper({
       sliderStep,
       locationsAreReady,
     },
+    store,
   });
 }
 

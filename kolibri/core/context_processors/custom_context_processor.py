@@ -1,7 +1,7 @@
 import json
 
+import user_agents
 from django.conf import settings
-from user_agents import parse
 
 from kolibri.core.auth.api import SessionViewSet
 from kolibri.utils import conf
@@ -15,10 +15,6 @@ browser_requirements = [
     {
         'family': 'IE',
         'major_version': 11,
-    },
-    {
-        'family': 'Mobile Safari',
-        'blacklist': True,
     },
     {
         'family': 'Android',
@@ -48,7 +44,7 @@ def pass_browser_entry(agent, entry):
 def supported_browser(request):
     if 'supported_browser' not in request.session:
 
-        user_agent = parse(request.META.get('HTTP_USER_AGENT', ''))
+        user_agent = user_agents.parse(request.META.get('HTTP_USER_AGENT', ''))
         request.session['supported_browser'] = all(
             pass_browser_entry(user_agent, entry) for entry in browser_requirements)
     return {'supported_browser': request.session['supported_browser']}

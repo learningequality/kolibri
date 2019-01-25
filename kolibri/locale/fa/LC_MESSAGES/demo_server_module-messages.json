@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "مستندات را بخوانید",
+  "DemoServerIndex.demoServerA2": "آخرین نسخه را دانلود و نصب کنید",
+  "DemoServerIndex.demoServerHeader": "به نسخه نمایشی سایت Kolibri خوش آمدید!",
+  "DemoServerIndex.demoServerL1": "یادگیرنده (نام کاربری: '{user}', رمز عبور: '{pass}') یا به عنوان مهمان",
+  "DemoServerIndex.demoServerL2": "مربی (نام کاربری: '{user}', رمز عبور: '{pass}')",
+  "DemoServerIndex.demoServerL3": "ادمین یا مدیر (نام کاربری: '{user}', رمز عبور: '{pass}')",
+  "DemoServerIndex.demoServerP1": "شما می‌توانید با هر یک از سه نوع اولیه‌ی کاربرها به جستجو و کاوش بپردازید:",
+  "DemoServerIndex.demoServerP2": "این نسخه نمایشی آنلاین از سایت، شامل ویژگی‌ها و قابلیت‌های آخرین نسخه می‌باشد، اما تنها نمونه‌ای از محتوا را در بر دارد که برای استفاده‌ی آفلاین در Kolibri موجود می‌باشد. این نسخه به منظور نمایش در نظر گرفته شده است و هر گونه اطلاعات کاربر در اینجا ممکن است به صورت دوره‌ای پاک شود.",
+  "DemoServerIndex.demoServerP3": "برای اطلاعات بیشتر در مورد استفاده از Kolibri در یک فضای آفلاین و درک بهتر پلت‌فُرم:"
+}

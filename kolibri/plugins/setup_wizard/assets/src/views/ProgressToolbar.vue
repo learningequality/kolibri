@@ -2,16 +2,16 @@
 
   <UiToolbar
     class="progress-toolbar"
-    type="colored"
+    type="clear"
     textColor="white"
   >
     <UiIconButton
-      slot="icon"
       v-show="currentStep > 1"
+      slot="icon"
       type="secondary"
       color="white"
-      @click="$emit('backButtonClicked')"
       :class="{ 'rtl-icon': isRtl }"
+      @click="$emit('backButtonClicked')"
     >
       <mat-svg name="arrow_back" category="navigation" />
     </UiIconButton>
@@ -25,7 +25,7 @@
 <script>
 
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
@@ -52,8 +52,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .progress-toolbar {
     fill: white;

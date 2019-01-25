@@ -1,0 +1,32 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <div id="timesLoaded-results">
+            TIMES LOADED: DETERMINING....
+        </div>
+        <div id="clear-results">
+
+        </div>
+        <script>
+            console.log("It's loaded!");
+            var timesLoaded = localStorage.getItem("timesLoaded");
+            if (!timesLoaded) {
+              timesLoaded = 0;
+            }
+            timesLoaded++;
+            sessionStorage.setItem("loaded", true);
+            localStorage.setItem("timesLoaded", timesLoaded);
+            var lastDateRegex = /lastDate=(.*)/;
+            var lastDateResult = lastDateRegex.exec(document.cookie);
+            var lastDate;
+            if (lastDateResult) {
+              lastDate = new Date(lastDateResult[1]);
+            }
+            var results = document.getElementById("timesLoaded-results");
+            results.innerText = "TIMES LOADED: " + timesLoaded + '\nLast Date: ' + (lastDate || 'None');
+            lastDate = new Date();
+            document.cookie = 'lastDate=' + lastDate + '; max-age=100000';
+        </script>
+    </body>
+</html>

@@ -2,41 +2,17 @@
 
   <div class="signup-page">
 
-    <UiToolbar type="colored" textColor="white">
-      <template slot="icon">
-        <CoreLogo class="app-bar-icon" />
-      </template>
-      <template slot="brand">
-        {{ $tr('kolibri') }}
-      </template>
-      <div slot="actions">
-        <router-link
-          class="signin"
-          :to="signInPage"
-        >
-          <span>{{ $tr('logIn') }}</span>
-        </router-link>
-      </div>
-    </UiToolbar>
-
     <form
-      class="signup-form"
       ref="form"
+      class="signup-form"
       @submit.prevent="signUp"
     >
-      <UiAlert
-        v-if="unknownError"
-        type="error"
-        @dismiss="resetSignUpState"
-      >
-        {{ errorMessage }}
-      </UiAlert>
-
-      <h1 class="signup-title">{{ $tr('createAccount') }}</h1>
+      <h1>{{ $tr('createAccount') }}</h1>
 
       <KTextbox
-        ref="name"
         id="name"
+        ref="name"
+        v-model="name"
         type="text"
         autocomplete="name"
         :label="$tr('name')"
@@ -45,12 +21,12 @@
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
         @blur="nameBlurred = true"
-        v-model="name"
       />
 
       <KTextbox
-        ref="username"
         id="username"
+        ref="username"
+        v-model="username"
         type="text"
         autocomplete="username"
         :label="$tr('username')"
@@ -59,55 +35,71 @@
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
         @input="resetSignUpState"
-        v-model="username"
       />
 
       <KTextbox
-        ref="password"
         id="password"
+        ref="password"
+        v-model="password"
         type="password"
         autocomplete="new-password"
         :label="$tr('password')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
-        v-model="password"
       />
 
       <KTextbox
-        ref="confirmedPassword"
         id="confirmed-password"
+        ref="confirmedPassword"
+        v-model="confirmedPassword"
         type="password"
         autocomplete="new-password"
         :label="$tr('reEnterPassword')"
         :invalid="confirmedPasswordIsInvalid"
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
-        v-model="confirmedPassword"
       />
 
       <KSelect
-        :label="$tr('facility')"
         v-model="selectedFacility"
+        :label="$tr('facility')"
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
         @blur="facilityBlurred = true"
       />
 
-      <KButton
-        :disabled="busy"
-        :primary="true"
-        :text="$tr('finish')"
-        type="submit"
-        class="submit"
-      />
+      <p class="privacy-link">
+        <KButton
+          :text="$tr('privacyLink')"
+          appearance="basic-link"
+          @click="privacyModalVisible = true"
+        />
+      </p>
+
+      <p>
+        <KButton
+          :disabled="busy"
+          :primary="true"
+          :text="$tr('finish')"
+          type="submit"
+          class="submit"
+        />
+      </p>
 
     </form>
 
     <div class="footer">
       <LanguageSwitcherFooter />
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      hideOwnersSection
+      @cancel="privacyModalVisible = false"
+    />
+
   </div>
 
 </template>
@@ -118,11 +110,9 @@
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
@@ -145,6 +135,7 @@
       facility: 'Facility',
       required: 'This field is required',
       documentTitle: 'User Sign Up',
+      privacyLink: 'Usage and privacy in Kolibri',
     },
     metaInfo() {
       return {
@@ -153,12 +144,10 @@
     },
     components: {
       KButton,
-      UiAlert,
       KTextbox,
-      UiToolbar,
-      CoreLogo,
       KSelect,
       LanguageSwitcherFooter,
+      PrivacyInfoModal,
     },
     data: () => ({
       name: '',
@@ -172,6 +161,7 @@
       confirmedPasswordBlurred: false,
       facilityBlurred: false,
       formSubmitted: false,
+      privacyModalVisible: false,
     }),
     computed: {
       ...mapGetters(['facilities', 'session']),
@@ -267,15 +257,6 @@
           !this.facilityIsInvalid
         );
       },
-      unknownError() {
-        if (this.errorCode) {
-          return this.errorCode !== 400;
-        }
-        return false;
-      },
-      errorMessage() {
-        return this.$tr('genericError');
-      },
     },
     beforeMount() {
       if (this.facilityList.length === 1) {
@@ -320,57 +301,23 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   $iphone-5-width: 320px;
   $vertical-page-margin: 100px;
-  $logo-size: 1.64 * 1.125;
-  $logo-margin: 0.38 * $logo-size;
-
-  // component, highest level
-  .signup-page {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .signin {
-    margin-right: 1em;
-    color: white;
-    text-decoration: none;
-  }
 
   // Form
-  .signup-title {
-    text-align: center;
-  }
-
   .signup-form {
-    width: $iphone-5-width - 20;
-    margin-top: $vertical-page-margin;
+    max-width: $iphone-5-width - 20;
     margin-right: auto;
     margin-left: auto;
   }
 
-  .terms {
-    height: 6em;
-    padding: 0.5em;
-    margin-bottom: 1em;
-    overflow-y: scroll;
-    color: $core-text-annotation;
-    background-color: $core-bg-light;
-    p {
-      margin-top: 0;
-    }
-  }
-
-  .app-bar-icon {
-    height: 40px;
-    margin-left: 0.25em;
-  }
-
   .footer {
     margin: 36px;
-    margin-top: 96px;
+    margin-top: 48px;
+  }
+
+  .privacy-link {
+    margin-top: 24px;
   }
 
   .submit {

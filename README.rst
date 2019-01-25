@@ -36,16 +36,16 @@ insight (like "next lesson" recommendations), and to allow user data to be synce
 thus a Kolibri learner can use his or her credentials on any linked Kolibri installation, for instance on different
 devices at a school.
 
-See `our website <https://learningequality.org/kolibri/>`_ for more information.
+See `our website <https://learningequality.org/kolibri/>`__ for more information.
 
 
 How can I use it?
 -----------------
 
-An initial version of Kolibri is `now available for download! <https://learningequality.org/download/>`_
+An initial version of Kolibri is `now available for download! <https://learningequality.org/download/>`__
 
 
 How can I contribute?
 ---------------------
 
-Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`_ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`_.
+Thanks for your interest! Please see the 'contributing' section of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`__.

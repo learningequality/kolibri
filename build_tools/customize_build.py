@@ -11,13 +11,14 @@ import tempfile
 
 import requests
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 os.environ.setdefault(
     "RUN_TIME_PLUGINS", os.path.realpath(os.path.join(os.path.dirname(__file__), "default_plugins.txt"))
 )
 
 plugins_cache = {}
+
 
 def load_plugins_from_file(file_path):
     global plugins_cache
@@ -39,6 +40,7 @@ build_config_path = os.path.join(os.path.dirname(__file__), "../kolibri/utils/bu
 
 default_settings_template = "settings_path = '{path}'"
 
+
 def set_default_settings_module():
     if "DEFAULT_SETTINGS_MODULE" in os.environ and os.environ["DEFAULT_SETTINGS_MODULE"]:
         default_settings_path = os.environ["DEFAULT_SETTINGS_MODULE"]
@@ -49,6 +51,7 @@ def set_default_settings_module():
 
 
 run_time_plugin_template = "plugins = {plugins}\n"
+
 
 def set_run_time_plugins():
     if "RUN_TIME_PLUGINS" in os.environ and os.environ["RUN_TIME_PLUGINS"]:

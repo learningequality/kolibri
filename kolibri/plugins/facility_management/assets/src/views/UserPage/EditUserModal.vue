@@ -10,6 +10,7 @@
   >
     <KTextbox
       ref="name"
+      v-model="newName"
       type="text"
       :label="$tr('fullName')"
       :autofocus="true"
@@ -17,11 +18,11 @@
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
       @blur="nameBlurred = true"
-      v-model="newName"
     />
 
     <KTextbox
       ref="username"
+      v-model="newUsername"
       type="text"
       :label="$tr('username')"
       :maxlength="30"
@@ -29,7 +30,6 @@
       :invalidText="usernameIsInvalidText"
       @blur="usernameBlurred = true"
       @input="setError(null)"
-      v-model="newUsername"
     />
 
     <template v-if="editingSuperAdmin">
@@ -43,6 +43,7 @@
       />
 
       <KExternalLink
+        v-if="devicePermissionsPageLink"
         class="super-admin-description"
         :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
         :href="devicePermissionsPageLink"
@@ -52,23 +53,23 @@
 
     <template v-else>
       <KSelect
+        v-model="typeSelected"
         :label="$tr('userType')"
         :options="userTypeOptions"
-        v-model="typeSelected"
       />
 
-      <fieldset class="coach-selector" v-if="coachIsSelected">
+      <fieldset v-if="coachIsSelected" class="coach-selector">
         <KRadioButton
+          v-model="classCoachIsSelected"
           :label="$tr('classCoachLabel')"
           :description="$tr('classCoachDescription')"
           :value="true"
-          v-model="classCoachIsSelected"
         />
         <KRadioButton
+          v-model="classCoachIsSelected"
           :label="$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
-          v-model="classCoachIsSelected"
         />
       </fieldset>
     </template>
@@ -226,9 +227,10 @@
         return this.kind === UserKinds.SUPERUSER;
       },
       devicePermissionsPageLink() {
-        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management']();
-        // HACK needs longer term method
-        return `${devicePageUrl}#/permissions/${this.id}`;
+        const devicePageUrl = urls['kolibri:devicemanagementplugin:device_management'];
+        if (devicePageUrl) {
+          return `${devicePageUrl()}#/permissions/${this.id}`;
+        }
       },
       newType() {
         // never got the chance to even change it
@@ -302,8 +304,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .coach-selector {
     padding: 0;

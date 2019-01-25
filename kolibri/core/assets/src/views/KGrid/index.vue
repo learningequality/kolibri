@@ -102,15 +102,19 @@
       // https://medium.com/@znck/provide-inject-in-vue-2-2-b6473a7f7816
       const gridMetrics = {};
       Object.defineProperty(gridMetrics, 'numCols', {
-        iteratable: true,
+        enumerable: true,
         get: () => this.actualNumCols,
       });
       Object.defineProperty(gridMetrics, 'gutterWidth', {
-        iteratable: true,
+        enumerable: true,
         get: () => this.actualGutterSize,
       });
+      Object.defineProperty(gridMetrics, 'direction', {
+        enumerable: true,
+        get: () => (this.$el ? getComputedStyle(this.$el).direction : 'ltr'),
+      });
       Object.defineProperty(gridMetrics, 'debug', {
-        iteratable: true,
+        enumerable: true,
         get: () => this.debug,
       });
       return { gridMetrics };
@@ -120,16 +124,9 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 
+  // Include pure-css definitions globally (unscoped)
   @import '~purecss/build/grids-core.css';
-  @import '~purecss/build/grids-units.css';
-  @import './extra-units.css';
-  @import '~kolibri.styles.definitions';
-
-  /deep/ .pure-g,
-  /deep/ .pure-g [class*='pure-u'] {
-    font-family: $core-font;
-  }
 
 </style>

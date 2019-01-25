@@ -8,7 +8,7 @@ Feature: Coach create groups
 
   Scenario: Create group
     When I click on *New group* button
-    Then I see *Add new group* modal
+    Then I see *Create new group* modal
     When I enter a group name <group>
       And I click *Save* button
     Then the modal closes

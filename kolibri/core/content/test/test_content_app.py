@@ -22,8 +22,6 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.exams.models import Exam
-from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -337,6 +335,111 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['description'], "balbla2")
         self.assertTrue("id" not in response.data)
 
+    def test_contentnode_descendants_assessments_exercise_node(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        c1_id = c1.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": c1_id})
+        self.assertEqual(next(item['num_assessments'] for item in response.data if item['id'] == c1_id), c1.assessmentmetadata.first().number_of_assessments)
+
+    def test_contentnode_descendants_assessments_exercise_parent(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        parent = c1.parent
+        parent_id = parent.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            c1.assessmentmetadata.first().number_of_assessments,
+        )
+
+    def test_contentnode_descendants_assessments_exercise_root(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        root_id = root.id
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": root_id})
+        self.assertEqual(next(item['num_assessments'] for item in response.data if item['id'] == root_id), c1.assessmentmetadata.first().number_of_assessments)
+
+    def test_contentnode_descendants_assessments_exercise_parent_sum_siblings(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        parent = c1.parent
+        parent_id = parent.id
+        sibling = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling exercise",
+            available=True,
+        )
+        sibling_assessment_metadata = content.AssessmentMetaData.objects.create(
+            id="6a406ac66b224106aa2e93f73a94333d",
+            contentnode=sibling,
+            number_of_assessments=5,
+        )
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            c1.assessmentmetadata.first().number_of_assessments + sibling_assessment_metadata.number_of_assessments,
+        )
+
+    def test_contentnode_descendants_assessments_exercise_parent_sum_siblings_one_unavailable(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        c1.available = False
+        c1.save()
+        parent = c1.parent
+        parent_id = parent.id
+        sibling = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling exercise",
+            available=True,
+        )
+        sibling_assessment_metadata = content.AssessmentMetaData.objects.create(
+            id="6a406ac66b224106aa2e93f73a94333d",
+            contentnode=sibling,
+            number_of_assessments=5,
+        )
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants-assessments"), data={"ids": parent_id})
+        self.assertEqual(
+            next(item['num_assessments'] for item in response.data if item['id'] == parent_id),
+            sibling_assessment_metadata.number_of_assessments,
+        )
+
+    def test_contentnode_descendants_topic_siblings_ancestor_ids(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join(topic_ids)})
+        for datum in response.data:
+            topic = topics.get(id=datum["ancestor_id"])
+            self.assertTrue(topic.get_descendants().filter(id=datum["id"]).exists())
+
+    def test_contentnode_descendants_topic_siblings_kind_filter(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={
+            "ids": ",".join(topic_ids),
+            "descendant_kind": content_kinds.EXERCISE,
+        })
+        for datum in response.data:
+            topic = topics.get(id=datum["ancestor_id"])
+            self.assertTrue(topic.get_descendants().filter(id=datum["id"], kind=content_kinds.EXERCISE).exists())
+
+    def test_contentnode_descendants_topic_parent_child_ancestor_ids(self):
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topic = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC, children__isnull=False).first()
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join((root.id, topic.id))})
+        topic_items = [datum for datum in response.data if datum["ancestor_id"] == topic.id]
+        for node in topic.get_descendants(include_self=False).filter(available=True):
+            self.assertTrue(next(item for item in topic_items if item["id"] == node.id))
+        root_items = [datum for datum in response.data if datum["ancestor_id"] == root.id]
+        for node in root.get_descendants(include_self=False).filter(available=True):
+            self.assertTrue(next(item for item in root_items if item["id"] == node.id))
+
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
@@ -410,12 +513,15 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data['name'], 'testing')
 
     def test_channelmetadata_resource_info(self):
+        content.ChannelMetadata.objects.all().update(total_resource_count=4, published_size=0)
         data = content.ChannelMetadata.objects.values()[0]
         c1_id = content.ContentNode.objects.get(title="c1").id
         content.ContentNode.objects.filter(pk=c1_id).update(available=False)
         get_params = {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'}
         response = self.client.get(reverse("kolibri:core:channel-detail", kwargs={'pk': data["id"]}), get_params)
-        self.assertEqual(response.data['total_resources'], 1)
+        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
+        # Hence this will return None if everything is deduped properly.
+        self.assertEqual(response.data['total_resources'], 0)
         self.assertEqual(response.data['total_file_size'], 0)
         self.assertEqual(response.data['on_device_resources'], 4)
         self.assertEqual(response.data['on_device_file_size'], 0)
@@ -460,8 +566,10 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["available"], False)
 
     def test_channelmetadata_include_fields_filter_has_total_resources(self):
+        # N.B. Because of our not very good fixture data, all of our content nodes are by default not renderable
+        # Hence this will return None if everything is deduped properly.
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'total_resources'})
-        self.assertEqual(response.data[0]["total_resources"], 1)
+        self.assertEqual(response.data[0]["total_resources"], 0)
 
     def test_channelmetadata_include_fields_filter_has_total_file_size(self):
         content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
@@ -469,23 +577,24 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["total_file_size"], 2)
 
     def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
+        content.ChannelMetadata.objects.all().update(total_resource_count=5)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_resources'})
         self.assertEqual(response.data[0]["on_device_resources"], 5)
 
     def test_channelmetadata_include_fields_filter_has_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
     def test_channelmetadata_include_fields_filter_has_no_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(available=True)
+        content.ChannelMetadata.objects.all().update(published_size=0)
         response = self.client.get(reverse("kolibri:core:channel-list"),
                                    {'include_fields': 'total_resources,total_file_size,on_device_resources,on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 0)
 
     @mock.patch.object(kolibri.core.content.serializers, 'renderable_contentnodes_without_topics_q_filter', Q(kind="dummy"))
     def test_channelmetadata_include_fields_filter_has_no_renderable_on_device_file_size(self):
-        content.LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
+        content.ChannelMetadata.objects.all().update(published_size=4)
         response = self.client.get(reverse("kolibri:core:channel-list"), {'include_fields': 'on_device_file_size'})
         self.assertEqual(response.data[0]["on_device_file_size"], 4)
 
@@ -635,80 +744,6 @@ class ContentNodeAPITestCase(APITestCase):
         expected_output = content.ContentNode.objects.exclude(available=False).count()  # coach_content node should be returned
         self.assertEqual(len(response.data), expected_output)
 
-    def _setup_lesson(self):
-        facility = Facility.objects.create(name="MyFac")
-        admin = FacilityUser.objects.create(username="admin", facility=facility)
-        admin.set_password(DUMMY_PASSWORD)
-        admin.save()
-        nodes = []
-        nodes.append(content.ContentNode.objects.get(title='c3c1'))
-        nodes.append(content.ContentNode.objects.get(title='c2c3'))
-        nodes.append(content.ContentNode.objects.get(title='c2c2'))
-        json_resource = [{"contentnode_id": node.id, "content_id": node.content_id, "channel_id": node.channel_id} for node in nodes]
-        lesson = Lesson.objects.create(
-            title="title",
-            is_active=True,
-            collection=facility,
-            created_by=admin,
-            resources=json_resource
-        )
-        return lesson, nodes
-
-    def test_in_lesson_filter(self):
-        lesson, nodes = self._setup_lesson()
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": lesson.id})
-        self.assertEqual(len(response.data), len(lesson.resources))
-        for counter, node in enumerate(nodes):
-            self.assertEqual(response.data[counter]['id'], node.id)
-
-    def test_in_lesson_filter_invalid_value(self):
-        self._setup_lesson()
-
-        # request with invalid uuid
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": '123'})
-        self.assertEqual(len(response.data), 0)
-
-        # request with valid uuid
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_lesson": '47385a6d4df3426db38ad0d20e113dce'})
-        self.assertEqual(len(response.data), 0)
-
-    def _setup_exam(self):
-        facility = Facility.objects.create(name="MyFac")
-        admin = FacilityUser.objects.create(username="admin", facility=facility)
-        admin.set_password(DUMMY_PASSWORD)
-        admin.save()
-        node = content.ContentNode.objects.get(title='c3c1')
-        exam = Exam.objects.create(
-            title="title",
-            channel_id="test",
-            question_count=1,
-            active=True,
-            collection=facility,
-            creator=admin,
-            question_sources=[
-                {"exercise_id": node.id, "number_of_questions": 6}
-            ]
-        )
-
-        return exam, node
-
-    def test_in_exam_filter(self):
-        exam, node = self._setup_exam()
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": exam.id})
-        self.assertEqual(len(response.data), len(exam.question_sources))
-        self.assertEqual(response.data[0]['id'], node.id)
-
-    def test_in_exam_filter_invalid_value(self):
-        self._setup_exam()
-
-        # request with invalid uuid
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": '123'})
-        self.assertEqual(len(response.data), 0)
-
-        # request with valid uuid
-        response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"in_exam": '47385a6d4df3426db38ad0d20e113dce'})
-        self.assertEqual(len(response.data), 0)
-
     def test_copies(self):
         # the pk is actually a content id
         response = self.client.get(reverse('kolibri:core:contentnode-copies', kwargs={'pk': 'c6f49ea527824f398f4d5d26faf19396'}))
@@ -798,6 +833,11 @@ class ContentNodeAPITestCase(APITestCase):
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
+    def test_popular_ten_minute_cache(self):
+        self._create_session_logs()
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-popular'))
+        self.assertEqual(response['Cache-Control'], 'max-age=600')
+
     def _create_summary_logs(self):
         facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="user", facility=facility)
@@ -831,9 +871,22 @@ class ContentNodeAPITestCase(APITestCase):
     def test_resume(self):
         user, expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse('kolibri:core:contentnode_slim-resume'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-resume', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_resume_wrong_id(self):
+        user, expected_content_ids = self._create_summary_logs()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-resume', kwargs={"pk": "wrong"}))
+        response_content_ids = [node['content_id'] for node in response.json()]
+        self.assertEqual([], response_content_ids)
+
+    def test_resume_ten_minute_cache(self):
+        user, expected_content_ids = self._create_summary_logs()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-resume', kwargs={"pk": user.id}))
+        self.assertEqual(response['Cache-Control'], 'max-age=600')
 
     def test_next_steps_prereq(self):
         facility = Facility.objects.create(name="MyFac")
@@ -850,9 +903,42 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         post_req = root.prerequisite_for.first()
         expected_content_ids = (post_req.content_id,)
-        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_prereq_ten_minute_cache(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
+        self.assertEqual(response['Cache-Control'], 'max-age=600')
+
+    def test_next_steps_prereq_wrong_id(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": "wrong"}))
+        response_content_ids = [node['content_id'] for node in response.json()]
+        self.assertEqual([], response_content_ids)
 
     def test_next_steps_prereq_in_progress(self):
         facility = Facility.objects.create(name="MyFac")
@@ -875,7 +961,7 @@ class ContentNodeAPITestCase(APITestCase):
                                          start_timestamp=timezone.now(),
                                          kind='audio')
         expected_content_ids = []
-        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -894,7 +980,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         sibling = node.get_next_sibling()
         expected_content_ids = (sibling.content_id,)
-        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -919,7 +1005,7 @@ class ContentNodeAPITestCase(APITestCase):
                                          start_timestamp=timezone.now(),
                                          kind='audio')
         expected_content_ids = []
-        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps'))
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 

@@ -1,45 +1,55 @@
 <template>
 
-  <nav>
-    <button
-      v-show="!enoughSpace"
-      class="k-navbar-scroll-button"
-      @click="isRtl ? scrollRight() : scrollLeft()"
-    >
-      <mat-svg
-        name="keyboard_arrow_left"
-        category="hardware"
-        :class="{ 'rtl-icon': isRtl }"
-      />
-    </button>
+  <div
+    class="wrapper"
+    :class="wrapperClass"
+    :style="{ backgroundColor: $coreActionNormal }"
+  >
+    <nav>
+      <button
+        v-show="!enoughSpace"
+        class="scroll-button"
+        @click="handleClickPrevious"
+      >
+        <mat-svg
+          name="keyboard_arrow_left"
+          category="hardware"
+          class="scroll-button-icon"
+          :class="{ 'rtl-icon': isRtl }"
+        />
+      </button>
 
-    <ul
-      ref="navbarUl"
-      class="k-navbar"
-      :style="{ maxWidth: `${ maxWidth }px` }"
-    >
-      <!-- Contains KNavbarLink components -->
-      <slot></slot>
-    </ul>
+      <ul
+        ref="navbarUl"
+        class="items"
+        :style="{ maxWidth: `${ maxWidth }px` }"
+      >
+        <!-- Contains KNavbarLink components -->
+        <slot></slot>
+      </ul>
 
-    <button
-      v-show="!enoughSpace"
-      class="k-navbar-scroll-button"
-      @click="isRtl ? scrollLeft() : scrollRight()"
-    >
-      <mat-svg
-        name="keyboard_arrow_right"
-        category="hardware"
-        :class="{ 'rtl-icon': isRtl }"
-      />
-    </button>
-  </nav>
+      <button
+        v-show="!enoughSpace"
+        class="scroll-button"
+        :class="$computedClass(scrollButton)"
+        @click="handleClickNext"
+      >
+        <mat-svg
+          name="keyboard_arrow_right"
+          category="hardware"
+          class="scroll-button-icon"
+          :class="{ 'rtl-icon': isRtl }"
+        />
+      </button>
+    </nav>
+  </div>
 
 </template>
 
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import throttle from 'lodash/throttle';
 
@@ -49,12 +59,27 @@
   export default {
     name: 'KNavbar',
     mixins: [responsiveElement],
-    data: () => ({
-      enoughSpace: true,
-    }),
+    data() {
+      return {
+        enoughSpace: true,
+      };
+    },
     computed: {
+      ...mapGetters(['$coreActionNormal', '$coreOutline']),
       maxWidth() {
         return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
+      },
+      wrapperClass() {
+        if (!this.enoughSpace) {
+          return ['wrapper-narrow'];
+        }
+      },
+      scrollButton() {
+        return {
+          ':hover': {
+            outline: this.$coreOutline,
+          },
+        };
       },
     },
     mounted() {
@@ -70,11 +95,18 @@
           const itemWidth = Math.ceil(item.$el.getBoundingClientRect().width);
           widthOfItems += itemWidth;
         });
-        this.enoughSpace = widthOfItems <= availableWidth;
+        // Subtract 16px to account for padding-left
+        this.enoughSpace = widthOfItems <= availableWidth - 16;
       },
       throttleCheckSpace: throttle(function() {
         this.checkSpace();
       }, 100),
+      handleClickPrevious() {
+        this.isRtl ? this.scrollRight() : this.scrollLeft();
+      },
+      handleClickNext() {
+        this.isRtl ? this.scrollLeft() : this.scrollRight();
+      },
       scrollLeft() {
         this.$refs.navbarUl.scrollLeft -= this.maxWidth;
       },
@@ -89,9 +121,15 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  .wrapper {
+    padding-left: 16px;
+  }
 
-  .k-navbar {
+  .wrapper-narrow {
+    padding-left: 0;
+  }
+
+  .items {
     display: inline-block;
     padding: 0;
     margin: 0;
@@ -101,13 +139,14 @@
     vertical-align: middle;
   }
 
-  .k-navbar-scroll-button {
+  .scroll-button {
     width: 36px;
     height: 36px;
     vertical-align: middle;
-    &:focus {
-      outline: $core-outline;
-    }
+  }
+
+  .scroll-button-icon {
+    fill: white;
   }
 
 </style>

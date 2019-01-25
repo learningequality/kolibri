@@ -165,6 +165,7 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
         self.set_password_if_needed(instance, serializer)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     serializer_class = FacilityUsernameSerializer
@@ -231,6 +232,7 @@ class FacilityViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -281,6 +283,7 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ('parent',)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class SignUpViewSet(viewsets.ViewSet):
 
     serializer_class = FacilityUserSignupSerializer

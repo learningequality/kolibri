@@ -1,7 +1,7 @@
 import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
-import ChannelResource from '../../apiResources/deviceChannel';
 import { ErrorTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
+import { getChannelWithContentSizes } from './apiChannelMetadata';
 
 /**
  * Makes request to RemoteChannel API with a token. Does not actually interact
@@ -12,6 +12,10 @@ import { waitForTaskToComplete } from '../manageContent/utils';
  */
 export function getRemoteChannelByToken(token) {
   return RemoteChannelResource.fetchModel({ id: token, force: true });
+}
+
+export function getRemoteChannelBundleByToken(token) {
+  return RemoteChannelResource.fetchChannelList(token);
 }
 
 /**
@@ -51,17 +55,7 @@ export function downloadChannelMetadata(store) {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.cancelTask(taskId).then(() => {
-          return ChannelResource.fetchModel({
-            id: transferredChannel.id,
-            getParams: {
-              include_fields: [
-                'total_resources',
-                'total_file_size',
-                'on_device_resources',
-                'on_device_file_size',
-              ],
-            },
-          });
+          return getChannelWithContentSizes(transferredChannel.id);
         });
       }
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });

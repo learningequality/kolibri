@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
+    :style="{ backgroundColor: $coreTextDefault }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <KLinearLoader
@@ -72,27 +73,26 @@
 
   import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
-  import Lockr from 'lockr';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import { RecycleList } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import urls from 'kolibri.urls';
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
-  PDFJSLib.PDFJS.workerSrc = `${__publicPath}pdfJSWorker-${__version}.js`;
+  PDFJSLib.PDFJS.workerSrc = urls.static(`${__kolibriModuleName}/pdfJSWorker-${__version}.js`);
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -102,7 +102,6 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-      KButton,
       KLinearLoader,
       UiIconButton,
       PdfPage,
@@ -120,9 +119,11 @@
       pdfPages: [],
       recycleListIsMounted: false,
       isInFullscreen: false,
+      currentLocation: 0,
+      updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['sessionTimeSpent', '$coreTextDefault']),
       pdfURL() {
         return this.defaultFile.storage_url;
       },
@@ -137,6 +138,12 @@
       },
       itemHeight() {
         return this.firstPageHeight * this.scale + MARGIN;
+      },
+      savedLocation() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.savedLocation;
+        }
+        return 0;
       },
     },
     watch: {
@@ -157,6 +164,7 @@
       },
     },
     created() {
+      this.currentLocation = this.savedLocation;
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
       // pass callback to update loading bar
@@ -202,12 +210,14 @@
           this.progress = 1;
         }
         this.$emit('startTracking');
+        this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
         // Automatically master after the targetTime, convert seconds -> milliseconds
         this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
       });
     },
     beforeDestroy() {
       this.updateProgress();
+      this.updateContentState();
 
       if (this.timeout) {
         clearTimeout(this.timeout);
@@ -219,6 +229,7 @@
       }
 
       this.$emit('stopTracking');
+      clearInterval(this.updateContentStateInterval);
     },
     methods: {
       getPage(pageNum) {
@@ -263,8 +274,7 @@
         } else {
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
-          // update progress after we determine which pages to render
-          this.updateProgress();
+          this.updateContentState();
         }
         const startIndex = Math.floor(start) + 1;
         const endIndex = Math.ceil(end) + 1;
@@ -286,10 +296,10 @@
         return this.$refs.recycleList.$el.scrollTop / this.$refs.recycleList.$el.scrollHeight;
       },
       savePosition(val) {
-        Lockr.set(this.pdfPositionKey, val);
+        this.currentLocation = val;
       },
       getSavedPosition() {
-        return Lockr.get(this.pdfPositionKey) || 0;
+        return this.currentLocation;
       },
       scrollTo(relativePosition) {
         this.$refs.recycleList.$el.scrollTop =
@@ -307,6 +317,18 @@
       updateProgress() {
         this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
       },
+      updateContentState() {
+        let contentState;
+        if (this.extraFields) {
+          contentState = {
+            ...this.extraFields.contentState,
+            savedLocation: this.currentLocation || this.savedLocation,
+          };
+        } else {
+          contentState = { savedLocation: this.currentLocation || this.savedLocation };
+        }
+        this.$emit('updateContentState', contentState);
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
@@ -319,12 +341,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .pdf-renderer {
     position: relative;
     height: 500px;
-    background-color: $core-text-default;
   }
 
   .controls {

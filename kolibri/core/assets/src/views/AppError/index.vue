@@ -23,10 +23,10 @@
         @click="reloadPage"
       />
       <KRouterLink
-        @click.native="clearErrorState"
         appearance="raised-button"
         :to="{path: '/'}"
         :text="$tr('defaultErrorExitPrompt')"
+        @click.native="clearErrorState"
       />
     </p>
     <p>
@@ -99,8 +99,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .app-error {
     margin-top: 64px;

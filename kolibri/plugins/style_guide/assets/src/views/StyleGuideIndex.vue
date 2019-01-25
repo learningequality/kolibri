@@ -72,12 +72,14 @@
   }
 
   @import '~vuep/dist/vuep.css';
+  @import '~kolibri.styles.definitions';
 
   .vuep {
+    // TODO: vuep pullutes the font-family
+    @include font-family-noto;
+
     display: initial;
     height: initial;
-    // TODO: vuep pullutes the font-family
-    font-family: 'Noto Sans';
 
     .vuep-preview,
     .vuep-editor {

@@ -10,9 +10,9 @@
       </p>
     </div>
     <ContentCard
-      class="content-card"
       v-for="exam in exams"
       :key="exam.id"
+      class="content-card"
       :link="genExamLink(exam)"
       :showContentIcon="false"
       :title="exam.title"
@@ -29,7 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { canViewExam } from 'kolibri.utils.exams';
+  import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
@@ -90,8 +90,8 @@
       },
     },
     $trs: {
-      examsHeader: 'Exams',
-      noExamsMessage: 'You have no exams assigned',
+      examsHeader: 'Quizzes',
+      noExamsMessage: 'You have no quizzes assigned',
       notStarted: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',

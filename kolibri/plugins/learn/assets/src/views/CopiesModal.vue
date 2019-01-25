@@ -26,10 +26,10 @@
           </div>
           <ol>
             <li
-              v-for="(ancestor, index) in copy.slice(0, -1)"
-              :key="index"
+              v-for="(ancestor, index2) in copy.slice(0, -1)"
+              :key="index2"
               class="ancestor"
-              :class="{ 'arrow': index < copy.slice(0, -1).length - 1}"
+              :class="{ 'arrow': index2 < copy.slice(0, -1).length - 1}"
             >
               {{ ancestor.title }}
             </li>
@@ -47,7 +47,6 @@
   import toArray from 'lodash/toArray';
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import sortBy from 'lodash/sortBy';
@@ -57,7 +56,6 @@
     name: 'CopiesModal',
     components: {
       KModal,
-      KButton,
       KCircularLoader,
       KRouterLink,
     },
@@ -139,7 +137,7 @@
     &::after {
       margin-right: 8px;
       margin-left: 8px;
-      content: '\203A';
+      content: '›';
     }
   }
 

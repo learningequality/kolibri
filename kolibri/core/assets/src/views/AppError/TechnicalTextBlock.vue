@@ -8,18 +8,21 @@
       class="error-log"
       wrap="soft"
       aria-hidden="true"
-      :style="dynamicHeightStyle"
+      :style="[dynamicHeightStyle, {
+        backgroundColor: $coreBgError,
+        border: $coreGrey300,
+      }]"
     >
     </textarea>
     <!-- invisible text block for copying, visible to screenreaders -->
-    <pre class="visuallyhidden" ref="textBox">{{ text }}</pre>
+    <pre ref="textBox" class="visuallyhidden">{{ text }}</pre>
     <div>
       <KButton
         v-if="clipboardCapable"
+        ref="copyButton"
         class="copy-to-clipboard-button"
         :primary="false"
         :text="$tr('copyToClipboardButtonPrompt')"
-        ref="copyButton"
       />
     </div>
   </div>
@@ -29,9 +32,8 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import ClipboardJS from 'clipboard';
 
   export default {
@@ -43,7 +45,6 @@
     },
     components: {
       KButton,
-      KExternalLink,
     },
     props: {
       text: {
@@ -60,6 +61,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgError', '$coreGrey300']),
       ...mapState({
         error: state => state.core.error,
       }),
@@ -114,8 +116,6 @@
     line-height: 18px;
     white-space: pre;
     resize: none;
-    background-color: $core-bg-error;
-    border: $core-grey-300;
     border-radius: $radius;
   }
 

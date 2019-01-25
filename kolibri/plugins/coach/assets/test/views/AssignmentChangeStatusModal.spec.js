@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
-import AssignmentChangeStatusModal from '../../src/views/assignments/AssignmentChangeStatusModal';
+import store from 'kolibri.coreVue.vuex.store';
+import AssignmentChangeStatusModal from '../../src/views/plan/assignments/AssignmentChangeStatusModal';
 
 const defaultProps = {
   modalTitle: '',
@@ -26,6 +27,7 @@ describe('AssignmentChangeStatusModal', () => {
         ...defaultProps,
         active: true,
       },
+      store,
     });
     expect(wrapper.vm.activeIsSelected).toEqual(true);
     els.inactiveRadio().trigger('change');
@@ -42,6 +44,7 @@ describe('AssignmentChangeStatusModal', () => {
         ...defaultProps,
         active: false,
       },
+      store,
     });
     expect(wrapper.vm.activeIsSelected).toBeFalsy();
     els.activeRadio().trigger('change');
@@ -56,6 +59,7 @@ describe('AssignmentChangeStatusModal', () => {
         ...defaultProps,
         active: false,
       },
+      store,
     });
     els.form().trigger('submit');
     expect(wrapper.emitted().cancel.length).toEqual(1);
@@ -64,6 +68,7 @@ describe('AssignmentChangeStatusModal', () => {
   it('pressing "cancel" closes the modal', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
+      store,
     });
     els.cancelButton().trigger('click');
     expect(wrapper.emitted().cancel.length).toEqual(1);

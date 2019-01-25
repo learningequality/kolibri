@@ -5,6 +5,11 @@
  */
 
 import coreApp from 'kolibri';
+import urls from 'kolibri.urls';
+import setWebpackPublicPath from './utils/setWebpackPublicPath';
+
+// Do this to set a public path for this module
+setWebpackPublicPath(urls);
 
 export default class KolibriModule {
   /**
@@ -25,9 +30,6 @@ export default class KolibriModule {
     // __kolibriModuleName is replaced during webpack compilation with the name derived from
     // the Python module name and the name of the class that defines the frontend kolibriModule.
     this.name = __kolibriModuleName;
-    // Insert the event hashes defined in the Python code.
-    this.events = __events;
-    this.once = __once;
     /* eslint-enable no-undef */
     const safeOptions = {};
     this.kolibriModuleOptions.forEach(option => {

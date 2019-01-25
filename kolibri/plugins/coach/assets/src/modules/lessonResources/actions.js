@@ -9,6 +9,7 @@ export function fetchAdditionalSearchResults(store, params) {
       kind: params.kind,
       channel_id: params.channelId,
       exclude_content_ids: uniq(params.currentResults.map(({ content_id }) => content_id)),
+      include_fields: ['num_coach_contents'],
     }),
   }).then(results => {
     store.commit('SET_ADDITIONAL_SEARCH_RESULTS', results);

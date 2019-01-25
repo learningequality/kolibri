@@ -3,27 +3,27 @@
   <!-- Accessibility properties for the overlay -->
   <transition name="fade">
     <div
-      class="modal-overlay"
-      @keyup.esc="emitCancelEvent"
-      @keyup.enter="emitSubmitEvent"
-      ref="modal-overlay"
       id="modal-window"
+      ref="modal-overlay"
+      class="modal-overlay"
+      @keyup.esc.stop="emitCancelEvent"
+      @keyup.enter="handleEnter"
     >
       <div
-        class="modal"
         ref="modal"
+        class="modal"
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="modalSizeStyles"
+        :style="[ modalSizeStyles, { background: $coreBgLight } ]"
       >
 
         <!-- Modal Title -->
         <h1
-          class="title"
           id="modal-title"
           ref="title"
+          class="title"
         >
           {{ title }}
           <!-- Accessible error reporting per @radina -->
@@ -42,17 +42,20 @@
         >
           <!-- Default slot for content -->
           <div
-            class="content"
             ref="content"
-            :style="contentSectionMaxHeight"
+            class="content"
+            :style="[ contentSectionMaxHeight, scrollShadow ? {
+              borderTop: `1px solid ${$coreGrey}`,
+              borderBottom: `1px solid ${$coreGrey}`,
+            } : {} ]"
             :class="{ 'scroll-shadow': scrollShadow }"
           >
             <slot></slot>
           </div>
 
           <div
-            class="actions"
             ref="actions"
+            class="actions"
           >
             <!-- Slot for buttons -->
             <slot
@@ -89,6 +92,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -169,9 +173,11 @@
         lastFocus: null,
         maxContentHeight: '1000',
         scrollShadow: false,
+        delayedEnough: false,
       };
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreGrey']),
       modalSizeStyles() {
         return {
           'max-width': `${this.maxModalWidth - 32}px`,
@@ -199,6 +205,7 @@
       });
       window.addEventListener('focus', this.focusElementTest, true);
       window.addEventListener('scroll', this.preventScroll, true);
+      window.setTimeout(() => (this.delayedEnough = true), 500);
     },
     updated() {
       this.updateContentSectionStyle();
@@ -225,7 +232,7 @@
             32;
           this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
         }
-      }, 100),
+      }, 50),
       emitCancelEvent() {
         if (!this.cancelDisabled) {
           // Emitted when the cancel button is clicked or the esc key is pressed
@@ -236,6 +243,11 @@
         if (!this.submitDisabled) {
           // Emitted when the submit button or the enter key is pressed
           this.$emit('submit');
+        }
+      },
+      handleEnter() {
+        if (this.delayedEnough) {
+          this.emitSubmitEvent();
         }
       },
       focusModal() {
@@ -289,14 +301,14 @@
 
   // TODO: margins for stacked buttons.
   .modal {
+    @extend %dropshadow-16dp;
+
     position: absolute;
     top: 50%;
     left: 50%;
     margin: 0 auto;
     overflow-y: auto;
-    background: $core-bg-light;
     border-radius: $radius;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
     transform: translate(-50%, -50%);
 
     &:focus {
@@ -332,8 +344,6 @@
     background-repeat: no-repeat;
     background-attachment: local, local, scroll, scroll;
     background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
-    border-top: 1px solid $core-grey;
-    border-bottom: 1px solid $core-grey;
   }
 
   .actions {

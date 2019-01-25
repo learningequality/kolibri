@@ -6,8 +6,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
-from .annotation import recurse_availability_up_tree
-from .annotation import set_leaf_node_availability_from_local_file_availability
+from .annotation import update_content_metadata
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
@@ -677,8 +676,7 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
 
     import_manager.end()
 
-    set_leaf_node_availability_from_local_file_availability(channel_id)
-    recurse_availability_up_tree(channel_id)
+    update_content_metadata(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()

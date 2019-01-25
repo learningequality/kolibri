@@ -187,12 +187,13 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
-      KButton,
     },
-    data: () => ({
-      kModalExample,
-      kModalApi,
-    }),
+    data() {
+      return {
+        kModalExample,
+        kModalApi,
+      };
+    },
   };
 
 </script>

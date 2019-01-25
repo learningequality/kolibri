@@ -1,17 +1,22 @@
 <template>
 
-  <div @keydown.esc="toggleNav" ref="sideNav" class="side-nav-wrapper">
+  <div ref="sideNav" class="side-nav-wrapper" @keydown.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
         class="side-nav"
-        :style="{ width: `${width}px` }"
+        :style="{
+          width: `${width}px`,
+          color: $coreTextDefault,
+          backgroundColor: $coreBgLight,
+        }"
       >
         <div
           class="side-nav-header"
           :style="{
             height: headerHeight + 'px',
-            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px'
+            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+            backgroundColor: $coreTextDefault,
           }"
         >
           <UiIconButton
@@ -28,7 +33,10 @@
               class="side-nav-header-close"
             />
           </UiIconButton>
-          <span class="side-nav-header-name">{{ $tr('kolibri') }}</span>
+          <span
+            class="side-nav-header-name"
+            :style="{ color: $coreBgLight }"
+          >{{ $tr('kolibri') }}</span>
         </div>
 
         <div
@@ -36,23 +44,31 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <CoreMenu
-            class="side-nav-scrollable-area-menu"
             role="navigation"
+            :style="{ backgroundColor: $coreBgLight }"
             :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
-              <component v-for="component in menuOptions" :is="component" :key="component.name" />
+              <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
           </CoreMenu>
 
-          <div class="side-nav-scrollable-area-footer">
+          <div class="side-nav-scrollable-area-footer" :style="{ color: $coreTextAnnotation }">
             <CoreLogo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
               <p>© {{ copyrightYear }} Learning Equality</p>
+              <p>
+                <KButton
+                  :text="$tr('privacyLink')"
+                  class="privacy-link"
+                  appearance="basic-link"
+                  @click="privacyModalVisible = true"
+                />
+              </p>
             </div>
           </div>
         </div>
@@ -66,6 +82,12 @@
       @click="toggleNav"
     >
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @cancel="privacyModalVisible = false"
+    />
+
   </div>
 
 </template>
@@ -78,10 +100,11 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import navComponents from 'kolibri.utils.navComponents';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -102,8 +125,9 @@
       CoreMenu,
       UiIconButton,
       CoreLogo,
-      CoreMenuOption,
       SideNavDivider,
+      KButton,
+      PrivacyInfoModal,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
     $trs: {
@@ -111,6 +135,7 @@
       navigationLabel: 'Main user navigation',
       closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
+      privacyLink: 'Usage and privacy',
     },
     props: {
       navShown: {
@@ -131,10 +156,20 @@
         previouslyFocusedElement: null,
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
+        privacyModalVisible: false,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        'isSuperuser',
+        'isAdmin',
+        'isCoach',
+        'canManageContent',
+        '$coreBgLight',
+        '$coreTextAnnotation',
+        '$coreTextDefault',
+      ]),
       ...mapState({
         session: state => state.core.session,
       }),
@@ -209,25 +244,17 @@
 
   @import '~kolibri.styles.definitions';
 
-  // matches angular material's spec
-  $side-nav-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
-
-  // matches keen-ui toolbar's spec
-  $side-nav-header-box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
-
   .side-nav-wrapper {
     overflow-x: hidden;
   }
 
   .side-nav {
+    @extend %dropshadow-16dp;
+
     position: fixed;
     top: 0;
     bottom: 0;
     z-index: 16;
-    color: $core-text-default;
-    background: $core-bg-light;
-    box-shadow: $side-nav-box-shadow;
   }
 
   .side-nav-enter {
@@ -255,14 +282,14 @@
   }
 
   .side-nav-header {
+    @extend %ui-toolbar-box-shadow;
+
     position: fixed;
     top: 0;
     left: 0;
     z-index: 17;
     font-size: 14px;
     text-transform: uppercase;
-    background-color: $core-text-default;
-    box-shadow: $side-nav-header-box-shadow;
   }
 
   .side-nav-header-close {
@@ -273,7 +300,6 @@
     margin-left: 8px;
     font-size: 18px;
     font-weight: bold;
-    color: $core-bg-light;
     vertical-align: middle;
   }
 
@@ -284,13 +310,8 @@
     overflow: auto;
   }
 
-  .side-nav-scrollable-area-menu {
-    background: $core-bg-light;
-  }
-
   .side-nav-scrollable-area-footer {
     padding: 16px;
-    color: $core-text-annotation;
   }
 
   .side-nav-scrollable-area-footer-logo {
@@ -323,7 +344,6 @@
   /deep/ .ui-menu {
     max-height: none;
     padding: 0;
-    background: $core-bg-light;
     border: 0;
   }
 
@@ -335,24 +355,17 @@
       .ui-menu-option-text {
         overflow: visible;
         font-size: 14px;
-        color: $core-text-default;
         white-space: normal;
       }
 
       .ui-menu-option-icon {
         font-size: 1.2em;
-        color: $core-text-default;
       }
 
       &.is-active {
         .ui-menu-option-text {
           font-weight: bold;
-          color: $core-accent-color;
           opacity: 1;
-        }
-
-        .ui-menu-option-icon {
-          color: $core-accent-color;
         }
       }
     }
@@ -361,6 +374,10 @@
       margin-top: 0;
       margin-bottom: 0;
     }
+  }
+
+  .privacy-link {
+    text-align: left;
   }
 
 </style>

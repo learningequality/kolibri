@@ -1,4 +1,5 @@
-import { LearnerGroupResource, ContentNodeSlimResource, ExamResource } from 'kolibri.resources';
+import uniq from 'lodash/uniq';
+import { LearnerGroupResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
@@ -6,7 +7,7 @@ import { PageNames } from '../../constants';
 
 export function showExamReportPage(store, params) {
   const { classId, examId } = params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT);
 
   ExamResource.fetchModel({ id: examId }).only(
@@ -15,13 +16,13 @@ export function showExamReportPage(store, params) {
       const promises = [
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
         ExamResource.fetchCollection({ getParams: { collection: classId }, force: true }),
-        ContentNodeSlimResource.fetchCollection({
-          getParams: {
-            in_exam: exam.id,
-            fields: ['id', 'num_coach_contents'],
-          },
-        }),
-        store.dispatch('setClassState', classId),
+        exam.question_sources.length
+          ? ContentNodeResource.fetchCollection({
+              getParams: {
+                ids: uniq(exam.question_sources.map(item => item.exercise_id)),
+              },
+            })
+          : ConditionalPromise.resolve([]),
       ];
       ConditionalPromise.all(promises).only(
         samePageCheckGenerator(store),
@@ -36,8 +37,8 @@ export function showExamReportPage(store, params) {
           });
           // Needs to be called after SET_STATE, since it relies on state.learnerGroups
           return store.dispatch('examReport/setTableData', { classId, examId }).then(() => {
-            store.commit('CORE_SET_ERROR', null);
-            store.commit('CORE_SET_PAGE_LOADING', false);
+            store.dispatch('clearError');
+            store.dispatch('notLoading');
           });
         },
         error => {

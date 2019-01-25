@@ -169,7 +169,7 @@ class Command(AsyncCommand):
                     exception = e
                     break
 
-            annotation.set_availability(channel_id, file_checksums_to_annotate)
+            annotation.annotate_content(channel_id, file_checksums_to_annotate)
 
             if number_of_skipped_files > 0:
                 logger.warning(
@@ -192,10 +192,9 @@ class Command(AsyncCommand):
             * False, 0 - the transfer fails and needs to retry.
         """
         try:
-            if self.progresstrackers:
-                # Save the current progress value
-                original_value = self.progresstrackers[0].progress
-                original_progress = self.progresstrackers[0].get_progress()
+            # Save the current progress value
+            original_value = self.progresstrackers[0].progress
+            original_progress = self.progresstrackers[0].get_progress()
 
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
                 # If size of the source file is smaller than the the size

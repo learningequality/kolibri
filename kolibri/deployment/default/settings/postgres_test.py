@@ -12,7 +12,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'USER': 'postgres',
         'PASSWORD': '',
-        'NAME': 'default',  # This module should never be used outside of tests -- so this name is irrelevant
+        'NAME': os.environ.get("POSTGRES_DB") or 'default',  # noqa
         'TEST': {
             'NAME': 'travis_ci_default'
         }

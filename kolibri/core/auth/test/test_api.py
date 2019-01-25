@@ -374,6 +374,13 @@ class AnonSignUpTestCase(APITestCase):
         self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertNotEqual(session_key, self.client.session.session_key)
 
+    def test_sign_up_able_no_guest_access(self):
+        self.facility.dataset.allow_guest_access = False
+        self.facility.dataset.save()
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
+
 
 class FacilityDatasetAPITestCase(APITestCase):
 
@@ -426,22 +433,31 @@ class MembershipCascadeDeletion(APITestCase):
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
+        self.other_user = FacilityUserFactory.create(facility=self.facility)
         self.classroom = ClassroomFactory.create(parent=self.facility)
         self.lg = LearnerGroupFactory.create(parent=self.classroom)
         self.classroom_membership = models.Membership.objects.create(collection=self.classroom, user=self.user)
         models.Membership.objects.create(collection=self.lg, user=self.user)
+        # create other user memberships
+        models.Membership.objects.create(collection=self.classroom, user=self.other_user)
+        models.Membership.objects.create(collection=self.lg, user=self.other_user)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_delete_classroom_membership(self):
         url = reverse('kolibri:core:membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
 
     def test_delete_detail(self):
-        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
+
+    def test_delete_does_not_affect_other_user_memberships(self):
+        expected_count = models.Membership.objects.filter(user=self.other_user).count()
+        self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
+        self.assertEqual(models.Membership.objects.filter(user=self.other_user).count(), expected_count)
 
 
 class GroupMembership(APITestCase):
@@ -475,7 +491,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
         url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
 
     def test_create_class_membership_group_membership_different_class(self):
         self.classroom2_membership.delete()

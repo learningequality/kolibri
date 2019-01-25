@@ -41,6 +41,12 @@ const timeThreshold = 120; // Update logs if 120 seconds have passed since last 
  */
 
 function _contentSummaryLoggingState(data) {
+  let extra_fields = data.extra_fields;
+  if (!extra_fields) {
+    extra_fields = {};
+  } else if (typeof extra_fields === 'string') {
+    extra_fields = JSON.parse(extra_fields);
+  }
   return {
     id: data.id,
     start_timestamp: data.start_timestamp,
@@ -48,7 +54,7 @@ function _contentSummaryLoggingState(data) {
     end_timestamp: data.end_timestamp,
     progress: data.progress,
     time_spent: data.time_spent,
-    extra_fields: data.extra_fields,
+    extra_fields: extra_fields,
     time_spent_before_current_session: data.time_spent,
     progress_before_current_session: data.progress,
   };
@@ -158,6 +164,10 @@ export function handleError(store, errorString) {
   store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
+export function clearError(store) {
+  store.commit('CORE_SET_ERROR', null);
+}
+
 export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
@@ -166,6 +176,7 @@ export function handleApiError(store, errorObject) {
     error = errorObject.toString();
   }
   handleError(store, error);
+  throw errorObject;
 }
 
 /**
@@ -320,7 +331,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
               end_timestamp: now(),
               progress: 0,
               time_spent: 0,
-              extra_fields: '{}',
+              extra_fields: {},
               time_spent_before_current_session: 0,
               progress_before_current_session: 0,
             })
@@ -355,7 +366,7 @@ export function initContentSession(store, { channelId, contentId, contentKind })
       end_timestamp: now(),
       time_spent: 0,
       progress: 0,
-      extra_fields: '{}',
+      extra_fields: {},
     })
   );
 
@@ -553,6 +564,22 @@ export function updateTimeSpent(store, forceSave = false) {
   if (forceSave || timeThresholdMet) {
     saveLogs(store);
   }
+}
+
+/**
+ * Update the content state in the summary log
+ * To be called periodically by interval timer
+ * Must be called after initContentSession
+ * @param {boolean} forceSave
+ */
+export function updateContentState(store, { contentState, forceSave = false }) {
+  /* Update the logging state with new content state information */
+  store.commit('SET_LOGGING_CONTENT_STATE', contentState);
+
+  // update the time spent value to check time since last save
+  // and save if necessary, or save then reset the timer if forceSave
+  // is true
+  updateTimeSpent(store, forceSave);
 }
 
 /**

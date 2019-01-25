@@ -8,17 +8,17 @@
     />
 
     <div class="wrapper-table">
-      <div class="main-row">
-        <div class="main-cell">
-          <div class="box">
-            <CoreLogo
-              class="logo"
-              :style="{'height': `${logoHeight}px`}"
-            />
-            <h1 :style="{'font-size': `${logoTextSize}px`}">
+      <div class="table-row main-row" :style="backgroundImageStyle">
+        <div class="table-cell main-cell">
+          <div class="box" :style="{ backgroundColor: $coreBgLight }">
+            <CoreLogo :style="{'height': `${logoHeight}px`}" />
+            <h1
+              class="kolibri-title"
+              :style="{'font-size': `${logoTextSize}px`}"
+            >
               {{ $tr('kolibri') }}
             </h1>
-            <form class="login-form" ref="form" @submit.prevent="signIn">
+            <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
                 v-if="invalidCredentials"
                 type="error"
@@ -28,8 +28,9 @@
               </UiAlert>
               <transition name="textbox">
                 <KTextbox
-                  ref="username"
                   id="username"
+                  ref="username"
+                  v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
                   :label="$tr('username')"
@@ -38,7 +39,6 @@
                   @blur="handleUsernameBlur"
                   @input="showDropdown = true"
                   @keydown="handleKeyboardNav"
-                  v-model="username"
                 />
               </transition>
               <transition name="list">
@@ -51,7 +51,7 @@
                     v-for="(suggestion, i) in suggestions"
                     :key="i"
                     :suggestion="suggestion"
-                    :class="{ highlighted: highlightedIndex === i }"
+                    :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
                     @click.native="fillUsername(suggestion)"
                   />
                 </ul>
@@ -59,8 +59,9 @@
               <transition name="textbox">
                 <KTextbox
                   v-if="needPasswordField"
-                  ref="password"
                   id="password"
+                  ref="password"
+                  v-model="password"
                   type="password"
                   autocomplete="current-password"
                   :label="$tr('password')"
@@ -70,7 +71,6 @@
                   :floatingLabel="!autoFilledByChromeAndNotEdited"
                   @blur="passwordBlurred = true"
                   @input="handlePasswordChanged"
-                  v-model="password"
                 />
               </transition>
               <div>
@@ -84,32 +84,49 @@
               </div>
             </form>
 
-            <KRouterLink
-              v-if="canSignUp"
-              class="create-button"
-              :text="$tr('createAccount')"
-              :to="signUpPage"
-              :primary="true"
-              appearance="flat-button"
-            />
-            <div>
+            <p class="create">
+              <KRouterLink
+                v-if="canSignUp"
+                :text="$tr('createAccount')"
+                :to="signUpPage"
+                :primary="true"
+                appearance="flat-button"
+              />
+            </p>
+            <p class="guest small-text">
               <KExternalLink
                 v-if="allowGuestAccess"
-                class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
                 :primary="true"
                 appearance="basic-link"
               />
-            </div>
-            <p class="version">{{ versionMsg }}</p>
+            </p>
           </div>
         </div>
       </div>
-      <div class="footer-row">
-        <LanguageSwitcherFooter class="footer-cell" />
+      <div class="table-row">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+          <LanguageSwitcherFooter />
+          <div class="small-text">
+            <span class="version-string">
+              {{ versionMsg }}
+            </span>
+            •
+            <KButton
+              :text="$tr('privacyLink')"
+              appearance="basic-link"
+              @click="privacyModalVisible = true"
+            />
+          </div>
+        </div>
       </div>
     </div>
+
+    <PrivacyInfoModal
+      v-if="privacyModalVisible"
+      @cancel="privacyModalVisible = false"
+    />
 
   </div>
 
@@ -128,6 +145,7 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
+  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
@@ -144,13 +162,14 @@
       password: 'Password',
       enterPassword: 'Enter password',
       createAccount: 'Create an account',
-      accessAsGuest: 'Continue as guest',
+      accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
+      privacyLink: 'Usage and privacy',
     },
     metaInfo() {
       return {
@@ -167,6 +186,7 @@
       UiAutocompleteSuggestion,
       UiAlert,
       LanguageSwitcherFooter,
+      PrivacyInfoModal,
     },
     mixins: [responsiveWindow],
     data() {
@@ -182,10 +202,11 @@
         passwordBlurred: false,
         formSubmitted: false,
         autoFilledByChromeAndNotEdited: false,
+        privacyModalVisible: false,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
+      ...mapGetters(['facilityConfig', '$coreGrey', '$coreActionNormal', '$coreBgLight']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),
@@ -269,6 +290,12 @@
       },
       guestURL() {
         return urls['kolibri:core:guest']();
+      },
+      backgroundImageStyle() {
+        return {
+          backgroundColor: this.$coreActionNormal,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
+        };
       },
     },
     watch: {
@@ -421,43 +448,36 @@
     text-align: center;
   }
 
-  .main-row {
-    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
-    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
-
+  .table-row {
     display: table-row;
+  }
+
+  .main-row {
     text-align: center;
-    background-color: $core-action-normal;
-    background-image: $bk-img;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
   }
 
-  .main-cell {
+  .table-cell {
     display: table-cell;
+  }
+
+  .main-cell {
     height: 100%;
     vertical-align: middle;
   }
 
   .box {
-    width: 300px;
-    margin: 16px auto;
-    background-color: $core-bg-light;
-    border-radius: $radius;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-      0 2px 1px -1px rgba(0, 0, 0, 0.12);
-  }
+    @extend %dropshadow-16dp;
 
-  .logo {
-    margin-top: 16px;
+    width: 300px;
+    padding: 16px 32px;
+    margin: 16px auto;
+    border-radius: $radius;
   }
 
   .login-form {
-    position: relative;
-    width: 70%;
-    max-width: 300px;
-    margin: auto;
     text-align: left;
   }
 
@@ -465,26 +485,37 @@
     width: calc(100% - 16px);
   }
 
-  .version {
-    padding-bottom: 16px;
-    margin-top: 24px;
-    margin-bottom: 0;
+  .create {
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  .guest {
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+
+  .small-text {
     font-size: 0.8em;
   }
 
-  .footer-row {
-    display: table-row;
-    background-color: $core-bg-light;
+  .version-string {
+    white-space: nowrap;
   }
 
   .footer-cell {
-    display: table-cell;
-    min-height: 56px;
+    @extend %dropshadow-8dp;
+
     padding: 16px;
-    vertical-align: middle;
+  }
+
+  .footer-cell .small-text {
+    margin-top: 8px;
   }
 
   .suggestions {
+    @extend %dropshadow-1dp;
+
     position: absolute;
     z-index: 8;
     width: 100%;
@@ -494,11 +525,6 @@
     margin-top: -2em;
     list-style-type: none;
     background-color: white;
-    box-shadow: 1px 2px 8px #e6e6e6;
-  }
-
-  .highlighted {
-    background-color: $core-grey;
   }
 
   .textbox-enter-active {
@@ -517,19 +543,12 @@
     transition: opacity 0s;
   }
 
-  h1 {
+  .kolibri-title {
     margin-top: 0;
+    margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
     color: #9174a9;
-  }
-
-  .create-button {
-    margin-top: 16px;
-  }
-
-  .guest-button {
-    font-size: 14px;
   }
 
 </style>

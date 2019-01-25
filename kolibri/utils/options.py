@@ -57,6 +57,11 @@ option_spec = {
             "default": 0.1,
             "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
         },
+        "PROFILE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_SERVER_PROFILE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
@@ -87,6 +92,16 @@ option_spec = {
             "default": "/",
             "envvars": ("KOLIBRI_URL_PATH_PREFIX", ),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
+        },
+    },
+    "Debug": {
+        "SENTRY_BACKEND_DSN": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_DSN", ),
+        },
+        "SENTRY_FRONTEND_DSN": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN", ),
         },
     },
 }
@@ -125,6 +140,7 @@ def get_logger(KOLIBRI_HOME):
             'kolibri': {
                 'handlers': ['console', 'file'],
                 'level': 'INFO',
+                'propagate': False,
             },
         }
     }

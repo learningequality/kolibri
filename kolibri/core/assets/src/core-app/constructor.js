@@ -3,12 +3,8 @@
  * @module Facade
  */
 
-import Vue from 'vue';
-import VueMeta from 'vue-meta';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
-import merge from 'lodash/merge';
-import { setUpIntl } from '../utils/i18n';
+import Vue from 'kolibri.lib.vue';
+import { i18nSetup } from '../utils/i18n';
 import Mediator from './mediator';
 import apiSpec from './apiSpec';
 
@@ -30,6 +26,7 @@ const publicMethods = [
   'retrieveContentRenderer',
   'loadDirectionalCSS',
   'scriptLoader',
+  'canRenderContent',
 ];
 
 /**
@@ -43,18 +40,9 @@ export default class CoreApp {
     // Assign API spec
     Object.assign(this, apiSpec);
 
-    // Assign any overridden core API elements here
-    // Use the default object if it has been specified using an ES6 default export.
-    merge(this, __coreAPISpec.default || __coreAPISpec);
-
     const mediator = new Mediator();
 
     Vue.prototype.Kolibri = this;
-
-    // Register Vue plugins
-    Vue.use(Vuex);
-    Vue.use(VueRouter);
-    Vue.use(VueMeta);
 
     // Shim window.location.origin for IE.
     if (!window.location.origin) {
@@ -68,7 +56,12 @@ export default class CoreApp {
       mediator.setReady();
     };
 
-    setUpIntl().then(intlReady);
+    if (process.env.NODE_ENV !== 'production') {
+      const colourPicker = require('../utils/colourPicker').default;
+      window.colourPicker = colourPicker;
+    }
+
+    i18nSetup().then(intlReady);
 
     // Bind 'this' value for public methods - those that will be exposed in the Facade.
     this.kolibri_modules = mediator._kolibriModuleRegistry;

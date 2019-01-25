@@ -19,6 +19,7 @@ Feature name and description (the first part of the content inside the `.feature
 
 - List the `Background` "givens" in order to cover the more general conditions **first** (`there are groups created`, meaning that the groups should be created even before the user arrived to the groups page), and the more specific ones (`I am on *Coach > Groups* page`)
 - Keep the *point of view* consistent by writing all the steps as **I**.
+- Use present tense and avoid conditionals: *When I scroll... Then I see...* instead of *When I have scrolled... Then I should see...*
 - Whenever possible and not too laborious, let's try recording the values in `Examples` table and use the placeholders `<>`in the steps: 
 
 	```

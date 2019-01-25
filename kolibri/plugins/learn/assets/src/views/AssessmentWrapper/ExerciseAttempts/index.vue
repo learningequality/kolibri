@@ -2,20 +2,20 @@
 
   <div class="exercise-attempts">
     <div
-      class="attempt"
       v-for="(item, index) in itemsToRender"
-      :style="styleForIndex(index, item.originalIndex)"
       :key="`attempt-${item.originalIndex}`"
+      class="attempt"
+      :style="styleForIndex(index, item.originalIndex)"
     >
       <transition name="fade">
         <AnswerIcon :answer="item.answer" />
       </transition>
     </div>
     <div
-      class="placeholder"
       v-for="i in numSpaces"
-      :class="{ 'placeholder-first': i === 1 }"
       :key="`placeholder-${i}`"
+      class="placeholder"
+      :style="{ borderBottom: `2px solid ${$coreTextAnnotation}` }"
     >
     </div>
   </div>
@@ -25,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import AnswerIcon from './AnswerIcon';
 
   export default {
@@ -51,6 +52,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreTextAnnotation']),
       numItemsToRender() {
         if (this.waitingForAttempt) {
           return this.numSpaces;
@@ -76,13 +78,9 @@
         if (this.waitingForAttempt) {
           xPos += ANSWER_WIDTH;
         }
-        if (this.isRtl) {
-          xPos *= -1;
-        }
         const style = {};
-        // translateZ(0) is there to try and force GPU-acceleration.
-        // (see e.g. http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css)
-        style.transform = `translateX(${xPos}px) translateZ(0)`;
+        const side = this.isRtl ? 'right' : 'left';
+        style[side] = `${xPos}px`;
         // hidden "slide-off" item
         if (visualIndex === this.numItemsToRender - 1) {
           style.opacity = 0;
@@ -96,8 +94,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   $size: 30px;
   $margin: 4px;
@@ -121,18 +117,10 @@
     position: absolute;
     text-align: center;
     transition: all 0.5s ease-in-out;
-    // try to improve performance - http://stackoverflow.com/a/10133679
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   .placeholder {
-    border-bottom: 2px solid $core-text-annotation;
     transition: border-bottom 0.1s linear;
-  }
-
-  .placeholder-first {
-    border: 2px solid $core-text-annotation;
   }
 
   .fade-enter,

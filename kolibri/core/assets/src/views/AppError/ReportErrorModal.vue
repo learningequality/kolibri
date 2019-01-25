@@ -48,7 +48,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
   import TechnicalTextBlock from './TechnicalTextBlock';
@@ -71,7 +70,6 @@
       errorFileDenotation: 'error',
     },
     components: {
-      KButton,
       KExternalLink,
       KModal,
       TechnicalTextBlock,
@@ -103,8 +101,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .error-detail-modal {
     text-align: left;

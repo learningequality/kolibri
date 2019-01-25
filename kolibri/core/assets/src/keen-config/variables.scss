@@ -1,3 +1,8 @@
-$brand-primary-color: #996189;
-$font-stack: 'Noto Sans';
 $ui-input-border-width: 2px !default;
+
+/*
+// CAUTION: do not try to set the $font-stack variable here because it will interfere
+// with our font loading mechanisms. See font-stack.scss for our work-around.
+
+$font-stack: NOTHING;
+*/

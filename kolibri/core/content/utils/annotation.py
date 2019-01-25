@@ -44,7 +44,7 @@ def update_channel_metadata():
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             try:
                 import_channel_from_local_db(channel_id)
-                set_availability(channel_id)
+                annotate_content(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
     fix_multiple_trees_with_id_one()
@@ -286,14 +286,10 @@ def topic_coach_content_annotation(channel_id):
     bridge.end()
 
 
-def set_availability(channel_id, checksums=None):
-    if checksums is None:
-        set_local_file_availability_from_disk()
-    else:
-        mark_local_files_as_available(checksums)
-
+def update_content_metadata(channel_id):
     set_leaf_node_availability_from_local_file_availability(channel_id)
     recurse_availability_up_tree(channel_id)
+    topic_coach_content_annotation(channel_id)
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
@@ -304,10 +300,7 @@ def annotate_content(channel_id, checksums=None):
     else:
         mark_local_files_as_available(checksums)
 
-    set_leaf_node_availability_from_local_file_availability(channel_id)
-    recurse_availability_up_tree(channel_id)
-    topic_coach_content_annotation(channel_id)
-    calculate_channel_fields(channel_id)
+    update_content_metadata(channel_id)
 
 
 def calculate_channel_fields(channel_id):

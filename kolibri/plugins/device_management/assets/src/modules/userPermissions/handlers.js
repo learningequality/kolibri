@@ -1,6 +1,12 @@
 import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+import { createTranslator } from 'kolibri.utils.i18n';
+
+const translator = createTranslator('UserPermissionToolbarTitles', {
+  loading: 'Loading user permissions…',
+  goBackTitle: 'Go Back',
+  invalidUserTitle: 'Invalid user ID',
+});
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
@@ -41,21 +47,39 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showUserPermissionsPage(store, userId) {
-  const promise = ConditionalPromise.all([
-    fetchUserPermissions(userId),
-    store.dispatch('getFacilities'),
-  ]).only(samePageCheckGenerator(store));
-  return promise
-    .then(function onUserSuccess([data]) {
-      return store.commit('userPermissions/SET_STATE', data);
-    })
-    .catch(function onUserFailure(error) {
-      if (error.status.code === 404) {
-        return store.commit('userPermissions/SET_STATE', {
-          user: null,
-          permissions: {},
-        });
+  const setAppBarTitle = title => store.commit('coreBase/SET_APP_BAR_TITLE', title);
+  const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
+  const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
+
+  // Don't request any data if not an Admin
+  if (!store.getters.isSuperuser) {
+    setUserPermissionsState({ user: null, permissions: {} });
+    setAppBarTitle(translator.$tr('goBackTitle'));
+    stopLoading();
+    return Promise.resolve();
+  }
+
+  // CoreBase parameters for loading state
+  setAppBarTitle(translator.$tr('loading'));
+
+  const samePage = samePageCheckGenerator(store);
+
+  return Promise.all([fetchUserPermissions(userId), store.dispatch('getFacilities')])
+    .then(([data]) => {
+      if (samePage()) {
+        setAppBarTitle(data.user.full_name);
+        setUserPermissionsState({ user: data.user, permissions: data.permissions });
+        stopLoading();
       }
-      return store.dispatch('handleApiError', error);
+    })
+    .catch(error => {
+      if (samePage()) {
+        if (error.status.code === 404) {
+          setAppBarTitle(translator.$tr('invalidUserTitle'));
+          setUserPermissionsState({ user: null, permissions: {} });
+        }
+        store.dispatch('handleApiError', error);
+        stopLoading();
+      }
     });
 }

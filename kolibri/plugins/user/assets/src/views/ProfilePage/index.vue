@@ -5,7 +5,9 @@
     <section>
       <h2>{{ $tr('points') }}</h2>
       <PointsIcon class="points-icon" :active="true" />
-      <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+      <span class="points-num" :style="{ color: $coreStatusCorrect }">
+        {{ $formatNumber(totalPoints) }}
+      </span>
     </section>
 
     <section>
@@ -23,7 +25,7 @@
         {{ $tr('youCan') }}
         <ul class="permissions-list">
           <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
-          <li v-for="(value, key) in getUserPermissions" v-if="value" :key="key">
+          <li v-for="(value, key) in userPermissions" :key="key">
             {{ getPermissionString(key) }}
           </li>
         </ul>
@@ -40,8 +42,9 @@
       </UiAlert>
 
       <KTextbox
-        ref="name"
         v-if="canEditName"
+        ref="name"
+        v-model="name"
         type="text"
         autocomplete="name"
         :autofocus="false"
@@ -50,7 +53,6 @@
         :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
-        v-model="name"
       />
       <template v-else>
         <h2>{{ $tr('name') }}</h2>
@@ -58,8 +60,9 @@
       </template>
 
       <KTextbox
-        ref="username"
         v-if="canEditUsername"
+        ref="username"
+        v-model="username"
         type="text"
         autocomplete="username"
         :label="$tr('username')"
@@ -69,7 +72,6 @@
         :invalidText="usernameIsInvalidText"
         @blur="usernameBlurred = true"
         @input="resetProfileState"
-        v-model="username"
       />
       <template v-else>
         <h2>{{ $tr('username') }}</h2>
@@ -108,6 +110,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import pickBy from 'lodash/pickBy';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -174,11 +177,15 @@
         'isSuperuser',
         'totalPoints',
         'userHasPermissions',
+        '$coreStatusCorrect',
       ]),
       ...mapState({
         session: state => state.core.session,
       }),
       ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      userPermissions() {
+        return pickBy(this.getUserPermissions);
+      },
       passwordModalVisible() {
         return this.passwordState.modal;
       },
@@ -294,8 +301,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   // taken from docs, assumes 1rem = 16px
   $vertical-page-margin: 50px;
   $iphone-width: 320px;
@@ -321,7 +326,6 @@
     margin-left: 16px;
     font-size: 3em;
     font-weight: bold;
-    color: $core-status-correct;
   }
 
   section {

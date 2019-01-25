@@ -28,7 +28,7 @@ function getElements(wrapper) {
     selectAllCheckbox: () => wrapper.findAll({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
-    firstTopicButton: () => wrapper.find({ name: 'ContentNodeRow' }).find('button'),
+    firstTopicButton: () => wrapper.find({ name: 'ContentNodeRow' }).find('a'),
     contentNodeRows: () => wrapper.findAll({ name: 'ContentNodeRow' }),
     addNodeForTransferMock: () => {
       const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();

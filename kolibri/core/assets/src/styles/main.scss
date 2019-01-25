@@ -32,18 +32,15 @@ html,
 body {
   height: 100%;
   overflow-y: auto; // fixes #3318
-  color: $core-text-default;
   letter-spacing: 0.01em;
-  background-color: $core-bg-canvas;
 }
 
-// https://purecss.io/grids/#using-grids-with-custom-fonts
-html,
+body,
 button,
 input,
 select,
 textarea {
-  font-family: $core-font;
+  @include font-family-noto;
 }
 
 h1 {
@@ -59,10 +56,6 @@ h4,
 h5,
 h6 {
   font-size: 1em;
-}
-
-:focus {
-  outline: $core-outline;
 }
 
 // https://davidwalsh.name/html5-boilerplate
@@ -104,8 +97,8 @@ hr {
   height: 1px;
   padding: 0;
   margin: 1em 0;
+  background-color: silver;
   border: 0;
-  border-top: 1px solid $core-text-disabled;
 }
 
 .rtl-icon {

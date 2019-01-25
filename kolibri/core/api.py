@@ -14,6 +14,15 @@ class CSVModelViewSet(viewsets.ModelViewSet):
     def __init__(self, *args, **kwargs):
         self.renderer_classes = self.generate_csv_renderer()
 
+    def get_queryset(self):
+        queryset = super(CSVModelViewSet, self).get_queryset()
+        # Perform necessary eager loading of data:
+        queryset = queryset.select_related('user')
+        queryset = queryset.prefetch_related(
+            'user',
+            'user__facility')
+        return queryset
+
     def generate_csv_renderer(self):
         """
         Dynamically create a Renderer class that inherits from CSVRenderer and sets field order/labels

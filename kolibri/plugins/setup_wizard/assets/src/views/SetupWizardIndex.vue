@@ -16,17 +16,18 @@
 
     <template v-else>
       <ProgressToolbar
-        @backButtonClicked="goToPreviousStep"
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
+        :style="{ backgroundColor: $coreActionNormal }"
+        @backButtonClicked="goToPreviousStep"
       />
 
       <component
         :is="currentOnboardingForm"
         :submitText="submitText"
-        @submit="continueOnboarding"
         class="body"
         :class="!windowIsLarge ? 'mobile' : ''"
+        @submit="continueOnboarding"
       />
     </template>
 
@@ -37,7 +38,7 @@
 
 <script>
 
-  import { mapActions, mapState, mapMutations } from 'vuex';
+  import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
@@ -87,6 +88,7 @@
     },
     computed: {
       ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
+      ...mapGetters(['$coreActionNormal']),
       currentOnboardingForm() {
         return stepToOnboardingFormMap[this.onboardingStep] || null;
       },

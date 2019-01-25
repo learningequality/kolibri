@@ -2,7 +2,7 @@
 
   <!--
    This component was forked from the Keen library in order to handle
-   internationalization of the max length validation.
+   dynamic styling of the drop down text color.
 
    The formatting has been changed to match our linters. We may eventually
    want to simply consolidate it with our component and remove any unused
@@ -10,26 +10,29 @@
   -->
 
   <div class="ui-textbox" :class="classes">
-    <div class="ui-textbox-icon-wrapper" v-if="icon || $slots.icon">
+    <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <ui-icon :icon="icon" />
+        <UiIcon :icon="icon" :style="isActive ? { color: $coreActionNormal } : {}" />
       </slot>
     </div>
 
     <div class="ui-textbox-content">
       <label class="ui-textbox-label">
         <div
+          v-if="label || $slots.default"
           class="ui-textbox-label-text"
           :class="labelClasses"
-          v-if="label || $slots.default"
+          :style="isActive ? { color: $coreActionNormal } : {}"
         >
           <slot>{{ label }}</slot>
         </div>
 
         <input
-          class="ui-textbox-input"
+          v-if="!multiLine"
           ref="input"
 
+          v-autofocus="autofocus"
+          class="ui-textbox-input"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"
           :max="maxValue"
@@ -41,57 +44,57 @@
           :readonly="readonly"
           :required="required"
           :step="stepValue"
+          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
+
           :type="type"
           :value="value"
-
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
           @input="updateValue($event.target.value)"
+
           @keydown.enter="onKeydownEnter"
           @keydown="onKeydown"
-
-          v-autofocus="autofocus"
-          v-if="!multiLine"
         >
 
         <textarea
-          class="ui-textbox-textarea"
+          v-else
           ref="textarea"
 
+          v-model="value"
+          v-autofocus="autofocus"
+          class="ui-textbox-textarea"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"
           :maxlength="enforceMaxlength ? maxlength : null"
           :name="name"
           :placeholder="hasFloatingLabel ? null : placeholder"
+
           :readonly="readonly"
+
           :required="required"
           :rows="rows"
-
-          v-model="value"
-
+          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
           @input="updateValue($event.target.value)"
+
           @keydown.enter="onKeydownEnter"
           @keydown="onKeydown"
-
-          v-autofocus="autofocus"
-          v-else
         ></textarea>
       </label>
 
-      <div class="ui-textbox-feedback" v-if="hasFeedback || maxlength">
-        <div class="ui-textbox-feedback-text" v-if="showError">
+      <div v-if="hasFeedback || maxlength" class="ui-textbox-feedback">
+        <div v-if="showError" class="ui-textbox-feedback-text">
           <slot name="error">{{ error }}</slot>
         </div>
 
-        <div class="ui-textbox-feedback-text" v-else-if="showHelp">
+        <div v-else-if="showHelp" class="ui-textbox-feedback-text">
           <slot name="help">{{ help }}</slot>
         </div>
 
-        <div class="ui-textbox-counter" v-if="maxlength">
+        <div v-if="maxlength" class="ui-textbox-counter">
           {{ $tr('maxLengthCounter', { current: valueLength, max: maxlength }) }}
         </div>
       </div>
@@ -103,6 +106,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon.vue';
 
   import autosize from 'autosize';
@@ -202,6 +206,7 @@
     },
 
     computed: {
+      ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
           `ui-textbox--icon-position-${this.iconPosition}`,
@@ -361,9 +366,8 @@
   /* stylelint-disable */
 
   .ui-textbox {
-    align-items: flex-start;
     display: flex;
-    font-family: $font-stack;
+    align-items: flex-start;
     margin-bottom: $ui-input-margin-bottom;
 
     &:hover:not(.is-disabled) {
@@ -376,17 +380,13 @@
         border-bottom-color: $ui-input-border-color--hover;
       }
     }
+    &:focus {
+    }
 
     &.is-active:not(.is-disabled) {
       .ui-textbox-input,
       .ui-textbox-textarea {
-        border-bottom-color: $ui-input-border-color--active;
         border-bottom-width: $ui-input-border-width--active;
-      }
-
-      .ui-textbox-label-text,
-      .ui-textbox-icon-wrapper .ui-icon {
-        color: $ui-input-label-color--active;
       }
     }
 
@@ -440,9 +440,9 @@
     &.is-disabled {
       .ui-textbox-input,
       .ui-textbox-textarea {
+        color: $ui-input-text-color--disabled;
         border-bottom-style: $ui-input-border-style--disabled;
         border-bottom-width: $ui-input-border-width--active;
-        color: $ui-input-text-color--disabled;
       }
 
       .ui-textbox-icon-wrapper .ui-icon {
@@ -457,15 +457,15 @@
 
   .ui-textbox-label {
     display: block;
-    margin: 0;
-    padding: 0;
     width: 100%;
+    padding: 0;
+    margin: 0;
   }
 
   .ui-textbox-icon-wrapper {
     flex-shrink: 0;
-    margin-right: rem-calc(12px);
     padding-top: $ui-input-icon-margin-top;
+    margin-right: rem-calc(12px);
 
     .ui-icon {
       color: $ui-input-icon-color;
@@ -477,34 +477,35 @@
   }
 
   .ui-textbox-label-text {
-    color: $ui-input-label-color;
-    cursor: default;
+    margin-bottom: $ui-input-label-margin-bottom;
     font-size: $ui-input-label-font-size;
     line-height: $ui-input-label-line-height;
-    margin-bottom: $ui-input-label-margin-bottom;
-    transform-origin: left;
+    color: $ui-input-label-color;
+    cursor: default;
     transition: color 0.1s ease, transform 0.2s ease;
+    transform-origin: left;
   }
 
   .ui-textbox-input,
-  .ui-textbox-textarea {
+  .ui-textbox-textarea,
+  .ui-textbox-input:focus,
+  .ui-textbox-textarea:focus {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: $ui-input-text-font-size;
+    font-weight: normal;
+    color: $ui-input-text-color;
+    cursor: auto;
     background: none;
     border: none;
     border-bottom-color: $ui-input-border-color;
     border-bottom-style: solid;
     border-bottom-width: $ui-input-border-width;
     border-radius: 0;
-    color: $ui-input-text-color;
-    cursor: auto;
-    display: block;
-    font-family: $font-stack;
-    font-size: $ui-input-text-font-size;
-    font-weight: normal;
-    margin: 0;
     outline: none;
-    padding: 0;
     transition: border 0.1s ease;
-    width: 100%;
   }
 
   .ui-textbox-input {
@@ -512,25 +513,25 @@
   }
 
   .ui-textbox-textarea {
+    padding-bottom: rem-calc(6px);
     overflow-x: hidden;
     overflow-y: auto;
-    padding-bottom: rem-calc(6px);
     resize: vertical;
   }
 
   .ui-textbox-feedback {
-    color: $ui-input-feedback-color;
+    position: relative;
+    padding-top: $ui-input-feedback-padding-top;
+    margin: 0;
     font-size: $ui-input-feedback-font-size;
     line-height: $ui-input-feedback-line-height;
-    margin: 0;
-    padding-top: $ui-input-feedback-padding-top;
-    position: relative;
+    color: $ui-input-feedback-color;
   }
 
   .ui-textbox-counter {
     position: absolute;
-    right: 0;
     top: $ui-input-feedback-padding-top;
+    right: 0;
   }
 
   /* stylelint-enable */

@@ -1,6 +1,7 @@
 <template>
 
-  <button
+  <component
+    :is="htmlTag"
     ref="button"
     dir="auto"
     :class="buttonClasses"
@@ -9,16 +10,14 @@
     @click="handleClick"
   >
     <slot v-if="$slots.default"></slot>
-    <template v-else>
-      {{ text }}
-    </template>
+    <template v-else>{{ text }}</template>
     <mat-svg
       v-if="hasDropdown"
       category="navigation"
       name="arrow_drop_down"
       class="dropdown-arrow"
     />
-  </button>
+  </component>
 
 </template>
 
@@ -26,22 +25,15 @@
 <script>
 
   import { validator } from './appearances.js';
-  import buttonClassesMixin from './buttonClassesMixin.js';
+  import buttonMixin from './buttonMixin.js';
 
   /**
    * The KButton component is used to trigger actions
    */
   export default {
     name: 'KButton',
-    mixins: [buttonClassesMixin],
+    mixins: [buttonMixin],
     props: {
-      /**
-       * Button label text
-       */
-      text: {
-        type: String,
-        required: false,
-      },
       /**
        * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
@@ -49,13 +41,6 @@
         type: String,
         default: 'raised-button',
         validator,
-      },
-      /**
-       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
-       */
-      primary: {
-        type: Boolean,
-        default: false,
       },
       /**
        * Whether or not button is disabled
@@ -79,6 +64,16 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+    },
+    computed: {
+      htmlTag() {
+        // Necessary to allow basic links to be rendered as 'inline' instead of
+        // 'inline-block': https://stackoverflow.com/a/27770128
+        if (this.appearance === 'basic-link') {
+          return 'a';
+        }
+        return 'button';
       },
     },
     methods: {

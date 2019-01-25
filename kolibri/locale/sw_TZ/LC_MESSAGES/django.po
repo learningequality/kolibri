@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 19:50-0700\n"
-"PO-Revision-Date: 2018-09-26 03:12\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-01-19 02:11\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: sw-TZ\n"
-"X-Crowdin-File: /release-v0.11.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,15 +28,15 @@ msgstr "Darasa"
 msgid "Learner group"
 msgstr "Kikundi cha mwanafunzi"
 
-#: kolibri/core/content/api.py:114
+#: kolibri/core/content/api.py:132
 msgid "Content"
 msgstr "Maudhui"
 
-#: kolibri/core/content/api.py:655
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr "Kipengele kilichoombwa hakipo kwenye kumbukumbu ya yaliyomo"
+msgstr "Kipengele kilichoombwa hakipo kwenye maudhui ya server"
 
-#: kolibri/core/content/models.py:279
+#: kolibri/core/content/models.py:278
 msgid "Unknown format"
 msgstr "Muundo haujulikani"
 
@@ -78,5 +78,5 @@ msgstr "Lakini pia unaweza kukisasisha kisakuzi chako."
 
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr ""
+msgstr "Hakuna kurasa za kuelekeza tena mwafaka zimepatikana. Kuna uwezekano kwamba Kolibri imesanidiwa vibaya"
 

@@ -11,12 +11,30 @@ export function showLessonPlaylist(store, { lessonId }) {
   return store.dispatch('loading').then(() => {
     return LearnerLessonResource.fetchModel({ id: lessonId })
       .then(lesson => {
+        const include_fields = [];
+        if (store.getters.isCoach || store.getters.isAdmin) {
+          include_fields.push('num_coach_contents');
+        }
         store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
         store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);
-        return ContentNodeSlimResource.fetchCollection({ getParams: { in_lesson: lesson.id } });
+        if (lesson.resources.length) {
+          return ContentNodeSlimResource.fetchCollection({
+            getParams: {
+              ids: lesson.resources.map(resource => resource.contentnode_id),
+              include_fields,
+            },
+          });
+        }
+        return Promise.resolve([]);
       })
       .then(contentNodes => {
-        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', contentNodes);
+        const sortedContentNodes = contentNodes.sort((a, b) => {
+          const lesson = store.state.lessonPlaylist.currentLesson;
+          const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
+          const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
+          return aKey - bKey;
+        });
+        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', sortedContentNodes);
         // Only load contentnode progress if the user is logged in
         if (store.getters.isUserLoggedIn) {
           const contentNodeIds = contentNodes.map(({ id }) => id);
@@ -59,7 +77,6 @@ export function showLessonResourceViewer(store, { lessonId, resourceNumber }) {
         const nextResourcePromise = nextResource
           ? ContentNodeSlimResource.fetchModel({
               id: nextResource.contentnode_id,
-              getParams: { in_lesson: lesson.id },
             })
           : Promise.resolve();
         return Promise.all([

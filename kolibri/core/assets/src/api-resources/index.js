@@ -19,7 +19,6 @@ export { default as MasteryLogResource } from './masteryLog';
 export { default as SignUpResource } from './signUp';
 export { default as ExamResource } from './exam';
 export { default as ExamAssignmentResource } from './examassignment';
-export { default as UserExamResource } from './userexam';
 export { default as ExamLogResource } from './examLog';
 export { default as ExamAttemptLogResource } from './examAttemptLog';
 export { default as FacilityDatasetResource } from './facilityDataset';

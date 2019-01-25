@@ -1,6 +1,6 @@
 <template>
 
-  <div class="top-bar">
+  <div class="top-bar" :style="{ backgroundColor: $coreGrey200 }">
     <KGrid>
       <KGridItem
         sizes="25, 25, 25"
@@ -67,9 +67,10 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
@@ -97,6 +98,9 @@
         required: true,
       },
     },
+    computed: {
+      ...mapGetters(['$coreGrey200']),
+    },
     methods: {
       focusOnTocButton() {
         this.$refs.tocButton.$el.focus();
@@ -115,12 +119,10 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .top-bar {
     z-index: 4;
-    background-color: $core-grey-200;
     box-shadow: $epub-box-shadow;
   }
 

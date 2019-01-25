@@ -5,12 +5,12 @@
 
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col" v-if="selectable">
+          <th v-if="selectable" class="core-table-icon-col">
             <KCheckbox
-              @change="selectAll($event)"
               :label="selectAllLabel"
               :showLabel="false"
               :checked="allAreSelected"
+              @change="selectAll($event)"
             />
           </th>
           <th aria-hidden="true" class="core-table-icon-col"></th>
@@ -34,12 +34,12 @@
           v-for="user in users"
           :key="user.id"
         >
-          <td class="core-table-icon-col" v-if="selectable">
+          <td v-if="selectable" class="core-table-icon-col">
             <KCheckbox
-              @change="selectUser(user.id, $event)"
               :label="userCheckboxLabel"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
+              @change="selectUser(user.id, $event)"
             />
 
           </td>
@@ -49,7 +49,7 @@
             </UiIcon>
           </td>
           <td>
-            <span dir="auto">
+            <span dir="auto" class="maxwidth">
               {{ user.full_name }}
             </span>
             <UserTypeDisplay
@@ -57,12 +57,16 @@
               :userType="user.kind"
               :omitLearner="true"
               class="role-badge"
+              :style="{
+                color: $coreBgLight,
+                backgroundColor: $coreTextAnnotation,
+              }"
             />
           </td>
           <td class="visuallyhidden">
             {{ user.kind }}
           </td>
-          <td>{{ user.username }}</td>
+          <td><span class="maxwidth">{{ user.username }}</span></td>
           <td v-if="$scopedSlots.action" class="user-action-button">
             <slot name="action" :user="user"></slot>
           </td>
@@ -84,6 +88,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -128,6 +133,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreBgLight', '$coreTextAnnotation']),
       allAreSelected() {
         return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
       },
@@ -170,8 +176,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .empty-message {
     margin-bottom: 16px;
   }
@@ -186,10 +190,16 @@
     padding-left: 1em;
     margin-left: 8px;
     font-size: small;
-    color: $core-bg-light;
     white-space: nowrap;
-    background-color: $core-text-annotation;
+    vertical-align: top;
     border-radius: 0.5em;
+  }
+
+  .maxwidth {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>

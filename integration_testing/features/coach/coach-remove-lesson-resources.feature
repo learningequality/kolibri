@@ -9,12 +9,12 @@ Feature: Coach remove lesson resources
   Scenario: Delete resource in the lesson
     When I click the lesson <lesson>
     Then I am on the <lesson> page
-      And I see the list of lesson <lesson> resources
+      And I see the list of resources
       And I see *Remove* button for each resource
-    When I click the *Remove* button for one resource
+    When I click the *Remove* button for <resource> resource
     Then the snackbar notification appears
-      And I don't see the <topic> on the list of resources
+      And I don't see the <resource> on the list of resources anymore
 
 Examples:
-| lesson         |
-| Read the story |
+| lesson         | resource            |
+| Read the story | Recognize fractions |

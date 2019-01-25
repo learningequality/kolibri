@@ -123,6 +123,11 @@ def version_file():
     return os.path.join(KOLIBRI_HOME, '.data_version')
 
 
+def should_back_up(kolibri_version, version_file_contents):
+    change_version = kolibri_version != version_file_contents
+    return change_version and 'dev' not in version_file_contents and 'dev' not in kolibri_version
+
+
 def initialize(debug=False):
     """
     Currently, always called before running commands. This may change in case
@@ -144,8 +149,8 @@ def initialize(debug=False):
 
         version = open(version_file(), "r").read()
         version = version.strip() if version else ""
-        change_version = kolibri.__version__ != version
-        if change_version:
+
+        if should_back_up(kolibri.__version__, version):
             # dbbackup will load settings.INSTALLED_APPS.
             # we need to ensure plugins are correct in conf.config before
             enable_default_plugins()
@@ -164,7 +169,7 @@ def initialize(debug=False):
 
         setup_logging(debug=debug)
 
-        if change_version:
+        if kolibri.__version__ != version:
             logger.info(
                 "Version was {old}, new version: {new}".format(
                     old=version,
@@ -251,6 +256,10 @@ def update():
 
     from kolibri.core.content.utils.annotation import update_channel_metadata
     update_channel_metadata()
+
+    from django.core.cache import caches
+    cache = caches['built_files']
+    cache.clear()
 
 
 update.called = False
@@ -655,8 +664,6 @@ def main(args=None):  # noqa: max-complexity=13
         call_command("clearsessions")
 
         daemon = not arguments['--foreground']
-        if sys.platform == 'darwin':
-            daemon = False
         start(port, daemon=daemon)
         return
 

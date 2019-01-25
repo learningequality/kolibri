@@ -11,19 +11,14 @@
           :delay="false"
         />
         <component
-          class="content-renderer-component"
-          v-else
           :is="currentViewClass"
-          @startTracking="startTracking"
-          @stopTracking="stopTracking"
-          @updateProgress="updateProgress"
-          @answerGiven="answerGiven"
-          @hintTaken="hintTaken"
-          @itemError="itemError"
-          @interaction="interaction"
+          v-else
+          ref="contentView"
+          class="content-renderer-component"
           :files="availableFiles"
           :defaultFile="defaultFile"
           :itemId="itemId"
+          :extraFields="extraFields"
           :answerState="answerState"
           :allowHints="allowHints"
           :supplementaryFiles="supplementaryFiles"
@@ -31,7 +26,14 @@
           :interactive="interactive"
           :lang="lang"
           :showCorrectAnswer="showCorrectAnswer"
-          ref="contentView"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
         />
       </transition>
     </template>
@@ -105,6 +107,10 @@
         type: Boolean,
         default: true,
       },
+      extraFields: {
+        type: Object,
+        default: () => {},
+      },
       initSession: {
         type: Function,
         default: () => Promise.resolve(),
@@ -137,7 +143,13 @@
         return undefined;
       },
       availableFiles() {
-        return this.files.filter(file => !file.thumbnail && !file.supplementary && file.available);
+        return this.files.filter(
+          file =>
+            !file.thumbnail &&
+            !file.supplementary &&
+            file.available &&
+            this.Kolibri.canRenderContent(this.kind, file.extension)
+        );
       },
       defaultFile() {
         return this.availableFiles && this.availableFiles.length
@@ -204,6 +216,10 @@
         this.$emit('updateProgress', ...args);
         heartbeat.setActive();
       },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
+        heartbeat.setActive();
+      },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
         heartbeat.setActive();
@@ -232,9 +248,10 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .content-renderer-component {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-      0 2px 1px -1px rgba(0, 0, 0, 0.12);
+    @extend %dropshadow-1dp;
   }
 
 </style>

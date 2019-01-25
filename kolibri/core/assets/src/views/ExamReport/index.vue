@@ -17,7 +17,7 @@
       @select="handleNavigateToQuestion"
     />
 
-    <div slot="main" class="exercise-container">
+    <div slot="main" class="exercise-container" :style="{ backgroundColor: $coreBgLight }">
       <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
@@ -53,11 +53,10 @@
 
 <script>
 
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import { mapGetters } from 'vuex';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
@@ -66,7 +65,7 @@
   export default {
     name: 'ExamReport',
     $trs: {
-      backTo: 'Back to exam report for { title }',
+      backTo: 'Back to quiz report for { title }',
       correctAnswer: 'Correct answer',
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
@@ -74,12 +73,10 @@
       showCorrectAnswerLabel: 'Show correct answer',
     },
     components: {
-      ImmersiveFullScreen,
       ContentRenderer,
       PageStatus,
       AttemptLogList,
       InteractionList,
-      KButton,
       KCheckbox,
       MultiPaneLayout,
     },
@@ -153,10 +150,11 @@
       };
     },
     computed: {
+      ...mapGetters(['$coreBgLight']),
       attemptLogs() {
         return this.examAttempts.map(attempt => {
-          const questionId = this.questions[attempt.questionNumber - 1].contentId;
-          const num_coach_contents = find(this.exerciseContentNodes, { id: questionId })
+          const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
+          const num_coach_contents = find(this.exerciseContentNodes, { id: exerciseId })
             .num_coach_contents;
           return { ...attempt, num_coach_contents };
         });
@@ -192,11 +190,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .exercise-container {
     padding: 8px;
-    background-color: $core-bg-light;
   }
 
   h3 {

@@ -12,8 +12,8 @@
           {{ channel.name }}
         </h2>
         <UiIcon
-          class="lock-icon"
           v-if="channel.public === false"
+          class="lock-icon"
         >
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
@@ -41,8 +41,8 @@
 
       <tr class="on-device">
         <td>{{ $tr('onDeviceRow') }}</td>
-        <td>{{ $tr('resourceCount', { count: channelOnDevice.on_device_resources || 0 }) }}</td>
-        <td>{{ bytesForHumans(channelOnDevice.on_device_file_size || 0) }}</td>
+        <td>{{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}</td>
+        <td>{{ bytesForHumans(channel.on_device_file_size || 0) }}</td>
       </tr>
     </table>
   </section>

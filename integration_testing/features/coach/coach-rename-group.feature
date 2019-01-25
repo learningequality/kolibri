@@ -7,7 +7,7 @@ Feature: Coach needs to be able to rename groups
 
   Scenario: Edit the group name
     When I click *Options* button
-      And I select *Rename group* option
+      And I select *Rename* option
     Then *Rename group* modal appears
     When I change group name
       And I click *Save*

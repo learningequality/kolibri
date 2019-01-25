@@ -1,9 +1,14 @@
 """
-This app is intended to provide the core functionality for tracking user
-engagement with content and Kolibri in general. As such, it is intended
-to store details of user interactions with content, a summary of those
-interactions, interactions with the software in general, as well as user
-feedback on the content and the software.
+This app provides the core functionality for tracking user
+engagement with content and the Kolibri app.
+
+It stores:
+
+* details of users' interactions with content
+* summaries of those interactions
+* interactions with the software in general
+
+Eventually, it may also store user feedback on the content and the software.
 """
 from __future__ import unicode_literals
 
@@ -72,18 +77,18 @@ class BaseLogModel(AbstractFacilityDataModel):
         abstract = True
 
     def infer_dataset(self, *args, **kwargs):
-        if self.user:
-            return self.user.dataset
+        if self.user_id:
+            return self.cached_related_dataset_lookup('user')
         elif self.dataset_id:
             # confirm that there exists a facility with that dataset_id
             try:
-                return Facility.objects.get(dataset_id=self.dataset_id).dataset
+                return Facility.objects.get(dataset_id=self.dataset_id).dataset_id
             except Facility.DoesNotExist:
                 pass
         # if no user or matching facility, infer dataset from the default facility
         facility = Facility.get_default_facility()
         assert facility, "Before you can save logs, you must have a facility"
-        return facility.dataset
+        return facility.dataset_id
 
     objects = BaseLogQuerySet.as_manager()
 
@@ -120,7 +125,8 @@ class ContentSessionLog(BaseLogModel):
 
 class ContentSummaryLog(BaseLogModel):
     """
-    This model provides a summary of all interactions a user has had with a content item.
+    This model provides an aggregate summary of all recorded interactions a user has had with
+    a content item over time.
     """
     # Morango syncing settings
     morango_model_name = "contentsummarylog"
@@ -199,7 +205,7 @@ class MasteryLog(BaseLogModel):
     complete = models.BooleanField(default=False)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.user.dataset
+        return self.cached_related_dataset_lookup('user')
 
     def calculate_source_id(self):
         return "{summarylog_id}:{mastery_level}".format(summarylog_id=self.summarylog_id, mastery_level=self.mastery_level)
@@ -207,8 +213,8 @@ class MasteryLog(BaseLogModel):
 
 class BaseAttemptLog(BaseLogModel):
     """
-    This is an abstract model that provides a summary of a user's engagement within a particular
-    interaction with an item/question in an assessment
+    This is an abstract model that provides a summary of a user's interactions with a particular
+    item/question in an assessment/exercise/exam
     """
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
@@ -237,8 +243,8 @@ class BaseAttemptLog(BaseLogModel):
 
 class AttemptLog(BaseAttemptLog):
     """
-    This model provides a summary of a user's engagement within a particular interaction with an
-    item/question in an assessment
+    This model provides a summary of a user's interactions with a question in a content node.
+    (Think of it like a ContentNodeAttemptLog to distinguish it from ExamAttemptLog and BaseAttemptLog)
     """
 
     morango_model_name = 'attemptlog'
@@ -248,13 +254,13 @@ class AttemptLog(BaseAttemptLog):
     sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
 
     def infer_dataset(self, *args, **kwargs):
-        return self.sessionlog.dataset
+        return self.sessionlog.dataset_id
 
 
 class ExamLog(BaseLogModel):
     """
-    This model provides a summary of a user's interaction with a particular exam, and serves as
-    an aggregation point for individual attempts on that exam.
+    This model provides a summary of a user's interactions with an exam, and serves as
+    an aggregation point for individual attempts on questions in that exam.
     """
 
     morango_model_name = 'examlog'
@@ -278,8 +284,7 @@ class ExamLog(BaseLogModel):
 
 class ExamAttemptLog(BaseAttemptLog):
     """
-    This model provides a summary of a user's engagement within a particular interaction with an
-    item/question in an exam
+    This model provides a summary of a user's interactions with a question in an exam
     """
 
     morango_model_name = 'examattemptlog'
@@ -288,10 +293,9 @@ class ExamAttemptLog(BaseAttemptLog):
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here
     content_id = UUIDField()
-    channel_id = UUIDField()
 
     def infer_dataset(self, *args, **kwargs):
-        return self.examlog.dataset
+        return self.examlog.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id

@@ -9,6 +9,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import codecs
 import io
 import json
 import logging
@@ -17,26 +18,25 @@ import time
 from functools import partial
 
 from django.conf import settings as django_settings
+from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.cache import caches
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
 from pkg_resources import resource_filename
+from six import text_type
 
 import kolibri
 from . import settings
 from kolibri.plugins import hooks
 from kolibri.utils import conf
 
-# We load quite a few JSON files from disk, as cached properties of
-# the WebpackBundleHook - but these are only cached per instance
-# whereas we want them cached on a per class basis.
-# Use this global to cache the results of JSON file loads and reduce
-# disk access.
-_JSON_STATS_FILE_CACHE = {}
-_JSON_MESSAGES_FILE_CACHE = {}
+# Use the cache specifically for built files
+cache = caches['built_files']
 
 
 class BundleNotFound(Exception):
@@ -73,14 +73,12 @@ class WebpackBundleHook(hooks.KolibriHook):
     # : For instance: "kolibri/core/assets/src/kolibri_core_app.js"
     src_file = ""
 
-    # : A list of events to listen to
-    events = {}
-
-    # : A list of events to load the asset once
-    once = {}
-
     # : Kolibri version for build hashes
     version = kolibri.__version__
+
+    # : When being included for synchronous loading, should the source files
+    # : for this be inlined?
+    inline = False
 
     def __init__(self, *args, **kwargs):
         super(WebpackBundleHook, self).__init__(*args, **kwargs)
@@ -110,29 +108,39 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        global _JSON_STATS_FILE_CACHE
+        cache_key = 'json_stats_file_cache_{slug}'.format(slug=self.unique_slug)
         try:
-            if not _JSON_STATS_FILE_CACHE.get(self.unique_slug) or django_settings.DEBUG:
+            stats_file_content = cache.get(cache_key)
+            if not stats_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
                 with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                     stats = json.load(f)
-                if django_settings.DEBUG:
+                if getattr(django_settings, 'DEVELOPER_MODE', False):
                     timeout = 0
                     while stats['status'] == 'compiling':
-                        time.sleep(getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1))
-                        timeout += getattr(settings, 'WEBPACK_POLL_INTERVAL', 0.1)
+                        time.sleep(0.1)
+                        timeout += 0.1
                         with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
                             stats = json.load(f)
-                        if timeout >= getattr(settings, 'WEBPACK_POLL_INTERVAL', 1.0):
+                        if timeout >= 5:
                             raise WebpackError('Webpack compilation still in progress')
                     if stats['status'] == 'error':
                         raise WebpackError('Webpack compilation has errored')
-                _JSON_STATS_FILE_CACHE[self.unique_slug] = {
+                stats_file_content = {
                     "files": stats.get("chunks", {}).get(self.unique_slug, []),
                     "hasMessages": stats.get("messages", False),
                 }
-            return _JSON_STATS_FILE_CACHE[self.unique_slug]
-        except IOError:
-            raise WebpackError('Webpack build file missing, front-end assets cannot be loaded')
+                # Don't invalidate during runtime.
+                # Might need to change this if we move to a different cache backend.
+                cache.set(cache_key, stats_file_content, None)
+            return stats_file_content
+        except IOError as e:
+            if hasattr(e, "filename"):
+                problem = "Problems loading: {file}".format(file=e.filename)
+            else:
+                problem = "Not file-related."
+            raise WebpackError(
+                'Webpack build file missing, front-end assets cannot be loaded. {problem}'.format(problem=problem)
+            )
 
     @property
     @hooks.registered_method
@@ -143,11 +151,15 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f['name']
-            if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
-                continue
+            if not getattr(django_settings, 'DEVELOPER_MODE', False):
+                if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
+                    continue
             relpath = '{0}/{1}'.format(self.unique_slug, filename)
-            if django_settings.DEBUG:
-                f['url'] = f['publicPath']
+            if getattr(django_settings, 'DEVELOPER_MODE', False):
+                try:
+                    f['url'] = f['publicPath']
+                except KeyError:
+                    f['url'] = staticfiles_storage.url(relpath)
             else:
                 f['url'] = staticfiles_storage.url(relpath)
             yield f
@@ -171,9 +183,6 @@ class WebpackBundleHook(hooks.KolibriHook):
                 "static_dir": self._static_dir,
                 "plugin_path": self._module_file_path,
                 "stats_file": self._stats_file,
-                "events": self.events,
-                "once": self.once,
-                "static_url_root": getattr(django_settings, 'STATIC_URL'),
                 "locale_data_folder": self.locale_data_folder,
                 "version": self.version,
             }
@@ -236,18 +245,17 @@ class WebpackBundleHook(hooks.KolibriHook):
                 return file_path
 
     def frontend_messages(self):
-        global _JSON_MESSAGES_FILE_CACHE
         lang_code = get_language()
-        if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code) or django_settings.DEBUG:
+        cache_key = 'json_stats_file_cache_{slug}_{lang}'.format(slug=self.unique_slug, lang=lang_code)
+        message_file_content = cache.get(cache_key)
+        if not message_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
                 with io.open(frontend_message_file, mode='r', encoding='utf-8') as f:
-                    if not _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug):
-                        _JSON_MESSAGES_FILE_CACHE[self.unique_slug] = {}
                     # Load JSON file, then immediately convert it to a string in minified form.
-                    _JSON_MESSAGES_FILE_CACHE[self.unique_slug][lang_code] = json.dumps(
-                        json.load(f), separators=(',', ':'))
-        return _JSON_MESSAGES_FILE_CACHE.get(self.unique_slug, {}).get(lang_code)
+                    message_file_content = json.dumps(json.load(f), separators=(',', ':'))
+                cache.set(cache_key, message_file_content, None)
+        return message_file_content
 
     def sorted_chunks(self):
         bidi = get_language_info(get_language())['bidi']
@@ -256,12 +264,37 @@ class WebpackBundleHook(hooks.KolibriHook):
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
+        inline_js_tag = '<script type="text/javascript">{src}</script>'
+        inline_css_tag = '<style>{src}</style>'
         # Sorted to load css before js
         for chunk in self.sorted_chunks():
+            src = None
             if chunk['name'].endswith('.js'):
-                yield js_tag.format(url=chunk['url'])
+                if self.inline:
+                    # During development, we do not write built files to disk
+                    # Because of this, this call might return None
+                    src = self.get_filecontent(chunk['url'])
+                if src is not None:
+                    # If it is not None, then we can inline it
+                    yield inline_js_tag.format(src=src)
+                else:
+                    # If src is None, either this is not something we should be inlining
+                    # or we are in development mode and need to fetch the file from the
+                    # development server, not the disk
+                    yield js_tag.format(url=chunk['url'])
             elif chunk['name'].endswith('.css'):
-                yield css_tag.format(url=chunk['url'])
+                if self.inline:
+                    # During development, we do not write built files to disk
+                    # Because of this, this call might return None
+                    src = self.get_filecontent(chunk['url'])
+                if src is not None:
+                    # If it is not None, then we can inline it
+                    yield inline_css_tag.format(src=src)
+                else:
+                    # If src is None, either this is not something we should be inlining
+                    # or we are in development mode and need to fetch the file from the
+                    # development server, not the disk
+                    yield css_tag.format(url=chunk['url'])
 
     def frontend_message_tag(self):
         if self.frontend_messages():
@@ -273,6 +306,70 @@ class WebpackBundleHook(hooks.KolibriHook):
             )]
         else:
             return []
+
+    def get_basename(self, url):
+        """
+        Takes full path to a static file (eg. "/static/css/style.css") and
+        returns path with storage's base url removed (eg. "css/style.css").
+        """
+        base_url = staticfiles_storage.base_url
+
+        # Cast ``base_url`` to a string to allow it to be
+        # a string-alike object to e.g. add ``SCRIPT_NAME``
+        # WSGI param as a *path prefix* to the output URL.
+        # See https://code.djangoproject.com/ticket/25598.
+        base_url = text_type(base_url)
+
+        if not url.startswith(base_url):
+            return None
+
+        basename = url.replace(base_url, "", 1)
+        # drop the querystring, which is used for non-compressed cache-busting.
+        return basename.split("?", 1)[0]
+
+    def get_filename(self, basename):
+        """
+        Returns full path to a file, for example:
+
+        get_filename('css/one.css') -> '/full/path/to/static/css/one.css'
+        """
+        filename = None
+        # First try finding the file using the storage class.
+        # This is skipped in DEVELOPER_MODE mode as files might be outdated
+        # Or may not even be on disk.
+        if not getattr(django_settings, 'DEVELOPER_MODE', False):
+            filename = staticfiles_storage.path(basename)
+            if not staticfiles_storage.exists(basename):
+                filename = None
+        # secondly try to find it with staticfiles
+        if not filename:
+            filename = find_staticfiles(url2pathname(basename))
+        return filename
+
+    def get_filecontent(self, url):
+        """
+        Reads file contents using given `charset` and returns it as text.
+        """
+        cache_key = 'inline_static_file_content_{url}'.format(url=url)
+        content = cache.get(cache_key)
+        if content is None:
+            # Removes Byte Oorder Mark
+            charset = 'utf-8-sig'
+            basename = self.get_basename(url)
+
+            if basename is None:
+                return None
+
+            filename = self.get_filename(basename)
+
+            if filename is None:
+                return None
+
+            with codecs.open(filename, 'r', charset) as fd:
+                content = fd.read()
+            # Cache this forever, as URLs will update for new files
+            cache.set(cache_key, content, None)
+        return content
 
     def render_to_page_load_sync_html(self):
         """
@@ -303,12 +400,10 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         urls = [chunk['url'] for chunk in self.sorted_chunks()]
         tags = self.frontend_message_tag() +\
-            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"], {events}, {once});</script>'.format(
+            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
-                events=json.dumps(self.events),
-                once=json.dumps(self.once),
             )]
         return mark_safe('\n'.join(tags))
 

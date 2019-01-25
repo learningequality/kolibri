@@ -9,9 +9,9 @@ Feature: Coach delete group
 
   Scenario: Coach deletes the group
     When I click the *Option* button
-      And I select *Delete group*
+      And I select *Delete*
     Then the *Delete group* modal appears
-    When I click the *Delete group* button
+    When I click the *Delete* button
     Then the modal closes
       And I don't see the deleted group
       And I see the learners are moved to *Ungrouped*

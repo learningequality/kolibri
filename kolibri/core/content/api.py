@@ -5,12 +5,14 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.db.models import Case
+from django.db.models import IntegerField
+from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
-from django.db.models import When
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -37,8 +39,6 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
-from kolibri.core.exams.models import Exam
-from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -49,12 +49,26 @@ def cache_forever(some_func):
     """
     Decorator for patch_response_headers function
     """
-    # Approximately 20 years
-    cache_timeout = 620000000
+    # Approximately 1 year
+    # Source: https://stackoverflow.com/a/3001556/405682
+    cache_timeout = 31556926
 
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=cache_timeout)
+        # This caching has the unfortunate effect of also caching the dynamically
+        # generated filters for recommendation, this quick hack checks if
+        # the request is any of those filters, and then applies less long running
+        # caching on it.
+        timeout = cache_timeout
+        try:
+            request = args[0]
+            request = kwargs.get('request', request)
+        except IndexError:
+            request = kwargs.get('request', None)
+        if isinstance(request, HttpRequest):
+            if any(map(lambda x: x in request.path, ['popular', 'next_steps', 'resume'])):
+                timeout = 600
+        patch_response_headers(response, cache_timeout=timeout)
         return response
 
     return wrapper_func
@@ -100,7 +114,11 @@ class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
 
     def filter_ids(self, queryset, name, value):
-        return queryset.filter(pk__in=value.split(','))
+        try:
+            return queryset.filter(pk__in=value.split(','))
+        except ValueError:
+            # Catch in case of a poorly formed UUID
+            return queryset.none()
 
     class Meta:
         fields = ['ids', ]
@@ -116,11 +134,12 @@ class ContentNodeFilter(IdFilter):
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
+    kind_in = CharFilter(method="filter_kind_in",)
 
     class Meta:
         model = models.ContentNode
         fields = ['parent', 'prerequisite_for', 'has_prerequisite', 'related', 'exclude_content_ids',
-                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role']
+                  'recommendations_for', 'next_steps', 'popular', 'resume', 'ids', 'content_id', 'channel_id', 'kind', 'by_role', 'kind_in', ]
 
     def filter_kind(self, queryset, name, value):
         """
@@ -133,6 +152,17 @@ class ContentNodeFilter(IdFilter):
         if value == 'content':
             return queryset.exclude(kind=content_kinds.TOPIC).order_by("lft")
         return queryset.filter(kind=value).order_by("lft")
+
+    def filter_kind_in(self, queryset, name, value):
+        """
+        Show only content of given kinds.
+
+        :param queryset: all content nodes for this channel
+        :param value: A list of content node kinds
+        :return: content nodes of the given kinds
+        """
+        kinds = value.split(",")
+        return queryset.filter(kind__in=kinds).order_by("lft")
 
     def filter_by_role(self, queryset, name, value):
         """
@@ -150,38 +180,6 @@ class ContentNodeFilter(IdFilter):
         # In all other cases, exclude nodes that are coach content
         return queryset.exclude(coach_content=True)
 
-    def filter_in_lesson(self, queryset, name, value):
-        """
-        Show only content associated with this lesson
-
-        :param queryset: all content nodes
-        :param value: id of target lesson
-        :return: content nodes for this lesson
-        """
-        try:
-            resources = Lesson.objects.get(id=value).resources
-            contentnode_id_list = [node['contentnode_id'] for node in resources]
-            # the order_by will order according to the position in the list
-            id_order = Case(*[When(id=ident, then=pos) for pos, ident in enumerate(contentnode_id_list)])
-            return queryset.filter(pk__in=contentnode_id_list).order_by(id_order)
-        except (Lesson.DoesNotExist, ValueError):  # also handles invalid uuid
-            queryset.none()
-
-    def filter_in_exam(self, queryset, name, value):
-        """
-        Show only content associated with this exam
-
-        :param queryset: all content nodes
-        :param value: id of target exam
-        :return: content nodes for this exam
-        """
-        try:
-            question_sources = Exam.objects.get(id=value).question_sources
-            exercise_id_list = [node['exercise_id'] for node in question_sources]
-            return queryset.filter(pk__in=exercise_id_list)
-        except (Exam.DoesNotExist, ValueError):  # also handles invalid uuid
-            return queryset.none()
-
     def filter_exclude_content_ids(self, queryset, name, value):
         return queryset.exclude(content_id__in=value.split(','))
 
@@ -194,6 +192,12 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     """
     page_size = None
     page_size_query_param = "page_size"
+
+
+class SQSum(Subquery):
+    # Include ALIAS at the end to support Postgres
+    template = "(SELECT SUM(%(field)s) FROM (%(subquery)s) AS %(field)s__sum)"
+    output_field = IntegerField()
 
 
 @method_decorator(cache_forever, name='dispatch')
@@ -243,26 +247,46 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
 
         return obj
 
-    @detail_route(methods=['get'])
-    def descendants(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
+    @list_route(methods=['get'])
+    def descendants(self, request):
+        """
+        Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).
+        In addition to id, title, kind, and content_id, each node is also annotated with the ancestor_id of one
+        of the ids that are passed into the request.
+        In the case where a node has more than one ancestor in the set of content nodes requested, duplicates of
+        that content node are returned, each annotated with one of the ancestor_ids for a node.
+        """
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
         kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True)
-        if kind:
-            descendants = descendants.filter(kind=kind)
+        nodes = models.ContentNode.objects.filter(id__in=ids, available=True)
+        data = []
+        for node in nodes:
+            def copy_node(new_node):
+                new_node['ancestor_id'] = node.id
+                return new_node
+            node_data = node.get_descendants()
+            if kind:
+                node_data = node_data.filter(kind=kind)
+            data += map(copy_node, node_data.values('id', 'title', 'kind', 'content_id'))
+        return Response(data)
 
-        serializer = self.get_serializer(descendants, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['get'])
-    def descendants_assessments(self, request, **kwargs):
-        node = self.get_object(prefetch=False)
-        kind = self.request.query_params.get('descendant_kind', None)
-        descendants = node.get_descendants().filter(available=True).prefetch_related('assessmentmetadata')
-        if kind:
-            descendants = descendants.filter(kind=kind)
-
-        data = descendants.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
+    @list_route(methods=['get'])
+    def descendants_assessments(self, request):
+        ids = self.request.query_params.get('ids', None)
+        if not ids:
+            return Response([])
+        ids = ids.split(',')
+        queryset = models.ContentNode.objects.filter(id__in=ids, available=True)
+        data = list(queryset.annotate(num_assessments=SQSum(models.ContentNode.objects.filter(
+            tree_id=OuterRef('tree_id'),
+            lft__gte=OuterRef('lft'),
+            lft__lt=OuterRef('rght'),
+            kind=content_kinds.EXERCISE,
+            available=True,
+        ).values_list('assessmentmetadata__number_of_assessments', flat=True), field='number_of_assessments')).values('id', 'num_assessments'))
         return Response(data)
 
     @list_route(methods=['get'])
@@ -393,18 +417,24 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @list_route(methods=['get'])
+    @detail_route(methods=['get'])
     def next_steps(self, request, **kwargs):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
+        Note that this is a slightly smelly use of a detail route, as the id in question is not for
+        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
+        endpoints in future.
 
         :param request: request object
+        :param pk: id of the user whose recommendations they are
         :return: uncompleted content nodes, or empty queryset if user is anonymous
         """
         user = request.user
+        user_id = kwargs.get('pk', None)
         queryset = self.get_queryset(prefetch=True)
         # if user is anonymous, don't return any nodes
-        if not user.is_facility_user:
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user or user.id != user_id:
             queryset = queryset.none()
         else:
             completed_content_ids = ContentSummaryLog.objects.filter(
@@ -417,10 +447,9 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
                 # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-                    user=user).values_list('content_id', flat=True)).filter(
-                    Q(has_prerequisite__in=completed_content_nodes) |
-                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes)
+                    | Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
                 ).order_by()
 
         serializer = self.get_serializer(queryset, many=True)
@@ -465,18 +494,24 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
 
         return Response(cache.get(cache_key))
 
-    @list_route(methods=['get'])
+    @detail_route(methods=['get'])
     def resume(self, request, **kwargs):
         """
         Recommend content that the user has recently engaged with, but not finished.
+        Note that this is a slightly smelly use of a detail route, as the id in question is not for
+        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
+        endpoints in future.
 
         :param request: request object
+        :param pk: id of the user whose recommendations they are
         :return: 10 most recently viewed content nodes
         """
         user = request.user
+        user_id = kwargs.get('pk', None)
         queryset = self.get_queryset(prefetch=True)
-        # if user is anonymous, return no nodes
-        if not user.is_facility_user:
+        # if user is anonymous, don't return any nodes
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user or user.id != user_id:
             queryset = queryset.none()
         else:
             # get the most recently viewed, but not finished, content nodes
@@ -734,6 +769,13 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
+
+    @detail_route(methods=['get'])
+    def retrieve_list(self, request, pk=None):
+        baseurl = request.GET.get("baseurl", None)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl, keyword=keyword, language=language)
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):

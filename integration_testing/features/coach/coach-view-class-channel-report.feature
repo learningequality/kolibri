@@ -6,7 +6,7 @@ Feature: Coach review of class report per channel
       And there is a class <class>
       And there is a channel <channel> learners from class <class> have interacted with
 
-  Scenario: Review the progress of the whole class for a channel
+  Scenario: Review progress of the whole class for a channel
     When I open the sidebar
       And click on *Coach*
     Then I see a list of classes in the facility

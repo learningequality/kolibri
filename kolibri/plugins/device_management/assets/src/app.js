@@ -1,3 +1,4 @@
+import router from 'kolibri.coreVue.router';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -16,7 +17,7 @@ class DeviceManagementModule extends KolibriApp {
   ready() {
     return super.ready().then(() => {
       // reset module states after leaving their respective page
-      this.routerInstance.afterEach((toRoute, fromRoute) => {
+      router.afterEach((toRoute, fromRoute) => {
         this.store.dispatch('resetModuleState', { toRoute, fromRoute });
       });
     });

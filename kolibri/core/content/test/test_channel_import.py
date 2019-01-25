@@ -308,10 +308,9 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 class MaliciousDatabaseTestCase(TestCase):
 
-    @patch('kolibri.core.content.utils.channel_import.set_leaf_node_availability_from_local_file_availability')
-    @patch('kolibri.core.content.utils.channel_import.recurse_availability_up_tree')
+    @patch('kolibri.core.content.utils.channel_import.update_content_metadata')
     @patch('kolibri.core.content.utils.channel_import.initialize_import_manager')
-    def test_non_existent_root_node(self, initialize_manager_mock, recurse_mock, leaf_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, update_content_metadata_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = '6199dde695db4ee4ab392222d5af1e5c'
