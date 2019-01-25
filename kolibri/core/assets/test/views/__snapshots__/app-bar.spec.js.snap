@@ -4,13 +4,13 @@ exports[`app bar component drop down user menu should show the language modal li
 <div style="background-color: rgb(153, 97, 137);" navshown="true">
   <div class="ui-toolbar app-bar ui-toolbar--type-clear ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
-      <div class="ui-toolbar__nav-icon"><button type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-default ui-icon-button--size-normal">
-          <div class="ui-icon-button__icon">
+      <div class="ui-toolbar__nav-icon"><button type="button" class="ui-icon-button ui-icon-button--type-secondary ui-icon-button--color-default ui-icon-button--size-normal KeenUiIconButton-noKey-0_3hmsj">
+          <div class="ui-icon-button-icon" style="color: rgb(153, 97, 137);">
             <mat-svg name="menu" category="navigation" class="icon"></mat-svg>
           </div>
-          <div class="ui-icon-button__focus-ring"></div>
-          <div class="ui-progress-circular ui-icon-button__progress ui-progress-circular--color-black ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular__indeterminate">
-              <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular__indeterminate-path"></circle>
+          <div class="ui-icon-button-focus-ring"></div>
+          <div class="ui-progress-circular ui-icon-button-progress ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular-indeterminate" style="stroke: #03a9f4;">
+              <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular-indeterminate-path" style="stroke: #996189;"></circle>
             </svg></div>
           <div class="ui-ripple-ink"></div>
           <!---->
