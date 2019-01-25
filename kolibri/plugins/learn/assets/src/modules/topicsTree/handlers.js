@@ -164,6 +164,7 @@ export function showKnowledgeMap(store, id, isRoot = false) {
             if (isRoot) {
               topic.description = currentChannel.description;
             }
+            console.log('ancestors');
             store.commit('topicsTree/SET_STATE', {
               isRoot,
               channel: currentChannel,

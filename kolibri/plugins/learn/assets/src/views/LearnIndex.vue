@@ -18,7 +18,7 @@
     <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
-      <!--<Breadcrumbs />-->
+      <Breadcrumbs />
       <component :is="currentPage" />
     </div>
 

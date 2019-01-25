@@ -55,48 +55,51 @@
         let crumbs = [];
 
         // Channels have no previous topics
-        if (
-          this.pageName === PageNames.TOPICS_CHANNEL ||
-          (this.pageName === PageNames.KNOWLEDGE_MAP && this.root)
-        ) {
-          return crumbs;
-        }
+        // if (
+        //   this.pageName === PageNames.TOPICS_CHANNEL ||
+        //   (this.pageName === PageNames.KNOWLEDGE_MAP && this.root)
+        // ) {
+        //   return crumbs;
+        // }
 
         // Link to top-level Channel
-        crumbs.push({
-          text: this.channelTitle,
-          link: {
-            name: PageNames.TOPICS_CHANNEL,
-            params: {
-              channel_id: this.channelRootId,
+        if (this.pageName === PageNames.TOPICS_CONTENT || this.topicCrumbs.length != 0) {
+          crumbs.push({
+            text: this.channelTitle,
+            link: {
+              name: PageNames.KNOWLEDGE_MAP,
+              params: {
+                id: this.channelRootId,
+              },
             },
-          },
-        });
+          });
+        }
 
         // Links to previous topics
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
-        } else if (
-          this.pageName === PageNames.TOPICS_TOPIC ||
-          this.pageName === PageNames.KNOWLEDGE_MAP
-        ) {
+        } else if (this.pageName === PageNames.KNOWLEDGE_MAP) {
           crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
         }
-        return crumbs;
+        console.log('crumbs:', JSON.stringify(crumbs));
+        let crumbs2 = [];
+        let i = 0;
+
+        for (let i = 0; i < crumbs.length; i += 2) {
+          crumbs2.push(crumbs[i]);
+        }
+        console.log('crumbs2: ', JSON.stringify(crumbs2));
+        return crumbs2;
       },
       lastTopicBreadcrumb() {
-        if (
-          this.pageName === PageNames.TOPICS_CHANNEL ||
-          this.pageName === PageNames.KNOWLEDGE_MAP
-        ) {
-          return { text: this.channelTitle };
-        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
           return { text: this.contentTitle };
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+        } else if (this.pageName === PageNames.KNOWLEDGE_MAP) {
           return { text: this.topicTitle };
         }
       },
       topicsBreadcrumbs() {
+        console.log('topicCrumbs: ', JSON.stringify(this.topicCrumbs));
         return [
           // All Channels Link
           {
@@ -113,7 +116,7 @@
         return crumbs.map(({ title, id }) => ({
           text: title,
           link: {
-            name: PageNames.TOPICS_TOPIC,
+            name: PageNames.KNOWLEDGE_MAP,
             params: { id },
           },
         }));
