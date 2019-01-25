@@ -109,14 +109,14 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   });
 }
 
-export function showKnowledgeMap(store, id, isRoot = true) {
+export function showKnowledgeMap(store, id, isRoot = false) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', PageNames.KNOWLEDGE_MAP);
     const include_fields = [];
     if (store.getters.isCoach || store.getters.isAdmin) {
       include_fields.push('num_coach_contents');
     }
-    console.log('channel id:', id);
+    // console.log('channel id:', id);
     const promises = [
       ContentNodeResource.fetchModel({ id }), // the topic
       ContentNodeSlimResource.fetchCollection({
@@ -134,8 +134,8 @@ export function showKnowledgeMap(store, id, isRoot = true) {
       samePageCheckGenerator(store),
       ([topic, children, ancestors]) => {
         /////////////////////////////////////////
-        console.log('topic:', topic, 'children', children, 'ancestors', ancestors);
-        console.log('ch before before:', children);
+        // console.log('topic:', topic, 'children', children, 'ancestors', ancestors);
+        // console.log('ch before before:', children);
         const childrenPromises = children.map(c =>
           ContentNodeSlimResource.fetchCollection({
             getParams: {
@@ -145,16 +145,15 @@ export function showKnowledgeMap(store, id, isRoot = true) {
             },
           })
         );
-        console.log('ch before:', children);
+        // console.log('ch before:', children);
         Promise.all(childrenPromises).then(
           childrenChildren => {
-            console.log('chCh:', childrenChildren);
-            let children2 = {};
+            // console.log('chCh:', childrenChildren);
             for (let i = 0; i < children.length; ++i) {
-              console.log('ch ch i:', childrenChildren[i]);
+              // console.log('ch ch i:', childrenChildren[i]);
               children[i].children = childrenChildren[i];
             }
-            console.log('ch after:', JSON.stringify(children, null, 2));
+            // console.log('ch after:', JSON.stringify(children, null, 2));
             // ///////////////buvo apacioj
             const currentChannel = store.getters.getChannelObject(topic.channel_id);
 

@@ -2,8 +2,6 @@
 
   <div>
 
-    KnowledgeMap ......................................................
-
     <PageHeader :title="topic.title" />
 
     <TextTruncator
@@ -16,25 +14,23 @@
       class="page-description"
     />
 
+    <!--<ContentCardGroupGrid-->
+    <!--v-if="contents.length"-->
+    <!--:contents="contents"-->
+    <!--:genContentLink="genContentLink"-->
+    <!--/>-->
 
+    <!--<hr>-->
 
-    <ContentCardGroupGrid
-      v-if="contents.length"
-      :contents="contents"
-      :genContentLink="genContentLink"
-    />
-
-    <ol v-for="child in contents">
-      {{ child.title }}
+    <div v-for="child in contents">
+      <PageHeader :title="child.title" />
       <ContentCardGroupGrid
-        v-if="contents.length"
-        :contents="contents"
+        v-if="child.children.length"
+        :contents="child.children"
         :genContentLink="genContentLink"
       />
-      <li v-for="ch in child.children">{{ ch.title }}</li>
-    </ol>
+    </div>
 
-    {{ JSON.stringify(contents) }}
 
   </div>
 
@@ -90,7 +86,7 @@
       genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
           return {
-            name: PageNames.TOPICS_TOPIC,
+            name: PageNames.KNOWLEDGE_MAP,
             params: { channel_id: this.channelId, id },
           };
         }

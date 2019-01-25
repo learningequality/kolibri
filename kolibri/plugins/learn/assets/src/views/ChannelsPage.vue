@@ -44,8 +44,8 @@
     methods: {
       genChannelLink(channel_id) {
         return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id },
+          name: PageNames.KNOWLEDGE_MAP,
+          params: { id: channel_id },
         };
       },
     },

@@ -60,19 +60,19 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_CHANNEL,
-    path: '/topics/:channel_id',
+    name: PageNames.KNOWLEDGE_MAP,
+    path: '/topics/:id',
     handler: toRoute => {
-      showKnowledgeMap(store, toRoute.params.channel_id);
+      showKnowledgeMap(store, toRoute.params.id);
     },
   },
-  {
-    name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id',
-    handler: toRoute => {
-      showTopicsTopic(store, { id: toRoute.params.id });
-    },
-  },
+  // {
+  //   name: PageNames.KNOWLEDGE_MAP,
+  //   path: '/topics/t/:id',
+  //   handler: toRoute => {
+  //     showKnowledgeMap(store, toRoute.params.id);
+  //   },
+  // },
   {
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',

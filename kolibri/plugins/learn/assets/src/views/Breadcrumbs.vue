@@ -27,6 +27,7 @@
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
+      //...mapState(['root']),
       ...mapState('topicsTree', {
         channelRootId: state => (state.channel || {}).root_id,
         channelTitle: state => (state.channel || {}).title,
@@ -56,7 +57,7 @@
         // Channels have no previous topics
         if (
           this.pageName === PageNames.TOPICS_CHANNEL ||
-          this.pageName === PageNames.KNOWLEDGE_MAP
+          (this.pageName === PageNames.KNOWLEDGE_MAP && this.root)
         ) {
           return crumbs;
         }
@@ -75,7 +76,10 @@
         // Links to previous topics
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
+        } else if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.KNOWLEDGE_MAP
+        ) {
           crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
         }
         return crumbs;
