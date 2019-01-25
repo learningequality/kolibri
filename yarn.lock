@@ -154,11 +154,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@shopify/draggable@^1.0.0-beta.8":
-  version "1.0.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.0-beta.8.tgz#2eb3c2f72298ce3e53fe16f34ab124cc495cd4fc"
-  integrity sha512-9IeBPQM93Ad4qFKUopwuTClzoST/1OId4MaSd/8FB5ScCL2tl25UaOGNR8E2hjiL7xK4LN5+I1Ews6amS7YAiA==
-
 "@sentry/browser@4.5.3":
   version "4.5.3"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-4.5.3.tgz#69744d13b01c490f366cbf2676790624b9f7c0a0"
@@ -210,6 +205,11 @@
   dependencies:
     "@sentry/types" "4.5.3"
     tslib "^1.9.3"
+
+"@shopify/draggable@^1.0.0-beta.8":
+  version "1.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.0-beta.8.tgz#2eb3c2f72298ce3e53fe16f34ab124cc495cd4fc"
+  integrity sha512-9IeBPQM93Ad4qFKUopwuTClzoST/1OId4MaSd/8FB5ScCL2tl25UaOGNR8E2hjiL7xK4LN5+I1Ews6amS7YAiA==
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
@@ -4020,10 +4020,6 @@ esprima@^4.0.0, esprima@~4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/esprima/-/esprima-4.0.1.tgz#13b04cdb3e6c5d19df91ab6987a8695619b0aa71"
   integrity sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==
-
-"esprima@https://github.com/jquery/esprima.git":
-  version "4.0.0-dev"
-  resolved "https://github.com/jquery/esprima.git#c0dfa42da4da9fa242dac623278a082cb38edc20"
 
 esquery@^1.0.0, esquery@^1.0.1:
   version "1.0.1"
