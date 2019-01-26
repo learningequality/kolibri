@@ -164,11 +164,14 @@ class ImportContentTestCase(TestCase):
         # If transfer is cancelled after transfer of first file
         local_path_1 = tempfile.mkstemp()[1]
         local_path_2 = tempfile.mkstemp()[1]
+        with open(local_path_1, "w") as f:
+            f.write("a")
         local_path_mock.side_effect = [local_path_1, local_path_2]
         remote_path_mock.return_value = 'notest'
         # Mock this __iter__ so that the filetransfer can be looped over
         FileDownloadMock.return_value.__iter__.return_value = ['one', 'two', 'three']
         FileDownloadMock.return_value.total_size = 1
+        FileDownloadMock.return_value.dest = local_path_1
         LocalFile.objects.filter(files__contentnode__channel_id=self.the_channel_id).update(file_size=1)
         call_command("importcontent", "network", self.the_channel_id)
         # Check that the command itself was also cancelled.
@@ -292,18 +295,19 @@ class ImportContentTestCase(TestCase):
             self.assertTrue('Permission denied' in logger_mock.call_args_list[0][0][0])
             annotation_mock.annotate_content.assert_called()
 
-    @patch('kolibri.core.content.utils.transfer.os.path.getsize', return_value=0)
+    @patch('kolibri.core.content.management.commands.importcontent.os.remove')
     @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)
     @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
     @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', side_effect=[False, False, True, True])
-    def test_local_import_source_corrupted(self, is_cancelled_mock, cancel_mock, path_mock, isfile_mock, getsize_mock, annotation_mock):
+    def test_local_import_source_corrupted(self, is_cancelled_mock, cancel_mock, path_mock, isfile_mock, remove_mock, annotation_mock):
         local_src_path = tempfile.mkstemp()[1]
         local_dest_path = tempfile.mkstemp()[1]
         LocalFile.objects.filter(files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c").update(file_size=1)
         path_mock.side_effect = [local_dest_path, local_src_path]
         call_command('importcontent', 'disk', self.the_channel_id, 'destination', node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
         cancel_mock.assert_called_with()
+        remove_mock.aasert_called_with()
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
