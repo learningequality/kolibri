@@ -382,8 +382,6 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
-
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True

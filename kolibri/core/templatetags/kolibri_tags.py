@@ -16,16 +16,18 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.urlresolvers import get_resolver
+from django.core.urlresolvers import get_script_prefix
 from django.core.urlresolvers import resolve
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils.html import mark_safe
 from django.utils.timezone import now
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
-from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME
-from django_js_reverse.js_reverse_settings import JS_VAR_NAME
-from django_js_reverse.templatetags.js_reverse import js_reverse_inline
+from django_js_reverse.core import prepare_url_list
+from django_js_reverse.rjsmin import jsmin
 from rest_framework.renderers import JSONRenderer
 from six import iteritems
 
@@ -158,16 +160,34 @@ def kolibri_navigation_actions():
 
 @register.simple_tag(takes_context=True)
 def kolibri_set_urls(context):
-    js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
-    js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
-    js = (js_reverse_inline(context) + """
-          Object.assign({kolibri}.urls, {global_object}.{js_var});
-          {kolibri}.urls.__setStaticURL('{static_url}');
-          """.format(
-        kolibri=conf.KOLIBRI_CORE_JS_NAME,
-        global_object=js_global_object_name,
-        js_var=js_var_name,
-        static_url=settings.STATIC_URL))
+    # Modified from:
+    # https://github.com/ierror/django-js-reverse/blob/master/django_js_reverse/core.py#L101
+    js_global_object_name = 'window'
+    js_var_name = 'kolibriUrls'
+    script_prefix = get_script_prefix()
+
+    if 'request' in context:
+        default_urlresolver = get_resolver(getattr(context['request'], 'urlconf', None))
+    else:
+        default_urlresolver = get_resolver(None)
+
+    js = render_to_string('django_js_reverse/urls_js.tpl', {
+        'urls': sorted(list(prepare_url_list(default_urlresolver))),
+        'url_prefix': script_prefix,
+        'js_var_name': js_var_name,
+        'js_global_object_name': js_global_object_name,
+    })
+
+    js = jsmin(js)
+
+    js = (
+        """<script type="text/javascript">"""
+        + js + """
+        {global_object}.staticUrl = '{static_url}';
+        </script>
+        """.format(
+            global_object=js_global_object_name,
+            static_url=settings.STATIC_URL))
     return mark_safe(js)
 
 
