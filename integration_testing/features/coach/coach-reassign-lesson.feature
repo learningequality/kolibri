@@ -1,10 +1,10 @@
-Feature: Coach reassign lessons
+Feature: Coach reassigns lessons
   Coach needs to be able to reassign lessons to group(s) or entire class
 
   Background:
     Given there are 2 or more learner groups
       And I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Lessons* page
+      And I am on the *Coach > Plan > Lessons* page
       And I see the lesson <lesson>
 
   Scenario: Reassign lesson

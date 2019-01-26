@@ -1,4 +1,4 @@
-Feature: Coach create quizzes
+Feature: Coach creates quizzes
   Coach needs to be able to create quizzes from existing content
 
   Background:

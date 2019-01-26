@@ -1,10 +1,10 @@
-Feature: Coach assign quizzes
+Feature: Coach assigns quizzes
   Coach needs to be able to assign quizzes to one or more groups, as the quiz by default is assigned to the entire class
 
   Background:
     Given there are 2 or more learner groups
       And I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Quizzes* page
+      And I am on the *Coach > Plan > Quizzes* page
       And I see the quiz <quiz_title>
 
     Scenario: Assign quiz to group(s)
@@ -17,6 +17,7 @@ Feature: Coach assign quizzes
       When I select one or more groups
         And I click *Save* button
       Then the modal closes
+        And I see the snackbar notification
         And I see the chosen group(s) under *Visible to*
 
 Examples:

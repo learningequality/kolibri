@@ -1,9 +1,9 @@
-Feature: Coach create lessons
-  Coach need to be able to create lessons from existing content
+Feature: Coach creates lessons
+  Coach needs to be able to create lessons from existing content
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Lessons* page
+      And I am on the *Coach > Plan > Lessons* page
       And there is a channel <channel> and topic <topic> on the device
 
   Scenario: Coach creates a new lesson for entire class
@@ -15,7 +15,7 @@ Feature: Coach create lessons
     Then the modal closes
       And I am on the <title> lesson page
     When I click *Manage resources* button
-    Then I am on the *Select resources* page
+    Then I am on the *Manage resources in '<title>'* page
       And I see the content channel <channel>
     When I select channel <channel>
     Then I see its topics
@@ -23,12 +23,16 @@ Feature: Coach create lessons
     Then I see the list of resources in that topic
     When I click on a single resource
     Then I see the *Preview resource* page
+    When I click *Add* button
+    Then I see the snackbar notification
     When I click on *back arrow* button
-    Then I see the *Select resources* page again
-    When I check the resource(s) checkbox
-    Then I see the *Total resources selected* count changed
-    When I click the *Exit (X)* button on the *Manage resources* header
-    Then *Select resources* page closes
+    Then I see the *Manage resources in '<title>'* page again
+      And I see the *1 resource in this lesson* counter
+    When I check the checkbox(es) for other resource(s)
+    Then I see the *N resources in this lesson* counter changed
+      And I see the snackbar notification
+    When I click the *Finish* button at the bottom
+    Then *Manage resources in '<title>'* page closes
       And I see the added resources on the <title> lesson page
 
 

@@ -5,7 +5,7 @@ Feature: Move user accounts in and out of groups
     Given there are learners in the selected class
       And there are groups created
     Given I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Groups* page
+      And I am on the *Coach > Plan > Groups* page
 
   Scenario: Move learners from one group into another
     When I select a learner
