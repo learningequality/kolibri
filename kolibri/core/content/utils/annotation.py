@@ -308,6 +308,7 @@ def calculate_channel_fields(channel_id):
     calculate_published_size(channel)
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
+    calculate_next_order(channel)
 
 
 def calculate_published_size(channel):
@@ -326,3 +327,12 @@ def calculate_included_languages(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True).exclude(lang=None)
     languages = content_nodes.order_by('lang').values_list('lang', flat=True).distinct()
     channel.included_languages.add(*list(languages))
+
+
+def calculate_next_order(channel):
+    latest_order = ChannelMetadata.objects.latest('order').order
+    if latest_order is None:
+        channel.order = 1
+    else:
+        channel.order = latest_order + 1
+    channel.save()
