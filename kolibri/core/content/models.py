@@ -395,7 +395,7 @@ class ChannelMetadata(models.Model):
         verbose_name="languages",
         blank=True,
     )
-    order = models.IntegerField(default=0, null=True, blank=True)
+    order = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     class Admin:
         pass

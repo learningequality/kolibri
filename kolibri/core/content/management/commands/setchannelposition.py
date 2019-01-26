@@ -26,8 +26,8 @@ class Command(BaseCommand):
             self.stderr.write('Channel with ID {} does not exist'.format(channel_id))
             sys.exit(1)
 
-        if position > count or position == 0:
-            self.stderr.write('Invalid position {}. There are only {} channels on this device.'.format(position, count))
+        if position < 1 or position > count:
+            self.stderr.write('Invalid position {}. Please choose a value between [1-{}].'.format(position, count))
             sys.exit(1)
 
         ChannelMetadata.objects.filter(order__lt=target_channel.order, order__gte=position).update(order=F('order') + 1)

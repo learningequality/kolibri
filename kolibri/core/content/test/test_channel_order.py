@@ -1,8 +1,8 @@
 import uuid
-from StringIO import StringIO
 
 from django.core.management import call_command
 from django.test import TestCase
+from django.utils import six
 
 from kolibri.core.content import models as content
 
@@ -14,7 +14,7 @@ class ChannelOrderMixin(object):
             obj.refresh_from_db()
 
     def setUp(self):
-        self.out = StringIO()
+        self.out = six.StringIO()
         node = content.ContentNode.objects.create(id=uuid.uuid4(),
                                                   title='test',
                                                   content_id=uuid.uuid4(),
@@ -49,12 +49,12 @@ class SetChannelPositionTestCase(ChannelOrderMixin, TestCase):
 
     def test_non_existent_channel(self):
         with self.assertRaises(SystemExit):
-            self.set_channel_position(uuid.uuid4().hex, 1, stderr=self.out)
+            self.set_channel_position(uuid.uuid4().hex, 1, out=self.out)
         self.assertIn('does not exist', self.out.getvalue())
 
     def test_position_out_of_range(self):
         with self.assertRaises(SystemExit):
-            self.set_channel_position(self.c1.id, content.ChannelMetadata.objects.count() + 1, stderr=self.out)
+            self.set_channel_position(self.c1.id, content.ChannelMetadata.objects.count() + 1, out=self.out)
         self.assertIn('Invalid position', self.out.getvalue())
 
     def test_change_order1(self):

@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='channelmetadata',
             name='order',
-            field=models.IntegerField(blank=True, default=0, null=True),
+            field=models.PositiveIntegerField(blank=True, default=0, null=True),
         ),
     ]
