@@ -395,9 +395,13 @@ class ChannelMetadata(models.Model):
         verbose_name="languages",
         blank=True,
     )
+    order = models.IntegerField(default=0, null=True, blank=True)
 
     class Admin:
         pass
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.name
