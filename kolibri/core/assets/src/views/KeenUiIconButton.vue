@@ -10,10 +10,11 @@
     -->
   <button
     ref="button"
-    class="ui-icon-button"
+    class="keen-ui-icon-button"
 
     :aria-label="ariaLabel || tooltip"
     :class="classes"
+    :style="buttonColor"
     :disabled="disabled || loading"
     :type="buttonType"
 
@@ -21,7 +22,7 @@
   >
     <div
       v-if="icon || $slots.default"
-      class="ui-icon-button-icon"
+      class="keen-ui-icon-button-icon"
       :style="{
         color: !primaryType ? $coreActionNormal : ''
       }"
@@ -34,7 +35,7 @@
     <KCircularLoader
       v-show="loading"
 
-      class="ui-icon-button-progress"
+      class="keen-ui-icon-button-progress"
       :size="size === 'large' ? 24 : 18"
 
       :stroke="4.5"
@@ -141,13 +142,12 @@
       ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
-          `ui-icon-button--type-${this.type}`,
-          `ui-icon-button--color-${this.color}`,
-          `ui-icon-button--size-${this.size}`,
+          `keen-ui-icon-button--type-${this.type}`,
+          `keen-ui-icon-button--color-${this.color}`,
+          `keen-ui-icon-button--size-${this.size}`,
           { 'is-loading': this.loading },
           { 'is-disabled': this.disabled || this.loading },
           { 'has-dropdown': this.hasDropdown },
-          this.$computedClass(this.buttonColor),
         ];
       },
 
@@ -227,17 +227,17 @@
 
   /* stylelint-disable csstree/validator */
 
-  $ui-icon-button-size: rem-calc(36px) !default;
-  $ui-icon-button--size-small: rem-calc(32px) !default;
-  $ui-icon-button--size-large: rem-calc(48px) !default;
+  $keen-ui-icon-button-size: rem-calc(36px) !default;
+  $keen-ui-icon-button--size-small: rem-calc(32px) !default;
+  $keen-ui-icon-button--size-large: rem-calc(48px) !default;
 
-  .ui-icon-button {
+  .keen-ui-icon-button {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: $ui-icon-button-size;
-    height: $ui-icon-button-size;
+    width: $keen-ui-icon-button-size;
+    height: $keen-ui-icon-button-size;
     padding: 0;
     margin: 0;
     overflow: hidden;
@@ -266,9 +266,13 @@
       cursor: default;
       opacity: 0.6;
     }
+
+    svg {
+      vertical-align: middle;
+    }
   }
 
-  .ui-icon-button-icon {
+  .keen-ui-icon-button-icon {
     position: relative;
     z-index: 1;
     width: 100%; // Firefox: needs the width and height reset for flexbox centering
@@ -278,7 +282,7 @@
     transition-delay: 0.1s;
   }
 
-  .ui-progress-circular.ui-icon-button-progress {
+  .ui-progress-circular.keen-ui-icon-button-progress {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -289,26 +293,26 @@
   // Sizes
   // ================================================
 
-  .ui-icon-button--size-small {
-    width: $ui-icon-button--size-small;
-    height: $ui-icon-button--size-small;
+  .keen-ui-icon-button--size-small {
+    width: $keen-ui-icon-button--size-small;
+    height: $keen-ui-icon-button--size-small;
 
     .ui-icon {
       font-size: rem-calc(18px);
     }
   }
 
-  .ui-icon-button--size-large {
-    width: $ui-icon-button--size-large;
-    height: $ui-icon-button--size-large;
+  .keen-ui-icon-button--size-large {
+    width: $keen-ui-icon-button--size-large;
+    height: $keen-ui-icon-button--size-large;
   }
 
   // ================================================
   // Colors
   // ================================================
 
-  .ui-icon-button--color-black,
-  .ui-icon-button--color-white {
+  .keen-ui-icon-button--color-black,
+  .keen-ui-icon-button--color-white {
     background-color: transparent;
 
     &:hover:not(.is-disabled),
@@ -317,18 +321,18 @@
     }
   }
 
-  .ui-icon-button--color-black {
+  .keen-ui-icon-button--color-black {
     color: $secondary-text-color;
 
-    .ui-icon-button-icon {
+    .keen-ui-icon-button-icon {
       color: $secondary-text-color;
     }
   }
 
-  .ui-icon-button--color-white {
+  .keen-ui-icon-button--color-white {
     color: $secondary-text-color;
 
-    .ui-icon-button-icon {
+    .keen-ui-icon-button-icon {
       color: white;
     }
   }
@@ -337,8 +341,8 @@
   // Types
   // ================================================
 
-  .ui-icon-button--type-primary {
-    &.ui-icon-button--color-default {
+  .keen-ui-icon-button--type-primary {
+    &.keen-ui-icon-button--color-default {
       background-color: $md-grey-200;
 
       &:hover:not(.is-disabled),
@@ -350,16 +354,16 @@
         opacity: 0.2;
       }
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $primary-text-color;
       }
     }
 
-    &.ui-icon-button--color-primary,
-    &.ui-icon-button--color-accent,
-    &.ui-icon-button--color-green,
-    &.ui-icon-button--color-orange,
-    &.ui-icon-button--color-red {
+    &.keen-ui-icon-button--color-primary,
+    &.keen-ui-icon-button--color-accent,
+    &.keen-ui-icon-button--color-green,
+    &.keen-ui-icon-button--color-orange,
+    &.keen-ui-icon-button--color-red {
       color: white;
 
       .ui-ripple-ink__ink {
@@ -367,7 +371,7 @@
       }
     }
 
-    &.ui-icon-button--color-accent {
+    &.keen-ui-icon-button--color-accent {
       background-color: $brand-accent-color;
 
       &:hover:not(.is-disabled),
@@ -376,7 +380,7 @@
       }
     }
 
-    &.ui-icon-button--color-green {
+    &.keen-ui-icon-button--color-green {
       background-color: $md-green;
 
       &:hover:not(.is-disabled),
@@ -385,7 +389,7 @@
       }
     }
 
-    &.ui-icon-button--color-orange {
+    &.keen-ui-icon-button--color-orange {
       background-color: $md-orange;
 
       &:hover:not(.is-disabled),
@@ -394,7 +398,7 @@
       }
     }
 
-    &.ui-icon-button--color-red {
+    &.keen-ui-icon-button--color-red {
       background-color: $md-red;
 
       &:hover:not(.is-disabled),
@@ -404,55 +408,55 @@
     }
   }
 
-  .ui-icon-button--type-secondary {
-    &.ui-icon-button--color-default {
+  .keen-ui-icon-button--type-secondary {
+    &.keen-ui-icon-button--color-default {
       color: $primary-text-color;
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $primary-text-color;
       }
     }
 
-    &.ui-icon-button--color-default,
-    &.ui-icon-button--color-primary,
-    &.ui-icon-button--color-accent,
-    &.ui-icon-button--color-green,
-    &.ui-icon-button--color-orange,
-    &.ui-icon-button--color-red {
+    &.keen-ui-icon-button--color-default,
+    &.keen-ui-icon-button--color-primary,
+    &.keen-ui-icon-button--color-accent,
+    &.keen-ui-icon-button--color-green,
+    &.keen-ui-icon-button--color-orange,
+    &.keen-ui-icon-button--color-red {
       &:hover:not(.is-disabled),
       &.has-dropdown-open {
         background-color: rgba(black, 0.1);
       }
     }
 
-    &.ui-icon-button--color-accent {
+    &.keen-ui-icon-button--color-accent {
       color: $brand-accent-color;
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $brand-accent-color;
       }
     }
 
-    &.ui-icon-button--color-green {
+    &.keen-ui-icon-button--color-green {
       color: $md-green-600;
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $md-green-600;
       }
     }
 
-    &.ui-icon-button--color-orange {
+    &.keen-ui-icon-button--color-orange {
       color: $md-orange;
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $md-orange;
       }
     }
 
-    &.ui-icon-button--color-red {
+    &.keen-ui-icon-button--color-red {
       color: $md-red;
 
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         color: $md-red;
       }
     }

@@ -105,8 +105,7 @@ hr {
   transform: scaleX(-1);
 }
 
-// TODO: move these inside scoped styles in own wrapper components
-.ui-icon-button,
+// TODO: move this inside scoped styles in forked UiIcon component
 .ui-icon {
   svg {
     vertical-align: middle;
