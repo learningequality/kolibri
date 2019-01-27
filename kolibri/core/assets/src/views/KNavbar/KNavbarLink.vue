@@ -54,13 +54,13 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreActionLight', '$coreActionDark']),
+      ...mapGetters(['$coreBgCanvas', '$coreActionDark']),
       tab() {
         const hoverAndFocus = {
           'background-color': this.$coreActionDark,
         };
         return {
-          color: this.$coreActionLight,
+          color: this.$coreBgCanvas,
           ':hover': hoverAndFocus,
           ':focus': hoverAndFocus,
         };
