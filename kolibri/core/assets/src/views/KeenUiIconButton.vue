@@ -31,8 +31,6 @@
       </slot>
     </div>
 
-    <div class="ui-icon-button-focus-ring" :style="focusRingStyle"></div>
-
     <KCircularLoader
       v-show="loading"
 
@@ -78,7 +76,6 @@
   import UiTooltip from 'keen-ui/src/UiTooltip';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { darken } from 'kolibri.utils.colour';
-  import config from 'keen-ui/src/config';
 
   export default {
     name: 'KeenUiIconButton',
@@ -239,6 +236,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: $ui-icon-button-size;
+    height: $ui-icon-button-size;
     padding: 0;
     margin: 0;
     overflow: hidden;
@@ -251,19 +250,6 @@
     /* stylelint-disable property-no-vendor-prefix */
     // Fix for border radius not clipping internal content of positioned elements (Chrome/Opera)
     -webkit-mask-image: -webkit-radial-gradient(circle, white, black);
-
-    &,
-    .ui-icon-button-focus-ring {
-      width: $ui-icon-button-size;
-      height: $ui-icon-button-size;
-    }
-
-    body[modality='keyboard'] &:focus {
-      .ui-icon-button-focus-ring {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
 
     // Remove the Firefox dotted outline
     &::-moz-focus-inner {
@@ -292,19 +278,6 @@
     transition-delay: 0.1s;
   }
 
-  .ui-icon-button-focus-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: $ui-icon-button-size;
-    height: $ui-icon-button-size;
-    border-radius: 50%;
-    opacity: 0;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    transform: scale(0);
-    transform-origin: center;
-  }
-
   .ui-progress-circular.ui-icon-button-progress {
     position: absolute;
     top: 50%;
@@ -317,11 +290,8 @@
   // ================================================
 
   .ui-icon-button--size-small {
-    &,
-    .ui-icon-button-focus-ring {
-      width: $ui-icon-button--size-small;
-      height: $ui-icon-button--size-small;
-    }
+    width: $ui-icon-button--size-small;
+    height: $ui-icon-button--size-small;
 
     .ui-icon {
       font-size: rem-calc(18px);
@@ -329,11 +299,8 @@
   }
 
   .ui-icon-button--size-large {
-    &,
-    .ui-icon-button-focus-ring {
-      width: $ui-icon-button--size-large;
-      height: $ui-icon-button--size-large;
-    }
+    width: $ui-icon-button--size-large;
+    height: $ui-icon-button--size-large;
   }
 
   // ================================================
@@ -347,10 +314,6 @@
     &:hover:not(.is-disabled),
     &.has-dropdown-open {
       background-color: rgba(black, 0.1);
-    }
-
-    .ui-icon-button-focus-ring {
-      background-color: rgba(black, 0.15);
     }
   }
 
@@ -383,10 +346,6 @@
         background-color: darken($md-grey-200, 7.5%);
       }
 
-      .ui-icon-button-focus-ring {
-        background-color: darken($md-grey-200, 15%);
-      }
-
       .ui-ripple-ink__ink {
         opacity: 0.2;
       }
@@ -415,10 +374,6 @@
       &.has-dropdown-open {
         background-color: darken($brand-accent-color, 10%);
       }
-
-      .ui-icon-button-focus-ring {
-        background-color: darken($brand-accent-color, 15%);
-      }
     }
 
     &.ui-icon-button--color-green {
@@ -427,10 +382,6 @@
       &:hover:not(.is-disabled),
       &.has-dropdown-open {
         background-color: darken($md-green, 10%);
-      }
-
-      .ui-icon-button-focus-ring {
-        background-color: darken($md-green, 15%);
       }
     }
 
@@ -441,10 +392,6 @@
       &.has-dropdown-open {
         background-color: darken($md-orange, 10%);
       }
-
-      .ui-icon-button-focus-ring {
-        background-color: darken($md-orange, 15%);
-      }
     }
 
     &.ui-icon-button--color-red {
@@ -453,10 +400,6 @@
       &:hover:not(.is-disabled),
       &.has-dropdown-open {
         background-color: darken($md-red, 10%);
-      }
-
-      .ui-icon-button-focus-ring {
-        background-color: darken($md-red, 15%);
       }
     }
   }
@@ -479,10 +422,6 @@
       &:hover:not(.is-disabled),
       &.has-dropdown-open {
         background-color: rgba(black, 0.1);
-      }
-
-      .ui-icon-button-focus-ring {
-        background-color: rgba(black, 0.15);
       }
     }
 
