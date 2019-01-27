@@ -5,11 +5,14 @@
     :class="{focused: hasFocus, 'not-focused': !hasFocus}"
   >
     <UiIconButton
+      v-show="!isFirst"
       ref="upBtn"
       class="btn up"
       type="flat"
       :ariaLabel="moveUpText"
       :class="{visuallyhidden: !hasFocus}"
+      @click="clickUp"
+      @keyup.space="clickUp"
     >
       <mat-svg name="keyboard_arrow_up" category="hardware" />
     </UiIconButton>
@@ -19,11 +22,14 @@
      -->
     <file-svg src="./drag_indicator.svg" class="grip" />
     <UiIconButton
+      v-show="!isLast"
       ref="dnBtn"
       class="btn dn"
       type="flat"
       :ariaLabel="moveDownText"
       :class="{visuallyhidden: !hasFocus}"
+      @click="clickDown"
+      @keyup.space="clickDown"
     >
       <mat-svg name="keyboard_arrow_down" category="hardware" />
     </UiIconButton>
@@ -50,6 +56,14 @@
         type: String,
         required: true,
       },
+      isFirst: {
+        type: Boolean,
+        required: true,
+      },
+      isLast: {
+        type: Boolean,
+        required: true,
+      },
     },
     data() {
       return {
@@ -67,6 +81,26 @@
         this.hasFocus = [this.$refs.dnBtn.$el, this.$refs.upBtn.$el].includes(
           document.activeElement
         );
+      },
+      clickDown() {
+        this.$emit('moveDown');
+        this.$nextTick(() => {
+          if (this.isLast) {
+            this.$refs.upBtn.$el.focus();
+          } else {
+            this.$refs.dnBtn.$el.focus();
+          }
+        });
+      },
+      clickUp() {
+        this.$emit('moveUp');
+        this.$nextTick(() => {
+          if (this.isFirst) {
+            this.$refs.dnBtn.$el.focus();
+          } else {
+            this.$refs.upBtn.$el.focus();
+          }
+        });
       },
     },
   };
@@ -90,6 +124,7 @@
   .btn {
     position: absolute;
     left: -6px;
+    z-index: 2;
     transition: opacity $core-time ease;
   }
 
@@ -105,11 +140,11 @@
   }
 
   .up {
-    top: -20px;
+    top: -16px;
   }
 
   .dn {
-    top: 8px;
+    top: 4px;
   }
 
 </style>

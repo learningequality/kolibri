@@ -4,9 +4,9 @@
     :items="workingResources"
     @sort="handleDrag"
   >
-    <div class="wrapper">
+    <transition-group tag="div" name="list" class="wrapper">
       <KDraggable
-        v-for="(resourceId) in workingResources"
+        v-for="(resourceId, index) in workingResources"
         :key="resourceId"
       >
         <KDragHandle>
@@ -20,6 +20,10 @@
                 <KDragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
+                  :isFirst="index === 0"
+                  :isLast="index === workingResources.length - 1"
+                  @moveUp="moveUpOne(index)"
+                  @moveDown="moveDownOne(index)"
                 />
               </div>
             </KGridItem>
@@ -48,7 +52,7 @@
           </KGrid>
         </KDragHandle>
       </KDraggable>
-    </div>
+    </transition-group>
   </KDragContainer>
 
 </template>
@@ -86,7 +90,6 @@
       return {
         workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
         firstRemovalTitle: '',
-        enableTransitions: false,
       };
     },
     computed: {
@@ -116,15 +119,6 @@
         return this.$tr('multipleResourceRemovalsConfirmationMessage', {
           numberOfRemovals,
         });
-      },
-      resourceReorderMoveStyle() {
-        if (this.enableTransitions) {
-          return {
-            backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
-            transition: 'transform 0.5s',
-          };
-        }
-        return {};
       },
     },
     methods: {
@@ -168,14 +162,10 @@
         });
       },
       moveUpOne(oldIndex) {
-        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex - 1);
-        setTimeout(() => (this.enableTransitions = false), 500);
       },
       moveDownOne(oldIndex) {
-        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex + 1);
-        setTimeout(() => (this.enableTransitions = false), 500);
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.workingResources];
@@ -301,6 +291,10 @@
 
   .sortable-ghost {
     visibility: hidden;
+  }
+
+  .list-move {
+    transition: transform $core-time ease;
   }
 
 </style>

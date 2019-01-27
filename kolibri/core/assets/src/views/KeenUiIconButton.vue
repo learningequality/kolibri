@@ -147,7 +147,7 @@
           { 'is-loading': this.loading },
           { 'is-disabled': this.disabled || this.loading },
           { 'has-dropdown': this.hasDropdown },
-          this.$computedClass({ ':focus': { ...this.$coreOutline, outlineOffset: '2px' } }),
+          this.$computedClass({ ':focus': { ...this.$coreOutline, outlineOffset: '0' } }),
         ];
       },
 

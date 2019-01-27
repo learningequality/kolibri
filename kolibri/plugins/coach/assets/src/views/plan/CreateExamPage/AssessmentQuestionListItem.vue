@@ -4,7 +4,12 @@
     class="item-wrapper"
     :class="{selected: isSelected, draggable }"
   >
-    <a @click="handleSelect">
+    <a
+      tabindex="0" 
+      :class="focusRing" 
+      @click="handleSelect" 
+      @keyup.enter.stop.prevent="handleSelect"
+    >
       <span class="text">{{ text }}</span>
       <CoachContentLabel
         class="coach-content-label"
@@ -13,7 +18,14 @@
       />
     </a>
     <div v-if="draggable" class="handle">
-      <KDragSortWidget />
+      <KDragSortWidget
+        :isFirst="isFirst"
+        :isLast="isLast"
+        :moveUpText="$tr('moveExerciseUp')"
+        :moveDownText="$tr('moveExerciseDown')"
+        @moveDown="$emit('moveDown')"
+        @moveUp="$emit('moveUp')"
+      />
     </div>
   </li>
 
@@ -22,6 +34,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
 
@@ -61,8 +74,17 @@
         type: Boolean,
         required: true,
       },
+      isFirst: {
+        type: Boolean,
+        default: false,
+      },
+      isLast: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
+      ...mapGetters(['$coreOutline']),
       text() {
         if (this.questionNumberOfExercise === undefined) {
           return this.exerciseName;
@@ -71,6 +93,9 @@
           name: this.exerciseName,
           number: this.questionNumberOfExercise,
         });
+      },
+      focusRing() {
+        return this.$computedClass({ ':focus': this.$coreOutline });
       },
     },
     methods: {
@@ -91,7 +116,6 @@
     display: block;
     width: 100%;
     padding: 8px;
-    overflow: hidden;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;

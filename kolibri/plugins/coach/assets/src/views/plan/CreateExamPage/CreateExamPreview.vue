@@ -61,6 +61,7 @@
         <UiIconButton
           type="flat"
           aria-hidden="true"
+          tabindex="-1"
           @click="getNewQuestionSet"
         >
           <mat-svg name="refresh" category="navigation" />
@@ -95,7 +96,7 @@
             :items="annotatedQuestions"
             @sort="handleUserSort"
           >
-            <ol class="question-list fixed">
+            <transition-group tag="ol" name="list" class="question-list fixed">
               <KDraggable
                 v-for="(question, questionIndex) in annotatedQuestions"
                 :key="listKey(question)"
@@ -107,11 +108,15 @@
                     :exerciseName="question.title"
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
                     :questionNumberOfExercise="question.counterInExercise"
+                    :isFirst="questionIndex === 0"
+                    :isLast="questionIndex === annotatedQuestions.length - 1"
                     @select="currentQuestionIndex = questionIndex"
+                    @moveDown="moveQuestionDown(questionIndex)"
+                    @moveUp="moveQuestionUp(questionIndex)"
                   />
                 </KDragHandle>
               </KDraggable>
-            </ol>
+            </transition-group>
           </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
@@ -361,6 +366,18 @@
           }, 250);
         }
       },
+      shiftOne(oldIndex, newIndex) {
+        const newArray = [...this.selectedQuestions];
+        newArray[oldIndex] = this.selectedQuestions[newIndex];
+        newArray[newIndex] = this.selectedQuestions[oldIndex];
+        this.handleUserSort({ newArray, oldIndex, newIndex });
+      },
+      moveQuestionUp(index) {
+        this.shiftOne(index, index - 1);
+      },
+      moveQuestionDown(index) {
+        this.shiftOne(index, index + 1);
+      },
       getNewQuestionSet() {
         this.$store.commit('examCreation/RANDOMIZE_SEED');
         this.$store.dispatch('examCreation/updateSelectedQuestions');
@@ -459,6 +476,10 @@
 
   .fade-numbers-enter {
     opacity: 0;
+  }
+
+  .list-move {
+    transition: transform $core-time ease;
   }
 
 </style>
