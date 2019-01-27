@@ -42,8 +42,6 @@
       :stroke="4.5"
     />
 
-    <UiRippleInk v-if="!disableRipple && !disabled" trigger="button" />
-
     <UiPopover
       v-if="hasDropdown"
       ref="dropdown"
@@ -77,7 +75,6 @@
   import { mapGetters } from 'vuex';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiPopover from 'keen-ui/src/UiPopover';
-  import UiRippleInk from 'keen-ui/src/UiRippleInk';
   import UiTooltip from 'keen-ui/src/UiTooltip';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { darken } from 'kolibri.utils.colour';
@@ -90,7 +87,6 @@
       UiIcon,
       UiPopover,
       KCircularLoader,
-      UiRippleInk,
       UiTooltip,
     },
 
@@ -132,10 +128,6 @@
       tooltip: String,
       openTooltipOn: String,
       tooltipPosition: String,
-      disableRipple: {
-        type: Boolean,
-        default: config.data.disableRipple,
-      },
       disabled: {
         type: Boolean,
         default: false,

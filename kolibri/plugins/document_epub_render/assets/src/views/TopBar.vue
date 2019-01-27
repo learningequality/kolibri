@@ -42,7 +42,6 @@
         <UiIconButton
           ref="fullscreenButton"
           type="secondary"
-          :disableRipple="true"
           :ariaLabel="$tr('toggleFullscreen')"
           @click="$emit('fullscreenButtonClicked')"
         >

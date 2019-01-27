@@ -18,7 +18,6 @@
         <UiIconButton
           type="secondary"
           buttonType="submit"
-          :disableRipple="true"
           :ariaLabel="$tr('submitSearchQuery')"
           class="d-tc"
         >
