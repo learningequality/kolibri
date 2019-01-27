@@ -4,6 +4,8 @@
     <UiIconButton
       type="flat"
       class="icon"
+      tabIndex="-1"
+      aria-hidden="true"
       @click="$emit('navIconClick')"
     >
       <mat-svg
