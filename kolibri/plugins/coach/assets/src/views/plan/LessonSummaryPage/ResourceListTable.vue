@@ -16,31 +16,12 @@
             cols="8"
           >
             <KGridItem size="1" class="relative">
-              <!--
-               <UiIconButton
-                v-if="index !== 0"
-                type="flat"
-                :ariaLabel="$tr('moveResourceUpButtonDescription')"
-                class="move-button up"
-                @click="moveUpOne(index)"
-              >
-                <mat-svg name="keyboard_arrow_up" category="hardware" />
-              </UiIconButton>
-               -->
               <div class="move-handle">
-                <KDragIcon />
+                <KDragSortWidget
+                  :moveUpText="$tr('moveResourceUpButtonDescription')"
+                  :moveDownText="$tr('moveResourceDownButtonDescription')"
+                />
               </div>
-              <!--
-              <UiIconButton
-                v-if="index !== (workingResources.length - 1)"
-                type="flat"
-                :ariaLabel="$tr('moveResourceDownButtonDescription')"
-                class="move-button down"
-                @click="moveDownOne(index)"
-              >
-                <mat-svg name="keyboard_arrow_down" category="hardware" />
-              </UiIconButton>
-               -->
             </KGridItem>
             <KGridItem size="4">
               <div class="resource-title">
@@ -76,7 +57,7 @@
 <script>
 
   import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
-  import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
+  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
@@ -94,7 +75,7 @@
       KDraggable,
       KDragContainer,
       KDragHandle,
-      KDragIcon,
+      KDragSortWidget,
       CoachContentLabel,
       KButton,
       KGrid,
