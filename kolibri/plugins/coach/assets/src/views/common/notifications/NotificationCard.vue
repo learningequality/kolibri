@@ -54,7 +54,7 @@
     mixins: [commonCoach],
     props: {
       targetPage: {
-        type: String,
+        type: Object,
         required: false,
       },
       // Primary icon ('star', 'help', or 'clock')
