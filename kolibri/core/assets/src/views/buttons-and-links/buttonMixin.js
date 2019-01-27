@@ -101,7 +101,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.$coreOutline,
+        ':focus': { ...this.$coreOutline, outlineOffset: '2px' },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreActionNormal}, 0.5)`,
@@ -145,7 +145,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.$coreOutline,
+        ':focus': { ...this.$coreOutline, outlineOffset: '2px' },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,

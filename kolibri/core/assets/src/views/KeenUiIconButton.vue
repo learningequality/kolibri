@@ -139,7 +139,7 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal']),
+      ...mapGetters(['$coreActionNormal', '$coreOutline']),
       classes() {
         return [
           `keen-ui-icon-button--type-${this.type}`,
@@ -148,6 +148,7 @@
           { 'is-loading': this.loading },
           { 'is-disabled': this.disabled || this.loading },
           { 'has-dropdown': this.hasDropdown },
+          this.$computedClass({ ':focus': { ...this.$coreOutline, outlineOffset: '2px' } }),
         ];
       },
 
@@ -171,13 +172,6 @@
         } else if (this.primaryColor && !this.primaryType) {
           return {
             color: this.$coreActionNormal,
-          };
-        }
-      },
-      focusRingStyle() {
-        if (this.primaryColor) {
-          return {
-            backgroundColor: darken(this.$coreActionNormal, '15%'),
           };
         }
       },
@@ -245,19 +239,9 @@
     background: none;
     border: 0;
     border-radius: 50%;
-    outline: none;
-
-    /* stylelint-disable property-no-vendor-prefix */
-    // Fix for border radius not clipping internal content of positioned elements (Chrome/Opera)
-    -webkit-mask-image: -webkit-radial-gradient(circle, white, black);
-
-    // Remove the Firefox dotted outline
-    &::-moz-focus-inner {
-      border: 0;
-    }
 
     &.is-loading {
-      .ui-icon-button-icon {
+      .keen-ui-icon-button-icon {
         opacity: 0;
       }
     }
