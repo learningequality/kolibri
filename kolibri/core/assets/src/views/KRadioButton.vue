@@ -128,19 +128,11 @@
         return `${this._uid}`;
       },
       activeStyle() {
-        return this.active
-          ? {
-              // setting opacity to 0 hides input's default outline
-              outline: this.$coreOutline,
-            }
-          : {};
+        // setting opacity to 0 hides input's default outline
+        return this.active ? this.$coreOutline : {};
       },
       disabledStyle() {
-        return this.disabled
-          ? {
-              fill: this.$coreGrey300,
-            }
-          : {};
+        return this.disabled ? { fill: this.$coreGrey300 } : {};
       },
     },
 

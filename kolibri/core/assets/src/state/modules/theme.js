@@ -91,7 +91,12 @@ export default {
       return state['$core-loading'];
     },
     $coreOutline(state) {
-      return `${state['$core-action-light']} 2px solid`;
+      return {
+        outlineColor: state['$core-action-light'],
+        outlineStyle: 'solid',
+        outlineWidth: '2px',
+        outlineOffset: '4px',
+      };
     },
   },
   mutations: {

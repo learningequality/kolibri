@@ -60,19 +60,13 @@ export default {
         return [buttonClass, this.$computedClass(this.secondaryFlatStyle)];
       }
     },
-    focusRing() {
-      return {
-        outline: this.$coreOutline,
-        outlineOffset: '4px',
-      };
-    },
     linkStyle() {
       return {
         color: this.$coreActionNormal,
         ':hover': {
           color: this.$coreActionDark,
         },
-        ':focus': this.focusRing,
+        ':focus': this.$coreOutline,
         ':disabled': {
           color: `rgba(${this.$coreActionNormal}, 0.5)`,
         },
@@ -85,7 +79,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreActionDark,
         },
-        ':focus': this.focusRing,
+        ':focus': this.$coreOutline,
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
@@ -107,7 +101,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.focusRing,
+        ':focus': this.$coreOutline,
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreActionNormal}, 0.5)`,
@@ -129,7 +123,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.focusRing,
+        ':focus': this.$coreOutline,
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,
@@ -151,7 +145,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.focusRing,
+        ':focus': this.$coreOutline,
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,

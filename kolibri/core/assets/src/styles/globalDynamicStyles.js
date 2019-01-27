@@ -23,9 +23,7 @@ function generateGlobalStyles() {
     globals: {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
-      '*:focus': {
-        outline: store.getters.$coreOutline,
-      },
+      '*:focus': store.getters.$coreOutline,
       '*hr': {
         borderTop: `1px solid ${store.getters.$coreTextDisabled}`,
       },

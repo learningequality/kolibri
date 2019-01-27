@@ -130,9 +130,7 @@
       },
       settingsButtonFocus() {
         return {
-          ':focus': {
-            outline: this.$coreOutline,
-          },
+          ':focus': this.$coreOutline,
         };
       },
     },

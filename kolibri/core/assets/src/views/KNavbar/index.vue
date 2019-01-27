@@ -76,9 +76,7 @@
       },
       scrollButton() {
         return {
-          ':hover': {
-            outline: this.$coreOutline,
-          },
+          ':hover': this.$coreOutline,
         };
       },
     },
