@@ -42,19 +42,21 @@
                 />
               </transition>
               <transition name="list">
-                <ul
-                  v-if="simpleSignIn && suggestions.length"
-                  v-show="showDropdown"
-                  class="suggestions"
-                >
-                  <UiAutocompleteSuggestion
-                    v-for="(suggestion, i) in suggestions"
-                    :key="i"
-                    :suggestion="suggestion"
-                    :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
-                    @click.native="fillUsername(suggestion)"
-                  />
-                </ul>
+                <div class="suggestions-wrapper">
+                  <ul
+                    v-if="simpleSignIn && suggestions.length"
+                    v-show="showDropdown"
+                    class="suggestions"
+                  >
+                    <UiAutocompleteSuggestion
+                      v-for="(suggestion, i) in suggestions"
+                      :key="i"
+                      :suggestion="suggestion"
+                      :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
+                      @mousedown.native="fillUsername(suggestion)"
+                    />
+                  </ul>
+                </div>
               </transition>
               <transition name="textbox">
                 <KTextbox
@@ -511,6 +513,11 @@
 
   .footer-cell .small-text {
     margin-top: 8px;
+  }
+
+  .suggestions-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .suggestions {
