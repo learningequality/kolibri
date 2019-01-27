@@ -4,6 +4,8 @@
     <UiIconButton
       type="secondary"
       class="globe"
+      aria-hidden="true"
+      tabindex="-1"
       @click="showLanguageModal = true"
     >
       <mat-svg

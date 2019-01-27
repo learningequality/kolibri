@@ -7,6 +7,7 @@
     :class="buttonClasses"
     :type="type"
     :disabled="disabled"
+    tabindex="0"
     @click="handleClick"
   >
     <slot v-if="$slots.default"></slot>

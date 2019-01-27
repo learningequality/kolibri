@@ -11,13 +11,12 @@
   <button
     ref="button"
     class="keen-ui-icon-button"
-
     :aria-label="ariaLabel || tooltip"
     :class="classes"
     :style="buttonColor"
     :disabled="disabled || loading"
     :type="buttonType"
-
+    tabindex="0"
     @click="onClick"
   >
     <div
