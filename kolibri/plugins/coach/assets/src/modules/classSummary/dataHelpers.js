@@ -2,12 +2,8 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
+import { STATUSES } from './constants';
 import store from './index';
-
-const NOT_STARTED = 'not_started';
-const STARTED = 'started';
-const HELP_NEEDED = 'help_needed';
-const COMPLETED = 'completed';
 
 export default {
   groupNames(groupIds) {
@@ -21,7 +17,11 @@ export default {
     return flatten(map(groupIds, id => store.state.groupMap[id].member_ids));
   },
   examStatusForLearner(examId, learnerId) {
-    return get(store.state.examLearnerStatusMap, [examId, learnerId, 'status'], NOT_STARTED);
+    return get(
+      store.state.examLearnerStatusMap,
+      [examId, learnerId, 'status'],
+      STATUSES.notStarted
+    );
   },
   sortBy,
 };

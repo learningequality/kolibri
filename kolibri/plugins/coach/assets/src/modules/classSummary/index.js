@@ -4,6 +4,7 @@ import every from 'lodash/every';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
+import { STATUSES } from './constants';
 
 function defaultState() {
   return {
@@ -91,29 +92,24 @@ export function _statusMap(statuses, key) {
   return statusMap;
 }
 
-const NOT_STARTED = 'not_started';
-const STARTED = 'started';
-const HELP_NEEDED = 'help_needed';
-const COMPLETED = 'completed';
-
 function _lessonStatusForLearner(state, lessonId, learnerId) {
   const lesson = state.lessonMap[lessonId];
   const statuses = lesson.node_ids.map(node_id => {
     const content_id = state.contentNodeMap[node_id].content_id;
     return get(state.contentLearnerStatusMap, [content_id, learnerId], {
-      status: NOT_STARTED,
+      status: STATUSES.notStarted,
     });
   });
-  if (some(statuses, { status: HELP_NEEDED })) {
-    return HELP_NEEDED;
+  if (some(statuses, { status: STATUSES.helpNeeded })) {
+    return STATUSES.helpNeeded;
   }
-  if (every(statuses, { status: COMPLETED })) {
-    return COMPLETED;
+  if (every(statuses, { status: STATUSES.completed })) {
+    return STATUSES.completed;
   }
-  if (every(statuses, { status: NOT_STARTED })) {
-    return NOT_STARTED;
+  if (every(statuses, { status: STATUSES.notStarted })) {
+    return STATUSES.notStarted;
   }
-  return STARTED;
+  return STATUSES.started;
 }
 
 export default {

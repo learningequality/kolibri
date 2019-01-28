@@ -14,6 +14,7 @@ import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import { PageNames } from '../constants';
 import dataHelpers from '../modules/classSummary/dataHelpers';
+import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
@@ -36,6 +37,7 @@ import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
 import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
+import { OBJECTS, ADJECTIVES, VERBS, ICONS } from './common/status/constants';
 
 export default {
   name: 'ReportsQuizHeader',
@@ -91,6 +93,21 @@ export default {
     },
     dataHelpers() {
       return dataHelpers;
+    },
+    OBJECTS() {
+      return OBJECTS;
+    },
+    ADJECTIVES() {
+      return ADJECTIVES;
+    },
+    VERBS() {
+      return VERBS;
+    },
+    ICONS() {
+      return ICONS;
+    },
+    STATUSES() {
+      return STATUSES;
     },
   },
   methods: {

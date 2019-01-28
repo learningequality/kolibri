@@ -39,15 +39,15 @@
                 :count="tableRow.numCompleted"
                 :total="tableRow.totalLearners"
                 verbosity="0"
-                verb="completed"
-                icon="learners"
+                :verb="VERBS.completed"
+                :icon="ICONS.learners"
               />
               <LearnerProgressCount
                 v-if="tableRow.numNeedingHelp"
                 :count="tableRow.numNeedingHelp"
                 verbosity="0"
-                verb="needHelp"
-                icon="help"
+                :verb="VERBS.needHelp"
+                :icon="ICONS.help"
               />
             </td>
             <td>
@@ -139,14 +139,14 @@
         const statuses = learners.map(
           learnerId => this.lessonStatusLearnerMap[lesson.id][learnerId]
         );
-        return statuses.filter(status => status === 'completed').length;
+        return statuses.filter(status => status === this.STATUSES.completed).length;
       },
       numNeedingHelp(lesson) {
         const learners = this.dataHelpers.learnersForGroups(lesson.groups);
         const statuses = learners.map(
           learnerId => this.lessonStatusLearnerMap[lesson.id][learnerId]
         );
-        return statuses.filter(status => status === 'help_needed').length;
+        return statuses.filter(status => status === this.STATUSES.helpNeeded).length;
       },
     },
   };
