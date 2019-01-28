@@ -17,8 +17,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
@@ -26,7 +26,7 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <transition-group is="tbody" name="list">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="lesson in table" :key="lesson.id">
             <td>
               <KRouterLink
@@ -58,7 +58,7 @@
             <td><LessonActive :active="lesson.active" /></td>
           </tr>
         </transition-group>
-      </table>
+      </CoreTable>
     </div>
   </CoreBase>
 

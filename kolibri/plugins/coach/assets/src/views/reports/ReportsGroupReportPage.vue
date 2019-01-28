@@ -17,14 +17,14 @@
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
-          <table class="new-coach-table">
-            <thead>
+          <CoreTable>
+            <thead slot="thead">
               <tr>
                 <td>{{ coachStrings.$tr('titleLabel') }}</td>
                 <td>{{ coachStrings.$tr('progressLabel') }}</td>
               </tr>
             </thead>
-            <tbody>
+            <transition-group slot="tbody" tag="tbody" name="list">
               <tr>
                 <td>
                   <KRouterLink
@@ -96,20 +96,20 @@
                   />
                 </td>
               </tr>
-            </tbody>
-          </table>
+            </transition-group>
+          </CoreTable>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
-          <table class="new-coach-table">
-            <thead>
+          <CoreTable>
+            <thead slot="thead">
               <tr>
                 <td>{{ coachStrings.$tr('titleLabel') }}</td>
                 <td>{{ coachStrings.$tr('progressLabel') }}</td>
                 <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
               </tr>
             </thead>
-            <tbody>
+            <transition-group slot="tbody" tag="tbody" name="list">
               <tr>
                 <td>
                   <KRouterLink
@@ -145,8 +145,8 @@
                 </td>
                 <td><Score /></td>
               </tr>
-            </tbody>
-          </table>
+            </transition-group>
+          </CoreTable>
         </KGridItem>
       </KGrid>
 
@@ -180,7 +180,7 @@
 
 <style lang="scss" scoped>
 
-  .new-coach-table {
+  table {
     min-width: 0;
   }
 

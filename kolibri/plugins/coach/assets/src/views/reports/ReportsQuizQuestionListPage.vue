@@ -15,15 +15,15 @@
       <ReportsQuizHeader />
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('questionLabel') }}</td>
             <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
             <td>{{ $tr('avgTimeSpentLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td><KRouterLink text="Question 1" :to="questionLink" /></td>
             <td>
@@ -48,8 +48,8 @@
             </td>
             <td><TimeDuration :seconds="60*4" /></td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

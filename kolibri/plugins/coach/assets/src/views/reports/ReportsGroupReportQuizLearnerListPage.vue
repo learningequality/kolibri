@@ -17,15 +17,15 @@
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
       <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('scoreLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -77,8 +77,8 @@
               />
             </td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

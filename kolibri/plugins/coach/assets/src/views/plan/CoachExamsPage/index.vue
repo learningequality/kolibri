@@ -44,7 +44,7 @@
             <th><span class="visuallyhidden">{{ examReportPageStrings.$tr('options') }}</span></th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr
             v-for="exam in filteredExams"
             :key="exam.id"
@@ -73,7 +73,7 @@
               />
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </CoreTable>
 
       <p v-if="!exams.length">

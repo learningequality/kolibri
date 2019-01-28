@@ -14,8 +14,8 @@
       <ReportsHeader />
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
@@ -25,7 +25,7 @@
             <td>{{ coachStrings.$tr('resourcesViewedLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td><KRouterLink text="Alice" :to="link" /></td>
             <td><TruncatedItemList :items="['a', 'b']" /></td>
@@ -42,8 +42,8 @@
             <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
             <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

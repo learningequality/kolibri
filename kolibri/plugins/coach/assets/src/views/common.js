@@ -1,5 +1,6 @@
 import { mapState, mapGetters } from 'vuex';
 import CoreBase from 'kolibri.coreVue.components.CoreBase';
+import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import KModal from 'kolibri.coreVue.components.KModal';
 import KButton from 'kolibri.coreVue.components.KButton';
 import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -39,6 +40,7 @@ export default {
   name: 'ReportsQuizHeader',
   components: {
     CoreBase,
+    CoreTable,
     ContentIcon,
     TopNavbar,
     KModal,

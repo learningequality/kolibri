@@ -42,14 +42,16 @@
         thead.data.style = Object.assign(thead.data.style || {}, this.tHeadStyle);
       });
       this.$slots.tbody.forEach(tbody => {
-        tbody.children.forEach(child => {
-          if (!child.data.class) {
-            child.data.class = [];
-          } else if (child.data.class && !Array.isArray(child.data.class)) {
-            child.data.class = [child.data.class];
-          }
-          child.data.class.push(this.$computedClass(this.tbodyTrStyle));
-        });
+        if (tbody.children) {
+          tbody.children.forEach(child => {
+            if (!child.data.class) {
+              child.data.class = [];
+            } else if (child.data.class && !Array.isArray(child.data.class)) {
+              child.data.class = [child.data.class];
+            }
+            child.data.class.push(this.$computedClass(this.tbodyTrStyle));
+          });
+        }
       });
       return createElement('div', { class: 'core-table-container' }, [
         createElement('table', { class: 'core-table' }, [
@@ -88,6 +90,10 @@
   /deep/ th,
   /deep/ td {
     padding: 12px 16px 12px 0;
+  }
+
+  /deep/ tr:not(:last-child) {
+    border-bottom: 1px solid rgb(223, 223, 223);
   }
 
   /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),

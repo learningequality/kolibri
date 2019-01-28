@@ -12,8 +12,8 @@
 
     <div class="new-coach-block">
       <ReportsHeader />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('groupNameLabel') }}</td>
             <td>{{ coachStrings.$tr('lessonsLabel') }}</td>
@@ -23,7 +23,7 @@
             <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -50,8 +50,8 @@
             <td><Score :value="0.2" /></td>
             <td>10 minutes ago</td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

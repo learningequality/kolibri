@@ -48,7 +48,7 @@
               <th v-if="!viewByGroups">{{ $tr('group') }}</th>
             </tr>
           </thead>
-          <tbody slot="tbody">
+          <transition-group slot="tbody" tag="tbody" name="list">
             <tr v-for="(examTaker, j) in reportGrouping" :key="j">
               <td class="core-table-icon-col">
                 <ContentIcon :kind="USER" />
@@ -71,7 +71,7 @@
               </td>
               <td v-if="!viewByGroups" dir="auto">{{ examTaker.group.name || '–' }}</td>
             </tr>
-          </tbody>
+          </transition-group>
         </CoreTable>
       </div>
     </template>

@@ -17,15 +17,15 @@
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('questionLabel') }}</td>
             <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
             <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td><KRouterLink text="Question 1" :to="questionLink" /></td>
             <td>
@@ -38,8 +38,8 @@
             </td>
             <td><TimeDuration :seconds="60*15" /></td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

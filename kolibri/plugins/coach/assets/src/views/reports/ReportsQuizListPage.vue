@@ -18,8 +18,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
@@ -28,7 +28,7 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -95,8 +95,8 @@
               <QuizActive :active="true" />
             </td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

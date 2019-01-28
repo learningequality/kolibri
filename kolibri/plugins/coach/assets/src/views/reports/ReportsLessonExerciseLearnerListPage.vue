@@ -43,8 +43,8 @@
           icon="nothing"
         />
       </p>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
@@ -53,7 +53,7 @@
             <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td><KRouterLink text="Adam" :to="learnerLink" /></td>
             <td>
@@ -152,8 +152,8 @@
             <td></td>
             <td>some time ago</td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 
