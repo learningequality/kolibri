@@ -54,7 +54,7 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgCanvas', '$coreActionDark']),
+      ...mapGetters(['$coreBgCanvas', '$coreActionDark', '$coreOutline']),
       tab() {
         const hoverAndFocus = {
           'background-color': this.$coreActionDark,
@@ -62,7 +62,11 @@
         return {
           color: this.$coreBgCanvas,
           ':hover': hoverAndFocus,
-          ':focus': hoverAndFocus,
+          ':focus': {
+            ...this.$coreOutline,
+            outlineWidth: '2px',
+            outlineOffset: '-2px',
+          },
         };
       },
     },
@@ -116,8 +120,8 @@
 
   .tab-title {
     display: inline-block;
-    overflow-x: hidden;
     font-weight: bold;
+    text-overflow: ellipsis;
     text-overflow: ellipsis;
     text-transform: uppercase;
     vertical-align: middle;

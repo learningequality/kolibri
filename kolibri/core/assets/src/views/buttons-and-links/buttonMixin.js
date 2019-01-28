@@ -79,7 +79,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreActionDark,
         },
-        ':focus': this.$coreOutline,
+        ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
@@ -101,7 +101,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': { ...this.$coreOutline, outlineOffset: '2px' },
+        ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreActionNormal}, 0.5)`,
@@ -123,7 +123,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': this.$coreOutline,
+        ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,
@@ -145,7 +145,7 @@ export default {
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
-        ':focus': { ...this.$coreOutline, outlineOffset: '2px' },
+        ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,
