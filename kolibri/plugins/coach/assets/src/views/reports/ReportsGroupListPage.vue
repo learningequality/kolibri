@@ -24,31 +24,18 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="groupObj in groups" :key="groupObj.id">
             <td>
               <KRouterLink
-                text="Group A"
-                :to="classRoute('ReportsGroupReportPage', {groupId:'___'})"
+                :text="groupObj.name"
+                :to="classRoute('ReportsGroupReportPage', { groupId: groupObj.id })"
               />
             </td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td><Score :value="0.8" /></td>
-            <td>2 minutes ago</td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Group B"
-                :to="classRoute('ReportsGroupReportPage', {groupId:'___'})"
-              />
-            </td>
-            <td>{{ coachStrings.$tr('integer', {value: 5}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td><Score :value="0.2" /></td>
-            <td>10 minutes ago</td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 4}) }}</Placeholder></td>
+            <td><Placeholder><Score :value="0.8" /></Placeholder></td>
+            <td><Placeholder>2 minutes ago</Placeholder></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -60,6 +47,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -69,7 +57,18 @@
       ReportsHeader,
     },
     mixins: [commonCoach],
-    $trs: {},
+    computed: {
+      ...mapGetters('classSummary', ['groups']),
+      table() {
+        const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
+        const mapped = sorted.map(group => {
+          const augmentedObj = {};
+          Object.assign(augmentedObj, group);
+          return augmentedObj;
+        });
+        return mapped;
+      },
+    },
   };
 
 </script>
