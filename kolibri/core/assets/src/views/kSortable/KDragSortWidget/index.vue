@@ -130,7 +130,7 @@
 
   // only dim the grip when the keyboard is being used
   .focused .grip {
-    opacity: 0.15;
+    opacity: 0.08;
   }
 
   // also hide the buttons when the keyboard is not being used
