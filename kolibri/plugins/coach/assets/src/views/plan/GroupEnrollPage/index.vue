@@ -5,18 +5,18 @@
     immersivePageIcon="arrow_back"
     :immersivePagePrimary="false"
     :primary="true"
-    :toolbarTitle="$tr('groupsHeader')"
-    :appBarTitle="$tr('groupsHeader')"
+    :toolbarTitle="groupsPageStrings.$tr('classGroups')"
+    :appBarTitle="groupsPageStrings.$tr('classGroups')"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
   >
     <h1>
-      {{ $tr('enrollLearnersIntoGroup', { groupName: currentGroup.name }) }}
+      {{ learnerClassEnrollmentPageStrings.$tr('pageHeader', { className: currentGroup.name }) }}
     </h1>
     <form @submit.prevent="addSelectedUsersToGroup">
       <div class="actions-header">
         <KFilterTextbox
           v-model.trim="filterInput"
-          :placeholder="$tr('searchForUser')"
+          :placeholder="classEnrollFormStrings.$tr('searchForUser')"
           @input="pageNum = 1"
         />
       </div>
@@ -26,27 +26,31 @@
         type="error"
         :dismissible="false"
       >
-        {{ $tr('addUsersError' ) }}
+        {{ $tr('addUsersError') }}
       </UiAlert>
 
-      <h2>{{ $tr('userTableLabel') }}</h2>
+      <h2>{{ classEnrollFormStrings.$tr('userTableLabel') }}</h2>
 
       <UserTable
         v-model="selectedUsers"
         :users="visibleFilteredUsers"
         :selectable="true"
-        :selectAllLabel="$tr('selectAllOnPage')"
-        :userCheckboxLabel="$tr('selectUser')"
+        :selectAllLabel="classEnrollFormStrings.$tr('selectAllOnPage')"
+        :userCheckboxLabel="classEnrollFormStrings.$tr('selectUser')"
         :emptyMessage="emptyMessage"
       />
 
       <nav>
         <span>
-          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+          {{ classEnrollFormStrings.$tr('pagination', {
+            visibleStartRange,
+            visibleEndRange,
+            numFilteredUsers
+          }) }}
         </span>
         <UiIconButton
           type="primary"
-          :ariaLabel="$tr('previousResults')"
+          :ariaLabel="classEnrollFormStrings.$tr('previousResults')"
           :disabled="pageNum === 1"
           size="small"
           @click="goToPage(pageNum - 1)"
@@ -64,7 +68,7 @@
         </UiIconButton>
         <UiIconButton
           type="primary"
-          :ariaLabel="$tr('nextResults')"
+          :ariaLabel="classEnrollFormStrings.$tr('nextResults')"
           :disabled="pageNum === numPages"
           size="small"
           @click="goToPage(pageNum + 1)"
@@ -84,7 +88,7 @@
 
       <div class="footer">
         <KButton
-          :text="$tr('confirmSelectionButtonLabel')"
+          :text="classEnrollFormStrings.$tr('confirmSelectionButtonLabel')"
           :primary="true"
           type="submit"
           :disabled="selectedUsers.length === 0"
@@ -107,12 +111,20 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
     filterAndSortUsers,
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
-  import UserTable from '../../../../../../facility_management/assets/src/views/UserTable.vue';
+  import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
+  import ClassEnrollForm from '../../../../../../facility_management/assets/src/views/ClassEnrollForm';
+  import LearnerClassEnrollmentPage from '../../../../../../facility_management/assets/src/views/LearnerClassEnrollmentPage';
+  import GroupsPage from '../GroupsPage';
+
+  const classEnrollFormStrings = crossComponentTranslator(ClassEnrollForm);
+  const learnerClassEnrollmentPageStrings = crossComponentTranslator(LearnerClassEnrollmentPage);
+  const groupsPageStrings = crossComponentTranslator(GroupsPage);
 
   export default {
     name: 'GroupEnrollPage',
@@ -125,33 +137,14 @@
     },
     metaInfo() {
       return {
-        title: this.$tr('enrollLearnersIntoGroup', { groupName: this.currentGroup.name }),
+        title: learnerClassEnrollmentPageStrings.$tr('pageHeader', {
+          className: this.currentGroup.name,
+        }),
       };
     },
     mixins: [responsiveWindow, commonCoach],
     $trs: {
-      enrollLearnersIntoGroup: `Enroll learners into '{groupName}'`,
-      groupsHeader: 'Groups',
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
-      name: 'Full name',
-      username: 'Username',
-      userTableLabel: 'User List',
-      role: 'Role',
-      // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
-      noUsersSelected: 'No users are selected',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this group',
-      search: 'Search',
-      selectUser: 'Select user',
       addUsersError: 'There was a problem adding users to this group',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     data() {
       return {
@@ -160,6 +153,9 @@
         pageNum: 1,
         selectedUsers: [],
         addUsersError: false,
+        classEnrollFormStrings,
+        groupsPageStrings,
+        learnerClassEnrollmentPageStrings,
       };
     },
     computed: {
@@ -210,14 +206,14 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.classEnrollFormStrings.$tr('noUsersExist');
         }
         if (this.usersNotInClass.length === 0) {
-          return this.$tr('allUsersAlready');
+          return this.classEnrollFormStrings.$tr('allUsersAlready');
         }
         if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
-          return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
+          return `${this.classEnrollFormStrings.$tr('noUsersMatch')}: '${this.filterInput}'`;
         }
 
         return '';

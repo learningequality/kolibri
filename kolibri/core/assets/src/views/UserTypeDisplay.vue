@@ -52,7 +52,10 @@
         };
       },
       typeDisplay() {
-        return this.typeDisplayMap[this.userType];
+        if (this.userType) {
+          return this.typeDisplayMap[this.userType];
+        }
+        return '';
       },
     },
   };
