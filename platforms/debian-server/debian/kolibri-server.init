@@ -28,7 +28,7 @@ PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 DAEMON_HOME="$(su $KOLIBRI_USER -c "readlink -m $KOLIBRI_HOME")"
 
 DAEMON_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
-DAEMON_UWSGI_ARGS="--ini /etc/kolibri/kolibri.ini --uid=$KOLIBRI_USER \
+DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
 	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
 
 # Load the VERBOSE setting and other rcS variables

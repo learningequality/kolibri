@@ -5,17 +5,19 @@ set -e
 
 case "$1" in
   configure)
-    # get kolibri user from kolibri installer package:
-    db_get kolibri/user
-    KOLIBRI_USER="$RET"
-    KOLIBRI_DIR="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
+    # get KOLIBRI_HOME from kolibri installer package:
+    source /etc/default/kolibri
     echo "
 location /static {
-    alias  $KOLIBRI_DIR/static;
+    alias  $KOLIBRI_HOME/static;
 }
  location /content {
-    alias   $KOLIBRI_DIR/content/;
-}"> /etc/kolibri/nginx_cache.conf
+    alias   $KOLIBRI_HOME/content/;
+}
+"> $KOLIBRI_HOME/nginx.conf
+
+    echo "include $KOLIBRI_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+
     # service kolibri-network-server reload >/dev/null || true
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
