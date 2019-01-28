@@ -29,11 +29,11 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="examObj in table" :key="examObj.id">
             <td>
               <KRouterLink
-                text="Another quiz"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
+                :text="examObj.title"
+                :to="classRoute('ReportsQuizLearnerListPage', { quizId: examObj.id })"
               />
             </td>
             <td><Score /></td>
@@ -42,15 +42,16 @@
                 :count="0"
                 :verbosity="1"
                 icon="nothing"
-                :total="10"
+                :total="examObj.totalLearners"
                 verb="started"
               />
             </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
+            <td><Recipients :groups="examObj.groupNames" /></td>
             <td>
-              <QuizActive :active="false" />
+              <QuizActive :active="examObj.active" />
             </td>
           </tr>
+          <!--
           <tr>
             <td>
               <KRouterLink
@@ -94,7 +95,7 @@
             <td>
               <QuizActive :active="true" />
             </td>
-          </tr>
+          </tr> -->
         </transition-group>
       </CoreTable>
     </div>
@@ -105,6 +106,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -120,6 +122,7 @@
       };
     },
     computed: {
+      ...mapGetters('classSummary', ['exams']),
       filterOptions() {
         return [
           {
@@ -135,6 +138,27 @@
             value: 'inactiveQuizzes',
           },
         ];
+      },
+      table() {
+        const filtered = this.exams.filter(exam => {
+          if (this.filter.value === 'allQuizzes') {
+            return true;
+          } else if (this.filter.value === 'activeQuizzes') {
+            return exam.active;
+          } else if (this.filter.value === 'inactiveQuizzes') {
+            return !exam.active;
+          }
+        });
+        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(exam => {
+          const augmentedObj = {
+            totalLearners: this.dataHelpers.learnersForGroups(exam.groups).length,
+            groupNames: this.dataHelpers.groupNames(exam.groups),
+          };
+          Object.assign(augmentedObj, exam);
+          return augmentedObj;
+        });
+        return mapped;
       },
     },
     beforeMount() {
