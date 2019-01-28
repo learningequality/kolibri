@@ -65,7 +65,10 @@
         const sorted = this.dataHelpers.sortBy(this.learners, ['name']);
         const mapped = sorted.map(learner => {
           const groupNames = this.dataHelpers.groupNames(
-            this.groups.filter(group => group.member_ids.includes(learner.id))
+            this.dataHelpers.map(
+              this.groups.filter(group => group.member_ids.includes(learner.id)),
+              'id'
+            )
           );
 
           const augmentedObj = {

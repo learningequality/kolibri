@@ -1,5 +1,6 @@
 import map from 'lodash/map';
 import get from 'lodash/get';
+import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 import { STATUSES } from './constants';
@@ -23,5 +24,8 @@ export default {
       STATUSES.notStarted
     );
   },
+  map,
+  get,
+  filter,
   sortBy,
 };
