@@ -6,17 +6,25 @@ Feature: Coach reorders lesson resources
       And I am on *Coach > Plan > Lessons* page
       And I see the lesson <lesson_title>
 
-  Scenario: Coach reorders the resources in the lesson
-  When I click the lesson <lesson_title>
-    Then I am on the <lesson_title> page
-      And I see the list of resources included in the <lesson_title>
-      And I see that each resource has *arrow up/down* buttons 
-    When I click the *arrow down* button of a <resource> resource that I want to move below
-    Then the snackbar notification appears
-			And I see the resource move downward
-    When I click the *arrow up* button of a <resource> resource that I want to move above
-    Then the snackbar notification appears
-      And I see the resource move upward
+  Scenario: Reorder resources in the lesson by mouse drag and drop
+    When I click the lesson <lesson_title>
+      Then I am on the <lesson_title> page
+        And I see the list of resources included in the <lesson_title>
+      When I move the cursor over a resource
+      Then it transforms to a hand
+      When I drag and drop the resource up or down 
+      Then the snackbar notification appears
+        And I see the resource in the new position
+
+  Scenario: Reorder resources in the lesson by keyboard
+    When I click the lesson <lesson_title>
+      Then I am on the <lesson_title> page
+        And I see the list of resources included in the <lesson_title>
+      When I use the TAB key to focus the resource 
+      Then I see the focus ring around either up or down arrow
+      When I press the ENTER or SPACEBAR key  
+      Then the snackbar notification appears
+        And I see the resource in the new position
 
 Examples:
 | lesson_title   | resource          |
