@@ -127,7 +127,7 @@ class VacuumThread(threading.Thread):
 
 def stop(pid=None, force=False):
     """
-    Stops the kalite server, either from PID or through a management command
+    Stops the kolibri server, either from PID or through a management command
 
     :param args: List of options to parse to the django management command
     :raises: NotRunning
@@ -240,7 +240,7 @@ def get_status():  # noqa: max-complexity=16
     """
     Tries to get the PID of a running server.
 
-    The behavior is also quite redundant given that `kalite start` should
+    The behavior is also quite redundant given that `kolibri start` should
     always create a PID file, and if its been started directly with the
     runserver command, then its up to the developer to know what's happening.
 
