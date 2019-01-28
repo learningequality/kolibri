@@ -21,14 +21,6 @@
         />
       </div>
 
-      <UiAlert
-        v-if="addUsersError"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('addUsersError') }}
-      </UiAlert>
-
       <h2>{{ classEnrollFormStrings.$tr('userTableLabel') }}</h2>
 
       <UserTable
@@ -106,7 +98,6 @@
 
   import { mapActions, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -132,7 +123,6 @@
       KButton,
       UiIconButton,
       KFilterTextbox,
-      UiAlert,
       UserTable,
     },
     metaInfo() {
@@ -143,16 +133,12 @@
       };
     },
     mixins: [responsiveWindow, commonCoach],
-    $trs: {
-      addUsersError: 'There was a problem adding users to this group',
-    },
     data() {
       return {
         filterInput: '',
         perPage: 10,
         pageNum: 1,
         selectedUsers: [],
-        addUsersError: false,
         classEnrollFormStrings,
         groupsPageStrings,
         learnerClassEnrollmentPageStrings,
@@ -222,17 +208,12 @@
     methods: {
       ...mapActions('groups', ['addUsersToGroup']),
       addSelectedUsersToGroup() {
-        this.addUsersError = false;
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
-        })
-          .then(() => {
-            this.$router.push(this.$router.getRoute('GroupMembersPage'));
-          })
-          .catch(() => {
-            this.addUsersError = true;
-          });
+        }).then(() => {
+          this.$router.push(this.$router.getRoute('GroupMembersPage'));
+        });
       },
       reducePageNum() {
         while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
