@@ -84,7 +84,6 @@
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
         let last = null;
-        console.log(exam.id, this.examLearnerStatusMap);
         Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
           if (status.last_activity > last) {
             last = status.last_activity;
