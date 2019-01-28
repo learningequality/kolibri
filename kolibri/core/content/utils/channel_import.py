@@ -25,7 +25,7 @@ from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.models import VERSION_2
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 

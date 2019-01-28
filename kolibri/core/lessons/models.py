@@ -10,7 +10,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.notifications.models import LearnerProgressNotification
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 
 class Lesson(AbstractFacilityDataModel):

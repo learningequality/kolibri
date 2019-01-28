@@ -31,7 +31,7 @@ from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogAPITestCase(APITestCase):
