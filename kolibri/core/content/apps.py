@@ -11,5 +11,6 @@ class KolibriContentConfig(AppConfig):
     verbose_name = 'Kolibri Content'
 
     def ready(self):
+        from .signals import reorder_channels_upon_deletion  # noqa: F401
         from kolibri.core.content.utils.sqlalchemybridge import prepare_bases
         prepare_bases()
