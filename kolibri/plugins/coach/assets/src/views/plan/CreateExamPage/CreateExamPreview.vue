@@ -193,6 +193,7 @@
   import commonCoach from '../../common';
   import QuizDetailEditor from '../../common/QuizDetailEditor';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
@@ -200,8 +201,6 @@
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
-
-  const MAX_QUESTIONS = 50;
 
   export default {
     name: 'CreateExamPreview',
