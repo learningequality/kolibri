@@ -27,24 +27,24 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="lessonObj in table" :key="lessonObj.id">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                :text="lessonObj.title"
-                :to="classRoute('ReportsLessonReportPage', { lessonId: lessonObj.id })"
+                :text="tableRow.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
               />
             </td>
             <td>
               <LearnerProgressRatio
-                :count="lessonObj.numCompleted"
-                :total="lessonObj.totalLearners"
+                :count="tableRow.numCompleted"
+                :total="tableRow.totalLearners"
                 verbosity="0"
                 verb="completed"
                 icon="learners"
               />
               <LearnerProgressCount
-                v-if="lessonObj.numNeedingHelp"
-                :count="lessonObj.numNeedingHelp"
+                v-if="tableRow.numNeedingHelp"
+                :count="tableRow.numNeedingHelp"
                 verbosity="0"
                 verb="needHelp"
                 icon="help"
@@ -52,10 +52,10 @@
             </td>
             <td>
               <Recipients
-                :groups="lessonObj.groupNames"
+                :groups="tableRow.groupNames"
               />
             </td>
-            <td><LessonActive :active="lessonObj.active" /></td>
+            <td><LessonActive :active="tableRow.active" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -112,14 +112,14 @@
         });
         const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(lesson => {
-          const augmentedObj = {
+          const tableRow = {
             totalLearners: this.dataHelpers.learnersForGroups(lesson.groups).length,
             numCompleted: this.numCompleted(lesson),
             numNeedingHelp: this.numNeedingHelp(lesson),
             groupNames: this.dataHelpers.groupNames(lesson.groups),
           };
-          Object.assign(augmentedObj, lesson);
-          return augmentedObj;
+          Object.assign(tableRow, lesson);
+          return tableRow;
         });
         return mapped;
       },

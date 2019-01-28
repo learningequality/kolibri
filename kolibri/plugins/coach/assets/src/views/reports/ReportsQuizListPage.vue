@@ -29,11 +29,11 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="examObj in table" :key="examObj.id">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                :text="examObj.title"
-                :to="classRoute('ReportsQuizLearnerListPage', { quizId: examObj.id })"
+                :text="tableRow.title"
+                :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
               />
             </td>
             <td>
@@ -47,14 +47,14 @@
                   :count="0"
                   :verbosity="1"
                   icon="nothing"
-                  :total="examObj.totalLearners"
+                  :total="tableRow.totalLearners"
                   verb="started"
                 />
               </Placeholder>
             </td>
-            <td><Recipients :groups="examObj.groupNames" /></td>
+            <td><Recipients :groups="tableRow.groupNames" /></td>
             <td>
-              <QuizActive :active="examObj.active" />
+              <QuizActive :active="tableRow.active" />
             </td>
           </tr>
         </transition-group>
@@ -112,12 +112,12 @@
         });
         const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(exam => {
-          const augmentedObj = {
+          const tableRow = {
             totalLearners: this.dataHelpers.learnersForGroups(exam.groups).length,
             groupNames: this.dataHelpers.groupNames(exam.groups),
           };
-          Object.assign(augmentedObj, exam);
-          return augmentedObj;
+          Object.assign(tableRow, exam);
+          return tableRow;
         });
         return mapped;
       },

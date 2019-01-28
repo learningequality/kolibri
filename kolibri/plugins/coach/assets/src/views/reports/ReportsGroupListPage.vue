@@ -24,11 +24,11 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="groupObj in groups" :key="groupObj.id">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                :text="groupObj.name"
-                :to="classRoute('ReportsGroupReportPage', { groupId: groupObj.id })"
+                :text="tableRow.name"
+                :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
               />
             </td>
             <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
@@ -62,9 +62,9 @@
       table() {
         const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {
-          const augmentedObj = {};
-          Object.assign(augmentedObj, group);
-          return augmentedObj;
+          const tableRow = {};
+          Object.assign(tableRow, group);
+          return tableRow;
         });
         return mapped;
       },

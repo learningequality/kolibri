@@ -26,21 +26,18 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
-            <td><KRouterLink text="Alice" :to="link" /></td>
-            <td><TruncatedItemList :items="['a', 'b']" /></td>
-            <td><Score :value="0.8" /></td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 5}) }}</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="John" :to="link" /></td>
-            <td><TruncatedItemList :items="[]" /></td>
-            <td><Score :value="0.2" /></td>
-            <td>{{ coachStrings.$tr('integer', {value: 5}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
+          <tr v-for="tableRow in table" :key="tableRow.id">
+            <td>
+              <KRouterLink
+                :text="tableRow.name"
+                :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+              />
+            </td>
+            <td><Placeholder><TruncatedItemList :items="['a', 'b']" /></Placeholder></td>
+            <td><Placeholder><Score :value="0.8" /></Placeholder></td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 4}) }}</Placeholder></td>
+            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 5}) }}</Placeholder></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -52,6 +49,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -62,11 +60,17 @@
     },
     mixins: [commonCoach],
     computed: {
-      link() {
-        return this.classRoute('ReportsLearnerReportPage', {});
+      ...mapGetters('classSummary', ['learners']),
+      table() {
+        const sorted = this.dataHelpers.sortBy(this.learners, ['name']);
+        const mapped = sorted.map(group => {
+          const augmentedObj = {};
+          Object.assign(augmentedObj, group);
+          return augmentedObj;
+        });
+        return mapped;
       },
     },
-    $trs: {},
   };
 
 </script>
