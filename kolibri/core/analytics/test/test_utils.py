@@ -12,6 +12,10 @@ import uuid
 from django.test import TestCase
 from le_utils.constants import content_kinds
 
+from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
+from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
+from kolibri.core.analytics.models import PingbackNotification
+from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
 from kolibri.core.auth.constants import facility_presets
@@ -264,3 +268,41 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sat": 20,  # sess_anon_time
         }
         assert actual == expected
+
+
+class CreateUpdateNotificationsTestCase(TestCase):
+
+    def setUp(self):
+        self.msg = {'i18n': {}, 'msg_id': 'ping', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0'}
+        self.messages = {'messages': []}
+        self.data = {'i18n': {}, 'id': 'message', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0', 'source': PINGBACK}
+        PingbackNotification.objects.create(**self.data)
+
+    def test_no_messages_still_updates(self):
+        create_and_update_notifications(self.messages, PINGBACK)
+        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+
+    def test_create_and_update_notification(self):
+        self.messages['messages'].append(self.msg)
+        original_count = PingbackNotification.objects.count()
+        create_and_update_notifications(self.messages, PINGBACK)
+        # deactivate all other messages, for this source, not included in response
+        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+        self.assertEqual(PingbackNotification.objects.count(), original_count + 1)
+
+    def test_update_same_notification(self):
+        self.data['msg_id'] = self.data['id']
+        self.data['link_url'] = ''
+        pre_notification = PingbackNotification.objects.get(id='message')
+        self.messages['messages'].append(self.data)
+        create_and_update_notifications(self.messages, PINGBACK)
+        post_notification = PingbackNotification.objects.get(id='message')
+        # messages with same ID are overwritten
+        self.assertTrue(post_notification.active)
+        self.assertNotEqual(pre_notification.link_url, post_notification.link_url)
+
+    def test_update_other_source(self):
+        self.messages['messages'].append(self.msg)
+        create_and_update_notifications(self.messages, STATISTICS)
+        # messages from other source should not be modified
+        self.assertFalse(PingbackNotification.objects.filter(source=PINGBACK, active=False).exists())

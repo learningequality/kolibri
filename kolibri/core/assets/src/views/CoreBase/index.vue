@@ -80,7 +80,15 @@
     </div>
 
     <GlobalSnackbar />
-    <UpdateNotification />
+    <UpdateNotification
+      v-if="showNotification && !busy"
+      :id="mostRecentNotification.id"
+      :title="mostRecentNotification.title"
+      :msg="mostRecentNotification.msg"
+      :linkText="mostRecentNotification.linkText"
+      :linkUrl="mostRecentNotification.linkUrl"
+      @closeModal="dismissUpdateModal"
+    />
 
   </div>
 
@@ -96,6 +104,9 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import { throttle } from 'frame-throttle';
+  import Lockr from 'lockr';
+  import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -213,13 +224,17 @@
       return {
         navShown: false,
         scrollPosition: 0,
+        updateModalShown: true,
       };
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        busy: state => state.core.signInBusy,
+        notifications: state => state.core.notifications,
       }),
       ...mapGetters(['$coreBgCanvas']),
       headerHeight() {
@@ -273,6 +288,33 @@
       throttledHandleScroll() {
         return throttle(this.handleScroll);
       },
+      showNotification() {
+        if (
+          (this.isAdmin || this.isSuperuser) &&
+          !Lockr.get(UPDATE_MODAL_DISMISSED) &&
+          this.updateModalShown &&
+          this.notifications.length !== 0
+        ) {
+          return true;
+        }
+        return false;
+      },
+      mostRecentNotification() {
+        let languageCode = defaultLanguage.id;
+        // notifications should already be ordered by timestamp
+        const notification = this.notifications[0];
+        // check if translated message is available for current language
+        if (notification.i18n[currentLanguage] !== undefined) {
+          languageCode = currentLanguage;
+        }
+        return {
+          id: notification.id,
+          title: notification.i18n[languageCode].title,
+          msg: notification.i18n[languageCode].msg,
+          linkText: notification.i18n[languageCode].link_text,
+          linkUrl: notification.link_url,
+        };
+      },
       contentComponentName() {
         return this.$slots.default[0].context.$options.name;
       },
@@ -286,6 +328,12 @@
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
+      },
+      dismissUpdateModal() {
+        if (this.notifications.length === 0) {
+          this.updateModalShown = false;
+          Lockr.set(UPDATE_MODAL_DISMISSED, true);
+        }
       },
     },
   };
