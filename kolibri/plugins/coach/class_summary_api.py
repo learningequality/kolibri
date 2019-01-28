@@ -109,9 +109,9 @@ class LessonSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "active", "node_ids", "groups")
 
 
-class ExamNodeIdsField(serializers.Field):
+class ExamQuestionSourcesField(serializers.Field):
     def to_representation(self, values):
-        return [value["exercise_id"] for value in values]
+        return values
 
 
 class ExamAssignmentsField(serializers.RelatedField):
@@ -121,14 +121,14 @@ class ExamAssignmentsField(serializers.RelatedField):
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    node_ids = ExamNodeIdsField(default=[], source="question_sources")
+    question_sources = ExamQuestionSourcesField(default=[])
 
     # classes are in here, and filtered out later
     groups = ExamAssignmentsField(many=True, read_only=True, source="assignments")
 
     class Meta:
         model = Exam
-        fields = ("id", "title", "active", "node_ids", "groups")
+        fields = ("id", "title", "active", "question_sources", "groups")
 
 
 class ContentSerializer(serializers.ModelSerializer):
@@ -168,7 +168,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         for lesson in lesson_data:
             all_node_ids |= set(lesson.get("node_ids"))
         for exam in exam_data:
-            all_node_ids |= set(exam.get("node_ids"))
+            exam_node_ids = [question['exercise_id'] for question in exam.get("question_sources")]
+            all_node_ids |= set(exam_node_ids)
 
         query_content = ContentNode.objects.filter(id__in=all_node_ids)
 

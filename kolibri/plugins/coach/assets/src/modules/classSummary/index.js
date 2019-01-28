@@ -30,7 +30,7 @@ function defaultState() {
     groupMap: {},
     /*
       examMap := {
-        [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
+        [id]: { id, active, title, question_sources: [{exercise_id, question_id}, ...], groups: [id, ...] }
       }
     */
     examMap: {},
@@ -167,8 +167,8 @@ export default {
         if (status.num_correct === null) {
           status.score = null;
         } else {
-          console.log(status.num_correct, examMap[status.exam_id].node_ids);
-          status.score = (1.0 * status.num_correct) / examMap[status.exam_id].node_ids.length;
+          status.score =
+            (1.0 * status.num_correct) / examMap[status.exam_id].question_sources.length;
         }
       });
       summary.content_learner_status.forEach(status => {

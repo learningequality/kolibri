@@ -147,10 +147,10 @@ export default {
       id: '31b700a2c35a0285f8c84767ed4f4e0a',
       title: 'SCHOOL - B',
       active: true,
-      node_ids: [
-        '2a722a9e57575148bc55deed7550ed62',
-        '2a722a9e57575148bc55deed7550ed62',
-        '2a722a9e57575148bc55deed7550ed62',
+      question_sources: [
+        { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '1' },
+        { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '2' },
+        { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '3' },
       ],
       groups: ['c4625c3fef6b7d918e9417d92e482e6f'],
     },
@@ -158,17 +158,20 @@ export default {
       id: 'd7033a1cb888493763dc9b5f3ab2505b',
       title: 'SCHOOL - A',
       active: true,
-      node_ids: ['eadec7f803994b6eb8f401237ec0f777', 'eadec7f803994b6eb8f401237ec0f777'],
+      question_sources: [
+        { exercise_id: 'eadec7f803994b6eb8f401237ec0f777', question_id: 'A' },
+        { exercise_id: 'eadec7f803994b6eb8f401237ec0f777', question_id: 'B' },
+      ],
       groups: ['8d2e8c66c05004657d676155dd0b305d'],
     },
     '4018bcea43cee3d05811b641fca0b152': {
       id: '4018bcea43cee3d05811b641fca0b152',
       title: 'SCHOOL - C',
       active: true,
-      node_ids: [
-        '7ca5649898d85d8b96672fbf4059df22',
-        '9f098fe61d8752f19fc815e1ac87f1b6',
-        '3a655a4b8adb5114a571dfd0c75cbc19',
+      question_sources: [
+        { exercise_id: '7ca5649898d85d8b96672fbf4059df22', question_id: '10' },
+        { exercise_id: '9f098fe61d8752f19fc815e1ac87f1b6', question_id: '11' },
+        { exercise_id: '3a655a4b8adb5114a571dfd0c75cbc19', question_id: '12' },
       ],
       groups: ['7c20f664b6a5c43d64b0cdd3161be513'],
     },
@@ -176,10 +179,10 @@ export default {
       id: '97316f077d470b45e912096edb534076',
       title: 'Program A',
       active: true,
-      node_ids: [
-        '9baf781e43b0514085cc205176b0ee71',
-        '9baf781e43b0514085cc205176b0ee71',
-        '9baf781e43b0514085cc205176b0ee71',
+      question_sources: [
+        { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'x' },
+        { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'y' },
+        { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'z' },
       ],
       groups: [],
     },
