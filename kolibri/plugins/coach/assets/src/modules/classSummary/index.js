@@ -67,7 +67,7 @@ function defaultState() {
 }
 
 // return a map of keys to items
-function itemMap(items, key) {
+export function _itemMap(items, key) {
   const itemMap = {};
   items.forEach(item => {
     itemMap[item[key]] = item;
@@ -76,9 +76,8 @@ function itemMap(items, key) {
 }
 
 // return a map of keys to maps of learner ids to statuses
-function statusMap(statuses, key, itemIds) {
+export function _statusMap(statuses, key) {
   const statusMap = {};
-  itemIds.forEach(id => (statusMap[id] = {}));
   statuses.forEach(status => {
     if (!statusMap[status[key]]) {
       statusMap[status[key]] = {};
@@ -135,23 +134,15 @@ export default {
       Object.assign(state, {
         id: summary.id,
         name: summary.name,
-        coachMap: itemMap(summary.coaches, 'id'),
-        learnerMap: itemMap(summary.learners, 'id'),
-        groupMap: itemMap(summary.groups, 'id'),
-        examMap: itemMap(summary.exams, 'id'),
-        examLearnerStatusMap: statusMap(
-          summary.exam_learner_status,
-          'exam_id',
-          summary.exams.map(exam => exam.id)
-        ),
-        contentMap: itemMap(summary.content, 'content_id'),
-        contentNodeMap: itemMap(summary.content, 'node_id'),
-        contentLearnerStatusMap: statusMap(
-          summary.content_learner_status,
-          'content_id',
-          summary.content.map(content => content.content_id)
-        ),
-        lessonMap: itemMap(summary.lessons, 'id'),
+        coachMap: _itemMap(summary.coaches, 'id'),
+        learnerMap: _itemMap(summary.learners, 'id'),
+        groupMap: _itemMap(summary.groups, 'id'),
+        examMap: _itemMap(summary.exams, 'id'),
+        examLearnerStatusMap: _statusMap(summary.exam_learner_status, 'exam_id'),
+        contentMap: _itemMap(summary.content, 'content_id'),
+        contentNodeMap: _itemMap(summary.content, 'node_id'),
+        contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
+        lessonMap: _itemMap(summary.lessons, 'id'),
       });
     },
     CREATE_ITEM(state, { map, id, object }) {
