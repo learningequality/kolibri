@@ -90,7 +90,7 @@ class Exam(AbstractFacilityDataModel):
         We delete all notifications objects whose quiz is this exam id.
         """
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
-        super(Exam, self).save(using, keep_parents)
+        super(Exam, self).delete(using, keep_parents)
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may

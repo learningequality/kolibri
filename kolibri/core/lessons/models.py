@@ -68,7 +68,7 @@ class Lesson(AbstractFacilityDataModel):
         We delete all notifications objects whose lesson is this lesson id.
         """
         LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
-        super(Lesson, self).save(using, keep_parents)
+        super(Lesson, self).delete(using, keep_parents)
 
     # Morango fields
     morango_model_name = 'lesson'
