@@ -19,53 +19,50 @@
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
+            <!-- TODO COACH
             <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+             -->
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
               <KRouterLink
-                text="Some exercise"
-                :to="classRoute('ReportsLessonExerciseLearnerListPage', {})"
+                v-if="tableRow.kind === 'exercise'"
+                :text="tableRow.title"
+                :to="classRoute(
+                  'ReportsLessonExerciseLearnerListPage',
+                  { exerciseId: tableRow.content_id }
+                )"
+              />
+              <KRouterLink
+                v-else
+                :text="tableRow.title"
+                :to="classRoute(
+                  'ReportsLessonResourceLearnerListPage',
+                  { resourceId: tableRow.content_id }
+                )"
               />
             </td>
             <td>
               <LearnerProgressRatio
-                :count="2"
-                :total="10"
+                :count="tableRow.numCompleted"
+                :total="recipients.length"
                 verbosity="1"
                 verb="completed"
                 icon="learners"
               />
               <LearnerProgressCount
+                v-if="tableRow.numNeedingHelp"
                 verb="needHelp"
                 icon="help"
-                :count="1"
+                :count="tableRow.numNeedingHelp"
                 :verbosity="0"
               />
-
             </td>
+            <!-- TODO COACH
             <td><TimeDuration :seconds="360" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Some video"
-                :to="classRoute('ReportsLessonResourceLearnerListPage', {})"
-              />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="6"
-                verbosity="1"
-                verb="completed"
-                icon="learners"
-              />
-
-            </td>
-            <td><TimeDuration :seconds="120" /></td>
+             -->
           </tr>
         </transition-group>
       </CoreTable>
@@ -77,6 +74,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -87,6 +85,7 @@
     },
     mixins: [commonCoach],
     computed: {
+      ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -96,10 +95,43 @@
           },
         ];
       },
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      recipients() {
+        return this.dataHelpers.learnersForGroups(this.lesson.groups);
+      },
+      table() {
+        const content = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
+        const sorted = this.dataHelpers.sortBy(content, ['title']);
+        const mapped = sorted.map(content => {
+          const tableRow = {
+            numCompleted: this.numCompleted(content.content_id),
+            numNeedingHelp: this.numLearnersNeedingHelp(content.content_id),
+            avgTimeSpent: undefined,
+          };
+          Object.assign(tableRow, content);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      numCompleted(contentId) {
+        return this.recipients.reduce((acc, learnerId) => {
+          const status = this.dataHelpers.contentStatusForLearner(contentId, learnerId);
+          if (status === this.STATUSES.completed) {
+            return acc + 1;
+          }
+          return acc;
+        }, 0);
+      },
+      numLearnersNeedingHelp(content) {
+        // TODO COACH
+        if (content.kind === 'exercise') {
+          return 0;
+        }
+        return 0;
       },
     },
     $trs: {

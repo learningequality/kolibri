@@ -19,6 +19,13 @@ export default {
     }
     return flatten(map(groupIds, id => store.state.groupMap[id].member_ids));
   },
+  contentStatusForLearner(contentId, learnerId) {
+    return get(
+      store.state.contentLearnerStatusMap,
+      [contentId, learnerId, 'status'],
+      STATUSES.notStarted
+    );
+  },
   examStatusForLearner(examId, learnerId) {
     return get(
       store.state.examLearnerStatusMap,
