@@ -102,8 +102,7 @@
         ];
       },
       table() {
-        return this.lessons.filter(lesson => {
-          // console.log(lesson.active);
+        const filtered = this.lessons.filter(lesson => {
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'activeLessons') {
@@ -112,6 +111,8 @@
             return !lesson.active;
           }
         });
+        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        return sorted;
       },
     },
     beforeMount() {

@@ -1,4 +1,5 @@
 import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import every from 'lodash/every';
 import flatten from 'lodash/flatten';
@@ -40,4 +41,5 @@ export default {
     }
     return STARTED;
   },
+  sortBy,
 };
