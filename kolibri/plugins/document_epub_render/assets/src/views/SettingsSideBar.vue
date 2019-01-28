@@ -80,6 +80,8 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
+
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
@@ -125,6 +127,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreOutline']),
       themes() {
         return THEMES;
       },
