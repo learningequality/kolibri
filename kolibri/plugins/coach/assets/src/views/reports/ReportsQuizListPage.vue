@@ -43,9 +43,9 @@
             </td>
             <td>
               <LearnerProgressRatio
-                :count="tableRow.numCompleted"
+                :count="tableRow.numStarted + tableRow.numCompleted"
                 :verbosity="1"
-                icon="nothing"
+                icon="clock"
                 :total="tableRow.totalLearners"
                 verb="started"
               />
@@ -110,10 +110,14 @@
         });
         const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(exam => {
+          const { started, not_started, completed } = this.counts(exam);
+          const total = this.dataHelpers.learnersForGroups(exam.groups).length;
           const tableRow = {
-            totalLearners: this.dataHelpers.learnersForGroups(exam.groups).length,
+            totalLearners: total,
+            numCompleted: completed,
+            numStarted: started,
+            numNotStarted: not_started,
             groupNames: this.dataHelpers.groupNames(exam.groups),
-            numCompleted: this.numCompleted(exam),
           };
           Object.assign(tableRow, exam);
           return tableRow;
@@ -125,12 +129,15 @@
       this.filter = this.filterOptions[0];
     },
     methods: {
-      numCompleted(exam) {
+      counts(exam) {
         const learners = this.dataHelpers.learnersForGroups(exam.groups);
         const statuses = learners.map(learnerId =>
           this.dataHelpers.examStatusForLearner(exam.id, learnerId)
         );
-        return statuses.filter(status => status === 'completed').length;
+        const completed = statuses.filter(status => status === 'completed').length;
+        const started = statuses.filter(status => status === 'started').length;
+        const not_started = statuses.filter(status => status === 'not_started').length;
+        return { completed, started, not_started };
       },
     },
     $trs: {

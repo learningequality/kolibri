@@ -26,10 +26,9 @@ export default {
     const lesson = store.state.lessonMap[lessonId];
     const statuses = lesson.node_ids.map(node_id => {
       const content_id = store.state.contentNodeMap[node_id].content_id;
-      if (!store.state.contentLearnerStatusMap[content_id][learnerId]) {
-        return NOT_STARTED;
-      }
-      return store.state.contentLearnerStatusMap[content_id][learnerId];
+      return get(store.state.contentLearnerStatusMap, [content_id, learnerId], {
+        status: NOT_STARTED,
+      });
     });
     if (some(statuses, { status: HELP_NEEDED })) {
       return HELP_NEEDED;
@@ -43,12 +42,7 @@ export default {
     return STARTED;
   },
   examStatusForLearner(examId, learnerId) {
-    const status = get(
-      store.state.examLearnerStatusMap,
-      [examId, learnerId, 'status'],
-      NOT_STARTED
-    );
-    return status;
+    return get(store.state.examLearnerStatusMap, [examId, learnerId, 'status'], NOT_STARTED);
   },
   sortBy,
 };
