@@ -42,6 +42,7 @@
 <script>
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoach from '../../common';
   import CoachStatusIcon from '../status/CoachStatusIcon';
 
@@ -56,6 +57,7 @@
       targetPage: {
         type: Object,
         required: false,
+        validator: validateLinkObject,
       },
       // Primary icon ('star', 'help', or 'clock')
       icon: {
