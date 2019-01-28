@@ -7,6 +7,7 @@ import sys
 from importlib import import_module
 
 import factory
+import mock
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from rest_framework import status
@@ -121,7 +122,7 @@ class LearnerGroupAPITestCase(APITestCase):
         learner_group_name = models.LearnerGroup.objects.filter(parent_id=classroom_id).first().name
         response = self.client.post(reverse('kolibri:core:learnergroup-list'), {'parent': classroom_id, 'name': learner_group_name},
                                     format='json')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
@@ -161,7 +162,7 @@ class ClassroomAPITestCase(APITestCase):
         classroom_name = self.classrooms[0].name
         response = self.client.post(reverse('kolibri:core:classroom-list'), {'parent': self.facility.id, 'name': classroom_name},
                                     format='json')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
@@ -258,6 +259,12 @@ class UserCreationTestCase(APITestCase):
         response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_creating_user_same_username_case_insensitive(self):
+        data = {"username": self.superuser.username.upper(), "password": DUMMY_PASSWORD, "facility": self.facility.id}
+        response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.USERNAME_ALREADY_EXISTS)
+
 
 class UserUpdateTestCase(APITestCase):
 
@@ -287,6 +294,18 @@ class UserUpdateTestCase(APITestCase):
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
+
+    def test_updating_user_same_username_case_insensitive(self):
+        response = self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}),
+                                     {'username': self.superuser.username.upper()}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.USERNAME_ALREADY_EXISTS)
+
+    def test_updating_same_user_same_username_case_insensitive(self):
+        response = self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}),
+                                     {'username': self.user.username.upper()}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(models.FacilityUser.objects.filter(username=self.user.username.upper()).exists())
 
 
 class UserDeleteTestCase(APITestCase):
@@ -374,11 +393,19 @@ class AnonSignUpTestCase(APITestCase):
         self.assertEqual(response.data['username'], 'user')
         self.assertEqual(response.data['full_name'], full_name)
 
-    def test_create_user_with_same_username_fails(self):
-        FacilityUserFactory.create(username='bob')
-        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+    def test_create_user_with_same_username_case_insensitive_fails(self):
+        FacilityUserFactory.create(username='bob', facility=self.facility)
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "BOB", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(models.FacilityUser.objects.all()), 1)
+
+    def test_create_user_with_same_username_other_facility(self):
+        user = FacilityUserFactory.create(username='bob')
+        other_facility = models.Facility.objects.exclude(id=user.facility.id)[0]
+        with mock.patch('kolibri.core.auth.models.Facility.get_default_facility', return_value=other_facility):
+            response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(models.FacilityUser.objects.all()), 2)
 
     def test_create_bad_username_fails(self):
         response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})

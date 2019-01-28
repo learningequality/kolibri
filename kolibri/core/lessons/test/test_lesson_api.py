@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -11,6 +12,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+
 
 DUMMY_PASSWORD = "password"
 
@@ -202,16 +204,16 @@ class LessonAPITestCase(APITestCase):
         })
         self.assertEqual(response.status_code, 403)
 
-    def test_cannot_create_lesson_same_title(self):
+    def test_cannot_create_lesson_same_title_case_insensitive(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(reverse("kolibri:core:lesson-list"), {
-            "title": "title",
+            "title": "TiTlE",
             "is_active": True,
             "collection": self.facility.id,
             "lesson_assignments": [{
                 "collection": self.facility.id,
             }],
         }, format="json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)

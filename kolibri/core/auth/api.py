@@ -40,7 +40,6 @@ from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUsernameSerializer
 from .serializers import FacilityUserSerializer
-from .serializers import FacilityUserSignupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -286,7 +285,7 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
 @method_decorator(signin_redirect_exempt, name='dispatch')
 class SignUpViewSet(viewsets.ViewSet):
 
-    serializer_class = FacilityUserSignupSerializer
+    serializer_class = FacilityUserSerializer
 
     def extract_request_data(self, request):
         return {

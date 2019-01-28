@@ -1,14 +1,15 @@
 from collections import OrderedDict
 
+from rest_framework import serializers
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Lesson
 from .models import LessonAssignment
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import ClassroomSerializer
@@ -54,15 +55,23 @@ class LessonSerializer(ModelSerializer):
             'learner_ids',
         )
 
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Lesson.objects.all(),
-                fields=('collection', 'title')
-            )
-        ]
-
     def get_learner_ids(self, data):
         return [user.id for user in data.get_all_learners()]
+
+    def validate(self, attrs):
+        title = attrs.get('title')
+        # first condition is for creating object, second is for updating
+        collection = attrs.get('collection') or getattr(self.instance, 'collection')
+        # if obj doesn't exist, return data
+        try:
+            obj = Lesson.objects.get(title__iexact=title, collection=collection)
+        except Lesson.DoesNotExist:
+            return attrs
+        # if we are updating object, and this `instance` is the same object, return data
+        if self.instance and obj.id == self.instance.id:
+            return attrs
+        else:
+            raise serializers.ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
 
     def validate_resources(self, resources):
         # Validates that every ContentNode passed into resources is actually installed
