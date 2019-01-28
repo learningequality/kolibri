@@ -37,6 +37,11 @@ option_spec = {
         },
     },
     "Server": {
+        "CHERRYPY_START": {
+            "type": "boolean",
+            "default": True,
+            "envvars": ("KOLIBRI_CHERRYPY_START",),
+        },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": 10,
