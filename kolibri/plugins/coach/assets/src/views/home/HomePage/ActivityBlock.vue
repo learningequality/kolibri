@@ -9,7 +9,7 @@
     <transition-group name="list">
       <NotificationCard
         v-for="notification in notifications"
-        :key="notification.groupCode + String(notification.lastTimestamp)"
+        :key="notification.groupCode + '_' + notification.lastId"
         v-bind="cardPropsForNotification(notification)"
         class="block-item"
       >
