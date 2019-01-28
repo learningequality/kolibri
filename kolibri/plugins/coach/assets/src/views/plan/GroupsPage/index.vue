@@ -27,7 +27,7 @@
             <th class="core-table-icon-col"></th>
             <th class="core-table-main-col">Title</th>
             <th class="ta-r">
-              {{ $tr('learnersHeader') }}
+              {{ coachStrings.$tr('learnersLabel') }}
             </th>
             <th></th>
           </tr>
@@ -93,7 +93,6 @@
       newGroup: 'New group',
       noGroups: 'You do not have any groups',
       documentTitle: 'Groups',
-      learnersHeader: 'Learners',
     },
     metaInfo() {
       return {

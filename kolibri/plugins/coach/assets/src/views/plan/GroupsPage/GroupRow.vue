@@ -22,7 +22,7 @@
       <KDropdownMenu
         v-if="!isUngrouped"
         appearance="flat-button"
-        :text="$tr('options')"
+        :text="coachStrings.$tr('optionsLabel')"
         :options="menuOptions"
         @select="handleSelection"
       />
@@ -39,19 +39,15 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import sortBy from 'lodash/sortBy';
+  import commonCoach from '../../common';
 
   export default {
     name: 'GroupRow',
-    $trs: {
-      renameGroup: 'Rename',
-      deleteGroup: 'Delete',
-      options: 'Options',
-    },
     components: {
       KDropdownMenu,
       KRouterLink,
     },
-    mixins: [responsiveWindow],
+    mixins: [commonCoach, responsiveWindow],
     props: {
       group: {
         type: Object,
@@ -75,7 +71,7 @@
         return sortBy(this.group.users, user => user.full_name.toLowerCase());
       },
       menuOptions() {
-        return [this.$tr('renameGroup'), this.$tr('deleteGroup')];
+        return [this.coachStrings.$tr('renameAction'), this.coachStrings.$tr('deleteAction')];
       },
       allUsersAreSelected() {
         return (
@@ -88,9 +84,9 @@
     },
     methods: {
       handleSelection(selectedOption) {
-        if (selectedOption === this.$tr('renameGroup')) {
+        if (selectedOption === this.coachStrings.$tr('renameAction')) {
           this.$emit('rename', this.group.name, this.group.id);
-        } else if (selectedOption === this.$tr('deleteGroup')) {
+        } else if (selectedOption === this.coachStrings.$tr('deleteAction')) {
           this.$emit('delete', this.group.name, this.group.id);
         }
       },
