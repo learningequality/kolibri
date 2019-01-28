@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -42,6 +43,7 @@ class ExamStatusSerializer(serializers.ModelSerializer):
     exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
     last_activity = serializers.CharField()
+    num_correct = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
         if exam_log.closed:
@@ -50,9 +52,18 @@ class ExamStatusSerializer(serializers.ModelSerializer):
             return STARTED
         return NOT_STARTED
 
+    def get_num_correct(self, exam_log):
+        return (
+            exam_log.attemptlogs.values_list('item')
+            .order_by('completion_timestamp')
+            .distinct()
+            .aggregate(Sum('correct'))
+            .get('correct__sum')
+        )
+
     class Meta:
         model = logger_models.ExamLog
-        fields = ("exam_id", "learner_id", "status", "last_activity")
+        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
 
 
 class GroupSerializer(serializers.ModelSerializer):

@@ -37,7 +37,7 @@ function defaultState() {
     /*
       examLearnerStatusMap := {
         [exam_id]: {
-          [learner_id]: { exam_id, learner_id, status, last_activity }
+          [learner_id]: { exam_id, learner_id, status, last_activity, num_correct, score }
         }
       }
     */
@@ -159,26 +159,37 @@ export default {
   },
   mutations: {
     SET_STATE(state, summary) {
-      // convert dates
+      const examMap = _itemMap(summary.exams, 'id');
       summary.exam_learner_status.forEach(status => {
+        // convert dates
         status.last_activity = new Date(status.last_activity);
+        // convert quiz scores to percentages from integer counts of correct answers
+        if (status.num_correct === null) {
+          status.score = null;
+        } else {
+          console.log(status.num_correct, examMap[status.exam_id].node_ids);
+          status.score = (1.0 * status.num_correct) / examMap[status.exam_id].node_ids.length;
+        }
       });
       summary.content_learner_status.forEach(status => {
+        // convert dates
         status.last_activity = new Date(status.last_activity);
       });
+      summary.exam_learner_status;
       Object.assign(state, {
         id: summary.id,
         name: summary.name,
         coachMap: _itemMap(summary.coaches, 'id'),
         learnerMap: _itemMap(summary.learners, 'id'),
         groupMap: _itemMap(summary.groups, 'id'),
-        examMap: _itemMap(summary.exams, 'id'),
+        examMap,
         examLearnerStatusMap: _statusMap(summary.exam_learner_status, 'exam_id'),
         contentMap: _itemMap(summary.content, 'content_id'),
         contentNodeMap: _itemMap(summary.content, 'node_id'),
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap: _itemMap(summary.lessons, 'id'),
       });
+      global.class = state;
     },
     CREATE_ITEM(state, { map, id, object }) {
       state[map] = {
