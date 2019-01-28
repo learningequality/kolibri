@@ -17,8 +17,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
@@ -26,39 +26,39 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <transition-group is="tbody" name="list">
-          <tr v-for="lesson in table" :key="lesson.id">
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                :text="lesson.title"
-                :to="classRoute('ReportsLessonReportPage', { lessonId: lesson.id })"
+                :text="tableRow.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
               />
             </td>
             <td>
               <LearnerProgressRatio
-                :count="numCompleted(lesson)"
-                :total="dataHelpers.learnersForGroups(lesson.groups).length"
+                :count="tableRow.numCompleted"
+                :total="tableRow.totalLearners"
                 verbosity="0"
-                verb="completed"
-                icon="learners"
+                :verb="VERBS.completed"
+                :icon="ICONS.learners"
               />
               <LearnerProgressCount
-                v-if="numNeedingHelp(lesson)"
-                :count="numNeedingHelp(lesson)"
+                v-if="tableRow.numNeedingHelp"
+                :count="tableRow.numNeedingHelp"
                 verbosity="0"
-                verb="needHelp"
-                icon="help"
+                :verb="VERBS.needHelp"
+                :icon="ICONS.help"
               />
             </td>
             <td>
               <Recipients
-                :groups="dataHelpers.groupNames(lesson.groups)"
+                :groups="tableRow.groupNames"
               />
             </td>
-            <td><LessonActive :active="lesson.active" /></td>
+            <td><LessonActive :active="tableRow.active" /></td>
           </tr>
         </transition-group>
-      </table>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -67,7 +67,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -83,8 +83,7 @@
       };
     },
     computed: {
-      ...mapState('classSummary', []),
-      ...mapGetters('classSummary', ['lessons']),
+      ...mapGetters('classSummary', ['lessons', 'lessonLearnerStatusMap']),
       filterOptions() {
         return [
           {
@@ -102,8 +101,7 @@
         ];
       },
       table() {
-        return this.lessons.filter(lesson => {
-          // console.log(lesson.active);
+        const filtered = this.lessons.filter(lesson => {
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'activeLessons') {
@@ -112,6 +110,18 @@
             return !lesson.active;
           }
         });
+        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(lesson => {
+          const tableRow = {
+            totalLearners: this.dataHelpers.learnersForGroups(lesson.groups).length,
+            numCompleted: this.numCompleted(lesson),
+            numNeedingHelp: this.numNeedingHelp(lesson),
+            groupNames: this.dataHelpers.groupNames(lesson.groups),
+          };
+          Object.assign(tableRow, lesson);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     beforeMount() {
@@ -126,17 +136,17 @@
     methods: {
       numCompleted(lesson) {
         const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        const statuses = learners.map(
+          learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
         );
-        return statuses.filter(status => status === 'completed').length;
+        return statuses.filter(status => status === this.STATUSES.completed).length;
       },
       numNeedingHelp(lesson) {
         const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        const statuses = learners.map(
+          learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
         );
-        return statuses.filter(status => status === 'help_needed').length;
+        return statuses.filter(status => status === this.STATUSES.helpNeeded).length;
       },
     },
   };

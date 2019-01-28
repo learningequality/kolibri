@@ -41,7 +41,7 @@
       viewAll: 'All quizzes',
     },
     computed: {
-      ...mapState('classSummary', ['groupMap', 'examStatusMap']),
+      ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
       ...mapGetters('classSummary', ['learners', 'exams']),
       recentQuizzes() {
         const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
@@ -73,16 +73,18 @@
       // return the number of learners who have completed the exam
       numCompleted(examId, assignedLearnerIds) {
         return assignedLearnerIds.reduce((total, learnerId) => {
-          if (!this.examStatusMap[examId][learnerId]) {
+          if (!this.examLearnerStatusMap[examId][learnerId]) {
             return total;
           }
-          return this.examStatusMap[examId][learnerId].status === 'completed' ? total + 1 : total;
+          return this.examLearnerStatusMap[examId][learnerId].status === 'completed'
+            ? total + 1
+            : total;
         }, 0);
       },
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
         let last = null;
-        Object.values(this.examStatusMap[exam.id]).forEach(status => {
+        Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
           if (status.last_activity > last) {
             last = status.last_activity;
           }

@@ -17,8 +17,8 @@
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
       <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('scoreLabel') }}</td>
@@ -26,7 +26,7 @@
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -87,8 +87,8 @@
             </td>
             <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

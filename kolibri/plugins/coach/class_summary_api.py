@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import viewsets
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -42,6 +43,7 @@ class ExamStatusSerializer(serializers.ModelSerializer):
     exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
     last_activity = serializers.CharField()
+    num_correct = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
         if exam_log.closed:
@@ -50,9 +52,18 @@ class ExamStatusSerializer(serializers.ModelSerializer):
             return STARTED
         return NOT_STARTED
 
+    def get_num_correct(self, exam_log):
+        return (
+            exam_log.attemptlogs.values_list('item')
+            .order_by('completion_timestamp')
+            .distinct()
+            .aggregate(Sum('correct'))
+            .get('correct__sum')
+        )
+
     class Meta:
         model = logger_models.ExamLog
-        fields = ("exam_id", "learner_id", "status", "last_activity")
+        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -98,9 +109,9 @@ class LessonSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "active", "node_ids", "groups")
 
 
-class ExamNodeIdsField(serializers.Field):
+class ExamQuestionSourcesField(serializers.Field):
     def to_representation(self, values):
-        return [value["exercise_id"] for value in values]
+        return values
 
 
 class ExamAssignmentsField(serializers.RelatedField):
@@ -110,14 +121,14 @@ class ExamAssignmentsField(serializers.RelatedField):
 
 class ExamSerializer(serializers.ModelSerializer):
 
-    node_ids = ExamNodeIdsField(default=[], source="question_sources")
+    question_sources = ExamQuestionSourcesField(default=[])
 
     # classes are in here, and filtered out later
     groups = ExamAssignmentsField(many=True, read_only=True, source="assignments")
 
     class Meta:
         model = Exam
-        fields = ("id", "title", "active", "node_ids", "groups")
+        fields = ("id", "title", "active", "question_sources", "groups")
 
 
 class ContentSerializer(serializers.ModelSerializer):
@@ -157,7 +168,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         for lesson in lesson_data:
             all_node_ids |= set(lesson.get("node_ids"))
         for exam in exam_data:
-            all_node_ids |= set(exam.get("node_ids"))
+            exam_node_ids = [question['exercise_id'] for question in exam.get("question_sources")]
+            all_node_ids |= set(exam_node_ids)
 
         query_content = ContentNode.objects.filter(id__in=all_node_ids)
 

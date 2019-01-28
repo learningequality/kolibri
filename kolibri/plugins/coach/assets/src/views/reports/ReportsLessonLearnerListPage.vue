@@ -16,15 +16,15 @@
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -157,8 +157,8 @@
             </td>
             <td><TruncatedItemList :items="['a', 'b']" /></td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

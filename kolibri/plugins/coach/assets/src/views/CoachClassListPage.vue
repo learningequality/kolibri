@@ -14,15 +14,15 @@
       <h1>{{ coachStrings.$tr('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ $tr('classNameLabel') }}</td>
             <td>{{ coachStrings.$tr('coachesLabel') }}</td>
             <td>{{ coachStrings.$tr('learnersLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="classObj in classList" :key="classObj.id">
             <td>
               <KRouterLink
@@ -37,8 +37,8 @@
               {{ coachStrings.$tr('integer', { value: classObj.learner_count }) }}
             </td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
 
   </CoreBase>

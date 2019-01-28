@@ -18,8 +18,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
@@ -28,75 +28,33 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="Another quiz"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
+                :text="tableRow.title"
+                :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
               />
             </td>
-            <td><Score /></td>
+            <td>
+              <Score :value="tableRow.avgScore" />
+            </td>
             <td>
               <LearnerProgressRatio
-                :count="0"
+                :count="tableRow.numStarted + tableRow.numCompleted"
                 :verbosity="1"
-                icon="nothing"
-                :total="10"
-                verb="started"
+                :icon="ICONS.clock"
+                :total="tableRow.totalLearners"
+                :verb="VERBS.started"
               />
             </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
+            <td><Recipients :groups="tableRow.groupNames" /></td>
             <td>
-              <QuizActive :active="false" />
+              <QuizActive :active="tableRow.active" />
             </td>
           </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz A"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="started"
-                :count="8"
-                :verbosity="1"
-                icon="clock"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz B"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score :value="0.9" /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="completed"
-                :count="10"
-                :verbosity="1"
-                icon="star"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="[]" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -105,6 +63,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -120,6 +79,7 @@
       };
     },
     computed: {
+      ...mapGetters('classSummary', ['exams', 'examStatuses']),
       filterOptions() {
         return [
           {
@@ -136,9 +96,60 @@
           },
         ];
       },
+      table() {
+        const filtered = this.exams.filter(exam => {
+          if (this.filter.value === 'allQuizzes') {
+            return true;
+          } else if (this.filter.value === 'activeQuizzes') {
+            return exam.active;
+          } else if (this.filter.value === 'inactiveQuizzes') {
+            return !exam.active;
+          }
+        });
+        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(exam => {
+          const { started, notStarted, completed } = this.counts(exam);
+          const learnersForQuiz = this.dataHelpers.learnersForGroups(exam.groups);
+          const tableRow = {
+            totalLearners: learnersForQuiz.length,
+            numCompleted: completed,
+            numStarted: started,
+            numNotStarted: notStarted,
+            groupNames: this.dataHelpers.groupNames(exam.groups),
+            avgScore: this.avgScore(exam, learnersForQuiz),
+          };
+          Object.assign(tableRow, exam);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      counts(exam) {
+        const learners = this.dataHelpers.learnersForGroups(exam.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.examStatusForLearner(exam.id, learnerId)
+        );
+        const completed = statuses.filter(status => status === this.STATUSES.completed).length;
+        const started = statuses.filter(status => status === this.STATUSES.started).length;
+        const notStarted = statuses.filter(status => status === this.STATUSES.notStarted).length;
+        return { completed, started, notStarted };
+      },
+      avgScore(exam, learnerIds) {
+        const relevantStatuses = this.examStatuses.filter(
+          status =>
+            learnerIds.includes(status.learner_id) &&
+            status.exam_id === exam.id &&
+            status.status === this.STATUSES.completed
+        );
+        if (!relevantStatuses.length) {
+          return null;
+        }
+        return this.dataHelpers.meanBy(relevantStatuses, 'score');
+      },
     },
     $trs: {
       show: 'Show',

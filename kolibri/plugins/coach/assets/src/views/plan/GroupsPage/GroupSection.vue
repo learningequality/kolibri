@@ -50,7 +50,7 @@
           <th>{{ $tr('username') }}</th>
         </tr>
       </thead>
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr
           v-for="user in sortedGroupUsers"
           :key="user.id"
@@ -68,7 +68,7 @@
           <td dir="auto" class="core-table-main-col">{{ user.full_name }}</td>
           <td>{{ user.username }}</td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p v-if="!group.users.length">

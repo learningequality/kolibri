@@ -1,5 +1,6 @@
 import { mapState, mapGetters } from 'vuex';
 import CoreBase from 'kolibri.coreVue.components.CoreBase';
+import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import KModal from 'kolibri.coreVue.components.KModal';
 import KButton from 'kolibri.coreVue.components.KButton';
 import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -13,6 +14,7 @@ import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import { PageNames } from '../constants';
 import dataHelpers from '../modules/classSummary/dataHelpers';
+import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
@@ -34,11 +36,14 @@ import LearnerProgressLabel from './common/status/LearnerProgressLabel';
 import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
 import ItemStatusLabel from './common/status/ItemStatusLabel';
+import Placeholder from './common/Placeholder';
+import { OBJECTS, ADJECTIVES, VERBS, ICONS } from './common/status/constants';
 
 export default {
   name: 'ReportsQuizHeader',
   components: {
     CoreBase,
+    CoreTable,
     ContentIcon,
     TopNavbar,
     KModal,
@@ -68,6 +73,7 @@ export default {
     ItemStatusRatio,
     ItemStatusCount,
     ItemStatusLabel,
+    Placeholder,
   },
   mixins: [coachStringsMixin],
   computed: {
@@ -87,6 +93,21 @@ export default {
     },
     dataHelpers() {
       return dataHelpers;
+    },
+    OBJECTS() {
+      return OBJECTS;
+    },
+    ADJECTIVES() {
+      return ADJECTIVES;
+    },
+    VERBS() {
+      return VERBS;
+    },
+    ICONS() {
+      return ICONS;
+    },
+    STATUSES() {
+      return STATUSES;
     },
   },
   methods: {

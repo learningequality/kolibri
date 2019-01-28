@@ -54,26 +54,6 @@
     background-color: white;
     border-radius: 4px;
   }
-
-  .new-coach-table {
-    width: 100%;
-    thead {
-      font-size: smaller;
-      border-bottom: 1px solid rgb(223, 223, 223);
-    }
-    tbody tr:not(:last-child) {
-      border-bottom: 1px solid rgb(223, 223, 223);
-    }
-    td {
-      padding: 8px;
-    }
-  }
-
-  .table-head {
-    font-size: smaller;
-    border-bottom: 1px solid rgb(223, 223, 223);
-  }
-
   // ... COACH - under construction
 
 </style>
