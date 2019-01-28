@@ -12,4 +12,5 @@ class KolibriContentConfig(AppConfig):
 
     def ready(self):
         from kolibri.core.content.utils.sqlalchemybridge import prepare_bases
+        from .signals import cascade_delete_node  # noqa: F401
         prepare_bases()
