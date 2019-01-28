@@ -151,6 +151,7 @@
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../../../constants/';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
@@ -160,8 +161,6 @@
   import Bottom from './Bottom';
 
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
-
-  const MAX_QUESTIONS = 50;
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'

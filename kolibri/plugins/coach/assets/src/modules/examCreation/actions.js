@@ -10,6 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
+import { MAX_QUESTIONS } from '../../constants/examConstants';
 import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
 
@@ -31,19 +32,20 @@ export function removeFromSelectedExercises(store, exercises) {
   return updateAvailableQuestions(store);
 }
 
-export function setSelectedExercises(store, exercises) {
-  store.commit('SET_SELECTED_EXERCISES', exercises);
-  return updateAvailableQuestions(store);
-}
-
 export function updateAvailableQuestions(store) {
   const { selectedExercises } = store.state;
+  // Only bother checking this if there is any doubt that we have sufficient
+  // questions available. If we have selected more exercises than we allow questions
+  // then we are sure to have this.
   if (selectedExercises.length > 0) {
-    return ContentNodeResource.fetchNodeAssessments(selectedExercises.map(ex => ex.id)).then(
-      resp => {
+    if (MAX_QUESTIONS > Object.keys(selectedExercises).length) {
+      return ContentNodeResource.fetchNodeAssessments(Object.keys(selectedExercises)).then(resp => {
         store.commit('SET_AVAILABLE_QUESTIONS', resp.entity);
-      }
-    );
+      });
+    } else {
+      store.commit('SET_AVAILABLE_QUESTIONS', MAX_QUESTIONS);
+      return Promise.resolve();
+    }
   }
   store.commit('SET_AVAILABLE_QUESTIONS', 0);
   return Promise.resolve();
