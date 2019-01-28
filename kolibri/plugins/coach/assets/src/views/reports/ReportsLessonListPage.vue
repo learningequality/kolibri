@@ -83,7 +83,7 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['lessons']),
+      ...mapGetters('classSummary', ['lessons', 'lessonStatusLearnerMap']),
       filterOptions() {
         return [
           {
@@ -136,15 +136,15 @@
     methods: {
       numCompleted(lesson) {
         const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        const statuses = learners.map(
+          learnerId => this.lessonStatusLearnerMap[lesson.id][learnerId]
         );
         return statuses.filter(status => status === 'completed').length;
       },
       numNeedingHelp(lesson) {
         const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
+        const statuses = learners.map(
+          learnerId => this.lessonStatusLearnerMap[lesson.id][learnerId]
         );
         return statuses.filter(status => status === 'help_needed').length;
       },

@@ -33,7 +33,7 @@
                 :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
               />
             </td>
-            <td><Placeholder><TruncatedItemList :items="['a', 'b']" /></Placeholder></td>
+            <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td><Placeholder><Score :value="0.8" /></Placeholder></td>
             <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
             <td><Placeholder>{{ coachStrings.$tr('integer', {value: 4}) }}</Placeholder></td>
@@ -60,12 +60,22 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapGetters('classSummary', ['learners']),
+      ...mapGetters('classSummary', ['learners', 'groups']),
       table() {
         const sorted = this.dataHelpers.sortBy(this.learners, ['name']);
-        const mapped = sorted.map(group => {
-          const augmentedObj = {};
-          Object.assign(augmentedObj, group);
+        const mapped = sorted.map(learner => {
+          const groupNames = this.dataHelpers.groupNames(
+            this.groups.filter(group => group.member_ids.includes(learner.id))
+          );
+
+          const augmentedObj = {
+            groups: groupNames,
+            avgScore: undefined,
+            lessons: undefined,
+            exercises: undefined,
+            resources: undefined,
+          };
+          Object.assign(augmentedObj, learner);
           return augmentedObj;
         });
         return mapped;

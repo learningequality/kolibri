@@ -1,3 +1,7 @@
+import get from 'lodash/get';
+import some from 'lodash/some';
+import every from 'lodash/every';
+
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
 
@@ -87,6 +91,31 @@ export function _statusMap(statuses, key) {
   return statusMap;
 }
 
+const NOT_STARTED = 'not_started';
+const STARTED = 'started';
+const HELP_NEEDED = 'help_needed';
+const COMPLETED = 'completed';
+
+function _lessonStatusForLearner(state, lessonId, learnerId) {
+  const lesson = state.lessonMap[lessonId];
+  const statuses = lesson.node_ids.map(node_id => {
+    const content_id = state.contentNodeMap[node_id].content_id;
+    return get(state.contentLearnerStatusMap, [content_id, learnerId], {
+      status: NOT_STARTED,
+    });
+  });
+  if (some(statuses, { status: HELP_NEEDED })) {
+    return HELP_NEEDED;
+  }
+  if (every(statuses, { status: COMPLETED })) {
+    return COMPLETED;
+  }
+  if (every(statuses, { status: NOT_STARTED })) {
+    return NOT_STARTED;
+  }
+  return STARTED;
+}
+
 export default {
   namespaced: true,
   state: defaultState(),
@@ -108,6 +137,16 @@ export default {
     },
     lessons(state) {
       return Object.values(state.lessonMap);
+    },
+    lessonStatusLearnerMap(state) {
+      const map = {};
+      Object.values(state.lessonMap).forEach(lesson => {
+        map[lesson.id] = {};
+        Object.values(state.learnerMap).forEach(learner => {
+          map[lesson.id][learner.id] = _lessonStatusForLearner(state, lesson.id, learner.id);
+        });
+      });
+      return map;
     },
     // Adapter used in 'coachNotifications' module. Make sure this getter is updated
     // whenever this module's state changes.
