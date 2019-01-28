@@ -41,7 +41,7 @@
               {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
-            <td><Placeholder>2 minutes ago</Placeholder></td>
+            <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -54,6 +54,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -61,10 +62,17 @@
     name: 'ReportsGroupListPage',
     components: {
       ReportsHeader,
+      ElapsedTime,
     },
     mixins: [commonCoach],
     computed: {
-      ...mapGetters('classSummary', ['groups', 'lessons', 'exams', 'examStatuses']),
+      ...mapGetters('classSummary', [
+        'groups',
+        'lessons',
+        'exams',
+        'examStatuses',
+        'contentStatuses',
+      ]),
       table() {
         const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {
@@ -74,13 +82,13 @@
           const groupExams = this.exams.filter(
             exam => exam.groups.includes(group.id) || !exam.groups.length
           );
-          const learners = this.dataHelpers.learnersForGroups([group.id]);
+          const learnerIds = this.dataHelpers.learnersForGroups([group.id]);
           const tableRow = {
             numLessons: groupLessons.length,
             numQuizzes: groupExams.length,
-            numLearners: learners.length,
-            avgScore: this.avgScore(group),
-            lastActivity: undefined,
+            numLearners: learnerIds.length,
+            avgScore: this.avgScore(learnerIds),
+            lastActivity: this.lastActivity(learnerIds),
           };
           Object.assign(tableRow, group);
           return tableRow;
@@ -89,8 +97,7 @@
       },
     },
     methods: {
-      avgScore(group) {
-        const learnerIds = this.dataHelpers.learnersForGroups([group.id]);
+      avgScore(learnerIds) {
         const relevantStatuses = this.examStatuses.filter(
           status =>
             learnerIds.includes(status.learner_id) && status.status === this.STATUSES.completed
@@ -99,6 +106,17 @@
           return null;
         }
         return this.dataHelpers.meanBy(relevantStatuses, 'score');
+      },
+      lastActivity(learnerIds) {
+        const statuses = [
+          ...this.examStatuses.filter(
+            status => learnerIds.includes(status.learner_id) && status.status
+          ),
+          ...this.contentStatuses.filter(
+            status => learnerIds.includes(status.learner_id) && status.status
+          ),
+        ];
+        return this.dataHelpers.maxBy(statuses, 'last_activity').last_activity;
       },
     },
   };

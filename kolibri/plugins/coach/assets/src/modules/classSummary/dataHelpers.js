@@ -2,6 +2,7 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
+import maxBy from 'lodash/maxBy';
 import flatten from 'lodash/flatten';
 import meanBy from 'lodash/meanBy';
 import { STATUSES } from './constants';
@@ -30,4 +31,5 @@ export default {
   filter,
   sortBy,
   meanBy,
+  maxBy,
 };
