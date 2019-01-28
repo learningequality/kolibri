@@ -36,66 +36,27 @@
                 :to="classRoute('ReportsQuizLearnerListPage', { quizId: examObj.id })"
               />
             </td>
-            <td><Score /></td>
             <td>
-              <LearnerProgressRatio
-                :count="0"
-                :verbosity="1"
-                icon="nothing"
-                :total="examObj.totalLearners"
-                verb="started"
-              />
+              <Placeholder :ready="false">
+                <Score />
+              </Placeholder>
+            </td>
+            <td>
+              <Placeholder :ready="false">
+                <LearnerProgressRatio
+                  :count="0"
+                  :verbosity="1"
+                  icon="nothing"
+                  :total="examObj.totalLearners"
+                  verb="started"
+                />
+              </Placeholder>
             </td>
             <td><Recipients :groups="examObj.groupNames" /></td>
             <td>
               <QuizActive :active="examObj.active" />
             </td>
           </tr>
-          <!--
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz A"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="started"
-                :count="8"
-                :verbosity="1"
-                icon="clock"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz B"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score :value="0.9" /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="completed"
-                :count="10"
-                :verbosity="1"
-                icon="star"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="[]" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr> -->
         </transition-group>
       </CoreTable>
     </div>
