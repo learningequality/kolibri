@@ -1,4 +1,5 @@
 import hashlib
+import io
 import mimetypes
 import os
 import zipfile
@@ -33,8 +34,8 @@ HASHI_FILENAME = None
 
 def get_hashi_filename():
     global HASHI_FILENAME
-    if HASHI_FILENAME is None or getattr(settings, 'DEVELOPER_MODE'):
-        with open(os.path.join(os.path.dirname(__file__), './build/hashi_filename')) as f:
+    if HASHI_FILENAME is None or getattr(settings, 'DEVELOPER_MODE', None):
+        with io.open(os.path.join(os.path.dirname(__file__), './build/hashi_filename'), mode='r', encoding='utf-8') as f:
             HASHI_FILENAME = f.read().strip()
     return HASHI_FILENAME
 
@@ -95,9 +96,9 @@ def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
     # Are we returning the Hashi bootstrap html? In which case the etag should change
     # along with the built file asset of the Hashi client library.
     if (not request.is_ajax()) and zipped_path.endswith('zip') and (embedded_filepath.endswith('htm') or embedded_filepath.endswith('html')):
-        return hashlib.md5(get_hashi_filename()).hexdigest()
+        return hashlib.md5(get_hashi_filename().encode('utf-8')).hexdigest()
 
-    return hashlib.md5(zipped_filename + embedded_filepath).hexdigest()
+    return hashlib.md5((zipped_filename + embedded_filepath).encode('utf-8')).hexdigest()
 
 
 class ZipContentView(View):
