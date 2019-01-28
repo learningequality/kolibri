@@ -1,3 +1,5 @@
-kolibri.conf etc/kolibri/
-kolibri.ini etc/kolibri/
-nginx_cache.conf etc/kolibri/
+nginx.conf etc/kolibri/dist/
+uwsgi.ini etc/kolibri/dist/
+nginx.d_README etc/kolibri/nginx.d/
+uwsgi.d_README etc/kolibri/uwsgi.d/
+dist_README etc/kolibri/dist/
