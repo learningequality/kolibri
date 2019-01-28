@@ -129,13 +129,12 @@
   }
 
   // only dim the grip when the keyboard is being used
-  body[modality='keyboard'] .focused .grip {
+  .focused .grip {
     opacity: 0.15;
   }
 
   // also hide the buttons when the keyboard is not being used
-  .not-focused .btn,
-  body:not([modality='keyboard']) .btn {
+  .not-focused .btn {
     opacity: 0;
   }
 
