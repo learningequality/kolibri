@@ -31,10 +31,16 @@
                 :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
               />
             </td>
-            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
-            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 3}) }}</Placeholder></td>
-            <td><Placeholder>{{ coachStrings.$tr('integer', {value: 4}) }}</Placeholder></td>
-            <td><Placeholder><Score :value="0.8" /></Placeholder></td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numLessons}) }}
+            </td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numQuizzes}) }}
+            </td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
+            </td>
+            <td><Placeholder><Score :value="tableRow.avgScore" /></Placeholder></td>
             <td><Placeholder>2 minutes ago</Placeholder></td>
           </tr>
         </transition-group>
@@ -58,11 +64,24 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapGetters('classSummary', ['groups']),
+      ...mapGetters('classSummary', ['groups', 'lessons', 'exams']),
       table() {
         const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {
-          const tableRow = {};
+          const groupLessons = this.lessons.filter(
+            lesson => lesson.groups.includes(group.id) || !lesson.groups.length
+          );
+          const groupExams = this.exams.filter(
+            exam => exam.groups.includes(group.id) || !exam.groups.length
+          );
+          const learners = this.dataHelpers.learnersForGroups([group.id]);
+          const tableRow = {
+            numLessons: groupLessons.length,
+            numQuizzes: groupExams.length,
+            numLearners: learners.length,
+            avgScore: undefined,
+            lastActivity: undefined,
+          };
           Object.assign(tableRow, group);
           return tableRow;
         });
