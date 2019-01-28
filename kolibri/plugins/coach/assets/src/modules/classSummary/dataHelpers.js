@@ -1,4 +1,5 @@
 import map from 'lodash/map';
+import get from 'lodash/get';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import every from 'lodash/every';
@@ -40,6 +41,14 @@ export default {
       return NOT_STARTED;
     }
     return STARTED;
+  },
+  examStatusForLearner(examId, learnerId) {
+    const status = get(
+      store.state.examLearnerStatusMap,
+      [examId, learnerId, 'status'],
+      NOT_STARTED
+    );
+    return status;
   },
   sortBy,
 };

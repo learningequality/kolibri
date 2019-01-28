@@ -104,15 +104,9 @@ export default {
     exams(state) {
       return Object.values(state.examMap);
     },
-    // examLearnerStatuses(state) {
-    //   return Object.values(state.examLearnerStatusMap);
-    // },
     content(state) {
       return Object.values(state.contentMap);
     },
-    // contentLearnerStatuses(state) {
-    //   return Object.values(state.contentLearnerStatusMap);
-    // },
     lessons(state) {
       return Object.values(state.lessonMap);
     },
@@ -163,7 +157,7 @@ export default {
           learnerMap: itemMap(summary.learners, 'id'),
           groupMap: itemMap(summary.groups, 'id'),
           examMap: itemMap(summary.exams, 'id'),
-          examStatusMap: statusMap(
+          examLearnerStatusMap: statusMap(
             summary.exam_learner_status,
             'exam_id',
             summary.exams.map(exam => exam.id)

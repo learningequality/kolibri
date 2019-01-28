@@ -42,15 +42,13 @@
               </Placeholder>
             </td>
             <td>
-              <Placeholder :ready="false">
-                <LearnerProgressRatio
-                  :count="0"
-                  :verbosity="1"
-                  icon="nothing"
-                  :total="tableRow.totalLearners"
-                  verb="started"
-                />
-              </Placeholder>
+              <LearnerProgressRatio
+                :count="tableRow.numCompleted"
+                :verbosity="1"
+                icon="nothing"
+                :total="tableRow.totalLearners"
+                verb="started"
+              />
             </td>
             <td><Recipients :groups="tableRow.groupNames" /></td>
             <td>
@@ -115,6 +113,7 @@
           const tableRow = {
             totalLearners: this.dataHelpers.learnersForGroups(exam.groups).length,
             groupNames: this.dataHelpers.groupNames(exam.groups),
+            numCompleted: this.numCompleted(exam),
           };
           Object.assign(tableRow, exam);
           return tableRow;
@@ -124,6 +123,15 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      numCompleted(exam) {
+        const learners = this.dataHelpers.learnersForGroups(exam.groups);
+        const statuses = learners.map(learnerId =>
+          this.dataHelpers.examStatusForLearner(exam.id, learnerId)
+        );
+        return statuses.filter(status => status === 'completed').length;
+      },
     },
     $trs: {
       show: 'Show',
