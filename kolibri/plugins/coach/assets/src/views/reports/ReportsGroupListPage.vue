@@ -40,7 +40,7 @@
             <td>
               {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
             </td>
-            <td><Placeholder><Score :value="tableRow.avgScore" /></Placeholder></td>
+            <td><Score :value="tableRow.avgScore" /></td>
             <td><Placeholder>2 minutes ago</Placeholder></td>
           </tr>
         </transition-group>
@@ -64,7 +64,7 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapGetters('classSummary', ['groups', 'lessons', 'exams']),
+      ...mapGetters('classSummary', ['groups', 'lessons', 'exams', 'examStatuses']),
       table() {
         const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {
@@ -79,13 +79,26 @@
             numLessons: groupLessons.length,
             numQuizzes: groupExams.length,
             numLearners: learners.length,
-            avgScore: undefined,
+            avgScore: this.avgScore(group),
             lastActivity: undefined,
           };
           Object.assign(tableRow, group);
           return tableRow;
         });
         return mapped;
+      },
+    },
+    methods: {
+      avgScore(group) {
+        const learnerIds = this.dataHelpers.learnersForGroups([group.id]);
+        const relevantStatuses = this.examStatuses.filter(
+          status =>
+            learnerIds.includes(status.learner_id) && status.status === this.STATUSES.completed
+        );
+        if (!relevantStatuses.length) {
+          return null;
+        }
+        return this.dataHelpers.meanBy(relevantStatuses, 'score');
       },
     },
   };

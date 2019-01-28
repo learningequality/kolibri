@@ -64,7 +64,6 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import meanBy from 'lodash/meanBy';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -149,7 +148,7 @@
         if (!relevantStatuses.length) {
           return null;
         }
-        return meanBy(relevantStatuses, 'score');
+        return this.dataHelpers.meanBy(relevantStatuses, 'score');
       },
     },
     $trs: {

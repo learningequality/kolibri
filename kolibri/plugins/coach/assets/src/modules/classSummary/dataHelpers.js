@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
+import meanBy from 'lodash/meanBy';
 import { STATUSES } from './constants';
 import store from './index';
 
@@ -28,4 +29,5 @@ export default {
   get,
   filter,
   sortBy,
+  meanBy,
 };
