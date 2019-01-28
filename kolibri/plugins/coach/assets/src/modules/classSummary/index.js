@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import some from 'lodash/some';
 import every from 'lodash/every';
+import flatten from 'lodash/flatten';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
@@ -128,13 +129,28 @@ export default {
     exams(state) {
       return Object.values(state.examMap);
     },
+    examStatuses(state) {
+      return flatten(
+        Object.values(state.examLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+      );
+    },
     content(state) {
       return Object.values(state.contentMap);
+    },
+    contentStatuses(state) {
+      return flatten(
+        Object.values(state.contentLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+      );
     },
     lessons(state) {
       return Object.values(state.lessonMap);
     },
-    lessonStatusLearnerMap(state) {
+    lessonStatuses(state, getters) {
+      return flatten(
+        Object.values(getters.lessonLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+      );
+    },
+    lessonLearnerStatusMap(state) {
       const map = {};
       Object.values(state.lessonMap).forEach(lesson => {
         map[lesson.id] = {};

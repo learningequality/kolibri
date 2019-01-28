@@ -37,9 +37,7 @@
               />
             </td>
             <td>
-              <Placeholder :ready="false">
-                <Score />
-              </Placeholder>
+              <Score :value="tableRow.avgScore" />
             </td>
             <td>
               <LearnerProgressRatio
@@ -66,6 +64,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import meanBy from 'lodash/meanBy';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -81,7 +80,7 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['exams']),
+      ...mapGetters('classSummary', ['exams', 'examStatuses']),
       filterOptions() {
         return [
           {
@@ -111,13 +110,14 @@
         const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(exam => {
           const { started, notStarted, completed } = this.counts(exam);
-          const total = this.dataHelpers.learnersForGroups(exam.groups).length;
+          const learnersForQuiz = this.dataHelpers.learnersForGroups(exam.groups);
           const tableRow = {
-            totalLearners: total,
+            totalLearners: learnersForQuiz.length,
             numCompleted: completed,
             numStarted: started,
             numNotStarted: notStarted,
             groupNames: this.dataHelpers.groupNames(exam.groups),
+            avgScore: this.avgScore(exam, learnersForQuiz),
           };
           Object.assign(tableRow, exam);
           return tableRow;
@@ -138,6 +138,18 @@
         const started = statuses.filter(status => status === this.STATUSES.started).length;
         const notStarted = statuses.filter(status => status === this.STATUSES.notStarted).length;
         return { completed, started, notStarted };
+      },
+      avgScore(exam, learnerIds) {
+        const relevantStatuses = this.examStatuses.filter(
+          status =>
+            learnerIds.includes(status.learner_id) &&
+            status.exam_id === exam.id &&
+            status.status === this.STATUSES.completed
+        );
+        if (!relevantStatuses.length) {
+          return null;
+        }
+        return meanBy(relevantStatuses, 'score');
       },
     },
     $trs: {
