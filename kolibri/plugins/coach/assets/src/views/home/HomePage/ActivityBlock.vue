@@ -56,9 +56,6 @@
       },
     },
     methods: {
-      moveNots() {
-        this.$store.commit('coachNotifications/TEST_MOVE_LAST');
-      },
       cardPropsForNotification(notification) {
         let icon = '';
         let contentIcon = '';

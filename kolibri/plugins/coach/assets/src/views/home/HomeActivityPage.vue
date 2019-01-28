@@ -29,14 +29,16 @@
           {{ $tr('noActivity') }}
         </p>
 
-        <NotificationCard
-          v-for="notification in notifications"
-          v-show="showNotification(notification)"
-          :key="notification.id"
-          v-bind="cardProps(notification)"
-        >
-          {{ cardTextForNotification(notification) }}
-        </NotificationCard>
+        <transition-group name="list">
+          <NotificationCard
+            v-for="notification in notifications"
+            v-show="showNotification(notification)"
+            :key="notification.id"
+            v-bind="cardProps(notification)"
+          >
+            {{ cardTextForNotification(notification) }}
+          </NotificationCard>
+        </transition-group>
       </div>
 
       <div v-if="showShowMore" class="show-more">
@@ -61,6 +63,7 @@
 <script>
 
   import find from 'lodash/find';
+  import maxBy from 'lodash/maxBy';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import commonCoach from '../common';
@@ -86,12 +89,35 @@
         progressFilter: 'all',
         resourceFilter: 'all',
         notifications: [],
+        filters: {
+          ALL: 'all',
+          LESSON: 'lesson',
+          QUIZ: 'quiz',
+        },
       };
     },
     computed: {
       ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'learnerMap', 'name']),
+      ...mapState('coachNotifications', {
+        allNotifications: 'notifications',
+      }),
       showShowMore() {
         return this.progressFilter === 'all' && this.resourceFilter === 'all';
+      },
+      lastNotificationId() {
+        if (this.notifications.length > 0) {
+          return Number(maxBy(this.notifications, n => Number(n.id)).id);
+        }
+        return 0;
+      },
+    },
+    watch: {
+      allNotifications(newVal) {
+        const newNotifications = newVal.filter(n => Number(n.id) > this.lastNotificationId);
+        this.notifications = [
+          ...newNotifications.map(this.reshapeNotification),
+          ...this.notifications,
+        ];
       },
     },
     beforeMount() {
@@ -104,51 +130,40 @@
           .fetchCollection({
             getParams: {
               collection_id: this.$route.params.classId,
-              page_size: 20,
+              page_size: 10,
               page: this.nextPage,
             },
             force: true,
           })
           .then(data => {
-            const filtered = data.results.filter(this.filterNotifications);
-            this.notifications = [...this.notifications, ...filtered.map(this.reshapeNotification)];
+            this.notifications = [
+              ...this.notifications,
+              ...data.results.map(this.reshapeNotification).filter(Boolean),
+            ];
             this.moreResults = data.next !== null;
             this.nextPage = this.nextPage + 1;
             this.loading = false;
           });
       },
       showNotification(notification) {
-        if (this.progressFilter === 'all' && this.resourceFilter === 'all') {
+        if (this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL) {
           return true;
         }
         let progressPasses = true;
         let resourcePasses = true;
-        if (this.progressFilter !== 'all') {
+        if (this.progressFilter !== this.filters.ALL) {
           progressPasses = notification.event === this.progressFilter;
         }
-        if (this.resourceFilter !== 'all') {
-          if (this.resourceFilter === 'lesson') {
+        if (this.resourceFilter !== this.filters.ALL) {
+          if (this.resourceFilter === this.filters.LESSON) {
             resourcePasses = notification.object === 'Lesson';
-          } else if (this.resourceFilter === 'quiz') {
+          } else if (this.resourceFilter === this.filters.QUIZ) {
             resourcePasses = notification.object === 'Quiz';
           } else {
             resourcePasses = notification.resource.type === this.resourceFilter;
           }
         }
         return progressPasses && resourcePasses;
-      },
-      // Used to filter out notifications with deleted references
-      filterNotifications(notification) {
-        if (notification.user === '') {
-          return false;
-        }
-        if (notification.object === 'Quiz' && notification.quiz === '') {
-          return false;
-        }
-        if (notification.object === 'Lesson' || notification.object === 'Resource') {
-          return notification.lesson !== '' && notification.resource !== '';
-        }
-        return true;
       },
       // Takes the raw notification and reshapes it to match the objects
       // created by the summarizedNotifications getter.
@@ -159,9 +174,13 @@
         // one group that has been assigned lesson or quiz.
         let groups;
         if (object === 'Quiz') {
-          groups = [...this.examMap[notification.quiz_id].groups];
+          const examMatch = this.examMap[notification.quiz_id];
+          if (!examMatch) return null;
+          groups = [...examMatch.groups];
         } else if (object === 'Lesson' || object === 'Resource') {
-          groups = [...this.lessonMap[notification.lesson_id].groups];
+          const lessonMatch = this.lessonMap[notification.lesson_id];
+          if (!lessonMatch) return null;
+          groups = [...lessonMatch.groups];
         }
         const wholeClass = groups.length === 0;
         let collection = {};
@@ -198,6 +217,7 @@
           object,
           timestamp: notification.timestamp,
           collection,
+          id: Number(notification.id),
           assignment: {
             name: object === 'Quiz' ? notification.quiz : notification.lesson,
             type: object === 'Quiz' ? 'exam' : 'lesson',
@@ -249,6 +269,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../common/list-transition';
 
   .show-more {
     height: 100px;
