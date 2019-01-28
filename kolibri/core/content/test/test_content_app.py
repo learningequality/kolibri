@@ -440,6 +440,28 @@ class ContentNodeAPITestCase(APITestCase):
         for node in root.get_descendants(include_self=False).filter(available=True):
             self.assertTrue(next(item for item in root_items if item["id"] == node.id))
 
+    def test_contentnode_descendants_availability(self):
+        content.ContentNode.objects.all().update(available=False)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join(topic_ids)})
+        self.assertEqual(len(response.data), 0)
+
+    def test_contentnode_node_assessments_available(self):
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        exercise_ids = root.get_descendants().filter(kind=content_kinds.EXERCISE).values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-node-assessments"), data={"ids": ",".join(exercise_ids)})
+        self.assertEqual(response.data, 1)
+
+    def test_contentnode_node_assessments_not_available(self):
+        content.ContentNode.objects.all().update(available=False)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        exercise_ids = root.get_descendants().filter(kind=content_kinds.EXERCISE).values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-node-assessments"), data={"ids": ",".join(exercise_ids)})
+        self.assertEqual(response.data, 0)
+
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
