@@ -5,14 +5,16 @@ import tempfile
 from django.core.management import call_command
 from django.test import TestCase
 from mock import call
+from mock import MagicMock
 from mock import patch
 from requests import Session
+from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
-from requests.exceptions import ChunkedEncodingError
 
+from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.utils.tests.helpers import override_option
 
@@ -307,7 +309,40 @@ class ImportContentTestCase(TestCase):
         path_mock.side_effect = [local_dest_path, local_src_path]
         call_command('importcontent', 'disk', self.the_channel_id, 'destination', node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
         cancel_mock.assert_called_with()
-        remove_mock.aasert_called_with()
+        remove_mock.assert_called_with(local_dest_path)
+
+    @patch('kolibri.core.content.management.commands.importcontent.os.path.isfile', return_value=False)
+    @patch('kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel')
+    @patch('kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled', return_value=False)
+    def test_local_import_source_corrupted_full_progress(self, is_cancelled_mock, cancel_mock, path_mock, isfile_mock, annotation_mock):
+        """
+        Ensure that when a file is imported that does not match the file size in the database
+        that the overall progress tracking for the content import process is properly updated
+        to reflect the size of the file in the database, not the file on disk.
+        This is important, as the total progress for the overall process is measured against
+        the total file size recorded in the database for all files, not for the the
+        transferred file size.
+        """
+        local_src_path = tempfile.mkstemp()[1]
+        with open(local_src_path, 'w') as f:
+            f.write('This is just a test')
+        src_file_size = os.path.getsize(local_src_path)
+        expected_file_size = 10000
+        local_dest_path = tempfile.mkstemp()[1]
+        os.remove(local_dest_path)
+        # Delete all but one file associated with ContentNode to reduce need for mocking
+        files = ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").files.all()
+        first_file = files.first()
+        files.exclude(id=first_file.id).delete()
+        LocalFile.objects.filter(files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c").update(file_size=expected_file_size)
+        path_mock.side_effect = [local_dest_path, local_src_path]
+        mock_overall_progress = MagicMock()
+        mock_file_progress = MagicMock()
+        with patch('kolibri.core.tasks.management.commands.base.ProgressTracker') as progress_mock:
+            progress_mock.return_value.__enter__.side_effect = [mock_overall_progress, mock_file_progress]
+            call_command('importcontent', 'disk', self.the_channel_id, 'destination', node_ids=['32a941fb77c2576e8f6b294cde4c3b0c'])
+            mock_overall_progress.assert_called_with(expected_file_size - src_file_size)
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
