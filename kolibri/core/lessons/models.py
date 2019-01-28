@@ -9,6 +9,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.utils.time_utils import local_now
 
 
@@ -61,6 +62,13 @@ class Lesson(AbstractFacilityDataModel):
             self.title,
             self.collection.name,
         )
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        We delete all notifications objects whose lesson is this lesson id.
+        """
+        LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
+        super(Lesson, self).delete(using, keep_parents)
 
     # Morango fields
     morango_model_name = 'lesson'
