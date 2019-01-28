@@ -27,24 +27,24 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="lesson in table" :key="lesson.id">
+          <tr v-for="lessonObj in table" :key="lessonObj.id">
             <td>
               <KRouterLink
-                :text="lesson.title"
-                :to="classRoute('ReportsLessonReportPage', { lessonId: lesson.id })"
+                :text="lessonObj.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: lessonObj.id })"
               />
             </td>
             <td>
               <LearnerProgressRatio
-                :count="numCompleted(lesson)"
-                :total="dataHelpers.learnersForGroups(lesson.groups).length"
+                :count="lessonObj.numCompleted"
+                :total="lessonObj.totalLearners"
                 verbosity="0"
                 verb="completed"
                 icon="learners"
               />
               <LearnerProgressCount
-                v-if="numNeedingHelp(lesson)"
-                :count="numNeedingHelp(lesson)"
+                v-if="lessonObj.numNeedingHelp"
+                :count="lessonObj.numNeedingHelp"
                 verbosity="0"
                 verb="needHelp"
                 icon="help"
@@ -52,10 +52,10 @@
             </td>
             <td>
               <Recipients
-                :groups="dataHelpers.groupNames(lesson.groups)"
+                :groups="lessonObj.groupNames"
               />
             </td>
-            <td><LessonActive :active="lesson.active" /></td>
+            <td><LessonActive :active="lessonObj.active" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -67,7 +67,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -83,7 +83,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', []),
       ...mapGetters('classSummary', ['lessons']),
       filterOptions() {
         return [
@@ -112,7 +111,17 @@
           }
         });
         const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
-        return sorted;
+        const mapped = sorted.map(lesson => {
+          const augmentedObj = {
+            totalLearners: this.dataHelpers.learnersForGroups(lesson.groups).length,
+            numCompleted: this.numCompleted(lesson),
+            numNeedingHelp: this.numNeedingHelp(lesson),
+            groupNames: this.dataHelpers.groupNames(lesson.groups),
+          };
+          Object.assign(augmentedObj, lesson);
+          return augmentedObj;
+        });
+        return mapped;
       },
     },
     beforeMount() {
