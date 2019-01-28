@@ -94,7 +94,7 @@ export default {
       return {
         outlineColor: state['$core-action-light'],
         outlineStyle: 'solid',
-        outlineWidth: '2px',
+        outlineWidth: '3px',
         outlineOffset: '4px',
       };
     },
