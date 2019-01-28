@@ -286,12 +286,7 @@
         return [...exercises, ...topicExercises];
       },
       addableExercises() {
-        return this.allExercises.filter(
-          exercise =>
-            this.selectedExercises.findIndex(
-              selectedExercise => selectedExercise.id === exercise.id
-            ) === -1
-        );
+        return this.allExercises.filter(exercise => !this.selectedExercises[exercise.id]);
       },
       selectAllChecked() {
         return this.addableExercises.length === 0;
@@ -324,7 +319,7 @@
         return 'visible';
       },
       selectionIsInvalidText() {
-        if (this.selectedExercises.length === 0) {
+        if (Object.keys(this.selectedExercises).length === 0) {
           return this.$tr('noneSelected');
         }
         return null;
@@ -395,48 +390,27 @@
       },
       contentIsSelected(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
-          return content.exercises.every(
-            exercise =>
-              this.selectedExercises.findIndex(
-                selectedExercise => selectedExercise.id === exercise.id
-              ) !== -1
-          );
+          return content.exercises.every(exercise => Boolean(this.selectedExercises[exercise.id]));
         } else {
-          return (
-            this.selectedExercises.findIndex(
-              selectedExercise => selectedExercise.id === content.id
-            ) !== -1
-          );
+          return Boolean(this.selectedExercises[content.id]);
         }
       },
       contentIsIndeterminate(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
-          const everyExerciseSelected = content.exercises.every(
-            exercise =>
-              this.selectedExercises.findIndex(
-                selectedExercise => selectedExercise.id === exercise.id
-              ) !== -1
+          const everyExerciseSelected = content.exercises.every(exercise =>
+            Boolean(this.selectedExercises[exercise.id])
           );
           if (everyExerciseSelected) {
             return false;
           }
-          const someExerciseSelected = content.exercises.some(
-            exercise =>
-              this.selectedExercises.findIndex(
-                selectedExercise => selectedExercise.id === exercise.id
-              ) !== -1
-          );
-          return someExerciseSelected;
+          return content.exercises.some(exercise => Boolean(this.selectedExercises[exercise.id]));
         }
         return false;
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
-          const count = content.exercises.filter(
-            exercise =>
-              this.selectedExercises.findIndex(
-                selectedExercise => selectedExercise.id === exercise.id
-              ) !== -1
+          const count = content.exercises.filter(exercise =>
+            Boolean(this.selectedExercises[exercise.id])
           ).length;
           if (count === 0) {
             return '';

@@ -243,7 +243,11 @@
     },
     computed: {
       ...mapState(['toolbarRoute']),
-      ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
+      ...mapState('examCreation', [
+        'loadingNewQuestions',
+        'selectedQuestions',
+        'selectedExercises',
+      ]),
       annotatedQuestions() {
         const counts = {};
         const totals = {};
@@ -283,15 +287,8 @@
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
-      exercises() {
-        const exercises = {};
-        this.$store.state.examCreation.selectedExercises.forEach(exercise => {
-          exercises[exercise.id] = exercise;
-        });
-        return exercises;
-      },
       content() {
-        return this.exercises[this.currentQuestion.exercise_id];
+        return this.selectedExercises[this.currentQuestion.exercise_id];
       },
       questionId() {
         return this.currentQuestion.question_id;
@@ -366,7 +363,7 @@
         this.$store.dispatch('examCreation/updateSelectedQuestions');
       },
       numCoachContents(exerciseId) {
-        return this.exercises[exerciseId].num_coach_contents;
+        return this.selectedExercises[exerciseId].num_coach_contents;
       },
       isSelected(question) {
         return (

@@ -187,7 +187,7 @@ export function filterAndAnnotateContentList(childNodes) {
 }
 
 export function updateSelectedQuestions(store) {
-  if (!store.state.selectedExercises.length) {
+  if (!Object.keys(store.state.selectedExercises).length) {
     store.commit('SET_SELECTED_QUESTIONS', []);
     return Promise.resolve();
   }
@@ -196,7 +196,7 @@ export function updateSelectedQuestions(store) {
     // If there are more exercises than questions, no need to fetch them all so
     // choose N at random where N is the the number of questions.
     const exerciseIds = shuffled(
-      uniq(store.state.selectedExercises.map(exercise => exercise.id)),
+      Object.keys(store.state.selectedExercises),
       store.state.seed
     ).slice(0, store.state.numberOfQuestions);
 
