@@ -124,8 +124,35 @@ export default {
     },
   },
   mutations: {
-    SET_STATE(state, payload) {
-      Object.assign(state, payload);
+    SET_STATE(state, summary) {
+      // convert dates
+      summary.exam_learner_status.forEach(status => {
+        status.last_activity = new Date(status.last_activity);
+      });
+      summary.content_learner_status.forEach(status => {
+        status.last_activity = new Date(status.last_activity);
+      });
+      Object.assign(state, {
+        id: summary.id,
+        name: summary.name,
+        coachMap: itemMap(summary.coaches, 'id'),
+        learnerMap: itemMap(summary.learners, 'id'),
+        groupMap: itemMap(summary.groups, 'id'),
+        examMap: itemMap(summary.exams, 'id'),
+        examLearnerStatusMap: statusMap(
+          summary.exam_learner_status,
+          'exam_id',
+          summary.exams.map(exam => exam.id)
+        ),
+        contentMap: itemMap(summary.content, 'content_id'),
+        contentNodeMap: itemMap(summary.content, 'node_id'),
+        contentLearnerStatusMap: statusMap(
+          summary.content_learner_status,
+          'content_id',
+          summary.content.map(content => content.content_id)
+        ),
+        lessonMap: itemMap(summary.lessons, 'id'),
+      });
     },
     CREATE_ITEM(state, { map, id, object }) {
       state[map] = {
@@ -143,34 +170,7 @@ export default {
   actions: {
     loadClassSummary(store, classId) {
       return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
-        // convert dates
-        summary.exam_learner_status.forEach(status => {
-          status.last_activity = new Date(status.last_activity);
-        });
-        summary.content_learner_status.forEach(status => {
-          status.last_activity = new Date(status.last_activity);
-        });
-        store.commit('SET_STATE', {
-          id: summary.id,
-          name: summary.name,
-          coachMap: itemMap(summary.coaches, 'id'),
-          learnerMap: itemMap(summary.learners, 'id'),
-          groupMap: itemMap(summary.groups, 'id'),
-          examMap: itemMap(summary.exams, 'id'),
-          examLearnerStatusMap: statusMap(
-            summary.exam_learner_status,
-            'exam_id',
-            summary.exams.map(exam => exam.id)
-          ),
-          contentMap: itemMap(summary.content, 'content_id'),
-          contentNodeMap: itemMap(summary.content, 'node_id'),
-          contentLearnerStatusMap: statusMap(
-            summary.content_learner_status,
-            'content_id',
-            summary.content.map(content => content.content_id)
-          ),
-          lessonMap: itemMap(summary.lessons, 'id'),
-        });
+        store.commit('SET_STATE', summary);
       });
     },
   },
