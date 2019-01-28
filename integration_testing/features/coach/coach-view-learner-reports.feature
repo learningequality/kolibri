@@ -1,18 +1,27 @@
 Feature: Coach review of learner reports
-  Coach needs to be able to review progress reports for learners
+  Coach needs to be able to review detailed and summative progress reports for learners
 
   Background:
     Given I am signed in to Kolibri as a facility coach
       And there is a learner user <full_name> enrolled in class <class>
-      And there is a channel <channel> with topic <topic> that learner <full_name> has interacted with
+      # And there is a channel <channel> with topic <topic> that learner <full_name> has interacted with
 
-  Scenario: Review progress of a particular student in a class
+
+      ### WIP
+
+  Scenario: Open class reports
     When I open the sidebar
       And click on *Coach*
     Then I see a list of all classes in the facility
     When I click on the class <class>
-    Then I see the *Learner reports* for class <class> on *Coach > Learners* page
-      And I see the *Classes > '<class>' > Learners* breadcrumb
+    Then I am on the *Class home* page for class <class>
+      And I see the *Quizzes*, *Lessons* and *Class activity* panes for <class>
+      And I see the *Reports* and *Plan* tabs
+
+  Scenario: Review progress of a particular student in a class
+    When I click the *Reports* tab
+    Then I see *Quizzes*, *Lessons*, *Groups* and *Learners* tabs
+
     When I click on learner <full_name>
     Then I see the *Classes > '<class>' > Learners > '<full_name>'* breadcrumb
       And I see all the channels available on the device

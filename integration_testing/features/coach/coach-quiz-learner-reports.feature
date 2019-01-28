@@ -3,12 +3,12 @@ Feature: Coach reviews learner reports for quizzes
 
   Background:
     Given I am logged in as a coach
-      And I am on *Coach > Classroom <classroom> > Quizzes > Quiz <quiz>* page
-      And <classroom> has both grouped and ungrouped learners
+      And I am on *Coach > Classroom <classroom> > Reports > Quizzes > <quiz>* page
 
   Scenario: Report has the average score
-    When <quiz> has at least one learner who started or completed it
-    Then I see the *Average score* message withe the average of those learners' scores
+    Given that <quiz> has at least one learner who started or completed it
+      When I look under the *Overall* heading
+      Then I see the *Average score* message with the the average of those learners' scores
 
   Scenario: Only assigned learners appear in the reports
     When <quiz> is assigned to <groups>
@@ -25,21 +25,24 @@ Feature: Coach reviews learner reports for quizzes
       And the groups are sorted alphabetically
       And all learners are sorted alphabetically by their full name
 
-  Scenario: A learner has not started an quiz
+  Scenario: A learner has not started a quiz
     When a learner has not started <quiz>
       And they have all the questions remaining
-    Then the learner's *Progress* column says "Not started"
+    Then the learner's *Progress* column says *Not started*
+    # Currently implemented report states *0 of N completed*?
       And their *Score* column is blank
 
-  Scenario: A learner has started an quiz
+  Scenario: A learner has started a quiz
     When a learner has started an <quiz>
       And they have some of the questions remaining
     Then the learner's *Progress* column shows the number of questions remaining
+      #Or *0 of N completed*?
       And their *Score* column shows the current score
 
-  Scenario: A learner has completed an quiz
+  Scenario: A learner has completed a quiz
     When a learner has completed <quiz>
-    Then their *Progress* column says "Completed"
+    Then their *Progress* column says *Completed*
+    # Currently implemented report states *All N completed*?
       And their *Score* column shows the current score
 
 Examples:

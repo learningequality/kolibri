@@ -1,6 +1,8 @@
 Feature: Coach review of class report per channel
   Coach needs to be able to review progress of the complete class for a particular channel in Kolibri
 
+  ### Is this still valid in 0.12?
+
   Background:
     Given I am signed in to Kolibri as a facility coach
       And there is a class <class>

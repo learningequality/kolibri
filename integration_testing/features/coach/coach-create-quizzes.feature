@@ -1,15 +1,17 @@
 Feature: Coach creates quizzes
   Coach needs to be able to create quizzes from existing content
 
+  ### WIP
+
   Background:
     Given I am signed in to Kolibri as a coach user
-    And I am on the *Coach > Quizzes* page
+    And I am on the *Coach > Plan > Quizzes* page
 
   Scenario: Create new quiz
     When I click the *New quiz* button
     Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
-      And I see *0 total selected* exercises
+      # And I see *0 total selected* exercises
       And I see a list of channels that contain exercises
       But I don't see any checkboxes
 
@@ -19,15 +21,8 @@ Feature: Coach creates quizzes
     When I click the *New quiz* button
     Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
-      And I see *0 total selected* exercises indicator
+      # And I see *0 total selected* exercises indicator
       But I don't see any channels
-
-  Scenario: Check validation for the title field
-    Given I have not inputted an quiz title (yet)
-    When I leave the input field or attempt to preview or save the quiz
-    Then an input validation error appears
-    When I input a valid title into the field
-    Then I don't see the validation error anymore
 
   Scenario: Check validation for the number of questions field
     When I input a number outside the range of 1-50
@@ -212,6 +207,13 @@ Feature: Coach creates quizzes
     Then I see a modal with a question list pulled randomly from each exercise
     When I click on *Randomize questions* button
     Then I see the modal is refreshed with reordered randomized question list
+
+  Scenario: Check validation for the title field
+    Given I have not inputted an quiz title (yet)
+      When I click *Continue*
+      Then an input validation error appears
+      When I input a valid title into the field
+      Then I don't see the validation error anymore
 
   Scenario: Save quiz
     Given I am on *Create new quiz* page
