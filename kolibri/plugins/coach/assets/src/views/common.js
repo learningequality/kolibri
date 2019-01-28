@@ -35,6 +35,7 @@ import LearnerProgressLabel from './common/status/LearnerProgressLabel';
 import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
 import ItemStatusLabel from './common/status/ItemStatusLabel';
+import Placeholder from './common/Placeholder';
 
 export default {
   name: 'ReportsQuizHeader',
@@ -70,6 +71,7 @@ export default {
     ItemStatusRatio,
     ItemStatusCount,
     ItemStatusLabel,
+    Placeholder,
   },
   mixins: [coachStringsMixin],
   computed: {
