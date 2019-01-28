@@ -36,9 +36,6 @@
         </KGridItem>
       </KGrid>
 
-      <p v-if="removalError">
-        {{ $tr('problemRemoving') }}
-      </p>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -102,11 +99,13 @@
     metaInfo() {
       let title;
       if (this.currentGroup) {
-        const { users, name } = this.currentGroup;
-        title = this.$tr('pageTitle', { groupName: name, count: users.length });
+        const { name } = this.currentGroup;
+        title = name;
+      } else {
+        title = '';
       }
       return {
-        title,
+        title: title,
       };
     },
     components: {
@@ -114,11 +113,9 @@
       RemoveFromGroupModal,
     },
     mixins: [commonCoach],
-    props: {},
     data() {
       return {
         userForRemoval: null,
-        removalError: false,
       };
     },
     computed: {
@@ -134,14 +131,9 @@
           this.removeUsersFromGroup({
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
-          })
-            .then(() => {
-              this.userForRemoval = null;
-              this.removalError = false;
-            })
-            .catch(() => {
-              this.removalError = true;
-            });
+          }).then(() => {
+            this.userForRemoval = null;
+          });
         }
       },
     },
@@ -154,9 +146,6 @@
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
       numberOfLearners: '{ count, number } {count, plural, one {learner} other {learners}}',
-      pageTitle:
-        '{ groupName } - { count, number } {count, plural, one {learner} other {learners}}',
-      problemRemoving: 'There was a problem removing this user',
     },
   };
 
