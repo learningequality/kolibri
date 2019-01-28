@@ -31,7 +31,13 @@ function defaultState() {
     groupMap: {},
     /*
       examMap := {
-        [id]: { id, active, title, question_sources: [{exercise_id, question_id}, ...], groups: [id, ...] }
+        [id]: {
+          id,
+          active,
+          title,
+          question_sources: [{exercise_id, question_id}, ...],
+          groups: [id, ...],
+        }
       }
     */
     examMap: {},

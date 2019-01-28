@@ -109,13 +109,12 @@
       },
       lastActivity(learnerIds) {
         const statuses = [
-          ...this.examStatuses.filter(
-            status => learnerIds.includes(status.learner_id) && status.status
-          ),
-          ...this.contentStatuses.filter(
-            status => learnerIds.includes(status.learner_id) && status.status
-          ),
+          ...this.examStatuses.filter(status => learnerIds.includes(status.learner_id)),
+          ...this.contentStatuses.filter(status => learnerIds.includes(status.learner_id)),
         ];
+        if (!statuses.length) {
+          return null;
+        }
         return this.dataHelpers.maxBy(statuses, 'last_activity').last_activity;
       },
     },
