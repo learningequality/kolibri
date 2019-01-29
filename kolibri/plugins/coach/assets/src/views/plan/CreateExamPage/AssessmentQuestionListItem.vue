@@ -2,12 +2,13 @@
 
   <li
     class="item-wrapper"
-    :class="{selected: isSelected, draggable }"
+    :class="{selected: isSelected, draggable}"
   >
     <a
-      tabindex="0" 
-      :class="focusRing" 
-      @click="handleSelect" 
+      tabindex="0"
+      class="inner-link"
+      :class="focusRing"
+      @click="handleSelect"
       @keyup.enter.stop.prevent="handleSelect"
     >
       <span class="text">{{ text }}</span>
@@ -116,12 +117,18 @@
     display: block;
     width: 100%;
     padding: 8px;
+    overflow: visible;
     text-align: left;
-    text-overflow: ellipsis;
     white-space: nowrap;
     user-select: none;
     background-color: white;
     border-radius: 4px;
+  }
+
+  .inner-link {
+    display: block;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
   }
 
   .selected {
