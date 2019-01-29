@@ -211,15 +211,16 @@ export function updateSelectedQuestions(store) {
       contentNodes.forEach(exercise => {
         exercises[exercise.id] = exercise;
       });
-      const exerciseTitles = exerciseIds.map(id => exercises[id].title);
-      const questionIdArrays = exerciseIds.map(
+      const availableExercises = exerciseIds.filter(id => exercises[id]);
+      const exerciseTitles = availableExercises.map(id => exercises[id].title);
+      const questionIdArrays = availableExercises.map(
         id => assessmentMetaDataState(exercises[id]).assessmentIds
       );
       store.commit(
         'SET_SELECTED_QUESTIONS',
         selectQuestions(
           store.state.numberOfQuestions,
-          exerciseIds,
+          availableExercises,
           exerciseTitles,
           questionIdArrays,
           store.state.seed

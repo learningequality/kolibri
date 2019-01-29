@@ -7,7 +7,9 @@
     :class="buttonClasses"
     :type="type"
     :disabled="disabled"
+    tabindex="0"
     @click="handleClick"
+    @keyup.enter.stop.prevent="handlePress"
   >
     <slot v-if="$slots.default"></slot>
     <template v-else>{{ text }}</template>
@@ -82,6 +84,12 @@
          * Emitted when the button is triggered
          */
         this.$emit('click', event);
+      },
+      handlePress(event) {
+        // HACK: for 'a' tags, the 'click' event is not getting fired
+        if (this.htmlTag === 'a') {
+          this.$emit('click', event);
+        }
       },
     },
   };

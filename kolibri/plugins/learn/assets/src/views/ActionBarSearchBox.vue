@@ -7,7 +7,6 @@
         ref="toggleBtn"
         type="primary"
         color="clear"
-        :disableRipple="true"
         @click="toggleDropdownSearchBox"
       >
         <mat-svg name="search" category="action" class="search-icon" />

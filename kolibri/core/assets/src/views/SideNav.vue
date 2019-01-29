@@ -194,7 +194,7 @@
           if (isShown) {
             window.addEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement = document.activeElement;
-            this.$refs.toggleButton.$el.focus();
+            this.$refs.sideNav.focus();
           } else {
             window.removeEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement.focus();

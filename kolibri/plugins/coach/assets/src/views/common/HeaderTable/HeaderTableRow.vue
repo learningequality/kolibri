@@ -27,6 +27,7 @@
   th,
   td {
     width: 50%;
+    line-height: 1.5em;
   }
 
 </style>

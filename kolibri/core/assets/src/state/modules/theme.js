@@ -1,4 +1,4 @@
-import { lighten } from 'kolibri.utils.colour';
+import { lighten, darken } from 'kolibri.utils.colour';
 
 const initialState = {
   '$core-action-light': '#e2d1e0',
@@ -91,7 +91,12 @@ export default {
       return state['$core-loading'];
     },
     $coreOutline(state) {
-      return `${state['$core-action-light']} 2px solid`;
+      return {
+        outlineColor: darken(state['$core-action-light'], 0.1),
+        outlineStyle: 'solid',
+        outlineWidth: '3px',
+        outlineOffset: '4px',
+      };
     },
   },
   mutations: {

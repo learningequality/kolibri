@@ -4,7 +4,6 @@
     class="previous-button"
     :class="{'previous-button-white': color === 'white'}"
     type="secondary"
-    :disableRipple="false"
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >

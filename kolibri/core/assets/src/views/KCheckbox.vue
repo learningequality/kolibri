@@ -133,9 +133,7 @@
         };
       },
       activeOutline() {
-        return {
-          outline: this.isActive ? this.$coreOutline : '',
-        };
+        return this.isActive ? this.$coreOutline : {};
       },
       labelStyle() {
         return {

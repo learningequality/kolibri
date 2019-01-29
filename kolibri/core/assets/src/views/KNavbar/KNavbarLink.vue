@@ -2,20 +2,21 @@
 
   <li class="list-item">
     <router-link
-      :class="[ 'tab', $computedClass(tab) ]"
+      class="tab"
+      :class="$computedClass(tabStyles)"
       :to="link"
     >
       <div class="tab-icon">
         <UiIcon
-          :ariaLabel="title"
           class="icon"
+          tabindex="-1"
         >
           <!--The icon svg-->
           <slot></slot>
         </UiIcon>
       </div>
 
-      <div class="tab-title">
+      <div class="tab-title" tabindex="-1">
         {{ title }}
       </div>
     </router-link>
@@ -54,15 +55,17 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreActionLight', '$coreActionDark']),
-      tab() {
-        const hoverAndFocus = {
-          'background-color': this.$coreActionDark,
-        };
+      ...mapGetters(['$coreBgCanvas', '$coreActionDark', '$coreOutline']),
+      tabStyles() {
         return {
-          color: this.$coreActionLight,
-          ':hover': hoverAndFocus,
-          ':focus': hoverAndFocus,
+          color: this.$coreBgCanvas,
+          ':hover': {
+            'background-color': this.$coreActionDark,
+          },
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '-6px',
+          },
         };
       },
     },
@@ -89,10 +92,6 @@
     text-decoration: none;
     border: 0;
     border-radius: 0;
-    &:hover,
-    &:focus {
-      outline: none;
-    }
   }
 
   .router-link-active,
@@ -116,7 +115,6 @@
 
   .tab-title {
     display: inline-block;
-    overflow-x: hidden;
     font-weight: bold;
     text-overflow: ellipsis;
     text-transform: uppercase;
