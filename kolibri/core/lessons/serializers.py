@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from rest_framework import serializers
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -71,7 +70,7 @@ class LessonSerializer(ModelSerializer):
         if self.instance and obj.id == self.instance.id:
             return attrs
         else:
-            raise serializers.ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
+            raise ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
 
     def validate_resources(self, resources):
         # Validates that every ContentNode passed into resources is actually installed
