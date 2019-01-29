@@ -13,6 +13,8 @@ export function showExamsPage(store, classId) {
       getParams: { collection: classId },
       force: true,
     }),
+    // state.classList needs to be set for Copy Exam modal to work
+    store.dispatch('setClassList'),
   ];
 
   return ConditionalPromise.all(promises).only(

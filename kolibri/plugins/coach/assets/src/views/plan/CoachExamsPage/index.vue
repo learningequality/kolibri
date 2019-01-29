@@ -326,7 +326,10 @@
           question_sources: currentExam.questionSources,
           assignments: this.serverAssignmentPayload(listOfIDs),
         };
-        this.copyExam({ exam, className: this.className }).then(result => {
+        const classroomName = find(this.classList, { id: selectedClassroomId }).name;
+
+        this.copyExam({ exam, className: classroomName }).then(result => {
+          // If exam was copied to the current classroom, add it to the classSummary module
           if (selectedClassroomId === this.classId) {
             const object = {
               id: result.id,
@@ -335,8 +338,8 @@
               active: false,
             };
             this.CREATE_ITEM({ map: 'examMap', id: object.id, object });
-            this.showCopyModal = false;
           }
+          this.showCopyModal = false;
         });
       },
       handleExamDelete() {
