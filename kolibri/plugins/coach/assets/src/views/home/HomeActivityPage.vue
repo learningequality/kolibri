@@ -41,7 +41,7 @@
         </transition-group>
       </div>
 
-      <div v-if="showShowMore" class="show-more">
+      <div v-if="noFiltersApplied" class="show-more">
         <transition mode="out-in">
           <KLinearLoader v-if="loading" :delay="false" />
           <template v-else>
@@ -66,11 +66,16 @@
   import maxBy from 'lodash/maxBy';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../common';
   import NotificationsFilter from '../common/notifications/NotificationsFilter';
   import NotificationCard from '../common/notifications/NotificationCardNoLink';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import notificationsResource from '../../apiResources/notifications';
+  import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
+  import { CollectionTypes } from '../../constants/lessonsConstants';
+
+  const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
 
   export default {
     name: 'HomeActivityPage',
@@ -101,8 +106,8 @@
       ...mapState('coachNotifications', {
         allNotifications: 'notifications',
       }),
-      showShowMore() {
-        return this.progressFilter === 'all' && this.resourceFilter === 'all';
+      noFiltersApplied() {
+        return this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL;
       },
       lastNotificationId() {
         if (this.notifications.length > 0) {
@@ -146,7 +151,7 @@
           });
       },
       showNotification(notification) {
-        if (this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL) {
+        if (this.noFiltersApplied) {
           return true;
         }
         let progressPasses = true;
@@ -156,9 +161,9 @@
         }
         if (this.resourceFilter !== this.filters.ALL) {
           if (this.resourceFilter === this.filters.LESSON) {
-            resourcePasses = notification.object === 'Lesson';
+            resourcePasses = notification.object === LESSON;
           } else if (this.resourceFilter === this.filters.QUIZ) {
-            resourcePasses = notification.object === 'Quiz';
+            resourcePasses = notification.object === QUIZ;
           } else {
             resourcePasses = notification.resource.type === this.resourceFilter;
           }
@@ -173,21 +178,21 @@
         // Does not make additional notifications if the user is in more than
         // one group that has been assigned lesson or quiz.
         let groups;
-        if (object === 'Quiz') {
+        if (object === QUIZ) {
           const examMatch = this.examMap[notification.quiz_id];
           if (!examMatch) return null;
           groups = [...examMatch.groups];
-        } else if (object === 'Lesson' || object === 'Resource') {
+        } else if (object === LESSON || object === RESOURCE) {
           const lessonMatch = this.lessonMap[notification.lesson_id];
           if (!lessonMatch) return null;
           groups = [...lessonMatch.groups];
         }
-        const wholeClass = groups.length === 0;
         let collection = {};
-        if (wholeClass) {
+        // If assigned to whole class
+        if (groups.length === 0) {
           collection = {
             name: this.name,
-            type: 'classroom',
+            type: CollectionTypes.CLASSROOM,
           };
         } else {
           const groupMatch = find(groups, groupId => {
@@ -200,14 +205,14 @@
           if (groupMatch) {
             collection = {
               name: this.groupMap[groupMatch].name,
-              type: 'learnergroup',
+              type: CollectionTypes.LEARNERGROUP,
             };
           } else {
             // If learner group was deleted, then just give it the header
             // for the whole class
             collection = {
               name: this.name,
-              type: 'classroom',
+              type: CollectionTypes.CLASSROOM,
             };
           }
         }
@@ -219,8 +224,8 @@
           collection,
           id: Number(notification.id),
           assignment: {
-            name: object === 'Quiz' ? notification.quiz : notification.lesson,
-            type: object === 'Quiz' ? 'exam' : 'lesson',
+            name: object === QUIZ ? notification.quiz : notification.lesson,
+            type: object === QUIZ ? ContentNodeKinds.EXAM : ContentNodeKinds.LESSON,
           },
           resource: {
             name: notification.resource || '',
@@ -237,12 +242,12 @@
         let contentIcon = '';
         const { assignment, collection, object, event, resource } = notification;
         icon = {
-          Completed: 'star',
-          Started: 'clock',
-          HelpNeeded: 'help',
+          [NotificationEvents.COMPLETED]: 'star',
+          [NotificationEvents.STARTED]: 'clock',
+          [NotificationEvents.HELP_NEEDED]: 'help',
         }[event];
 
-        if (object === 'Lesson' || object === 'Quiz') {
+        if (object === LESSON || object === QUIZ) {
           contentIcon = assignment.type;
         } else {
           contentIcon = resource.type;
@@ -252,7 +257,7 @@
           icon,
           contentIcon,
           contentContext: assignment.name,
-          learnerContext: collection.type === 'learnergroup' ? collection.name : '',
+          learnerContext: collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '',
           time: notification.timestamp,
         };
       },
