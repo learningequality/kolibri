@@ -76,6 +76,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .list-item {
     display: inline-block;
     text-align: center;
@@ -92,6 +94,9 @@
     text-decoration: none;
     border: 0;
     border-radius: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    transition: background-color $core-time ease;
   }
 
   .router-link-active,
