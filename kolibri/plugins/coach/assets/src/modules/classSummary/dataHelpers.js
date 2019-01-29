@@ -73,6 +73,26 @@ export default {
       return tallies;
     };
   },
+  getLessonStatusForLearner(state, getters) {
+    return function(lessonId, learnerId) {
+      return get(getters.lessonLearnerStatusMap, [lessonId, learnerId], STATUSES.notStarted);
+    };
+  },
+  getLessonStatusCounts(state, getters) {
+    return function(lessonId, learnerIds) {
+      const tallies = {
+        [STATUSES.started]: 0,
+        [STATUSES.notStarted]: 0,
+        [STATUSES.completed]: 0,
+        [STATUSES.helpNeeded]: 0,
+      };
+      learnerIds.forEach(learnerId => {
+        const status = getters.getLessonStatusForLearner(lessonId, learnerId);
+        tallies[status] += 1;
+      });
+      return tallies;
+    };
+  },
   getAvgTimeSpent(state, getters) {
     return function(contentId, learnerIds) {
       const statuses = [];

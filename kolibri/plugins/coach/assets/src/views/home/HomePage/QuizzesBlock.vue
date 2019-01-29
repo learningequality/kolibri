@@ -7,15 +7,15 @@
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
     <div
-      v-for="quiz in recentQuizzes"
-      :key="quiz.key"
+      v-for="tableRow in table"
+      :key="tableRow.key"
       class="block-item"
     >
       <ItemProgressDisplay
-        :name="quiz.name"
-        :completed="quiz.completed"
-        :total="quiz.total"
-        :groups="quiz.groups"
+        :name="tableRow.name"
+        :completed="tableRow.completed"
+        :total="tableRow.total"
+        :groups="tableRow.groups"
       />
     </div>
   </Block>
@@ -46,7 +46,7 @@
     computed: {
       ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
       ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusCounts']),
-      recentQuizzes() {
+      table() {
         const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
           const assigned = this.assignedLearnerIds(exam);
