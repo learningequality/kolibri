@@ -213,7 +213,6 @@ export default {
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap: _itemMap(summary.lessons, 'id'),
       });
-      global.class = state;
     },
     CREATE_ITEM(state, { map, id, object }) {
       state[map] = {
