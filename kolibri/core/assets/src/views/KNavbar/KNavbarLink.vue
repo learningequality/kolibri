@@ -117,7 +117,6 @@
     display: inline-block;
     font-weight: bold;
     text-overflow: ellipsis;
-    text-overflow: ellipsis;
     text-transform: uppercase;
     vertical-align: middle;
   }
