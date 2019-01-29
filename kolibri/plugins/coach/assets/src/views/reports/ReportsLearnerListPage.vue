@@ -12,8 +12,10 @@
 
     <div class="new-coach-block">
       <ReportsHeader />
+      <!-- TODO COACH
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+       -->
       <CoreTable>
         <thead slot="thead">
           <tr>
