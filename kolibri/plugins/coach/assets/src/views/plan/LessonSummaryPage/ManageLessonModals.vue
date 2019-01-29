@@ -53,6 +53,7 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { mapState, mapActions } from 'vuex';
   import AssignmentChangeStatusModal from '../../plan/assignments/AssignmentChangeStatusModal';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
@@ -101,7 +102,8 @@
           collection: selectedClassroomId,
           lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
-        this.copyLesson({ payload, classroomName: this.className });
+        const classroomName = find(this.classList, { id: selectedClassroomId }).name;
+        this.copyLesson({ payload, classroomName });
       },
       handleDetailsModalSave(payload) {
         this.updateLesson({
