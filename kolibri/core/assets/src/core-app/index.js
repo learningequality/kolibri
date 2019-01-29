@@ -1,3 +1,12 @@
+// Shim Array includes for ES7 spec compliance
+require('array-includes').shim();
+// polyfill for older browsers
+// TODO: rtibbles whittle down these polyfills to only what is needed for the application
+require('core-js');
+
+// Do this before any async imports to ensure that public paths
+// are set correctly
+require('kolibri.urls').default.setUp();
 // include global styles
 require('purecss/build/base-min.css');
 require('../styles/main.scss');
@@ -10,13 +19,6 @@ require('keen-ui/src/bootstrap');
 const KeenUiConfig = require('keen-ui/src/config').default;
 KeenUiConfig.set(require('../keen-config/options.json'));
 require('../keen-config/font-stack.scss');
-
-// polyfill for older browsers
-// TODO: rtibbles whittle down these polyfills to only what is needed for the application
-require('core-js');
-
-// Shim Array includes for ES7 spec compliance
-require('array-includes').shim();
 
 // set up logging
 const logging = require('kolibri.lib.logging').default;
