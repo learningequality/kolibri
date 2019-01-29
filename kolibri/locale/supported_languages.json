@@ -91,6 +91,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "ta",
+    "intl_code": "ta",
+    "language_name": "தமிழ்",
+    "english_name": "Tamil",
+    "default_font": "NotoSansTamil"
+  },
+  {
     "crowdin_code": "te",
     "intl_code": "te",
     "language_name": "తెలుగు",
