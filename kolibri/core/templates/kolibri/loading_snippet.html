@@ -25,12 +25,69 @@
       animation-fill-mode: both;
     }
 
+    .wing-inner {
+      animation: flapInner 2s 1.2s both infinite;
+    }
+
+    .wing-middle {
+      animation: flapMiddle 2s 1.2s both infinite;
+    }
+
+    .wing-outer {
+      animation: flapOuter 2s 1.2s both infinite;
+    }
+
     @keyframes fadeIn {
       from {
         opacity: 0
       }
       to {
         opacity: 1
+      }
+    }
+
+    @keyframes flapInner {
+      0% {
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flapMiddle {
+      0% {
+        opacity: 0;
+      }
+      20% {
+        opacity: 0;
+      }
+      40% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flapOuter {
+      0% {
+        opacity: 0;
+      }
+      40% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
       }
     }
   </style>
