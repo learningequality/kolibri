@@ -15,6 +15,7 @@ import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
+import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
@@ -68,6 +69,7 @@ export default {
     TimeDuration,
     QuizActive,
     HeaderTable,
+    ElapsedTime,
     HeaderTableRow,
     HeaderTabs,
     HeaderTab,

@@ -87,7 +87,11 @@
     mixins: [commonCoach],
     computed: {
       ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
-      ...mapGetters('classSummary', ['getContentStatusForLearner', 'getLearnersForGroups']),
+      ...mapGetters('classSummary', [
+        'getContentStatusForLearner',
+        'getLearnersForGroups',
+        'getAvgTimeSpent',
+      ]),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -110,7 +114,7 @@
           const tableRow = {
             numCompleted: this.numCompleted(content.content_id),
             numNeedingHelp: this.numLearnersNeedingHelp(content),
-            avgTimeSpent: this.avgTimeSpent(content.content_id),
+            avgTimeSpent: this.getAvgTimeSpent(content.content_id, this.recipients),
           };
           Object.assign(tableRow, content);
           return tableRow;
@@ -127,19 +131,6 @@
           }
           return acc;
         }, 0);
-      },
-      avgTimeSpent(contentId) {
-        const statuses = [];
-        this.recipients.forEach(learnerId => {
-          const status = this.getContentStatusForLearner(contentId, learnerId);
-          if (status !== this.STATUSES.notStarted) {
-            statuses.push(this.contentLearnerStatusMap[contentId][learnerId]);
-          }
-        });
-        if (!statuses.length) {
-          return undefined;
-        }
-        return this._.meanBy(statuses, 'time_spent');
       },
       numLearnersNeedingHelp(content) {
         // TODO COACH

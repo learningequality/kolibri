@@ -43,7 +43,6 @@
               />
             </td>
             <td>
-              {{ tableRow.groupNames }}
               <TruncatedItemList :items="tableRow.groups" />
             </td>
           </tr>
@@ -79,6 +78,7 @@
         'groups',
         'getLearnersForGroups',
         'getContentStatusForLearner',
+        'getGroupNamesForLearner',
       ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -89,10 +89,9 @@
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-
         const mapped = sorted.map(learner => {
           const tableRow = {
-            groups: this.groupNames(learner.id),
+            groups: this.getGroupNamesForLearner(learner.id),
             numCompleted: this.numCompleted(learner.id),
           };
           Object.assign(tableRow, learner);
@@ -102,11 +101,6 @@
       },
     },
     methods: {
-      groupNames(learnerId) {
-        return this.groups
-          .filter(group => group.member_ids.includes(learnerId))
-          .map(group => group.name);
-      },
       numCompleted(learnerId) {
         const contentIds = this.lesson.node_ids.map(
           node_id => this.contentNodeMap[node_id].content_id
