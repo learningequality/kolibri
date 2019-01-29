@@ -75,16 +75,20 @@
         'contentNodeMap',
         'contentLearnerStatusMap',
       ]),
-      ...mapGetters('classSummary', ['groups']),
+      ...mapGetters('classSummary', [
+        'groups',
+        'getLearnersForGroups',
+        'getContentStatusForLearner',
+      ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
       recipients() {
-        return this.dataHelpers.learnersForGroups(this.lesson.groups);
+        return this.getLearnersForGroups(this.lesson.groups);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this.dataHelpers.sortBy(learners, ['name']);
+        const sorted = this._.sortBy(learners, ['name']);
 
         const mapped = sorted.map(learner => {
           const tableRow = {
@@ -108,7 +112,7 @@
           node_id => this.contentNodeMap[node_id].content_id
         );
         return contentIds.reduce((acc, contentId) => {
-          const status = this.dataHelpers.contentStatusForLearner(contentId, learnerId);
+          const status = this.getContentStatusForLearner(contentId, learnerId);
           if (status === this.STATUSES.completed) {
             return acc + 1;
           }

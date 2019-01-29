@@ -31,7 +31,7 @@
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
         <template slot="value">
-          <Recipients :groups="dataHelpers.groupNames(lesson.groups)" />
+          <Recipients :groups="getGroupNames(lesson.groups)" />
         </template>
       </HeaderTableRow>
       <!-- TODO COACH
@@ -61,7 +61,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
 
   export default {
@@ -70,6 +70,7 @@
     mixins: [commonCoach],
     computed: {
       ...mapState('classSummary', ['lessonMap']),
+      ...mapGetters('classSummary', ['getGroupNames']),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },

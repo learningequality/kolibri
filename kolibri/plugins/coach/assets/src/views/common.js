@@ -12,8 +12,12 @@ import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constant
 import KSelect from 'kolibri.coreVue.components.KSelect';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+import meanBy from 'lodash/meanBy';
+import maxBy from 'lodash/maxBy';
+import map from 'lodash/map';
+import filter from 'lodash/filter';
+import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
-import dataHelpers from '../modules/classSummary/dataHelpers';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
@@ -91,9 +95,6 @@ export default {
     CollectionKinds() {
       return CollectionKinds;
     },
-    dataHelpers() {
-      return dataHelpers;
-    },
     OBJECTS() {
       return OBJECTS;
     },
@@ -108,6 +109,15 @@ export default {
     },
     STATUSES() {
       return STATUSES;
+    },
+    _() {
+      return {
+        maxBy,
+        meanBy,
+        sortBy,
+        map,
+        filter,
+      };
     },
   },
   methods: {

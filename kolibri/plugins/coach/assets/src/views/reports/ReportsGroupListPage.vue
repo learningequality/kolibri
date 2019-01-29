@@ -72,9 +72,10 @@
         'exams',
         'examStatuses',
         'contentStatuses',
+        'getLearnersForGroups',
       ]),
       table() {
-        const sorted = this.dataHelpers.sortBy(this.groups, ['name']);
+        const sorted = this._.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {
           const groupLessons = this.lessons.filter(
             lesson => lesson.groups.includes(group.id) || !lesson.groups.length
@@ -82,7 +83,7 @@
           const groupExams = this.exams.filter(
             exam => exam.groups.includes(group.id) || !exam.groups.length
           );
-          const learnerIds = this.dataHelpers.learnersForGroups([group.id]);
+          const learnerIds = this.getLearnersForGroups([group.id]);
           const tableRow = {
             numLessons: groupLessons.length,
             numQuizzes: groupExams.length,
@@ -105,7 +106,7 @@
         if (!relevantStatuses.length) {
           return null;
         }
-        return this.dataHelpers.meanBy(relevantStatuses, 'score');
+        return this._.meanBy(relevantStatuses, 'score');
       },
       lastActivity(learnerIds) {
         const statuses = [
@@ -115,7 +116,7 @@
         if (!statuses.length) {
           return null;
         }
-        return this.dataHelpers.maxBy(statuses, 'last_activity').last_activity;
+        return this._.maxBy(statuses, 'last_activity').last_activity;
       },
     },
   };

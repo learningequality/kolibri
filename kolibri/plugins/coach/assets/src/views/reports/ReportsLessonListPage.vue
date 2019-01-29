@@ -83,7 +83,12 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['lessons', 'lessonLearnerStatusMap']),
+      ...mapGetters('classSummary', [
+        'lessons',
+        'lessonLearnerStatusMap',
+        'getGroupNames',
+        'getLearnersForGroups',
+      ]),
       filterOptions() {
         return [
           {
@@ -110,13 +115,13 @@
             return !lesson.active;
           }
         });
-        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(lesson => {
           const tableRow = {
-            totalLearners: this.dataHelpers.learnersForGroups(lesson.groups).length,
+            totalLearners: this.getLearnersForGroups(lesson.groups).length,
             numCompleted: this.numCompleted(lesson),
             numNeedingHelp: this.numNeedingHelp(lesson),
-            groupNames: this.dataHelpers.groupNames(lesson.groups),
+            groupNames: this.getGroupNames(lesson.groups),
           };
           Object.assign(tableRow, lesson);
           return tableRow;
@@ -135,14 +140,14 @@
     },
     methods: {
       numCompleted(lesson) {
-        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const learners = this.getLearnersForGroups(lesson.groups);
         const statuses = learners.map(
           learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
         );
         return statuses.filter(status => status === this.STATUSES.completed).length;
       },
       numNeedingHelp(lesson) {
-        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
+        const learners = this.getLearnersForGroups(lesson.groups);
         const statuses = learners.map(
           learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
         );

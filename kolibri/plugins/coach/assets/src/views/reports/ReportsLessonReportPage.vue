@@ -75,7 +75,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -87,6 +87,7 @@
     mixins: [commonCoach],
     computed: {
       ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
+      ...mapGetters('classSummary', ['getContentStatusForLearner', 'getLearnersForGroups']),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -100,11 +101,11 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       recipients() {
-        return this.dataHelpers.learnersForGroups(this.lesson.groups);
+        return this.getLearnersForGroups(this.lesson.groups);
       },
       table() {
         const content = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this.dataHelpers.sortBy(content, ['title']);
+        const sorted = this._.sortBy(content, ['title']);
         const mapped = sorted.map(content => {
           const tableRow = {
             numCompleted: this.numCompleted(content.content_id),
@@ -120,7 +121,7 @@
     methods: {
       numCompleted(contentId) {
         return this.recipients.reduce((acc, learnerId) => {
-          const status = this.dataHelpers.contentStatusForLearner(contentId, learnerId);
+          const status = this.getContentStatusForLearner(contentId, learnerId);
           if (status === this.STATUSES.completed) {
             return acc + 1;
           }
@@ -130,7 +131,7 @@
       avgTimeSpent(contentId) {
         const statuses = [];
         this.recipients.forEach(learnerId => {
-          const status = this.dataHelpers.contentStatusForLearner(contentId, learnerId);
+          const status = this.getContentStatusForLearner(contentId, learnerId);
           if (status !== this.STATUSES.notStarted) {
             statuses.push(this.contentLearnerStatusMap[contentId][learnerId]);
           }
@@ -138,7 +139,7 @@
         if (!statuses.length) {
           return undefined;
         }
-        return this.dataHelpers.meanBy(statuses, 'time_spent');
+        return this._.meanBy(statuses, 'time_spent');
       },
       numLearnersNeedingHelp(content) {
         // TODO COACH

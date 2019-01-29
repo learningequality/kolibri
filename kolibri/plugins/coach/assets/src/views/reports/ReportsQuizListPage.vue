@@ -79,7 +79,13 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['exams', 'examStatuses']),
+      ...mapGetters('classSummary', [
+        'exams',
+        'examStatuses',
+        'getGroupNames',
+        'getLearnersForGroups',
+        'getExamStatusForLearner',
+      ]),
       filterOptions() {
         return [
           {
@@ -106,16 +112,16 @@
             return !exam.active;
           }
         });
-        const sorted = this.dataHelpers.sortBy(filtered, ['title', 'active']);
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(exam => {
           const { started, notStarted, completed } = this.counts(exam);
-          const learnersForQuiz = this.dataHelpers.learnersForGroups(exam.groups);
+          const learnersForQuiz = this.getLearnersForGroups(exam.groups);
           const tableRow = {
             totalLearners: learnersForQuiz.length,
             numCompleted: completed,
             numStarted: started,
             numNotStarted: notStarted,
-            groupNames: this.dataHelpers.groupNames(exam.groups),
+            groupNames: this.getGroupNames(exam.groups),
             avgScore: this.avgScore(exam, learnersForQuiz),
           };
           Object.assign(tableRow, exam);
@@ -129,9 +135,9 @@
     },
     methods: {
       counts(exam) {
-        const learners = this.dataHelpers.learnersForGroups(exam.groups);
+        const learners = this.getLearnersForGroups(exam.groups);
         const statuses = learners.map(learnerId =>
-          this.dataHelpers.examStatusForLearner(exam.id, learnerId)
+          this.getExamStatusForLearner(exam.id, learnerId)
         );
         const completed = statuses.filter(status => status === this.STATUSES.completed).length;
         const started = statuses.filter(status => status === this.STATUSES.started).length;
@@ -148,7 +154,7 @@
         if (!relevantStatuses.length) {
           return null;
         }
-        return this.dataHelpers.meanBy(relevantStatuses, 'score');
+        return this._.meanBy(relevantStatuses, 'score');
       },
     },
     $trs: {
