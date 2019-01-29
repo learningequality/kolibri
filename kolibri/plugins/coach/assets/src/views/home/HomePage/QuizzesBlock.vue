@@ -2,7 +2,7 @@
 
   <Block
     :title="coachStrings.$tr('quizzesLabel')"
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
@@ -26,11 +26,14 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import sortBy from 'lodash/sortBy';
   import commonCoach from '../../common';
   import Block from './Block';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import ActivityBlock from './ActivityBlock';
 
+  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
   const MAX_QUIZZES = 3;
 
   export default {
@@ -58,6 +61,9 @@
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
+      },
+      viewAllString() {
+        return viewAllString;
       },
     },
     methods: {

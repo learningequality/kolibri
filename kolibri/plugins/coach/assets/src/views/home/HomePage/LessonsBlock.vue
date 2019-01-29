@@ -2,7 +2,7 @@
 
   <Block
     :title="coachStrings.$tr('lessonsLabel')"
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.LESSON" />
@@ -27,11 +27,15 @@
 
   import { mapGetters, mapState } from 'vuex';
   import sortBy from 'lodash/sortBy';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import ActivityBlock from './ActivityBlock';
 
   const MAX_LESSONS = 3;
+
+  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
 
   export default {
     name: 'LessonsBlock',
@@ -63,6 +67,9 @@
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
+      },
+      viewAllString() {
+        return viewAllString;
       },
     },
     methods: {
