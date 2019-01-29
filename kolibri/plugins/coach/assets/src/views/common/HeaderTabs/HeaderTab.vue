@@ -59,6 +59,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   // a lot copied from KButton
   .button {
     position: relative;
@@ -83,8 +85,10 @@
     border: 0;
     border-style: solid;
     border-width: 0;
-    border-radius: 0;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
     outline: none;
+    transition: background-color $core-time ease;
   }
 
 </style>

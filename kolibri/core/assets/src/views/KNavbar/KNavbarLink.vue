@@ -94,8 +94,8 @@
     text-decoration: none;
     border: 0;
     border-radius: 0;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
     transition: background-color $core-time ease;
   }
 
