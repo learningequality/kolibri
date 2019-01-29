@@ -55,9 +55,15 @@ file_manifest = {
         'category': INSTALLER_CAT,
         'content_type': 'application/vnd.debian.binary-package',
     },
-    'exe': {
+    'unsigned-exe': {
         'extension': 'exe',
-        'description': 'Windows Installer',
+        'description': 'Unsigned Windows installer',
+        'category': INSTALLER_CAT,
+        'content_type': 'application/x-ms-dos-executable',
+    },
+    'signed-exe': {
+        'extension': 'exe',
+        'description': 'Signed Windows installer',
         'category': INSTALLER_CAT,
         'content_type': 'application/x-ms-dos-executable',
     },
@@ -89,7 +95,8 @@ file_manifest = {
 
 file_order = [
     'deb',
-    'exe',
+    'unsigned-exe',
+    'signed-exe',
     # 'apk',
     'pex',
     'whl',
@@ -144,14 +151,26 @@ def collect_local_artifacts():
 
     artifacts_dict = {}
 
+    def create_exe_data(filename, data):
+        data_name = '-unsigned'
+        if "-signed" in filename:
+            data_name = "-signed"
+        data_name_exe = data_name[1:] + "-exe"
+        data.update(file_manifest[data_name_exe])
+        artifacts_dict[data_name_exe] = data
+
     def create_artifact_data(artifact_dir):
         for artifact in listdir(artifact_dir):
             filename, file_extension = os.path.splitext(artifact)
             # Remove leading '.'
+            # print("...>", artifact, "<......")
             file_extension = file_extension[1:]
+            data = {"name": artifact,
+                    "file_location": "%s/%s" % (artifact_dir, artifact)}
+            if file_extension == "exe":
+                create_exe_data(filename, data)
+
             if file_extension in file_manifest:
-                data = {"name": artifact,
-                        "file_location": "%s/%s" % (artifact_dir, artifact)}
                 data.update(file_manifest[file_extension])
                 logging.info("Collect file data: (%s)" % data)
                 artifacts_dict[file_extension] = data
