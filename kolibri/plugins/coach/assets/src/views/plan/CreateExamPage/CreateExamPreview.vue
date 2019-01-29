@@ -193,6 +193,7 @@
   import commonCoach from '../../common';
   import QuizDetailEditor from '../../common/QuizDetailEditor';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
@@ -200,8 +201,6 @@
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
-
-  const MAX_QUESTIONS = 50;
 
   export default {
     name: 'CreateExamPreview',
@@ -243,7 +242,11 @@
     },
     computed: {
       ...mapState(['toolbarRoute']),
-      ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
+      ...mapState('examCreation', [
+        'loadingNewQuestions',
+        'selectedQuestions',
+        'selectedExercises',
+      ]),
       annotatedQuestions() {
         const counts = {};
         const totals = {};
@@ -283,15 +286,8 @@
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
-      exercises() {
-        const exercises = {};
-        this.$store.state.examCreation.selectedExercises.forEach(exercise => {
-          exercises[exercise.id] = exercise;
-        });
-        return exercises;
-      },
       content() {
-        return this.exercises[this.currentQuestion.exercise_id];
+        return this.selectedExercises[this.currentQuestion.exercise_id];
       },
       questionId() {
         return this.currentQuestion.question_id;
@@ -366,7 +362,7 @@
         this.$store.dispatch('examCreation/updateSelectedQuestions');
       },
       numCoachContents(exerciseId) {
-        return this.exercises[exerciseId].num_coach_contents;
+        return this.selectedExercises[exerciseId].num_coach_contents;
       },
       isSelected(question) {
         return (

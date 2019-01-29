@@ -265,7 +265,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             def copy_node(new_node):
                 new_node['ancestor_id'] = node.id
                 return new_node
-            node_data = node.get_descendants()
+            node_data = node.get_descendants().filter(available=True)
             if kind:
                 node_data = node_data.filter(kind=kind)
             data += map(copy_node, node_data.values('id', 'title', 'kind', 'content_id'))
@@ -292,7 +292,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         ids = self.request.query_params.get('ids', '').split(',')
         data = 0
         if ids and ids[0]:
-            nodes = models.ContentNode.objects.filter(id__in=ids).prefetch_related('assessmentmetadata')
+            nodes = models.ContentNode.objects.filter(id__in=ids, available=True).prefetch_related('assessmentmetadata')
             data = nodes.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
         return Response(data)
 

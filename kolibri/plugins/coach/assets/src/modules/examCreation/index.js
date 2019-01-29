@@ -1,5 +1,3 @@
-import unionBy from 'lodash/unionBy';
-import find from 'lodash/find';
 import * as actions from './actions';
 
 function getRandomInt() {
@@ -12,7 +10,7 @@ function defaultState() {
     numberOfQuestions: 10,
     seed: getRandomInt(), // consistent seed is used for question selection
     contentList: [],
-    selectedExercises: [],
+    selectedExercises: {},
     availableQuestions: 0,
     searchResults: {
       channel_ids: [],
@@ -72,19 +70,19 @@ export default {
       state.contentList = contentList;
     },
     ADD_TO_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = unionBy([...state.selectedExercises, ...exercises], 'id');
-    },
-    REMOVE_FROM_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = state.selectedExercises.filter(
-        resource => exercises.findIndex(exercise => exercise.id === resource.id) === -1
+      Object.assign(
+        state.selectedExercises,
+        ...exercises.map(exercise => ({ [exercise.id]: exercise }))
       );
     },
-    SET_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = unionBy(exercises, 'id');
+    REMOVE_FROM_SELECTED_EXERCISES(state, exercises) {
+      exercises.forEach(exercise => {
+        delete state.selectedExercises[exercise.id];
+      });
     },
     UPDATE_SELECTED_EXERCISES(state, exercises) {
       exercises.forEach(newExercise => {
-        Object.assign(find(state.selectedExercises, { id: newExercise.id }), newExercise);
+        Object.assign(state.selectedExercises[newExercise.id], newExercise);
       });
     },
     SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
