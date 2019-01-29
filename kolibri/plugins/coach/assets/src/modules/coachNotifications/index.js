@@ -1,5 +1,4 @@
 import maxBy from 'lodash/maxBy';
-import df from 'date-fns';
 import notificationsResource from '../../apiResources/notifications';
 import { summarizedNotifications } from './getters';
 
@@ -24,17 +23,6 @@ export default {
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
     },
-    TEST_MOVE_LAST(state) {
-      const len = state.notifications.length;
-      const max = df.max.apply(null, state.notifications.map(n => n.timestamp));
-      if (len > 1) {
-        const modded = {
-          ...state.notifications[len - 1],
-          timestamp: df.addSeconds(max, 10),
-        };
-        state.notifications = [modded, ...state.notifications.slice(0, len - 1)];
-      }
-    },
   },
   getters: {
     summarizedNotifications,
@@ -53,8 +41,11 @@ export default {
       };
     },
     maxNotificationIndex(state) {
-      const match = maxBy(state.notifications, 'id');
-      return match ? match.id : 0;
+      if (state.notifications.length > 0) {
+        // IDs are being converted to strings for some reason
+        return maxBy(state.notifications, n => Number(n.id)).id;
+      }
+      return 0;
     },
   },
   actions: {
@@ -85,7 +76,7 @@ export default {
           force: true,
         })
         .then(data => {
-          if (data.count > 0) {
+          if (data.results.length > 0) {
             store.commit('APPEND_NOTIFICATIONS', data.results);
           }
           store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
