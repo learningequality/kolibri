@@ -4,7 +4,9 @@ import meanBy from 'lodash/meanBy';
 import flatten from 'lodash/flatten';
 import { STATUSES } from './constants';
 
-// getters that return lookup functions
+// Getters that return lookup functions
+//
+// Implemented as getters for easy access to the store
 export default {
   getGroupNames(state) {
     return function(groupIds) {
