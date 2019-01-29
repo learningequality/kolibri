@@ -94,10 +94,7 @@
               />
             </td>
             <td>
-              <TimeDuration
-                v-if="tableRow.status"
-                :seconds="tableRow.status.time_spent"
-              />
+              <TimeDuration :seconds="tableRow.status.time_spent" />
             </td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td>
@@ -136,7 +133,7 @@
       ...mapGetters('classSummary', [
         'groups',
         'getLearnersForGroups',
-        'getAvgTimeSpent',
+        'getContentAvgTimeSpent',
         'getGroupNames',
         'getContentStatusCounts',
         'getGroupNamesForLearner',
@@ -151,7 +148,7 @@
         return this.getLearnersForGroups(this.lesson.groups);
       },
       avgTime() {
-        return this.getAvgTimeSpent(this.$route.params.resourceId, this.recipients);
+        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
       },
       statusCounts() {
         return this.getContentStatusCounts(this.$route.params.resourceId, this.recipients);
@@ -164,7 +161,7 @@
           const status = get(
             this.contentLearnerStatusMap,
             [this.$route.params.resourceId, learner.id],
-            undefined
+            {}
           );
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),

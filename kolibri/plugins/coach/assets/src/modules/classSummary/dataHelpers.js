@@ -93,11 +93,11 @@ export default {
       return tallies;
     };
   },
-  getAvgTimeSpent(state, getters) {
+  getContentAvgTimeSpent(state, getters) {
     return function(contentId, learnerIds) {
       const statuses = [];
       learnerIds.forEach(learnerId => {
-        const status = getters.getExamStatusForLearner(contentId, learnerId);
+        const status = getters.getContentStatusForLearner(contentId, learnerId);
         if (status !== STATUSES.notStarted) {
           statuses.push(state.contentLearnerStatusMap[contentId][learnerId]);
         }
