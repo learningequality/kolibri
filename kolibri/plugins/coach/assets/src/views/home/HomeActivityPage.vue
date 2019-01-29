@@ -34,7 +34,7 @@
             v-for="notification in notifications"
             v-show="showNotification(notification)"
             :key="notification.id"
-            v-bind="cardProps(notification)"
+            v-bind="cardPropsForNotification(notification)"
           >
             {{ cardTextForNotification(notification) }}
           </NotificationCard>
@@ -72,7 +72,7 @@
   import NotificationCard from '../common/notifications/NotificationCardNoLink';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import notificationsResource from '../../apiResources/notifications';
-  import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
+  import { NotificationObjects } from '../../constants/notificationsConstants';
   import { CollectionTypes } from '../../constants/lessonsConstants';
 
   const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
@@ -237,27 +237,18 @@
           },
         };
       },
-      cardProps(notification) {
-        let icon = '';
-        let contentIcon = '';
-        const { assignment, collection, object, event, resource } = notification;
-        icon = {
-          [NotificationEvents.COMPLETED]: 'star',
-          [NotificationEvents.STARTED]: 'clock',
-          [NotificationEvents.HELP_NEEDED]: 'help',
-        }[event];
-
-        if (object === LESSON || object === QUIZ) {
-          contentIcon = assignment.type;
-        } else {
-          contentIcon = resource.type;
-        }
-
+      cardPropsForNotification(notification) {
+        const { collection } = notification;
+        const learnerContext =
+          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
+        // Only differences from ActivityBlock is that there is no targetPage,
+        // and the time is used
         return {
-          icon,
-          contentIcon,
-          contentContext: assignment.name,
-          learnerContext: collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '',
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
+          contentContext: notification.assignment.name,
+          learnerContext,
           time: notification.timestamp,
         };
       },
