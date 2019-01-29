@@ -58,11 +58,26 @@ export default {
       return get(state.examLearnerStatusMap, [examId, learnerId, 'status'], STATUSES.notStarted);
     };
   },
+  getExamStatusCounts(state, getters) {
+    return function(examId, learnerIds) {
+      const tallies = {
+        [STATUSES.started]: 0,
+        [STATUSES.notStarted]: 0,
+        [STATUSES.completed]: 0,
+        [STATUSES.helpNeeded]: 0,
+      };
+      learnerIds.forEach(learnerId => {
+        const status = getters.getExamStatusForLearner(examId, learnerId);
+        tallies[status] += 1;
+      });
+      return tallies;
+    };
+  },
   getAvgTimeSpent(state, getters) {
     return function(contentId, learnerIds) {
       const statuses = [];
       learnerIds.forEach(learnerId => {
-        const status = getters.getContentStatusForLearner(contentId, learnerId);
+        const status = getters.getExamStatusForLearner(contentId, learnerId);
         if (status !== STATUSES.notStarted) {
           statuses.push(state.contentLearnerStatusMap[contentId][learnerId]);
         }

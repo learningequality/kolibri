@@ -6,15 +6,18 @@
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
-    <ItemProgressDisplay
+    <div
       v-for="quiz in recentQuizzes"
       :key="quiz.key"
-      :name="quiz.name"
-      :completed="quiz.completed"
-      :total="quiz.total"
-      :groups="quiz.groups"
       class="block-item"
-    />
+    >
+      <ItemProgressDisplay
+        :name="quiz.name"
+        :completed="quiz.completed"
+        :total="quiz.total"
+        :groups="quiz.groups"
+      />
+    </div>
   </Block>
 
 </template>
@@ -42,7 +45,7 @@
     },
     computed: {
       ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
-      ...mapGetters('classSummary', ['learners', 'exams']),
+      ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusCounts']),
       recentQuizzes() {
         const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
@@ -72,18 +75,14 @@
       },
       // return the number of learners who have completed the exam
       numCompleted(examId, assignedLearnerIds) {
-        return assignedLearnerIds.reduce((total, learnerId) => {
-          if (!this.examLearnerStatusMap[examId][learnerId]) {
-            return total;
-          }
-          return this.examLearnerStatusMap[examId][learnerId].status === 'completed'
-            ? total + 1
-            : total;
-        }, 0);
+        return this.getExamStatusCounts(examId, assignedLearnerIds)[this.STATUSES.completed];
       },
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
         let last = null;
+        if (!this.examLearnerStatusMap[exam.id]) {
+          return undefined;
+        }
         Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
           if (status.last_activity > last) {
             last = status.last_activity;
