@@ -5,6 +5,7 @@ import flatten from 'lodash/flatten';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
+import dataHelpers from './dataHelpers';
 import { STATUSES } from './constants';
 
 function defaultState() {
@@ -123,6 +124,7 @@ export default {
   namespaced: true,
   state: defaultState(),
   getters: {
+    ...dataHelpers,
     coaches(state) {
       return Object.values(state.coachMap);
     },
@@ -211,7 +213,6 @@ export default {
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap: _itemMap(summary.lessons, 'id'),
       });
-      global.class = state;
     },
     CREATE_ITEM(state, { map, id, object }) {
       state[map] = {

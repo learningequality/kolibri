@@ -12,8 +12,10 @@
 
     <div class="new-coach-block">
       <ReportsHeader />
+      <!-- TODO COACH
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+       -->
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -70,15 +72,13 @@
         'exams',
         'examStatuses',
         'contentStatuses',
+        'getGroupNames',
       ]),
       table() {
-        const sorted = this.dataHelpers.sortBy(this.learners, ['name']);
+        const sorted = this._.sortBy(this.learners, ['name']);
         const mapped = sorted.map(learner => {
-          const groupNames = this.dataHelpers.groupNames(
-            this.dataHelpers.map(
-              this.groups.filter(group => group.member_ids.includes(learner.id)),
-              'id'
-            )
+          const groupNames = this.getGroupNames(
+            this._.map(this.groups.filter(group => group.member_ids.includes(learner.id)), 'id')
           );
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(
@@ -105,14 +105,14 @@
         if (!statuses.length) {
           return null;
         }
-        return this.dataHelpers.meanBy(statuses, 'score');
+        return this._.meanBy(statuses, 'score');
       },
       lastActivity(examStatuses, contentStatuses) {
         const statuses = [...examStatuses, ...contentStatuses];
         if (!statuses.length) {
           return null;
         }
-        return this.dataHelpers.maxBy(statuses, 'last_activity').last_activity;
+        return this._.maxBy(statuses, 'last_activity').last_activity;
       },
       exercisesCompleted(contentStatuses) {
         const statuses = contentStatuses.filter(

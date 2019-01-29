@@ -20,14 +20,15 @@
 <style lang="scss" scoped>
 
   th {
-    font-weight: normal;
     text-align: left;
   }
 
   th,
   td {
     width: 50%;
-    line-height: 1.5em;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    font-size: 14px;
   }
 
 </style>

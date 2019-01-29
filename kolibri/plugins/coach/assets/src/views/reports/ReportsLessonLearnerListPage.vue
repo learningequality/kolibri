@@ -25,137 +25,26 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="Adam"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
+                :text="tableRow.name"
+                :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
               />
             </td>
             <td>
               <ItemStatusRatio
-                :count="0"
-                :total="10"
+                :count="tableRow.numCompleted"
+                :total="lesson.node_ids.length"
                 verbosity="1"
                 obj="question"
                 adjective="completed"
                 icon="clock"
               />
             </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
             <td>
-              <KRouterLink
-                text="April"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
+              <TruncatedItemList :items="tableRow.groups" />
             </td>
-            <td>
-              <ItemStatusRatio
-                :count="1"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Betsy"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="1"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Edward"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="0"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="John"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="10"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="star"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Julie"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
-            </td>
-            <td>
-              <ItemStatusCount
-                :count="1"
-                verbosity="1"
-                obj="question"
-                adjective="difficult"
-                icon="help"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Steve"
-                :to="classRoute('ReportsLessonLearnerPage', {})"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="8"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b']" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -167,6 +56,8 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
+
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -176,31 +67,52 @@
       ReportsLessonHeader,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        filter: 'allQuizzes',
-      };
-    },
     computed: {
-      filterOptions() {
-        return [
-          {
-            label: this.$tr('allQuizzes'),
-            value: 'allQuizzes',
-          },
-          {
-            label: this.$tr('activeQuizzes'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.$tr('inactiveQuizzes'),
-            value: 'inactiveQuizzes',
-          },
-        ];
+      ...mapState('classSummary', [
+        'lessonMap',
+        'learnerMap',
+        'contentNodeMap',
+        'contentLearnerStatusMap',
+      ]),
+      ...mapGetters('classSummary', [
+        'groups',
+        'getLearnersForGroups',
+        'getContentStatusForLearner',
+        'getGroupNamesForLearner',
+      ]),
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      recipients() {
+        return this.getLearnersForGroups(this.lesson.groups);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            numCompleted: this.numCompleted(learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
       },
     },
-    beforeMount() {
-      this.filter = this.filterOptions[0];
+    methods: {
+      numCompleted(learnerId) {
+        const contentIds = this.lesson.node_ids.map(
+          node_id => this.contentNodeMap[node_id].content_id
+        );
+        return contentIds.reduce((acc, contentId) => {
+          const status = this.getContentStatusForLearner(contentId, learnerId);
+          if (status === this.STATUSES.completed) {
+            return acc + 1;
+          }
+          return acc;
+        }, 0);
+      },
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',

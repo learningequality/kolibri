@@ -15,6 +15,7 @@ const QUIZ = '/quizzes/:quizId';
 const QUESTIONS = '/questions';
 const QUESTION = '/questions/:questionId';
 const EXERCISE = '/exercises/:exerciseId';
+const RESOURCES = '/resources';
 const RESOURCE = '/resources/:resourceId';
 
 function path(...args) {
@@ -212,7 +213,7 @@ export default [
     handler: defaultHandler,
   },
   {
-    path: path(CLASS, LESSON),
+    path: path(CLASS, LESSON, RESOURCES),
     component: pages.ReportsLessonReportPage,
     handler: defaultHandler,
   },

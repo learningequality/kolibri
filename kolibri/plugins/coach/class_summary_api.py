@@ -35,7 +35,7 @@ class ContentStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = logger_models.ContentSummaryLog
-        fields = ("learner_id", "content_id", "status", "last_activity")
+        fields = ("learner_id", "content_id", "status", "last_activity", "time_spent")
 
 
 class ExamStatusSerializer(serializers.ModelSerializer):
