@@ -2,6 +2,12 @@
 Contributing
 ============
 
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   code_of_conduct
+   authors
 
 Ways to contribute
 ==================
@@ -56,16 +62,3 @@ Write Documentation
 Kolibri could always use more documentation, whether as part of the
 official Kolibri docs, in docstrings, or even on the web in blog posts,
 articles, and such.
-
-
-
-Code of conduct
-===============
-
-.. toctree::
-   :maxdepth: 1
-   :titlesonly:
-
-   code_of_conduct
-   authors
-
