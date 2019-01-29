@@ -15,13 +15,13 @@ steps:
   - label: Build Debian Packages
     command: .buildkite/build_debian_pkgs.sh
 
-  - wait
-
   - block: "Sign Windows .exe?"
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
     agents:
       queue: "windows-sign"
+
+  - wait
 
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh
