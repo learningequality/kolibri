@@ -26,7 +26,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import sortBy from 'lodash/sortBy';
+  import orderBy from 'lodash/orderBy';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
@@ -56,7 +56,7 @@
         'getLessonStatusCounts',
       ]),
       table() {
-        const recent = sortBy(this.lessons, this.lastActivity).slice(0, MAX_LESSONS);
+        const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
           const assigned = this.assignedLearnerIds(lesson);
           return {

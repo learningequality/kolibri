@@ -27,7 +27,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import sortBy from 'lodash/sortBy';
+  import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import Block from './Block';
   import ItemProgressDisplay from './ItemProgressDisplay';
@@ -50,7 +50,7 @@
       ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
       ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusCounts']),
       table() {
-        const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
+        const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
           const assigned = this.assignedLearnerIds(exam);
           return {
