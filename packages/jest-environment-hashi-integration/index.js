@@ -7,6 +7,7 @@ const webpackConfig = require('../hashi/webpack.config');
 async function generateClientCode() {
   // Modified from https://github.com/knpwrs/webpack-to-memory/blob/master/src/index.js
   return new Promise((resolve, reject) => {
+    webpackConfig.output.filename = 'hashiframe.js';
     const compiler = webpack(webpackConfig);
     // Compile hashi iframe client to in-memory file system.
     const fs = new MemoryFileSystem();

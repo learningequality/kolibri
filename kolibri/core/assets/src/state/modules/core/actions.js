@@ -562,7 +562,7 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
   progressPercent = progressPercent || 0;
-  const sessionProgress = sessionLog.progress + progressPercent;
+  const sessionProgress = Math.min(1, sessionLog.progress + progressPercent);
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;
