@@ -29,16 +29,14 @@
           {{ $tr('noActivity') }}
         </p>
 
-        <transition-group name="list">
-          <NotificationCard
-            v-for="notification in notifications"
-            v-show="showNotification(notification)"
-            :key="notification.id"
-            v-bind="cardPropsForNotification(notification)"
-          >
-            {{ cardTextForNotification(notification) }}
-          </NotificationCard>
-        </transition-group>
+        <NotificationCard
+          v-for="notification in notifications"
+          v-show="showNotification(notification)"
+          :key="notification.id"
+          v-bind="cardPropsForNotification(notification)"
+        >
+          {{ cardTextForNotification(notification) }}
+        </NotificationCard>
       </div>
 
       <div v-if="noFiltersApplied" class="show-more">
@@ -265,8 +263,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '../common/list-transition';
 
   .show-more {
     height: 100px;
