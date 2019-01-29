@@ -19,9 +19,7 @@
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <!-- TODO COACH
             <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
-             -->
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -60,9 +58,12 @@
                 :verbosity="0"
               />
             </td>
-            <!-- TODO COACH
-            <td><TimeDuration :seconds="360" /></td>
-             -->
+            <td>
+              <TimeDuration
+                v-if="tableRow.avgTimeSpent"
+                :seconds="tableRow.avgTimeSpent"
+              />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -107,8 +108,8 @@
         const mapped = sorted.map(content => {
           const tableRow = {
             numCompleted: this.numCompleted(content.content_id),
-            numNeedingHelp: this.numLearnersNeedingHelp(content.content_id),
-            avgTimeSpent: undefined,
+            numNeedingHelp: this.numLearnersNeedingHelp(content),
+            avgTimeSpent: this.avgTimeSpent(content.content_id),
           };
           Object.assign(tableRow, content);
           return tableRow;
@@ -125,6 +126,19 @@
           }
           return acc;
         }, 0);
+      },
+      avgTimeSpent(contentId) {
+        const statuses = [];
+        this.recipients.forEach(learnerId => {
+          const status = this.dataHelpers.contentStatusForLearner(contentId, learnerId);
+          if (status !== this.STATUSES.notStarted) {
+            statuses.push(this.contentLearnerStatusMap[contentId][learnerId]);
+          }
+        });
+        if (!statuses.length) {
+          return undefined;
+        }
+        return this.dataHelpers.meanBy(statuses, 'time_spent');
       },
       numLearnersNeedingHelp(content) {
         // TODO COACH
