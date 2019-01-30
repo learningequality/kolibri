@@ -43,7 +43,7 @@ import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
 import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
-import { OBJECTS, ADJECTIVES, VERBS, ICONS } from './common/status/constants';
+import { VERBS, ICONS } from './common/status/constants';
 
 export default {
   name: 'ReportsQuizHeader',
@@ -98,12 +98,6 @@ export default {
     },
     CollectionKinds() {
       return CollectionKinds;
-    },
-    OBJECTS() {
-      return OBJECTS;
-    },
-    ADJECTIVES() {
-      return ADJECTIVES;
     },
     VERBS() {
       return VERBS;

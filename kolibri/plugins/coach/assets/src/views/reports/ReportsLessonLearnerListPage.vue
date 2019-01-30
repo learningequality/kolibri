@@ -33,14 +33,7 @@
               />
             </td>
             <td>
-              <ItemStatusRatio
-                :count="tableRow.numCompleted"
-                :total="lesson.node_ids.length"
-                verbosity="2"
-                :obj="OBJECTS.resource"
-                :adjective="ADJECTIVES.completed"
-                :icon="ICONS.clock"
-              />
+              TODO - lesson status for learner
             </td>
             <td>
               <TruncatedItemList :items="tableRow.groups" />
