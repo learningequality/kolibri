@@ -37,11 +37,8 @@ buildkite-agent artifact download 'dist/*.whl' dist/
 buildkite-agent artifact download 'dist/*.tar.gz' dist/
 buildkite-agent artifact download 'dist/*.deb' dist/
 buildkite-agent artifact download 'dist/*.exe' dist/
-{
-    buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
-} || {
-    echo "No signed Windows installer found"
-}
+buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
+
 
 $PYTHON_CMD
 if [ $? -ne 0 ]; then

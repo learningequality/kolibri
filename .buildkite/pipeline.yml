@@ -26,9 +26,11 @@ steps:
   - block: "Sign Windows installer?"
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
-    command: .buildkite/setup_and_upload_artifact.sh
     agents:
       queue: "windows-sign"
+
+  - label: Upload new artifacts
+    command: .buildkite/setup_and_upload_artifact.sh
 
   - block: "Create APK?"
   - label: Build the Android APK file
