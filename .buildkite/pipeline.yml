@@ -15,7 +15,7 @@ steps:
   - label: Build Debian Packages
     command: .buildkite/build_debian_pkgs.sh
 
-  - block: "Sign Windows .exe?"
+  - block: "Sign Windows installer?"
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
     agents:

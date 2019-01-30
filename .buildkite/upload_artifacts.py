@@ -114,13 +114,14 @@ def create_status_report_html(artifacts):
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
     for ext in file_order:
-        artifact = artifacts[ext]
-        if artifact['category'] != current_heading:
-            current_heading = artifact['category']
-            html += "<h2>{heading}</h2>\n".format(heading=current_heading)
-        html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
-            **artifact
-        )
+        if ext in artifacts:
+            artifact = artifacts[ext]
+            if artifact['category'] != current_heading:
+                current_heading = artifact['category']
+                html += "<h2>{heading}</h2>\n".format(heading=current_heading)
+            html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
+                **artifact
+            )
     html += "</body>\n</html>"
     return html
 
