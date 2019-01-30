@@ -1,3 +1,4 @@
+import Vue from 'kolibri.lib.vue';
 import * as actions from './actions';
 
 function getRandomInt() {
@@ -78,12 +79,12 @@ export default {
     },
     REMOVE_FROM_SELECTED_EXERCISES(state, exercises) {
       exercises.forEach(exercise => {
-        delete state.selectedExercises[exercise.id];
+        Vue.delete(state.selectedExercises, exercise.id);
       });
     },
     UPDATE_SELECTED_EXERCISES(state, exercises) {
       exercises.forEach(newExercise => {
-        Object.assign(state.selectedExercises[newExercise.id], newExercise);
+        Vue.set(state.selectedExercises, newExercise.id, newExercise);
       });
     },
     SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
