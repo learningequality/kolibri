@@ -106,11 +106,11 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             contentNodes.forEach(node => {
               questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
             });
-            const questions = convertExamQuestionSourcesV0V1(
-              questionSources,
-              exam.seed,
-              questionIds
-            );
+
+            let questions = questionSources;
+            if (exam.data_model_version === 0) {
+              questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
+            }
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
