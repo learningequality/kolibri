@@ -13,10 +13,10 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :completed="tableRow.statusCounts[STATUSES.completed]"
-        :started="tableRow.statusCounts[STATUSES.started]"
-        :notStarted="tableRow.statusCounts[STATUSES.notStarted]"
-        :needHelp="tableRow.statusCounts[STATUSES.helpNeeded]"
+        :completed="tableRow.statusCounts.completed"
+        :started="tableRow.statusCounts.started"
+        :notStarted="tableRow.statusCounts.notStarted"
+        :needHelp="tableRow.statusCounts.helpNeeded"
         :groups="tableRow.groups"
       />
     </div>
@@ -64,7 +64,7 @@
           return {
             key: lesson.id,
             name: lesson.title,
-            statusCounts: this.statusCounts(lesson.id, assigned),
+            statusCounts: this.getLessonStatusCounts(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
@@ -85,9 +85,6 @@
           learnerIds.push(...this.groupMap[groupId].member_ids);
         });
         return learnerIds;
-      },
-      statusCounts(lessonId, assignedLearnerIds) {
-        return this.getLessonStatusCounts(lessonId, assignedLearnerIds);
       },
       // return the last activity among all users for a particular lesson
       lastActivity(lesson) {
