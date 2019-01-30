@@ -78,17 +78,24 @@ export default {
     },
     group_id_2: {
       id: 'group_id_2',
-      name: 'Group 1',
+      name: 'Group 2',
       member_ids: ['learner_id_5', 'learner_id_2', 'learner_id_8'],
     },
     group_id_3: {
       id: 'group_id_3',
-      name: 'Group 2',
-      member_ids: ['learner_id_6', 'learner_id_9', 'learner_id_7', 'learner_id_11', 'learner_id_1'],
+      name: 'Group 3',
+      member_ids: [
+        'learner_id_5',
+        'learner_id_6',
+        'learner_id_9',
+        'learner_id_7',
+        'learner_id_11',
+        'learner_id_1',
+      ],
     },
     group_id_4: {
       id: 'group_id_4',
-      name: 'Group 3',
+      name: 'Group 4',
       member_ids: ['learner_id_4', 'learner_id_10', 'learner_id_3'],
     },
   },
@@ -665,19 +672,47 @@ export default {
   },
   contentLearnerStatusMap: {
     content_Q: {
-      learner_id_6: {
-        learner_id: 'learner_id_6',
+      learner_id_1: {
+        learner_id: 'learner_id_1',
         content_id: 'content_Q',
         status: 'completed',
         last_activity: new Date('2019-01-24T22:41:29.288Z'),
-        time_spent: 500.34,
+        time_spent: 10,
+      },
+      learner_id_2: {
+        learner_id: 'learner_id_2',
+        content_id: 'content_Q',
+        status: 'started',
+        last_activity: new Date('2019-01-24T21:34:36.130Z'),
+        time_spent: 5,
+      },
+      learner_id_3: {
+        learner_id: 'learner_id_3',
+        content_id: 'content_Q',
+        status: 'not_started',
+        last_activity: new Date('2019-01-24T20:41:29.288Z'),
+        time_spent: 0,
+      },
+      learner_id_4: {
+        learner_id: 'learner_id_4',
+        content_id: 'content_Q',
+        status: 'help_needed',
+        last_activity: new Date('2019-01-24T19:34:36.130Z'),
+        time_spent: 0,
       },
       learner_id_5: {
         learner_id: 'learner_id_5',
         content_id: 'content_Q',
+        status: 'completed',
+        last_activity: new Date('2019-01-24T18:41:29.288Z'),
+        time_spent: 18.5,
+      },
+      learner_id_6: {
+        learner_id: 'learner_id_6',
+        content_id: 'content_Q',
         status: 'started',
-        last_activity: new Date('2019-01-24T22:34:36.130Z'),
-        time_spent: 123.34,
+        last_activity: new Date('2019-01-24T17:34:36.130Z'),
+        time_spent: 3.0,
       },
     },
     content_R: {

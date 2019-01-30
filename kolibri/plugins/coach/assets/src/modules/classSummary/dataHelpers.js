@@ -1,5 +1,6 @@
 import map from 'lodash/map';
 import get from 'lodash/get';
+import uniq from 'lodash/uniq';
 import meanBy from 'lodash/meanBy';
 import flatten from 'lodash/flatten';
 import { STATUSES } from './constants';
@@ -33,7 +34,7 @@ export default {
       if (!groupIds.length) {
         return map(state.learnerMap, 'id');
       }
-      return flatten(map(groupIds, id => state.groupMap[id].member_ids));
+      return uniq(flatten(map(groupIds, id => state.groupMap[id].member_ids)));
     };
   },
   getContentStatusForLearner(state) {
