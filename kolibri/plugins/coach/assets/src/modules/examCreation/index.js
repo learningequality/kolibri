@@ -70,7 +70,8 @@ export default {
       state.contentList = contentList;
     },
     ADD_TO_SELECTED_EXERCISES(state, exercises) {
-      Object.assign(
+      state.selectedExercises = Object.assign(
+        {},
         state.selectedExercises,
         ...exercises.map(exercise => ({ [exercise.id]: exercise }))
       );
