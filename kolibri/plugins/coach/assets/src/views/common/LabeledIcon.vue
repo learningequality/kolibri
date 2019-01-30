@@ -32,11 +32,12 @@
   }
 
   .label {
-    margin-left: 8px;
+    margin-left: 6px;
   }
 
   .wrapper svg {
     position: relative;
+    top: -1px;
     width: 16px;
     vertical-align: middle;
   }

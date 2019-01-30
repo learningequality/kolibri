@@ -13,7 +13,7 @@
   import { mapGetters } from 'vuex';
 
   export default {
-    name: 'DashboardBar',
+    name: 'ProgressSummaryBar',
     props: {
       completed: {
         type: Number,

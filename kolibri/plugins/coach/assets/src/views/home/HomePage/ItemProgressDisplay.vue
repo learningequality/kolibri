@@ -4,17 +4,11 @@
     <h3 class="title">{{ name }}</h3>
     <div class="context"><Recipients :groups="groups" /></div>
 
-    <DashboardBar
+    <ProgressSummaryBar
       :completed="completed"
       :started="started"
       :total="completed + started + notStarted + needHelp"
       class="dashboard-bar"
-    />
-
-    <StatusSummary
-      :completed="completed"
-      :started="started"
-      :total="completed + started + notStarted + needHelp"
     />
 
     <LearnerProgressRatio
@@ -43,12 +37,12 @@
 <script>
 
   import commonCoach from '../../common';
-  import DashboardBar from './DashboardBar';
+  import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
   export default {
     name: 'ItemProgressDisplay',
     components: {
-      DashboardBar,
+      ProgressSummaryBar,
     },
     mixins: [commonCoach],
     props: {
