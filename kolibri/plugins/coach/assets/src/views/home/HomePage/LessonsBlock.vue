@@ -13,8 +13,10 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :completed="tableRow.completed"
-        :total="tableRow.total"
+        :completed="tableRow.statusCounts[STATUSES.completed]"
+        :started="tableRow.statusCounts[STATUSES.started]"
+        :notStarted="tableRow.statusCounts[STATUSES.notStarted]"
+        :needHelp="tableRow.statusCounts[STATUSES.helpNeeded]"
         :groups="tableRow.groups"
       />
     </div>
@@ -62,8 +64,7 @@
           return {
             key: lesson.id,
             name: lesson.title,
-            completed: this.numCompleted(lesson.id, assigned),
-            total: assigned.length,
+            statusCounts: this.statusCounts(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
@@ -85,9 +86,8 @@
         });
         return learnerIds;
       },
-      // return the number of learners who have completed the lesson
-      numCompleted(lessonId, assignedLearnerIds) {
-        return this.getLessonStatusCounts(lessonId, assignedLearnerIds)[this.STATUSES.completed];
+      statusCounts(lessonId, assignedLearnerIds) {
+        return this.getLessonStatusCounts(lessonId, assignedLearnerIds);
       },
       // return the last activity among all users for a particular lesson
       lastActivity(lesson) {
