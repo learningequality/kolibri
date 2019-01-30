@@ -1,12 +1,8 @@
-Template: kolibri-server/window-title
-Type: title
-Description: Kolibri server configuration
-
 Template: kolibri-server/port
 Type: select
 Choices: 8080, 8008, 80
 Default: 8080
-Description: TCP Port where Kolibri will be available
+_Description: TCP Port where Kolibri will be available
  The default is 8080, other possible options are 80 and 8008.
  For example, if Kolibri is installed and started on a computer with the
  IP address 192.168.0.104, you can access it from an Android tablet connected

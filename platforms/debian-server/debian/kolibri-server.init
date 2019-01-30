@@ -22,12 +22,18 @@ PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
 [ -x "$MAIN" ] || exit 0
 
 # Read configuration variable file if it is present
+[ -r $CONFIG_FILE ] || { echo "Configuration not found: $CONFIG_FILE" && exit 1 ;}
 [ -r $CONFIG_FILE ] && . $CONFIG_FILE
 
-# I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
-DAEMON_HOME="$(su $KOLIBRI_USER -c "readlink -m $KOLIBRI_HOME")"
+# Check that env vars were set after sourcing $CONFIG_FILE
+[ "$KOLIBRI_USER"=="" ] || { echo "$KOLIBRI_USER not set" && exit 1 ;}
+[ "$KOLIBRI_HOME"=="" ] || { echo "$KOLIBRI_HOME not set" && exit 1 ;}
 
-DAEMON_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"/.kolibri
+KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
+
+# I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
+DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
+
 DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
 	--env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile=$PIDFILE_UWSGI"
 
@@ -48,7 +54,6 @@ do_start()
 
 	# ensure kolibri application is running:
 	service kolibri start
-
 	mkdir -p /var/run/$NAME
 	chown "$KOLIBRI_USER" /var/run/$NAME
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
@@ -79,6 +84,7 @@ do_stop_uwsgi()
 
 do_stop() {
     do_stop_uwsgi
+	service kolibri stop
 
     retval=$?
 

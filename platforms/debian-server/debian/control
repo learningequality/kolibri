@@ -4,13 +4,13 @@ Priority: extra
 Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
 Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>
            Benjamin Bach <benjamin@learningequality.org>
-Build-Depends: debhelper (>=9)
+Build-Depends: debhelper (>=9), po-debconf
 Standards-Version: 4.3.0.1
 Homepage: https://learningequality.org/kolibri
 
 Package: kolibri-server
 Architecture: all
-Depends: kolibri, nginx-light | nginx, uwsgi, uwsgi-plugin-python3
+Depends: kolibri (<< 0.12), nginx-light | nginx, uwsgi, uwsgi-plugin-python3
 Description: Improve Kolibri server network configuration
  This package automates uwsgi and nginx configuration for
  Kolibri to take all the benefits from the multicore

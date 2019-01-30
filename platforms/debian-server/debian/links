@@ -1,1 +1,1 @@
-etc/kolibri/kolibri.conf etc/nginx/conf.d/kolibri.conf
+etc/kolibri/dist/nginx.conf etc/nginx/conf.d/kolibri.conf

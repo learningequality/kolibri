@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+db_input high kolibri-server/port || true
+db_go
+
+#DEBHELPER#
+
+exit 0
