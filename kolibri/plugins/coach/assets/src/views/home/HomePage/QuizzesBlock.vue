@@ -13,10 +13,10 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :completed="tableRow.statusCounts[STATUSES.completed]"
-        :started="tableRow.statusCounts[STATUSES.started]"
-        :notStarted="tableRow.statusCounts[STATUSES.notStarted]"
-        :needHelp="tableRow.statusCounts[STATUSES.helpNeeded]"
+        :completed="tableRow.statusCounts.completed"
+        :started="tableRow.statusCounts.started"
+        :notStarted="tableRow.statusCounts.notStarted"
+        :needHelp="tableRow.statusCounts.helpNeeded"
         :groups="tableRow.groups"
       />
     </div>
@@ -58,7 +58,7 @@
           return {
             key: exam.id,
             name: exam.title,
-            statusCounts: this.statusCounts(exam.id, assigned),
+            statusCounts: this.getExamStatusCounts(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
@@ -79,10 +79,6 @@
           learnerIds.push(...this.groupMap[groupId].member_ids);
         });
         return learnerIds;
-      },
-      // return the number of learners who have completed the exam
-      statusCounts(examId, assignedLearnerIds) {
-        return this.getExamStatusCounts(examId, assignedLearnerIds);
       },
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
