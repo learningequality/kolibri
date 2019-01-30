@@ -4,7 +4,9 @@ import meanBy from 'lodash/meanBy';
 import flatten from 'lodash/flatten';
 import { STATUSES } from './constants';
 
-// getters that return lookup functions
+// Getters that return lookup functions
+//
+// Implemented as getters for easy access to the store
 export default {
   getGroupNames(state) {
     return function(groupIds) {
@@ -56,7 +58,42 @@ export default {
       return get(state.examLearnerStatusMap, [examId, learnerId, 'status'], STATUSES.notStarted);
     };
   },
-  getAvgTimeSpent(state, getters) {
+  getExamStatusCounts(state, getters) {
+    return function(examId, learnerIds) {
+      const tallies = {
+        [STATUSES.started]: 0,
+        [STATUSES.notStarted]: 0,
+        [STATUSES.completed]: 0,
+        [STATUSES.helpNeeded]: 0,
+      };
+      learnerIds.forEach(learnerId => {
+        const status = getters.getExamStatusForLearner(examId, learnerId);
+        tallies[status] += 1;
+      });
+      return tallies;
+    };
+  },
+  getLessonStatusForLearner(state, getters) {
+    return function(lessonId, learnerId) {
+      return get(getters.lessonLearnerStatusMap, [lessonId, learnerId], STATUSES.notStarted);
+    };
+  },
+  getLessonStatusCounts(state, getters) {
+    return function(lessonId, learnerIds) {
+      const tallies = {
+        [STATUSES.started]: 0,
+        [STATUSES.notStarted]: 0,
+        [STATUSES.completed]: 0,
+        [STATUSES.helpNeeded]: 0,
+      };
+      learnerIds.forEach(learnerId => {
+        const status = getters.getLessonStatusForLearner(lessonId, learnerId);
+        tallies[status] += 1;
+      });
+      return tallies;
+    };
+  },
+  getContentAvgTimeSpent(state, getters) {
     return function(contentId, learnerIds) {
       const statuses = [];
       learnerIds.forEach(learnerId => {

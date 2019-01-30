@@ -171,6 +171,7 @@
         } else if (this.primaryColor && !this.primaryType) {
           return {
             color: this.$coreActionNormal,
+            fill: this.$coreActionNormal,
           };
         }
       },

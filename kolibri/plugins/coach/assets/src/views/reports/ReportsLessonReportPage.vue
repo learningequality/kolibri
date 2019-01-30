@@ -59,10 +59,7 @@
               />
             </td>
             <td>
-              <TimeDuration
-                v-if="tableRow.avgTimeSpent"
-                :seconds="tableRow.avgTimeSpent"
-              />
+              <TimeDuration :seconds="tableRow.avgTimeSpent" />
             </td>
           </tr>
         </transition-group>
@@ -90,7 +87,7 @@
       ...mapGetters('classSummary', [
         'getContentStatusForLearner',
         'getLearnersForGroups',
-        'getAvgTimeSpent',
+        'getContentAvgTimeSpent',
       ]),
       actionOptions() {
         return [
@@ -114,7 +111,7 @@
           const tableRow = {
             numCompleted: this.numCompleted(content.content_id),
             numNeedingHelp: this.numLearnersNeedingHelp(content),
-            avgTimeSpent: this.getAvgTimeSpent(content.content_id, this.recipients),
+            avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
           };
           Object.assign(tableRow, content);
           return tableRow;

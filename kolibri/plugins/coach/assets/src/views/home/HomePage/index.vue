@@ -20,7 +20,7 @@
             <QuizzesBlock />
           </KGridItem>
           <KGridItem size="100" percentage>
-            <!-- <LessonsBlock /> -->
+            <LessonsBlock />
           </KGridItem>
         </KGrid>
       </KGridItem>
@@ -39,7 +39,7 @@
   import commonCoach from '../../common';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
-  // import LessonsBlock from './LessonsBlock';
+  import LessonsBlock from './LessonsBlock';
   import QuizzesBlock from './QuizzesBlock';
 
   export default {
@@ -47,7 +47,7 @@
     components: {
       OverviewBlock,
       ActivityBlock,
-      // LessonsBlock,
+      LessonsBlock,
       QuizzesBlock,
     },
     mixins: [commonCoach],

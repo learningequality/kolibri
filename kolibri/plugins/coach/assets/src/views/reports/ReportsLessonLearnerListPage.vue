@@ -36,10 +36,10 @@
               <ItemStatusRatio
                 :count="tableRow.numCompleted"
                 :total="lesson.node_ids.length"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
+                verbosity="2"
+                :obj="OBJECTS.resource"
+                :adjective="ADJECTIVES.completed"
+                :icon="ICONS.clock"
               />
             </td>
             <td>

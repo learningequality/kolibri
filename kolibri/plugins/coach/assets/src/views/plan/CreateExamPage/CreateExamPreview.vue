@@ -62,6 +62,7 @@
           type="flat"
           aria-hidden="true"
           tabindex="-1"
+          color="primary"
           @click="getNewQuestionSet"
         >
           <mat-svg name="refresh" category="navigation" />

@@ -103,6 +103,9 @@ export function _statusMap(statuses, key) {
 function _lessonStatusForLearner(state, lessonId, learnerId) {
   const lesson = state.lessonMap[lessonId];
   const statuses = lesson.node_ids.map(node_id => {
+    if (!state.contentNodeMap[node_id]) {
+      return { status: STATUSES.notStarted };
+    }
     const content_id = state.contentNodeMap[node_id].content_id;
     return get(state.contentLearnerStatusMap, [content_id, learnerId], {
       status: STATUSES.notStarted,

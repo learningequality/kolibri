@@ -1,6 +1,7 @@
 <template>
 
-  <span>{{ formattedTime }}</span>
+  <span v-if="seconds">{{ formattedTime }}</span>
+  <span v-else>–</span>
 
 </template>
 
@@ -17,7 +18,7 @@
     props: {
       seconds: {
         type: Number,
-        required: true,
+        required: false,
       },
     },
     computed: {
