@@ -4,11 +4,22 @@
     <h3 class="title">{{ name }}</h3>
     <div class="context"><Recipients :groups="groups" /></div>
 
-    <DashboardBar :percentage="completed / total" class="dashboard-bar" />
+    <DashboardBar
+      :completed="completed"
+      :started="started"
+      :total="completed + started + notStarted + needHelp"
+      class="dashboard-bar"
+    />
+
+    <StatusSummary
+      :completed="completed"
+      :started="started"
+      :total="completed + started + notStarted + needHelp"
+    />
 
     <LearnerProgressRatio
       :count="completed"
-      :total="total"
+      :total="completed + started + notStarted + needHelp"
       :verbosity="2"
       :icon="progressIcon"
       verb="completed"
@@ -51,11 +62,15 @@
       },
       completed: {
         type: Number,
-        required: true,
+        default: 0,
       },
-      total: {
+      started: {
         type: Number,
-        required: true,
+        default: 0,
+      },
+      notStarted: {
+        type: Number,
+        default: 0,
       },
       needHelp: {
         type: Number,
