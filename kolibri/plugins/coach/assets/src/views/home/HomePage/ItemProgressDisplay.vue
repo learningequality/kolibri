@@ -11,6 +11,12 @@
       class="dashboard-bar"
     />
 
+    <StatusSummary
+      :completed="completed"
+      :started="started"
+      :total="completed + started + notStarted + needHelp"
+    />
+
     <LearnerProgressRatio
       :count="completed"
       :total="completed + started + notStarted + needHelp"
