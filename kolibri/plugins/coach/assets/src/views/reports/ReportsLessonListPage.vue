@@ -35,19 +35,9 @@
               />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="tableRow.numCompleted"
-                :total="tableRow.totalLearners"
-                verbosity="0"
-                :verb="VERBS.completed"
-                :icon="ICONS.learners"
-              />
-              <LearnerProgressCount
-                v-if="tableRow.numNeedingHelp"
-                :count="tableRow.numNeedingHelp"
-                verbosity="0"
-                :verb="VERBS.needHelp"
-                :icon="ICONS.help"
+              <StatusSummary
+                :tallyObject="tableRow.tallyObject"
+                :verbose="true"
               />
             </td>
             <td>
@@ -85,9 +75,9 @@
     computed: {
       ...mapGetters('classSummary', [
         'lessons',
-        'lessonLearnerStatusMap',
         'getGroupNames',
         'getLearnersForGroups',
+        'getLessonStatusCounts',
       ]),
       filterOptions() {
         return [
@@ -117,10 +107,10 @@
         });
         const sorted = this._.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(lesson => {
+          const learners = this.getLearnersForGroups(lesson.groups);
           const tableRow = {
-            totalLearners: this.getLearnersForGroups(lesson.groups).length,
-            numCompleted: this.numCompleted(lesson),
-            numNeedingHelp: this.numNeedingHelp(lesson),
+            totalLearners: learners.length,
+            tallyObject: this.getLessonStatusCounts(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
           };
           Object.assign(tableRow, lesson);
@@ -137,22 +127,6 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-    },
-    methods: {
-      numCompleted(lesson) {
-        const learners = this.getLearnersForGroups(lesson.groups);
-        const statuses = learners.map(
-          learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
-        );
-        return statuses.filter(status => status === this.STATUSES.completed).length;
-      },
-      numNeedingHelp(lesson) {
-        const learners = this.getLearnersForGroups(lesson.groups);
-        const statuses = learners.map(
-          learnerId => this.lessonLearnerStatusMap[lesson.id][learnerId]
-        );
-        return statuses.filter(status => status === this.STATUSES.helpNeeded).length;
-      },
     },
   };
 
