@@ -17,15 +17,11 @@ steps:
 
   - wait
 
-  - label: Upload artifacts
-    command: .buildkite/setup_and_upload_artifact.sh
-
-  - wait
-
   - label: Cleaning up
     command: make docker-clean
 
-  - block: "Sign Windows installer?"
+  - wait
+
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
     agents:
