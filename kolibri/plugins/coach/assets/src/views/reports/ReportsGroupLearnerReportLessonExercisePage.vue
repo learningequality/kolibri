@@ -1,12 +1,14 @@
 <template>
 
-  <div>
-    <BackLink
-      :text="coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'})"
-      :to="classRoute('ReportsGroupLearnerReportLessonPage', {})"
-    />
+  <CoreBase
+    :immersivePage="true"
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+  >
     <LearnerExerciseReport />
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -23,6 +25,11 @@
     },
     mixins: [commonCoach],
     $trs: {},
+    computed: {
+      toolbarRoute() {
+        return this.classRoute('ReportsGroupLearnerReportLessonPage', {});
+      },
+    },
   };
 
 </script>

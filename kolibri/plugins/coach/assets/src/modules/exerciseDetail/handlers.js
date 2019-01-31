@@ -1,6 +1,19 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 
+export function rootRedirectHandler(params, name, next) {
+  return showExerciseDetailView(params).then(attemptId => {
+    next({
+      name: name,
+      params: {
+        ...params,
+        attemptId,
+        interactionIndex: 0,
+      },
+    });
+  });
+}
+
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
 export function showExerciseDetailView({
   learnerId,
