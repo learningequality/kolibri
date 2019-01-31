@@ -5,7 +5,7 @@
 
       <thead slot="thead">
         <tr>
-          <th v-if="selectable" class="core-table-icon-col">
+          <th v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
               :label="selectAllLabel"
               :showLabel="false"
@@ -34,7 +34,7 @@
           v-for="user in users"
           :key="user.id"
         >
-          <td v-if="selectable" class="core-table-icon-col">
+          <td v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
               :label="userCheckboxLabel"
               :showLabel="false"
