@@ -10,6 +10,8 @@ steps:
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
+  - wait
+
   - label: Build Debian Packages
     command: .buildkite/build_debian_pkgs.sh
 

@@ -140,6 +140,7 @@ def create_github_status(report_url):
     )
     if status:
         logging.info('Successfully created Github status for commit %s.' % COMMIT)
+        logging.info('Commit url %s.' % report_url)
     else:
         logging.info('Error encounter. Now exiting!')
         sys.exit(1)
