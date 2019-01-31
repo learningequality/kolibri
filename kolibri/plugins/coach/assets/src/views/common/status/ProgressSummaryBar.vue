@@ -2,6 +2,11 @@
 
   <div class="bar-wrapper">
     <div class="bar" :style="barStyleStarted"></div>
+    <div
+      v-if="showErrorBar" 
+      class="help-line" 
+      :style="helpLineStyle"
+    ></div>
     <div class="bar" :style="barStyleCompleted"></div>
   </div>
 
@@ -16,25 +21,35 @@
   export default {
     name: 'ProgressSummaryBar',
     mixins: [tallyMixin],
-    computed: {
-      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered']),
-      percentageCompleted() {
-        return this.completed / this.total;
+    props: {
+      showErrorBar: {
+        type: Boolean,
+        default: false,
       },
+    },
+    computed: {
+      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered', '$coreStatusWrong']),
       barStyleCompleted() {
         return {
-          width: `${Math.floor(100 * this.percentageCompleted)}%`,
+          width: `${Math.floor((100 * this.completed) / this.total)}%`,
           backgroundColor: this.$coreStatusMastered,
         };
       },
-      percentageStarted() {
-        // add on 'started' for offset
-        return (this.started + this.completed) / this.total;
-      },
       barStyleStarted() {
+        const widthRatio = this.started / this.total;
         return {
-          width: `${Math.floor(100 * this.percentageStarted)}%`,
+          marginLeft: `${Math.floor((100 * this.completed) / this.total)}%`,
+          width: `${Math.floor(100 * widthRatio)}%`,
           backgroundColor: this.$coreStatusProgress,
+        };
+      },
+      helpLineStyle() {
+        // add on 'completed' for offset
+        const widthRatio = this.helpNeeded / this.total;
+        return {
+          marginLeft: `${Math.floor((100 * this.completed) / this.total)}%`,
+          width: `${Math.floor(100 * widthRatio)}%`,
+          backgroundColor: this.$coreStatusWrong,
         };
       },
     },
@@ -54,13 +69,23 @@
     overflow: hidden;
     background-color: #dedede;
     border-radius: $radius;
-    opacity: 0.5;
   }
 
   .bar {
     position: absolute;
     height: 100%;
     margin-right: auto;
+    opacity: 0.55;
+    transition: all $core-time ease;
+  }
+
+  .help-line {
+    position: absolute;
+    bottom: 0;
+    width: 45%;
+    height: 2px;
+    margin-right: auto;
+    background-color: red;
     transition: all $core-time ease;
   }
 
