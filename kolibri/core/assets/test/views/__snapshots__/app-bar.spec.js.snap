@@ -4,7 +4,7 @@ exports[`app bar component drop down user menu should show the language modal li
 <div style="background-color: rgb(153, 97, 137);" navshown="true">
   <div class="ui-toolbar app-bar ui-toolbar--type-clear ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
-      <div class="ui-toolbar__nav-icon"><button type="button" tabindex="0" class="keen-ui-icon-button keen-ui-icon-button--type-secondary keen-ui-icon-button--color-default keen-ui-icon-button--size-normal KeenUiIconButton-noKey-0_8x3dw5">
+      <div class="ui-toolbar__nav-icon"><button type="button" tabindex="0" class="keen-ui-icon-button keen-ui-icon-button--type-secondary keen-ui-icon-button--color-default keen-ui-icon-button--size-normal KeenUiIconButton-noKey-0_1e7m9ar">
           <div class="keen-ui-icon-button-icon" style="color: rgb(153, 97, 137);">
             <mat-svg name="menu" category="navigation" class="icon"></mat-svg>
           </div>
