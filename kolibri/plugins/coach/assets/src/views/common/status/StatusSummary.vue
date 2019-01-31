@@ -28,7 +28,8 @@
       <!-- special cases when no one has started -->
       <component
         :is="ratio ? LearnerProgressRatio : LearnerProgressCount"
-        class="item lighten"
+        class="item"
+        :style="{ color: $coreGrey300 }"
         :verb="VERBS.notStarted"
         :icon="ICONS.nothing"
         :total="total"
@@ -73,7 +74,8 @@
       />
       <LearnerProgressCount
         v-if="showItem(!verbose)"
-        class="item lighten"
+        class="item"
+        :style="{ color: $coreGrey300 }"
         :verb="VERBS.notStarted"
         :icon="ICONS.nothing"
         :total="total"
@@ -119,6 +121,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
@@ -151,6 +154,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreGrey300']),
       verbosity() {
         return this.verbose ? 1 : 0;
       },
@@ -186,7 +190,7 @@
     display: block;
   }
 
-  .single-linec {
+  .single-line {
     white-space: nowrap;
   }
 

@@ -81,6 +81,7 @@
   .context {
     position: relative;
     top: 16px;
+    margin-bottom: 16px;
     font-size: small;
   }
 

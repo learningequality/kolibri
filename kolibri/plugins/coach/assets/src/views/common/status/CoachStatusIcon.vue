@@ -25,9 +25,9 @@
   />
   <mat-svg
     v-else-if="icon === ICONS.nothing"
-    category="content"
-    name="remove_circle"
-    :style="{ fill: $coreGrey200 }"
+    category="image"
+    name="brightness_1"
+    :style="{ fill: $coreGrey300 }"
   />
 
 </template>
@@ -54,7 +54,7 @@
         '$coreStatusMastered',
         '$coreStatusProgress',
         '$coreStatusWrong',
-        '$coreGrey200',
+        '$coreGrey300',
       ]),
       ICONS() {
         return ICONS;
