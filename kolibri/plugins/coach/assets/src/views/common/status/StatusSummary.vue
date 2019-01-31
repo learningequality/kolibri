@@ -12,7 +12,7 @@
     of the possible behaviors.
    -->
   <div :class="verbose ? 'multi-line' : 'single-line'">
-    <template v-if="total === completed">
+    <template v-if="total === completed && !showAll">
       <!-- special cases when everyone has finished -->
       <component
         :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
@@ -24,7 +24,7 @@
         :verbosity="verbosity"
       />
     </template>
-    <template v-else-if="total === notStarted">
+    <template v-else-if="total === notStarted && !showAll">
       <!-- special cases when no one has started -->
       <component
         :is="ratio ? LearnerProgressRatio : LearnerProgressCount"
@@ -40,7 +40,7 @@
       <!-- for ratios we only want to display the ratio on the first displayed item -->
       <component
         :is="!verbose ? LearnerProgressCount : LearnerProgressRatio"
-        v-if="completed"
+        v-if="showItem(completed)"
         class="item"
         :verb="VERBS.completed"
         :icon="ICONS.star"
@@ -162,10 +162,13 @@
       LearnerProgressRatio() {
         return LearnerProgressRatio;
       },
+      showAll() {
+        return this.singleLineShowZeros && !this.verbose;
+      },
     },
     methods: {
       showItem(suggested) {
-        return suggested || (this.singleLineShowZeros && !this.verbose);
+        return suggested || this.showAll;
       },
     },
   };
