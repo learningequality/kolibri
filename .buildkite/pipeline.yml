@@ -29,6 +29,8 @@ steps:
     agents:
       queue: "windows-sign"
 
+  - wait
+
   - label: Upload new artifacts
     command: .buildkite/setup_and_upload_artifact.sh
 
