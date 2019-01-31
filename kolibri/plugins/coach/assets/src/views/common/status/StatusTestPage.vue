@@ -3,7 +3,8 @@
   <div class="overview">
 
     <div class="moving">
-      <ProgressSummaryBar
+      <ProgressSummaryBar 
+        :showErrorBar="true"
         :tallyObject="movingTally"
       />
       <StatusSummary
@@ -39,7 +40,7 @@
           </td>
           <td rowspan="2" style="width: 200px; text-align: center; position: relative;">
             <div class="bar">
-              <ProgressSummaryBar :tallyObject="tally" />
+              <ProgressSummaryBar :showErrorBar="true" :tallyObject="tally" />
             </div>
           </td>
           <td style="text-align: center">long</td>

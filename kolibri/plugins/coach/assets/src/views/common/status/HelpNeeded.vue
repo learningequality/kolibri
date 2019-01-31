@@ -23,8 +23,10 @@
   export default {
     name: 'HelpNeeded',
     components: {
-      LearnerProgressCount,
-      LearnerProgressRatio,
+      // eslint-disable-next-line vue/no-unused-components
+      LearnerProgressCount, // it is used, it's just referenced dynamically
+      // eslint-disable-next-line vue/no-unused-components
+      LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
     props: {
       count: {
