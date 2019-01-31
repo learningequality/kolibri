@@ -97,7 +97,7 @@
             :items="annotatedQuestions"
             @sort="handleUserSort"
           >
-            <transition-group tag="ol" name="list" class="question-list fixed">
+            <transition-group tag="ol" name="list" class="question-list">
               <KDraggable
                 v-for="(question, questionIndex) in annotatedQuestions"
                 :key="listKey(question)"
@@ -132,12 +132,18 @@
             />
           </ul>
           <transition name="fade-numbers">
-            <ol v-if="fixedOrder" class="numbers" aria-hidden>
+            <ol v-if="fixedOrder" class="list-labels" aria-hidden>
               <li
                 v-for="(question, questionIndex) in selectedQuestions"
                 :key="questionIndex"
               ></li>
             </ol>
+            <ul v-else class="list-labels" aria-hidden>
+              <li
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+              ></li>
+            </ul>
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
@@ -435,11 +441,8 @@
   .question-list {
     padding: 0;
     margin-top: 0;
-    list-style: none;
-  }
-
-  .question-list.fixed {
     margin-left: 40px;
+    list-style: none;
   }
 
   .question-title {
@@ -447,7 +450,7 @@
     text-align: center;
   }
 
-  .numbers {
+  .list-labels {
     position: absolute;
     top: 0;
     left: 0;
