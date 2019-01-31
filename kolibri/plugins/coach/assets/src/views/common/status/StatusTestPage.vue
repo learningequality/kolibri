@@ -3,14 +3,14 @@
   <div class="overview">
 
     <div class="moving">
-      <ProgressSummaryBar 
+      <ProgressSummaryBar
         :showErrorBar="true"
         :tallyObject="movingTally"
       />
       <StatusSummary
         :tallyObject="movingTally"
         :verbose="false"
-        :ratio="false"
+        :ratio="true"
         :showNeedsHelp="true"
         :singleLineShowZeros="true"
       />
