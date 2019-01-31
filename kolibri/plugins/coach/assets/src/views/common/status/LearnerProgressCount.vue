@@ -1,14 +1,25 @@
 <template>
 
-  <LabeledIcon :label="text">
-    <CoachStatusIcon :icon="icon" />
-  </LabeledIcon>
+  <div>
+    <LabeledIcon :label="text">
+      <CoachStatusIcon ref="status" :icon="icon" />
+    </LabeledIcon>
+    <KTooltip
+      v-if="false"
+      reference="status"
+      placement="top"
+      :refs="$refs"
+    >
+      {{ tooltip }}
+    </KTooltip>
+  </div>
 
 </template>
 
 
 <script>
 
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import LabeledIcon from '../LabeledIcon';
   import { coachStrings } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
@@ -17,6 +28,7 @@
   export default {
     name: 'LearnerProgressCount',
     components: {
+      KTooltip,
       CoachStatusIcon,
       LabeledIcon,
     },
@@ -31,16 +43,29 @@
         type: String,
         required: true,
       },
+      showRatioInTooltip: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
+      strings() {
+        return this.translations.learnerProgress[this.verb];
+      },
       text() {
         if (!this.verbosityNumber) {
           return coachStrings.$tr('integer', { value: this.count });
         }
-        return this.translations.learnerProgress[this.verb].$tr(
-          this.shorten('count', this.verbosityNumber),
-          { count: this.count }
-        );
+        return this.strings.$tr(this.shorten('count', this.verbosityNumber), { count: this.count });
+      },
+      tooltip() {
+        if (this.showRatioInTooltip) {
+          return this.strings.$tr(this.shorten('ratio', 2), {
+            count: this.count,
+            total: this.total,
+          });
+        }
+        return this.strings.$tr(this.shorten('count', 2), { count: this.count });
       },
     },
   };

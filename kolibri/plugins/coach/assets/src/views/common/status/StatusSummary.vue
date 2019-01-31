@@ -47,6 +47,7 @@
         :total="total"
         :count="completed"
         :verbosity="verbosity"
+        showRatioInTooltip
       />
       <component
         :is="!verbose || completed ? LearnerProgressCount : LearnerProgressRatio"
@@ -57,6 +58,7 @@
         :total="total"
         :count="started"
         :verbosity="verbosity"
+        showRatioInTooltip
       />
       <component
         :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
@@ -67,6 +69,7 @@
         :total="total"
         :count="helpNeeded"
         :verbosity="verbosity"
+        showRatioInTooltip
       />
       <LearnerProgressCount
         v-if="showItem(!verbose)"
@@ -76,6 +79,7 @@
         :total="total"
         :count="notStarted"
         :verbosity="verbosity"
+        showRatioInTooltip
       />
     </template>
     <template v-else>

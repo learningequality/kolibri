@@ -403,6 +403,17 @@ export const statusStringsMixin = {
         return output;
       },
     },
+    total: {
+      type: Number,
+      required: false,
+      validator(value) {
+        const output = value >= 0;
+        if (!output) {
+          logging.error(`'${value}' must be greater than 0`);
+        }
+        return output;
+      },
+    },
   },
   methods: {
     shorten(id, verbosity) {
