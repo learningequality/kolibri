@@ -25,11 +25,7 @@
           </td>
           <td rowspan="2" style="width: 200px; text-align: center; position: relative;">
             <div class="bar">
-              <ProgressSummaryBar
-                :started="tally.started + tally.helpNeeded"
-                :completed="tally.completed"
-                :total="tally.completed + tally.started + tally.notStarted + tally.helpNeeded"
-              />
+              <ProgressSummaryBar :tallyObject="tally" />
             </div>
           </td>
           <td style="text-align: center">long</td>

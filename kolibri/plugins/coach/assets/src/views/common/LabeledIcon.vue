@@ -28,7 +28,7 @@
 
   .wrapper {
     position: relative;
-    margin-right: 16px;
+    white-space: nowrap;
   }
 
   .label {

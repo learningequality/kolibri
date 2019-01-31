@@ -11,7 +11,7 @@
     See locahost:8000/coach/#/about/learnerStatusTypes for a parametric overview
     of the possible behaviors.
    -->
-  <div :class="{ verbose }">
+  <div :class="verbose ? 'multi-line' : 'single-line'">
     <template v-if="total === completed">
       <!-- special cases when everyone has finished -->
       <component
@@ -166,8 +166,19 @@
 
 <style lang="scss" scoped>
 
-  .verbose .item {
+  .multi-line .item {
     display: block;
+  }
+
+  .single-linec {
+    white-space: nowrap;
+  }
+
+  .single-line .item {
+    display: inline-block;
+    &:not(:last-child) {
+      margin-right: 16px;
+    }
   }
 
   .lighten {
