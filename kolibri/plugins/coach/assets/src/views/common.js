@@ -35,10 +35,8 @@ import HeaderTable from './common/HeaderTable';
 import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
 import HeaderTab from './common/HeaderTabs/HeaderTab';
-import LearnerProgressRatio from './common/status/LearnerProgressRatio';
-import LearnerProgressCount from './common/status/LearnerProgressCount';
-import LearnerProgressLabel from './common/status/LearnerProgressLabel';
 import StatusSummary from './common/status/StatusSummary';
+import HelpNeeded from './common/status/HelpNeeded';
 import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
 import ItemStatusLabel from './common/status/ItemStatusLabel';
@@ -74,10 +72,8 @@ export default {
     HeaderTableRow,
     HeaderTabs,
     HeaderTab,
-    LearnerProgressRatio,
-    LearnerProgressCount,
     StatusSummary,
-    LearnerProgressLabel,
+    HelpNeeded,
     ItemStatusRatio,
     ItemStatusCount,
     ItemStatusLabel,

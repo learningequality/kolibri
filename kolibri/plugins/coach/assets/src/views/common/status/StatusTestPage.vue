@@ -58,9 +58,9 @@
 
 <script>
 
-  import commonCoach from './common';
-  import ProgressSummaryBar from './common/status/ProgressSummaryBar';
-  import StatusSummary from './common/status/StatusSummary';
+  import commonCoach from '../../common';
+  import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
+  import StatusSummary from '../../common/status/StatusSummary';
 
   export default {
     name: 'StatusTestPage',
@@ -197,7 +197,7 @@
 
   table table td,
   table table tr {
-    border: none;
+    border: 0;
   }
 
 </style>

@@ -13,10 +13,7 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :completed="tableRow.statusCounts.completed"
-        :started="tableRow.statusCounts.started"
-        :notStarted="tableRow.statusCounts.notStarted"
-        :needHelp="tableRow.statusCounts.helpNeeded"
+        :tallyObject="tableRow.statusCounts"
         :groups="tableRow.groups"
       />
     </div>

@@ -1,35 +1,39 @@
 <template>
 
-  <div class="item-wrapper">
-    <h3 class="title">{{ name }}</h3>
-    <div class="context"><Recipients :groups="groups" /></div>
+  <KGrid>
 
-    <ProgressSummaryBar
-      :completed="completed"
-      :started="started"
-      :total="completed + started + notStarted + needHelp"
-      class="dashboard-bar"
-    />
+    <KGridItem size="75" percentage>
+      <h3 class="title">{{ name }}</h3>
+    </KGridItem>
 
-    <LearnerProgressRatio
-      :count="completed"
-      :total="completed + started + notStarted + needHelp"
-      :verbosity="2"
-      :icon="progressIcon"
-      verb="completed"
-      class="progress completed"
-    />
+    <KGridItem size="25" percentage alignment="right">
+      <div class="context">
+        <Recipients :groups="groups" />
+      </div>
+    </KGridItem>
 
-    <LearnerProgressCount
-      v-if="needHelp"
-      :count="needHelp"
-      :verbosity="0"
-      icon="help"
-      verb="needHelp"
-      class="progress help"
-    />
+    <KGridItem size="100" percentage>
+      <ProgressSummaryBar
+        :tallyObject="tallyObject"
+        class="dashboard-bar"
+      />
+    </KGridItem>
 
-  </div>
+    <KGridItem size="75" percentage>
+      <StatusSummary
+        :tallyObject="tallyObject"
+      />
+    </KGridItem>
+
+    <KGridItem size="25" percentage alignment="right">
+      <HelpNeeded
+        :count="tallyObject.helpNeeded"
+        :verbose="false"
+        :ratio="false"
+      />
+    </KGridItem>
+
+  </KGrid>
 
 </template>
 
@@ -54,36 +58,13 @@
         type: Array,
         required: true,
       },
-      completed: {
-        type: Number,
-        default: 0,
-      },
-      started: {
-        type: Number,
-        default: 0,
-      },
-      notStarted: {
-        type: Number,
-        default: 0,
-      },
-      needHelp: {
-        type: Number,
-        default: 0,
+      tallyObject: {
+        type: Object,
+        required: true,
       },
       isLast: {
         type: Boolean,
         default: false,
-      },
-    },
-    computed: {
-      progressIcon() {
-        if (this.completed === 0) {
-          return 'nothing';
-        }
-        if (this.completed === this.total) {
-          return 'star';
-        }
-        return 'clock';
       },
     },
   };
@@ -94,40 +75,34 @@
 <style lang="scss" scoped>
 
   .title {
-    position: relative;
-    top: -4px;
-  }
-
-  .item-wrapper {
-    position: relative;
-    height: 80px;
+    margin-bottom: 0;
   }
 
   .context {
-    position: absolute;
-    top: 4px;
-    right: 0;
+    position: relative;
+    top: 16px;
     font-size: small;
-    line-height: 1.5em;
   }
 
   .dashboard-bar {
-    position: absolute;
-    top: 32px;
     width: 100%;
     height: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
   .progress {
     position: absolute;
     bottom: 0;
     font-size: 14px;
-    .completed {
-      left: 0;
-    }
-    .help {
-      right: 0;
-    }
+  }
+
+  .progress.completed {
+    left: 0;
+  }
+
+  .progress.help {
+    right: -12px;
   }
 
 </style>

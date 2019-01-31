@@ -11,23 +11,11 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import tallyMixin from './tallyMixin';
 
   export default {
     name: 'ProgressSummaryBar',
-    props: {
-      completed: {
-        type: Number,
-        required: true,
-      },
-      started: {
-        type: Number,
-        required: true,
-      },
-      total: {
-        type: Number,
-        required: true,
-      },
-    },
+    mixins: [tallyMixin],
     computed: {
       ...mapGetters(['$coreStatusProgress', '$coreStatusMastered']),
       percentageCompleted() {
@@ -40,6 +28,7 @@
         };
       },
       percentageStarted() {
+        // add on 'started' for offset
         return (this.started + this.completed) / this.total;
       },
       barStyleStarted() {
@@ -65,7 +54,7 @@
     overflow: hidden;
     background-color: #dedede;
     border-radius: $radius;
-    opacity: 0.6;
+    opacity: 0.5;
   }
 
   .bar {

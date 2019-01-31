@@ -1,5 +1,16 @@
 <template>
 
+  <!--
+    This is the primary mechanism for displaying cumulative status information
+    for many learners on one or more pieces of content.
+
+    It's parameterized by a few key dimensions, and the behavior has been
+    tuned for readability over consistency. This means that it has a few intentional
+    and perhaps a few unintentional edge cases.
+
+    See locahost:8000/coach/#/about/learnerStatusTypes for a parametric overview
+    of the possible behaviors.
+   -->
   <div :class="{ verbose }">
     <template v-if="total === completed">
       <!-- special cases when everyone has finished -->
@@ -49,7 +60,7 @@
       />
       <component
         :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
-        v-if="helpNeeded"
+        v-if="helpNeeded && showNeedsHelp"
         class="item"
         :verb="VERBS.needHelp"
         :icon="ICONS.help"
@@ -88,7 +99,7 @@
         :verbosity="verbosity"
       />
       <LearnerProgressCount
-        v-if="helpNeeded"
+        v-if="helpNeeded && showNeedsHelp"
         class="item"
         :verb="VERBS.needHelp"
         :icon="ICONS.help"
@@ -99,7 +110,6 @@
     </template>
   </div>
 
-
 </template>
 
 
@@ -108,27 +118,17 @@
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
+  import tallyMixin from './tallyMixin';
 
   export default {
     name: 'StatusSummary',
     components: {
       LearnerProgressCount,
-      LearnerProgressRatio,
+      // eslint-disable-next-line vue/no-unused-components
+      LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
+    mixins: [tallyMixin],
     props: {
-      // Every learner should be tallied into _one and only_ one status
-      tallyObject: {
-        type: Object,
-        required: true,
-        validator(value) {
-          return (
-            Number.isInteger(value.started) &&
-            Number.isInteger(value.notStarted) &&
-            Number.isInteger(value.completed) &&
-            Number.isInteger(value.helpNeeded)
-          );
-        },
-      },
       verbose: {
         type: Boolean,
         default: true,
@@ -137,24 +137,12 @@
         type: Boolean,
         default: true,
       },
+      showNeedsHelp: {
+        type: Boolean,
+        default: true,
+      },
     },
     computed: {
-      started() {
-        // To the user, all these are considered having 'started'
-        return this.tallyObject.started + this.tallyObject.helpNeeded;
-      },
-      completed() {
-        return this.tallyObject.completed;
-      },
-      helpNeeded() {
-        return this.tallyObject.helpNeeded;
-      },
-      notStarted() {
-        return this.tallyObject.notStarted;
-      },
-      total() {
-        return this.started + this.tallyObject.completed + this.notStarted;
-      },
       verbosity() {
         return this.verbose ? 1 : 0;
       },
