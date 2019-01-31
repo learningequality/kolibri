@@ -33,7 +33,7 @@ ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
 BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
 COMMIT = os.getenv("BUILDKITE_COMMIT")
-
+SIGN_WINDOWS_EXE = os.getenv("SIGN_WINDOWS_EXE")
 
 RELEASE_DIR = 'release'
 PROJECT_PATH = os.path.join(os.getcwd())
@@ -140,7 +140,6 @@ def create_github_status(report_url):
     )
     if status:
         logging.info('Successfully created Github status for commit %s.' % COMMIT)
-        logging.info('Commit url %s.' % report_url)
     else:
         logging.info('Error encounter. Now exiting!')
         sys.exit(1)
@@ -201,7 +200,12 @@ def upload_artifacts():
 
     html = create_status_report_html(artifacts)
 
-    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, BUILD_ID))
+    # add count to report html name to avoid duplicate.
+    report_count = BUILD_ID + "-first"
+    if SIGN_WINDOWS_EXE:
+        report_count = BUILD_ID + "-second"
+
+    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, report_count))
 
     blob.upload_from_string(html, content_type='text/html')
 
