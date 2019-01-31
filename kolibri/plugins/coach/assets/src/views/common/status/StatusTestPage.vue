@@ -1,6 +1,20 @@
 <template>
 
   <div class="overview">
+
+    <div class="moving">
+      <ProgressSummaryBar
+        :tallyObject="movingTally"
+      />
+      <StatusSummary
+        :tallyObject="movingTally"
+        :verbose="false"
+        :ratio="false"
+        :showNeedsHelp="true"
+        :singleLineShowZeros="true"
+      />
+    </div>
+
     <table>
       <tr style="color: gray">
         <th>scenario</th>
@@ -160,7 +174,40 @@
             helpNeeded: 3,
           },
         ],
+        started: 3,
+        completed: 0,
+        notStarted: 10,
+        helpNeeded: 1,
       };
+    },
+    computed: {
+      movingTally() {
+        return {
+          completed: this.completed,
+          notStarted: this.notStarted,
+          started: this.started,
+          helpNeeded: this.helpNeeded,
+        };
+      },
+    },
+    mounted() {
+      this.update();
+    },
+    methods: {
+      update() {
+        if (this.notStarted === 0) {
+          this.notStarted = 12;
+          this.completed = 0;
+          this.started = 3;
+          this.helpNeeded = 0;
+        } else {
+          this.notStarted -= 2;
+          this.completed += 1;
+          this.started += 1;
+          this.helpNeeded = this.helpNeeded ? 0 : this.started;
+        }
+        setTimeout(this.update, 5000);
+      },
     },
   };
 
@@ -168,6 +215,14 @@
 
 
 <style lang="scss" scoped>
+
+  .moving {
+    margin: 64px;
+  }
+  .moving > :last-child {
+    margin-top: 8px;
+    margin-bottom: 64px;
+  }
 
   .overview {
     padding: 30px;

@@ -50,7 +50,7 @@
       />
       <component
         :is="!verbose || completed ? LearnerProgressCount : LearnerProgressRatio"
-        v-if="started"
+        v-if="showItem(started)"
         class="item"
         :verb="VERBS.started"
         :icon="ICONS.clock"
@@ -60,7 +60,7 @@
       />
       <component
         :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
-        v-if="helpNeeded && showNeedsHelp"
+        v-if="showItem(helpNeeded) && showNeedsHelp"
         class="item"
         :verb="VERBS.needHelp"
         :icon="ICONS.help"
@@ -69,7 +69,7 @@
         :verbosity="verbosity"
       />
       <LearnerProgressCount
-        v-if="!verbose"
+        v-if="showItem(!verbose)"
         class="item lighten"
         :verb="VERBS.notStarted"
         :icon="ICONS.nothing"
@@ -81,7 +81,7 @@
     <template v-else>
       <!-- for counts -->
       <LearnerProgressCount
-        v-if="completed"
+        v-if="showItem(completed)"
         class="item"
         :verb="VERBS.completed"
         :icon="ICONS.star"
@@ -90,7 +90,7 @@
         :verbosity="verbosity"
       />
       <LearnerProgressCount
-        v-if="started"
+        v-if="showItem(started)"
         class="item"
         :verb="VERBS.started"
         :icon="ICONS.clock"
@@ -99,7 +99,7 @@
         :verbosity="verbosity"
       />
       <LearnerProgressCount
-        v-if="helpNeeded && showNeedsHelp"
+        v-if="showItem(helpNeeded) && showNeedsHelp"
         class="item"
         :verb="VERBS.needHelp"
         :icon="ICONS.help"
@@ -137,6 +137,10 @@
         type: Boolean,
         default: true,
       },
+      singleLineShowZeros: {
+        type: Boolean,
+        default: true,
+      },
       showNeedsHelp: {
         type: Boolean,
         default: true,
@@ -157,6 +161,11 @@
       },
       LearnerProgressRatio() {
         return LearnerProgressRatio;
+      },
+    },
+    methods: {
+      showItem(suggested) {
+        return suggested || (this.singleLineShowZeros && !this.verbose);
       },
     },
   };
