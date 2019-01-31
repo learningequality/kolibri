@@ -3,7 +3,7 @@
   <div :style="{ backgroundColor: $coreBgLight }">
     <h3 class="header">{{ $tr('header') }}</h3>
 
-    <ul class="history-list">
+    <ul ref="attemptList" class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
           :key="index"
@@ -92,7 +92,6 @@
       selectedQuestionNumber: {
         type: Number,
         required: true,
-        default: 1,
       },
     },
     computed: {
@@ -104,12 +103,26 @@
         '$coreTextDisabled',
       ]),
     },
+    mounted() {
+      this.$nextTick(() => {
+        this.scrollToSelectedAttemptLog(this.selectedQuestionNumber);
+      });
+    },
     methods: {
       setSelectedAttemptLog(questionNumber) {
         this.$emit('select', questionNumber);
+        this.scrollToSelectedAttemptLog(questionNumber);
       },
       isSelected(questionNumber) {
         return Number(this.selectedQuestionNumber) === questionNumber;
+      },
+      scrollToSelectedAttemptLog(questionNumber) {
+        const selectedElement = this.$refs.attemptList.children[questionNumber];
+        if (selectedElement) {
+          const parent = this.$el.parentElement;
+          parent.scrollTop =
+            selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
+        }
       },
     },
   };

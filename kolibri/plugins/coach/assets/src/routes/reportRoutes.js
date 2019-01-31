@@ -1,6 +1,8 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
+import { showExerciseDetailView } from '../modules/exerciseDetail/handlers';
+import { setLessonSummaryState } from '../modules/lessonSummary/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -14,6 +16,8 @@ const QUIZZES = '/quizzes';
 const QUIZ = '/quizzes/:quizId';
 const QUESTIONS = '/questions';
 const QUESTION = '/questions/:questionId';
+const ATTEMPT = '/attempts/:attemptId';
+const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
 const RESOURCES = '/resources';
 const RESOURCE = '/resources/:resourceId';
@@ -174,8 +178,48 @@ export default [
   },
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
+    name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return showExerciseDetailView(params).then(attemptId => {
+        next({
+          name: pages.ReportsLessonExerciseLearnerPage.name,
+          params: {
+            ...to.params,
+            attemptId,
+            interactionIndex: 0,
+          },
+        });
+      });
+    },
+  },
+  {
+    path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
-    handler: defaultHandler,
+    handler: (to, from) => {
+      const { params } = to;
+      const fromParams = from.params;
+      const loadLesson = store.state.lessonSummary.currentLesson.id !== params.lessonId;
+      let setLoading =
+        loadLesson ||
+        params.learnerId !== fromParams.learnerId ||
+        params.exerciseId !== fromParams.exerciseId;
+      if (setLoading) {
+        // Only set loading state if we are not switching between
+        // different views of the same learner's exercise report.
+        store.dispatch('loading');
+      }
+      const promises = [];
+      if (loadLesson) {
+        promises.push(setLessonSummaryState(store, params));
+      }
+      promises.push(showExerciseDetailView(params));
+      Promise.all(promises).then(() => {
+        // Set not loading regardless, as we are now
+        // ready to render.
+        store.dispatch('notLoading');
+      });
+    },
   },
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
