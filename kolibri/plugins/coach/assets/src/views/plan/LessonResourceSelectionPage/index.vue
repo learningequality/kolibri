@@ -333,9 +333,17 @@
         });
       },
       selectionMetadata(content) {
-        const count = this.ancestorCounts[content.id];
+        let count = 0;
+        let total = 0;
+        if (this.ancestorCounts[content.id]) {
+          count = this.ancestorCounts[content.id].count;
+          total = this.ancestorCounts[content.id].total;
+        }
         if (count) {
-          return this.$tr('selectionInformation', { count, total: this.workingResources.length });
+          return this.$tr('selectionInformation', {
+            count,
+            total,
+          });
         }
         return '';
       },
