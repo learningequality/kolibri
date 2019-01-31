@@ -107,6 +107,16 @@ export default {
         outlineOffset: '4px',
       };
     },
+    // Should use this when the outline needs to be applied regardless
+    // of modality
+    $coreOutlineAnyModality(state) {
+      return {
+        outlineColor: darken(state['$core-action-light'], 0.1),
+        outlineStyle: 'solid',
+        outlineWidth: '3px',
+        outlineOffset: '4px',
+      };
+    },
   },
   mutations: {
     SET_CORE_THEME(state, theme) {
