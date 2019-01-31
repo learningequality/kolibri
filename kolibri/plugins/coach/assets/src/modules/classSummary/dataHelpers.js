@@ -1,8 +1,16 @@
 import map from 'lodash/map';
 import get from 'lodash/get';
+import uniq from 'lodash/uniq';
 import meanBy from 'lodash/meanBy';
 import flatten from 'lodash/flatten';
 import { STATUSES } from './constants';
+
+const keyMap = {
+  [STATUSES.completed]: 'completed',
+  [STATUSES.started]: 'started',
+  [STATUSES.notStarted]: 'notStarted',
+  [STATUSES.helpNeeded]: 'helpNeeded',
+};
 
 // Getters that return lookup functions
 //
@@ -26,7 +34,7 @@ export default {
       if (!groupIds.length) {
         return map(state.learnerMap, 'id');
       }
-      return flatten(map(groupIds, id => state.groupMap[id].member_ids));
+      return uniq(flatten(map(groupIds, id => state.groupMap[id].member_ids)));
     };
   },
   getContentStatusForLearner(state) {
@@ -41,14 +49,14 @@ export default {
   getContentStatusCounts(state, getters) {
     return function(contentId, learnerIds) {
       const tallies = {
-        [STATUSES.started]: 0,
-        [STATUSES.notStarted]: 0,
-        [STATUSES.completed]: 0,
-        [STATUSES.helpNeeded]: 0,
+        started: 0,
+        notStarted: 0,
+        completed: 0,
+        helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
         const status = getters.getContentStatusForLearner(contentId, learnerId);
-        tallies[status] += 1;
+        tallies[keyMap[status]] += 1;
       });
       return tallies;
     };
@@ -61,14 +69,14 @@ export default {
   getExamStatusCounts(state, getters) {
     return function(examId, learnerIds) {
       const tallies = {
-        [STATUSES.started]: 0,
-        [STATUSES.notStarted]: 0,
-        [STATUSES.completed]: 0,
-        [STATUSES.helpNeeded]: 0,
+        started: 0,
+        notStarted: 0,
+        completed: 0,
+        helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
         const status = getters.getExamStatusForLearner(examId, learnerId);
-        tallies[status] += 1;
+        tallies[keyMap[status]] += 1;
       });
       return tallies;
     };
@@ -81,14 +89,14 @@ export default {
   getLessonStatusCounts(state, getters) {
     return function(lessonId, learnerIds) {
       const tallies = {
-        [STATUSES.started]: 0,
-        [STATUSES.notStarted]: 0,
-        [STATUSES.completed]: 0,
-        [STATUSES.helpNeeded]: 0,
+        started: 0,
+        notStarted: 0,
+        completed: 0,
+        helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
         const status = getters.getLessonStatusForLearner(lessonId, learnerId);
-        tallies[status] += 1;
+        tallies[keyMap[status]] += 1;
       });
       return tallies;
     };

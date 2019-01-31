@@ -1,11 +1,8 @@
 <template>
 
   <div class="bar-wrapper">
-    <div class="bar" :style="barStyle"></div>
-    <div class="visuallyhidden">
-      <!-- todo - how to internationalize? -->
-      {{ $formatNumber(Math.floor(percentage * 100)) }}%
-    </div>
+    <div class="bar" :style="barStyleStarted"></div>
+    <div class="bar" :style="barStyleCompleted"></div>
   </div>
 
 </template>
@@ -18,21 +15,37 @@
   export default {
     name: 'DashboardBar',
     props: {
-      percentage: {
+      completed: {
         type: Number,
         required: true,
-        validator(value) {
-          return value >= 0 && value <= 1;
-        },
+      },
+      started: {
+        type: Number,
+        required: true,
+      },
+      total: {
+        type: Number,
+        required: true,
       },
     },
     computed: {
       ...mapGetters(['$coreStatusProgress', '$coreStatusMastered']),
-      barStyle() {
+      percentageCompleted() {
+        return this.completed / this.total;
+      },
+      barStyleCompleted() {
         return {
-          width: `${Math.floor(100 * this.percentage)}%`,
-          backgroundColor:
-            this.percentage === 1 ? this.$coreStatusMastered : this.$coreStatusProgress,
+          width: `${Math.floor(100 * this.percentageCompleted)}%`,
+          backgroundColor: this.$coreStatusMastered,
+        };
+      },
+      percentageStarted() {
+        return (this.started + this.completed) / this.total;
+      },
+      barStyleStarted() {
+        return {
+          width: `${Math.floor(100 * this.percentageStarted)}%`,
+          backgroundColor: this.$coreStatusProgress,
         };
       },
     },
@@ -49,15 +62,16 @@
     position: relative;
     width: 100%;
     height: 16px;
+    overflow: hidden;
     background-color: #dedede;
     border-radius: $radius;
-    opacity: 0.65;
+    opacity: 0.6;
   }
 
   .bar {
+    position: absolute;
     height: 100%;
     margin-right: auto;
-    border-radius: $radius;
     transition: all $core-time ease;
   }
 

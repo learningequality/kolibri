@@ -33,19 +33,19 @@
       <p>
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts[STATUSES.completed]"
+          :count="statusCounts.completed"
           :verb="VERBS.completed"
           :icon="ICONS.star"
         />
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts[STATUSES.started]"
+          :count="statusCounts.started"
           :verb="VERBS.started"
           :icon="ICONS.clock"
         />
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts[STATUSES.notStarted]"
+          :count="statusCounts.notStarted"
           :verb="VERBS.notStarted"
           :icon="ICONS.nothing"
         />
@@ -64,34 +64,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>{{ tableRow.name }}</td>
             <td>
-              <LearnerProgressLabel
-                v-if="!tableRow.status || tableRow.status.status === STATUSES.notStarted"
-                :count="1"
-                :verbosity="1"
-                :verb="VERBS.notStarted"
-                :icon="ICONS.nothing"
-              />
-              <LearnerProgressLabel
-                v-else-if="tableRow.status.status === STATUSES.started"
-                :count="1"
-                :verbosity="1"
-                :verb="VERBS.started"
-                :icon="ICONS.clock"
-              />
-              <LearnerProgressLabel
-                v-else-if="tableRow.status.status === STATUSES.completed"
-                :count="1"
-                :verbosity="1"
-                :verb="VERBS.completed"
-                :icon="ICONS.star"
-              />
-              <LearnerProgressLabel
-                v-else-if="tableRow.status.status === STATUSES.helpNeeded"
-                :count="1"
-                :verbosity="1"
-                :verb="VERBS.needHelp"
-                :icon="ICONS.star"
-              />
+              TODO - new status display
             </td>
             <td>
               <TimeDuration :seconds="tableRow.status.time_spent" />
