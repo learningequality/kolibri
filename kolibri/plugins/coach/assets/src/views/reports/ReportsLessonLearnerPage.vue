@@ -13,29 +13,12 @@
     <div class="new-coach-block">
       <p>
         <BackLink
-          :to="classRoute('ReportsLessonLearnerListPage', {})"
-          text="Some lesson"
+          :to="classRoute('ReportsLessonLearnerListPage')"
+          :text="lesson.title"
         />
       </p>
-      <h1>
-        {{ coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'}) }}
-      </h1>
-      <HeaderTable>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value"><LessonActive :active="true" /></template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
-          <template slot="value">Group 1, Group 2</template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
-        </HeaderTableRow>
-      </HeaderTable>
+      <h1>{{ learner.name }}</h1>
 
-      <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -45,36 +28,19 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
               <KRouterLink
-                text="Some exercise"
-                :to="classRoute('ReportsLessonLearnerExercisePage', {})"
+                v-if="tableRow.kind === 'exercise'"
+                :text="tableRow.title"
+                :to="classRoute('ReportsLessonLearnerExercisePage', {exerciseId: tableRow.content_id})"
               />
+              <template v-else>{{ tableRow.title }}</template>
             </td>
             <td>
-              <LearnerProgressLabel
-                :verbosity="1"
-                :count="1"
-                verb="needHelp"
-                icon="help"
-              />
+              <StatusSimple :status="tableRow.status" />
             </td>
-            <td><TimeDuration :seconds="360" /></td>
-          </tr>
-          <tr>
-            <td>
-              Some video
-            </td>
-            <td>
-              <LearnerProgressLabel
-                :verbosity="1"
-                :count="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="120" /></td>
+            <td><TimeDuration :seconds="tableRow.timeSpent" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -86,12 +52,38 @@
 
 <script>
 
+  import get from 'lodash/get';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsLessonLearnerPage',
     components: {},
     mixins: [commonCoach],
+    computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      learner() {
+        return this.learnerMap[this.$route.params.learnerId];
+      },
+      table() {
+        const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
+        const sorted = this._.sortBy(contentArray, ['title']);
+        const mapped = sorted.map(content => {
+          const tableRow = {
+            status: this.getContentStatusForLearner(content.content_id, this.learner.id),
+            timeSpent: get(
+              this.contentLearnerStatusMap,
+              [content.content_id, this.learner.id, 'time_spent'],
+              undefined
+            ),
+          };
+          Object.assign(tableRow, content);
+          return tableRow;
+        });
+        return mapped;
+      },
+    },
     $trs: {
       lessonProgressLabel: "'{lesson}' progress",
     },
