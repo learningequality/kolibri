@@ -1,10 +1,12 @@
 import get from 'lodash/get';
+import set from 'lodash/set';
 import flatten from 'lodash/flatten';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
 import dataHelpers from './dataHelpers';
 import { STATUSES } from './constants';
+import { updateWithNotifications } from './actions';
 
 function defaultState() {
   return {
@@ -296,13 +298,47 @@ export default {
     DELETE_ITEM(state, { map, id }) {
       Vue.delete(state[map], id);
     },
+    APPLY_NOTIFICATION_UPDATES(state, updates) {
+      const { contentLearnerStatusMap, examLearnerStatusMap } = state;
+      const { contentLearnerStatusMapUpdates, examLearnerStatusMapUpdates } = updates;
+
+      contentLearnerStatusMapUpdates.forEach(update => {
+        const path = [update.content_id, update.learner_id];
+        const currentStatus = get(contentLearnerStatusMap, path);
+        if (currentStatus) {
+          Object.assign(currentStatus, update);
+        } else {
+          set(state.contentLearnerStatusMap, path, {
+            ...update,
+            time_spent: 0,
+          });
+        }
+      });
+
+      examLearnerStatusMapUpdates.forEach(update => {
+        const path = [update.exam_id, update.learner_id];
+        const currentStatus = get(examLearnerStatusMap, path);
+        if (currentStatus) {
+          Object.assign(currentStatus, update);
+        } else {
+          set(state.examLearnerStatusMap, path, {
+            ...update,
+            num_correct: 0,
+            score: 0,
+          });
+        }
+      });
+
+      state.examLearnerStatusMap = { ...state.examLearnerStatusMap };
+      state.contentLearnerStatusMap = { ...state.contentLearnerStatusMap };
+    },
   },
   actions: {
+    updateWithNotifications,
     loadClassSummary(store, classId) {
       return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
         store.commit('SET_STATE', summary);
       });
     },
   },
-  modules: {},
 };
