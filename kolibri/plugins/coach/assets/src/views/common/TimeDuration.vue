@@ -1,12 +1,14 @@
 <template>
 
   <span v-if="seconds">{{ formattedTime }}</span>
-  <span v-else>–</span>
+  <span v-else :style="{color: this.$coreGrey300}">–</span>
 
 </template>
 
 
 <script>
+
+  import { mapGetters } from 'vuex';
 
   const MINUTE = 60;
   const HOUR = MINUTE * 60;
@@ -22,6 +24,7 @@
       },
     },
     computed: {
+      ...mapGetters(['$coreGrey300']),
       formattedTime() {
         if (this.seconds < 2 * MINUTE) {
           return this.$tr('seconds', { value: Math.floor(this.seconds) });
