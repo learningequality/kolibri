@@ -8,7 +8,7 @@
 
     <KGridItem size="25" percentage alignment="right">
       <div class="context">
-        <Recipients :groups="groups" />
+        <Recipients :groupNames="groups" />
       </div>
     </KGridItem>
 
@@ -54,7 +54,7 @@
         type: String,
         required: true,
       },
-      groups: {
+      groupNames: {
         type: Array,
         required: true,
       },

@@ -14,7 +14,7 @@
       <ItemProgressDisplay
         :name="tableRow.name"
         :tally="tableRow.tally"
-        :groups="tableRow.groups"
+        :groupNames="tableRow.groups"
       />
     </div>
   </Block>
