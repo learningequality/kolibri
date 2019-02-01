@@ -24,7 +24,6 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
   import orderBy from 'lodash/orderBy';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
@@ -47,14 +46,6 @@
       viewAll: 'All lessons',
     },
     computed: {
-      ...mapState('classSummary', ['groupMap']),
-      ...mapGetters('classSummary', [
-        'learners',
-        'lessons',
-        'lessonLearnerStatusMap',
-        'getLessonStatusTally',
-        'getLearnersForGroups',
-      ]),
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {

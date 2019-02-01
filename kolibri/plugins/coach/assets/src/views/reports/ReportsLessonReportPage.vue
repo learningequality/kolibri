@@ -62,7 +62,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -73,13 +72,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
-      ...mapGetters('classSummary', [
-        'getLearnersForGroups',
-        'getContentAvgTimeSpent',
-        'getLessonStatusTally',
-        'getLearnersForGroups',
-      ]),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },

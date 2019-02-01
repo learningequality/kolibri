@@ -100,7 +100,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'learnerMap', 'name']),
       ...mapState('coachNotifications', {
         allNotifications: 'notifications',
       }),

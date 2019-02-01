@@ -70,8 +70,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
-  import get from 'lodash/get';
   import commonCoach from '../common';
 
   export default {
@@ -79,21 +77,6 @@
     components: {},
     mixins: [commonCoach],
     computed: {
-      ...mapState('classSummary', [
-        'lessonMap',
-        'learnerMap',
-        'contentMap',
-        'contentNodeMap',
-        'contentLearnerStatusMap',
-      ]),
-      ...mapGetters('classSummary', [
-        'groups',
-        'getLearnersForGroups',
-        'getContentAvgTimeSpent',
-        'getContentStatusTally',
-        'getGroupNamesForLearner',
-        'getContentStatusForLearner',
-      ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

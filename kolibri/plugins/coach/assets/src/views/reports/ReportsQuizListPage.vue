@@ -60,7 +60,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -76,13 +75,6 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', [
-        'exams',
-        'examStatuses',
-        'getGroupNames',
-        'getLearnersForGroups',
-        'getExamStatusTally',
-      ]),
       filterOptions() {
         return [
           {
