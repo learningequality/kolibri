@@ -38,11 +38,9 @@ buildkite-agent artifact download 'dist/*.tar.gz' dist/
 buildkite-agent artifact download 'dist/*.deb' dist/
 buildkite-agent artifact download 'dist/*.exe' dist/
 
-export SIGN_WINDOWS_EXE=true
 {
     buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
 } || {
-    export SIGN_WINDOWS_EXE=false
     echo "No signed Windows installer found"
 }
 

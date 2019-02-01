@@ -33,7 +33,6 @@ ISSUE_ID = os.getenv("BUILDKITE_PULL_REQUEST")
 BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
 COMMIT = os.getenv("BUILDKITE_COMMIT")
-SIGN_WINDOWS_EXE = os.getenv("SIGN_WINDOWS_EXE")
 
 RELEASE_DIR = 'release'
 PROJECT_PATH = os.path.join(os.getcwd())
@@ -202,7 +201,7 @@ def upload_artifacts():
 
     # add count to report html to avoid duplicate.
     report_count = BUILD_ID + "-first"
-    if SIGN_WINDOWS_EXE:
+    if file_manifest.keys()[3] in artifacts:
         report_count = BUILD_ID + "-second"
 
     blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, report_count))
