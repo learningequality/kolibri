@@ -108,7 +108,7 @@
             totalLearners: learnersForQuiz.length,
             tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
-            avgScore: this.avgScore(exam, learnersForQuiz),
+            avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
           };
           Object.assign(tableRow, exam);
           return tableRow;
@@ -118,20 +118,6 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
-    },
-    methods: {
-      avgScore(exam, learnerIds) {
-        const relevantStatuses = this.examStatuses.filter(
-          status =>
-            learnerIds.includes(status.learner_id) &&
-            status.exam_id === exam.id &&
-            status.status === this.STATUSES.completed
-        );
-        if (!relevantStatuses.length) {
-          return null;
-        }
-        return this._.meanBy(relevantStatuses, 'score');
-      },
     },
     $trs: {
       show: 'Show',

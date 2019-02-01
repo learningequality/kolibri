@@ -178,4 +178,25 @@ export default {
       return meanBy(statuses, 'time_spent');
     };
   },
+  /*
+   * Return a number (0-1) given an exam ID and an array of learner IDs
+   */
+  getExamAvgScore(state, getters) {
+    return function(examId, learnerIds) {
+      if (!examId || !Array.isArray(learnerIds)) {
+        throw new Error('getExamAvgScore: invalid parameter(s)');
+      }
+      const statuses = [];
+      learnerIds.forEach(learnerId => {
+        const status = getters.getExamStatusForLearner(examId, learnerId);
+        if (status !== STATUSES.notStarted) {
+          statuses.push(state.examLearnerStatusMap[examId][learnerId]);
+        }
+      });
+      if (!statuses.length) {
+        return undefined;
+      }
+      return meanBy(statuses, 'score');
+    };
+  },
 };

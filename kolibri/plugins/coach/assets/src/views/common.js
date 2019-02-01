@@ -118,6 +118,7 @@ export default {
       'getLessonStatusForLearner',
       'getLessonStatusTally',
       'getContentAvgTimeSpent',
+      'getExamAvgScore',
     ]),
     userIsAuthorized() {
       return this.isCoach || this.isAdmin || this.isSuperuser;
