@@ -96,7 +96,6 @@
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
-          // get a status object, with default being undefined
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getContentStatusForLearner(this.$route.params.resourceId, learner.id),
