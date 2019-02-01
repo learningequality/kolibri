@@ -1,6 +1,4 @@
 import get from 'lodash/get';
-import some from 'lodash/some';
-import every from 'lodash/every';
 import flatten from 'lodash/flatten';
 
 import Vue from 'kolibri.lib.vue';
@@ -111,13 +109,23 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
       status: STATUSES.notStarted,
     });
   });
-  if (some(statuses, { status: STATUSES.helpNeeded })) {
+
+  const tally = {
+    [STATUSES.started]: 0,
+    [STATUSES.notStarted]: 0,
+    [STATUSES.completed]: 0,
+    [STATUSES.helpNeeded]: 0,
+  };
+  statuses.forEach(status => {
+    tally[status.status] += 1;
+  });
+  if (tally[STATUSES.helpNeeded]) {
     return STATUSES.helpNeeded;
   }
-  if (every(statuses, { status: STATUSES.completed })) {
+  if (tally[STATUSES.completed] === statuses.length) {
     return STATUSES.completed;
   }
-  if (every(statuses, { status: STATUSES.notStarted })) {
+  if (tally[STATUSES.notStarted] === statuses.length) {
     return STATUSES.notStarted;
   }
   return STATUSES.started;
