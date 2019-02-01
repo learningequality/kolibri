@@ -27,6 +27,7 @@
 
     <KGridItem size="25" percentage alignment="right">
       <HelpNeeded
+        v-if="tally.helpNeeded"
         :count="tally.helpNeeded"
         :verbose="false"
         :ratio="false"
