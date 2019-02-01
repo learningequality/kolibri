@@ -26,8 +26,7 @@
     </template>
     <template v-else-if="total === notStarted && !showAll">
       <!-- special cases when no one has started -->
-      <component
-        :is="ratio ? LearnerProgressRatio : LearnerProgressCount"
+      <LearnerProgressCount
         class="item"
         :style="{ color: $coreGrey300 }"
         :verb="VERBS.notStarted"
