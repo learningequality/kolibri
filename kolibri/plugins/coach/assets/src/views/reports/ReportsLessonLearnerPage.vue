@@ -33,7 +33,7 @@
               <KRouterLink
                 v-if="tableRow.kind === 'exercise'"
                 :text="tableRow.title"
-                :to="classRoute('ReportsLessonLearnerExercisePage', {exerciseId: tableRow.content_id})"
+                :to="exerciseLink(tableRow.content_id)"
               />
               <template v-else>{{ tableRow.title }}</template>
             </td>
@@ -82,6 +82,11 @@
           return tableRow;
         });
         return mapped;
+      },
+    },
+    methods: {
+      exerciseLink(exerciseId) {
+        return this.classRoute('ReportsLessonLearnerExercisePage', { exerciseId });
       },
     },
     $trs: {
