@@ -31,24 +31,7 @@
       </HeaderTable>
 
       <p>
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="tally.completed"
-          :verb="VERBS.completed"
-          :icon="ICONS.star"
-        />
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="tally.started"
-          :verb="VERBS.started"
-          :icon="ICONS.clock"
-        />
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="tally.notStarted"
-          :verb="VERBS.notStarted"
-          :icon="ICONS.nothing"
-        />
+        <StatusSummary :tally="tally" />
       </p>
       <CoreTable>
         <thead slot="thead">
@@ -64,7 +47,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>{{ tableRow.name }}</td>
             <td>
-              TODO - new status display
+              <StatusSimple :status="tableRow.status" />
             </td>
             <td>
               <TimeDuration :seconds="tableRow.status.time_spent" />
@@ -107,9 +90,9 @@
         'groups',
         'getLearnersForGroups',
         'getContentAvgTimeSpent',
-        'getGroupNames',
         'getContentStatusTally',
         'getGroupNamesForLearner',
+        'getContentStatusForLearner',
       ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -131,14 +114,9 @@
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           // get a status object, with default being undefined
-          const status = get(
-            this.contentLearnerStatusMap,
-            [this.$route.params.resourceId, learner.id],
-            {}
-          );
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status,
+            status: this.getContentStatusForLearner(this.$route.params.resourceId, learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;
