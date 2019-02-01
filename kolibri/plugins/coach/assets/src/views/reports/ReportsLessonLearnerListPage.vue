@@ -33,7 +33,7 @@
               />
             </td>
             <td>
-              TODO - lesson status for learner
+              <StatusSimple :status="tableRow.status" />
             </td>
             <td>
               <TruncatedItemList :items="tableRow.groups" />
@@ -72,6 +72,7 @@
         'getLearnersForGroups',
         'getContentStatusForLearner',
         'getGroupNamesForLearner',
+        'getLessonStatusForLearner',
       ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -85,26 +86,12 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            numCompleted: this.numCompleted(learner.id),
+            status: this.getLessonStatusForLearner(this.lesson.id, learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;
         });
         return mapped;
-      },
-    },
-    methods: {
-      numCompleted(learnerId) {
-        const contentIds = this.lesson.node_ids.map(
-          node_id => this.contentNodeMap[node_id].content_id
-        );
-        return contentIds.reduce((acc, contentId) => {
-          const status = this.getContentStatusForLearner(contentId, learnerId);
-          if (status === this.STATUSES.completed) {
-            return acc + 1;
-          }
-          return acc;
-        }, 0);
       },
     },
     $trs: {

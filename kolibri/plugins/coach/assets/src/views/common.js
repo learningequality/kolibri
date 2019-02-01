@@ -36,6 +36,7 @@ import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
 import HeaderTab from './common/HeaderTabs/HeaderTab';
 import StatusSummary from './common/status/StatusSummary';
+import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
 import ItemStatusRatio from './common/status/ItemStatusRatio';
 import ItemStatusCount from './common/status/ItemStatusCount';
@@ -73,6 +74,7 @@ export default {
     HeaderTabs,
     HeaderTab,
     StatusSummary,
+    StatusSimple,
     HelpNeeded,
     ItemStatusRatio,
     ItemStatusCount,
