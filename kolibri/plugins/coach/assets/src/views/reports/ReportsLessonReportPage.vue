@@ -62,7 +62,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -73,13 +72,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
-      ...mapGetters('classSummary', [
-        'getLearnersForGroups',
-        'getContentAvgTimeSpent',
-        'getLessonStatusTally',
-        'getLearnersForGroups',
-      ]),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -96,15 +88,12 @@
         return this.getLearnersForGroups(this.lesson.groups);
       },
       table() {
-        const content = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        const sorted = this._.sortBy(content, ['title']);
+        const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
+        const sorted = this._.sortBy(contentArray, ['title']);
         const mapped = sorted.map(content => {
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
-            tally: this.getLessonStatusTally(
-              this.lesson.id,
-              this.getLearnersForGroups(this.lesson.groups)
-            ),
+            tally: this.getContentStatusTally(content.content_id, this.recipients),
           };
           Object.assign(tableRow, content);
           return tableRow;

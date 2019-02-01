@@ -26,8 +26,8 @@
   th,
   td {
     width: 50%;
+    height: 2em;
     padding-right: 8px;
-    padding-bottom: 8px;
     font-size: 14px;
   }
 

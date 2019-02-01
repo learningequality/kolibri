@@ -1,6 +1,4 @@
 import get from 'lodash/get';
-import some from 'lodash/some';
-import every from 'lodash/every';
 import flatten from 'lodash/flatten';
 
 import Vue from 'kolibri.lib.vue';
@@ -13,68 +11,68 @@ function defaultState() {
     id: null,
     name: '',
     /*
-      coachMap := {
-        [id]: { id, name, username }
-      }
-    */
+     * coachMap := {
+     *   [id]: { id, name, username }
+     * }
+     */
     coachMap: {},
     /*
-      learnerMap := {
-        [id]: { id, name, username }
-      }
-    */
+     * learnerMap := {
+     *   [id]: { id, name, username }
+     * }
+     */
     learnerMap: {},
     /*
-      groupMap := {
-        [id]: { id, name, member_ids: [id, ...] }
-      }
-    */
+     * groupMap := {
+     *   [id]: { id, name, member_ids: [id, ...] }
+     * }
+     */
     groupMap: {},
     /*
-      examMap := {
-        [id]: {
-          id,
-          active,
-          title,
-          question_sources: [{exercise_id, question_id}, ...],
-          groups: [id, ...],
-        }
-      }
-    */
+     * examMap := {
+     *   [id]: {
+     *     id,
+     *     active,
+     *     title,
+     *     question_sources: [{exercise_id, question_id}, ...],
+     *     groups: [id, ...],
+     *   }
+     * }
+     */
     examMap: {},
     /*
-      examLearnerStatusMap := {
-        [exam_id]: {
-          [learner_id]: { exam_id, learner_id, status, last_activity, num_correct, score }
-        }
-      }
-    */
+     * examLearnerStatusMap := {
+     *   [exam_id]: {
+     *     [learner_id]: { exam_id, learner_id, status, last_activity, num_correct, score }
+     *   }
+     * }
+     */
     examLearnerStatusMap: {},
     /*
-      contentMap := {
-        [id]: { content_id, node_id, kind, title }
-      }
-    */
+     * contentMap := {
+     *   [id]: { content_id, node_id, kind, title }
+     * }
+     */
     contentMap: {},
     /*
-      contentMap := {
-        [node_id]: { content_id, node_id, kind, title }
-      }
-    */
+     * contentMap := {
+     *   [node_id]: { content_id, node_id, kind, title }
+     * }
+     */
     contentNodeMap: {},
     /*
-      contentLearnerStatusMap := {
-        [content_id]: {
-          [learner_id]: { content_id, learner_id, status, last_activity }
-        }
-      }
-    */
+     * contentLearnerStatusMap := {
+     *   [content_id]: {
+     *     [learner_id]: { content_id, learner_id, status, last_activity }
+     *   }
+     * }
+     */
     contentLearnerStatusMap: {},
     /*
-      lessonMap := {
-        [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
-      }
-    */
+     * lessonMap := {
+     *   [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
+     * }
+     */
     lessonMap: {},
   };
 }
@@ -111,13 +109,23 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
       status: STATUSES.notStarted,
     });
   });
-  if (some(statuses, { status: STATUSES.helpNeeded })) {
+
+  const tally = {
+    [STATUSES.started]: 0,
+    [STATUSES.notStarted]: 0,
+    [STATUSES.completed]: 0,
+    [STATUSES.helpNeeded]: 0,
+  };
+  statuses.forEach(status => {
+    tally[status.status] += 1;
+  });
+  if (tally[STATUSES.helpNeeded]) {
     return STATUSES.helpNeeded;
   }
-  if (every(statuses, { status: STATUSES.completed })) {
+  if (tally[STATUSES.completed] === statuses.length) {
     return STATUSES.completed;
   }
-  if (every(statuses, { status: STATUSES.notStarted })) {
+  if (tally[STATUSES.notStarted] === statuses.length) {
     return STATUSES.notStarted;
   }
   return STATUSES.started;
@@ -128,39 +136,98 @@ export default {
   state: defaultState(),
   getters: {
     ...dataHelpers,
+    /*
+     * coaches := [
+     *   { id, name, username }, ...
+     * ]
+     */
     coaches(state) {
       return Object.values(state.coachMap);
     },
+    /*
+     * learners := [
+     *   { id, name, username }, ...
+     * ]
+     */
     learners(state) {
       return Object.values(state.learnerMap);
     },
+    /*
+     * groups := [
+     *   { id, name, member_ids: [id, ...] }, ...
+     * ]
+     */
     groups(state) {
       return Object.values(state.groupMap);
     },
+    /*
+     * exams := [
+     *   {
+     *     id,
+     *     active,
+     *     title,
+     *     question_sources: [{exercise_id, question_id}, ...],
+     *     groups: [id, ...],
+     *   },
+     *   ...
+     * ]
+     */
     exams(state) {
       return Object.values(state.examMap);
     },
+    /*
+     * examStatuses := [
+     *   { exam_id, learner_id, status, last_activity }, ...
+     * ]
+     */
     examStatuses(state) {
       return flatten(
         Object.values(state.examLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
+    /*
+     * content := [
+     *   { content_id, node_id, kind, title }, ...
+     * ]
+     */
     content(state) {
       return Object.values(state.contentMap);
     },
+    /*
+     * contentStatuses := [
+     *   { content_id, learner_id, status, last_activity }, ...
+     * ]
+     */
     contentStatuses(state) {
       return flatten(
         Object.values(state.contentLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
+    /*
+     * lessons := [
+     *   { id, active, title, node_ids: [id, ...], groups: [id, ...] }, ...
+     * ]
+     */
     lessons(state) {
       return Object.values(state.lessonMap);
     },
+    /*
+     * lessonStatuses := [
+     *   { lesson_id, learner_id, status, last_activity }, ...
+     * ]
+     */
     lessonStatuses(state, getters) {
       return flatten(
         Object.values(getters.lessonLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
+    /*
+     * lessonLearnerStatusMap := {
+     *   [lesson_id]: {
+     *     [learner_id]: { lesson_id, learner_id, status, last_activity }
+     *   }
+     * }
+     */
     lessonLearnerStatusMap(state) {
       const map = {};
       Object.values(state.lessonMap).forEach(lesson => {

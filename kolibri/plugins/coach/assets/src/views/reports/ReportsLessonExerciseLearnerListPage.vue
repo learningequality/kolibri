@@ -14,35 +14,15 @@
 
       <ReportsLessonExerciseHeader />
 
+      <!-- TODO COACH
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
-
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+       -->
+
       <p>
-        <LearnerProgressCount
-          :count="4"
-          verbosity="0"
-          verb="completed"
-          icon="star"
-        />
-        <LearnerProgressCount
-          :count="2"
-          verbosity="0"
-          verb="started"
-          icon="clock"
-        />
-        <LearnerProgressCount
-          :count="1"
-          verbosity="0"
-          verb="needHelp"
-          icon="help"
-        />
-        <LearnerProgressCount
-          :count="0"
-          verbosity="0"
-          verb="notStarted"
-          icon="nothing"
-        />
+        <StatusSummary :tally="tally" />
       </p>
+
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -54,103 +34,25 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
-            <td><KRouterLink text="Adam" :to="learnerLink" /></td>
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="started"
-                icon="clock"
+              <KRouterLink :text="tableRow.name" :to="link(tableRow.id)" />
+            </td>
+            <td>
+              <StatusSimple :status="tableRow.status" />
+            </td>
+            <td>
+              <TimeDuration :seconds="tableRow.status.time_spent" />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
+            <td>
+              <ElapsedTime
+                v-if="tableRow.status"
+                :date="tableRow.status.last_activity "
               />
             </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>a, b</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="April" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>a, b</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="Betsy" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>a, b</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="Edward" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="started"
-                icon="clock"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>a, b</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="John" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>a, b</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="Julie" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="needHelp"
-                icon="help"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td></td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="Steve" :to="learnerLink" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                verbosity="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td></td>
-            <td>some time ago</td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -171,22 +73,35 @@
       ReportsLessonExerciseHeader,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
-    },
     computed: {
-      learnerLink() {
-        return this.classRoute('ReportsLessonExerciseLearnerPage', {});
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      recipients() {
+        return this.getLearnersForGroups(this.lesson.groups);
+      },
+      tally() {
+        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            status: this.getContentStatusForLearner(this.$route.params.exerciseId, learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      link(learnerId) {
+        return this.classRoute('ReportsLessonExerciseLearnerPage', { learnerId });
       },
     },
-    $trs: {},
   };
 
 </script>

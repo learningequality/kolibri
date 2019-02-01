@@ -135,7 +135,7 @@
 <script>
 
   import find from 'lodash/find';
-  import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -208,8 +208,6 @@
     },
     computed: {
       ...mapState(['classList']),
-      ...mapGetters('classSummary', ['exams', 'groups']),
-      ...mapState('classSummary', ['examsMap', 'groupMap']),
       ...mapState('examsRoot', { fullExamInfo: 'exams' }),
       examReportPageStrings() {
         return examReportPageStrings;

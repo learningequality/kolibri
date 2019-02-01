@@ -49,8 +49,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
-
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -61,19 +59,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState('classSummary', [
-        'lessonMap',
-        'learnerMap',
-        'contentNodeMap',
-        'contentLearnerStatusMap',
-      ]),
-      ...mapGetters('classSummary', [
-        'groups',
-        'getLearnersForGroups',
-        'getContentStatusForLearner',
-        'getGroupNamesForLearner',
-        'getLessonStatusForLearner',
-      ]),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

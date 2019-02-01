@@ -53,7 +53,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
@@ -66,14 +65,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapGetters('classSummary', [
-        'groups',
-        'lessons',
-        'exams',
-        'examStatuses',
-        'contentStatuses',
-        'getLearnersForGroups',
-      ]),
       table() {
         const sorted = this._.sortBy(this.groups, ['name']);
         const mapped = sorted.map(group => {

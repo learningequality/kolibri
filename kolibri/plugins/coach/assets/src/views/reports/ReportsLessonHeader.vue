@@ -61,7 +61,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
 
   export default {
@@ -69,8 +68,6 @@
     components: {},
     mixins: [commonCoach],
     computed: {
-      ...mapState('classSummary', ['lessonMap']),
-      ...mapGetters('classSummary', ['getGroupNames']),
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
