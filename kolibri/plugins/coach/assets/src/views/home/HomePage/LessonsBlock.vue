@@ -53,11 +53,12 @@
         'lessons',
         'lessonLearnerStatusMap',
         'getLessonStatusTally',
+        'getLearnersForGroups',
       ]),
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
-          const assigned = this.assignedLearnerIds(lesson);
+          const assigned = this.getLearnersForGroups(lesson.groups);
           return {
             key: lesson.id,
             name: lesson.title,
@@ -71,18 +72,6 @@
       },
     },
     methods: {
-      assignedLearnerIds(lesson) {
-        // assigned to the whole class
-        if (!lesson.groups.length) {
-          return this.learners.map(learner => learner.id);
-        }
-        // accumulate learner IDs of groups
-        const learnerIds = [];
-        lesson.groups.forEach(groupId => {
-          learnerIds.push(...this.groupMap[groupId].member_ids);
-        });
-        return learnerIds;
-      },
       // return the last activity among all users for a particular lesson
       lastActivity(lesson) {
         let last = null;
