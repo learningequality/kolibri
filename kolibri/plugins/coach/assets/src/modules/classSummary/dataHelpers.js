@@ -162,7 +162,7 @@ export default {
    */
   getContentAvgTimeSpent(state, getters) {
     return function(contentId, learnerIds) {
-      if (!contentId || Array.isArray(learnerIds)) {
+      if (!contentId || !Array.isArray(learnerIds)) {
         throw new Error('getContentAvgTimeSpent: invalid parameter(s)');
       }
       const statuses = [];
