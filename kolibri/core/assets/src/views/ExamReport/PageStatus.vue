@@ -2,13 +2,15 @@
 
   <KGrid class="page-status" :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
-      <div class="user-name-container">
-        <mat-svg
-          class="svg-item"
-          category="action"
-          name="face"
-        />
-        <h1 class="user-name">{{ $tr('title', {name: userName}) }}</h1>
+      <div>
+        <h1 class="title">{{ userName }}</h1>
+        <p class="title">
+          <ContentIcon
+            class="icon"
+            :kind="kind"
+            :showTooltip="false"
+          />
+          {{ $tr('title', { name: contentName }) }}</p>
       </div>
       <div class="questions">
         {{ $tr('overallScore', {score: score}) }}
@@ -42,6 +44,8 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'PageStatus',
@@ -58,6 +62,7 @@
       KGridItem,
       ProgressIcon,
       ElapsedTime,
+      ContentIcon,
     },
     props: {
       userName: {
@@ -73,6 +78,10 @@
         default: false,
       },
       completionTimestamp: { type: Date },
+      contentName: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       ...mapGetters(['$coreBgLight']),
@@ -86,6 +95,9 @@
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
       },
+      kind() {
+        return ContentNodeKinds.EXAM;
+      },
     },
   };
 
@@ -98,13 +110,14 @@
     padding: 8px;
   }
 
-  .user-name-container {
-    display: block;
-  }
-
   .svg-icon {
     margin-right: 8px;
     font-size: 1.3em;
+  }
+
+  .icon {
+    position: relative;
+    top: -2px;
   }
 
   .questions {
@@ -117,10 +130,8 @@
     vertical-align: middle;
   }
 
-  .user-name {
-    display: inline-block;
+  .title {
     margin: 0;
-    vertical-align: middle;
   }
 
 </style>

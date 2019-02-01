@@ -5,6 +5,7 @@ import {
   generateExerciseDetailHandler,
   rootRedirectHandler,
 } from '../modules/exerciseDetail/handlers';
+import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -70,8 +71,23 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LEARNER, QUIZ),
+    name: PageNames.REPORTS_GROUP_LEARNER_REPORT_QUIZ_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsGroupLearnerReportQuizPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LEARNER, QUIZ, QUESTION, INTERACTION),
     component: pages.ReportsGroupLearnerReportQuizPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
   },
   {
     path: path(CLASS, GROUPS),
@@ -128,8 +144,23 @@ export default [
   },
   {
     path: path(CLASS, GROUP, QUIZ, LEARNER),
+    name: PageNames.REPORTS_GROUP_REPORT_QUIZ_LEARNER_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsGroupReportQuizLearnerPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, GROUP, QUIZ, LEARNER, QUESTION, INTERACTION),
     component: pages.ReportsGroupReportQuizLearnerPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
   },
   {
     path: path(CLASS, GROUP, QUIZ, QUESTIONS),
@@ -189,8 +220,23 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, QUIZ),
+    name: PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsLearnerReportQuizPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, LEARNER, QUIZ, QUESTION, INTERACTION),
     component: pages.ReportsLearnerReportQuizPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
   },
   {
     path: path(CLASS, LESSON, '/edit'),
@@ -280,8 +326,23 @@ export default [
   },
   {
     path: path(CLASS, QUIZ, LEARNER),
+    name: PageNames.REPORTS_QUIZ_LEARNER_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsQuizLearnerPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, QUIZ, LEARNER, QUESTION, INTERACTION),
     component: pages.ReportsQuizLearnerPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
   },
   {
     path: path(CLASS, QUIZZES),
