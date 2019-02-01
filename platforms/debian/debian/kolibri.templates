@@ -1,17 +1,17 @@
 Template: kolibri/window-title
 Type: title
-Description: Kolibri configuration
+_Description: Kolibri configuration
 
 Template: kolibri/init
 Type: boolean
 Default: true
-Description: Do you wish to run Kolibri on start-up?
+_Description: Do you wish to run Kolibri on start-up?
  This will automatically call the system service to start
  Kolibri when your system boots.
 
 Template: kolibri/init-instructions
 Type: note
-Description: The Kolibri system service
+_Description: The Kolibri system service
  You have chosen to run Kolibri as a system
  service and it has been started automatically. You can
  start/stop/restart Kolibri with the following command
@@ -20,7 +20,7 @@ Description: The Kolibri system service
 
 Template: kolibri/manual-instructions
 Type: note
-Description: Running Kolibri manually:
+_Description: Running Kolibri manually:
  You have chosen not to run Kolibri as a system
  service and that means you should run it manually.
  Starting Kolibri with your current user account:
@@ -38,7 +38,7 @@ Description: Running Kolibri manually:
 Template: kolibri/user
 Type: string
 Default: kolibri
-Description: Which user account should own the Kolibri server?
+_Description: Which user account should own the Kolibri server?
  The default is to choose your preferred desktop user account, for instance
  to ensure access to importing data from external USB devices.
  .
@@ -47,7 +47,7 @@ Description: Which user account should own the Kolibri server?
 
 Template: kolibri/pre-010-upgrade-system-user
 Type: note
-Description: Changing system service owner:
+_Description: Changing system service owner:
  You are updating from an older version of Kolibri and we recommend that you switch the user account that runs the system service to your normal desktop user. This allows Kolibri to access your USB devices for importing and exporting content channels.
  .
  After finishing the installation/upgrade, follow these instructions to change the user setting and move your previous content channels and database:
