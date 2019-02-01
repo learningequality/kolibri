@@ -1,4 +1,10 @@
-kolibri-server (0.1-1) UNRELEASED; urgency=low
+kolibri-server (0.2-1) UNRELEASED; urgency=low
+
+  * Adapted to work with kolibri > 0.12
+
+ -- José L <jose@jose-xps>  Fri, 01 Feb 2019 17:40:04 +0100
+
+kolibri-server (0.1-1) unstable; urgency=low
 
   * Initial release.
 
