@@ -2,7 +2,20 @@
 
   <MultiPaneLayout ref="multiPaneLayout">
     <div slot="header">
-      <h1>{{ learner.name }}</h1>
+      <h1 class="learner-name">{{ learner.name }}</h1>
+      <p class="exercise-detail-section">
+        <ContentIcon
+          class="exercise-detail-icons"
+          :kind="ContentNodeKinds.EXERCISE"
+          :showTooltip="false"
+        />
+        {{ exercise.title }}
+        <CoachContentLabel
+          class="exercise-detail-icons"
+          :value="exercise.num_coach_contents || 0"
+          :isTopic="false"
+        />
+      </p>
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('masteryModelLabel') }}</template>
@@ -102,6 +115,7 @@
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoach from '../common';
 
   export default {
@@ -112,6 +126,7 @@
       InteractionList,
       KCheckbox,
       MultiPaneLayout,
+      CoachContentLabel,
     },
     mixins: [commonCoach],
     $trs: {},
@@ -187,6 +202,20 @@
     h3 {
       margin-top: 0;
     }
+  }
+
+  .learner-name {
+    margin-bottom: 0;
+  }
+
+  .exercise-detail-section {
+    display: inline-block;
+    margin-top: 0;
+  }
+
+  .exercise-detail-icons {
+    position: relative;
+    top: -2px;
   }
 
 </style>

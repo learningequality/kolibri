@@ -1,8 +1,10 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
-import { showExerciseDetailView, rootRedirectHandler } from '../modules/exerciseDetail/handlers';
-import { setLessonSummaryState } from '../modules/lessonSummary/handlers';
+import {
+  generateExerciseDetailHandler,
+  rootRedirectHandler,
+} from '../modules/exerciseDetail/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -28,58 +30,6 @@ function path(...args) {
 
 function defaultHandler() {
   store.dispatch('notLoading');
-}
-
-function activityExerciseDetailRootRedirectHandler(to, from, next) {
-  const { params } = to;
-  return rootRedirectHandler(params, pages.ReportsGroupReportLessonExerciseLearnerPage.name, next);
-}
-
-function activityExerciseDetailHandler(to, from) {
-  const { params } = to;
-  const fromParams = from.params;
-  let setLoading =
-    params.learnerId !== fromParams.learnerId || params.exerciseId !== fromParams.exerciseId;
-  if (setLoading) {
-    // Only set loading state if we are not switching between
-    // different views of the same learner's exercise report.
-    store.dispatch('loading');
-  }
-  showExerciseDetailView(params).then(() => {
-    // Set not loading regardless, as we are now
-    // ready to render.
-    store.dispatch('notLoading');
-  });
-}
-
-function lessonExerciseDetailRootRedirectHandler(to, from, next) {
-  const { params } = to;
-  return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
-}
-
-function lessonExerciseDetailHandler(to, from) {
-  const { params } = to;
-  const fromParams = from.params;
-  const loadLesson = store.state.lessonSummary.currentLesson.id !== params.lessonId;
-  let setLoading =
-    loadLesson ||
-    params.learnerId !== fromParams.learnerId ||
-    params.exerciseId !== fromParams.exerciseId;
-  if (setLoading) {
-    // Only set loading state if we are not switching between
-    // different views of the same learner's exercise report.
-    store.dispatch('loading');
-  }
-  const promises = [];
-  if (loadLesson) {
-    promises.push(setLessonSummaryState(store, params));
-  }
-  promises.push(showExerciseDetailView(params));
-  Promise.all(promises).then(() => {
-    // Set not loading regardless, as we are now
-    // ready to render.
-    store.dispatch('notLoading');
-  });
 }
 
 export default [
@@ -135,13 +85,16 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER),
-    component: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
-    handler: lessonExerciseDetailRootRedirectHandler,
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
+    handler: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+    },
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsGroupReportLessonExerciseLearnerPage,
-    handler: lessonExerciseDetailHandler,
+    handler: generateExerciseDetailHandler(['groupId', 'learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
@@ -190,13 +143,16 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY, EXERCISE),
-    component: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
-    handler: activityExerciseDetailRootRedirectHandler,
+    name: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
+    handler: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLearnerActivityExercisePage.name, next);
+    },
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLearnerActivityExercisePage,
-    handler: activityExerciseDetailHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'exerciseId']),
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY),
@@ -210,13 +166,16 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, LESSON, EXERCISE),
-    component: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
-    handler: lessonExerciseDetailRootRedirectHandler,
+    name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
+    handler: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLearnerReportLessonExercisePage.name, next);
+    },
   },
   {
     path: path(CLASS, LEARNER, LESSON, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLearnerReportLessonExercisePage,
-    handler: lessonExerciseDetailHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LEARNER, LESSON),
@@ -246,12 +205,15 @@ export default [
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
-    beforeEnter: lessonExerciseDetailRootRedirectHandler,
+    handler: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+    },
   },
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
-    handler: lessonExerciseDetailHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
@@ -265,13 +227,16 @@ export default [
   },
   {
     path: path(CLASS, LESSON, LEARNER, EXERCISE),
-    component: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
-    handler: lessonExerciseDetailRootRedirectHandler,
+    name: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
+    handler: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
+    },
   },
   {
     path: path(CLASS, LESSON, LEARNER, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonLearnerExercisePage,
-    handler: lessonExerciseDetailHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LESSON, LEARNERS),

@@ -14,13 +14,26 @@ export function rootRedirectHandler(params, name, next) {
   });
 }
 
+export function generateExerciseDetailHandler(paramsToCheck) {
+  return function exerciseDetailHandler(to, from) {
+    const { params } = to;
+    const fromParams = from.params;
+    const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
+    if (setLoading) {
+      // Only set loading state if we are not switching between
+      // different views of the same learner's exercise report.
+      store.dispatch('loading');
+    }
+    showExerciseDetailView(params).then(() => {
+      // Set not loading regardless, as we are now
+      // ready to render.
+      store.dispatch('notLoading');
+    });
+  };
+}
+
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-export function showExerciseDetailView({
-  learnerId,
-  exerciseId,
-  attemptId = null,
-  interactionIndex = 0,
-}) {
+function showExerciseDetailView({ learnerId, exerciseId, attemptId = null, interactionIndex = 0 }) {
   interactionIndex = Number(interactionIndex);
   return ContentNodeResource.fetchModel({ id: exerciseId }).then(
     exercise => {

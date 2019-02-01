@@ -56,7 +56,7 @@
           </div>
           <CoachContentLabel
             class="coach-content-label"
-            :value="attemptLog.num_coach_contents"
+            :value="attemptLog.num_coach_contents || 0"
             :isTopic="false"
           />
         </li>

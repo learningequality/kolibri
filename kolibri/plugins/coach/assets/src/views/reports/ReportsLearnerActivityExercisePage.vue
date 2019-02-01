@@ -4,6 +4,7 @@
     :immersivePage="true"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="exercise.title"
+    :pageTitle="exercise.title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -29,7 +30,6 @@
     mixins: [commonCoach],
     $trs: {},
     computed: {
-      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         return this.classRoute('ReportsLearnerActivityPage', {});
@@ -40,7 +40,7 @@
         this.$router.push({
           name: this.name,
           params: {
-            classId: this.classId,
+            classId: this.$route.params.classId,
             ...params,
           },
         });

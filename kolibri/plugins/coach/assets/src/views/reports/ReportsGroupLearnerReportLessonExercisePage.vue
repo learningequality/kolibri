@@ -3,11 +3,14 @@
   <CoreBase
     :immersivePage="true"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :appBarTitle="exercise.title"
+    :pageTitle="exercise.title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <LearnerExerciseReport />
+    <LearnerExerciseReport
+      @navigate="handleNavigation"
+    />
   </CoreBase>
 
 </template>
@@ -15,6 +18,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
   import LearnerExerciseReport from '../common/LearnerExerciseReport';
 
@@ -26,8 +30,21 @@
     mixins: [commonCoach],
     $trs: {},
     computed: {
+      ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         return this.classRoute('ReportsGroupLearnerReportLessonPage', {});
+      },
+    },
+    methods: {
+      handleNavigation(params) {
+        this.$router.push({
+          name: this.name,
+          params: {
+            classId: this.$route.params.classId,
+            groupId: this.$route.params.groupId,
+            ...params,
+          },
+        });
       },
     },
   };
