@@ -1,7 +1,118 @@
 <template>
 
-  <div>
-    {{ completed }} / {{ started }} / {{ total }}
+  <!--
+    This is the primary mechanism for displaying cumulative status information
+    for many learners on one or more pieces of content.
+
+    It's parameterized by a few key dimensions, and the behavior has been
+    tuned for readability over consistency. This means that it has a few intentional
+    and perhaps a few unintentional edge cases.
+
+    See locahost:8000/coach/#/about/learnerStatusTypes for a parametric overview
+    of the possible behaviors.
+   -->
+  <div :class="verbose ? 'multi-line' : 'single-line'">
+    <template v-if="total === completed && !showAll">
+      <!-- special cases when everyone has finished -->
+      <component
+        :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
+        class="item"
+        :verb="VERBS.completed"
+        :icon="ICONS.star"
+        :total="total"
+        :count="completed"
+        :verbosity="verbosity"
+      />
+    </template>
+    <template v-else-if="total === notStarted && !showAll">
+      <!-- special cases when no one has started -->
+      <LearnerProgressCount
+        class="item"
+        :style="{ color: $coreGrey300 }"
+        :verb="VERBS.notStarted"
+        :icon="ICONS.nothing"
+        :total="total"
+        :count="notStarted"
+        :verbosity="verbosity"
+      />
+    </template>
+    <template v-else-if="ratio">
+      <!-- for ratios we only want to display the ratio on the first displayed item -->
+      <component
+        :is="!verbose ? LearnerProgressCount : LearnerProgressRatio"
+        v-if="showItem(completed)"
+        class="item"
+        :verb="VERBS.completed"
+        :icon="ICONS.star"
+        :total="total"
+        :count="completed"
+        :verbosity="verbosity"
+        showRatioInTooltip
+      />
+      <component
+        :is="!verbose || completed ? LearnerProgressCount : LearnerProgressRatio"
+        v-if="showItem(started)"
+        class="item"
+        :verb="VERBS.started"
+        :icon="ICONS.clock"
+        :total="total"
+        :count="started"
+        :verbosity="verbosity"
+        showRatioInTooltip
+      />
+      <component
+        :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
+        v-if="showItem(helpNeeded) && showNeedsHelp"
+        class="item"
+        :verb="VERBS.needHelp"
+        :icon="ICONS.help"
+        :total="total"
+        :count="helpNeeded"
+        :verbosity="verbosity"
+        showRatioInTooltip
+      />
+      <LearnerProgressCount
+        v-if="showItem(!verbose)"
+        class="item"
+        :style="{ color: $coreGrey300 }"
+        :verb="VERBS.notStarted"
+        :icon="ICONS.nothing"
+        :total="total"
+        :count="notStarted"
+        :verbosity="verbosity"
+        showRatioInTooltip
+      />
+    </template>
+    <template v-else>
+      <!-- for counts -->
+      <LearnerProgressCount
+        v-if="showItem(completed)"
+        class="item"
+        :verb="VERBS.completed"
+        :icon="ICONS.star"
+        :total="total"
+        :count="completed"
+        :verbosity="verbosity"
+      />
+      <LearnerProgressCount
+        v-if="showItem(started)"
+        class="item"
+        :verb="VERBS.started"
+        :icon="ICONS.clock"
+        :total="total"
+        :count="started"
+        :verbosity="verbosity"
+      />
+      <LearnerProgressCount
+        v-if="showItem(helpNeeded) && showNeedsHelp"
+        class="item"
+        :verb="VERBS.needHelp"
+        :icon="ICONS.help"
+        :total="total"
+        :count="helpNeeded"
+        :verbosity="verbosity"
+      />
+    </template>
   </div>
 
 </template>
@@ -9,27 +120,88 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
+  import { VERBS, ICONS } from './constants';
+  import LearnerProgressCount from './LearnerProgressCount';
+  import LearnerProgressRatio from './LearnerProgressRatio';
+  import tallyMixin from './tallyMixin';
+
   export default {
     name: 'StatusSummary',
-    components: {},
+    components: {
+      LearnerProgressCount,
+      // eslint-disable-next-line vue/no-unused-components
+      LearnerProgressRatio, // it is used, it's just referenced dynamically
+    },
+    mixins: [tallyMixin],
     props: {
-      total: {
-        type: Number,
-        required: true,
+      verbose: {
+        type: Boolean,
+        default: true,
       },
-      completed: {
-        type: Number,
-        required: true,
+      ratio: {
+        type: Boolean,
+        default: true,
       },
-      started: {
-        type: Number,
-        required: true,
+      singleLineShowZeros: {
+        type: Boolean,
+        default: true,
+      },
+      showNeedsHelp: {
+        type: Boolean,
+        default: true,
       },
     },
-    computed: {},
+    computed: {
+      ...mapGetters(['$coreGrey300']),
+      verbosity() {
+        return this.verbose ? 1 : 0;
+      },
+      ICONS() {
+        return ICONS;
+      },
+      VERBS() {
+        return VERBS;
+      },
+      LearnerProgressCount() {
+        return LearnerProgressCount;
+      },
+      LearnerProgressRatio() {
+        return LearnerProgressRatio;
+      },
+      showAll() {
+        return this.singleLineShowZeros && !this.verbose;
+      },
+    },
+    methods: {
+      showItem(suggested) {
+        return suggested || this.showAll;
+      },
+    },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .multi-line .item {
+    display: block;
+  }
+
+  .single-line {
+    white-space: nowrap;
+  }
+
+  .single-line .item {
+    display: inline-block;
+    &:not(:last-child) {
+      margin-right: 16px;
+    }
+  }
+
+  .lighten {
+    color: #b3b3b3;
+  }
+
+</style>

@@ -57,4 +57,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .new-coach-block {
+    min-width: 0;
+  }
+
+</style>

@@ -13,10 +13,7 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :completed="tableRow.statusCounts.completed"
-        :started="tableRow.statusCounts.started"
-        :notStarted="tableRow.statusCounts.notStarted"
-        :needHelp="tableRow.statusCounts.helpNeeded"
+        :tally="tableRow.tally"
         :groups="tableRow.groups"
       />
     </div>
@@ -50,15 +47,20 @@
     },
     computed: {
       ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
-      ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusCounts']),
+      ...mapGetters('classSummary', [
+        'learners',
+        'exams',
+        'getExamStatusTally',
+        'getLearnersForGroups',
+      ]),
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
-          const assigned = this.assignedLearnerIds(exam);
+          const assigned = this.getLearnersForGroups(exam.groups);
           return {
             key: exam.id,
             name: exam.title,
-            statusCounts: this.getExamStatusCounts(exam.id, assigned),
+            tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
@@ -68,18 +70,6 @@
       },
     },
     methods: {
-      assignedLearnerIds(exam) {
-        // assigned to the whole class
-        if (!exam.groups.length) {
-          return this.learners.map(learner => learner.id);
-        }
-        // accumulate learner IDs of groups
-        const learnerIds = [];
-        exam.groups.forEach(groupId => {
-          learnerIds.push(...this.groupMap[groupId].member_ids);
-        });
-        return learnerIds;
-      },
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
         let last = null;

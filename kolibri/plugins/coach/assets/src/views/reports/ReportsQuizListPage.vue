@@ -40,12 +40,9 @@
               <Score :value="tableRow.avgScore" />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="tableRow.numStarted + tableRow.numCompleted"
-                :verbosity="1"
-                :icon="ICONS.clock"
-                :total="tableRow.totalLearners"
-                :verb="VERBS.started"
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
             <td><Recipients :groups="tableRow.groupNames" /></td>
@@ -84,7 +81,7 @@
         'examStatuses',
         'getGroupNames',
         'getLearnersForGroups',
-        'getExamStatusForLearner',
+        'getExamStatusTally',
       ]),
       filterOptions() {
         return [
@@ -114,13 +111,10 @@
         });
         const sorted = this._.sortBy(filtered, ['title', 'active']);
         const mapped = sorted.map(exam => {
-          const { started, notStarted, completed } = this.counts(exam);
           const learnersForQuiz = this.getLearnersForGroups(exam.groups);
           const tableRow = {
             totalLearners: learnersForQuiz.length,
-            numCompleted: completed,
-            numStarted: started,
-            numNotStarted: notStarted,
+            tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
             avgScore: this.avgScore(exam, learnersForQuiz),
           };
@@ -134,16 +128,6 @@
       this.filter = this.filterOptions[0];
     },
     methods: {
-      counts(exam) {
-        const learners = this.getLearnersForGroups(exam.groups);
-        const statuses = learners.map(learnerId =>
-          this.getExamStatusForLearner(exam.id, learnerId)
-        );
-        const completed = statuses.filter(status => status === this.STATUSES.completed).length;
-        const started = statuses.filter(status => status === this.STATUSES.started).length;
-        const notStarted = statuses.filter(status => status === this.STATUSES.notStarted).length;
-        return { completed, started, notStarted };
-      },
       avgScore(exam, learnerIds) {
         const relevantStatuses = this.examStatuses.filter(
           status =>

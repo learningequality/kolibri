@@ -43,19 +43,9 @@
               />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="tableRow.numCompleted"
-                :total="recipients.length"
-                verbosity="1"
-                verb="completed"
-                icon="learners"
-              />
-              <LearnerProgressCount
-                v-if="tableRow.numNeedingHelp"
-                verb="needHelp"
-                icon="help"
-                :count="tableRow.numNeedingHelp"
-                :verbosity="0"
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
             <td>
@@ -85,9 +75,10 @@
     computed: {
       ...mapState('classSummary', ['lessonMap', 'contentNodeMap', 'contentLearnerStatusMap']),
       ...mapGetters('classSummary', [
-        'getContentStatusForLearner',
         'getLearnersForGroups',
         'getContentAvgTimeSpent',
+        'getLessonStatusTally',
+        'getLearnersForGroups',
       ]),
       actionOptions() {
         return [
@@ -109,32 +100,16 @@
         const sorted = this._.sortBy(content, ['title']);
         const mapped = sorted.map(content => {
           const tableRow = {
-            numCompleted: this.numCompleted(content.content_id),
-            numNeedingHelp: this.numLearnersNeedingHelp(content),
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
+            tally: this.getLessonStatusTally(
+              this.lesson.id,
+              this.getLearnersForGroups(this.lesson.groups)
+            ),
           };
           Object.assign(tableRow, content);
           return tableRow;
         });
         return mapped;
-      },
-    },
-    methods: {
-      numCompleted(contentId) {
-        return this.recipients.reduce((acc, learnerId) => {
-          const status = this.getContentStatusForLearner(contentId, learnerId);
-          if (status === this.STATUSES.completed) {
-            return acc + 1;
-          }
-          return acc;
-        }, 0);
-      },
-      numLearnersNeedingHelp(content) {
-        // TODO COACH
-        if (content.kind === 'exercise') {
-          return 0;
-        }
-        return 0;
       },
     },
     $trs: {
