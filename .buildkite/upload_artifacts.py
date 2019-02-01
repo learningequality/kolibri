@@ -200,7 +200,7 @@ def upload_artifacts():
 
     html = create_status_report_html(artifacts)
 
-    # add count to report html name to avoid duplicate.
+    # add count to report html to avoid duplicate.
     report_count = BUILD_ID + "-first"
     if SIGN_WINDOWS_EXE:
         report_count = BUILD_ID + "-second"

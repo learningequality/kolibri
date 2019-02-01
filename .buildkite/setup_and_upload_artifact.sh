@@ -42,7 +42,7 @@ export SIGN_WINDOWS_EXE=true
 {
     buildkite-agent artifact download '*.exe' dist/ --step "Sign Windows installer"
 } || {
-    SIGN_WINDOWS_EXE=false
+    export SIGN_WINDOWS_EXE=false
     echo "No signed Windows installer found"
 }
 
