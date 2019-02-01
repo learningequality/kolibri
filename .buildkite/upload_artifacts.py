@@ -201,7 +201,7 @@ def upload_artifacts():
 
     # add count to report html to avoid duplicate.
     report_count = BUILD_ID + "-first"
-    if file_manifest.keys()[3] in artifacts:
+    if 'signed-exe' in artifacts:
         report_count = BUILD_ID + "-second"
 
     blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, report_count))
