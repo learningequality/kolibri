@@ -69,9 +69,9 @@ describe('coach summary data helpers', () => {
       expect(store.getters.getContentStatusForLearner('XXXX', 'XXXX')).toEqual('not_started');
     });
   });
-  describe('getContentStatusCounts', () => {
+  describe('getContentStatusTally', () => {
     it('returns total statuses given a content item and a list of learners', () => {
-      const output = store.getters.getContentStatusCounts('content_Q', [
+      const output = store.getters.getContentStatusTally('content_Q', [
         'learner_id_1',
         'learner_id_2',
         'learner_id_3',

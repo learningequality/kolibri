@@ -46,7 +46,7 @@ export default {
       );
     };
   },
-  getContentStatusCounts(state, getters) {
+  getContentStatusTally(state, getters) {
     return function(contentId, learnerIds) {
       const tallies = {
         started: 0,
@@ -66,7 +66,7 @@ export default {
       return get(state.examLearnerStatusMap, [examId, learnerId, 'status'], STATUSES.notStarted);
     };
   },
-  getExamStatusCounts(state, getters) {
+  getExamStatusTally(state, getters) {
     return function(examId, learnerIds) {
       const tallies = {
         started: 0,
@@ -86,7 +86,7 @@ export default {
       return get(getters.lessonLearnerStatusMap, [lessonId, learnerId], STATUSES.notStarted);
     };
   },
-  getLessonStatusCounts(state, getters) {
+  getLessonStatusTally(state, getters) {
     return function(lessonId, learnerIds) {
       const tallies = {
         started: 0,

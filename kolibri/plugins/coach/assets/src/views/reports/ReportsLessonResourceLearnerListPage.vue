@@ -33,19 +33,19 @@
       <p>
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts.completed"
+          :count="tally.completed"
           :verb="VERBS.completed"
           :icon="ICONS.star"
         />
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts.started"
+          :count="tally.started"
           :verb="VERBS.started"
           :icon="ICONS.clock"
         />
         <LearnerProgressCount
           :verbosity="0"
-          :count="statusCounts.notStarted"
+          :count="tally.notStarted"
           :verb="VERBS.notStarted"
           :icon="ICONS.nothing"
         />
@@ -108,7 +108,7 @@
         'getLearnersForGroups',
         'getContentAvgTimeSpent',
         'getGroupNames',
-        'getContentStatusCounts',
+        'getContentStatusTally',
         'getGroupNamesForLearner',
       ]),
       lesson() {
@@ -123,8 +123,8 @@
       avgTime() {
         return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
       },
-      statusCounts() {
-        return this.getContentStatusCounts(this.$route.params.resourceId, this.recipients);
+      tally() {
+        return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);

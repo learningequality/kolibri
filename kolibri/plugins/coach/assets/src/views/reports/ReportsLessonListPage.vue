@@ -36,7 +36,7 @@
             </td>
             <td>
               <StatusSummary
-                :tallyObject="tableRow.tallyObject"
+                :tally="tableRow.tally"
                 :verbose="true"
               />
             </td>
@@ -77,7 +77,7 @@
         'lessons',
         'getGroupNames',
         'getLearnersForGroups',
-        'getLessonStatusCounts',
+        'getLessonStatusTally',
       ]),
       filterOptions() {
         return [
@@ -110,7 +110,7 @@
           const learners = this.getLearnersForGroups(lesson.groups);
           const tableRow = {
             totalLearners: learners.length,
-            tallyObject: this.getLessonStatusCounts(lesson.id, learners),
+            tally: this.getLessonStatusTally(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
           };
           Object.assign(tableRow, lesson);

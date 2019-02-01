@@ -13,7 +13,7 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :tallyObject="tableRow.statusCounts"
+        :tally="tableRow.tally"
         :groups="tableRow.groups"
       />
     </div>
@@ -52,7 +52,7 @@
         'learners',
         'lessons',
         'lessonLearnerStatusMap',
-        'getLessonStatusCounts',
+        'getLessonStatusTally',
       ]),
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
@@ -61,7 +61,7 @@
           return {
             key: lesson.id,
             name: lesson.title,
-            statusCounts: this.getLessonStatusCounts(lesson.id, assigned),
+            tally: this.getLessonStatusTally(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
           };
         });

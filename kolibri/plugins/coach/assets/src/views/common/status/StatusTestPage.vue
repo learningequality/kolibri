@@ -5,10 +5,10 @@
     <div class="moving">
       <ProgressSummaryBar
         :showErrorBar="true"
-        :tallyObject="movingTally"
+        :tally="movingTally"
       />
       <StatusSummary
-        :tallyObject="movingTally"
+        :tally="movingTally"
         :verbose="false"
         :ratio="true"
         :showNeedsHelp="true"
@@ -40,24 +40,24 @@
           </td>
           <td rowspan="2" style="width: 200px; text-align: center; position: relative;">
             <div class="bar">
-              <ProgressSummaryBar :showErrorBar="true" :tallyObject="tally" />
+              <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
             </div>
           </td>
           <td style="text-align: center">long</td>
           <td>
-            <StatusSummary :tallyObject="tally" :verbose="true" :ratio="true" />
+            <StatusSummary :tally="tally" :verbose="true" :ratio="true" />
           </td>
           <td>
-            <StatusSummary :tallyObject="tally" :verbose="true" :ratio="false" />
+            <StatusSummary :tally="tally" :verbose="true" :ratio="false" />
           </td>
         </tr>
         <tr>
           <td style="text-align: center">short</td>
           <td>
-            <StatusSummary :tallyObject="tally" :verbose="false" :ratio="true" />
+            <StatusSummary :tally="tally" :verbose="false" :ratio="true" />
           </td>
           <td>
-            <StatusSummary :tallyObject="tally" :verbose="false" :ratio="false" />
+            <StatusSummary :tally="tally" :verbose="false" :ratio="false" />
           </td>
         </tr>
       </tbody>

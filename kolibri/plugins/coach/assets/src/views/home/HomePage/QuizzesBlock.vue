@@ -13,7 +13,7 @@
     >
       <ItemProgressDisplay
         :name="tableRow.name"
-        :tallyObject="tableRow.statusCounts"
+        :tally="tableRow.tally"
         :groups="tableRow.groups"
       />
     </div>
@@ -47,7 +47,7 @@
     },
     computed: {
       ...mapState('classSummary', ['groupMap', 'examLearnerStatusMap']),
-      ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusCounts']),
+      ...mapGetters('classSummary', ['learners', 'exams', 'getExamStatusTally']),
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
@@ -55,7 +55,7 @@
           return {
             key: exam.id,
             name: exam.title,
-            statusCounts: this.getExamStatusCounts(exam.id, assigned),
+            tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
           };
         });

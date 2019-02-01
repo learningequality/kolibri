@@ -41,7 +41,7 @@
             </td>
             <td>
               <StatusSummary
-                :tallyObject="tableRow.tallyObject"
+                :tally="tableRow.tally"
                 :verbose="true"
               />
             </td>
@@ -81,7 +81,7 @@
         'examStatuses',
         'getGroupNames',
         'getLearnersForGroups',
-        'getExamStatusCounts',
+        'getExamStatusTally',
       ]),
       filterOptions() {
         return [
@@ -114,7 +114,7 @@
           const learnersForQuiz = this.getLearnersForGroups(exam.groups);
           const tableRow = {
             totalLearners: learnersForQuiz.length,
-            tallyObject: this.getExamStatusCounts(exam.id, learnersForQuiz),
+            tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
             avgScore: this.avgScore(exam, learnersForQuiz),
           };

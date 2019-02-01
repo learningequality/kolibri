@@ -1,7 +1,7 @@
 export default {
   props: {
     // Every learner should be tallied into _one and only_ one status
-    tallyObject: {
+    tally: {
       type: Object,
       required: true,
       validator(value) {
@@ -17,19 +17,19 @@ export default {
   computed: {
     started() {
       // To the user, all these are considered having 'started'
-      return this.tallyObject.started + this.tallyObject.helpNeeded;
+      return this.tally.started + this.tally.helpNeeded;
     },
     completed() {
-      return this.tallyObject.completed;
+      return this.tally.completed;
     },
     helpNeeded() {
-      return this.tallyObject.helpNeeded;
+      return this.tally.helpNeeded;
     },
     notStarted() {
-      return this.tallyObject.notStarted;
+      return this.tally.notStarted;
     },
     total() {
-      return this.started + this.tallyObject.completed + this.notStarted;
+      return this.started + this.tally.completed + this.notStarted;
     },
   },
 };

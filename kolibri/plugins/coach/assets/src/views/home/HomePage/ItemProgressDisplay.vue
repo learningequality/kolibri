@@ -14,20 +14,20 @@
 
     <KGridItem size="100" percentage>
       <ProgressSummaryBar
-        :tallyObject="tallyObject"
+        :tally="tally"
         class="dashboard-bar"
       />
     </KGridItem>
 
     <KGridItem size="75" percentage>
       <StatusSummary
-        :tallyObject="tallyObject"
+        :tally="tally"
       />
     </KGridItem>
 
     <KGridItem size="25" percentage alignment="right">
       <HelpNeeded
-        :count="tallyObject.helpNeeded"
+        :count="tally.helpNeeded"
         :verbose="false"
         :ratio="false"
       />
@@ -58,7 +58,7 @@
         type: Array,
         required: true,
       },
-      tallyObject: {
+      tally: {
         type: Object,
         required: true,
       },
