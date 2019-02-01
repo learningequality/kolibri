@@ -15,7 +15,9 @@ RUN git lfs install
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
       ttf-mscorefonts-installer \
-      wine-stable
+      wine-stable \
+      make \
+      aria2
 
 VOLUME /kolibridist/
 
@@ -24,5 +26,6 @@ CMD git clone https://github.com/learningequality/kolibri-installer-windows.git 
     git checkout $KOLIBRI_WINDOWS_INSTALLER_VERSION && \
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
+    make -C ./Makefile/ && \
     wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss && \
     cp *.exe /kolibridist/
