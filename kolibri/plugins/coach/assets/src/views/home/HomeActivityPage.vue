@@ -10,7 +10,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
           :to="classRoute('HomePage', {})"
@@ -52,7 +52,7 @@
         </transition>
       </div>
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

@@ -10,7 +10,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <ReportsHeader />
       <!-- TODO COACH
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
@@ -43,7 +43,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

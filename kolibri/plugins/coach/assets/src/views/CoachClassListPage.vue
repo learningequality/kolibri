@@ -10,7 +10,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <h1>{{ coachStrings.$tr('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
@@ -39,7 +39,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 
