@@ -24,10 +24,12 @@
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
           <template slot="value"><LessonActive :active="true" /></template>
         </HeaderTableRow>
+        <!-- TODO COACH
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
           <template slot="value">Ipsum lorem</template>
         </HeaderTableRow>
+         -->
       </HeaderTable>
 
       <CoreTable>
@@ -39,41 +41,34 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
               <KRouterLink
-                text="Some exercise"
-                :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage', {})"
+                v-if="tableRow.kind === 'exercise'"
+                :text="tableRow.title"
+                :to="classRoute(
+                  'ReportsGroupReportLessonExerciseLearnerListPage',
+                  { exerciseId: tableRow.content_id }
+                )"
               />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="6"
-                verbosity="1"
-                verb="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TimeDuration :seconds="360" /></td>
-          </tr>
-          <tr>
-            <td>
               <KRouterLink
-                text="Some video"
-                :to="classRoute('ReportsGroupReportLessonResourceLearnerListPage', {})"
+                v-else
+                :text="tableRow.title"
+                :to="classRoute(
+                  'ReportsGroupReportLessonResourceLearnerListPage',
+                  { resourceId: tableRow.content_id }
+                )"
               />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="6"
-                verbosity="1"
-                verb="completed"
-                icon="clock"
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
-            <td><TimeDuration :seconds="120" /></td>
+            <td>
+              <TimeDuration :seconds="tableRow.avgTimeSpent" />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -101,10 +96,24 @@
           },
         ];
       },
-    },
-    methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      recipients() {
+        return this.getLearnersForGroups([this.$route.params.groupId]);
+      },
+      table() {
+        const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
+        const sorted = this._.sortBy(contentArray, ['title']);
+        const mapped = sorted.map(content => {
+          const tableRow = {
+            avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
+            tally: this.getContentStatusTally(content.content_id, this.recipients),
+          };
+          Object.assign(tableRow, content);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     $trs: {
