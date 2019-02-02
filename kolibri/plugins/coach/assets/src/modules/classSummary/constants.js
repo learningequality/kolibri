@@ -1,5 +1,5 @@
 export const STATUSES = {
-  notStarted: 'not_started',
+  notStarted: 'NotStarted',
   started: 'Started',
   helpNeeded: 'HelpNeeded',
   completed: 'Completed',
