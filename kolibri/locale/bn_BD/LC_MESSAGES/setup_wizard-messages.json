@@ -33,7 +33,7 @@
   "SetupWizardIndex.documentTitle": "সেটআপ উইজার্ড",
   "SetupWizardIndex.onboardingFinishButton": "শেষ করুন",
   "SetupWizardIndex.onboardingNextStepButton": "চালিয়ে যাও",
-  "SetupWizardIndex.personalFacilityName": "",
+  "SetupWizardIndex.personalFacilityName": "বাড়ির ফ্যাসিলিটি {name}",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "এই অ্যাকাউন্টের সাহায্যে আপনি এই ডিভাইসে থাকা ফ্যাসিলিটি, বিষয়বস্তু এবং ব্যবহারকারীদের অ্যাকাউন্টগুলি পরিচালনা করতে পারবেন।",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "সুপার অ্যাডমিন অ্যাকাউন্ট তৈরি করুন",
   "SuperuserCredentialsForm.adminNameFieldLabel": "পুরো নাম",

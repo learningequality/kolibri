@@ -7,7 +7,7 @@ from django.db import models
 
 import kolibri.core.content.models
 import kolibri.core.fields
-import kolibri.utils.time
+import kolibri.utils.time_utils
 
 
 class Migration(migrations.Migration):
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('lesson_id', kolibri.core.content.models.UUIDField(null=True)),
                 ('quiz_id', kolibri.core.content.models.UUIDField(null=True)),
                 ('reason', models.CharField(blank=True, choices=[('Multiple', 'MultipleUnsuccessfulAttempts')], max_length=200)),
-                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time.local_now)),
+                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now)),
             ],
         ),
     ]

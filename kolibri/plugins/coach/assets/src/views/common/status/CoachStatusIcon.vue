@@ -1,33 +1,33 @@
 <template>
 
   <mat-svg
-    v-if="icon === 'clock'"
+    v-if="icon === ICONS.clock"
     category="device"
     name="access_time"
     :style="{ fill: $coreStatusProgress }"
   />
   <mat-svg
-    v-else-if="icon === 'star'"
+    v-else-if="icon === ICONS.star"
     category="action"
     name="stars"
     :style="{ fill: $coreStatusMastered }"
   />
   <mat-svg
-    v-else-if="icon === 'help'"
+    v-else-if="icon === ICONS.help"
     category="alert"
     name="error"
     :style="{ fill: $coreStatusWrong }"
   />
   <mat-svg
-    v-else-if="icon === 'learners'"
+    v-else-if="icon === ICONS.learners"
     category="social"
     name="people"
   />
   <mat-svg
-    v-else-if="icon === 'nothing'"
-    category="content"
-    name="remove_circle"
-    :style="{ fill: $coreGrey200 }"
+    v-else-if="icon === ICONS.nothing"
+    category="image"
+    name="brightness_1"
+    :style="{ fill: $coreGrey300 }"
   />
 
 </template>
@@ -36,6 +36,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import { ICONS } from './constants';
 
   export default {
     name: 'CoachStatusIcon',
@@ -44,7 +45,7 @@
         type: String,
         required: true,
         validator(value) {
-          return ['clock', 'star', 'help', 'learners', 'nothing'].includes(value);
+          return Object.values(ICONS).includes(value);
         },
       },
     },
@@ -53,8 +54,11 @@
         '$coreStatusMastered',
         '$coreStatusProgress',
         '$coreStatusWrong',
-        '$coreGrey200',
+        '$coreGrey300',
       ]),
+      ICONS() {
+        return ICONS;
+      },
     },
   };
 

@@ -96,6 +96,13 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             return query.filter(user_id=learner_id)
         return query
 
+    def remove_default_page_size(self):
+        """
+        This is a hack because DRF sets pagination always if pagination_class.page_size is set
+        """
+        if self.request.query_params.get('page', None) is None:
+            self.paginator.page_size = None
+
     def get_queryset(self):
         """
         Returns the notifications in reverse-chronological order, filtered by the query parameters.
@@ -126,7 +133,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
         notifications_query = self.apply_learner_filter(notifications_query)
         after = self.check_after()
-
+        self.remove_default_page_size()
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         elif self.request.query_params.get('page', None) is None:
@@ -154,6 +161,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             notification_info.coach_id = request.user.id
             notification_info.save()
             NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
-
-        response.data['coaches_polling'] = logged_notifications
+        if 'results' not in response.data:
+            response.data = {'results': response.data, 'coaches_polling': logged_notifications}
+        else:
+            response.data['coaches_polling'] = logged_notifications
         return response

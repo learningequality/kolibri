@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <template v-if="value === undefined">-</template>
+    <template v-if="value === undefined || value === null">-</template>
     <template v-else>{{ coachStrings.$tr('percentage', {value}) }}</template>
   </span>
 

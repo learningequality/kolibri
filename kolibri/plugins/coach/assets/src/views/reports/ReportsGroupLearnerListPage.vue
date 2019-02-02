@@ -12,8 +12,8 @@
 
     <div class="new-coach-block">
       <ReportsGroupHeader />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('avgQuizScoreLabel') }}</td>
@@ -22,7 +22,7 @@
             <td>{{ coachStrings.$tr('resourcesViewedLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td><KRouterLink text="Alice" :to="link" /></td>
             <td><Score :value="0.8" /></td>
@@ -37,8 +37,8 @@
             <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
             <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

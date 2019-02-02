@@ -81,7 +81,7 @@ import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
 import KDraggable from '../views/kSortable/KDraggable';
 import KDragHandle from '../views/kSortable/KDragHandle';
 import KDragContainer from '../views/kSortable/KDragContainer';
-import KDragIcon from '../views/kSortable/KDragIcon';
+import KDragSortWidget from '../views/kSortable/KDragSortWidget';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -179,7 +179,7 @@ export default {
       KDraggable,
       KDragHandle,
       KDragContainer,
-      KDragIcon,
+      KDragSortWidget,
     },
     router,
     mixins: {

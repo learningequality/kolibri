@@ -21,7 +21,7 @@ class CoachToolsModule extends KolibriApp {
   ready() {
     router.beforeEach((to, from, next) => {
       this.store.commit('SET_PAGE_NAME', to.name);
-      if (to.name !== 'CoachClassListPage') {
+      if (!['CoachClassListPage', 'StatusTestPage'].includes(to.name)) {
         this.store
           .dispatch('initClassInfo', to.params.classId)
           .then(next, error => this.store.dispatch('handleApiError', error));

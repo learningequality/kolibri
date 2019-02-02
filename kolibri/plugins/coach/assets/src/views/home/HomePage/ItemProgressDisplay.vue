@@ -1,26 +1,40 @@
 <template>
 
-  <div>
-    <h3>{{ name }}</h3>
-    <p><Recipients :groups="groups" /></p>
+  <KGrid>
 
-    <LearnerProgressRatio
-      :count="completed"
-      :total="total"
-      :verbosity="2"
-      :icon="progressIcon"
-      verb="completed"
-    />
+    <KGridItem size="75" percentage>
+      <h3 class="title">{{ name }}</h3>
+    </KGridItem>
 
-    <LearnerProgressCount
-      v-if="needHelp"
-      :count="needHelp"
-      :verbosity="0"
-      icon="help"
-      verb="needHelp"
-    />
+    <KGridItem size="25" percentage alignment="right">
+      <div class="context">
+        <Recipients :groupNames="groupNames" />
+      </div>
+    </KGridItem>
 
-  </div>
+    <KGridItem size="100" percentage>
+      <ProgressSummaryBar
+        :tally="tally"
+        class="dashboard-bar"
+      />
+    </KGridItem>
+
+    <KGridItem size="75" percentage>
+      <StatusSummary
+        :tally="tally"
+      />
+    </KGridItem>
+
+    <KGridItem size="25" percentage alignment="right">
+      <HelpNeeded
+        v-if="tally.helpNeeded"
+        :count="tally.helpNeeded"
+        :verbose="false"
+        :ratio="false"
+      />
+    </KGridItem>
+
+  </KGrid>
 
 </template>
 
@@ -28,45 +42,30 @@
 <script>
 
   import commonCoach from '../../common';
+  import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
   export default {
     name: 'ItemProgressDisplay',
+    components: {
+      ProgressSummaryBar,
+    },
     mixins: [commonCoach],
     props: {
       name: {
         type: String,
         required: true,
       },
-      groups: {
+      groupNames: {
         type: Array,
         required: true,
       },
-      completed: {
-        type: Number,
+      tally: {
+        type: Object,
         required: true,
-      },
-      total: {
-        type: Number,
-        required: true,
-      },
-      needHelp: {
-        type: Number,
-        default: 0,
       },
       isLast: {
         type: Boolean,
         default: false,
-      },
-    },
-    computed: {
-      progressIcon() {
-        if (this.completed === 0) {
-          return 'nothing';
-        }
-        if (this.completed === this.total) {
-          return 'star';
-        }
-        return 'clock';
       },
     },
   };
@@ -74,4 +73,38 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .title {
+    margin-bottom: 0;
+  }
+
+  .context {
+    position: relative;
+    top: 16px;
+    margin-bottom: 16px;
+    font-size: small;
+  }
+
+  .dashboard-bar {
+    width: 100%;
+    height: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .progress {
+    position: absolute;
+    bottom: 0;
+    font-size: 14px;
+  }
+
+  .progress.completed {
+    left: 0;
+  }
+
+  .progress.help {
+    right: -12px;
+  }
+
+</style>

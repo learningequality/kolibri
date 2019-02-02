@@ -69,7 +69,7 @@ from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 

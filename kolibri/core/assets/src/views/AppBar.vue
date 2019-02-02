@@ -35,7 +35,6 @@
           color="clear"
           class="user-menu-button"
           :ariaLabel="$tr('userMenu')"
-          :style="{ backgroundColor: $coreActionNormal }"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
           <mat-svg
@@ -195,7 +194,6 @@
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
-    background-color: white;
     svg {
       fill: white;
     }

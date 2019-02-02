@@ -15,55 +15,59 @@
     </div>
 
     <HeaderTable>
-      <dt class="term" :style="{ color: $coreTextAnnotation }">
-        {{ $tr('status') }}
-        <CoreInfoIcon
-          :iconAriaLabel="$tr('statusDescription')"
-          :tooltipText="tooltipText"
-        />
-      </dt>
-      <dd class="description">
-        <StatusIcon :active="active" :type="kind" />
-        <KButton
-          appearance="basic-link"
-          class="change-status-button"
-          :text="$tr('changeStatus')"
-          @click="$emit('changeStatus')"
-        />
-      </dd>
+      <HeaderTableRow>
+        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
+          {{ $tr('status') }}
+          <CoreInfoIcon
+            :iconAriaLabel="$tr('statusDescription')"
+            :tooltipText="tooltipText"
+          />
+        </template>
+        <template slot="value" class="description">
+          <StatusIcon :active="active" :type="kind" />
+          <KButton
+            appearance="basic-link"
+            class="change-status-button"
+            :text="$tr('changeStatus')"
+            @click="$emit('changeStatus')"
+          />
+        </template>
+      </HeaderTableRow>
 
-      <template v-if="showDescription">
-        <dt class="term" :style="{ color: $coreTextAnnotation }">
+      <HeaderTableRow v-if="showDescription">
+        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
           {{ $tr('description') }}
-        </dt>
-        <dd dir="auto">
+        </template>
+        <template slot="value" dir="auto">
           {{ description || $tr('noDescription') }}
-        </dd>
-      </template>
+        </template>
+      </HeaderTableRow>
 
-      <dt class="term" :style="{ color: $coreTextAnnotation }">
-        {{ $tr('assignedGroupsListLabel') }}
-      </dt>
-      <dd class="description">
-        <template v-if="!recipients.length">
-          {{ this.$tr('noOne') }}
+      <HeaderTableRow>
+        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
+          {{ $tr('assignedGroupsListLabel') }}
         </template>
-        <template v-else-if="classIsTheRecipient">
-          {{ this.$tr('entireClass') }}
-        </template>
-        <ul
-          v-else
-          class="group-list"
-        >
-          <li
-            v-for="recipientGroup in recipientGroups"
-            :key="recipientGroup.id"
-            class="group-list-item"
+        <template slot="value" class="description">
+          <template v-if="!recipients.length">
+            {{ this.$tr('noOne') }}
+          </template>
+          <template v-else-if="classIsTheRecipient">
+            {{ this.$tr('entireClass') }}
+          </template>
+          <ul
+            v-else
+            class="group-list"
           >
-            <span dir="auto">{{ recipientGroup.name }}</span>
-          </li>
-        </ul>
-      </dd>
+            <li
+              v-for="recipientGroup in recipientGroups"
+              :key="recipientGroup.id"
+              class="group-list-item"
+            >
+              <span dir="auto">{{ recipientGroup.name }}</span>
+            </li>
+          </ul>
+        </template>
+      </HeaderTableRow>
     </HeaderTable>
 
   </div>
@@ -78,6 +82,8 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import HeaderTable from '../../common/HeaderTable';
+  import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import StatusIcon from './StatusIcon';
 
   export default {
@@ -87,6 +93,8 @@
       ContentIcon,
       StatusIcon,
       KButton,
+      HeaderTable,
+      HeaderTableRow,
     },
     props: {
       kind: {

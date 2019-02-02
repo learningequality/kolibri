@@ -15,7 +15,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from kolibri.core.content.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 # Remove NotificationsRouter if sqlite is not being used:
 if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':

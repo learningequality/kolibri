@@ -263,7 +263,7 @@ def parse_attemptslog(attemptlog):
     lessons = get_assignments(attemptlog, attemptlog.masterylog.summarylog, attempt=True)
     if not lessons:
         return
-    # get all the atempts log on this exercise:
+    # get all the attempt logs on this exercise:
     failed_interactions = []
     attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
     failed_interactions = [failed for attempt in attempts for failed in attempt.interaction_history if failed['correct'] == 0]

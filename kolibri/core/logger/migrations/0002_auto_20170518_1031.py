@@ -7,7 +7,7 @@ from functools import partial
 from django.db import migrations
 
 import kolibri.core.fields
-import kolibri.utils.time
+import kolibri.utils.time_utils
 
 
 def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='usersessionlog',
             name='start_timestamp',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time.local_now),
+            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now),
         ),
         migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="UserSessionLog")),
     ]

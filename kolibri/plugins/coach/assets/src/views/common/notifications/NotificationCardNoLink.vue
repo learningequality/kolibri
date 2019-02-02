@@ -5,7 +5,7 @@
     <KGrid>
       <KGridItem :size="50" percentage>
         <CoachStatusIcon
-          :icon="icon"
+          :icon="statusIcon"
           class="icon"
         />
         <div class="icon-spacer">
@@ -34,6 +34,16 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../../common';
   import CoachStatusIcon from '../status/CoachStatusIcon';
+  import {
+    NotificationEvents,
+    NotificationObjects,
+  } from '../../../constants/notificationsConstants';
+
+  const EventToIconMap = {
+    [NotificationEvents.COMPLETED]: 'star',
+    [NotificationEvents.STARTED]: 'clock',
+    [NotificationEvents.HELP_NEEDED]: 'help',
+  };
 
   export default {
     name: 'NotificationCardNoLink',
@@ -44,15 +54,20 @@
     },
     mixins: [commonCoach],
     props: {
-      // Primary icon ('star', 'help', or 'clock')
-      icon: {
+      // Notification event: 'Started', 'Completed', 'HelpNeeded'
+      eventType: {
         type: String,
         required: true,
       },
-      // Content icon (see validateContentNodeKind utility for valid values)
-      contentIcon: {
+      // Notification object: 'Lesson', 'Quiz', 'Resource',
+      objectType: {
         type: String,
         required: true,
+      },
+      // A ContentNodeKind
+      resourceType: {
+        type: String,
+        required: false,
       },
       // group name
       learnerContext: {
@@ -64,13 +79,25 @@
         type: String,
         required: false,
       },
-      // timestamp string (will be converted inside the component)
+      // timestamp string
       time: {
         type: String,
         required: false,
       },
     },
     computed: {
+      statusIcon() {
+        return EventToIconMap[this.eventType];
+      },
+      contentIcon() {
+        if (this.objectType === NotificationObjects.QUIZ) {
+          return 'exam';
+        } else if (this.objectType === NotificationObjects.LESSON) {
+          return 'lesson';
+        } else {
+          return this.resourceType;
+        }
+      },
       context() {
         if (this.learnerContext && this.contentContext) {
           return `${this.learnerContext} • ${this.contentContext}`;

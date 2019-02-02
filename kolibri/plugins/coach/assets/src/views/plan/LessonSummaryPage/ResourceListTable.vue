@@ -4,9 +4,9 @@
     :items="workingResources"
     @sort="handleDrag"
   >
-    <div class="wrapper">
+    <transition-group tag="div" name="list" class="wrapper">
       <KDraggable
-        v-for="(resourceId) in workingResources"
+        v-for="(resourceId, index) in workingResources"
         :key="resourceId"
       >
         <KDragHandle>
@@ -16,31 +16,16 @@
             cols="8"
           >
             <KGridItem size="1" class="relative">
-              <!--
-               <UiIconButton
-                v-if="index !== 0"
-                type="flat"
-                :ariaLabel="$tr('moveResourceUpButtonDescription')"
-                class="move-button up"
-                @click="moveUpOne(index)"
-              >
-                <mat-svg name="keyboard_arrow_up" category="hardware" />
-              </UiIconButton>
-               -->
               <div class="move-handle">
-                <KDragIcon />
+                <KDragSortWidget
+                  :moveUpText="$tr('moveResourceUpButtonDescription')"
+                  :moveDownText="$tr('moveResourceDownButtonDescription')"
+                  :isFirst="index === 0"
+                  :isLast="index === workingResources.length - 1"
+                  @moveUp="moveUpOne(index)"
+                  @moveDown="moveDownOne(index)"
+                />
               </div>
-              <!--
-              <UiIconButton
-                v-if="index !== (workingResources.length - 1)"
-                type="flat"
-                :ariaLabel="$tr('moveResourceDownButtonDescription')"
-                class="move-button down"
-                @click="moveDownOne(index)"
-              >
-                <mat-svg name="keyboard_arrow_down" category="hardware" />
-              </UiIconButton>
-               -->
             </KGridItem>
             <KGridItem size="4">
               <div class="resource-title">
@@ -67,7 +52,7 @@
           </KGrid>
         </KDragHandle>
       </KDraggable>
-    </div>
+    </transition-group>
   </KDragContainer>
 
 </template>
@@ -76,7 +61,7 @@
 <script>
 
   import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
-  import KDragIcon from 'kolibri.coreVue.components.KDragIcon';
+  import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
@@ -94,7 +79,7 @@
       KDraggable,
       KDragContainer,
       KDragHandle,
-      KDragIcon,
+      KDragSortWidget,
       CoachContentLabel,
       KButton,
       KGrid,
@@ -105,7 +90,6 @@
       return {
         workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
         firstRemovalTitle: '',
-        enableTransitions: false,
       };
     },
     computed: {
@@ -135,15 +119,6 @@
         return this.$tr('multipleResourceRemovalsConfirmationMessage', {
           numberOfRemovals,
         });
-      },
-      resourceReorderMoveStyle() {
-        if (this.enableTransitions) {
-          return {
-            backgroundColor: this.$coreBgCanvas, // duping color set in core-table for selected
-            transition: 'transform 0.5s',
-          };
-        }
-        return {};
       },
     },
     methods: {
@@ -187,14 +162,10 @@
         });
       },
       moveUpOne(oldIndex) {
-        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex - 1);
-        setTimeout(() => (this.enableTransitions = false), 500);
       },
       moveDownOne(oldIndex) {
-        this.enableTransitions = true;
         this.shiftOne(oldIndex, oldIndex + 1);
-        setTimeout(() => (this.enableTransitions = false), 500);
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.workingResources];
@@ -320,6 +291,10 @@
 
   .sortable-ghost {
     visibility: hidden;
+  }
+
+  .list-move {
+    transition: transform $core-time ease;
   }
 
 </style>

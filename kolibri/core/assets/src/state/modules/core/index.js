@@ -16,6 +16,7 @@ export default {
     loginError: null,
     signInBusy: false,
     totalProgress: null,
+    notifications: [],
     channels: {
       list: [],
       currentId: null,

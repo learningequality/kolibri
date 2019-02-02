@@ -43,11 +43,7 @@
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['preview', 'selectedExercises', 'currentContentNode']),
       isSelected() {
-        return (
-          this.selectedExercises.findIndex(
-            exercise => exercise.id === this.currentContentNode.id
-          ) !== -1
-        );
+        return Boolean(this.selectedExercises[this.currentContentNode.id]);
       },
     },
     methods: {

@@ -61,7 +61,9 @@
             fullScreenPromise = Promise.resolve();
           }
           fullScreenPromise.then(() => {
-            this.isInFullscreen = ScreenFull.isFullscreen;
+            this.isInFullscreen = fullscreenApiIsSupported
+              ? ScreenFull.isFullscreen
+              : !this.isInFullscreen;
             this.toggling = false;
           });
         }

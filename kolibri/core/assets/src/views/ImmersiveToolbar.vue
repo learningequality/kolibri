@@ -119,7 +119,6 @@
       ...mapGetters([
         '$coreGrey200',
         '$coreGrey300',
-        '$coreOutline',
         '$coreActionDark',
         '$coreActionNormal',
         '$coreTextDefault',

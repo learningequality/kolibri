@@ -28,3 +28,5 @@ export { default as DevicePermissionsResource } from './devicePermissions';
 export { default as RemoteChannelResource } from './remoteChannel';
 export { default as LessonResource } from './lesson';
 export { default as AttemptLogResource } from './attemptLog';
+export { default as PingbackNotificationResource } from './pingbackNotification';
+export { default as PingbackNotificationDismissedResource } from './pingbackNotificationDismissed';

@@ -27,7 +27,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonCoach from '../../common';
 
   export default {
@@ -41,7 +40,6 @@
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
     computed: {
-      ...mapGetters('classSummary', ['coaches', 'learners']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },

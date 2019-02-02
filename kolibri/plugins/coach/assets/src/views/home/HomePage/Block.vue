@@ -65,6 +65,7 @@
   .btn {
     position: relative;
     top: 4px;
+    right: -24px;
   }
 
   /deep/ .block-item:not(:last-child) {

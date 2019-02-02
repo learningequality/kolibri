@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import threading
+import time
 from subprocess import CalledProcessError
 from subprocess import check_output
 
@@ -64,7 +65,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def start(port=8080):
+def start(port=8080, run_cherrypy=True):
     """
     Starts the server.
 
@@ -97,7 +98,41 @@ def start(port=8080):
 
     atexit.register(rm_pid_file)
 
-    run_server(port=port)
+    if run_cherrypy:
+        run_server(port=port)
+    else:
+        block()
+
+
+def block():
+    # Modified from:
+    # https://github.com/cherrypy/cherrypy/blob/e5de08887ddb960b337e1f335c819c0b2873d850/cherrypy/process/wspbus.py#L326
+    try:
+        while True:
+            time.sleep(100000)
+    except Exception as e:
+        logger.error('Block interrupted!', e)
+        pass
+    # Waiting for ALL child threads to finish is necessary on OS X.
+    # See https://github.com/cherrypy/cherrypy/issues/581.
+    # It's also good to let them all shut down before allowing
+    # the main thread to call atexit handlers.
+    # See https://github.com/cherrypy/cherrypy/issues/751.
+    logger.debug('Waiting for child threads to terminate...')
+    for t in threading.enumerate():
+        # Validate the we're not trying to join the MainThread
+        # that will cause a deadlock and the case exist when
+        # implemented as a windows service and in any other case
+        # that another thread executes cherrypy.engine.exit()
+        if (
+                t != threading.currentThread()
+                and not isinstance(t, threading._MainThread)
+                # Note that any dummy (external) threads are
+                # always daemonic.
+                and not t.daemon
+        ):
+            logger.debug('Waiting for thread %s.' % t.getName())
+            t.join()
 
 
 class PingbackThread(threading.Thread):
@@ -281,29 +316,38 @@ def get_status():  # noqa: max-complexity=16
 
     listen_port = port
 
-    try:
-        # Timeout is 3 seconds, we don't want the status command to be slow
-        # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
-        # be configurable
-        # TODO: HTTP might not be the protocol if server has SSL
-        response = requests.get(
-            "http://{}:{}".format("127.0.0.1", listen_port), timeout=3)
-    except (requests.exceptions.ReadTimeout,
-            requests.exceptions.ConnectionError):
-        raise NotRunning(STATUS_NOT_RESPONDING)
-    except (requests.exceptions.RequestException):
-        if os.path.isfile(STARTUP_LOCK):
-            raise NotRunning(STATUS_STARTING_UP)  # Starting up
-        raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+    check_url = "http://{}:{}".format("127.0.0.1", listen_port)
 
-    if response.status_code == 404:
-        raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
+    if conf.OPTIONS["Server"]["CHERRYPY_START"]:
 
-    if response.status_code != 200:
-        # Probably a mis-configured kolibri
-        raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
+        try:
+            # Timeout is 3 seconds, we don't want the status command to be slow
+            # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
+            # be configurable
+            # TODO: HTTP might not be the protocol if server has SSL
+            response = requests.get(check_url, timeout=3)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            raise NotRunning(STATUS_NOT_RESPONDING)
+        except (requests.exceptions.RequestException):
+            if os.path.isfile(STARTUP_LOCK):
+                raise NotRunning(STATUS_STARTING_UP)  # Starting up
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
 
-    return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
+        if response.status_code == 404:
+            raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
+
+        if response.status_code != 200:
+            # Probably a mis-configured kolibri
+            raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
+
+        return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
+
+    else:
+        try:
+            response = requests.get(check_url, timeout=3)
+        except (requests.exceptions.RequestException):
+            return pid, '', ''
 
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
@@ -326,9 +370,10 @@ def get_urls(listen_port=None):
         else:
             __, __, port = get_status()
         urls = []
-        interfaces = ifcfg.interfaces()
-        for interface in filter(lambda i: i['inet'], interfaces.values()):
-            urls.append("http://{}:{}/".format(interface['inet'], port))
+        if port:
+            interfaces = ifcfg.interfaces()
+            for interface in filter(lambda i: i['inet'], interfaces.values()):
+                urls.append("http://{}:{}/".format(interface['inet'], port))
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

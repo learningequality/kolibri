@@ -18,8 +18,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('avgScoreLabel') }}</td>
@@ -28,75 +28,30 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="Another quiz"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
+                :text="tableRow.title"
+                :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
               />
             </td>
-            <td><Score /></td>
             <td>
-              <LearnerProgressRatio
-                :count="0"
-                :verbosity="1"
-                icon="nothing"
-                :total="10"
-                verb="started"
+              <Score :value="tableRow.avgScore" />
+            </td>
+            <td>
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
+            <td><Recipients :groupNames="tableRow.groupNames" /></td>
             <td>
-              <QuizActive :active="false" />
+              <QuizActive :active="tableRow.active" />
             </td>
           </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz A"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="started"
-                :count="8"
-                :verbosity="1"
-                icon="clock"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="['a', 'b']" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Quiz B"
-                :to="classRoute('ReportsQuizLearnerListPage', {})"
-              />
-            </td>
-            <td><Score :value="0.9" /></td>
-            <td>
-              <LearnerProgressRatio
-                verb="completed"
-                :count="10"
-                :verbosity="1"
-                icon="star"
-                :total="10"
-              />
-            </td>
-            <td><Recipients :groups="[]" /></td>
-            <td>
-              <QuizActive :active="true" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -135,6 +90,30 @@
             value: 'inactiveQuizzes',
           },
         ];
+      },
+      table() {
+        const filtered = this.exams.filter(exam => {
+          if (this.filter.value === 'allQuizzes') {
+            return true;
+          } else if (this.filter.value === 'activeQuizzes') {
+            return exam.active;
+          } else if (this.filter.value === 'inactiveQuizzes') {
+            return !exam.active;
+          }
+        });
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(exam => {
+          const learnersForQuiz = this.getLearnersForGroups(exam.groups);
+          const tableRow = {
+            totalLearners: learnersForQuiz.length,
+            tally: this.getExamStatusTally(exam.id, learnersForQuiz),
+            groupNames: this.getGroupNames(exam.groups),
+            avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
+          };
+          Object.assign(tableRow, exam);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     beforeMount() {

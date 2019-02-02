@@ -2,19 +2,21 @@
 
   <Block
     :title="coachStrings.$tr('quizzesLabel')"
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
-    <ItemProgressDisplay
-      v-for="quiz in recentQuizzes"
-      :key="quiz.key"
-      :name="quiz.name"
-      :completed="quiz.completed"
-      :total="quiz.total"
-      :groups="quiz.groups"
+    <div
+      v-for="tableRow in table"
+      :key="tableRow.key"
       class="block-item"
-    />
+    >
+      <ItemProgressDisplay
+        :name="tableRow.name"
+        :tally="tableRow.tally"
+        :groupNames="tableRow.groups"
+      />
+    </div>
   </Block>
 
 </template>
@@ -22,12 +24,14 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
-  import sortBy from 'lodash/sortBy';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import Block from './Block';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import ActivityBlock from './ActivityBlock';
 
+  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
   const MAX_QUIZZES = 3;
 
   export default {
@@ -41,48 +45,30 @@
       viewAll: 'All quizzes',
     },
     computed: {
-      ...mapState('classSummary', ['groupMap', 'examStatusMap']),
-      ...mapGetters('classSummary', ['learners', 'exams']),
-      recentQuizzes() {
-        const recent = sortBy(this.exams, this.lastActivity).slice(0, MAX_QUIZZES);
+      table() {
+        const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
-          const assigned = this.assignedLearnerIds(exam);
+          const assigned = this.getLearnersForGroups(exam.groups);
           return {
             key: exam.id,
             name: exam.title,
-            completed: this.numCompleted(exam.id, assigned),
-            total: assigned.length,
+            tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
           };
         });
       },
+      viewAllString() {
+        return viewAllString;
+      },
     },
     methods: {
-      assignedLearnerIds(exam) {
-        // assigned to the whole class
-        if (!exam.groups.length) {
-          return this.learners.map(learner => learner.id);
-        }
-        // accumulate learner IDs of groups
-        const learnerIds = [];
-        exam.groups.forEach(groupId => {
-          learnerIds.push(...this.groupMap[groupId].member_ids);
-        });
-        return learnerIds;
-      },
-      // return the number of learners who have completed the exam
-      numCompleted(examId, assignedLearnerIds) {
-        return assignedLearnerIds.reduce((total, learnerId) => {
-          if (!this.examStatusMap[examId][learnerId]) {
-            return total;
-          }
-          return this.examStatusMap[examId][learnerId].status === 'completed' ? total + 1 : total;
-        }, 0);
-      },
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
         let last = null;
-        Object.values(this.examStatusMap[exam.id]).forEach(status => {
+        if (!this.examLearnerStatusMap[exam.id]) {
+          return undefined;
+        }
+        Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
           if (status.last_activity > last) {
             last = status.last_activity;
           }

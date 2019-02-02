@@ -9,7 +9,7 @@
     <transition-group name="list">
       <NotificationCard
         v-for="notification in notifications"
-        :key="notification.groupCode + String(notification.lastTimestamp)"
+        :key="notification.groupCode + '_' + notification.lastId"
         v-bind="cardPropsForNotification(notification)"
         class="block-item"
       >
@@ -31,16 +31,9 @@
   import commonCoach from '../../common';
   import NotificationCard from '../../common/notifications/NotificationCard';
   import { nStringsMixin } from '../../common/notifications/notificationStrings';
-  import {
-    NotificationObjects,
-    NotificationEvents,
-  } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import Block from './Block';
-
-  const { LESSON, QUIZ } = NotificationObjects;
-  const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
 
   export default {
     name: 'ActivityBlock',
@@ -52,40 +45,21 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, 'lastTimestamp', ['desc']);
+        return orderBy(this.summarizedNotifications, 'lastId', ['desc']);
       },
     },
     methods: {
-      moveNots() {
-        this.$store.commit('coachNotifications/TEST_MOVE_LAST');
-      },
       cardPropsForNotification(notification) {
-        let icon = '';
-        let contentIcon = '';
-        const { event, collection, assignment, object, resource } = notification;
-        // Notification needs to have the object type to determine targetPage
-        icon = {
-          [COMPLETED]: 'star',
-          [STARTED]: 'clock',
-          [HELP_NEEDED]: 'help',
-        }[event];
-
+        const { collection } = notification;
         const learnerContext =
           collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
-
-        if (object === LESSON || object === QUIZ) {
-          contentIcon = assignment.type;
-        } else {
-          contentIcon = resource.type;
-        }
-
         return {
-          icon,
-          contentIcon,
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
           targetPage: notificationLink(notification),
-          learnerContext,
           contentContext: notification.assignment.name,
-          lastTimestamp: String(notification.lastTimestamp),
+          learnerContext,
         };
       },
     },
