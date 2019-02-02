@@ -64,12 +64,13 @@
     methods: {
       // return the last activity among all users for a particular exam
       lastActivity(exam) {
-        let last = null;
+        // Default to UNIX 0 so activity-less exams go to the end of the list
+        let last = new Date(0);
         if (!this.examLearnerStatusMap[exam.id]) {
-          return undefined;
+          return last;
         }
         Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
-          if (status.last_activity > last) {
+          if (status.last_activity >= last) {
             last = status.last_activity;
           }
         });
@@ -82,4 +83,3 @@
 
 
 <style lang="scss" scoped></style>
-

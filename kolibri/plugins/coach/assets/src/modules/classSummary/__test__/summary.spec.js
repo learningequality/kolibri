@@ -31,19 +31,19 @@ describe('coach summary module', () => {
       {
         learner_id: 'learner_1',
         content_id: 'content_1',
-        status: 'completed',
+        status: 'Completed',
         last_activity: '2019-01-24 22:41:29.288000+00:00',
       },
       {
         learner_id: 'learner_1',
         content_id: 'content_2',
-        status: 'completed',
+        status: 'Completed',
         last_activity: '2019-01-24 22:43:15.790000+00:00',
       },
       {
         learner_id: 'learner_2',
         content_id: 'content_1',
-        status: 'not_started',
+        status: 'NotStarted',
         last_activity: '2019-01-24 22:43:37.786000+00:00',
       },
     ];
@@ -53,13 +53,13 @@ describe('coach summary module', () => {
           content_id: 'content_1',
           last_activity: '2019-01-24 22:41:29.288000+00:00',
           learner_id: 'learner_1',
-          status: 'completed',
+          status: 'Completed',
         },
         learner_2: {
           content_id: 'content_1',
           last_activity: '2019-01-24 22:43:37.786000+00:00',
           learner_id: 'learner_2',
-          status: 'not_started',
+          status: 'NotStarted',
         },
       },
       content_2: {
@@ -67,7 +67,7 @@ describe('coach summary module', () => {
           content_id: 'content_2',
           last_activity: '2019-01-24 22:43:15.790000+00:00',
           learner_id: 'learner_1',
-          status: 'completed',
+          status: 'Completed',
         },
       },
     };
