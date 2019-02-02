@@ -24,34 +24,7 @@
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
           <template slot="value">
-            <LearnerProgressLabel
-              v-if="!status || status === STATUSES.notStarted"
-              :count="1"
-              :verbosity="1"
-              :verb="VERBS.notStarted"
-              :icon="ICONS.nothing"
-            />
-            <LearnerProgressLabel
-              v-else-if="status === STATUSES.started"
-              :count="1"
-              :verbosity="1"
-              :verb="VERBS.started"
-              :icon="ICONS.clock"
-            />
-            <LearnerProgressLabel
-              v-else-if="status === STATUSES.completed"
-              :count="1"
-              :verbosity="1"
-              :verb="VERBS.completed"
-              :icon="ICONS.star"
-            />
-            <LearnerProgressLabel
-              v-else-if="status === STATUSES.helpNeeded"
-              :count="1"
-              :verbosity="1"
-              :verb="VERBS.needHelp"
-              :icon="ICONS.star"
-            />
+            <StatusSimple :status="status" />
           </template>
         </HeaderTableRow>
       </HeaderTable>
@@ -170,7 +143,7 @@
       navigateToNewAttempt(attemptLogIndex) {
         this.showCorrectAnswer = false;
         this.$emit('navigate', {
-          exerciseId: this.exercise.id,
+          exerciseId: this.exercise.content_id,
           learnerId: this.learnerId,
           interactionIndex: 0,
           attemptId: this.attemptLogs[attemptLogIndex].id,
@@ -179,7 +152,7 @@
       },
       navigateToNewInteraction(interactionIndex) {
         this.$emit('navigate', {
-          exerciseId: this.exercise.id,
+          exerciseId: this.exercise.content_id,
           learnerId: this.learnerId,
           interactionIndex,
           attemptId: this.attemptId,

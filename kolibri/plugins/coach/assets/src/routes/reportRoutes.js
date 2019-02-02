@@ -102,7 +102,7 @@ export default [
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER),
     name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
-    handler: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       const { params } = to;
       return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
     },
@@ -175,7 +175,7 @@ export default [
   {
     path: path(CLASS, LEARNER, ACTIVITY, EXERCISE),
     name: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
-    handler: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       const { params } = to;
       return rootRedirectHandler(params, pages.ReportsLearnerActivityExercisePage.name, next);
     },
@@ -198,7 +198,7 @@ export default [
   {
     path: path(CLASS, LEARNER, LESSON, EXERCISE),
     name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
-    handler: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       const { params } = to;
       return rootRedirectHandler(params, pages.ReportsLearnerReportLessonExercisePage.name, next);
     },
@@ -251,7 +251,7 @@ export default [
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
-    handler: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       const { params } = to;
       return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
     },
@@ -274,7 +274,7 @@ export default [
   {
     path: path(CLASS, LESSON, LEARNER, EXERCISE),
     name: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
-    handler: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       const { params } = to;
       return rootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
     },

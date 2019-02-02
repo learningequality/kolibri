@@ -30,7 +30,7 @@
                 :text="tableRow.title"
                 :to="classRoute(
                   'ReportsLessonExerciseLearnerListPage',
-                  { exerciseId: tableRow.node_id }
+                  { exerciseId: tableRow.content_id }
                 )"
               />
               <KRouterLink
@@ -38,7 +38,7 @@
                 :text="tableRow.title"
                 :to="classRoute(
                   'ReportsLessonResourceLearnerListPage',
-                  { resourceId: tableRow.node_id }
+                  { resourceId: tableRow.content_id }
                 )"
               />
             </td>
