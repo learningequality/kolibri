@@ -8,7 +8,7 @@
 
     <KGridItem size="25" percentage alignment="right">
       <div class="context">
-        <Recipients :groupNames="groups" />
+        <Recipients :groupNames="groupNames" />
       </div>
     </KGridItem>
 

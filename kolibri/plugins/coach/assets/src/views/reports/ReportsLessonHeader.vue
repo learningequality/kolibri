@@ -31,7 +31,7 @@
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
         <template slot="value">
-          <Recipients :groups="getGroupNames(lesson.groups)" />
+          <Recipients :groupNames="getGroupNames(lesson.groups)" />
         </template>
       </HeaderTableRow>
       <!-- TODO COACH

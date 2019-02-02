@@ -42,7 +42,7 @@
             </td>
             <td>
               <Recipients
-                :groups="tableRow.groupNames"
+                :groupNames="tableRow.groupNames"
               />
             </td>
             <td><LessonActive :active="tableRow.active" /></td>
