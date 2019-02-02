@@ -46,9 +46,11 @@
         return Boolean(this.selectedExercises[this.currentContentNode.id]);
       },
     },
+    beforeDestroy() {
+      this.clearSnackbar();
+    },
     methods: {
-      ...mapActions(['createSnackbar']),
-      ...mapActions(['createSnackbar']),
+      ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
         this.addToSelectedExercises([content]);
