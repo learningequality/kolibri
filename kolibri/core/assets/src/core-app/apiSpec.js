@@ -85,7 +85,6 @@ import KDragSortWidget from '../views/kSortable/KDragSortWidget';
 import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
@@ -194,7 +193,6 @@ export default {
   styles: {
     definitions,
     keenVars,
-    buttonAndLinkStyles,
   },
   urls,
   utils: {
