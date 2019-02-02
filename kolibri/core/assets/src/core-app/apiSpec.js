@@ -82,6 +82,7 @@ import KDraggable from '../views/kSortable/KDraggable';
 import KDragHandle from '../views/kSortable/KDragHandle';
 import KDragContainer from '../views/kSortable/KDragContainer';
 import KDragSortWidget from '../views/kSortable/KDragSortWidget';
+import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
 
 // webpack optimization
 import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
@@ -180,6 +181,7 @@ export default {
       KDragHandle,
       KDragContainer,
       KDragSortWidget,
+      KEmptyPlaceholder,
     },
     router,
     mixins: {
