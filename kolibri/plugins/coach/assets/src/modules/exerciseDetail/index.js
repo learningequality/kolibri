@@ -1,14 +1,14 @@
+import Vue from 'vue';
 import * as actions from './actions';
 
 function defaultState() {
   return {
-    attemptLogIndex: 0,
-    attemptLogs: [],
-    channelId: '',
+    attemptId: null,
+    attemptLogMap: {},
     exercise: {},
     interactionIndex: 0,
     summaryLog: {},
-    user: {},
+    learnerId: null,
   };
 }
 
@@ -17,8 +17,17 @@ export default {
   state: defaultState(),
   actions,
   getters: {
+    attemptLogs(state) {
+      return Object.values(state.attemptLogMap).sort(
+        (attemptLog1, attemptLog2) =>
+          new Date(attemptLog2.end_timestamp) - new Date(attemptLog1.end_timestamp)
+      );
+    },
+    attemptLogIndex(state, getters) {
+      return getters.attemptLogs.findIndex(attemptLog => attemptLog.id === state.attemptId) || 0;
+    },
     currentAttemptLog(state) {
-      return state.attemptLogs[state.attemptLogIndex] || {};
+      return state.attemptLogMap[state.attemptId] || {};
     },
     currentInteraction(state, getters) {
       return getters.currentInteractionHistory[state.interactionIndex];
@@ -40,7 +49,9 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_ATTEMPT_LOGS(state, attemptLogs) {
-      state.attemptLogs = [...attemptLogs];
+      attemptLogs.forEach(attemptLog => {
+        Vue.set(state.attemptLogMap, attemptLog.id, attemptLog);
+      });
     },
   },
 };

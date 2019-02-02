@@ -52,12 +52,12 @@ function defaultState() {
     examLearnerStatusMap: {},
     /*
      * contentMap := {
-     *   [id]: { content_id, node_id, kind, title }
+     *   [content_id]: { content_id, node_id, kind, title }
      * }
      */
     contentMap: {},
     /*
-     * contentMap := {
+     * contentNodeMap := {
      *   [node_id]: { content_id, node_id, kind, title }
      * }
      */
