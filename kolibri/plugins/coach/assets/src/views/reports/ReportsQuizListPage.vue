@@ -45,7 +45,7 @@
                 :verbose="true"
               />
             </td>
-            <td><Recipients :groups="tableRow.groupNames" /></td>
+            <td><Recipients :groupNames="tableRow.groupNames" /></td>
             <td>
               <QuizActive :active="tableRow.active" />
             </td>
