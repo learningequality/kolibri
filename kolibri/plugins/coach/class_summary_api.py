@@ -109,9 +109,8 @@ class ExamStatusSerializer(serializers.ModelSerializer):
     def get_status(self, exam_log):
         if exam_log.closed:
             return COMPLETED
-        elif exam_log.attemptlogs.values_list("item").count() > 0:
+        else:
             return STARTED
-        return NOT_STARTED
 
     def get_num_correct(self, exam_log):
         return (
