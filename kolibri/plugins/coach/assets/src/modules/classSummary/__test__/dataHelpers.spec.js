@@ -44,29 +44,29 @@ describe('coach summary data helpers', () => {
   describe('getContentStatusForLearner', () => {
     it('returns a recorded status string given a content ID and learner ID', () => {
       expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_1')).toEqual(
-        'completed'
+        'Completed'
       );
       expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_2')).toEqual(
-        'started'
+        'Started'
       );
       expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_3')).toEqual(
-        'not_started'
+        'NotStarted'
       );
       expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_4')).toEqual(
-        'help_needed'
+        'HelpNeeded'
       );
     });
-    it('returns "not_started" when passed unknown information', () => {
+    it('returns "NotStarted" when passed unknown information', () => {
       expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_7')).toEqual(
-        'not_started'
+        'NotStarted'
       );
       expect(store.getters.getContentStatusForLearner('XXXX', 'learner_id_5')).toEqual(
-        'not_started'
+        'NotStarted'
       );
       expect(store.getters.getContentStatusForLearner('learner_id_5', 'XXXX')).toEqual(
-        'not_started'
+        'NotStarted'
       );
-      expect(store.getters.getContentStatusForLearner('XXXX', 'XXXX')).toEqual('not_started');
+      expect(store.getters.getContentStatusForLearner('XXXX', 'XXXX')).toEqual('NotStarted');
     });
   });
   describe('getContentStatusTally', () => {

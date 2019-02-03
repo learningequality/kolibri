@@ -14,10 +14,11 @@ from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 
 
-NOT_STARTED = "not_started"
-STARTED = "started"
-HELP_NEEDED = "help_needed"
-COMPLETED = "completed"
+# Intended to match  NotificationEventType
+NOT_STARTED = "NotStarted"
+STARTED = "Started"
+HELP_NEEDED = "HelpNeeded"
+COMPLETED = "Completed"
 
 
 def content_status_serializer(lesson_data, learners_data, classroom):
@@ -108,9 +109,8 @@ class ExamStatusSerializer(serializers.ModelSerializer):
     def get_status(self, exam_log):
         if exam_log.closed:
             return COMPLETED
-        elif exam_log.attemptlogs.values_list("item").count() > 0:
+        else:
             return STARTED
-        return NOT_STARTED
 
     def get_num_correct(self, exam_log):
         return (

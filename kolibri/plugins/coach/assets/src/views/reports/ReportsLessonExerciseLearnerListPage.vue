@@ -65,6 +65,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from '../../constants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
@@ -99,7 +100,7 @@
     },
     methods: {
       link(learnerId) {
-        return this.classRoute('ReportsLessonExerciseLearnerPage', { learnerId });
+        return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, { learnerId });
       },
     },
   };

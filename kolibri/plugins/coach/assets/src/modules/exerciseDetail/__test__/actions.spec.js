@@ -10,7 +10,7 @@ describe('exerciseDetail actions', () => {
       userId: 'user_1',
       exercise: {},
     });
-    expect(store.state.exerciseDetail.attemptLogs).toEqual([]);
+    expect(store.state.exerciseDetail.attemptLogs).toEqual(undefined);
     AttemptLogResource.fetchCollection.mockRestore();
   });
 });

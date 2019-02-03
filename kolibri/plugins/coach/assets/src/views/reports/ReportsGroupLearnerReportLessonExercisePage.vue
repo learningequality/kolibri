@@ -1,18 +1,24 @@
 <template>
 
-  <div>
-    <BackLink
-      :text="coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'})"
-      :to="classRoute('ReportsGroupLearnerReportLessonPage', {})"
+  <CoreBase
+    :immersivePage="true"
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="exercise.title"
+    :pageTitle="exercise.title"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+  >
+    <LearnerExerciseReport
+      @navigate="handleNavigation"
     />
-    <LearnerExerciseReport />
-  </div>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
   import LearnerExerciseReport from '../common/LearnerExerciseReport';
 
@@ -23,6 +29,24 @@
     },
     mixins: [commonCoach],
     $trs: {},
+    computed: {
+      ...mapState('exerciseDetail', ['exercise']),
+      toolbarRoute() {
+        return this.classRoute('ReportsGroupLearnerReportLessonPage', {});
+      },
+    },
+    methods: {
+      handleNavigation(params) {
+        this.$router.push({
+          name: this.name,
+          params: {
+            classId: this.$route.params.classId,
+            groupId: this.$route.params.groupId,
+            ...params,
+          },
+        });
+      },
+    },
   };
 
 </script>

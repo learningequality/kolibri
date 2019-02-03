@@ -192,7 +192,7 @@ export default {
       dbfffe45c6728ce9fea834f5c22a56bf: {
         exam_id: '31b700a2c35a0285f8c84767ed4f4e0a',
         learner_id: 'dbfffe45c6728ce9fea834f5c22a56bf',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:14:52.831Z'),
         num_correct: 1,
         score: 0.3333333333333333,
@@ -200,7 +200,7 @@ export default {
       '9a0caacac19f290bfdd175298772660c': {
         exam_id: '31b700a2c35a0285f8c84767ed4f4e0a',
         learner_id: '9a0caacac19f290bfdd175298772660c',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:04:26.540Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -210,7 +210,7 @@ export default {
       '6ec2cae486c0e4c261f613679493eebc': {
         exam_id: 'd7033a1cb888493763dc9b5f3ab2505b',
         learner_id: '6ec2cae486c0e4c261f613679493eebc',
-        status: 'started',
+        status: 'Started',
         last_activity: new Date('2019-01-24T23:00:08.771Z'),
         num_correct: 2,
         score: 1,
@@ -218,7 +218,7 @@ export default {
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         exam_id: 'd7033a1cb888493763dc9b5f3ab2505b',
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:12:37.858Z'),
         num_correct: 2,
         score: 1,
@@ -226,7 +226,7 @@ export default {
       db6a72b70250db5ed2d69955eece98bd: {
         exam_id: 'd7033a1cb888493763dc9b5f3ab2505b',
         learner_id: 'db6a72b70250db5ed2d69955eece98bd',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:11:49.782Z'),
         num_correct: 1,
         score: 0.5,
@@ -236,7 +236,7 @@ export default {
       '4b1c478c5b1abaa02795022fcd1cce64': {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: '4b1c478c5b1abaa02795022fcd1cce64',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:34:39.693Z'),
         num_correct: 0,
         score: 0,
@@ -244,7 +244,7 @@ export default {
       edd265c283d730c293f30210316756bf: {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: 'edd265c283d730c293f30210316756bf',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:31:56.584Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -252,7 +252,7 @@ export default {
       dbfffe45c6728ce9fea834f5c22a56bf: {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: 'dbfffe45c6728ce9fea834f5c22a56bf',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:32:25.970Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -260,7 +260,7 @@ export default {
       e5fbe1b7df091ccf71985b412ff93f7e: {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: 'e5fbe1b7df091ccf71985b412ff93f7e',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:33:44.351Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -268,7 +268,7 @@ export default {
       '6ec2cae486c0e4c261f613679493eebc': {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: '6ec2cae486c0e4c261f613679493eebc',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:45:13.097Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -276,7 +276,7 @@ export default {
       '905a13b28ce7e33a46dcdc94f9d7ac46': {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: '905a13b28ce7e33a46dcdc94f9d7ac46',
-        status: 'not_started',
+        status: 'NotStarted',
         last_activity: new Date('2019-01-24T22:42:38.471Z'),
         num_correct: null,
         score: null,
@@ -284,7 +284,7 @@ export default {
       '1a91e06a08b0f0c8e2244b06e971afa2': {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: '1a91e06a08b0f0c8e2244b06e971afa2',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:35:15.068Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -292,7 +292,7 @@ export default {
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:32:07.956Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -300,7 +300,7 @@ export default {
       db6a72b70250db5ed2d69955eece98bd: {
         exam_id: '97316f077d470b45e912096edb534076',
         learner_id: 'db6a72b70250db5ed2d69955eece98bd',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:34:10.329Z'),
         num_correct: 1,
         score: 0.3333333333333333,
@@ -310,7 +310,7 @@ export default {
       e5fbe1b7df091ccf71985b412ff93f7e: {
         exam_id: '4018bcea43cee3d05811b641fca0b152',
         learner_id: 'e5fbe1b7df091ccf71985b412ff93f7e',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:15:40.569Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -318,7 +318,7 @@ export default {
       edd265c283d730c293f30210316756bf: {
         exam_id: '4018bcea43cee3d05811b641fca0b152',
         learner_id: 'edd265c283d730c293f30210316756bf',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:12:54.385Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -326,7 +326,7 @@ export default {
       '4b1c478c5b1abaa02795022fcd1cce64': {
         exam_id: '4018bcea43cee3d05811b641fca0b152',
         learner_id: '4b1c478c5b1abaa02795022fcd1cce64',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:11:46.956Z'),
         num_correct: 2,
         score: 0.6666666666666666,
@@ -334,7 +334,7 @@ export default {
       '905a13b28ce7e33a46dcdc94f9d7ac46': {
         exam_id: '4018bcea43cee3d05811b641fca0b152',
         learner_id: '905a13b28ce7e33a46dcdc94f9d7ac46',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:03:17.930Z'),
         num_correct: 1,
         score: 0.3333333333333333,
@@ -746,14 +746,14 @@ export default {
       '1a91e06a08b0f0c8e2244b06e971afa2': {
         learner_id: '1a91e06a08b0f0c8e2244b06e971afa2',
         content_id: '04c2ad2882dc5d50959736009df58a84',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:41:29.288Z'),
         time_spent: 500.34,
       },
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
         content_id: '04c2ad2882dc5d50959736009df58a84',
-        status: 'started',
+        status: 'Started',
         last_activity: new Date('2019-01-24T22:34:36.130Z'),
         time_spent: 123.34,
       },
@@ -762,14 +762,14 @@ export default {
       '1a91e06a08b0f0c8e2244b06e971afa2': {
         learner_id: '1a91e06a08b0f0c8e2244b06e971afa2',
         content_id: '52afd859b8df5bb1a6a834ddaeaf3f23',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:43:15.790Z'),
         time_spent: 0.34,
       },
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: '52afd859b8df5bb1a6a834ddaeaf3f23',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:46:29.200Z'),
         time_spent: 123.34,
       },
@@ -778,21 +778,21 @@ export default {
       '1a91e06a08b0f0c8e2244b06e971afa2': {
         learner_id: '1a91e06a08b0f0c8e2244b06e971afa2',
         content_id: 'ec46c847e3d2520c862337f5e99350ce',
-        status: 'not_started',
+        status: 'NotStarted',
         last_activity: new Date('2019-01-24T22:43:37.786Z'),
         time_spent: 4.34,
       },
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
         content_id: 'ec46c847e3d2520c862337f5e99350ce',
-        status: 'not_started',
+        status: 'NotStarted',
         last_activity: new Date('2019-01-24T23:17:24.102Z'),
         time_spent: 12232323233.34,
       },
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: 'ec46c847e3d2520c862337f5e99350ce',
-        status: 'not_started',
+        status: 'NotStarted',
         last_activity: new Date('2019-01-24T22:46:41.441Z'),
         time_spent: 123.34,
       },
@@ -801,14 +801,14 @@ export default {
       '1a91e06a08b0f0c8e2244b06e971afa2': {
         learner_id: '1a91e06a08b0f0c8e2244b06e971afa2',
         content_id: '0dfcd0dd6eff54e9baf9e45df2434cd9',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:47:10.710Z'),
         time_spent: 2323.34,
       },
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: '0dfcd0dd6eff54e9baf9e45df2434cd9',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:51:14.773Z'),
         time_spent: 123.34,
       },
@@ -817,14 +817,14 @@ export default {
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
         content_id: '5af7b054ad035252a354b8ff7bb1f319',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:06:09.415Z'),
         time_spent: 123.34,
       },
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: '5af7b054ad035252a354b8ff7bb1f319',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:06:29.634Z'),
         time_spent: 123.34,
       },
@@ -833,14 +833,14 @@ export default {
       '497adae79fe6ae7ce5d4e8e334d3e1d6': {
         learner_id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
         content_id: '2f38b99b355a5cd79b3d8a8a7348f824',
-        status: 'started',
+        status: 'Started',
         last_activity: new Date('2019-01-24T23:12:07.371Z'),
         time_spent: 123.34,
       },
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: '2f38b99b355a5cd79b3d8a8a7348f824',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T23:12:29.257Z'),
         time_spent: 123.34,
       },
@@ -849,7 +849,7 @@ export default {
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: 'db023ba0e7a855a59266a3c1371fa1da',
-        status: 'started',
+        status: 'Started',
         last_activity: new Date('2019-01-24T22:49:46.776Z'),
         time_spent: 123.34,
       },
@@ -858,7 +858,7 @@ export default {
       edd265c283d730c293f30210316756bf: {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: 'b4c5c254bc755f1e8773940e3eac9d87',
-        status: 'completed',
+        status: 'Completed',
         last_activity: new Date('2019-01-24T22:56:56.586Z'),
         time_spent: 123.34,
       },

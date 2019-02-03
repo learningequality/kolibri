@@ -193,6 +193,13 @@
         required: false,
         default: '',
       },
+      // Alternative to using metaInfo in a top level component to set the
+      // title of the HTML Document
+      pageTitle: {
+        type: String,
+        required: false,
+        default: '',
+      },
       // If true, will render the component in the "sub-nav" slot and add 48px
       // to AppBody's top offset.
       showSubNav: {
@@ -218,6 +225,7 @@
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });
         },
+        title: this.pageTitle,
       };
     },
     data() {

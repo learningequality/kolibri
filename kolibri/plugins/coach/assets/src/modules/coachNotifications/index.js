@@ -78,6 +78,7 @@ export default {
         .then(data => {
           if (data.results.length > 0) {
             store.commit('APPEND_NOTIFICATIONS', data.results);
+            store.dispatch('classSummary/updateWithNotifications', data.results, { root: true });
           }
           store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
         });
