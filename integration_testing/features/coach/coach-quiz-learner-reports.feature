@@ -5,6 +5,8 @@ Feature: Coach reviews learner reports for quizzes
     Given I am logged in as a coach
       And I am on *Coach > Classroom <classroom> > Reports > Quizzes > <quiz>* page
 
+
+
   Scenario: Report has the average score
     Given that <quiz> has at least one learner who started or completed it
       When I look under the *Overall* heading
