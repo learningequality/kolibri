@@ -16,8 +16,7 @@ export default {
   },
   computed: {
     started() {
-      // To the user, all these are considered having 'started'
-      return this.tally.started + this.tally.helpNeeded;
+      return this.tally.started;
     },
     completed() {
       return this.tally.completed;
@@ -29,7 +28,7 @@ export default {
       return this.tally.notStarted;
     },
     total() {
-      return this.started + this.tally.completed + this.notStarted;
+      return this.started + this.completed + this.notStarted + this.helpNeeded;
     },
   },
 };
