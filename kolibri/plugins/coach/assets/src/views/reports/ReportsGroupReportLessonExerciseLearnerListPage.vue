@@ -95,7 +95,9 @@
     },
     methods: {
       link(learnerId) {
-        return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, { learnerId });
+        return this.classRoute(PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
       },
     },
   };
