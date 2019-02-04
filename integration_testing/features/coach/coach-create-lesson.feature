@@ -13,7 +13,7 @@ Feature: Coach creates lessons
      And I fill in the description <description>
       And I click *Continue* button
     Then the modal closes
-      And I am on the <title> lesson page
+      And I see the <title> lesson under *Lessons* tab 
     When I click *Manage resources* button
     Then I am on the *Manage resources in '<title>'* page
       And I see the content channel <channel>
@@ -22,9 +22,12 @@ Feature: Coach creates lessons
     When I click the topic <topic>
     Then I see the list of resources in that topic
     When I click on a single resource
-    Then I see the *Preview resource* page
+    Then I see the preview page for the selected resource
+      And I see the *Add* button
     When I click *Add* button
     Then I see the snackbar notification
+      And I see the *Added* notification
+      And I see the *Remove* button
     When I click on *back arrow* button
     Then I see the *Manage resources in '<title>'* page again
       And I see the *1 resource in this lesson* counter

@@ -16,6 +16,7 @@ Feature: Coach reassigns lessons
     When I change *Visible to* by selecting *Entire class* or one of the groups
       And I click *Save* button
     Then the modal closes
+      And the snackbar notification appears
       And I see the change under *Visible to*
 
 Examples:

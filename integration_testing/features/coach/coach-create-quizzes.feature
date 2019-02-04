@@ -1,19 +1,16 @@
 Feature: Coach creates quizzes
   Coach needs to be able to create quizzes from existing content
 
-  ### WIP
-
   Background:
     Given I am signed in to Kolibri as a coach user
-    And I am on the *Coach > Plan > Quizzes* page
+      And I am on the *Coach > Plan > Quizzes* page
 
   Scenario: Create new quiz
     When I click the *New quiz* button
     Then I see a new *Create new quiz* page
-      And I see empty *Title* and *Number of questions* fields
-      # And I see *0 total selected* exercises
+      And I see empty *Title* field, and the default value of 10 in the *Number of questions* field
       And I see a list of channels that contain exercises
-      But I don't see any checkboxes
+        But I don't see any checkboxes
 
   # Given there are no channels that have exercises
   # Then there should not be any channels available to select
@@ -21,25 +18,24 @@ Feature: Coach creates quizzes
     When I click the *New quiz* button
     Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
-      # And I see *0 total selected* exercises indicator
       But I don't see any channels
 
   Scenario: Check validation for the number of questions field
     When I input a number outside the range of 1-50
-      And I leave the input field or attempt to preview or save the quiz
-    Then an input validation error appears
+      And I leave the input field or attempt to continue or finish the quiz
+    Then the input field has the red outline
     When I input a number greater than amount of exercise questions
-      And I leave the input field or attempt to preview or save the quiz
-    Then an input validation error appears
+      And I leave the input field or attempt to continue or finish the quiz
+    Then the number is cut out at 50
     When I don't input anything into the number field
-      And I leave the input field or attempt to preview or save the quiz
+      And I leave the input field or attempt to continue or finish the quiz
     Then an input validation error appears
+    # This is not working right, quiz is saved even if the number of questions is left empty
     When I input a valid number
     Then I don't see the validation error anymore
 
   Scenario: Check validation when no exercises are selected
     When I don't select any exercises
-      And I see *0 total selected* indicator
     Then I see “No exercises are selected” error message
 
   Scenario: Navigate resources
@@ -56,39 +52,30 @@ Feature: Coach creates quizzes
     When I check an unselected topic card checkbox
     Then I see that all the exercise descendants are selected (*n of n resources selected*)
       And I see a snackbar confirmation
-      And the see the value of *n total selected* indicator is increased
     When I click the topic card of the selected topic
     Then I see the *Select all* checkbox is selected
       And I see that all its content is selected
     When I uncheck an exercise or a topic
       And I navigate back to the parent topic node
     Then I see the checkbox changed to partial (*-*) state
-      And I see the value of *n total selected* indicator is decreased
 
   Scenario: Select and remove resources from a topic
     When I uncheck fully selected topic card checkbox
-    Then I see that none of the exercise descendants are selected (*0 resources selected*)
+    Then I see that none of the exercise descendants are selected
       And I see a snackbar confirmation
-      And the see the value of *n total selected* indicator is decreased
-
-  Scenario: Select a single exercise
-    When I check an unselected exercise card checkbox
-    Then I see a snackbar confirmation
-      And the see the value of *n total selected* indicator is increased
 
   Scenario: Select and remove a single exercise
+    When I check an unselected exercise card checkbox
+    Then I see a snackbar confirmation
     When I uncheck a selected exercise card checkbox
     Then I see a snackbar confirmation
-      And the see the value of *n total selected* indicator is decreased
 
   Scenario: Use the *Select all* checkbox
     Given that the *Select all* checkbox is unchecked
-    When I check the *Select all* checkbox
-    Then I see a snackbar confirming the topic was added
-      And I see the value of *n total selected* indicator is increased
-    When I uncheck the *Select all* checkbox
-    Then I see a snackbar confirming the topic was removed
-      And I see the value of *n total selected* indicator is decreased
+      When I check the *Select all* checkbox
+      Then I see a snackbar confirming the topic was added
+      When I uncheck the *Select all* checkbox
+      Then I see a snackbar confirming the topic was removed
 
   Scenario: Preview an added exercise card
     When I click on a previously added exercise card
@@ -119,10 +106,10 @@ Feature: Coach creates quizzes
     Given I am on the search results page
       And there are exercises and topics available in the search results
     When I check an exercise checkbox
-    Then I see the *n total selected* count increase by 1
+    Then I see the *n of n selected* indicator
       And I see a snackbar confirmation that the exercise was added to the quiz
     When I check a topic checkbox
-    Then I see the *n total selected* count increase for the number of exercises in the selected topic
+    Then I see the *n of n selected* count increase for the number of exercises in the selected topic
       And I see a snackbar confirmation that the topic was added to the quiz
 
   Scenario: Remove a topic or exercise from the search results page
@@ -130,22 +117,22 @@ Feature: Coach creates quizzes
       And there are exercises and topics available in the search results
       And some of them are selected
     When I uncheck an exercise checkbox
-    Then I see the *n total selected* count decrease by 1
+    Then I see the *n of n selected* count decrease by 1
       And I see a snackbar confirmation that the exercise was removed from the quiz
     When I uncheck a topic checkbox
-    Then I see the *n total selected* count decrease for the number of exercises in the removed topic
+    Then I see the *n of n selected* count decrease for the number of exercises in the removed topic
       And I see a snackbar confirmation that the topic was removed from the quiz
 
   Scenario: Filter search results by type
     Given I am on the search results page
-    When I open the *Type* filter dropdown
-    Then I can see the available formats I can filter by (all/exercises/topics)
-    When I select *Exercises* option
-    Then I see only exercises among search results
-    When I select *Topics* option
-    Then I see only topics among search results
-    When I select the option *All*
-    Then I see both topics and exercises in search results
+      When I open the *Type* filter dropdown
+      Then I can see the available formats I can filter by (all/exercises/topics)
+      When I select *Exercises* option
+      Then I see only exercises among search results
+      When I select *Topics* option
+      Then I see only topics among search results
+      When I select the option *All*
+      Then I see both topics and exercises in search results
 
   Scenario: Use the channel filter
     Given I am on the search results page
@@ -156,18 +143,18 @@ Feature: Coach creates quizzes
 
   Scenario: Filter only the coach content
     Given I am on the search results page
-    When I select *Coach* filter option
-    Then I see the search results are filtered and present only content for coaches
+      When I select *Coach* filter option
+      Then I see the search results are filtered and present only content for coaches
 
   Scenario: Filter only the non-coach content
     Given I am on the search results page
-    When I select *Non-coach* filter option
-    Then I see the search results are filtered and exclude content for coaches
+      When I select *Non-coach* filter option
+      Then I see the search results are filtered and exclude content for coaches
 
   Scenario: Don't filter content by role visibility
     Given I am on the search results page
-    When I select the *All* filter dropdown
-    Then I see the search results include both coach and non-coach content
+      When I select the *All* filter dropdown
+      Then I see the search results include both coach and non-coach content
 
   Scenario: View metadata on exercise cards in search results
     Given I am on the search results page
@@ -189,22 +176,22 @@ Feature: Coach creates quizzes
   Scenario: Preview a resource in the search results
     Given I am on the search results page
       And there are exercises in the search results page
-    When I click an exercise card
-    Then I see the *Preview resources* page
+    When I click an exercise <exercise> card
+    Then I am on the preview page for exercise <exercise>
     When I click the *back arrow* button
     Then I see the search results page again
       And I see my results are still present
 
   Scenario: Exit the search results page
     Given I am on the search results page
-    When I click *Exit search*
-    Then I see the topic and channel I was viewing before I initiated the search
+      When I click *Exit search*
+      Then I see the topic and channel I was viewing before I initiated the search
 
   Scenario: Preview Quiz
     Given I am on *Create new quiz* page
       And there are no validation errors
-    When I click “Preview”
-    Then I see a modal with a question list pulled randomly from each exercise
+    When I click “Continue”
+    Then I see a *Preview quiz* page with a question list pulled randomly from each exercise
     When I click on *Randomize questions* button
     Then I see the modal is refreshed with reordered randomized question list
 
@@ -218,15 +205,15 @@ Feature: Coach creates quizzes
   Scenario: Save quiz
     Given I am on *Create new quiz* page
       And there are no validation errors
-    When I click “Save”
-    Then I am redirected to the *Coach > Quizzes* page
+    When I click “Finish”
+    Then I am redirected to the *Coach > Plan > Quizzes* page
       And I see a snackbar confirmation that the quiz is created
 
-  Scenario: Exit quiz creation from the app bar
+  Scenario: Exit quiz creation without finishing
     Given I am on *Create new quiz* page
       But I did not save the quiz
-    When I click the exit icon (X) in the app bar
-    Then I am redirected to the *Coach > Quizzes* page
+    When I click the *back arrow* button
+    Then I am redirected to the *Coach > Plan > Quizzes* page
       And I loose all quiz creation progress
 
     Examples:

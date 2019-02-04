@@ -8,6 +8,7 @@ Feature: Coach activates quizzes
 
   Scenario: Change the quiz status to *Active*
     When I click the quiz <quiz_title>
+    # Is this going to be re-implemented, or this can be achived just through the *Edit details* option?
     Then I see the <quiz_title> quiz page
       And I see the quiz *Status* is *Inactive*
     When I click *Change*
@@ -15,7 +16,7 @@ Feature: Coach activates quizzes
     When I select *Active*
       And I click *Save* button
     Then the modal closes
-      And I see the snackbar notification
+      And I see the snackbar notification *Changes to quiz saved*
       And I see the quiz *Status* is *Active*
 
   Scenario: Change the quiz status to *Inactive*
@@ -27,7 +28,7 @@ Feature: Coach activates quizzes
     When I select *Inactive*
       And I click *Save* button
     Then the modal closes
-      And I see the snackbar notification
+      And I see the snackbar notification *Changes to quiz saved*
       And I see the quiz *Status* is *Inactive*
 
 Examples:

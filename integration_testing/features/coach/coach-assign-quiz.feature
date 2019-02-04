@@ -9,12 +9,13 @@ Feature: Coach assigns quizzes
 
     Scenario: Assign quiz to group(s)
       When I click the quiz <quiz_title>
+      # Is this going to be re-implemented, or this can be achived just through the *Edit details* option?
       Then I see the <quiz_title> quiz page
         And I see the full list of learners enrolled in the class
       When I click *Options* button
         And I select *Edit details*
       Then I see the *Edit quiz details* modal
-      When I select one or more groups
+      When I select one or more groups, or entire class
         And I click *Save* button
       Then the modal closes
         And I see the snackbar notification

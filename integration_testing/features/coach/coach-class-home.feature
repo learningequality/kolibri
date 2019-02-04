@@ -26,149 +26,104 @@ Feature: General navigation on class home interface
       Then I see *No activity in your class* notification
       When I click *View all* 
       Then I am on an empty *Class activity* page
-        And I see *No activity in your class* notifications
+        And I see *No activity in your class* notification
 
   Scenario: No coaches assigned to class
-    Given there are no coaches assigned to the class yet
-    When 
-    Then I should not see any coaches listed in the CLASS HOME summary block at the very top of the page
-      And I should see a “-” or “0” instead # Not yet implemented?
+    Given there are no coaches assigned to the class
+    When I look at the <class> class home summary block at the top
+    Then I see no coaches listed
+      And I see *0* instead # Not yet implemented? Does not show anything for coaches
 
   Scenario: No learners enrolled in the class
-    Given there are no learners assigned to the class yet
-      When 
-      Then I should not see any learners listed in the CLASS HOME summary block at the very top of the page
-        And I should see a “-” or “0” instead # Not yet implemented?
-        
+    Given there are no learners assigned to the class
+      When I look at the <class> class home summary block at the top
+      Then I see *0* listed as number of learners        
 
-Feature: Jumping to quizzes
-    Scenario: User views progress of an in-progress quiz
-        Given that I am on the CLASS HOME tab
-        Given that there are quizzes available
-        Given that there has been learner progress on a quiz
-        When I click into a quiz’s progress bar in the quiz block
-        Then I should be navigated to the quiz report for that quiz
-        And I should see high level quiz summary data
-        And I should also see a list of learners with quiz progress
+  Scenario: Review progress of a started quiz
+    Given there is a <quiz> quiz available
+      And there has been learner progress on a <quiz> quiz
+    When I click the <quiz> quiz progress bar # Not yet implemented?
+    Then I am on <quiz> quiz page in the *Reports* tab
+      And I see high level quiz summary data
+      And I see a list of learners with quiz progress
 
-    Scenario: User views progress of a not-started quiz
-        Given that I am on the CLASS HOME tab
-        Given that there are quizzes in the quiz block
-        Given that there has not been learner progress on the quiz
-When I click into the quiz’s progress bar     in the quiz block
-Then I should be navigated to the quiz report for that quiz
-And I should see a list high level quiz summary data
-And I should also see a list of learners with no quiz progress
+  # Active but not started quizzes do not appear on Class home
+  Scenario: Review a not-started quiz 
+    Given there is a <quiz> quiz available
+      And there has been no learner progress on a <quiz> quiz
+    When I click the <quiz> quiz progress bar # Not yet implemented?
+    Then I am on <quiz> quiz page in the *Reports* tab
+      And I see high level quiz summary data
+      And I see a list of learners with quiz progress
 
-    Scenario: User clicks on “view all” quizzes
-        Given that I am on the CLASS HOME tab
-Given that there may or may not be any quizzes available
-        When I press the button “VIEW ALL” in the quizzes block
-        Then I should be navigated to the REPORTS tab
-        And I should see a list of all my quizzes
+  Scenario: View all quizzes
+    Given that there may or may not be any quizzes available
+      When I press the *View all* button in the quizzes block
+      Then I am in *Coach > Reports > Quizzes* tab
+        And I see a list of all the class quizzes
 
-        
+  Scenario: Review progress of a started lesson
+    Given there is a <lesson> lesson available
+      And there has been learner progress on a <lesson> lesson
+    When I click the <lesson> lesson progress bar # Not yet implemented?
+    Then I am on <lesson> lesson page in the *Reports* tab
+      And I see high level lesson summary data
+      And I see a list of learners with lesson progress
 
-Feature: Jumping to lessons
-    Scenario: User views progress of an in-progress lesson
-        Given that I am on the CLASS HOME tab
-        Given that there are lessons in the lesson block
-        Given that there has been learner progress on a lesson item(s)
-        When I click into a lesson’s progress bar in the lesson block
-        Then I should be navigated to the lesson report for that quiz
-        And I should see high level lesson summary data
-        And I should also see a list of lesson items with their completion
-        status
+  Scenario: Review a not-started lesson 
+    Given there is a <lesson> lesson available
+      And there has been no learner progress on a <lesson> lesson
+    When I click the <lesson> lesson progress bar # Not yet implemented?
+    Then I am on <lesson> lesson page in the *Reports* tab
+      And I see high level lesson summary data
+      And I see a list of lesson items with their completion status
 
-    Scenario: User views progress of a not-started lesson
-        Given that I am on the CLASS HOME tab
-        Given that there are lessons available
-        Given that there has not been learner progress on the lesson
-When I click into the lesson’s progress bar in the lesson block
-Then I should be navigated to the lesson report for that lesson
-And I should see a list high level lesson summary data
-And I should also see a list of lesson items And their progress
-Status
+  Scenario: View all lessons
+    Given that there may or may not be any lessons available
+      When I press the *View all* button in the lessons block
+      Then I am in *Coach > Reports > Lessons* tab
+        And I see a list of all the class lessons      
 
-    Scenario: User clicks on “view all” lessons
-        Given that I am on the CLASS HOME tab
-Given that there may or may not be any lessons available
-        When I press the button “VIEW ALL” in the lessons block
-        Then I should be navigated to the REPORTS tab
-        And I should see a list of all my lessons
+  Scenario: Review all class activity notifications
+    When I click *View all* in the *Class activity* block
+    Then I am on the *Class activity* page
+      And I see a history of all notifications
+      And I see filters for *Resource type* and *Progress type*
 
-Feature: Notifications
-    Scenario: User views all notifications
-        Given that I am on the CLASS HOME TAB
-        When I click on “VIEW ALL” in the notifications block
-        Then I should be redirected to a new page with a history of all
-        notifications
-        And I should be able to see two filters for “resource type” And 
-        “progress type”
+  Scenario: Filter notifications by resource and progress   
+    Given that I am on the *Class activity* notifications page
+      When I open the *Resource type* filter
+      Then I see a list of resource options
+      When I open the *Progress type* filter
+      Then I see a list of progress options: all, completed, started, help needed
 
-    Scenario: User filters specific resource notifications
-        Given that I am on the all notifications page
-        When I click the “resource type” filter
-        Then I should be able to see a list of resource options
+  Scenario: Review details of a notification
+    Given that a notification just appeared in the *Class activity* notifications block
+      And I can see the notification displays the in-progress, completed, or help needed icon
+    When I click on the *Show* button for that notification
+    Then I am on the progress report page for the resource that emitted the notification
 
-    Scenario: User filters progress notifications
-        Given that I am on the all notifications page
-        When I click the “progress type” filter
-        Then I should be able to see a list of four progress options;
-        All, completed, started, needs help
-
-Scenario: User clicks on a ‘started’ notification
-    Given that a “started” notification just appeared in the 
-    notifications block
-    Given that the notification shows an in-progress icon
-    When I click on that notification
-    Then I should be redirected to the report page belonging to the 
-    Notification
-    Then I should be able to see which learners started on the
-    resource
-
-
-Scenario: User clicks on a ‘completed’ notification
-    Given that a “completed” notification just appeared in the 
-    notifications block
-    Given that the notification shows an completed star icon
-    When I click on that notification
-    Then I should be redirected to the report page belonging to the 
-    Notification
-    Then I should be able to see which learners completed the resource
-
-Scenario: User clicks on a ‘needs help’ notification
-    Given that a “needs help” notification just appeared in the 
-    notifications block
-    Given that the notification shows a red exclamation circle icon
-    When I click on that notification
-    Then I should be redirected to the report page belonging to the 
-    Notification
-    Then I should be able to see which learners need help
-
+# This does not make much sense as the user cannot arrive on the *Class home* if there are NO classes...?
 Feature: No classes in facility
-    Scenario: User clicks on the CLASS HOME tab
-        Given that I am a coach user And there haven’t been classes made
-When I click on the CLASS HOME tab
-Then I should only see a block of notifications
-And these notifications should only display resource engagement
-And I should not see notifications pertaining to lessons or exams
+  Scenario: User clicks on the CLASS HOME tab
+    Given that I am a coach user And there haven’t been classes made
+    When I click on the CLASS HOME tab
+    Then I should only see a block of notifications
+    And these notifications should only display resource engagement
+    And I should not see notifications pertaining to lessons or exams
 
-    Scenario: User clicks on the REPORTS tab
-        Given that I am a coach user And there haven’t been classes made
-        When I click on the REPORTS Tab
-        Then I should see a list of learners
-        And Then When I click on a learner, I should see their recent
-        Activity
+  Scenario: User clicks on the REPORTS tab
+    Given that I am a coach user And there haven’t been classes made
+    When I click on the REPORTS Tab
+    Then I should see a list of learners
+    And Then When I click on a learner, I should see their recent Activity
 
-Scenario: User clicks on a specific notification
+  Scenario: User clicks on a specific notification
     Given that there are notifications on the CLASS HOME tab
     When I click into a specific notification
-    Then I should be redirected to the report page for that 
-    Notification
+    Then I should be redirected to the report page for that Notification
 
-Scenario: User clicks on a specific user profile in REPORTS
+  Scenario: User clicks on a specific user profile in REPORTS
     Given that I am on the REPORTS tab
     When I click on a user’s name 
-    Then I should be redirected to their profile where I can see 
-    their recent activity
+    Then I should be redirected to their profile where I can see their recent activity

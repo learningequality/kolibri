@@ -6,7 +6,7 @@ Feature: Coach activates and deactivates lessons
       And I am on *Coach > Plan > Lessons* page
       And I see the lesson <lesson_title>
 
-  Scenario: Coach changes the lesson status to *Active*
+  Scenario: Coach changes the lesson status to *Active* with toggle
     When I click the lesson <lesson_title>
     Then I see the <lesson_title> lesson page
       And I see the lesson *Status* is *Inactive*
@@ -18,7 +18,7 @@ Feature: Coach activates and deactivates lessons
       And I see the snackbar notification
       And I see the lesson *Status* is *Active*
 
-  Scenario: Coach changes the lesson status to *Inactive*
+  Scenario: Coach changes the lesson status to *Inactive* with toggle
     When I click the lesson <lesson_title>
     Then I see the <lesson_title> lesson page
       And I see the lesson *Status* is *Active*
