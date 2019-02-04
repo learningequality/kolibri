@@ -41,32 +41,50 @@ describe('coach summary data helpers', () => {
       ]);
     });
   });
-  describe('getContentStatusForLearner', () => {
-    it('returns a recorded status string given a content ID and learner ID', () => {
-      expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_1')).toEqual(
-        'Completed'
-      );
-      expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_2')).toEqual(
-        'Started'
-      );
-      expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_3')).toEqual(
-        'NotStarted'
-      );
-      expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_4')).toEqual(
-        'HelpNeeded'
-      );
+  describe('getContentStatusObjForLearner', () => {
+    it('returns a recorded status object given a content ID and learner ID', () => {
+      expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_1')).toEqual({
+        content_id: 'content_Q',
+        last_activity: new Date('2019-01-24T22:41:29.288Z'),
+        learner_id: 'learner_id_1',
+        status: 'Completed',
+        time_spent: 10,
+      });
+      expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_2')).toEqual({
+        content_id: 'content_Q',
+        last_activity: new Date('2019-01-24T21:34:36.130Z'),
+        learner_id: 'learner_id_2',
+        status: 'Started',
+        time_spent: 5,
+      });
+      expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_3')).toEqual({
+        content_id: 'content_Q',
+        last_activity: new Date('2019-01-24T20:41:29.288Z'),
+        learner_id: 'learner_id_3',
+        status: 'NotStarted',
+        time_spent: 0,
+      });
+      expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_4')).toEqual({
+        content_id: 'content_Q',
+        last_activity: new Date('2019-01-24T19:34:36.130Z'),
+        learner_id: 'learner_id_4',
+        status: 'HelpNeeded',
+        time_spent: 0,
+      });
     });
-    it('returns "NotStarted" when passed unknown information', () => {
-      expect(store.getters.getContentStatusForLearner('content_Q', 'learner_id_7')).toEqual(
-        'NotStarted'
-      );
-      expect(store.getters.getContentStatusForLearner('XXXX', 'learner_id_5')).toEqual(
-        'NotStarted'
-      );
-      expect(store.getters.getContentStatusForLearner('learner_id_5', 'XXXX')).toEqual(
-        'NotStarted'
-      );
-      expect(store.getters.getContentStatusForLearner('XXXX', 'XXXX')).toEqual('NotStarted');
+    it('returns a dummy "NotStarted" status object when passed unknown information', () => {
+      expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_7')).toEqual({
+        status: 'NotStarted',
+      });
+      expect(store.getters.getContentStatusObjForLearner('XXXX', 'learner_id_5')).toEqual({
+        status: 'NotStarted',
+      });
+      expect(store.getters.getContentStatusObjForLearner('learner_id_5', 'XXXX')).toEqual({
+        status: 'NotStarted',
+      });
+      expect(store.getters.getContentStatusObjForLearner('XXXX', 'XXXX')).toEqual({
+        status: 'NotStarted',
+      });
     });
   });
   describe('getContentStatusTally', () => {

@@ -104,7 +104,11 @@ export default [
     name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      return rootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonExerciseLearnerPage.name,
+        next
+      );
     },
   },
   {

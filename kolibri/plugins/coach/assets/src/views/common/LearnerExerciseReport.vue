@@ -117,11 +117,11 @@
         'attemptLogs',
         'attemptLogIndex',
       ]),
-      ...mapGetters('classSummary', ['getContentStatusForLearner']),
+      ...mapGetters('classSummary', ['getContentStatusObjForLearner']),
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('exerciseDetail', ['attemptId', 'exercise', 'interactionIndex', 'learnerId']),
       status() {
-        return this.getContentStatusForLearner(this.exercise.content_id, this.learnerId);
+        return this.getContentStatusObjForLearner(this.exercise.content_id, this.learnerId).status;
       },
       learner() {
         return this.learnerMap[this.learnerId];

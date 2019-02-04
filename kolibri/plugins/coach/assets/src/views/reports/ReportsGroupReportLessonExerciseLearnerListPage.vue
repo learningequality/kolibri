@@ -14,81 +14,37 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
       <p>
-        <LearnerProgressCount
-          :count="1"
-          verbosity="0"
-          verb="completed"
-          icon="star"
-        />
-        <LearnerProgressCount
-          :count="3"
-          verbosity="0"
-          verb="started"
-          icon="clock"
-        />
-        <LearnerProgressCount
-          :count="2"
-          verbosity="0"
-          verb="needHelp"
-          icon="help"
-        />
-        <LearnerProgressCount
-          :count="1"
-          verbosity="0"
-          verb="notStarted"
-          icon="nothing"
-        />
+        <StatusSummary :tally="tally" />
       </p>
+
       <CoreTable>
         <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
+            <td>{{ coachStrings.$tr('groupsLabel') }}</td>
             <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
-            <td><KRouterLink text="April" :to="learnerLink" /></td>
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="completed"
-                icon="star"
-              />
+              <KRouterLink :text="tableRow.name" :to="link(tableRow.id)" />
             </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="John" :to="learnerLink" /></td>
             <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="notStarted"
-                icon="nothing"
-              />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td><KRouterLink text="Steve" :to="learnerLink" /></td>
             <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="needHelp"
-                icon="help"
-              />
+              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
             </td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>some time ago</td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
+            <td>
+              <ElapsedTime :date="tableRow.statusObj.last_activity" />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -101,6 +57,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from '../../constants';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
 
   export default {
@@ -109,22 +66,40 @@
       ReportsGroupReportLessonExerciseHeader,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
-    },
     computed: {
-      learnerLink() {
-        return this.classRoute('ReportsGroupReportLessonExerciseLearnerPage', {});
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      recipients() {
+        return this.getLearnersForGroups([this.$route.params.groupId]);
+      },
+      tally() {
+        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.exerciseId,
+              learner.id
+            ),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      link(learnerId) {
+        return this.classRoute(PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
       },
     },
-    $trs: {},
   };
 
 </script>
