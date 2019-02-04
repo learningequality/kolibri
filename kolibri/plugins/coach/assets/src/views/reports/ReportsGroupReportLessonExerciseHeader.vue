@@ -5,7 +5,7 @@
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportLessonPage', {})"
-        :text="$tr('back', { lesson: lessonName })"
+        :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
     <h1>{{ exercise.title }}</h1>

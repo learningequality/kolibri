@@ -18,7 +18,7 @@
         />
       </p>
       <h1>Group A</h1>
-      <p>{{ $tr('lessonProgressLabel', {lesson: 'Lesson 1'}) }}</p>
+      <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>

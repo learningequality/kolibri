@@ -45,19 +45,20 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>{{ tableRow.name }}</td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              {{ tableRow.name }}
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.status.time_spent" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td>
-              <ElapsedTime
-                v-if="tableRow.status"
-                :date="tableRow.status.last_activity "
-              />
+              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
+            <td>
+              <ElapsedTime :date="tableRow.statusObj.last_activity" />
             </td>
           </tr>
         </transition-group>
@@ -98,7 +99,10 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getContentStatusObjForLearner(this.$route.params.resourceId, learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.resourceId,
+              learner.id
+            ),
           };
           Object.assign(tableRow, learner);
           return tableRow;
