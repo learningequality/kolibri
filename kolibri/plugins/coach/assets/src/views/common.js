@@ -21,7 +21,7 @@ import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
-import { coachStringsMixin } from './common/commonCoachStrings';
+import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
@@ -44,10 +44,31 @@ import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
 import { VERBS, ICONS } from './common/status/constants';
 
+const CoachCoreBase = {
+  extends: CoreBase,
+  props: {
+    // Gives each Coach page a default title of 'Coach – [Class Name]'
+    appBarTitle: {
+      type: String,
+      default() {
+        const coachLabel = coachStrings.$tr('coachLabel');
+        const classroomName = this.$store.state.classSummary.name;
+        if (!classroomName) {
+          return coachLabel;
+        }
+        if (this.isRtl) {
+          return `${classroomName} – ${coachLabel}`;
+        }
+        return `${coachLabel} – ${classroomName}`;
+      },
+    },
+  },
+};
+
 export default {
   name: 'ReportsQuizHeader',
   components: {
-    CoreBase,
+    CoreBase: CoachCoreBase,
     CoreTable,
     ContentIcon,
     TopNavbar,
