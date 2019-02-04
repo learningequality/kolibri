@@ -12,32 +12,42 @@
     of the possible behaviors.
    -->
   <div :class="verbose ? 'multi-line' : 'single-line'">
-    <template v-if="total === completed && !showAll">
-      <!-- special cases when everyone has finished -->
-      <component
-        :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
-        class="item"
-        :verb="VERBS.completed"
-        :icon="ICONS.star"
-        :total="total"
-        :count="completed"
-        :verbosity="verbosity"
-        debug="everyone finished"
-      />
-    </template>
-    <template v-else-if="total === notStarted && !showAll">
-      <!-- special cases when no one has started -->
-      <LearnerProgressCount
-        class="item"
-        :style="{ color: $coreGrey300 }"
-        :verb="VERBS.notStarted"
-        :icon="ICONS.nothing"
-        :total="total"
-        :count="notStarted"
-        :verbosity="verbosity"
-        debug="no one started"
-      />
-    </template>
+    <!-- special cases when total is 0 -->
+    <component
+      :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
+      v-if="total === 0"
+      class="item"
+      :verb="VERBS.started"
+      :icon="ICONS.nothing"
+      :total="total"
+      :count="started"
+      :verbosity="verbosity"
+      debug="no learners"
+    />
+    <!-- special case when everyone has finished -->
+    <component
+      :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
+      v-else-if="total === completed && !showAll"
+      class="item"
+      :verb="VERBS.completed"
+      :icon="ICONS.star"
+      :total="total"
+      :count="completed"
+      :verbosity="verbosity"
+      debug="everyone finished"
+    />
+    <!-- special case when no one has started -->
+    <LearnerProgressCount
+      v-else-if="total === notStarted && !showAll"
+      class="item"
+      :style="{ color: $coreGrey300 }"
+      :verb="VERBS.notStarted"
+      :icon="ICONS.nothing"
+      :total="total"
+      :count="notStarted"
+      :verbosity="verbosity"
+      debug="no one started"
+    />
     <template v-else-if="ratio">
       <!-- for ratios we only want to display the ratio on the first displayed item -->
       <component
