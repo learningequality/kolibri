@@ -21,6 +21,7 @@
     props: {
       date: {
         type: Date,
+        required: false,
       },
     },
     data: () => ({
