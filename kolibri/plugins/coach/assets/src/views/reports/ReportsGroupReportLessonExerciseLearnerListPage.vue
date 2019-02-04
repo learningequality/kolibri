@@ -34,20 +34,16 @@
               <KRouterLink :text="tableRow.name" :to="link(tableRow.id)" />
             </td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.status.time_spent" />
+              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
             </td>
             <td>
               <TruncatedItemList :items="tableRow.groups" />
             </td>
             <td>
-              {{ tableRow.status }}
-              <!-- v-if="tableRow.status" -->
-              <ElapsedTime
-                :date="tableRow.status.last_activity"
-              />
+              <ElapsedTime :date="tableRow.statusObj.last_activity" />
             </td>
           </tr>
         </transition-group>
@@ -86,7 +82,10 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getContentStatusForLearner(this.$route.params.exerciseId, learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.exerciseId,
+              learner.id
+            ),
           };
           Object.assign(tableRow, learner);
           return tableRow;

@@ -37,9 +37,9 @@
               />
             </td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><Score :value="tableRow.score" /></td>
+            <td><Score :value="tableRow.statusObj.score" /></td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
           </tr>
         </transition-group>
@@ -52,7 +52,6 @@
 
 <script>
 
-  import get from 'lodash/get';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -99,8 +98,7 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getExamStatusForLearner(this.exam.id, learner.id),
-            score: get(this.examLearnerStatusMap, [this.exam.id, learner.id, 'score'], undefined),
+            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;

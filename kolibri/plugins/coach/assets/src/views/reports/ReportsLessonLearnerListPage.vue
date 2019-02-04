@@ -71,7 +71,7 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getLessonStatusForLearner(this.lesson.id, learner.id),
+            status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;
