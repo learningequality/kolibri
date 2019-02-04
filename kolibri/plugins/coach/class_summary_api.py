@@ -145,11 +145,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "username")
 
 
-class LessonNodeIdsField(serializers.Field):
-    def to_representation(self, values):
-        return [value["contentnode_id"] for value in values]
-
-
 class LessonAssignmentsField(serializers.RelatedField):
     def to_representation(self, assignment):
         return assignment.collection.id
@@ -157,7 +152,7 @@ class LessonAssignmentsField(serializers.RelatedField):
 
 class LessonSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(source="is_active")
-    node_ids = LessonNodeIdsField(default=[], source="resources")
+    node_ids = serializers.SerializerMethodField()
 
     # classrooms are in here, and filtered out later
     groups = LessonAssignmentsField(
@@ -167,6 +162,22 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ("id", "title", "active", "node_ids", "groups")
+
+    def get_node_ids(self, obj):
+        node_ids = []
+        # get list of available content node ids
+        for resource in obj.resources:
+            # if resource exists, add to node_ids
+            try:
+                ContentNode.objects.get(id=resource['contentnode_id'])
+                node_ids.append(resource['contentnode_id'])
+            except ContentNode.DoesNotExist:
+                # if resource does not exist, check if another resource with same content_id exists
+                nodes = ContentNode.objects.filter(content_id=resource['content_id'])
+                if nodes:
+                    # add the node_id to the list
+                    node_ids.append(nodes[0].id)
+        return node_ids
 
 
 class ExamQuestionSourcesField(serializers.Field):
@@ -204,6 +215,7 @@ def data(Serializer, queryset):
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
+
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
         query_learners = classroom.get_members()
