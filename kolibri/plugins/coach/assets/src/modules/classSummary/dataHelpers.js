@@ -187,17 +187,17 @@ export default {
       if (!examId || !Array.isArray(learnerIds)) {
         throw new Error('getExamAvgScore: invalid parameter(s)');
       }
-      const statuses = [];
+      const statusObjects = [];
       learnerIds.forEach(learnerId => {
-        const status = getters.getExamStatusObjForLearner(examId, learnerId);
-        if (status !== STATUSES.notStarted) {
-          statuses.push(state.examLearnerStatusMap[examId][learnerId]);
+        const statusObj = getters.getExamStatusObjForLearner(examId, learnerId);
+        if (statusObj.status !== STATUSES.notStarted) {
+          statusObjects.push(statusObj);
         }
       });
-      if (!statuses.length) {
+      if (!statusObjects.length) {
         return undefined;
       }
-      return meanBy(statuses, 'score');
+      return meanBy(statusObjects, 'score');
     };
   },
 };
