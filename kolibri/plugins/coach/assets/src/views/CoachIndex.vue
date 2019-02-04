@@ -27,33 +27,9 @@
       reportLessonDetailEditorTitle: 'Edit lesson details',
       reportLessonResourceManagerTitle: 'Manage resources',
     },
-    computed: {
-      currentClassroomId() {
-        return this.$route.params.classId;
-      },
-    },
-    watch: {
-      currentClassroomId() {},
-    },
   };
 
 </script>
 
 
-<style lang="scss">
-
-  @import '~kolibri.styles.definitions';
-
-  // COACH - under construction ...
-  .new-coach-block {
-    @extend %dropshadow-1dp;
-
-    min-width: 600px;
-    padding: 8px 24px 24px;
-    margin-top: 24px;
-    background-color: white;
-    border-radius: 4px;
-  }
-  // ... COACH - under construction
-
-</style>
+<style lang="scss"></style>

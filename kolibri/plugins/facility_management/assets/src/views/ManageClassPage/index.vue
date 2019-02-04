@@ -45,7 +45,10 @@
           </td>
           <td>
             <span :ref="`coachNames${classroom.id}`">
-              {{ formattedCoachNames(classroom) }}
+              <template v-if="coachNames(classroom).length">
+                {{ formattedCoachNames(classroom) }}
+              </template>
+              <KEmptyPlaceholder v-else />
             </span>
             <KTooltip
               v-if="formattedCoachNamesTooltip(classroom)"
@@ -98,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -126,6 +130,7 @@
       KGridItem,
       UiIcon,
       KTooltip,
+      KEmptyPlaceholder,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
@@ -147,9 +152,6 @@
       },
       formattedCoachNames(classroom) {
         const coach_names = this.coachNames(classroom);
-        if (coach_names.length === 0) {
-          return '–';
-        }
         if (coach_names.length === 1) {
           return coach_names[0];
         }

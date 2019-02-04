@@ -10,7 +10,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsGroupLearnerHeader />
       <NotificationsFilter />
@@ -133,7 +133,7 @@
         :text="coachStrings.$tr('showMoreAction')"
       />
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

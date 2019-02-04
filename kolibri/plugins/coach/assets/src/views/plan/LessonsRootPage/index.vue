@@ -9,7 +9,7 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
 
       <h1>{{ $tr('classLessons') }}</h1>
@@ -93,7 +93,7 @@
         @continue="handleDetailsModalContinue"
         @cancel="showModal=false"
       />
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 

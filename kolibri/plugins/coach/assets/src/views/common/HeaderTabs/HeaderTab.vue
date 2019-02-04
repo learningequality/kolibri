@@ -3,12 +3,14 @@
   <router-link
     ref="btn"
     :to="to"
-    class="button"
-    :activeClass="activeStyles"
+    class="header-tab"
+    :activeClass="activeClasses"
     :style="{ color: $coreTextAnnotation }"
-    :class="[defaultStyles, $computedClass({ ':focus': $coreOutline })]"
+    :class="defaultStyles"
   >
-    {{ text }}
+    <div class="inner" :style="{ borderColor: this.$coreActionNormal }">
+      {{ text }}
+    </div>
   </router-link>
 
 </template>
@@ -37,15 +39,13 @@
     },
     computed: {
       ...mapGetters(['$coreActionNormal', '$coreTextAnnotation', '$coreGrey300', '$coreOutline']),
-      activeStyles() {
-        return this.$computedClass({
-          borderColor: this.$coreActionNormal,
-          color: this.$coreActionNormal,
-          borderBottomWidth: '2px',
-        });
+      activeClasses() {
+        // return both fixed and dynamic classes
+        return `router-link-active ${this.$computedClass({ color: this.$coreActionNormal })}`;
       },
       defaultStyles() {
         return this.$computedClass({
+          ':focus': this.$coreOutline,
           ':hover': {
             backgroundColor: this.$coreGrey300,
           },
@@ -62,14 +62,13 @@
   @import '~kolibri.styles.definitions';
 
   // a lot copied from KButton
-  .button {
+  .header-tab {
     position: relative;
     top: 9px;
     display: inline-table; // helps with vertical layout
     min-width: 64px;
     max-width: 100%;
     min-height: 36px;
-    padding: 0 16px;
     margin: 8px;
     overflow: hidden;
     font-size: 14px;
@@ -89,6 +88,18 @@
     border-top-right-radius: $radius;
     outline: none;
     transition: background-color $core-time ease;
+  }
+
+  .inner {
+    padding: 0 16px;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 0;
+  }
+
+  .router-link-active .inner {
+    margin-bottom: 0;
+    border-bottom-width: 2px;
   }
 
 </style>

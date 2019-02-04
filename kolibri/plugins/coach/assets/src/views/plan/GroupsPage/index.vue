@@ -9,7 +9,7 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
       <h1>{{ $tr('classGroups') }}</h1>
       <div class="ta-r">
@@ -66,7 +66,7 @@
         :groupId="selectedGroup.id"
       />
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

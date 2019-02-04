@@ -10,7 +10,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsGroupReportQuizHeader />
 
@@ -50,7 +50,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

@@ -1,6 +1,6 @@
 <template>
 
-  <div class="new-coach-block">
+  <KPageContainer class="block">
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
         <h2>
@@ -18,7 +18,7 @@
       </KGridItem>
     </KGrid>
     <slot></slot>
-  </div>
+  </KPageContainer>
 
 </template>
 
@@ -51,8 +51,7 @@
 
 <style lang="scss" scoped>
 
-  .new-coach-block {
-    min-width: auto;
+  .block {
     margin-top: 16px;
   }
 
@@ -66,15 +65,6 @@
     position: relative;
     top: 4px;
     right: -24px;
-  }
-
-  /deep/ .block-item:not(:last-child) {
-    padding-right: 24px;
-    padding-bottom: 16px;
-    padding-left: 24px;
-    margin-right: -24px;
-    margin-left: -24px;
-    border-bottom: 1px solid #dedede;
   }
 
 </style>

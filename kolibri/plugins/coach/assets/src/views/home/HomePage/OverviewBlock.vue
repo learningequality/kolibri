@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <KPageContainer>
     <p>
       <BackLink
         :to="$router.getRoute('CoachClassListPage')"
@@ -20,7 +20,7 @@
         </template>
       </HeaderTableRow>
     </HeaderTable>
-  </div>
+  </KPageContainer>
 
 </template>
 

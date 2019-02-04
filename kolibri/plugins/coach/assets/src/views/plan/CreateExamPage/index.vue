@@ -10,7 +10,7 @@
     authorizedRole="adminOrCoach"
   >
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <h1>{{ $tr('createNewExam') }}</h1>
 
@@ -125,7 +125,7 @@
         />
       </Bottom>
 
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 

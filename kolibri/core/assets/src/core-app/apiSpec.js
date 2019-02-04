@@ -82,9 +82,10 @@ import KDraggable from '../views/kSortable/KDraggable';
 import KDragHandle from '../views/kSortable/KDragHandle';
 import KDragContainer from '../views/kSortable/KDragContainer';
 import KDragSortWidget from '../views/kSortable/KDragSortWidget';
+import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
+import KPageContainer from '../views/KPageContainer';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
@@ -180,6 +181,8 @@ export default {
       KDragHandle,
       KDragContainer,
       KDragSortWidget,
+      KEmptyPlaceholder,
+      KPageContainer,
     },
     router,
     mixins: {
@@ -192,7 +195,6 @@ export default {
   styles: {
     definitions,
     keenVars,
-    buttonAndLinkStyles,
   },
   urls,
   utils: {

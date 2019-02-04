@@ -12,7 +12,7 @@
 
     <KGrid :gutter="16">
       <KGridItem size="100" percentage>
-        <OverviewBlock class="new-coach-block" />
+        <OverviewBlock />
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
         <KGrid :gutter="16">

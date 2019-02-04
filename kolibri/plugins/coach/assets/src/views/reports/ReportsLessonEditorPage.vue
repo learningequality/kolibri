@@ -10,14 +10,14 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <LessonDetailEditor />
       <p><KButton :text="coachStrings.$tr('manageResourcesAction')" /></p>
       <h2>{{ coachStrings.$tr('numberOfResources', { value: 2 }) }}</h2>
       <pre>ResourceListTable</pre>
       <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
       <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

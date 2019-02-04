@@ -10,7 +10,7 @@
     authorizedRole="adminOrCoach"
   >
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
       <h2>{{ detailsString }}</h2>
       <KGrid>
@@ -178,7 +178,7 @@
           @click="submit"
         />
       </Bottom>
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 
