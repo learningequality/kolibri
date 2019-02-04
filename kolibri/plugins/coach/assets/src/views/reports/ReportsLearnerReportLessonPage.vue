@@ -36,15 +36,15 @@
       </HeaderTable>
 
       <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
@@ -76,8 +76,8 @@
             </td>
             <td><TimeDuration :seconds="120" /></td>
           </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 

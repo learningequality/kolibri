@@ -1,4 +1,4 @@
-import { lighten } from 'kolibri.utils.colour';
+import { lighten, darken } from 'kolibri.utils.colour';
 
 const initialState = {
   '$core-action-light': '#e2d1e0',
@@ -24,6 +24,7 @@ const initialState = {
   '$core-grey': '#e0e0e0',
 
   '$core-loading': '#03a9f4',
+  modality: null,
 };
 
 export default {
@@ -90,8 +91,31 @@ export default {
     $coreLoading(state) {
       return state['$core-loading'];
     },
+    // Should only use these styles to outline stuff that will be focused
+    // on keyboard-tab-focus
     $coreOutline(state) {
-      return `${state['$core-action-light']} 2px solid`;
+      if (state.modality !== 'keyboard') {
+        return {
+          outline: 'none',
+        };
+      }
+
+      return {
+        outlineColor: darken(state['$core-action-light'], 0.1),
+        outlineStyle: 'solid',
+        outlineWidth: '3px',
+        outlineOffset: '4px',
+      };
+    },
+    // Should use this when the outline needs to be applied regardless
+    // of modality
+    $coreOutlineAnyModality(state) {
+      return {
+        outlineColor: darken(state['$core-action-light'], 0.1),
+        outlineStyle: 'solid',
+        outlineWidth: '3px',
+        outlineOffset: '4px',
+      };
     },
   },
   mutations: {
@@ -100,6 +124,9 @@ export default {
     },
     RESET_THEME_VALUE(state, varName) {
       state[varName] = initialState[varName];
+    },
+    SET_MODALITY(state, modality) {
+      state.modality = modality;
     },
   },
 };

@@ -44,7 +44,7 @@
             </th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr
             v-for="lesson in lessons"
             v-show="showLesson(lesson)"
@@ -65,7 +65,7 @@
               <StatusIcon :active="lesson.is_active" :type="lessonKind" />
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </CoreTable>
 
       <p v-if="!lessons.length">

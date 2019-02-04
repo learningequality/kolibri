@@ -1,7 +1,6 @@
 import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
-import map from 'lodash/map';
-import max from 'date-fns/max';
+import maxBy from 'lodash/maxBy';
 import { NotificationObjects } from '../../constants/notificationsConstants';
 import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
@@ -33,8 +32,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     // Use first event in list as exemplar for summary object
     const firstEvent = allEvents[0];
 
-    // Get the timestamp of the most recent event in the collection
-    const lastTimestamp = max.apply(null, map(allEvents, 'timestamp'));
+    // Get the ID of the most recent event in the collection
+    const lastId = maxBy(allEvents, n => Number(n.id)).id;
 
     const { object, type, event } = firstEvent;
 
@@ -98,8 +97,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         type,
         object,
         event,
-        groupCode,
-        lastTimestamp,
+        groupCode: groupCode + '_' + collIdx,
+        lastId,
         assignment,
         resource,
         collection: {

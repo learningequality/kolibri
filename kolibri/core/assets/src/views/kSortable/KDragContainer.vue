@@ -3,7 +3,11 @@
   // Implemention inspired by an excellent demo at:
   // https://github.com/adamwathan/vue-shopify-sortable-demo
 
-  import { Sortable, Plugins } from '@shopify/draggable/lib/es5/draggable.bundle.legacy.js';
+  import {
+    Sortable,
+    Plugins,
+    Draggable,
+  } from '@shopify/draggable/lib/es5/draggable.bundle.legacy.js';
   import { SORTABLE_CLASS, HANDLE_CLASS } from './classDefinitions';
 
   export default {
@@ -40,6 +44,13 @@
           plugins: [Plugins.SwapAnimation],
         });
 
+        // Remove default focusable plugin and undo damage.
+        // ref: https://github.com/Shopify/draggable/issues/317
+        this.sortable.removePlugin(Draggable.Plugins.Focusable);
+        this.$el.tabIndex = -1;
+        Array.from(this.$el.children).forEach(child => (child.tabIndex = -1));
+
+        // hook up event listeners
         this.sortable.on('sortable:start', this.handleStart);
         this.sortable.on('sortable:stop', this.handleStop);
       },
@@ -83,7 +94,7 @@
 
   @import '~kolibri.styles.definitions';
 
-  .draggable-mirror {
+  /deep/ .draggable-mirror {
     @extend %dropshadow-8dp;
 
     z-index: 8;
@@ -91,12 +102,11 @@
     border-radius: $radius;
   }
 
-  .draggable-source--is-dragging {
-    cursor: grabbing;
+  /deep/ .draggable-source--is-dragging {
     visibility: hidden;
   }
 
-  .draggable-source--placed {
+  /deep/ .draggable-source--placed {
     animation-name: bounceIn;
     animation-duration: $core-time;
   }

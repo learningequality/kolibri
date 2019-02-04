@@ -17,8 +17,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
@@ -26,39 +26,29 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <transition-group is="tbody" name="list">
-          <tr v-for="lesson in table" :key="lesson.id">
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                :text="lesson.title"
-                :to="classRoute('ReportsLessonReportPage', { lessonId: lesson.id })"
+                :text="tableRow.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
               />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="numCompleted(lesson)"
-                :total="dataHelpers.learnersForGroups(lesson.groups).length"
-                verbosity="0"
-                verb="completed"
-                icon="learners"
-              />
-              <LearnerProgressCount
-                v-if="numNeedingHelp(lesson)"
-                :count="numNeedingHelp(lesson)"
-                verbosity="0"
-                verb="needHelp"
-                icon="help"
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
             <td>
               <Recipients
-                :groups="dataHelpers.groupNames(lesson.groups)"
+                :groupNames="tableRow.groupNames"
               />
             </td>
-            <td><LessonActive :active="lesson.active" /></td>
+            <td><LessonActive :active="tableRow.active" /></td>
           </tr>
         </transition-group>
-      </table>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -67,7 +57,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -83,8 +72,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', []),
-      ...mapGetters('classSummary', ['lessons']),
       filterOptions() {
         return [
           {
@@ -102,8 +89,7 @@
         ];
       },
       table() {
-        return this.lessons.filter(lesson => {
-          // console.log(lesson.active);
+        const filtered = this.lessons.filter(lesson => {
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'activeLessons') {
@@ -112,6 +98,18 @@
             return !lesson.active;
           }
         });
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(lesson => {
+          const learners = this.getLearnersForGroups(lesson.groups);
+          const tableRow = {
+            totalLearners: learners.length,
+            tally: this.getLessonStatusTally(lesson.id, learners),
+            groupNames: this.getGroupNames(lesson.groups),
+          };
+          Object.assign(tableRow, lesson);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     beforeMount() {
@@ -122,22 +120,6 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-    },
-    methods: {
-      numCompleted(lesson) {
-        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
-        );
-        return statuses.filter(status => status === 'completed').length;
-      },
-      numNeedingHelp(lesson) {
-        const learners = this.dataHelpers.learnersForGroups(lesson.groups);
-        const statuses = learners.map(learnerId =>
-          this.dataHelpers.lessonStatusForLearner(lesson.id, learnerId)
-        );
-        return statuses.filter(status => status === 'help_needed').length;
-      },
     },
   };
 

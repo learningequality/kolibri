@@ -2,7 +2,10 @@
 
   <span class="wrapper">
     <slot></slot>
-    <span class="label">{{ label }}</span>
+
+    <transition name="fade">
+      <span :key="label" class="label">{{ label }}</span>
+    </transition>
   </span>
 
 </template>
@@ -26,19 +29,34 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .wrapper {
     position: relative;
-    margin-right: 16px;
+    white-space: nowrap;
   }
 
   .label {
-    margin-left: 20px;
+    margin-left: 6px;
   }
 
   .wrapper svg {
-    position: absolute;
+    position: relative;
     top: -1px;
     width: 16px;
+    vertical-align: middle;
+  }
+
+  .fade-leave-active {
+    position: absolute;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity $core-time ease;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
 
 </style>

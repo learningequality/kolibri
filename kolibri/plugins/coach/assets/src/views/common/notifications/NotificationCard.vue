@@ -3,9 +3,9 @@
   <div class="notification">
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="time ? 50 : 75" percentage>
+      <KGridItem :size="75" percentage>
         <CoachStatusIcon
-          :icon="icon"
+          :icon="statusIcon"
           class="icon"
         />
         <div class="icon-spacer">
@@ -18,9 +18,6 @@
             <slot></slot>
           </span>
         </div>
-      </KGridItem>
-      <KGridItem v-if="time" :size="25" percentage alignment="center">
-        {{ time }}
       </KGridItem>
       <KGridItem :size="25" percentage>
         <div class="button-wrapper">
@@ -42,8 +39,19 @@
 <script>
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoach from '../../common';
   import CoachStatusIcon from '../status/CoachStatusIcon';
+  import {
+    NotificationEvents,
+    NotificationObjects,
+  } from '../../../constants/notificationsConstants';
+
+  const EventToIconMap = {
+    [NotificationEvents.COMPLETED]: 'star',
+    [NotificationEvents.STARTED]: 'clock',
+    [NotificationEvents.HELP_NEEDED]: 'help',
+  };
 
   export default {
     name: 'NotificationCard',
@@ -54,18 +62,24 @@
     mixins: [commonCoach],
     props: {
       targetPage: {
+        type: Object,
+        required: false,
+        validator: validateLinkObject,
+      },
+      // Notification event: 'Started', 'Completed', 'HelpNeeded'
+      eventType: {
+        type: String,
+        required: true,
+      },
+      // Notification object: 'Lesson', 'Quiz', 'Resource',
+      objectType: {
+        type: String,
+        required: true,
+      },
+      // A ContentNodeKind
+      resourceType: {
         type: String,
         required: false,
-      },
-      // Primary icon ('star', 'help', or 'clock')
-      icon: {
-        type: String,
-        required: true,
-      },
-      // Content icon (see validateContentNodeKind utility for valid values)
-      contentIcon: {
-        type: String,
-        required: true,
       },
       // group name
       learnerContext: {
@@ -77,13 +91,20 @@
         type: String,
         required: false,
       },
-      // exam or lesson name
-      time: {
-        type: String,
-        required: false,
-      },
     },
     computed: {
+      statusIcon() {
+        return EventToIconMap[this.eventType];
+      },
+      contentIcon() {
+        if (this.objectType === NotificationObjects.QUIZ) {
+          return 'exam';
+        } else if (this.objectType === NotificationObjects.LESSON) {
+          return 'lesson';
+        } else {
+          return this.resourceType;
+        }
+      },
       context() {
         if (this.learnerContext && this.contentContext) {
           return `${this.learnerContext} • ${this.contentContext}`;

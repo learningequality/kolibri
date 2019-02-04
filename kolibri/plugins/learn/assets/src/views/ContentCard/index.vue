@@ -165,9 +165,12 @@
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;
-    &:hover,
-    &:focus {
+    &:hover {
       @extend %dropshadow-8dp;
+    }
+    &:focus {
+      outline-width: 4px;
+      outline-offset: 6px;
     }
   }
 

@@ -14,104 +14,54 @@
       <p>
         <BackLink
           :to="classRoute('ReportsLessonReportPage', {})"
-          :text="$tr('back', { lesson: lessonName })"
+          :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
-      <h1>Some Video</h1>
+      <h1>{{ resource.title }}</h1>
+      <!-- TODO COACH
       <KButton :text="coachStrings.$tr('previewAction')" />
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-
-      <HeaderTable>
+       -->
+      <HeaderTable v-if="avgTime">
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('avgTimeSpentLabel') }}</template>
-          <template slot="value"><TimeDuration :seconds="360" /></template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template slot="key">{{ $tr('avgNumViews') }}</template>
-          <template slot="value">{{ coachStrings.$tr('integer', {value: 3}) }}</template>
+          <template slot="value"><TimeDuration :seconds="avgTime" /></template>
         </HeaderTableRow>
       </HeaderTable>
 
       <p>
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="1"
-          verb="completed"
-          icon="star"
-        />
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="1"
-          verb="started"
-          icon="clock"
-        />
-        <LearnerProgressCount
-          :verbosity="0"
-          :count="1"
-          verb="notStarted"
-          icon="nothing"
-        />
+        <StatusSummary :tally="tally" />
       </p>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('nameLabel') }}</td>
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
-            <td>{{ coachStrings.$tr('viewsLabel') }}</td>
             <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
             <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>April</td>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
+            <td>{{ tableRow.name }}</td>
             <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="notStarted"
-                icon="nothing"
+              <StatusSimple :status="tableRow.status" />
+            </td>
+            <td>
+              <TimeDuration :seconds="tableRow.status.time_spent" />
+            </td>
+            <td><TruncatedItemList :items="tableRow.groups" /></td>
+            <td>
+              <ElapsedTime
+                v-if="tableRow.status"
+                :date="tableRow.status.last_activity "
               />
             </td>
-            <td>23</td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>Gnomes | Explorers</td>
-            <td>some time ago</td>
           </tr>
-          <tr>
-            <td>Tom</td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td>23</td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>Gnomes | Explorers</td>
-            <td>some time ago</td>
-          </tr>
-          <tr>
-            <td>Steve</td>
-            <td>
-              <LearnerProgressLabel
-                :count="1"
-                :verbosity="1"
-                verb="started"
-                icon="clock"
-              />
-            </td>
-            <td>23</td>
-            <td><TimeDuration :seconds="60*15" /></td>
-            <td>Gnomes | Explorers</td>
-            <td>some time ago</td>
-          </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -126,10 +76,35 @@
     name: 'ReportsLessonResourceLearnerListPage',
     components: {},
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
+    computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      resource() {
+        return this.contentMap[this.$route.params.resourceId];
+      },
+      recipients() {
+        return this.getLearnersForGroups(this.lesson.groups);
+      },
+      avgTime() {
+        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
+      },
+      tally() {
+        return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            status: this.getContentStatusForLearner(this.$route.params.resourceId, learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     $trs: {
       back: "Back to '{lesson}'",

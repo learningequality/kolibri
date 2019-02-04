@@ -12,3 +12,4 @@ class KolibriAuthConfig(AppConfig):
 
     def ready(self):
         from .signals import cascade_delete_membership  # noqa: F401
+        from .signals import cascade_delete_user  # noqa: F401

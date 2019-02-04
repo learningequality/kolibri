@@ -1,7 +1,8 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
-
 import GroupsPage from '../views/plan/GroupsPage';
+import GroupMembersPage from '../views/plan/GroupMembersPage';
+import GroupEnrollPage from '../views/plan/GroupEnrollPage';
 import { showGroupsPage } from '../modules/groups/handlers';
 import planLessonsRoutes from './planLessonsRoutes';
 import planExamRoutes from './planExamRoutes';
@@ -18,6 +19,22 @@ export default [
     name: GroupsPage.name,
     path: '/:classId/plan/groups',
     component: GroupsPage,
+    handler(to) {
+      showGroupsPage(store, to.params.classId);
+    },
+  },
+  {
+    name: GroupMembersPage.name,
+    path: '/:classId/plan/groups/:groupId',
+    component: GroupMembersPage,
+    handler(to) {
+      showGroupsPage(store, to.params.classId);
+    },
+  },
+  {
+    name: GroupEnrollPage.name,
+    path: '/:classId/plan/groups/:groupId/enroll',
+    component: GroupEnrollPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
     },

@@ -27,7 +27,7 @@
           <th>{{ $tr('actions') }}</th>
         </tr>
       </thead>
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr
           v-for="classroom in sortedClassrooms"
           :key="classroom.id"
@@ -67,7 +67,7 @@
             />
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>

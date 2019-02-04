@@ -4,8 +4,9 @@
     ref="btn"
     :to="to"
     class="button"
-    :style="defaultStyles"
-    :activeClass="$computedClass(activeStyles)"
+    :activeClass="activeStyles"
+    :style="{ color: $coreTextAnnotation }"
+    :class="[defaultStyles, $computedClass({ ':focus': $coreOutline })]"
   >
     {{ text }}
   </router-link>
@@ -35,18 +36,20 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreActionNormal', '$coreTextAnnotation']),
+      ...mapGetters(['$coreActionNormal', '$coreTextAnnotation', '$coreGrey300', '$coreOutline']),
       activeStyles() {
-        return {
+        return this.$computedClass({
           borderColor: this.$coreActionNormal,
           color: this.$coreActionNormal,
           borderBottomWidth: '2px',
-        };
+        });
       },
       defaultStyles() {
-        return {
-          color: this.$coreTextAnnotation,
-        };
+        return this.$computedClass({
+          ':hover': {
+            backgroundColor: this.$coreGrey300,
+          },
+        });
       },
     },
   };
@@ -55,6 +58,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   // a lot copied from KButton
   .button {
@@ -77,12 +82,13 @@
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
-    background: none;
     border: 0;
     border-style: solid;
     border-width: 0;
-    border-radius: 0;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
     outline: none;
+    transition: background-color $core-time ease;
   }
 
 </style>

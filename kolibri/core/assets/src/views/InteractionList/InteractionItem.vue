@@ -2,7 +2,7 @@
 
   <div
     class="attempt-box"
-    :style="{ border: `2px solid ${selected ? $coreTextDefault : $coreTextDisable}` }"
+    :style="{ border: `2px solid ${selected ? $coreTextDefault : $coreTextDisabled }` }"
   >
     <template v-if="isAnswer">
       <mat-svg

@@ -1,10 +1,22 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import ElapsedTime from '../../src/views/ElapsedTime';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  return shallowMount(ElapsedTime, options);
+  const getters = {
+    $coreGrey300: () => 'gray',
+  };
+  const store = new Vuex.Store({ getters });
+  return shallowMount(ElapsedTime, {
+    ...options,
+    store,
+    localVue,
+  });
 }
 
 // prettier-ignore

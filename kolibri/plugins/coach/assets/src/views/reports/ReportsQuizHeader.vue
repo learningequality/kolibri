@@ -4,11 +4,13 @@
 
     <p>
       <BackLink
-        :to="classRoute('ReportsQuizListPage', {})"
+        :to="classRoute('ReportsQuizListPage')"
         :text="$tr('back')"
       />
     </p>
-    <h1>Some quiz</h1>
+    <h1>{{ exam.title }}</h1>
+
+    <!-- COACH TODO
     <KDropdownMenu
       slot="optionsDropdown"
       :text="coachStrings.$tr('optionsLabel')"
@@ -16,44 +18,43 @@
       appearance="raised-button"
       @select="goTo($event.value)"
     />
+     -->
+
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-        <template slot="value"><QuizActive :active="true" /></template>
+        <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
-        <template slot="value"><Recipients :groups="[]" /></template>
+        <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('progressLabel') }}</template>
         <template slot="value">
-          <LearnerProgressRatio
-            :count="1"
-            :total="3"
-            :verbosity="2"
-            verb="completed"
-            icon="clock"
-          />
+          <StatusSummary :tally="tally" :verbose="false" />
         </template>
       </HeaderTableRow>
+      <!-- TODO COACH
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
         <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
       </HeaderTableRow>
+       -->
     </HeaderTable>
 
+    <!-- COACH TODO
     <HeaderTabs>
       <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        :to="link('ReportsQuizLearnerListPage')"
+        :to="classRoute('ReportsQuizLearnerListPage')"
       />
       <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        :to="link('ReportsQuizQuestionListPage')"
+        :to="classRoute('ReportsQuizQuestionListPage')"
       />
     </HeaderTabs>
-
+     -->
   </div>
 
 </template>
@@ -74,15 +75,17 @@
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
-    },
-    methods: {
-      goTo(page) {
-        this.$router.push(this.classRoute(page, {}));
+      exam() {
+        return this.examMap[this.$route.params.quizId];
       },
-      link(page) {
-        return this.classRoute(page, {});
+      recipients() {
+        return this.getLearnersForGroups(this.exam.groups);
+      },
+      tally() {
+        return this.getExamStatusTally(this.exam.id, this.recipients);
       },
     },
+
     $trs: {
       back: 'All quizzes',
     },

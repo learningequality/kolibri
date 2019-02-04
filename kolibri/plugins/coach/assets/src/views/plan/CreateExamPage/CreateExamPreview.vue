@@ -61,6 +61,8 @@
         <UiIconButton
           type="flat"
           aria-hidden="true"
+          tabindex="-1"
+          color="primary"
           @click="getNewQuestionSet"
         >
           <mat-svg name="refresh" category="navigation" />
@@ -95,7 +97,7 @@
             :items="annotatedQuestions"
             @sort="handleUserSort"
           >
-            <ol class="question-list fixed">
+            <transition-group tag="ol" name="list" class="question-list">
               <KDraggable
                 v-for="(question, questionIndex) in annotatedQuestions"
                 :key="listKey(question)"
@@ -107,11 +109,15 @@
                     :exerciseName="question.title"
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
                     :questionNumberOfExercise="question.counterInExercise"
+                    :isFirst="questionIndex === 0"
+                    :isLast="questionIndex === annotatedQuestions.length - 1"
                     @select="currentQuestionIndex = questionIndex"
+                    @moveDown="moveQuestionDown(questionIndex)"
+                    @moveUp="moveQuestionUp(questionIndex)"
                   />
                 </KDragHandle>
               </KDraggable>
-            </ol>
+            </transition-group>
           </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
@@ -126,12 +132,18 @@
             />
           </ul>
           <transition name="fade-numbers">
-            <ol v-if="fixedOrder" class="numbers" aria-hidden>
+            <ol v-if="fixedOrder" class="list-labels" aria-hidden>
               <li
                 v-for="(question, questionIndex) in selectedQuestions"
                 :key="questionIndex"
               ></li>
             </ol>
+            <ul v-else class="list-labels" aria-hidden>
+              <li
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+              ></li>
+            </ul>
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
@@ -193,6 +205,7 @@
   import commonCoach from '../../common';
   import QuizDetailEditor from '../../common/QuizDetailEditor';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
   import CeateExamPage from './index';
@@ -200,8 +213,6 @@
   const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
-
-  const MAX_QUESTIONS = 50;
 
   export default {
     name: 'CreateExamPreview',
@@ -243,7 +254,11 @@
     },
     computed: {
       ...mapState(['toolbarRoute']),
-      ...mapState('examCreation', ['loadingNewQuestions', 'selectedQuestions']),
+      ...mapState('examCreation', [
+        'loadingNewQuestions',
+        'selectedQuestions',
+        'selectedExercises',
+      ]),
       annotatedQuestions() {
         const counts = {};
         const totals = {};
@@ -283,15 +298,8 @@
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },
-      exercises() {
-        const exercises = {};
-        this.$store.state.examCreation.selectedExercises.forEach(exercise => {
-          exercises[exercise.id] = exercise;
-        });
-        return exercises;
-      },
       content() {
-        return this.exercises[this.currentQuestion.exercise_id];
+        return this.selectedExercises[this.currentQuestion.exercise_id];
       },
       questionId() {
         return this.currentQuestion.question_id;
@@ -361,12 +369,24 @@
           }, 250);
         }
       },
+      shiftOne(oldIndex, newIndex) {
+        const newArray = [...this.selectedQuestions];
+        newArray[oldIndex] = this.selectedQuestions[newIndex];
+        newArray[newIndex] = this.selectedQuestions[oldIndex];
+        this.handleUserSort({ newArray, oldIndex, newIndex });
+      },
+      moveQuestionUp(index) {
+        this.shiftOne(index, index - 1);
+      },
+      moveQuestionDown(index) {
+        this.shiftOne(index, index + 1);
+      },
       getNewQuestionSet() {
         this.$store.commit('examCreation/RANDOMIZE_SEED');
         this.$store.dispatch('examCreation/updateSelectedQuestions');
       },
       numCoachContents(exerciseId) {
-        return this.exercises[exerciseId].num_coach_contents;
+        return this.selectedExercises[exerciseId].num_coach_contents;
       },
       isSelected(question) {
         return (
@@ -421,11 +441,8 @@
   .question-list {
     padding: 0;
     margin-top: 0;
-    list-style: none;
-  }
-
-  .question-list.fixed {
     margin-left: 40px;
+    list-style: none;
   }
 
   .question-title {
@@ -433,7 +450,7 @@
     text-align: center;
   }
 
-  .numbers {
+  .list-labels {
     position: absolute;
     top: 0;
     left: 0;
@@ -459,6 +476,10 @@
 
   .fade-numbers-enter {
     opacity: 0;
+  }
+
+  .list-move {
+    transition: transform $core-time ease;
   }
 
 </style>

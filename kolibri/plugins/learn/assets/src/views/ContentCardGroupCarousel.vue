@@ -13,7 +13,6 @@
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
           :disabled="isFirstSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_back" category="navigation" />
@@ -53,7 +52,6 @@
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
           :disabled="isLastSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_forward" category="navigation" />

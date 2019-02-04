@@ -1,6 +1,11 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
+import {
+  generateExerciseDetailHandler,
+  rootRedirectHandler,
+} from '../modules/exerciseDetail/handlers';
+import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -14,7 +19,10 @@ const QUIZZES = '/quizzes';
 const QUIZ = '/quizzes/:quizId';
 const QUESTIONS = '/questions';
 const QUESTION = '/questions/:questionId';
+const ATTEMPT = '/attempts/:attemptId';
+const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
+const RESOURCES = '/resources';
 const RESOURCE = '/resources/:resourceId';
 
 function path(...args) {
@@ -63,8 +71,23 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LEARNER, QUIZ),
+    name: PageNames.REPORTS_GROUP_LEARNER_REPORT_QUIZ_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsGroupLearnerReportQuizPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LEARNER, QUIZ, QUESTION, INTERACTION),
     component: pages.ReportsGroupLearnerReportQuizPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
   },
   {
     path: path(CLASS, GROUPS),
@@ -78,8 +101,16 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER),
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsGroupReportLessonExerciseLearnerPage,
-    handler: defaultHandler,
+    handler: generateExerciseDetailHandler(['groupId', 'learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
@@ -113,8 +144,23 @@ export default [
   },
   {
     path: path(CLASS, GROUP, QUIZ, LEARNER),
+    name: PageNames.REPORTS_GROUP_REPORT_QUIZ_LEARNER_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsGroupReportQuizLearnerPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, GROUP, QUIZ, LEARNER, QUESTION, INTERACTION),
     component: pages.ReportsGroupReportQuizLearnerPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
   },
   {
     path: path(CLASS, GROUP, QUIZ, QUESTIONS),
@@ -128,8 +174,16 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY, EXERCISE),
+    name: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLearnerActivityExercisePage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, LEARNER, ACTIVITY, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLearnerActivityExercisePage,
-    handler: defaultHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'exerciseId']),
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY),
@@ -143,8 +197,16 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, LESSON, EXERCISE),
+    name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLearnerReportLessonExercisePage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, LEARNER, LESSON, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLearnerReportLessonExercisePage,
-    handler: defaultHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LEARNER, LESSON),
@@ -158,8 +220,23 @@ export default [
   },
   {
     path: path(CLASS, LEARNER, QUIZ),
+    name: PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsLearnerReportQuizPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, LEARNER, QUIZ, QUESTION, INTERACTION),
     component: pages.ReportsLearnerReportQuizPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
   },
   {
     path: path(CLASS, LESSON, '/edit'),
@@ -173,8 +250,16 @@ export default [
   },
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
+    name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
-    handler: defaultHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
@@ -188,8 +273,16 @@ export default [
   },
   {
     path: path(CLASS, LESSON, LEARNER, EXERCISE),
+    name: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return rootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, LESSON, LEARNER, EXERCISE, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonLearnerExercisePage,
-    handler: defaultHandler,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
   },
   {
     path: path(CLASS, LESSON, LEARNERS),
@@ -212,7 +305,7 @@ export default [
     handler: defaultHandler,
   },
   {
-    path: path(CLASS, LESSON),
+    path: path(CLASS, LESSON, RESOURCES),
     component: pages.ReportsLessonReportPage,
     handler: defaultHandler,
   },
@@ -233,8 +326,23 @@ export default [
   },
   {
     path: path(CLASS, QUIZ, LEARNER),
+    name: PageNames.REPORTS_QUIZ_LEARNER_PAGE_ROOT,
+    redirect: to => {
+      const { params } = to;
+      return {
+        name: pages.ReportsQuizLearnerPage.name,
+        params: {
+          ...params,
+          questionId: 0,
+          interactionIndex: 0,
+        },
+      };
+    },
+  },
+  {
+    path: path(CLASS, QUIZ, LEARNER, QUESTION, INTERACTION),
     component: pages.ReportsQuizLearnerPage,
-    handler: defaultHandler,
+    handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
   },
   {
     path: path(CLASS, QUIZZES),

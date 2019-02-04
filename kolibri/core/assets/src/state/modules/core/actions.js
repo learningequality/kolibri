@@ -11,6 +11,8 @@ import {
   ChannelResource,
   AttemptLogResource,
   UserProgressResource,
+  PingbackNotificationResource,
+  PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
 import { now } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
@@ -18,6 +20,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
+import Lockr from 'lockr';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -25,6 +28,7 @@ import {
   InteractionTypes,
   LoginErrors,
   ERROR_CONSTANTS,
+  UPDATE_MODAL_DISMISSED,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
@@ -152,6 +156,16 @@ function _channelListState(data) {
   }));
 }
 
+function _notificationListState(data) {
+  return data.map(notification => ({
+    id: notification.id,
+    version_range: notification.version_range,
+    timestamp: notification.timestamp,
+    link_url: notification.link_url,
+    i18n: notification.i18n,
+  }));
+}
+
 /**
  * Actions
  *
@@ -203,6 +217,7 @@ export function blockDoubleClicks(store) {
  */
 export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
+  Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
     .then(session => {
       store.commit('CORE_SET_SESSION', _sessionState(session));
@@ -240,6 +255,34 @@ export function getCurrentSession(store, force = false) {
       logging.info('Session set.');
       store.commit('CORE_SET_SESSION', _sessionState(session));
       return session;
+    })
+    .catch(error => {
+      store.dispatch('handleApiError', error);
+    });
+}
+
+export function getNotifications(store) {
+  if (store.getters.isAdmin || store.getters.isSuperuser) {
+    return PingbackNotificationResource.fetchCollection()
+      .then(notifications => {
+        logging.info('Notifications set.');
+        store.commit('CORE_SET_NOTIFICATIONS', _notificationListState(notifications));
+      })
+      .catch(error => {
+        store.dispatch('handleApiError', error);
+      });
+  }
+  return Promise.resolve();
+}
+
+export function saveDismissedNotification(store, notification_id) {
+  const dismissedNotificationData = {
+    user: store.getters.session.user_id,
+    notification: notification_id,
+  };
+  return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })
+    .then(() => {
+      store.commit('CORE_REMOVE_NOTIFICATION', notification_id);
     })
     .catch(error => {
       store.dispatch('handleApiError', error);
@@ -519,7 +562,7 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
   progressPercent = progressPercent || 0;
-  const sessionProgress = sessionLog.progress + progressPercent;
+  const sessionProgress = Math.min(1, sessionLog.progress + progressPercent);
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;

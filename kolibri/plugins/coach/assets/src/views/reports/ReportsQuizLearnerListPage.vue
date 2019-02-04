@@ -15,80 +15,35 @@
       <ReportsQuizHeader />
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
+      <p v-if="avgScore !== undefined">
+        {{ $tr('averageScore', {score: avgScore }) }}
+      </p>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
-            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
+            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="April"
-                :to="classRoute('ReportsQuizLearnerPage', {})"
+                :text="tableRow.name"
+                :to="classRoute('ReportsQuizLearnerPage', { learnerId: tableRow.id })"
               />
             </td>
-            <td><Score /></td>
             <td>
-              <ItemStatusRatio
-                :count="0"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
+              <StatusSimple :status="tableRow.status" />
             </td>
-            <td><TruncatedItemList :items="[]" /></td>
+            <td><Score :value="tableRow.score" /></td>
+            <td><TruncatedItemList :items="tableRow.groups" /></td>
           </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Steve"
-                :to="classRoute('ReportsQuizLearnerPage', {})"
-              />
-            </td>
-            <td><Score /></td>
-            <td>
-              <ItemStatusRatio
-                :count="8"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b']" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="John"
-                :to="classRoute('ReportsQuizLearnerPage', {})"
-              />
-            </td>
-            <td><Score :value="0.1" /></td>
-            <td>
-              <ItemStatusRatio
-                :count="10"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="star"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-          </tr>
-        </tbody>
-      </table>
+        </transition-group>
+      </CoreTable>
     </div>
   </CoreBase>
 
@@ -97,6 +52,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -127,6 +83,29 @@
             value: 'inactiveQuizzes',
           },
         ];
+      },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      recipients() {
+        return this.getLearnersForGroups(this.exam.groups);
+      },
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            status: this.getExamStatusForLearner(this.exam.id, learner.id),
+            score: get(this.examLearnerStatusMap, [this.exam.id, learner.id, 'score'], undefined),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
       },
     },
     beforeMount() {

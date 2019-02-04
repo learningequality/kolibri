@@ -17,7 +17,7 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
-        <template slot="value"><Recipients :groups="[]" /></template>
+        <template slot="value"><Recipients :groupNames="[]" /></template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('progressLabel') }}</template>
