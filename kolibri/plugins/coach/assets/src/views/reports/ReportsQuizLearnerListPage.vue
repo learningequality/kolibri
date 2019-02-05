@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -28,7 +27,11 @@
             <td>
               <KRouterLink
                 :text="tableRow.name"
-                :to="classRoute('ReportsQuizLearnerPage', { learnerId: tableRow.id })"
+                :to="classRoute('ReportsQuizLearnerPage', {
+                  learnerId: tableRow.id,
+                  questionId: 0,
+                  interactionIndex: 0
+                })"
               />
             </td>
             <td>

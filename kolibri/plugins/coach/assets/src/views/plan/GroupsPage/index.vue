@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -93,11 +92,6 @@
       newGroup: 'New group',
       noGroups: 'You do not have any groups',
       documentTitle: 'Groups',
-    },
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
     },
     components: {
       CoreTable,

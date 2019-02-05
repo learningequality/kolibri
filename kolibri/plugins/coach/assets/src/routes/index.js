@@ -43,12 +43,18 @@ export default [
     handler() {
       store.dispatch('notLoading');
     },
+    meta: {
+      titleParts: ['CLASS_NAME'],
+    },
   },
   {
     path: '/:classId/home/activity',
     component: HomeActivityPage,
     handler() {
       store.dispatch('notLoading');
+    },
+    meta: {
+      titleParts: ['activityLabel', 'CLASS_NAME'],
     },
   },
   {
