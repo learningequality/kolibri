@@ -24,7 +24,7 @@
       <br>
 
       <div>
-        <p v-if="notifications.length === 0">
+        <p v-if="!loading && nextPage === 1 && notifications.length === 0">
           {{ $tr('noActivity') }}
         </p>
 
@@ -38,9 +38,15 @@
         </NotificationCard>
       </div>
 
-      <div v-if="noFiltersApplied" class="show-more">
+      <div
+        v-if="noFiltersApplied"
+        class="show-more"
+      >
         <transition mode="out-in">
-          <KLinearLoader v-if="loading" :delay="false" />
+          <KLinearLoader
+            v-if="loading"
+            :delay="false"
+          />
           <template v-else>
             <KButton
               v-if="moreResults"
