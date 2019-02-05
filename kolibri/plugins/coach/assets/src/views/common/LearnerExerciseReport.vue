@@ -65,16 +65,6 @@
         />
       </div>
     </template>
-    <p>{{ coachStrings.$tr('answerHistoryLabel') }}</p>
-    <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
-    <h2>{{ coachStrings.$tr('questionsLabel') }}</h2>
-    <ul>
-      <li><Answer type="noAttempt" /></li>
-      <li><Answer type="correct" /></li>
-      <li><Answer type="incorrect" /></li>
-      <li><Answer type="error" /></li>
-      <li><Answer type="hint" /></li>
-    </ul>
   </MultiPaneLayout>
 
 </template>

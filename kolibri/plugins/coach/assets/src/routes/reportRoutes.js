@@ -3,7 +3,7 @@ import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
 import {
   generateExerciseDetailHandler,
-  rootRedirectHandler,
+  exerciseRootRedirectHandler,
 } from '../modules/exerciseDetail/handlers';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 
@@ -104,7 +104,7 @@ export default [
     name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(
+      return exerciseRootRedirectHandler(
         params,
         pages.ReportsGroupReportLessonExerciseLearnerPage.name,
         next
@@ -181,7 +181,11 @@ export default [
     name: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLearnerActivityExercisePage.name, next);
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLearnerActivityExercisePage.name,
+        next
+      );
     },
   },
   {
@@ -204,7 +208,11 @@ export default [
     name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLearnerReportLessonExercisePage.name, next);
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLearnerReportLessonExercisePage.name,
+        next
+      );
     },
   },
   {
@@ -257,7 +265,7 @@ export default [
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      return exerciseRootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
     },
   },
   {
@@ -280,7 +288,7 @@ export default [
     name: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
+      return exerciseRootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
     },
   },
   {
