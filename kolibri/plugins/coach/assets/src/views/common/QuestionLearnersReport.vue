@@ -70,6 +70,8 @@
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
 
+  const examStrings = crossComponentTranslator(ExamReport);
+
   export default {
     name: 'QuestionLearnersReport',
     components: {
@@ -118,9 +120,7 @@
         return null;
       },
       questionTitle() {
-        return crossComponentTranslator(ExamReport).$tr('question', {
-          questionNumber: this.questionNumber,
-        });
+        return examStrings.$tr('question', { questionNumber: this.questionNumber });
       },
     },
     methods: {
