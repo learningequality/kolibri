@@ -21,7 +21,6 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/nyn.js'));
   data.push(require('vue-intl/locale-data/pt.js'));
   data.push(require('vue-intl/locale-data/sw.js'));
-  data.push(require('vue-intl/locale-data/ta.js'));
   data.push(require('vue-intl/locale-data/te.js'));
   data.push(require('vue-intl/locale-data/ur.js'));
   data.push(require('vue-intl/locale-data/vi.js'));

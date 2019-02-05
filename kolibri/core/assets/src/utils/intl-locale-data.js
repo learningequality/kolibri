@@ -86,12 +86,6 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/sw-TZ.js'));
         });
       });
-    case 'ta':
-      return new Promise(function(resolve) {
-        require.ensure(['intl/locale-data/jsonp/ta.js'], function(require) {
-          resolve(() => require('intl/locale-data/jsonp/ta.js'));
-        });
-      });
     case 'te':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/te.js'], function(require) {
