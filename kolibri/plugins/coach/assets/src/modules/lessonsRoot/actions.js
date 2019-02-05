@@ -41,7 +41,10 @@ export function createLesson(store, { classId, payload }) {
           },
           { root: true }
         );
-        resolve();
+        // Update the class summary now that we have a new lesson in town!
+        store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+          resolve();
+        });
       })
       .catch(() => {
         reject();
