@@ -52,6 +52,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
@@ -79,7 +80,7 @@
     },
     methods: {
       exerciseLink(exerciseId) {
-        return this.classRoute('ReportsLessonLearnerExercisePage', { exerciseId });
+        return this.classRoute(PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
       },
     },
     $trs: {
