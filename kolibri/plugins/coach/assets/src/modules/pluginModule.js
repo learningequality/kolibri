@@ -1,4 +1,5 @@
 import { ClassroomResource } from 'kolibri.resources';
+import logger from 'kolibri.lib.logging';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';
 import examCreation from './examCreation';
@@ -13,6 +14,8 @@ import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 import questionDetail from './questionDetail';
 import questionList from './questionList';
+
+const logging = logger.getLogger(__filename);
 
 export default {
   state: {
@@ -52,7 +55,12 @@ export default {
       **/
     handleCoachPageError(store, errorObject) {
       const authErrorCodes = [401, 403, 404, 407];
-      if (authErrorCodes.includes(errorObject.status.code)) {
+      logging.error(errorObject);
+      if (
+        errorObject.status &&
+        errorObject.status.code &&
+        authErrorCodes.includes(errorObject.status.code)
+      ) {
         store.dispatch('handleError', '');
       } else {
         store.dispatch('handleError', errorObject);
