@@ -8,6 +8,7 @@
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :pageTitle="$tr('documentTitle')"
   >
 
     <div class="new-coach-block">
@@ -165,11 +166,6 @@
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       KTextbox,
       KRouterLink,

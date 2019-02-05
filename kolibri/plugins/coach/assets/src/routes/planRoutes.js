@@ -22,6 +22,9 @@ export default [
     handler(to) {
       showGroupsPage(store, to.params.classId);
     },
+    meta: {
+      titleParts: ['groupsLabel', 'CLASS_NAME'],
+    },
   },
   {
     name: GroupMembersPage.name,
@@ -29,6 +32,9 @@ export default [
     component: GroupMembersPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
+    },
+    meta: {
+      titleParts: ['membersLabel', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
   {

@@ -2,6 +2,7 @@
 
   <CoreBase
     :immersivePage="false"
+    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"

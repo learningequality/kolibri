@@ -37,12 +37,6 @@
     components: {
       ExamReport,
     },
-    metaInfo() {
-      return {
-        // Set all exam report page titles to the same for now.
-        title: this.pageTitle,
-      };
-    },
     mixins: [commonCoach],
     $trs: {},
     computed: {
