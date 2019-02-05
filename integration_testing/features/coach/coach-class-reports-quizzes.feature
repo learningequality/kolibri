@@ -5,6 +5,50 @@ Feature: Coach reviews learner reports for quizzes
     Given I am logged in as a coach
       And I am on *Coach > Classroom <classroom> > Reports > Quizzes > <quiz>* page
 
+        
+Feature: Quizzes subtab
+        Scenario: User clicks on a quiz’s REPORT tab
+            Given that I have clicked into a particular quiz
+            When I click into the REPORTS tab
+            Then I should see a high level summary of the quiz status
+            And I should see a list of learners assigned the quiz
+
+        Scenario: User clicks into learner’s quiz report
+            Given that I am on the quiz report page
+            When I click into a particular learner
+            Then I should see the learner’s attempts on the quiz
+
+        Scenario: User clicks on a quiz’s DIFFICULT QUESTIONS tab
+            Given that I am on the quiz report page
+            When I click the DIFFICULT QUESTIONS tab
+            Then I should be able to see a list of the most difficult
+            quiz questions 
+            
+        Scenario: User clicks into a difficult question
+            Given that I am on the DIFFICULT QUESTIONS tab
+            When I click into a particular difficult question
+            Then I should be navigated to a new page showing each
+            learner who has had trouble on that question
+
+        Scenario: User clicks between different learner names in the
+        difficult question page
+            Given that I am on the DIFFICULT QUESTIONS tab
+            When I click between different learner names on the sidebar
+            Then I should be able to see each learner’s attempt on the
+            question
+
+        Scenario: User previews the quiz from the OPTIONS button
+            Given that I am on the quiz details page
+            When I click on the PREVIEW option from the OPTIONS button
+            Then I should be navigated to a quiz preview page
+
+        Scenario: User edits the quiz details from the OPTIONS button
+            Given that I am on the quiz details page
+            Given that I  clicked on the OPTIONS dropdown button
+            When I click on the EDIT DETAILS option
+            Then I should see a form appear that will allow me to edit 
+            the quiz title, recipients, And status
+            
 
 
   Scenario: Report has the average score
