@@ -2,14 +2,13 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
 
       <h1>{{ $tr('exams') }}</h1>
@@ -85,7 +84,7 @@
       <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
         {{ $tr('noInactiveExams') }}
       </p>
-    </div>
+    </KPageContainer>
 
     <AssignmentDetailsModal
       v-if="showEditModal"

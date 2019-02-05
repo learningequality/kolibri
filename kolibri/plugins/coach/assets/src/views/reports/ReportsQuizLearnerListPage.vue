@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,14 +9,9 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsQuizHeader />
-
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <p v-if="avgScore !== undefined">
-        {{ $tr('averageScore', {score: avgScore }) }}
-      </p>
 
       <CoreTable>
         <thead slot="thead">
@@ -33,18 +27,22 @@
             <td>
               <KRouterLink
                 :text="tableRow.name"
-                :to="classRoute('ReportsQuizLearnerPage', { learnerId: tableRow.id })"
+                :to="classRoute('ReportsQuizLearnerPage', {
+                  learnerId: tableRow.id,
+                  questionId: 0,
+                  interactionIndex: 0
+                })"
               />
             </td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><Score :value="tableRow.score" /></td>
+            <td><Score :value="tableRow.statusObj.score" /></td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -52,7 +50,6 @@
 
 <script>
 
-  import get from 'lodash/get';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -90,17 +87,13 @@
       recipients() {
         return this.getLearnersForGroups(this.exam.groups);
       },
-      avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
-      },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getExamStatusForLearner(this.exam.id, learner.id),
-            score: get(this.examLearnerStatusMap, [this.exam.id, learner.id, 'score'], undefined),
+            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;

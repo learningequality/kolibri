@@ -9,6 +9,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
+    :pageTitle="pageTitle"
   >
 
     <div>
@@ -145,6 +146,9 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
+      pageTitle() {
+        return this.$tr('documentTitle', { lessonName: this.currentLesson.title });
+      },
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {

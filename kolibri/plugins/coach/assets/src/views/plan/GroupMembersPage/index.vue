@@ -9,79 +9,81 @@
     :appBarTitle="$tr('groupsHeader')"
     :immersivePageRoute="$router.getRoute('GroupsPage')"
   >
-    <div v-if="!currentGroup">
-      {{ $tr('groupDoesNotExist') }}
-    </div>
+    <KPageContainer>
+      <div v-if="!currentGroup">
+        {{ $tr('groupDoesNotExist') }}
+      </div>
 
-    <div v-else class="new-coach-block">
-      <h1>
-        {{ currentGroup.name }}
-      </h1>
+      <div v-else>
+        <h1>
+          {{ currentGroup.name }}
+        </h1>
 
-      <KGrid>
-        <KGridItem
-          class="number-learners"
-          :size="50"
-          percentage
-        >
-          {{ $tr('numberOfLearners', { count: currentGroup.users.length }) }}
-        </KGridItem>
-        <KGridItem :size="50" percentage alignment="right">
-          <KRouterLink
-            :primary="true"
-            appearance="raised-button"
-            :text="$tr('enrollButton')"
-            :to="$router.getRoute('GroupEnrollPage')"
-          />
-        </KGridItem>
-      </KGrid>
-
-      <CoreTable>
-        <thead slot="thead">
-          <tr>
-            <th class="core-table-main-col">
-              {{ $tr('fullName') }}
-            </th>
-            <th>
-              {{ $tr('username') }}
-            </th>
-            <th></th>
-          </tr>
-
-        </thead>
-
-        <tbody slot="tbody">
-          <p v-if="currentGroup.users.length === 0">
-            {{ $tr('noLearnersInGroup') }}
-          </p>
-          <tr
-            v-for="user in currentGroup.users"
-            :key="user.id"
+        <KGrid>
+          <KGridItem
+            class="number-learners"
+            :size="50"
+            percentage
           >
-            <td class="core-table-main-col">
-              {{ user.full_name }}
-            </td>
-            <td>
-              {{ user.username }}
-            </td>
-            <td class="button-col">
-              <KButton
-                :text="$tr('removeButton')"
-                appearance="flat-button"
-                @click="userForRemoval = user"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </CoreTable>
-      <RemoveFromGroupModal
-        v-if="userForRemoval"
-        :groupName="currentGroup.name"
-        :username="userForRemoval.full_name"
-        @cancel="userForRemoval = null"
-        @confirm="removeSelectedUserFromGroup"
-      />
-    </div>
+            {{ $tr('numberOfLearners', { count: currentGroup.users.length }) }}
+          </KGridItem>
+          <KGridItem :size="50" percentage alignment="right">
+            <KRouterLink
+              :primary="true"
+              appearance="raised-button"
+              :text="$tr('enrollButton')"
+              :to="$router.getRoute('GroupEnrollPage')"
+            />
+          </KGridItem>
+        </KGrid>
+
+        <CoreTable>
+          <thead slot="thead">
+            <tr>
+              <th class="core-table-main-col">
+                {{ $tr('fullName') }}
+              </th>
+              <th>
+                {{ $tr('username') }}
+              </th>
+              <th></th>
+            </tr>
+
+          </thead>
+
+          <tbody slot="tbody">
+            <p v-if="currentGroup.users.length === 0">
+              {{ $tr('noLearnersInGroup') }}
+            </p>
+            <tr
+              v-for="user in currentGroup.users"
+              :key="user.id"
+            >
+              <td class="core-table-main-col">
+                {{ user.full_name }}
+              </td>
+              <td>
+                {{ user.username }}
+              </td>
+              <td class="button-col">
+                <KButton
+                  :text="$tr('removeButton')"
+                  appearance="flat-button"
+                  @click="userForRemoval = user"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </CoreTable>
+        <RemoveFromGroupModal
+          v-if="userForRemoval"
+          :groupName="currentGroup.name"
+          :username="userForRemoval.full_name"
+          @cancel="userForRemoval = null"
+          @confirm="removeSelectedUserFromGroup"
+        />
+      </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

@@ -6,7 +6,7 @@
       :class="$computedClass(tabStyles)"
       :to="link"
     >
-      <div class="tab-icon">
+      <div class="tab-icon dimmable">
         <UiIcon
           class="icon"
           tabindex="-1"
@@ -16,7 +16,7 @@
         </UiIcon>
       </div>
 
-      <div class="tab-title" tabindex="-1">
+      <div class="tab-title dimmable" tabindex="-1">
         {{ title }}
       </div>
     </router-link>
@@ -97,6 +97,9 @@
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
     transition: background-color $core-time ease;
+    .dimmable {
+      opacity: 0.6;
+    }
   }
 
   .router-link-active,
@@ -106,6 +109,9 @@
     border-bottom-color: white;
     border-bottom-style: solid;
     border-bottom-width: 2px;
+    .dimmable {
+      opacity: 1;
+    }
   }
 
   .icon {

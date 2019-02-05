@@ -3,7 +3,6 @@ from collections import namedtuple
 
 from django.core.management.base import BaseCommand
 from iceqube.exceptions import UserCancelledError
-from tqdm import tqdm
 
 Progress = namedtuple(
     'Progress',
@@ -30,17 +29,9 @@ class ProgressTracker():
         self.level = level
         self.update_callback = update_callback
 
-        # initialize the tqdm progress bar
-        self.progressbar = tqdm(total=total)
-
     def update_progress(self, increment=1, message="", extra_data=None):
-
-        self.progressbar.update(increment)
-
         self.progress += increment
-
         self.message = message
-
         self.extra_data = extra_data
 
         if callable(self.update_callback):
@@ -60,8 +51,7 @@ class ProgressTracker():
         return self.update_progress
 
     def __exit__(self, *exc_details):
-        if self.progressbar is not None:
-            self.progressbar.close()
+        pass
 
 
 class AsyncCommand(BaseCommand):

@@ -65,16 +65,6 @@
         />
       </div>
     </template>
-    <p>{{ coachStrings.$tr('answerHistoryLabel') }}</p>
-    <p>{{ coachStrings.$tr('attemptsLabel') }}</p>
-    <h2>{{ coachStrings.$tr('questionsLabel') }}</h2>
-    <ul>
-      <li><Answer type="noAttempt" /></li>
-      <li><Answer type="correct" /></li>
-      <li><Answer type="incorrect" /></li>
-      <li><Answer type="error" /></li>
-      <li><Answer type="hint" /></li>
-    </ul>
   </MultiPaneLayout>
 
 </template>
@@ -117,11 +107,11 @@
         'attemptLogs',
         'attemptLogIndex',
       ]),
-      ...mapGetters('classSummary', ['getContentStatusForLearner']),
+      ...mapGetters('classSummary', ['getContentStatusObjForLearner']),
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('exerciseDetail', ['attemptId', 'exercise', 'interactionIndex', 'learnerId']),
       status() {
-        return this.getContentStatusForLearner(this.exercise.content_id, this.learnerId);
+        return this.getContentStatusObjForLearner(this.exercise.content_id, this.learnerId).status;
       },
       learner() {
         return this.learnerMap[this.learnerId];

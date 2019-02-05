@@ -8,9 +8,10 @@
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :pageTitle="$tr('documentTitle')"
   >
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <h1>{{ $tr('createNewExam') }}</h1>
 
@@ -125,7 +126,7 @@
         />
       </Bottom>
 
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 
@@ -165,11 +166,6 @@
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
       KTextbox,
       KRouterLink,

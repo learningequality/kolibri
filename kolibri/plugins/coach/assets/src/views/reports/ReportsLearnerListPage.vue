@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <ReportsHeader />
       <!-- TODO COACH
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
@@ -43,7 +42,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -73,7 +72,6 @@
           const contentStatuses = this.contentStatuses.filter(
             status => learner.id === status.learner_id
           );
-
           const augmentedObj = {
             groups: groupNames,
             avgScore: this.avgScore(examStatuses),

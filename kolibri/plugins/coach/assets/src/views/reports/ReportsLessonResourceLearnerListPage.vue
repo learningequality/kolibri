@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
           :to="classRoute('ReportsLessonReportPage', {})"
@@ -45,24 +44,25 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>{{ tableRow.name }}</td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              {{ tableRow.name }}
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.status.time_spent" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td>
-              <ElapsedTime
-                v-if="tableRow.status"
-                :date="tableRow.status.last_activity "
-              />
+              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+            </td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
+            <td>
+              <ElapsedTime :date="tableRow.statusObj.last_activity" />
             </td>
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -98,7 +98,10 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getContentStatusForLearner(this.$route.params.resourceId, learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.resourceId,
+              learner.id
+            ),
           };
           Object.assign(tableRow, learner);
           return tableRow;

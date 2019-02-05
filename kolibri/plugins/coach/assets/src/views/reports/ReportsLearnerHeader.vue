@@ -3,43 +3,35 @@
   <div>
     <p>
       <BackLink
-        :to="classRoute('ReportsLearnerListPage', {})"
+        :to="classRoute('ReportsLearnerListPage')"
         :text="$tr('back')"
       />
     </p>
-    <h1>Julie</h1>
+    <h1>{{ learner.name }}</h1>
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('usernameLabel') }}</template>
-        <template slot="value">julie124</template>
+        <template slot="value">{{ learner.username }}</template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('groupsLabel') }}</template>
-        <template slot="value"><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('integer', {value: 4}) }}</template>
+        <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('percentage', {value: 0.4}) }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', {value: avgScore}) }}</template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('quizzesCompletedLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('lessonsAssignedLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('integer', {value: 10}) }}</template>
+        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
+        <template slot="value">
+          {{ coachStrings.$tr('integer', {value: exercisesCompleted}) }}
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('resourcesViewedLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('integer', {value: 45}) }}</template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('lessonsCompletedLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</template>
+        <template slot="value">
+          {{ coachStrings.$tr('integer', {value: resourcesViewed}) }}
+        </template>
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTabs>
@@ -65,6 +57,40 @@
     name: 'ReportsLearnerHeader',
     components: {},
     mixins: [commonCoach],
+    computed: {
+      learner() {
+        return this.learnerMap[this.$route.params.learnerId];
+      },
+      learnerContentStatuses() {
+        return this.contentStatuses.filter(status => this.learner.id === status.learner_id);
+      },
+      avgScore() {
+        const statuses = this.examStatuses.filter(
+          status =>
+            this.learner.id === status.learner_id && status.status === this.STATUSES.completed
+        );
+        if (!statuses.length) {
+          return null;
+        }
+        return this._.meanBy(statuses, 'score');
+      },
+      exercisesCompleted() {
+        const statuses = this.learnerContentStatuses.filter(
+          status =>
+            this.contentMap[status.content_id].kind === 'exercise' &&
+            status.status === this.STATUSES.completed
+        );
+        return statuses.length;
+      },
+      resourcesViewed() {
+        const statuses = this.learnerContentStatuses.filter(
+          status =>
+            this.contentMap[status.content_id].kind !== 'exercise' &&
+            status.status !== this.STATUSES.notStarted
+        );
+        return statuses.length;
+      },
+    },
     $trs: {
       back: 'All learners',
     },

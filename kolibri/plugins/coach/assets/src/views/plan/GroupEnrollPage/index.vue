@@ -8,6 +8,7 @@
     :toolbarTitle="groupsPageStrings.$tr('classGroups')"
     :appBarTitle="groupsPageStrings.$tr('classGroups')"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
+    :pageTitle="pageTitle"
   >
     <h1>
       {{ learnerClassEnrollmentPageStrings.$tr('pageHeader', { className: currentGroup.name }) }}
@@ -125,13 +126,6 @@
       KFilterTextbox,
       UserTable,
     },
-    metaInfo() {
-      return {
-        title: learnerClassEnrollmentPageStrings.$tr('pageHeader', {
-          className: this.currentGroup.name,
-        }),
-      };
-    },
     mixins: [responsiveWindow, commonCoach],
     data() {
       return {
@@ -146,6 +140,11 @@
     },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
+      pageTitle() {
+        return learnerClassEnrollmentPageStrings.$tr('pageHeader', {
+          className: this.currentGroup.name,
+        });
+      },
       currentGroupUsers() {
         if (this.currentGroup) {
           return this.currentGroup.users;

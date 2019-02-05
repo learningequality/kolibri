@@ -67,9 +67,17 @@
                 {{ examTakerProgressText(examTaker) }}
               </td>
               <td>
-                {{ examTakerScoreText(examTaker) }}
+                <template v-if="examTaker.score !== undefined">
+                  {{ examTakerScoreText(examTaker) }}
+                </template>
+                <KEmptyPlaceholder v-else />
               </td>
-              <td v-if="!viewByGroups" dir="auto">{{ examTaker.group.name || '–' }}</td>
+              <td v-if="!viewByGroups" dir="auto">
+                <template v-if="examTaker.group.name">
+                  {{ examTaker.group.name }}
+                </template>
+                <KEmptyPlaceholder v-else />
+              </td>
             </tr>
           </transition-group>
         </CoreTable>
@@ -96,6 +104,7 @@
   import { USER, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import { PageNames } from '../../../constants';
   import { Modals as ExamModals } from '../../../constants/examConstants';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -117,6 +126,7 @@
       AssignmentSummary,
       ManageExamModals,
       KCheckbox,
+      KEmptyPlaceholder,
     },
     data() {
       return {
@@ -200,9 +210,6 @@
         }
       },
       examTakerScoreText({ score }) {
-        if (score === undefined) {
-          return '–';
-        }
         return this.$tr('scorePercentage', { num: score / this.exam.question_count });
       },
       averageScoreText(learners) {

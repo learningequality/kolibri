@@ -237,8 +237,8 @@ class Command(AsyncCommand):
             if retry:
                 # Restore the previous progress so that the progress bar will
                 # not reach over 100% later
-                self.progresstrackers[0].progressbar.n = original_value
                 self.progresstrackers[0].progress = original_value
+
                 self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
 
                 logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(

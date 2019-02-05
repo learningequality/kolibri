@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsLearnerHeader />
 
@@ -25,68 +24,15 @@
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
-              <tr>
+              <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
                 <td>
                   <KRouterLink
-                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
-                    text="Some lesson"
+                    :to="classRoute('ReportsLearnerReportLessonPage', { lessonId: tableRow.id })"
+                    :text="tableRow.title"
                   />
                 </td>
                 <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="notStarted"
-                    icon="nothing"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <KRouterLink
-                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
-                    text="Another lesson"
-                  />
-                </td>
-                <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="needHelp"
-                    icon="help"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <KRouterLink
-                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
-                    text="Lesson 1"
-                  />
-                </td>
-                <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="completed"
-                    icon="star"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <KRouterLink
-                    :to="classRoute('ReportsLearnerReportLessonPage', {})"
-                    text="Lesson 2"
-                  />
-                </td>
-                <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="started"
-                    icon="clock"
-                  />
+                  <StatusSimple :status="tableRow.status" />
                 </td>
               </tr>
             </transition-group>
@@ -103,46 +49,24 @@
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
-              <tr>
+              <tr v-for="tableRow in examsTable" :key="tableRow.id">
                 <td>
                   <KRouterLink
-                    :to="classRoute('ReportsLearnerReportQuizPage', {})"
-                    text="Some quiz"
+                    :to="quizLink(tableRow.id)"
+                    :text="tableRow.title"
                   />
                 </td>
                 <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="completed"
-                    icon="star"
-                  />
+                  <StatusSimple :status="tableRow.statusObj.status" />
                 </td>
-                <td><Score :value="0.92" /></td>
-              </tr>
-              <tr>
-                <td>
-                  <KRouterLink
-                    :to="classRoute('ReportsLearnerReportQuizPage', {})"
-                    text="Another quiz"
-                  />
-                </td>
-                <td>
-                  <LearnerProgressLabel
-                    :verbosity="1"
-                    :count="1"
-                    verb="started"
-                    icon="clock"
-                  />
-                </td>
-                <td><Score /></td>
+                <td><Score :value="tableRow.statusObj.score" /></td>
               </tr>
             </transition-group>
           </CoreTable>
         </KGridItem>
       </KGrid>
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -151,6 +75,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
 
   export default {
@@ -159,7 +84,43 @@
       ReportsLearnerHeader,
     },
     mixins: [commonCoach],
-    $trs: {},
+    computed: {
+      learner() {
+        return this.learnerMap[this.$route.params.learnerId];
+      },
+      lessonsTable() {
+        const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(lesson => {
+          const tableRow = {
+            status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
+          };
+          Object.assign(tableRow, lesson);
+          return tableRow;
+        });
+        return mapped;
+      },
+      examsTable() {
+        const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(exam => {
+          const tableRow = {
+            statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
+          };
+          Object.assign(tableRow, exam);
+          return tableRow;
+        });
+        return mapped;
+      },
+    },
+    methods: {
+      isAssigned(groupIds) {
+        return this.getLearnersForGroups(groupIds).includes(this.learner.id);
+      },
+      quizLink(quizId) {
+        return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
+      },
+    },
   };
 
 </script>

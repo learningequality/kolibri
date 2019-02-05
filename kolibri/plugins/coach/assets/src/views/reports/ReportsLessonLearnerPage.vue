@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
           :to="classRoute('ReportsLessonLearnerListPage')"
@@ -38,13 +37,13 @@
               <template v-else>{{ tableRow.title }}</template>
             </td>
             <td>
-              <StatusSimple :status="tableRow.status" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration :seconds="tableRow.timeSpent" /></td>
+            <td><TimeDuration :seconds="tableRow.statusObj.timeSpent" /></td>
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -52,8 +51,8 @@
 
 <script>
 
-  import get from 'lodash/get';
   import commonCoach from '../common';
+  import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
@@ -71,12 +70,7 @@
         const sorted = this._.sortBy(contentArray, ['title']);
         const mapped = sorted.map(content => {
           const tableRow = {
-            status: this.getContentStatusForLearner(content.content_id, this.learner.id),
-            timeSpent: get(
-              this.contentLearnerStatusMap,
-              [content.content_id, this.learner.id, 'time_spent'],
-              undefined
-            ),
+            statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };
           Object.assign(tableRow, content);
           return tableRow;
@@ -86,7 +80,7 @@
     },
     methods: {
       exerciseLink(exerciseId) {
-        return this.classRoute('ReportsLessonLearnerExercisePage', { exerciseId });
+        return this.classRoute(PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
       },
     },
     $trs: {

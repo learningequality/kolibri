@@ -17,6 +17,7 @@
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
     <KButton :text="coachStrings.$tr('previewAction')" />
+     -->
 
     <HeaderTabs>
       <HeaderTab
@@ -28,7 +29,6 @@
         :text="coachStrings.$tr('difficultQuestionsLabel')"
       />
     </HeaderTabs>
-     -->
 
   </div>
 

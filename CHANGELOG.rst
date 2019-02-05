@@ -10,7 +10,7 @@ List of the most important changes for each release.
 Internationalization and localization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Tamil, Telugu, Urdu, Vietnamese, and Yoruba
+ - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
 
 
 See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.0>`__ of changes on Github

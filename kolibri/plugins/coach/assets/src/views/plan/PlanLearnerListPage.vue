@@ -8,10 +8,10 @@
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
       Learner list
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

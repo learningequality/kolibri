@@ -2,14 +2,13 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
       <h1>{{ $tr('classGroups') }}</h1>
       <div class="ta-r">
@@ -66,7 +65,7 @@
         :groupId="selectedGroup.id"
       />
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -93,11 +92,6 @@
       newGroup: 'New group',
       noGroups: 'You do not have any groups',
       documentTitle: 'Groups',
-    },
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
     },
     components: {
       CoreTable,

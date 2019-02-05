@@ -8,7 +8,6 @@ configobj==5.0.6
 docopt==0.6.2
 django-mptt==0.9.1
 djangorestframework-csv==2.1.0
-tqdm==4.24.0                     # progress bars
 requests==2.21.0
 cherrypy==13.0.1  # Temporarily pinning this until CherryPy stops depending on namespaced package, see #2971 # pyup: <13.1.0
 tempora<1.13  # derived no-upper-bounds dependency of cherrypy causing issues  # pyup: <1.13
@@ -19,7 +18,7 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.1.15
-kolibri_exercise_perseus_plugin==1.1.2b1
+kolibri_exercise_perseus_plugin==1.1.2b4
 jsonfield==2.0.2
 morango==0.3.3
 requests-toolbelt==0.8.0
