@@ -17,6 +17,7 @@
     </p>
 
     <KButton :text="coachStrings.$tr('previewAction')" />
+    -->
 
     <HeaderTabs>
       <HeaderTab
@@ -28,7 +29,6 @@
         :to="link('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>
-    -->
 
   </div>
 
