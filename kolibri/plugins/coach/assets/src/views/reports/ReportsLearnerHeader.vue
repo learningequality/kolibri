@@ -18,12 +18,6 @@
         <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
-        <template slot="value">
-          {{ coachStrings.$tr('integer', {value: exercisesCompleted}) }}
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
         <template slot="value">{{ coachStrings.$tr('percentage', {value: avgScore}) }}</template>
       </HeaderTableRow>

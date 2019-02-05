@@ -341,7 +341,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LEARNER),
+    path: path(CLASS, LEARNER, '/reports'),
     component: pages.ReportsLearnerReportPage,
     handler: defaultHandler,
     meta: {
