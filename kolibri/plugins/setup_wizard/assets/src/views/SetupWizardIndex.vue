@@ -154,11 +154,13 @@
     max-width: 550px;
     margin-top: 64px;
     margin-right: auto;
+    margin-bottom: 32px;
     margin-left: auto;
   }
 
   .mobile {
     margin-top: 40px;
+    margin-bottom: 24px;
   }
 
 </style>
