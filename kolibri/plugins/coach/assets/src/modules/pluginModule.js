@@ -12,6 +12,7 @@ import lessonsRoot from './lessonsRoot';
 import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 import questionDetail from './questionDetail';
+import questionList from './questionList';
 
 export default {
   state: {
@@ -102,5 +103,6 @@ export default {
     lessonSummary,
     lessonsRoot,
     questionDetail,
+    questionList,
   },
 };

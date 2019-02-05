@@ -1,17 +1,24 @@
 import datetime
 
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Sum
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
+from rest_framework.response import Response
 
 from .serializers import LearnerNotificationSerializer
 from .serializers import LessonReportSerializer
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 
@@ -166,3 +173,52 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         else:
             response.data['coaches_polling'] = logged_notifications
         return response
+
+
+class DifficultiesPermissions(permissions.BasePermission):
+
+    # check if requesting user has permission for collection or user
+    def has_permission(self, request, view):
+        collection_id = view.kwargs.get('collection_id', None)
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+        except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
+            return False
+
+
+@query_params_required(collection_id=str)
+class BaseDifficultQuestionsViewset(viewsets.ViewSet):
+    permission_classes = (permissions.IsAuthenticated, DifficultiesPermissions,)
+    values = ('item', )
+
+    def retrieve(self, request, pk):
+
+        collection_id = self.kwargs['collection_id']
+        queryset = HierarchyRelationsFilter(self.get_queryset(pk)).filter_by_hierarchy(
+            ancestor_collection=collection_id,
+            target_user=F("user"),
+        )
+        data = queryset.values(*self.values).annotate(correct=Sum('correct'), total=Count('correct'))
+        return Response(data)
+
+
+class ExerciseDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
+
+    def get_queryset(self, content_id):
+        """
+        Get the difficult questions for a particular exercise.
+        pk maps to the content_id of the exercise in question.
+        """
+        return AttemptLog.objects.filter(masterylog__summarylog__content_id=content_id)
+
+
+class QuizDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
+
+    values = ('item', 'content_id', )
+
+    def get_queryset(self, exam_id):
+        """
+        Get the difficult questions for a particular quiz.
+        """
+        return ExamAttemptLog.objects.filter(examlog__exam=exam_id)

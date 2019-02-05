@@ -39,7 +39,7 @@ export default {
       return history;
     },
     kind(state) {
-      return state.exam ? ContentNodeKinds.EXAM : ContentNodeKinds.EXERCISE;
+      return state.exam.id ? ContentNodeKinds.EXAM : ContentNodeKinds.EXERCISE;
     },
   },
   mutations: {
