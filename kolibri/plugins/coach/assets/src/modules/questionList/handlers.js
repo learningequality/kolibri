@@ -6,8 +6,7 @@ export function generateQuestionListHandler(paramsToCheck) {
     const fromParams = from.params;
     const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
     if (setLoading) {
-      // Only set loading state if we are not switching between
-      // different views of the same question's learner report.
+      // Only set loading state if we are not switching
       store.dispatch('loading');
     }
     showQuestionListView(params).then(() => {
