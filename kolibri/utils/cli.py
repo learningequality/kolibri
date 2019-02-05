@@ -273,7 +273,6 @@ def start(port=None, daemon=True):
     :param: port: Port number (default: 8080)
     :param: daemon: Fork to background process (default: True)
     """
-
     run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
 
     # This is temporarily put in place because of
@@ -663,7 +662,11 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['start']:
-
+        try:
+            with open(server.STARTUP_LOCK, 'w') as f:
+                f.write("%d\n%d" % (os.getpid(), port))
+        except (IOError, OSError):
+            logger.warn('Impossible to create file lock to communicate starting process')
         # Check if the content directory exists when Kolibri runs after the first time.
         check_content_directory_exists_and_writable()
 
