@@ -133,11 +133,14 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (output.results && output.results.length) {
                 messages.push(
                   stylelintFormatter(
-                    output.results.map(message => {
-                      message.line += lineOffset;
-                      // Column offset for Vue template files is always 2 as we indent.
-                      message.column += vue ? 2 : 0;
-                      return message;
+                    output.results.map(result => {
+                      result.warnings = result.warnings.map(message => {
+                        message.line += lineOffset;
+                        // Column offset for Vue template files is always 2 as we indent.
+                        message.column += vue ? 2 : 0;
+                        return message;
+                      });
+                      return result;
                     })
                   )
                 );

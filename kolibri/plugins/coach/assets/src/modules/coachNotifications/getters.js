@@ -32,8 +32,8 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     // Use first event in list as exemplar for summary object
     const firstEvent = allEvents[0];
 
-    // Get the index of the most recent event in the collection
-    const lastId = maxBy(allEvents, 'id');
+    // Get the ID of the most recent event in the collection
+    const lastId = maxBy(allEvents, n => Number(n.id)).id;
 
     const { object, type, event } = firstEvent;
 
@@ -97,7 +97,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         type,
         object,
         event,
-        groupCode,
+        groupCode: groupCode + '_' + collIdx,
         lastId,
         assignment,
         resource,

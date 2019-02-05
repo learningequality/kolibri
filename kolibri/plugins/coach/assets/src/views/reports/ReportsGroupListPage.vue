@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,10 +9,10 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <ReportsHeader />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('groupNameLabel') }}</td>
             <td>{{ coachStrings.$tr('lessonsLabel') }}</td>
@@ -23,26 +22,29 @@
             <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td><KRouterLink text="Group A" :to="link" /></td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td><Score :value="0.8" /></td>
-            <td>2 minutes ago</td>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
+            <td>
+              <KRouterLink
+                :text="tableRow.name"
+                :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
+              />
+            </td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numLessons}) }}
+            </td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numQuizzes}) }}
+            </td>
+            <td>
+              {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
+            </td>
+            <td><Score :value="tableRow.avgScore" /></td>
+            <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
-          <tr>
-            <td><KRouterLink text="Group B" :to="link" /></td>
-            <td>{{ coachStrings.$tr('integer', {value: 5}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 4}) }}</td>
-            <td>{{ coachStrings.$tr('integer', {value: 3}) }}</td>
-            <td><Score :value="0.2" /></td>
-            <td>10 minutes ago</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        </transition-group>
+      </CoreTable>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -50,6 +52,7 @@
 
 <script>
 
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -57,14 +60,55 @@
     name: 'ReportsGroupListPage',
     components: {
       ReportsHeader,
+      ElapsedTime,
     },
     mixins: [commonCoach],
     computed: {
-      link() {
-        return this.newCoachRoute('ReportsGroupReportPage');
+      table() {
+        const sorted = this._.sortBy(this.groups, ['name']);
+        const mapped = sorted.map(group => {
+          const groupLessons = this.lessons.filter(
+            lesson => lesson.groups.includes(group.id) || !lesson.groups.length
+          );
+          const groupExams = this.exams.filter(
+            exam => exam.groups.includes(group.id) || !exam.groups.length
+          );
+          const learnerIds = this.getLearnersForGroups([group.id]);
+          const tableRow = {
+            numLessons: groupLessons.length,
+            numQuizzes: groupExams.length,
+            numLearners: learnerIds.length,
+            avgScore: this.avgScore(learnerIds),
+            lastActivity: this.lastActivity(learnerIds),
+          };
+          Object.assign(tableRow, group);
+          return tableRow;
+        });
+        return mapped;
       },
     },
-    $trs: {},
+    methods: {
+      avgScore(learnerIds) {
+        const relevantStatuses = this.examStatuses.filter(
+          status =>
+            learnerIds.includes(status.learner_id) && status.status === this.STATUSES.completed
+        );
+        if (!relevantStatuses.length) {
+          return null;
+        }
+        return this._.meanBy(relevantStatuses, 'score');
+      },
+      lastActivity(learnerIds) {
+        const statuses = [
+          ...this.examStatuses.filter(status => learnerIds.includes(status.learner_id)),
+          ...this.contentStatuses.filter(status => learnerIds.includes(status.learner_id)),
+        ];
+        if (!statuses.length) {
+          return null;
+        }
+        return this._.maxBy(statuses, 'last_activity').last_activity;
+      },
+    },
   };
 
 </script>

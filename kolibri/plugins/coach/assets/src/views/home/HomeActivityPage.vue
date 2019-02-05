@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,10 +9,10 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
-          :to="route('HomePage')"
+          :to="classRoute('HomePage', {})"
           :text="$tr('back')"
         />
       </p>
@@ -33,13 +32,13 @@
           v-for="notification in notifications"
           v-show="showNotification(notification)"
           :key="notification.id"
-          v-bind="cardProps(notification)"
+          v-bind="cardPropsForNotification(notification)"
         >
           {{ cardTextForNotification(notification) }}
         </NotificationCard>
       </div>
 
-      <div v-if="showShowMore" class="show-more">
+      <div v-if="noFiltersApplied" class="show-more">
         <transition mode="out-in">
           <KLinearLoader v-if="loading" :delay="false" />
           <template v-else>
@@ -52,7 +51,7 @@
         </transition>
       </div>
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -61,13 +60,19 @@
 <script>
 
   import find from 'lodash/find';
+  import maxBy from 'lodash/maxBy';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../common';
   import NotificationsFilter from '../common/notifications/NotificationsFilter';
   import NotificationCard from '../common/notifications/NotificationCardNoLink';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import notificationsResource from '../../apiResources/notifications';
+  import { NotificationObjects } from '../../constants/notificationsConstants';
+  import { CollectionTypes } from '../../constants/lessonsConstants';
+
+  const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
 
   export default {
     name: 'HomeActivityPage',
@@ -86,12 +91,34 @@
         progressFilter: 'all',
         resourceFilter: 'all',
         notifications: [],
+        filters: {
+          ALL: 'all',
+          LESSON: 'lesson',
+          QUIZ: 'quiz',
+        },
       };
     },
     computed: {
-      ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'learnerMap', 'name']),
-      showShowMore() {
-        return this.progressFilter === 'all' && this.resourceFilter === 'all';
+      ...mapState('coachNotifications', {
+        allNotifications: 'notifications',
+      }),
+      noFiltersApplied() {
+        return this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL;
+      },
+      lastNotificationId() {
+        if (this.notifications.length > 0) {
+          return Number(maxBy(this.notifications, n => Number(n.id)).id);
+        }
+        return 0;
+      },
+    },
+    watch: {
+      allNotifications(newVal) {
+        const newNotifications = newVal.filter(n => Number(n.id) > this.lastNotificationId);
+        this.notifications = [
+          ...newNotifications.map(this.reshapeNotification),
+          ...this.notifications,
+        ];
       },
     },
     beforeMount() {
@@ -104,51 +131,40 @@
           .fetchCollection({
             getParams: {
               collection_id: this.$route.params.classId,
-              page_size: 20,
+              page_size: 10,
               page: this.nextPage,
             },
             force: true,
           })
           .then(data => {
-            const filtered = data.results.filter(this.filterNotifications);
-            this.notifications = [...this.notifications, ...filtered.map(this.reshapeNotification)];
+            this.notifications = [
+              ...this.notifications,
+              ...data.results.map(this.reshapeNotification).filter(Boolean),
+            ];
             this.moreResults = data.next !== null;
             this.nextPage = this.nextPage + 1;
             this.loading = false;
           });
       },
       showNotification(notification) {
-        if (this.progressFilter === 'all' && this.resourceFilter === 'all') {
+        if (this.noFiltersApplied) {
           return true;
         }
         let progressPasses = true;
         let resourcePasses = true;
-        if (this.progressFilter !== 'all') {
+        if (this.progressFilter !== this.filters.ALL) {
           progressPasses = notification.event === this.progressFilter;
         }
-        if (this.resourceFilter !== 'all') {
-          if (this.resourceFilter === 'lesson') {
-            resourcePasses = notification.object === 'Lesson';
-          } else if (this.resourceFilter === 'quiz') {
-            resourcePasses = notification.object === 'Quiz';
+        if (this.resourceFilter !== this.filters.ALL) {
+          if (this.resourceFilter === this.filters.LESSON) {
+            resourcePasses = notification.object === LESSON;
+          } else if (this.resourceFilter === this.filters.QUIZ) {
+            resourcePasses = notification.object === QUIZ;
           } else {
             resourcePasses = notification.resource.type === this.resourceFilter;
           }
         }
         return progressPasses && resourcePasses;
-      },
-      // Used to filter out notifications with deleted references
-      filterNotifications(notification) {
-        if (notification.user === '') {
-          return false;
-        }
-        if (notification.object === 'Quiz' && notification.quiz === '') {
-          return false;
-        }
-        if (notification.object === 'Lesson' || notification.object === 'Resource') {
-          return notification.lesson !== '' && notification.resource !== '';
-        }
-        return true;
       },
       // Takes the raw notification and reshapes it to match the objects
       // created by the summarizedNotifications getter.
@@ -158,17 +174,21 @@
         // Does not make additional notifications if the user is in more than
         // one group that has been assigned lesson or quiz.
         let groups;
-        if (object === 'Quiz') {
-          groups = [...this.examMap[notification.quiz_id].groups];
-        } else if (object === 'Lesson' || object === 'Resource') {
-          groups = [...this.lessonMap[notification.lesson_id].groups];
+        if (object === QUIZ) {
+          const examMatch = this.examMap[notification.quiz_id];
+          if (!examMatch) return null;
+          groups = [...examMatch.groups];
+        } else if (object === LESSON || object === RESOURCE) {
+          const lessonMatch = this.lessonMap[notification.lesson_id];
+          if (!lessonMatch) return null;
+          groups = [...lessonMatch.groups];
         }
-        const wholeClass = groups.length === 0;
         let collection = {};
-        if (wholeClass) {
+        // If assigned to whole class
+        if (groups.length === 0) {
           collection = {
             name: this.name,
-            type: 'classroom',
+            type: CollectionTypes.CLASSROOM,
           };
         } else {
           const groupMatch = find(groups, groupId => {
@@ -181,14 +201,14 @@
           if (groupMatch) {
             collection = {
               name: this.groupMap[groupMatch].name,
-              type: 'learnergroup',
+              type: CollectionTypes.LEARNERGROUP,
             };
           } else {
             // If learner group was deleted, then just give it the header
             // for the whole class
             collection = {
               name: this.name,
-              type: 'classroom',
+              type: CollectionTypes.CLASSROOM,
             };
           }
         }
@@ -198,9 +218,10 @@
           object,
           timestamp: notification.timestamp,
           collection,
+          id: Number(notification.id),
           assignment: {
-            name: object === 'Quiz' ? notification.quiz : notification.lesson,
-            type: object === 'Quiz' ? 'exam' : 'lesson',
+            name: object === QUIZ ? notification.quiz : notification.lesson,
+            type: object === QUIZ ? ContentNodeKinds.EXAM : ContentNodeKinds.LESSON,
           },
           resource: {
             name: notification.resource || '',
@@ -212,27 +233,18 @@
           },
         };
       },
-      cardProps(notification) {
-        let icon = '';
-        let contentIcon = '';
-        const { assignment, collection, object, event, resource } = notification;
-        icon = {
-          Completed: 'star',
-          Started: 'clock',
-          HelpNeeded: 'help',
-        }[event];
-
-        if (object === 'Lesson' || object === 'Quiz') {
-          contentIcon = assignment.type;
-        } else {
-          contentIcon = resource.type;
-        }
-
+      cardPropsForNotification(notification) {
+        const { collection } = notification;
+        const learnerContext =
+          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
+        // Only differences from ActivityBlock is that there is no targetPage,
+        // and the time is used
         return {
-          icon,
-          contentIcon,
-          contentContext: assignment.name,
-          learnerContext: collection.type === 'learnergroup' ? collection.name : '',
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
+          contentContext: notification.assignment.name,
+          learnerContext,
           time: notification.timestamp,
         };
       },

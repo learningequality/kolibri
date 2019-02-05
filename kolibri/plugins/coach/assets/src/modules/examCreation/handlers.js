@@ -33,6 +33,7 @@ export function showExamCreationRootPage(store, params) {
     }).then(channels => {
       const channelContentList = channels.map(channel => ({
         ...channel,
+        id: channel.root,
         title: channel.name,
         kind: ContentNodeKinds.CHANNEL,
       }));

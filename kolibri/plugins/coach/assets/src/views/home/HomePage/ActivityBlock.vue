@@ -1,30 +1,26 @@
 <template>
 
-  <div>
-    <h2>{{ $tr('classActivity') }}</h2>
-    <p>
-      <KRouterLink
-        appearance="flat-button"
-        :text="$tr('viewAll')"
-        :to="route('HomeActivityPage')"
-      />
-    </p>
-    <div>
-      <transition-group name="list">
-        <NotificationCard
-          v-for="notification in notifications"
-          :key="notification.groupCode + String(notification.lastId)"
-          v-bind="cardPropsForNotification(notification)"
-        >
+  <Block
+    :title="$tr('classActivity')"
+    :allLinkText="$tr('viewAll')"
+    :allLinkRoute="$router.getRoute('HomeActivityPage')"
+  >
+    <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
+    <transition-group name="list">
+      <BlockItem
+        v-for="notification in notifications"
+        :key="notification.groupCode + '_' + notification.lastId"
+        v-bind="cardPropsForNotification(notification)"
+      >
+        <NotificationCard>
           {{ cardTextForNotification(notification) }}
         </NotificationCard>
-
-      </transition-group>
-      <div v-if="notifications.length === 0">
-        {{ $tr('noActivity') }}
-      </div>
+      </BlockItem>
+    </transition-group>
+    <div v-if="notifications.length === 0">
+      {{ $tr('noActivity') }}
     </div>
-  </div>
+  </Block>
 
 </template>
 
@@ -36,19 +32,17 @@
   import commonCoach from '../../common';
   import NotificationCard from '../../common/notifications/NotificationCard';
   import { nStringsMixin } from '../../common/notifications/notificationStrings';
-  import {
-    NotificationObjects,
-    NotificationEvents,
-  } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
-
-  const { LESSON, QUIZ } = NotificationObjects;
-  const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
+  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
+  import Block from './Block';
+  import BlockItem from './BlockItem';
 
   export default {
     name: 'ActivityBlock',
     components: {
       NotificationCard,
+      Block,
+      BlockItem,
     },
     mixins: [nStringsMixin, commonCoach],
     computed: {
@@ -59,33 +53,16 @@
     },
     methods: {
       cardPropsForNotification(notification) {
-        let icon = '';
-        let contentIcon = '';
-        const { event, collection, assignment, object, resource } = notification;
-        // Notification needs to have the object type to determine targetPage
-        icon = {
-          [COMPLETED]: 'star',
-          [STARTED]: 'clock',
-          [HELP_NEEDED]: 'help',
-        }[event];
-
+        const { collection } = notification;
         const learnerContext =
           collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
-
-        if (object === LESSON || object === QUIZ) {
-          contentIcon = assignment.type;
-        } else {
-          contentIcon = resource.type;
-        }
-
-        let targetPage = 'ReportsLessonExerciseLearnerListPage';
-
         return {
-          icon,
-          contentIcon,
-          targetPage,
-          learnerContext,
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
+          targetPage: notificationLink(notification),
           contentContext: notification.assignment.name,
+          learnerContext,
         };
       },
     },
@@ -103,30 +80,6 @@
 
 <style lang="scss" scoped>
 
-  $time: 0.25s;
-
-  .list-move {
-    transition: transform $time;
-  }
-
-  .list-enter,
-  .list-leave-to {
-    opacity: 0;
-  }
-
-  .list-leave,
-  .list-enter-to {
-    opacity: 1;
-  }
-
-  .list-enter-active {
-    transition: opacity $time;
-    transition-timing-function: ease-in;
-  }
-
-  .list-leave-active {
-    transition: all $time;
-    transition-timing-function: ease-out;
-  }
+  @import '../../common/list-transition';
 
 </style>

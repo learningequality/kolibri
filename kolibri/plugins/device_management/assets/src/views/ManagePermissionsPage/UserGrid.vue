@@ -12,7 +12,7 @@
         </tr>
       </thead>
 
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="user in visibleUsers" :key="user.id">
           <td class="core-table-icon-col">
             <PermissionsIcon
@@ -35,7 +35,7 @@
             />
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p v-if="!visibleUsers.length">

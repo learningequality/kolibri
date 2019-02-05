@@ -3,36 +3,26 @@
   <div>
     <p>
       <BackLink
-        :to="route('CoachClassListPage')"
+        :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
     <p>{{ $tr('planYourClassDescription') }}</p>
-    <div>
-      <KRouterLink
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('lessonsLabel')"
         :to="classRoute(LessonsPageNames.PLAN_LESSONS_ROOT)"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('quizzesLabel')"
         :to="classRoute(PageNames.EXAMS)"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('groupsLabel')"
         :to="classRoute('GroupsPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>

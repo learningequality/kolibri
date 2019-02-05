@@ -2,30 +2,6 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { LearnerGroupResource, FacilityUserResource } from 'kolibri.resources';
 
-function _userState(user) {
-  return {
-    id: user.id,
-    username: user.username,
-    full_name: user.full_name,
-  };
-}
-
-function _usersState(users) {
-  return users.map(user => _userState(user));
-}
-
-function _groupState(group) {
-  return {
-    id: group.id,
-    name: group.name,
-    users: [],
-  };
-}
-
-function _groupsState(groups) {
-  return groups.map(group => _groupState(group));
-}
-
 export function showGroupsPage(store, classId) {
   store.dispatch('loading');
   const promises = [
@@ -41,7 +17,7 @@ export function showGroupsPage(store, classId) {
   return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([classUsers, groupsCollection]) => {
-      const groups = _groupsState(groupsCollection);
+      const groups = groupsCollection.map(group => ({ ...group, users: [] }));
       const groupUsersPromises = groups.map(group =>
         FacilityUserResource.fetchCollection({
           getParams: { member_of: group.id },
@@ -53,10 +29,10 @@ export function showGroupsPage(store, classId) {
         samePageCheckGenerator(store),
         groupsUsersCollection => {
           groupsUsersCollection.forEach((groupUsers, index) => {
-            groups[index].users = _usersState(groupUsers);
+            groups[index].users = [...groupUsers];
           });
           store.commit('groups/SET_STATE', {
-            classUsers: _usersState(classUsers),
+            classUsers: [...classUsers],
             groups,
             groupModalShown: false,
           });

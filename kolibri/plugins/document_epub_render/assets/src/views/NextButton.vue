@@ -4,7 +4,6 @@
     class="next-button"
     :class="{'next-button-white': color === 'white'}"
     type="secondary"
-    :disableRipple="false"
     :ariaLabel="$tr('goToNextPage')"
     @click="$emit('goToNextPage')"
   >
@@ -25,7 +24,7 @@
 
 <script>
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'NextButton',

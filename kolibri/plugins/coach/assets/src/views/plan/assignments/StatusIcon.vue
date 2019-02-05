@@ -64,9 +64,14 @@
 
 <style lang="scss" scoped>
 
-  .status-icon,
   .status-icon-wrapper {
-    vertical-align: middle;
+    position: relative;
+  }
+
+  .status-icon {
+    position: relative;
+    top: -2px;
+    // vertical-align: middle;
   }
 
   .active-text {

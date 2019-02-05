@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <template v-if="value === undefined">-</template>
+    <KEmptyPlaceholder v-if="value === undefined || value === null" />
     <template v-else>{{ coachStrings.$tr('percentage', {value}) }}</template>
   </span>
 
@@ -10,11 +10,14 @@
 
 <script>
 
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'Score',
-    components: {},
+    components: {
+      KEmptyPlaceholder,
+    },
     mixins: [coachStringsMixin],
     props: {
       value: {

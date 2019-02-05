@@ -2,14 +2,13 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
 
       <h1>{{ $tr('exams') }}</h1>
@@ -44,7 +43,7 @@
             <th><span class="visuallyhidden">{{ examReportPageStrings.$tr('options') }}</span></th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr
             v-for="exam in filteredExams"
             :key="exam.id"
@@ -73,7 +72,7 @@
               />
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </CoreTable>
 
       <p v-if="!exams.length">
@@ -85,7 +84,7 @@
       <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
         {{ $tr('noInactiveExams') }}
       </p>
-    </div>
+    </KPageContainer>
 
     <AssignmentDetailsModal
       v-if="showEditModal"
@@ -137,7 +136,7 @@
 <script>
 
   import find from 'lodash/find';
-  import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -211,8 +210,6 @@
     },
     computed: {
       ...mapState(['classList']),
-      ...mapGetters('classSummary', ['exams', 'groups']),
-      ...mapState('classSummary', ['examsMap', 'groupMap']),
       ...mapState('examsRoot', { fullExamInfo: 'exams' }),
       examReportPageStrings() {
         return examReportPageStrings;
@@ -338,7 +335,10 @@
           question_sources: currentExam.questionSources,
           assignments: this.serverAssignmentPayload(listOfIDs),
         };
-        this.copyExam({ exam, className: this.className }).then(result => {
+        const classroomName = find(this.classList, { id: selectedClassroomId }).name;
+
+        this.copyExam({ exam, className: classroomName }).then(result => {
+          // If exam was copied to the current classroom, add it to the classSummary module
           if (selectedClassroomId === this.classId) {
             const object = {
               id: result.id,
@@ -347,8 +347,8 @@
               active: false,
             };
             this.CREATE_ITEM({ map: 'examMap', id: object.id, object });
-            this.showCopyModal = false;
           }
+          this.showCopyModal = false;
         });
       },
       handleExamDelete() {

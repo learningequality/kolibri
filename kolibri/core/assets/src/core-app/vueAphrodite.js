@@ -17,7 +17,7 @@ export default function VueAphrodite(Vue) {
     const cacheKey = `${componentName}:${JSON.stringify(value)}`;
     if (!__classNameCache[cacheKey]) {
       if (!Array.isArray(value)) {
-        value = [value];
+        value = [value || {}];
       }
       if (process.env.NODE_ENV !== 'production') {
         // Add a warning if we are using Aphrodite for non-pseudo classes

@@ -39,7 +39,11 @@
           :cy="size / 2"
           :r="radius"
           :stroke-dasharray="strokeDashArray"
-          :style="{ 'stroke-dashoffset': strokeDashOffset, 'stroke-width': calculatedStroke }"
+          :style="{
+            'stroke-dashoffset': strokeDashOffset,
+            'stroke-width': calculatedStroke,
+            stroke: $coreActionNormal,
+          }"
         />
       </svg>
 
@@ -63,6 +67,9 @@
           stroke-miterlimit="10"
 
           :stroke-width="calculatedStroke"
+          :style="{
+            stroke: $coreActionNormal,
+          }"
         />
       </svg>
     </div>
@@ -97,10 +104,6 @@
         type: String,
         default: 'indeterminate', // 'indeterminate' or 'determinate'
       },
-      color: {
-        type: String,
-        default: 'primary', // 'primary', 'accent', multi-color', 'black', or 'white'
-      },
       progress: {
         type: Number,
         default: 0,
@@ -117,12 +120,9 @@
     },
 
     computed: {
-      ...mapGetters(['$coreLoading']),
+      ...mapGetters(['$coreLoading', '$coreActionNormal']),
       classes() {
-        return [
-          `ui-progress-circular--color-${this.color}`,
-          `ui-progress-circular--type-${this.type}`,
-        ];
+        return [`ui-progress-circular--type-${this.type}`];
       },
 
       strokeDashArray() {
@@ -175,7 +175,7 @@
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
 
@@ -231,49 +231,6 @@
     stroke-dasharray: 89, 200;
     stroke-dashoffset: -35px;
     stroke-linecap: round;
-  }
-
-  // ================================================
-  // Colors
-  // ================================================
-
-  .ui-progress-circular--color-multi-color {
-    .ui-progress-circular-determinate-path {
-      stroke: $brand-primary-color;
-    }
-
-    .ui-progress-circular-indeterminate-path {
-      animation: ui-progress-circular-color $ui-progress-indeterminate-color-duration ease-in-out
-        infinite;
-    }
-  }
-
-  .ui-progress-circular--color-primary {
-    .ui-progress-circular-determinate-path,
-    .ui-progress-circular-indeterminate-path {
-      stroke: $brand-primary-color;
-    }
-  }
-
-  .ui-progress-circular--color-accent {
-    .ui-progress-circular-determinate-path,
-    .ui-progress-circular-indeterminate-path {
-      stroke: $brand-accent-color;
-    }
-  }
-
-  .ui-progress-circular--color-black {
-    .ui-progress-circular-determinate-path,
-    .ui-progress-circular-indeterminate-path {
-      stroke: $md-grey-900;
-    }
-  }
-
-  .ui-progress-circular--color-white {
-    .ui-progress-circular-determinate-path,
-    .ui-progress-circular-indeterminate-path {
-      stroke: white;
-    }
   }
 
   // ================================================

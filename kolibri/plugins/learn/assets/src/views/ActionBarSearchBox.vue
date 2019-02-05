@@ -7,7 +7,6 @@
         ref="toggleBtn"
         type="primary"
         color="clear"
-        :disableRipple="true"
         @click="toggleDropdownSearchBox"
       >
         <mat-svg name="search" category="action" class="search-icon" />
@@ -37,7 +36,7 @@
 
   import { mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import SearchBox from './SearchBox';
 
   export default {

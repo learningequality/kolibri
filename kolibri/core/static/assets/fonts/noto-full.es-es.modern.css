@@ -262,6 +262,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansJavanese.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+A980-A9CD,U+A9CF-A9D9,U+A9DE-A9DF;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansJavanese.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+A980-A9CD,U+A9CF-A9D9,U+A9DE-A9DF;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansKannada.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;

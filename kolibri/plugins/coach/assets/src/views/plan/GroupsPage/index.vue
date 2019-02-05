@@ -2,16 +2,16 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
-    <div class="new-coach-block">
+
+    <KPageContainer>
       <PlanHeader />
-      <p v-if="!sortedGroups.length">{{ $tr('noGroups') }}</p>
-      <div class="btn">
+      <h1>{{ $tr('classGroups') }}</h1>
+      <div class="ta-r">
         <KButton
           class="new-group-button"
           :text="$tr('newGroup')"
@@ -19,6 +19,33 @@
           @click="openCreateGroupModal"
         />
       </div>
+
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th class="core-table-icon-col"></th>
+            <th class="core-table-main-col">Title</th>
+            <th class="ta-r">
+              {{ coachStrings.$tr('learnersLabel') }}
+            </th>
+            <th></th>
+          </tr>
+
+        </thead>
+        <tbody slot="tbody">
+          <GroupRowTr
+            v-for="group in sortedGroups"
+            :key="group.id"
+            :group="group"
+            @rename="openRenameGroupModal"
+            @delete="openDeleteGroupModal"
+          />
+        </tbody>
+      </CoreTable>
+
+      <p v-if="!sortedGroups.length">
+        {{ $tr('noGroups') }}
+      </p>
 
       <CreateGroupModal
         v-if="showCreateGroupModal"
@@ -38,31 +65,7 @@
         :groupId="selectedGroup.id"
       />
 
-      <MoveLearnersModal
-        v-if="showMoveLearnersModal"
-        :groupId="selectedGroup.id"
-        :groups="sortedGroups"
-        :usersToMove="usersToMove"
-        :isUngrouped="isUngrouped"
-      />
-
-      <GroupSection
-        v-for="group in sortedGroups"
-        :key="group.id"
-        :canMove="Boolean(sortedGroups.length)"
-        :group="group"
-        @rename="openRenameGroupModal"
-        @delete="openDeleteGroupModal"
-        @move="openMoveLearnersModal"
-      />
-
-      <GroupSection
-        :canMove="Boolean(sortedGroups.length)"
-        :group="ungroupedUsersObject"
-        :isUngrouped="true"
-        @move="openMoveLearnersModal"
-      />
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -71,41 +74,33 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import differenceWith from 'lodash/differenceWith';
   import orderBy from 'lodash/orderBy';
-  import flatMap from 'lodash/flatMap';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
   import CreateGroupModal from './CreateGroupModal';
-  import GroupSection from './GroupSection';
+  import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
   import DeleteGroupModal from './DeleteGroupModal';
-  import MoveLearnersModal from './MoveLearnersModal';
 
   export default {
     name: 'GroupsPage',
     $trs: {
       classGroups: 'Groups',
       newGroup: 'New group',
-      ungrouped: 'Ungrouped',
       noGroups: 'You do not have any groups',
       documentTitle: 'Groups',
     },
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     components: {
+      CoreTable,
       PlanHeader,
       KButton,
+      GroupRowTr,
       CreateGroupModal,
-      GroupSection,
       RenameGroupModal,
       DeleteGroupModal,
-      MoveLearnersModal,
     },
     mixins: [commonCoach],
     data() {
@@ -115,7 +110,6 @@
           id: '',
         },
         usersToMove: [],
-        isUngrouped: false,
       };
     },
     computed: {
@@ -129,23 +123,8 @@
       showDeleteGroupModal() {
         return this.groupModalShown === GroupModals.DELETE_GROUP;
       },
-      showMoveLearnersModal() {
-        return this.groupModalShown === GroupModals.MOVE_LEARNERS;
-      },
       sortedGroups() {
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
-      },
-      groupedUsers() {
-        return flatMap(this.sortedGroups, 'users');
-      },
-      ungroupedUsers() {
-        return differenceWith(this.classUsers, this.groupedUsers, (a, b) => a.id === b.id);
-      },
-      ungroupedUsersObject() {
-        return {
-          name: this.$tr('ungrouped'),
-          users: this.ungroupedUsers,
-        };
       },
     },
     methods: {
@@ -167,15 +146,6 @@
         };
         this.displayModal(GroupModals.DELETE_GROUP);
       },
-      openMoveLearnersModal(groupName, groupId, usersToMove, isUngrouped) {
-        this.selectedGroup = {
-          name: groupName,
-          id: groupId,
-        };
-        this.usersToMove = usersToMove;
-        this.isUngrouped = isUngrouped;
-        this.displayModal(GroupModals.MOVE_LEARNERS);
-      },
     },
   };
 
@@ -184,7 +154,7 @@
 
 <style lang="scss" scoped>
 
-  .btn {
+  .ta-r {
     text-align: right;
   }
 

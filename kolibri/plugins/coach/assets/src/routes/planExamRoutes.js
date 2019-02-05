@@ -21,6 +21,9 @@ export default [
     handler(toRoute) {
       showExamsPage(store, toRoute.params.classId);
     },
+    meta: {
+      titleParts: ['quizzesLabel', 'CLASS_NAME'],
+    },
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,

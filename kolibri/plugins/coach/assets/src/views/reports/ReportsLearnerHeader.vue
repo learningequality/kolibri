@@ -3,46 +3,47 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLearnerListPage')"
+        :to="classRoute('ReportsLearnerListPage')"
         :text="$tr('back')"
       />
     </p>
-    <h1>Julie</h1>
-    <dl>
-      <dt>{{ coachStrings.$tr('usernameLabel') }}</dt>
-      <dd>julie124</dd>
-      <dt>{{ coachStrings.$tr('groupsLabel') }}</dt>
-      <dd><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></dd>
-      <dt>{{ coachStrings.$tr('exercisesCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 4}) }}</dd>
-      <dt>{{ coachStrings.$tr('avgQuizScoreLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('percentage', {value: 0.4}) }}</dd>
-      <dt>{{ coachStrings.$tr('quizzesCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</dd>
-      <dt>{{ coachStrings.$tr('lessonsAssignedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 10}) }}</dd>
-      <dt>{{ coachStrings.$tr('resourcesViewedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 45}) }}</dd>
-      <dt>{{ coachStrings.$tr('lessonsCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</dd>
-    </dl>
-    <div>
-      <KRouterLink
+    <h1>{{ learner.name }}</h1>
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('usernameLabel') }}</template>
+        <template slot="value">{{ learner.username }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('groupsLabel') }}</template>
+        <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', {value: avgScore}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
+        <template slot="value">
+          {{ coachStrings.$tr('integer', {value: exercisesCompleted}) }}
+        </template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('resourcesViewedLabel') }}</template>
+        <template slot="value">
+          {{ coachStrings.$tr('integer', {value: resourcesViewed}) }}
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportsLabel')"
-        :to="newCoachRoute('ReportsLearnerReportPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsLearnerReportPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
-        :to="newCoachRoute('ReportsLearnerActivityPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsLearnerActivityPage', {})"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>
@@ -56,6 +57,40 @@
     name: 'ReportsLearnerHeader',
     components: {},
     mixins: [commonCoach],
+    computed: {
+      learner() {
+        return this.learnerMap[this.$route.params.learnerId];
+      },
+      learnerContentStatuses() {
+        return this.contentStatuses.filter(status => this.learner.id === status.learner_id);
+      },
+      avgScore() {
+        const statuses = this.examStatuses.filter(
+          status =>
+            this.learner.id === status.learner_id && status.status === this.STATUSES.completed
+        );
+        if (!statuses.length) {
+          return null;
+        }
+        return this._.meanBy(statuses, 'score');
+      },
+      exercisesCompleted() {
+        const statuses = this.learnerContentStatuses.filter(
+          status =>
+            this.contentMap[status.content_id].kind === 'exercise' &&
+            status.status === this.STATUSES.completed
+        );
+        return statuses.length;
+      },
+      resourcesViewed() {
+        const statuses = this.learnerContentStatuses.filter(
+          status =>
+            this.contentMap[status.content_id].kind !== 'exercise' &&
+            status.status !== this.STATUSES.notStarted
+        );
+        return statuses.length;
+      },
+    },
     $trs: {
       back: 'All learners',
     },

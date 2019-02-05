@@ -2,14 +2,13 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
 
       <h1>{{ $tr('classLessons') }}</h1>
@@ -44,7 +43,7 @@
             </th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr
             v-for="lesson in lessons"
             v-show="showLesson(lesson)"
@@ -65,7 +64,7 @@
               <StatusIcon :active="lesson.is_active" :type="lessonKind" />
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </CoreTable>
 
       <p v-if="!lessons.length">
@@ -94,7 +93,7 @@
         @continue="handleDetailsModalContinue"
         @cancel="showModal=false"
       />
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 

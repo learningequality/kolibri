@@ -1,11 +1,11 @@
 <template>
 
   <span>
-    <template v-if="!groups.length">
+    <template v-if="!groupNames.length">
       {{ $tr('assignmentClass') }}
     </template>
     <template v-else>
-      <TruncatedItemList :items="groups" />
+      <TruncatedItemList :items="groupNames" />
     </template>
   </span>
 
@@ -24,7 +24,7 @@
     },
     mixins: [coachStringsMixin],
     props: {
-      groups: {
+      groupNames: {
         type: Array,
         required: true,
       },

@@ -856,7 +856,7 @@ export class Resource {
    * @param  {Object} getParams  Any getParams needed while fetching
    * @return {Promise}           Promise that resolves on fetch with an array of objects
    */
-  fetchDetailCollection(detailName, id, getParams = {}) {
+  fetchDetailCollection(detailName, id, getParams = {}, force = false) {
     if (!id) {
       throw TypeError('An id must be specified');
     }
@@ -870,7 +870,7 @@ export class Resource {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
-    return this.getCollection(getParams, detailName, id).fetch();
+    return this.getCollection(getParams, detailName, id).fetch(force);
   }
 
   /**

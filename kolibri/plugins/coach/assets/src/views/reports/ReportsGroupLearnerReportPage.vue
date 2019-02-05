@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,25 +9,25 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsGroupLearnerHeader />
 
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
-          <table class="new-coach-table">
-            <thead>
+          <CoreTable>
+            <thead slot="thead">
               <tr>
                 <td>{{ coachStrings.$tr('titleLabel') }}</td>
                 <td>{{ coachStrings.$tr('progressLabel') }}</td>
               </tr>
             </thead>
-            <tbody>
+            <transition-group slot="tbody" tag="tbody" name="list">
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Some lesson"
                   />
                 </td>
@@ -44,7 +43,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Another lesson"
                   />
                 </td>
@@ -60,7 +59,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Lesson 1"
                   />
                 </td>
@@ -76,7 +75,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportLessonPage')"
+                    :to="classRoute('ReportsGroupLearnerReportLessonPage', { lessonId: '___' })"
                     text="Lesson 2"
                   />
                 </td>
@@ -89,24 +88,24 @@
                   />
                 </td>
               </tr>
-            </tbody>
-          </table>
+            </transition-group>
+          </CoreTable>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
-          <table class="new-coach-table">
-            <thead>
+          <CoreTable>
+            <thead slot="thead">
               <tr>
                 <td>{{ coachStrings.$tr('titleLabel') }}</td>
                 <td>{{ coachStrings.$tr('progressLabel') }}</td>
                 <td>{{ coachStrings.$tr('scoreLabel') }}</td>
               </tr>
             </thead>
-            <tbody>
+            <transition-group slot="tbody" tag="tbody" name="list">
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
+                    :to="classRoute('ReportsGroupLearnerReportQuizPage', {})"
                     text="Some quiz"
                   />
                 </td>
@@ -123,7 +122,7 @@
               <tr>
                 <td>
                   <KRouterLink
-                    :to="newCoachRoute('ReportsGroupLearnerReportQuizPage')"
+                    :to="classRoute('ReportsGroupLearnerReportQuizPage', {})"
                     text="Another quiz"
                   />
                 </td>
@@ -137,12 +136,12 @@
                 </td>
                 <td><Score /></td>
               </tr>
-            </tbody>
-          </table>
+            </transition-group>
+          </CoreTable>
         </KGridItem>
       </KGrid>
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -167,7 +166,7 @@
 
 <style lang="scss" scoped>
 
-  .new-coach-table {
+  table {
     min-width: 0;
   }
 

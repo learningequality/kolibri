@@ -108,7 +108,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';

@@ -15,6 +15,8 @@ from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
 import kolibri
+from ...constants import nutrition_endpoints
+from ...utils import create_and_update_notifications
 from ...utils import dump_zipped_json
 from ...utils import extract_channel_statistics
 from ...utils import extract_facility_statistics
@@ -59,8 +61,10 @@ class Command(BaseCommand):
                 with vacuum_db_lock:
                     data = self.perform_ping(server)
                     logger.info("Ping succeeded! (response: {})".format(data))
+                    create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
                     if "id" in data:
-                        self.perform_statistics(server, data["id"])
+                        stat_data = self.perform_statistics(server, data["id"])
+                        create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
                 if once:
                     break
                 logger.info("Sleeping for {} minutes.".format(interval))

@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,40 +9,49 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsGroupLearnerReportPage')"
+          :to="classRoute('ReportsGroupLearnerReportPage', {})"
           text="Julie"
         />
       </p>
       <h1>
         {{ coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'}) }}
       </h1>
-      <dl>
-        <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-        <dd><LessonActive :active="true" /></dd>
-        <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-        <dd>Group 1, Group 2</dd>
-        <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-        <dd>Ipsum lorem</dd>
-      </dl>
+      <HeaderTable>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+          <template slot="value"><LessonActive :active="true" /></template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+          <template slot="value">Group 1, Group 2</template>
+        </HeaderTableRow>
+        <HeaderTableRow>
+          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+          <template slot="value">Ipsum lorem</template>
+        </HeaderTableRow>
+      </HeaderTable>
 
       <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
+        <transition-group slot="tbody" tag="tbody" name="list">
           <tr>
             <td>
               <KRouterLink
                 text="Some exercise"
-                :to="newCoachRoute('ReportsGroupLearnerReportLessonExercisePage')"
+                :to="classRoute(
+                  'ReportsGroupLearnerReportLessonExercisePage',
+                  { exerciseId: '___' }
+                )"
               />
             </td>
             <td>
@@ -70,9 +78,9 @@
             </td>
             <td><TimeDuration :seconds="120" /></td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+        </transition-group>
+      </CoreTable>
+    </KPageContainer>
   </CoreBase>
 
 </template>

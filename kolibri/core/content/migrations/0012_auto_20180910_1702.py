@@ -4,13 +4,17 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from kolibri.core.content.utils.annotation import calculate_channel_fields
+from kolibri.core.content.utils.annotation import calculate_included_languages
+from kolibri.core.content.utils.annotation import calculate_published_size
+from kolibri.core.content.utils.annotation import calculate_total_resource_count
 
 
 def calculate_fields(apps, schema_editor):
     ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
     for channel in ChannelMetadata.objects.all():
-        calculate_channel_fields(channel.id)
+        calculate_published_size(channel)
+        calculate_total_resource_count(channel)
+        calculate_included_languages(channel)
 
 
 class Migration(migrations.Migration):

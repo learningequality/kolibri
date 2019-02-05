@@ -46,7 +46,7 @@
       @sessionInitialized="setWasIncomplete"
       @startTracking="startTracking"
       @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
+      @updateProgress="updateExerciseProgress"
       @updateContentState="updateContentState"
     />
 
@@ -129,7 +129,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
@@ -268,6 +268,10 @@
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateExerciseProgress(progressPercent) {
+        this.$emit('updateProgress', progressPercent);
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });

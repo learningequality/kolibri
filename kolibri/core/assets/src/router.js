@@ -1,4 +1,7 @@
 import VueRouter from 'vue-router';
+import logger from 'kolibri.lib.logging';
+
+const logging = logger.getLogger(__filename);
 
 /** Wrapper around Vue Router.
  *  Implements URL mapping to Vuex actions in addition to Vue components.
@@ -19,6 +22,7 @@ class Router {
       },
     });
     this._actions = {};
+    this._routes = {};
   }
 
   _hook(toRoute, fromRoute, next) {
@@ -30,12 +34,36 @@ class Router {
 
   init(routes) {
     routes.forEach(route => {
+      // if no name was passed but a component was, use the component's name
+      if (!route.name && route.component) {
+        route.name = route.component.name;
+      }
+      // if a handler was passed, associate it with the router using a beforeEach hook
       if (route.handler) {
         this._actions[route.name] = route.handler;
         delete route.handler;
       }
+      // save a copy of the route names for later lookup
+      this._routes[route.name] = route;
     });
+
+    // add the routes to the router
     this._vueRouter.addRoutes(routes);
+
+    // attach a helper method that generates a route object and warns if it's not valid
+    this._vueRouter.getRoute = this.getRoute = (name, params = {}) => {
+      if (!this._routes[name]) {
+        logging.warn(`Route name '${name}' is not registered`);
+      }
+      return { name, params };
+    };
+
+    // attach a helper method that returns original route definition
+    this._vueRouter.getRouteDefinition = this.getRouteDefinition = name => {
+      return this._routes[name];
+    };
+
+    // return a copy of underlying router
     return this._vueRouter;
   }
 

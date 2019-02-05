@@ -1,14 +1,25 @@
 <template>
 
-  <LabeledIcon :label="text">
-    <CoachStatusIcon :icon="icon" />
-  </LabeledIcon>
+  <div>
+    <LabeledIcon :label="text">
+      <CoachStatusIcon ref="status" :icon="icon" />
+    </LabeledIcon>
+    <KTooltip
+      v-if="false"
+      reference="status"
+      placement="top"
+      :refs="$refs"
+    >
+      {{ tooltip }}
+    </KTooltip>
+  </div>
 
 </template>
 
 
 <script>
 
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import LabeledIcon from '../LabeledIcon';
   import { coachStrings } from '../commonCoachStrings'; // eslint-disable-line no-unused-vars
   import CoachStatusIcon from './CoachStatusIcon';
@@ -19,6 +30,7 @@
     components: {
       CoachStatusIcon,
       LabeledIcon,
+      KTooltip,
     },
     mixins: [statusStringsMixin],
     props: {
@@ -33,14 +45,19 @@
       },
     },
     computed: {
+      strings() {
+        return this.translations.learnerProgress[this.verb];
+      },
       text() {
         if (!this.verbosityNumber) {
           return '';
         }
-        return this.translations.learnerProgress[this.verb].$tr(
-          this.shorten('label', this.verbosityNumber),
-          { count: this.count }
-        );
+        return this.strings.$tr(this.shorten('label', this.verbosityNumber), { count: this.count });
+      },
+      tooltip() {
+        return this.strings.$tr(this.shorten('label', 2), {
+          count: this.count,
+        });
       },
     },
   };

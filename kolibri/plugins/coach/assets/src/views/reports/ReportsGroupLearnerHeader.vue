@@ -3,44 +3,51 @@
   <div>
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsGroupLearnerListPage')"
+        :to="classRoute('ReportsGroupLearnerListPage', {})"
         :text="$tr('back')"
       />
     </p>
     <h1>Julie</h1>
-    <dl>
-      <dt>{{ coachStrings.$tr('usernameLabel') }}</dt>
-      <dd>julie124</dd>
-      <dt>{{ coachStrings.$tr('exercisesCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 4}) }}</dd>
-      <dt>{{ coachStrings.$tr('avgQuizScoreLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('percentage', {value: 0.4}) }}</dd>
-      <dt>{{ coachStrings.$tr('quizzesCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</dd>
-      <dt>{{ coachStrings.$tr('lessonsAssignedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 10}) }}</dd>
-      <dt>{{ coachStrings.$tr('resourcesViewedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('integer', {value: 45}) }}</dd>
-      <dt>{{ coachStrings.$tr('lessonsCompletedLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</dd>
-    </dl>
-    <div>
-      <KRouterLink
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('usernameLabel') }}</template>
+        <template slot="value">julie124</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('integer', {value: 4}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', {value: 0.4}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('quizzesCompletedLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('lessonsAssignedLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('integer', {value: 10}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('resourcesViewedLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('integer', {value: 45}) }}</template>
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('lessonsCompletedLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('ratio', {value: 4, total: 6}) }}</template>
+      </HeaderTableRow>
+    </HeaderTable>
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportsLabel')"
-        :to="newCoachRoute('ReportsGroupLearnerReportPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsGroupLearnerReportPage', {})"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
-        :to="newCoachRoute('ReportsGroupLearnerActivityPage')"
-        :primary="false"
-        appearance="flat-button"
-        class="new-coach-tab"
+        :to="classRoute('ReportsGroupLearnerActivityPage', {})"
       />
-    </div>
-    <hr>
+    </HeaderTabs>
   </div>
 
 </template>

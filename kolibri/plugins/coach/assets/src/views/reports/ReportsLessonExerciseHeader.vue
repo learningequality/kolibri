@@ -4,36 +4,31 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsLessonReportPage')"
-        :text="$tr('back', { lesson: lessonName })"
+        :to="classRoute('ReportsLessonReportPage')"
+        :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
-    <h1>Counting with big numbers</h1>
-    <p>Advanced counting</p>
+    <h1>{{ exercise.title }}</h1>
 
+    <!-- TODO COACH
+    <p>{{ exercise.description }}</p>
     <p>
       {{ coachStrings.$tr('masteryModelLabel') }}
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
-
     <KButton :text="coachStrings.$tr('previewAction')" />
+     -->
 
-    <div>
-      <KRouterLink
-        appearance="flat-button"
-        class="new-coach-tab"
+    <HeaderTabs>
+      <HeaderTab
+        :to="classRoute('ReportsLessonExerciseLearnerListPage')"
         :text="coachStrings.$tr('reportLabel')"
-        :to="link('ReportsLessonExerciseLearnerListPage')"
       />
-      <KRouterLink
-        appearance="flat-button"
-        class="new-coach-tab"
+      <HeaderTab
+        :to="classRoute('ReportsLessonExerciseQuestionListPage')"
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        :to="link('ReportsLessonExerciseQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 
@@ -48,18 +43,16 @@
     name: 'ReportsLessonExerciseHeader',
     components: {},
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
-    },
-    methods: {
-      link(page) {
-        return { name: 'NEW_COACH_PAGES', params: { page } };
-      },
-    },
     $trs: {
       back: "Back to '{lesson}'",
+    },
+    computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      exercise() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
     },
   };
 

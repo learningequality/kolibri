@@ -50,7 +50,7 @@ export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
   return new Promise(resolve => {
     createExam(store, exam).then(
-      () => {
+      newExam => {
         store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
         store.dispatch('setExamsModal', false);
         store.dispatch(
@@ -61,7 +61,8 @@ export function copyExam(store, { exam, className }) {
           },
           { root: true }
         );
-        resolve(exam);
+        store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
+        resolve(newExam);
       },
       error => store.dispatch('handleApiError', error, { root: true })
     );

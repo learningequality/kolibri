@@ -54,6 +54,7 @@
 
 <script>
 
+  import find from 'lodash/find';
   import { mapState, mapActions } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -111,7 +112,8 @@
           collection: selectedClassroomId,
           lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
-        this.copyLesson({ payload, classroomName: this.className });
+        const classroomName = find(this.classList, { id: selectedClassroomId }).name;
+        this.copyLesson({ payload, classroomName });
       },
       handleDetailsModalSave(payload) {
         this.updateLesson({

@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,156 +9,38 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsLessonHeader />
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
 
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('groupsLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="Adam"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
+                :text="tableRow.name"
+                :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
               />
             </td>
             <td>
-              <ItemStatusRatio
-                :count="0"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
+              <StatusSimple :status="tableRow.status" />
             </td>
-            <td><TruncatedItemList :items="[]" /></td>
+            <td>
+              <TruncatedItemList :items="tableRow.groups" />
+            </td>
           </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="April"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="1"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Betsy"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="1"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Edward"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="0"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="[]" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="John"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="10"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="star"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Julie"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusCount
-                :count="1"
-                verbosity="1"
-                obj="question"
-                adjective="difficult"
-                icon="help"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b', 'c', 'd']" /></td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Steve"
-                :to="newCoachRoute('ReportsLessonLearnerPage')"
-              />
-            </td>
-            <td>
-              <ItemStatusRatio
-                :count="8"
-                :total="10"
-                verbosity="1"
-                obj="question"
-                adjective="completed"
-                icon="clock"
-              />
-            </td>
-            <td><TruncatedItemList :items="['a', 'b']" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        </transition-group>
+      </CoreTable>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -176,31 +57,26 @@
       ReportsLessonHeader,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        filter: 'allQuizzes',
-      };
-    },
     computed: {
-      filterOptions() {
-        return [
-          {
-            label: this.$tr('allQuizzes'),
-            value: 'allQuizzes',
-          },
-          {
-            label: this.$tr('activeQuizzes'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.$tr('inactiveQuizzes'),
-            value: 'inactiveQuizzes',
-          },
-        ];
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
       },
-    },
-    beforeMount() {
-      this.filter = this.filterOptions[0];
+      recipients() {
+        return this.getLearnersForGroups(this.lesson.groups);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',

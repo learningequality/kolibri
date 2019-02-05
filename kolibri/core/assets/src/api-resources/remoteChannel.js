@@ -5,4 +5,7 @@ export default new Resource({
   getKolibriStudioStatus() {
     return this.getListEndpoint('kolibri_studio_status');
   },
+  fetchChannelList(id) {
+    return this.fetchDetailCollection('retrieve_list', id);
+  },
 });

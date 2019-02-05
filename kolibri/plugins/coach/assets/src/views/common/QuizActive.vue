@@ -1,16 +1,21 @@
 <template>
 
   <span>
-    <LabeledIcon :label="label">
+    <LabeledIcon
+      :label="label"
+      :style="active ? {} : { color: $coreGrey300 }"
+    >
       <mat-svg
         v-if="active"
-        category="action"
-        name="check_circle"
+        category="image"
+        name="brightness_1"
+        :style="{ fill: $coreStatusCorrect }"
       />
       <mat-svg
         v-else
-        category="content"
-        name="remove_circle"
+        category="image"
+        name="brightness_1"
+        :style="{ fill: $coreGrey300 }"
       />
     </LabeledIcon>
   </span>
@@ -20,6 +25,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import LabeledIcon from './LabeledIcon';
 
   export default {
@@ -38,6 +44,7 @@
       inactive: 'Inactive',
     },
     computed: {
+      ...mapGetters(['$coreStatusCorrect', '$coreGrey300']),
       label() {
         return this.active ? this.$tr('active') : this.$tr('inactive');
       },

@@ -1,55 +1,83 @@
 <template>
 
-  <div>
-    <h2>{{ coachStrings.$tr('lessonsLabel') }}</h2>
-    <p>
-      <KRouterLink
-        appearance="flat-button"
-        :text="$tr('viewAll')"
-        :to="newCoachRoute('ReportsLessonListPage')"
-      />
-    </p>
-    <div>
+  <Block
+    :title="coachStrings.$tr('lessonsLabel')"
+    :allLinkText="viewAllString"
+    :allLinkRoute="classRoute('ReportsLessonListPage', {})"
+  >
+    <ContentIcon slot="icon" :kind="ContentNodeKinds.LESSON" />
+    <BlockItem
+      v-for="tableRow in table"
+      :key="tableRow.key"
+      class="block-item"
+    >
       <ItemProgressDisplay
-        name="Some lesson"
-        :completed="2"
-        :total="5"
-        :needHelp="3"
-        :groups="[]"
+        :name="tableRow.name"
+        :tally="tableRow.tally"
+        :groupNames="tableRow.groups"
       />
-      <ItemProgressDisplay
-        name="Read these!"
-        :completed="2"
-        :total="4"
-        :needHelp="0"
-        :groups="[1, 2, 3]"
-      />
-      <ItemProgressDisplay
-        name="Item name"
-        :completed="2"
-        :total="50"
-        :needHelp="0"
-        :groups="[1, 2]"
-      />
-    </div>
-  </div>
+    </BlockItem>
+  </Block>
 
 </template>
 
 
 <script>
 
+  import orderBy from 'lodash/orderBy';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
+  import Block from './Block';
+  import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import ActivityBlock from './ActivityBlock';
+
+  const MAX_LESSONS = 3;
+
+  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
 
   export default {
     name: 'LessonsBlock',
     components: {
       ItemProgressDisplay,
+      Block,
+      BlockItem,
     },
     mixins: [commonCoach],
     $trs: {
       viewAll: 'All lessons',
+    },
+    computed: {
+      table() {
+        const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
+        return recent.map(lesson => {
+          const assigned = this.getLearnersForGroups(lesson.groups);
+          return {
+            key: lesson.id,
+            name: lesson.title,
+            tally: this.getLessonStatusTally(lesson.id, assigned),
+            groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
+          };
+        });
+      },
+      viewAllString() {
+        return viewAllString;
+      },
+    },
+    methods: {
+      // return the last activity among all users for a particular lesson
+      lastActivity(lesson) {
+        let last = null;
+        if (!this.lessonLearnerStatusMap[lesson.id]) {
+          return undefined;
+        }
+        Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(status => {
+          if (status.last_activity > last) {
+            last = status.last_activity;
+          }
+        });
+        return last;
+      },
     },
   };
 

@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -10,69 +9,41 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
-          :to="newCoachRoute('ReportsLessonLearnerListPage')"
-          text="Some lesson"
+          :to="classRoute('ReportsLessonLearnerListPage')"
+          :text="lesson.title"
         />
       </p>
-      <h1>
-        {{ coachStrings.$tr('combinedLabel', {firstItem: 'Julie', secondItem: 'Some lesson'}) }}
-      </h1>
-      <dl>
-        <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-        <dd><LessonActive :active="true" /></dd>
-        <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-        <dd>Group 1, Group 2</dd>
-        <dt>{{ coachStrings.$tr('descriptionLabel') }}</dt>
-        <dd>Ipsum lorem</dd>
-      </dl>
+      <h1>{{ learner.name }}</h1>
 
-      <h2>{{ coachStrings.$tr('numberOfResources', {value: 4}) }}</h2>
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
             <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
               <KRouterLink
-                text="Some exercise"
-                :to="newCoachRoute('ReportsLessonLearnerExercisePage')"
+                v-if="tableRow.kind === 'exercise'"
+                :text="tableRow.title"
+                :to="exerciseLink(tableRow.content_id)"
               />
+              <template v-else>{{ tableRow.title }}</template>
             </td>
             <td>
-              <LearnerProgressLabel
-                :verbosity="1"
-                :count="1"
-                verb="needHelp"
-                icon="help"
-              />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration :seconds="360" /></td>
+            <td><TimeDuration :seconds="tableRow.statusObj.timeSpent" /></td>
           </tr>
-          <tr>
-            <td>
-              Some video
-            </td>
-            <td>
-              <LearnerProgressLabel
-                :verbosity="1"
-                :count="1"
-                verb="completed"
-                icon="star"
-              />
-            </td>
-            <td><TimeDuration :seconds="120" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        </transition-group>
+      </CoreTable>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -81,11 +52,37 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
     components: {},
     mixins: [commonCoach],
+    computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      learner() {
+        return this.learnerMap[this.$route.params.learnerId];
+      },
+      table() {
+        const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
+        const sorted = this._.sortBy(contentArray, ['title']);
+        const mapped = sorted.map(content => {
+          const tableRow = {
+            statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
+          };
+          Object.assign(tableRow, content);
+          return tableRow;
+        });
+        return mapped;
+      },
+    },
+    methods: {
+      exerciseLink(exerciseId) {
+        return this.classRoute(PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
+      },
+    },
     $trs: {
       lessonProgressLabel: "'{lesson}' progress",
     },

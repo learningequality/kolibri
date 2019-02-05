@@ -81,10 +81,11 @@ import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
 import KDraggable from '../views/kSortable/KDraggable';
 import KDragHandle from '../views/kSortable/KDragHandle';
 import KDragContainer from '../views/kSortable/KDragContainer';
-import KDragIcon from '../views/kSortable/KDragIcon';
+import KDragSortWidget from '../views/kSortable/KDragSortWidget';
+import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
+import KPageContainer from '../views/KPageContainer';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
@@ -98,6 +99,7 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import UiIconButton from '../views/KeenUiIconButton.vue';
 import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import vue from './kolibriVue';
@@ -170,6 +172,7 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      UiIconButton,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
@@ -177,7 +180,9 @@ export default {
       KDraggable,
       KDragHandle,
       KDragContainer,
-      KDragIcon,
+      KDragSortWidget,
+      KEmptyPlaceholder,
+      KPageContainer,
     },
     router,
     mixins: {
@@ -190,7 +195,6 @@ export default {
   styles: {
     definitions,
     keenVars,
-    buttonAndLinkStyles,
   },
   urls,
   utils: {

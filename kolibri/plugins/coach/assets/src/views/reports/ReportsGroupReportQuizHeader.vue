@@ -4,48 +4,39 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsGroupReportPage')"
-        text="Group A"
+        :to="classRoute('ReportsGroupReportPage')"
+        :text="group.name"
       />
     </p>
-    <h1>Some quiz</h1>
-    <p>{{ $tr('quizPerformanceLabel', {quiz: 'Some quiz'}) }}</p>
-    <dl>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><QuizActive :active="true" /></dd>
-      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-      <dd><Recipients :groups="[]" /></dd>
-      <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
-      <dd>
-        <LearnerProgressRatio
-          :count="1"
-          :total="3"
-          :verbosity="1"
-          verb="completed"
-          icon="clock"
-        />
-      </dd>
-      <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
-    </dl>
+    <h1>{{ exam.title }}</h1>
 
-    <div>
-      <KRouterLink
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <QuizActive slot="value" :active="exam.active" />
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', { value: avgScore }) }}</template>
+      </HeaderTableRow>
+      <!-- TODO COACH
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+      </HeaderTableRow>
+       -->
+    </HeaderTable>
+
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-        :to="link('ReportsGroupReportQuizLearnerListPage')"
+        :to="classRoute('ReportsGroupReportQuizLearnerListPage')"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-
-        :to="link('ReportsGroupReportQuizQuestionListPage')"
+        :to="classRoute('ReportsGroupReportQuizQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 
@@ -60,13 +51,21 @@
     name: 'ReportsGroupReportQuizHeader',
     components: {},
     mixins: [commonCoach],
-    computed: {},
-    methods: {
-      goTo(page) {
-        this.$router.push(this.newCoachRoute(page));
+    computed: {
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
-      link(page) {
-        return this.newCoachRoute(page);
+      group() {
+        return this.groupMap[this.$route.params.groupId];
+      },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      recipients() {
+        return this.getLearnersForGroups([this.$route.params.groupId]);
+      },
+      tally() {
+        return this.getExamStatusTally(this.exam.id, this.recipients);
       },
     },
     $trs: {

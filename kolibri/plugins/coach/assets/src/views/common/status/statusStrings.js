@@ -1,6 +1,8 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 import logger from 'kolibri.lib.logging';
 
+import { OBJECTS, ADJECTIVES, VERBS } from './constants';
+
 export const logging = logger.getLogger(__filename);
 
 /*
@@ -353,28 +355,6 @@ const translations = {
   },
 };
 
-export const OBJECTS = {
-  exercise: 'exercise',
-  lesson: 'lesson',
-  question: 'question',
-  quiz: 'quiz',
-  resource: 'resource',
-};
-
-export const ADJECTIVES = {
-  difficult: 'difficult',
-  completed: 'completed',
-  inProgress: 'inProgress',
-  notStarted: 'notStarted',
-};
-
-export const VERBS = {
-  completed: 'completed',
-  notStarted: 'notStarted',
-  needHelp: 'needHelp',
-  started: 'started',
-};
-
 export function isValidObject(value) {
   const output = Boolean(OBJECTS[value]);
   if (!output) {
@@ -419,6 +399,17 @@ export const statusStringsMixin = {
         const output = [0, 1, 2].includes(Number(value));
         if (!output) {
           logging.error(`'${value}' must be one of: ${[0, 1, 2]}`);
+        }
+        return output;
+      },
+    },
+    total: {
+      type: Number,
+      required: false,
+      validator(value) {
+        const output = value >= 0;
+        if (!output) {
+          logging.error(`'${value}' must be greater than 0`);
         }
         return output;
       },

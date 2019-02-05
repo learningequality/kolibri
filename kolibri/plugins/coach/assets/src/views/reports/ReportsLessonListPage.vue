@@ -2,14 +2,13 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <ReportsHeader />
       <KSelect
         v-model="filter"
@@ -17,8 +16,8 @@
         :options="filterOptions"
         :inline="true"
       />
-      <table class="new-coach-table">
-        <thead>
+      <CoreTable>
+        <thead slot="thead">
           <tr>
             <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
@@ -26,56 +25,30 @@
             <td>{{ coachStrings.$tr('statusLabel') }}</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <transition-group slot="tbody" tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="Lesson A"
-                :to="newCoachRoute('ReportsLessonReportPage')"
+                :text="tableRow.title"
+                :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
               />
             </td>
             <td>
-              <LearnerProgressRatio
-                :count="1"
-                :total="100"
-                verbosity="0"
-                verb="completed"
-                icon="learners"
+              <StatusSummary
+                :tally="tableRow.tally"
+                :verbose="true"
               />
             </td>
-            <td><Recipients :groups="[]" /></td>
-            <td><LessonActive :active="true" /></td>
+            <td>
+              <Recipients
+                :groupNames="tableRow.groupNames"
+              />
+            </td>
+            <td><LessonActive :active="tableRow.active" /></td>
           </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Lesson B"
-                :to="newCoachRoute('ReportsLessonReportPage')"
-              />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :count="3"
-                :total="10"
-                verbosity="0"
-                verb="completed"
-                icon="learners"
-              />
-            </td>
-            <td>
-              <Recipients :groups="['group A', 'group B']" />
-              <LearnerProgressCount
-                verb="needHelp"
-                icon="help"
-                :count="3"
-                :verbosity="0"
-              />
-            </td>
-            <td><LessonActive :active="false" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        </transition-group>
+      </CoreTable>
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -114,6 +87,29 @@
           },
         ];
       },
+      table() {
+        const filtered = this.lessons.filter(lesson => {
+          if (this.filter.value === 'allLessons') {
+            return true;
+          } else if (this.filter.value === 'activeLessons') {
+            return lesson.active;
+          } else if (this.filter.value === 'inactiveLessons') {
+            return !lesson.active;
+          }
+        });
+        const sorted = this._.sortBy(filtered, ['title', 'active']);
+        const mapped = sorted.map(lesson => {
+          const learners = this.getLearnersForGroups(lesson.groups);
+          const tableRow = {
+            totalLearners: learners.length,
+            tally: this.getLessonStatusTally(lesson.id, learners),
+            groupNames: this.getGroupNames(lesson.groups),
+          };
+          Object.assign(tableRow, lesson);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -129,4 +125,8 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../common/list-transition';
+
+</style>

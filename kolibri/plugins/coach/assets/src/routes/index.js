@@ -1,10 +1,10 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { ClassroomResource } from 'kolibri.resources';
-import { PageNames } from '../constants';
 import CoachClassListPage from '../views/CoachClassListPage';
 import HomePage from '../views/home/HomePage';
 import HomeActivityPage from '../views/home/HomeActivityPage';
+import StatusTestPage from '../views/common/status/StatusTestPage';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 
@@ -12,7 +12,6 @@ export default [
   ...planRoutes,
   ...reportRoutes,
   {
-    name: CoachClassListPage.name,
     path: '/',
     component: CoachClassListPage,
     handler() {
@@ -39,34 +38,32 @@ export default [
     },
   },
   {
-    name: HomePage.name,
     path: '/:classId/home',
     component: HomePage,
     handler() {
       store.dispatch('notLoading');
     },
+    meta: {
+      titleParts: ['CLASS_NAME'],
+    },
   },
   {
-    name: HomeActivityPage.name,
-    path: '/:classId/activity',
+    path: '/:classId/home/activity',
     component: HomeActivityPage,
     handler() {
       store.dispatch('notLoading');
     },
+    meta: {
+      titleParts: ['activityLabel', 'CLASS_NAME'],
+    },
   },
-  /* COACH - under construction ... */
   {
-    name: PageNames.NEW_COACH_PAGES,
-    path: '/:page',
-    handler(to) {
-      store.commit('SET_CLASS_ID', to.params.classId);
-      store.commit('SET_PAGE_NAME', PageNames.NEW_COACH_PAGES);
-      store.commit('CORE_SET_PAGE_LOADING', false);
-      store.commit('SET_CLASS_LIST', []);
+    path: '/about/statuses',
+    component: StatusTestPage,
+    handler() {
       store.dispatch('notLoading');
     },
   },
-  /* ... COACH - under construction */
   {
     path: '*',
     redirect: '/',

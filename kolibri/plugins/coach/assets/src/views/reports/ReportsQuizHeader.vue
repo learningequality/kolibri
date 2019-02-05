@@ -4,11 +4,13 @@
 
     <p>
       <BackLink
-        :to="newCoachRoute('ReportsQuizListPage')"
+        :to="classRoute('ReportsQuizListPage')"
         :text="$tr('back')"
       />
     </p>
-    <h1>Some quiz</h1>
+    <h1>{{ exam.title }}</h1>
+
+    <!-- COACH TODO
     <KDropdownMenu
       slot="optionsDropdown"
       :text="coachStrings.$tr('optionsLabel')"
@@ -16,41 +18,39 @@
       appearance="raised-button"
       @select="goTo($event.value)"
     />
-    <dl>
-      <dt>{{ coachStrings.$tr('statusLabel') }}</dt>
-      <dd><QuizActive :active="true" /></dd>
-      <dt>{{ coachStrings.$tr('recipientsLabel') }}</dt>
-      <dd><Recipients :groups="[]" /></dd>
-      <dt>{{ coachStrings.$tr('progressLabel') }}</dt>
-      <dd>
-        <LearnerProgressRatio
-          :count="1"
-          :total="3"
-          :verbosity="2"
-          verb="completed"
-          icon="clock"
-        />
-      </dd>
-      <dt>{{ coachStrings.$tr('questionOrderLabel') }}</dt>
-      <dd>{{ coachStrings.$tr('orderRandomLabel') }}</dd>
-    </dl>
+     -->
 
-    <div>
-      <KRouterLink
+    <HeaderTable>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <QuizActive slot="value" :active="exam.active" />
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
+      </HeaderTableRow>
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', { value: avgScore }) }}</template>
+      </HeaderTableRow>
+      <!-- TODO COACH
+      <HeaderTableRow>
+        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+      </HeaderTableRow>
+       -->
+    </HeaderTable>
+
+    <HeaderTabs>
+      <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-        :to="link('ReportsQuizLearnerListPage')"
+        :to="classRoute('ReportsQuizLearnerListPage')"
       />
-      <KRouterLink
+      <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        appearance="flat-button"
-        class="new-coach-tab"
-        :to="link('ReportsQuizQuestionListPage')"
+        :to="classRoute('ReportsQuizQuestionListPage')"
       />
-    </div>
-
-    <hr>
+    </HeaderTabs>
 
   </div>
 
@@ -66,19 +66,20 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+      },
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
-    },
-    methods: {
-      goTo(page) {
-        this.$router.push(this.newCoachRoute(page));
+      exam() {
+        return this.examMap[this.$route.params.quizId];
       },
-      link(page) {
-        return this.newCoachRoute(page);
+      recipients() {
+        return this.getLearnersForGroups(this.exam.groups);
       },
     },
     $trs: {

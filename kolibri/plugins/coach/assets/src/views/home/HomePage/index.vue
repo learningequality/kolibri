@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -12,20 +11,20 @@
 
     <KGrid :gutter="16">
       <KGridItem size="100" percentage>
-        <OverviewBlock class="new-coach-block" />
+        <OverviewBlock />
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
         <KGrid :gutter="16">
           <KGridItem size="100" percentage>
-            <QuizzesBlock class="new-coach-block" />
+            <QuizzesBlock />
           </KGridItem>
           <KGridItem size="100" percentage>
-            <LessonsBlock class="new-coach-block" />
+            <LessonsBlock />
           </KGridItem>
         </KGrid>
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
-        <ActivityBlock class="new-coach-block" />
+        <ActivityBlock />
       </KGridItem>
     </KGrid>
 
@@ -60,7 +59,7 @@
 <style lang="scss" scoped>
 
   .new-coach-block {
-    margin-top: 16px;
+    min-width: 0;
   }
 
 </style>

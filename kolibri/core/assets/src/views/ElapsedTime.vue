@@ -1,9 +1,9 @@
 <template>
 
-  <span>
-    <template v-if="date">{{ $formatRelative(date, { now: now }) }}</template>
-    <template v-else>–</template>
+  <span v-if="date">
+    {{ $formatRelative(date, { now: now }) }}
   </span>
+  <KEmptyPlaceholder v-else />
 
 </template>
 
@@ -11,12 +11,17 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
 
   export default {
     name: 'ElapsedTime',
+    components: {
+      KEmptyPlaceholder,
+    },
     props: {
       date: {
         type: Date,
+        required: false,
       },
     },
     data: () => ({

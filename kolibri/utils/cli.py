@@ -27,6 +27,7 @@ from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+from kolibri.utils import conf  # noqa
 
 
 USAGE = """
@@ -273,6 +274,8 @@ def start(port=None, daemon=True):
     :param: daemon: Fork to background process (default: True)
     """
 
+    run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
+
     # This is temporarily put in place because of
     # https://github.com/learningequality/kolibri/issues/1615
     update()
@@ -287,19 +290,22 @@ def start(port=None, daemon=True):
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
 
-    __, urls = server.get_urls(listen_port=port)
-    if not urls:
-        logger.error(
-            "Could not detect an IP address that Kolibri binds to, but try "
-            "opening up the following addresses:\n")
-        urls = [
-            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
-        ]
+    if run_cherrypy:
+        __, urls = server.get_urls(listen_port=port)
+        if not urls:
+            logger.error(
+                "Could not detect an IP address that Kolibri binds to, but try "
+                "opening up the following addresses:\n")
+            urls = [
+                "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+            ]
+        else:
+            logger.info("Kolibri running on:\n")
+        for addr in urls:
+            sys.stderr.write("\t{}\n".format(addr))
+        sys.stderr.write("\n")
     else:
-        logger.info("Kolibri running on:\n")
-    for addr in urls:
-        sys.stderr.write("\t{}\n".format(addr))
-    sys.stderr.write("\n")
+        logger.info("Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -315,7 +321,7 @@ def start(port=None, daemon=True):
         kwargs['err_log'] = server.DAEMON_LOG
         become_daemon(**kwargs)
 
-    server.start(port=port)
+    server.start(port=port, run_cherrypy=run_cherrypy)
 
 
 def stop():
@@ -326,7 +332,10 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        logger.info("Kolibri server has successfully been stopped.")
+        if conf.OPTIONS["Server"]["CHERRYPY_START"]:
+            logger.info("Kolibri server has successfully been stopped.")
+        else:
+            logger.info("Kolibri background services have successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,
@@ -374,9 +383,10 @@ def status():
 
     if status_code == server.STATUS_RUNNING:
         sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
-        sys.stderr.write("Kolibri running on:\n\n")
-        for addr in urls:
-            sys.stderr.write("\t{}\n".format(addr))
+        if urls:
+            sys.stderr.write("Kolibri running on:\n\n")
+            for addr in urls:
+                sys.stderr.write("\t{}\n".format(addr))
         return server.STATUS_RUNNING
     else:
         verbose_status = status.codes[status_code]
@@ -441,8 +451,8 @@ def _is_plugin(obj):
     from kolibri.plugins.base import KolibriPluginBase  # NOQA
 
     return (
-        isinstance(obj, type) and obj is not KolibriPluginBase and
-        issubclass(obj, KolibriPluginBase)
+        isinstance(obj, type) and obj is not KolibriPluginBase
+        and issubclass(obj, KolibriPluginBase)
     )
 
 
@@ -627,9 +637,9 @@ def main(args=None):  # noqa: max-complexity=13
                 "Your database is corrupted. This is a "
                 "known issue that is usually fixed by running this "
                 "command: "
-                "\n\n" +
-                recover_cmd +
                 "\n\n"
+                + recover_cmd
+                + "\n\n"
                 "Notice that you need the 'sqlite3' command available "
                 "on your system prior to running this."
                 "\n\n"

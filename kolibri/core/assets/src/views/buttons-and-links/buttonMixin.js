@@ -60,33 +60,26 @@ export default {
         return [buttonClass, this.$computedClass(this.secondaryFlatStyle)];
       }
     },
-
     linkStyle() {
       return {
         color: this.$coreActionNormal,
-
         ':hover': {
           color: this.$coreActionDark,
         },
-
-        ':hover:focus': {
-          outline: this.$coreOutline,
-        },
+        ':focus': this.$coreOutline,
         ':disabled': {
           color: `rgba(${this.$coreActionNormal}, 0.5)`,
         },
       };
     },
-
     primaryRaisedStyle() {
-      const hoverAndFocus = {
-        backgroundColor: this.$coreActionDark,
-      };
       return {
         color: $primaryRaisedColor,
         backgroundColor: this.$coreActionNormal,
-        ':hover': hoverAndFocus,
-        ':focus': hoverAndFocus,
+        ':hover': {
+          backgroundColor: this.$coreActionDark,
+        },
+        ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
@@ -102,15 +95,13 @@ export default {
         },
       };
     },
-
     primaryFlatStyle() {
-      const hoverAndFocus = {
-        backgroundColor: this.$coreGrey300,
-      };
       return {
         color: this.$coreActionNormal,
-        ':hover': hoverAndFocus,
-        ':focus': hoverAndFocus,
+        ':hover': {
+          backgroundColor: this.$coreGrey300,
+        },
+        ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreActionNormal}, 0.5)`,
@@ -125,16 +116,14 @@ export default {
         },
       };
     },
-
     secondaryRaisedStyle() {
-      const hoverAndFocus = {
-        backgroundColor: this.$coreGrey300,
-      };
       return {
         color: this.$coreTextDefault,
         backgroundColor: this.$coreGrey200,
-        ':hover': hoverAndFocus,
-        ':focus': hoverAndFocus,
+        ':hover': {
+          backgroundColor: this.$coreGrey300,
+        },
+        ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,
@@ -150,15 +139,13 @@ export default {
         },
       };
     },
-
     secondaryFlatStyle() {
-      const hoverAndFocus = {
-        backgroundColor: this.$coreGrey300,
-      };
       return {
         color: this.$coreTextDefault,
-        ':hover': hoverAndFocus,
-        ':focus': hoverAndFocus,
+        ':hover': {
+          backgroundColor: this.$coreGrey300,
+        },
+        ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
             color: `rgba(${this.$coreTextDefault}, 0.25)`,

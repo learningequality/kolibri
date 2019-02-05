@@ -836,7 +836,7 @@
   "TimeDuration.minutes": "{value, number, integer} {value, plural, one {minuto} other {minutos}}",
   "TimeDuration.seconds": "{value, number, integer} {value, plural, one {segundo} other {segundos}}",
   "TopNavbar.home": "Classe",
-  "TopNavbar.plan": "Planos",
+  "TopNavbar.plan": "",
   "TruncatedItemList.manyItems": "{item1}, {item2}, e {count, number, integer} outros",
   "TruncatedItemList.noItems": "–",
   "TruncatedItemList.threeItems": "{item1}, {item2}, {item3}",

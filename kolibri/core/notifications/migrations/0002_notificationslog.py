@@ -7,7 +7,7 @@ from django.db import models
 
 import kolibri.core.content.models
 import kolibri.core.fields
-import kolibri.utils.time
+import kolibri.utils.time_utils
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('coach_id', kolibri.core.content.models.UUIDField()),
-                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time.local_now)),
+                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now)),
             ],
         ),
     ]

@@ -1,6 +1,7 @@
-import { getExamReport, canViewExamReport } from 'kolibri.utils.exams';
+import { getExamReport } from 'kolibri.utils.exams';
 import router from 'kolibri.coreVue.router';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import { canViewExamReport } from '../../utils/exams';
 import { ClassesPageNames } from '../../constants';
 
 export function showExamReport(store, params) {

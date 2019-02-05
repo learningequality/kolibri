@@ -162,7 +162,7 @@ class MasteryLogViewSet(LoggerViewSet):
     filter_class = MasteryFilter
 
 
-class AttemptFilter(FilterSet):
+class AttemptFilter(BaseLogFilter):
     content = CharFilter(method="filter_content")
 
     def filter_content(self, queryset, name, value):
@@ -184,9 +184,10 @@ class AttemptLogViewSet(LoggerViewSet):
     ordering = ('end_timestamp',)
 
 
-class ExamAttemptFilter(FilterSet):
+class ExamAttemptFilter(BaseLogFilter):
     exam = ModelChoiceFilter(method="filter_exam", queryset=Exam.objects.all())
     user = ModelChoiceFilter(method="filter_user", queryset=FacilityUser.objects.all())
+    content = CharFilter(field_name="content_id")
 
     def filter_exam(self, queryset, name, value):
         return queryset.filter(examlog__exam=value)
@@ -196,7 +197,7 @@ class ExamAttemptFilter(FilterSet):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ['examlog', 'exam', 'user']
+        fields = ['examlog', 'exam', 'user', 'content']
 
 
 class ExamAttemptLogViewSet(LoggerViewSet):
