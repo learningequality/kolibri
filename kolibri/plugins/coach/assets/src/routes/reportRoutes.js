@@ -10,6 +10,7 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
+import { generateQuestionListHandler } from '../modules/questionList/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -161,7 +162,7 @@ export default [
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
     component: pages.ReportsGroupReportLessonExerciseQuestionListPage,
-    handler: defaultHandler,
+    handler: generateQuestionListHandler(['groupId', 'lessonId', 'exerciseId']),
     meta: {
       titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -245,7 +246,7 @@ export default [
   {
     path: path(CLASS, GROUP, QUIZ, QUESTIONS),
     component: pages.ReportsGroupReportQuizQuestionListPage,
-    handler: defaultHandler,
+    handler: generateQuestionListHandler(['groupId', 'quizId']),
     meta: {
       titleParts: ['questionsLabel', 'QUIZ_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -409,7 +410,7 @@ export default [
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
     component: pages.ReportsLessonExerciseQuestionListPage,
-    handler: defaultHandler,
+    handler: generateQuestionListHandler(['lessonId', 'exerciseId']),
     meta: {
       titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
@@ -562,7 +563,7 @@ export default [
   {
     path: path(CLASS, QUIZ, QUESTIONS),
     component: pages.ReportsQuizQuestionListPage,
-    handler: defaultHandler,
+    handler: generateQuestionListHandler(['quizId']),
     meta: {
       titleParts: ['questionsLabel', 'QUIZ_NAME', 'CLASS_NAME'],
     },
