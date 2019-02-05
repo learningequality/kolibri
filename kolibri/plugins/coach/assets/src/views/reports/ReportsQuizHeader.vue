@@ -30,10 +30,8 @@
         <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('progressLabel') }}</template>
-        <template slot="value">
-          <StatusSummary :tally="tally" :verbose="false" />
-        </template>
+        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="value">{{ coachStrings.$tr('percentage', { value: avgScore }) }}</template>
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>
@@ -43,7 +41,6 @@
        -->
     </HeaderTable>
 
-    <!-- COACH TODO
     <HeaderTabs>
       <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
@@ -54,7 +51,7 @@
         :to="classRoute('ReportsQuizQuestionListPage')"
       />
     </HeaderTabs>
-     -->
+
   </div>
 
 </template>
@@ -69,6 +66,9 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      avgScore() {
+        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+      },
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
@@ -81,11 +81,7 @@
       recipients() {
         return this.getLearnersForGroups(this.exam.groups);
       },
-      tally() {
-        return this.getExamStatusTally(this.exam.id, this.recipients);
-      },
     },
-
     $trs: {
       back: 'All quizzes',
     },

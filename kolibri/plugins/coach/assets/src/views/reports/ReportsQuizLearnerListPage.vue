@@ -14,11 +14,6 @@
 
       <ReportsQuizHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <p v-if="avgScore !== undefined">
-        {{ $tr('averageScore', {score: avgScore }) }}
-      </p>
-
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -88,9 +83,6 @@
       },
       recipients() {
         return this.getLearnersForGroups(this.exam.groups);
-      },
-      avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
