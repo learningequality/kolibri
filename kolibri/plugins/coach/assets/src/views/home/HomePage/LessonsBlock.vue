@@ -6,7 +6,7 @@
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.LESSON" />
-    <div
+    <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"
       class="block-item"
@@ -16,7 +16,7 @@
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
       />
-    </div>
+    </BlockItem>
   </Block>
 
 </template>
@@ -28,6 +28,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
+  import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
   import ActivityBlock from './ActivityBlock';
 
@@ -40,6 +41,7 @@
     components: {
       ItemProgressDisplay,
       Block,
+      BlockItem,
     },
     mixins: [commonCoach],
     $trs: {

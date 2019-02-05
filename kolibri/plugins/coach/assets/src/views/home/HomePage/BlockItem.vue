@@ -1,6 +1,9 @@
 <template>
 
-  <div class="tab-block" :class="{small : windowIsSmall }">
+  <div
+    class="block-item"
+    :class="{small : windowIsSmall }"
+  >
     <slot></slot>
   </div>
 
@@ -12,7 +15,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
-    name: 'HeaderTabs',
+    name: 'BlockItem',
     mixins: [responsiveWindow],
   };
 
@@ -21,20 +24,22 @@
 
 <style lang="scss" scoped>
 
-  .tab-block {
+  .block-item {
     padding-right: 24px;
+    padding-bottom: 16px;
     padding-left: 24px;
     margin-right: -24px;
-    margin-bottom: 24px;
     margin-left: -24px;
-    border-bottom: 1px solid #dedede;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #dedede;
+    }
   }
 
-  .small {
+  .small .block-item {
     padding-right: 16px;
     padding-left: 16px;
     margin-right: -16px;
-    margin-bottom: 16px;
     margin-left: -16px;
   }
 

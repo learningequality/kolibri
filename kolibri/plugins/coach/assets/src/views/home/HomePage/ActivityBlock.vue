@@ -7,14 +7,15 @@
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
     <transition-group name="list">
-      <NotificationCard
+      <BlockItem
         v-for="notification in notifications"
         :key="notification.groupCode + '_' + notification.lastId"
         v-bind="cardPropsForNotification(notification)"
-        class="block-item"
       >
-        {{ cardTextForNotification(notification) }}
-      </NotificationCard>
+        <NotificationCard>
+          {{ cardTextForNotification(notification) }}
+        </NotificationCard>
+      </BlockItem>
     </transition-group>
     <div v-if="notifications.length === 0">
       {{ $tr('noActivity') }}
@@ -34,12 +35,14 @@
   import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import Block from './Block';
+  import BlockItem from './BlockItem';
 
   export default {
     name: 'ActivityBlock',
     components: {
       NotificationCard,
       Block,
+      BlockItem,
     },
     mixins: [nStringsMixin, commonCoach],
     computed: {

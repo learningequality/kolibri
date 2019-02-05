@@ -1,14 +1,14 @@
 <template>
 
   <span v-if="seconds">{{ formattedTime }}</span>
-  <span v-else :style="{color: this.$coreGrey300}">–</span>
+  <KEmptyPlaceholder v-else />
 
 </template>
 
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
 
   const MINUTE = 60;
   const HOUR = MINUTE * 60;
@@ -16,7 +16,9 @@
 
   export default {
     name: 'TimeDuration',
-    components: {},
+    components: {
+      KEmptyPlaceholder,
+    },
     props: {
       seconds: {
         type: Number,
@@ -24,7 +26,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey300']),
       formattedTime() {
         if (this.seconds < 2 * MINUTE) {
           return this.$tr('seconds', { value: Math.floor(this.seconds) });

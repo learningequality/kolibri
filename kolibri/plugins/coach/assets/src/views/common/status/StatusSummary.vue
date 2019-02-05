@@ -12,30 +12,42 @@
     of the possible behaviors.
    -->
   <div :class="verbose ? 'multi-line' : 'single-line'">
-    <template v-if="total === completed && !showAll">
-      <!-- special cases when everyone has finished -->
-      <component
-        :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
-        class="item"
-        :verb="VERBS.completed"
-        :icon="ICONS.star"
-        :total="total"
-        :count="completed"
-        :verbosity="verbosity"
-      />
-    </template>
-    <template v-else-if="total === notStarted && !showAll">
-      <!-- special cases when no one has started -->
-      <LearnerProgressCount
-        class="item"
-        :style="{ color: $coreGrey300 }"
-        :verb="VERBS.notStarted"
-        :icon="ICONS.nothing"
-        :total="total"
-        :count="notStarted"
-        :verbosity="verbosity"
-      />
-    </template>
+    <!-- special cases when total is 0 -->
+    <component
+      :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
+      v-if="total === 0"
+      class="item"
+      :verb="VERBS.started"
+      :icon="ICONS.nothing"
+      :total="total"
+      :count="started"
+      :verbosity="verbosity"
+      debug="no learners"
+    />
+    <!-- special case when everyone has finished -->
+    <component
+      :is="ratio || verbose ? LearnerProgressRatio : LearnerProgressCount"
+      v-else-if="total === completed && !showAll"
+      class="item"
+      :verb="VERBS.completed"
+      :icon="ICONS.star"
+      :total="total"
+      :count="completed"
+      :verbosity="verbosity"
+      debug="everyone finished"
+    />
+    <!-- special case when no one has started -->
+    <LearnerProgressCount
+      v-else-if="total === notStarted && !showAll"
+      class="item"
+      :style="{ color: $coreGrey300 }"
+      :verb="VERBS.notStarted"
+      :icon="ICONS.nothing"
+      :total="total"
+      :count="notStarted"
+      :verbosity="verbosity"
+      debug="no one started"
+    />
     <template v-else-if="ratio">
       <!-- for ratios we only want to display the ratio on the first displayed item -->
       <component
@@ -48,6 +60,7 @@
         :count="completed"
         :verbosity="verbosity"
         showRatioInTooltip
+        debug="ratio; has some completed"
       />
       <component
         :is="!verbose || completed ? LearnerProgressCount : LearnerProgressRatio"
@@ -59,6 +72,7 @@
         :count="started"
         :verbosity="verbosity"
         showRatioInTooltip
+        debug="ratio; has some started"
       />
       <component
         :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
@@ -70,6 +84,7 @@
         :count="helpNeeded"
         :verbosity="verbosity"
         showRatioInTooltip
+        debug="ratio; has some needing help"
       />
       <LearnerProgressCount
         v-if="showItem(!verbose)"
@@ -81,6 +96,7 @@
         :count="notStarted"
         :verbosity="verbosity"
         showRatioInTooltip
+        debug="ratio; not verbose"
       />
     </template>
     <template v-else>
@@ -93,6 +109,7 @@
         :total="total"
         :count="completed"
         :verbosity="verbosity"
+        debug="count; has some completed"
       />
       <LearnerProgressCount
         v-if="showItem(started)"
@@ -102,6 +119,7 @@
         :total="total"
         :count="started"
         :verbosity="verbosity"
+        debug="count; has some started"
       />
       <LearnerProgressCount
         v-if="showItem(helpNeeded) && showNeedsHelp"
@@ -111,6 +129,7 @@
         :total="total"
         :count="helpNeeded"
         :verbosity="verbosity"
+        debug="count; has some needing help"
       />
     </template>
   </div>

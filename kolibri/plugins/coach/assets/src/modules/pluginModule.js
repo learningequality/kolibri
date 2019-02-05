@@ -11,6 +11,7 @@ import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
+import questionDetail from './questionDetail';
 
 export default {
   state: {
@@ -100,5 +101,6 @@ export default {
     groups,
     lessonSummary,
     lessonsRoot,
+    questionDetail,
   },
 };

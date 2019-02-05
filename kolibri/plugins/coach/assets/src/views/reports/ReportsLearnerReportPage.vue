@@ -9,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
 
       <ReportsLearnerHeader />
 
@@ -141,7 +141,7 @@
         </KGridItem>
       </KGrid>
 
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

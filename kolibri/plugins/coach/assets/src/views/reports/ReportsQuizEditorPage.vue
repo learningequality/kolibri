@@ -9,11 +9,11 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <QuizDetailEditor />
       <KButton :text="coachStrings.$tr('cancelAction')" :primary="false" />
       <KButton :text="coachStrings.$tr('saveAction')" :primary="true" />
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

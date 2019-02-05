@@ -16,7 +16,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
  *    { exercise_id, number_of_questions: N, title: <exercise_title> }
  * @param {number} seed - an integer used to seed the PRNG
  * @param {number} numberOfQs - how many questions to return
- * @param {object} questionIds - map of `content_id`s to arrays of assessment_item_ids
+ * @param {object} questionIds - map of node `id`s to arrays of assessment_item_ids
  *
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { exercise_id, question_id }

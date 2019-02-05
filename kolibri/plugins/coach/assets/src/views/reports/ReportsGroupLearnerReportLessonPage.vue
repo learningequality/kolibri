@@ -9,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <p>
         <BackLink
           :to="classRoute('ReportsGroupLearnerReportPage', {})"
@@ -80,7 +80,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

@@ -16,6 +16,7 @@ import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
@@ -132,6 +133,7 @@ export default {
     QuizActive,
     HeaderTable,
     ElapsedTime,
+    KPageContainer,
     HeaderTableRow,
     HeaderTabs,
     HeaderTab,
@@ -173,11 +175,11 @@ export default {
       'getGroupNames',
       'getGroupNamesForLearner',
       'getLearnersForGroups',
-      'getContentStatusForLearner',
+      'getContentStatusObjForLearner',
       'getContentStatusTally',
-      'getExamStatusForLearner',
+      'getExamStatusObjForLearner',
       'getExamStatusTally',
-      'getLessonStatusForLearner',
+      'getLessonStatusStringForLearner',
       'getLessonStatusTally',
       'getContentAvgTimeSpent',
       'getExamAvgScore',

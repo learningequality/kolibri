@@ -8,7 +8,7 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <ReportsHeader />
       <KSelect
         v-model="filter"
@@ -48,7 +48,7 @@
           </tr>
         </transition-group>
       </CoreTable>
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

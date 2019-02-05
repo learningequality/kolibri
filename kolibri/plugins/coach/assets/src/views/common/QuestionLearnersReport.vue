@@ -2,38 +2,25 @@
 
   <MultiPaneLayout ref="multiPaneLayout">
     <div slot="header">
-      <h1 class="learner-name">{{ learner.name }}</h1>
-      <p class="exercise-detail-section">
+      <h1 class="title item-detail-section">
         <ContentIcon
-          class="exercise-detail-icons"
-          :kind="ContentNodeKinds.EXERCISE"
+          class="item-detail-icons"
+          :kind="kind"
           :showTooltip="false"
         />
-        {{ exercise.title }}
+        {{ title }}
         <CoachContentLabel
-          class="exercise-detail-icons"
+          class="item-detail-icons"
           :value="exercise.num_coach_contents || 0"
           :isTopic="false"
         />
-      </p>
-      <HeaderTable>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('masteryModelLabel') }}</template>
-          <template slot="value"><MasteryModel /></template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value">
-            <StatusSimple :status="status" />
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
+      </h1>
     </div>
-    <template v-if="attemptLogs.length > 0">
-      <AttemptLogList
+    <template v-if="learners.length > 0">
+      <QuestionDetailLearnerList
         slot="aside"
-        :attemptLogs="attemptLogs"
-        :selectedQuestionNumber="attemptLogIndex"
+        :learners="learners"
+        :selectedLearnerNumber="learnerIndex"
         @select="navigateToNewAttempt($event)"
       />
       <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
@@ -51,7 +38,7 @@
         <ContentRenderer
           v-if="currentInteraction"
           :id="exercise.id"
-          :itemId="currentAttemptLog.item"
+          :itemId="currentLearner.item"
           :assessment="true"
           :allowHints="false"
           :kind="exercise.kind"
@@ -74,18 +61,20 @@
 
   import { mapGetters, mapState } from 'vuex';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
-  import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import ExamReport from 'kolibri.coreVue.components.ExamReport';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import QuestionDetailLearnerList from './QuestionDetailLearnerList';
 
   export default {
-    name: 'LearnerExerciseReport',
+    name: 'QuestionLearnersReport',
     components: {
       ContentRenderer,
-      AttemptLogList,
+      QuestionDetailLearnerList,
       InteractionList,
       KCheckbox,
       MultiPaneLayout,
@@ -99,23 +88,23 @@
       };
     },
     computed: {
+      ...mapState('questionDetail', [
+        'exercise',
+        'interactionIndex',
+        'learnerId',
+        'questionNumber',
+        'questionId',
+        'title',
+      ]),
       ...mapGetters(['$coreBgLight']),
-      ...mapGetters('exerciseDetail', [
-        'currentAttemptLog',
+      ...mapGetters('questionDetail', [
+        'currentLearner',
         'currentInteraction',
         'currentInteractionHistory',
-        'attemptLogs',
-        'attemptLogIndex',
+        'learners',
+        'learnerIndex',
+        'kind',
       ]),
-      ...mapGetters('classSummary', ['getContentStatusObjForLearner']),
-      ...mapState('classSummary', ['learnerMap']),
-      ...mapState('exerciseDetail', ['attemptId', 'exercise', 'interactionIndex', 'learnerId']),
-      status() {
-        return this.getContentStatusObjForLearner(this.exercise.content_id, this.learnerId).status;
-      },
-      learner() {
-        return this.learnerMap[this.learnerId];
-      },
       // Do not pass in answerState if showCorrectAnswer is set to true
       // answerState has a precedence over showCorrectAnswer
       answerState() {
@@ -128,24 +117,30 @@
         }
         return null;
       },
+      questionTitle() {
+        return crossComponentTranslator(ExamReport).$tr('question', {
+          questionNumber: this.questionNumber,
+        });
+      },
     },
     methods: {
-      navigateToNewAttempt(attemptLogIndex) {
+      navigateToNewAttempt(learnerIndex) {
         this.showCorrectAnswer = false;
+        const learnerId = this.learners[learnerIndex].id;
         this.$emit('navigate', {
           exerciseId: this.exercise.content_id,
-          learnerId: this.learnerId,
+          questionId: this.questionId,
+          learnerId,
           interactionIndex: 0,
-          attemptId: this.attemptLogs[attemptLogIndex].id,
         });
         this.$refs.multiPaneLayout.scrollMainToTop();
       },
       navigateToNewInteraction(interactionIndex) {
         this.$emit('navigate', {
           exerciseId: this.exercise.content_id,
+          questionId: this.questionId,
           learnerId: this.learnerId,
           interactionIndex,
-          attemptId: this.attemptId,
         });
       },
       toggleShowCorrectAnswer() {
@@ -167,16 +162,16 @@
     }
   }
 
-  .learner-name {
+  .title {
     margin-bottom: 0;
   }
 
-  .exercise-detail-section {
+  .item-detail-section {
     display: inline-block;
     margin-top: 0;
   }
 
-  .exercise-detail-icons {
+  .item-detail-icons {
     position: relative;
     top: -2px;
   }

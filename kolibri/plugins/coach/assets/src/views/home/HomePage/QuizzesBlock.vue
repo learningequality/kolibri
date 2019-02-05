@@ -6,17 +6,16 @@
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
-    <div
+    <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"
-      class="block-item"
     >
       <ItemProgressDisplay
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
       />
-    </div>
+    </BlockItem>
   </Block>
 
 </template>
@@ -28,6 +27,7 @@
   import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import Block from './Block';
+  import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
   import ActivityBlock from './ActivityBlock';
 
@@ -39,6 +39,7 @@
     components: {
       ItemProgressDisplay,
       Block,
+      BlockItem,
     },
     mixins: [commonCoach],
     $trs: {

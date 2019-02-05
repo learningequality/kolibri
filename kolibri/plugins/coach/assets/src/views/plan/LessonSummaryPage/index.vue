@@ -8,7 +8,7 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       <PlanHeader />
 
       <div class="lesson-summary">
@@ -58,7 +58,7 @@
 
       </div>
 
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 

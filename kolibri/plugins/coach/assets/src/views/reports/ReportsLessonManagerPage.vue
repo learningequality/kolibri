@@ -9,9 +9,9 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <div class="new-coach-block">
+    <KPageContainer>
       Resource manager
-    </div>
+    </KPageContainer>
   </CoreBase>
 
 </template>

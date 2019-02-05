@@ -3,7 +3,7 @@
   <span v-if="date">
     {{ $formatRelative(date, { now: now }) }}
   </span>
-  <span v-else :style="{ color: this.$coreGrey300 }">–</span>
+  <KEmptyPlaceholder v-else />
 
 </template>
 
@@ -11,22 +11,23 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import { mapGetters } from 'vuex';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
 
   export default {
     name: 'ElapsedTime',
+    components: {
+      KEmptyPlaceholder,
+    },
     props: {
       date: {
         type: Date,
+        required: false,
       },
     },
     data: () => ({
       now: now(),
       timer: null,
     }),
-    computed: {
-      ...mapGetters(['$coreGrey300']),
-    },
     mounted() {
       this.timer = setInterval(() => {
         this.now = now();

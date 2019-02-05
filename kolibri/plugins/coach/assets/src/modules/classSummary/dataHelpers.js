@@ -12,6 +12,11 @@ const keyMap = {
   [STATUSES.helpNeeded]: 'helpNeeded',
 };
 
+function notStartedStatusObj() {
+  // create a dummy status object
+  return { status: STATUSES.notStarted };
+}
+
 /*
  * Getters that return lookup functions
  * Implemented as getters for easy access to the store
@@ -60,16 +65,12 @@ export default {
   /*
    * Return a STATUSES constant given a content ID and a learner ID
    */
-  getContentStatusForLearner(state) {
+  getContentStatusObjForLearner(state) {
     return function(contentId, learnerId) {
       if (!contentId || !learnerId) {
-        throw new Error('getContentStatusForLearner: invalid parameter(s)');
+        throw new Error('getContentStatusObjForLearner: invalid parameter(s)');
       }
-      return get(
-        state.contentLearnerStatusMap,
-        [contentId, learnerId, 'status'],
-        STATUSES.notStarted
-      );
+      return get(state.contentLearnerStatusMap, [contentId, learnerId], notStartedStatusObj());
     };
   },
   /*
@@ -87,7 +88,7 @@ export default {
         helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
-        const status = getters.getContentStatusForLearner(contentId, learnerId);
+        const status = getters.getContentStatusObjForLearner(contentId, learnerId).status;
         tallies[keyMap[status]] += 1;
       });
       return tallies;
@@ -96,12 +97,12 @@ export default {
   /*
    * Return a STATUSES constant given an exam ID and a learner ID
    */
-  getExamStatusForLearner(state) {
+  getExamStatusObjForLearner(state) {
     return function(examId, learnerId) {
       if (!examId || !learnerId) {
-        throw new Error('getExamStatusForLearner: invalid parameter(s)');
+        throw new Error('getExamStatusObjForLearner: invalid parameter(s)');
       }
-      return get(state.examLearnerStatusMap, [examId, learnerId, 'status'], STATUSES.notStarted);
+      return get(state.examLearnerStatusMap, [examId, learnerId], notStartedStatusObj());
     };
   },
   /*
@@ -119,7 +120,7 @@ export default {
         helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
-        const status = getters.getExamStatusForLearner(examId, learnerId);
+        const status = getters.getExamStatusObjForLearner(examId, learnerId);
         tallies[keyMap[status]] += 1;
       });
       return tallies;
@@ -128,10 +129,10 @@ export default {
   /*
    * Return a STATUSES constant given a lesson ID and a learner ID
    */
-  getLessonStatusForLearner(state, getters) {
+  getLessonStatusStringForLearner(state, getters) {
     return function(lessonId, learnerId) {
       if (!lessonId || !learnerId) {
-        throw new Error('getLessonStatusForLearner: invalid parameter(s)');
+        throw new Error('getLessonStatusStringForLearner: invalid parameter(s)');
       }
       return get(getters.lessonLearnerStatusMap, [lessonId, learnerId], STATUSES.notStarted);
     };
@@ -151,7 +152,7 @@ export default {
         helpNeeded: 0,
       };
       learnerIds.forEach(learnerId => {
-        const status = getters.getLessonStatusForLearner(lessonId, learnerId);
+        const status = getters.getLessonStatusStringForLearner(lessonId, learnerId);
         tallies[keyMap[status]] += 1;
       });
       return tallies;
@@ -165,17 +166,17 @@ export default {
       if (!contentId || !Array.isArray(learnerIds)) {
         throw new Error('getContentAvgTimeSpent: invalid parameter(s)');
       }
-      const statuses = [];
+      const statusObjects = [];
       learnerIds.forEach(learnerId => {
-        const status = getters.getContentStatusForLearner(contentId, learnerId);
-        if (status !== STATUSES.notStarted) {
-          statuses.push(state.contentLearnerStatusMap[contentId][learnerId]);
+        const statusObj = getters.getContentStatusObjForLearner(contentId, learnerId);
+        if (statusObj.status !== STATUSES.notStarted) {
+          statusObjects.push(statusObj);
         }
       });
-      if (!statuses.length) {
+      if (!statusObjects.length) {
         return undefined;
       }
-      return meanBy(statuses, 'time_spent');
+      return meanBy(statusObjects, 'time_spent');
     };
   },
   /*
@@ -186,17 +187,17 @@ export default {
       if (!examId || !Array.isArray(learnerIds)) {
         throw new Error('getExamAvgScore: invalid parameter(s)');
       }
-      const statuses = [];
+      const statusObjects = [];
       learnerIds.forEach(learnerId => {
-        const status = getters.getExamStatusForLearner(examId, learnerId);
-        if (status !== STATUSES.notStarted) {
-          statuses.push(state.examLearnerStatusMap[examId][learnerId]);
+        const statusObj = getters.getExamStatusObjForLearner(examId, learnerId);
+        if (statusObj.status !== STATUSES.notStarted) {
+          statusObjects.push(statusObj);
         }
       });
-      if (!statuses.length) {
+      if (!statusObjects.length) {
         return undefined;
       }
-      return meanBy(statuses, 'score');
+      return meanBy(statusObjects, 'score');
     };
   },
 };

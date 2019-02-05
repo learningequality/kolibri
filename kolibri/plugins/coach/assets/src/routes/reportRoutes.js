@@ -3,9 +3,13 @@ import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
 import {
   generateExerciseDetailHandler,
-  rootRedirectHandler,
+  exerciseRootRedirectHandler,
 } from '../modules/exerciseDetail/handlers';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
+import {
+  generateQuestionDetailHandler,
+  questionRootRedirectHandler,
+} from '../modules/questionDetail/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -135,7 +139,11 @@ export default [
     name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonExerciseLearnerPage.name,
+        next
+      );
     },
     meta: {
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
@@ -160,8 +168,20 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTION),
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonExerciseQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsGroupReportLessonExerciseQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
     meta: {
       // Leaves out info on question
       titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
@@ -184,7 +204,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP),
+    path: path(CLASS, GROUP, '/reports'),
     component: pages.ReportsGroupReportPage,
     handler: defaultHandler,
     meta: {
@@ -231,9 +251,21 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, QUIZ, QUESTIONS),
+    path: path(CLASS, GROUP, QUIZ, QUESTION),
+    name: PageNames.REPORTS_GROUP_REPORT_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportQuizQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, GROUP, QUIZ, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsGroupReportQuizQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['groupId', 'quizId', 'questionId']),
     meta: {
       titleParts: ['questionsLabel', 'QUIZ_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -243,7 +275,11 @@ export default [
     name: PageNames.REPORTS_LEARNER_ACTIVITY_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLearnerActivityExercisePage.name, next);
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLearnerActivityExercisePage.name,
+        next
+      );
     },
     meta: {
       titleParts: ['EXERCISE_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
@@ -278,7 +314,11 @@ export default [
     name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLearnerReportLessonExercisePage.name, next);
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLearnerReportLessonExercisePage.name,
+        next
+      );
     },
     meta: {
       titleParts: ['EXERCISE_NAME', 'LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
@@ -352,7 +392,7 @@ export default [
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      return exerciseRootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
     },
     meta: {
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
@@ -376,8 +416,20 @@ export default [
   },
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTION),
+    name: PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsLessonExerciseQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsLessonExerciseQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['lessonId', 'exerciseId', 'questionId']),
     meta: {
       // No info on question
       titleParts: ['EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
@@ -388,7 +440,7 @@ export default [
     name: PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
-      return rootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
+      return exerciseRootRedirectHandler(params, pages.ReportsLessonLearnerExercisePage.name, next);
     },
     meta: {
       titleParts: ['EXERCISE_NAME', 'LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
@@ -517,8 +569,16 @@ export default [
   },
   {
     path: path(CLASS, QUIZ, QUESTION),
+    name: PageNames.REPORTS_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(params, pages.ReportsQuizQuestionPage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, QUIZ, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsQuizQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['quizId', 'questionId']),
     meta: {
       // TODO Leaves out details about the question
       titleParts: ['QUIZ_NAME', 'CLASS_NAME'],

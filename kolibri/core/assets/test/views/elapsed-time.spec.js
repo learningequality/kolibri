@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import ElapsedTime from '../../src/views/ElapsedTime';
 
@@ -12,7 +12,7 @@ function makeWrapper(options) {
     $coreGrey300: () => 'gray',
   };
   const store = new Vuex.Store({ getters });
-  return shallowMount(ElapsedTime, {
+  return mount(ElapsedTime, {
     ...options,
     store,
     localVue,
@@ -28,7 +28,7 @@ describe('elapsed time component', () => {
   it('should show display a "–" if no date is passed in', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const timeText = getTimeText(wrapper);
-    expect(timeText).toEqual('–');
+    expect(timeText).toEqual('—');
   });
   it('should use seconds if the date passed in 1 second ago', () => {
     const date1SecondAgo = new Date(DUMMY_CURRENT_DATE);

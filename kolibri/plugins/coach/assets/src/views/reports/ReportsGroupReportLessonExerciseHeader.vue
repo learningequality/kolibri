@@ -5,12 +5,13 @@
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportLessonPage', {})"
-        :text="$tr('back', { lesson: lessonName })"
+        :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
-    <h1>Counting with big numbers</h1>
-    <p>Advanced counting</p>
+    <h1>{{ exercise.title }}</h1>
 
+    <!--
+    <p>{{ exercise.description }}</p>
     <p>
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
@@ -27,6 +28,7 @@
         :to="link('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>
+    -->
 
   </div>
 
@@ -41,18 +43,16 @@
     name: 'ReportsGroupReportLessonExerciseHeader',
     components: {},
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonName: 'Lesson A',
-      };
-    },
-    methods: {
-      link(page) {
-        return { name: 'NEW_COACH_PAGES', params: { page } };
-      },
-    },
     $trs: {
       back: "Back to '{lesson}'",
+    },
+    computed: {
+      lesson() {
+        return this.lessonMap[this.$route.params.lessonId];
+      },
+      exercise() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
     },
   };
 
