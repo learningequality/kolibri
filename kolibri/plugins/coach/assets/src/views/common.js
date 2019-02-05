@@ -22,7 +22,7 @@ import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
-import { coachStringsMixin } from './common/commonCoachStrings';
+import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
 import Answer from './common/Answer';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
@@ -45,10 +45,72 @@ import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
 import { VERBS, ICONS } from './common/status/constants';
 
+function formatPageTitle() {
+  // To get a page title, each coach route should have
+  // meta.titleParts defined, which is an array of coachStrings tr keys
+  // or special all-caps strings that get mapped to names.
+  const parts = this.$route.meta.titleParts || [];
+  const classSummary = this.$store.state.classSummary;
+  const { params } = this.$route;
+
+  let strings = parts.map(part => {
+    switch (part) {
+      case 'GROUP_NAME':
+        return classSummary.groupMap[params.groupId].name;
+      case 'CLASS_NAME':
+        return classSummary.name;
+      case 'LEARNER_NAME':
+        return classSummary.learnerMap[params.learnerId].name;
+      case 'LESSON_NAME':
+        return classSummary.lessonMap[params.lessonId].title;
+      case 'QUIZ_NAME':
+        return classSummary.examMap[params.quizId].title;
+      case 'EXERCISE_NAME':
+        return classSummary.contentMap[params.exerciseId].title;
+      case 'RESOURCE_NAME':
+        return classSummary.contentMap[params.resourceId].title;
+      default:
+        return coachStrings.$tr(part);
+    }
+  });
+
+  if (this.isRtl) {
+    strings = strings.reverse();
+  }
+  return strings.join(' - ');
+}
+
+const CoachCoreBase = {
+  extends: CoreBase,
+  props: {
+    // Gives each Coach page a default title of 'Coach – [Class Name]'
+    appBarTitle: {
+      type: String,
+      default() {
+        const coachLabel = coachStrings.$tr('coachLabel');
+        const classroomName = this.$store.state.classSummary.name;
+        if (!classroomName) {
+          return coachLabel;
+        }
+        if (this.isRtl) {
+          return `${classroomName} – ${coachLabel}`;
+        }
+        return `${coachLabel} – ${classroomName}`;
+      },
+    },
+    pageTitle: {
+      type: String,
+      default() {
+        return formatPageTitle.call(this);
+      },
+    },
+  },
+};
+
 export default {
   name: 'ReportsQuizHeader',
   components: {
-    CoreBase,
+    CoreBase: CoachCoreBase,
     CoreTable,
     ContentIcon,
     TopNavbar,
