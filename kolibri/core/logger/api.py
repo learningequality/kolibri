@@ -187,7 +187,7 @@ class AttemptLogViewSet(LoggerViewSet):
 class ExamAttemptFilter(BaseLogFilter):
     exam = ModelChoiceFilter(method="filter_exam", queryset=Exam.objects.all())
     user = ModelChoiceFilter(method="filter_user", queryset=FacilityUser.objects.all())
-    content = CharFilter(source="content_id")
+    content = CharFilter(field_name="content_id")
 
     def filter_exam(self, queryset, name, value):
         return queryset.filter(examlog__exam=value)
