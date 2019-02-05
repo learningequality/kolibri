@@ -30,7 +30,7 @@
             <td>
               <KRouterLink
                 :text="questionTitle(index + 1)"
-                :to="questionLink(tableRow.question_id, index)"
+                :to="questionLink(tableRow.question_id)"
               />
             </td>
             <td>
@@ -53,11 +53,13 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import { PageNames } from './../../constants';
 
   const examStrings = crossComponentTranslator(ExamReport);
 
@@ -68,37 +70,8 @@
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        difficultQuestions: [
-          {
-            question_id: 'item_id1',
-            exercise_id: 'c4cd5ea6e61a588d9436d175cb13b935',
-            total: 5,
-            correct: 0,
-          },
-          {
-            question_id: 'item_id2',
-            exercise_id: 'c4cd5ea6e61a588d9436d175cb13b935',
-            total: 3,
-            correct: 1,
-          },
-          {
-            question_id: 'item_id3',
-            exercise_id: 'c4cd5ea6e61a588d9436d175cb13b935',
-            total: 30,
-            correct: 20,
-          },
-          {
-            question_id: 'item_id4',
-            exercise_id: 'c4cd5ea6e61a588d9436d175cb13b935',
-            total: 15,
-            correct: 5,
-          },
-        ],
-      };
-    },
     computed: {
+      ...mapGetters('questionList', ['difficultQuestions']),
       table() {
         const mapped = this.difficultQuestions.map(question => {
           const tableRow = {};
@@ -109,10 +82,10 @@
       },
     },
     methods: {
-      questionLink(questionId, interactionIndex) {
-        return this.classRoute('ReportsLessonExerciseQuestionPage', {
+      questionLink(questionId) {
+        return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT, {
           questionId,
-          interactionIndex,
+          exerciseId: this.$route.params.exerciseId,
         });
       },
       questionTitle(questionNumber) {
