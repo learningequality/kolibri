@@ -6,6 +6,10 @@ import {
   exerciseRootRedirectHandler,
 } from '../modules/exerciseDetail/handlers';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
+import {
+  generateQuestionDetailHandler,
+  questionRootRedirectHandler,
+} from '../modules/questionDetail/handlers';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -123,8 +127,20 @@ export default [
   },
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTION),
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonExerciseQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsGroupReportLessonExerciseQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
   },
   {
     path: path(CLASS, GROUP, LESSON),
@@ -172,9 +188,21 @@ export default [
     handler: defaultHandler,
   },
   {
-    path: path(CLASS, GROUP, QUIZ, QUESTIONS),
+    path: path(CLASS, GROUP, QUIZ, QUESTION),
+    name: PageNames.REPORTS_GROUP_REPORT_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportQuizQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, GROUP, QUIZ, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsGroupReportQuizQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['groupId', 'quizId', 'questionId']),
   },
   {
     path: path(CLASS, LEARNER, ACTIVITY, EXERCISE),
@@ -280,8 +308,20 @@ export default [
   },
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTION),
+    name: PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(
+        params,
+        pages.ReportsLessonExerciseQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsLessonExerciseQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['lessonId', 'exerciseId', 'questionId']),
   },
   {
     path: path(CLASS, LESSON, LEARNER, EXERCISE),
@@ -373,7 +413,15 @@ export default [
   },
   {
     path: path(CLASS, QUIZ, QUESTION),
+    name: PageNames.REPORTS_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(params, pages.ReportsQuizQuestionPage.name, next);
+    },
+  },
+  {
+    path: path(CLASS, QUIZ, QUESTION, LEARNER, INTERACTION),
     component: pages.ReportsQuizQuestionPage,
-    handler: defaultHandler,
+    handler: generateQuestionDetailHandler(['quizId', 'questionId']),
   },
 ];
