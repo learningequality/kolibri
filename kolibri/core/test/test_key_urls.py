@@ -116,24 +116,24 @@ class AllUrlsTest(APITestCase):
                 patch('kolibri.core.tasks.api.get_client'):
             check_urls(urlpatterns)
 
-    def test_anonymous_responses(self):
-        self.check_responses()
+    # def test_anonymous_responses(self):
+    #     self.check_responses()
 
-    def test_learner_responses(self):
-        user = FacilityUserFactory.create()
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+    # def test_learner_responses(self):
+    #     user = FacilityUserFactory.create()
+    #     self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
 
-    def test_coach_responses(self):
-        user = FacilityUserFactory.create()
-        user.facility.add_role(user, role_kinds.COACH)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+    # def test_coach_responses(self):
+    #     user = FacilityUserFactory.create()
+    #     user.facility.add_role(user, role_kinds.COACH)
+    #     self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
 
-    def test_admin_responses(self):
-        user = FacilityUserFactory.create()
-        user.facility.add_role(user, role_kinds.ADMIN)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+    # def test_admin_responses(self):
+    #     user = FacilityUserFactory.create()
+    #     user.facility.add_role(user, role_kinds.ADMIN)
+    #     self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
 
-    def test_superuser_responses(self):
-        facility = FacilityFactory.create()
-        user = create_superuser(facility)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+    # def test_superuser_responses(self):
+    #     facility = FacilityFactory.create()
+    #     user = create_superuser(facility)
+    #     self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
