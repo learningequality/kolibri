@@ -39,6 +39,7 @@ function defaultState() {
      *     question_sources: [{exercise_id, question_id}, ...],
      *     groups: [id, ...],
      *     data_model_version,
+     *     question_count,
      *   }
      * }
      */
@@ -264,8 +265,7 @@ export default {
         if (status.num_correct === null) {
           status.score = null;
         } else {
-          status.score =
-            (1.0 * status.num_correct) / examMap[status.exam_id].question_sources.length;
+          status.score = (1.0 * status.num_correct) / examMap[status.exam_id].question_count;
         }
       });
       summary.content_learner_status.forEach(status => {
