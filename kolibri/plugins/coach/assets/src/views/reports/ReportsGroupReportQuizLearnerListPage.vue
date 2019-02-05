@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -14,68 +13,26 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <p>{{ $tr('averageScore', {score: 0.6}) }}</p>
-
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('nameLabel') }}</td>
-            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+            <td>{{ coachStrings.$tr('titleLabel') }}</td>
             <td>{{ coachStrings.$tr('progressLabel') }}</td>
+            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr>
+          <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                text="April"
-                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
+                :text="tableRow.name"
+                :to="detailLink(tableRow.id)"
               />
             </td>
-            <td><Score /></td>
             <td>
-              <LearnerProgressLabel
-                :count="0"
-                verbosity="1"
-                icon="nothing"
-                verb="notStarted"
-              />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="Steve"
-                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
-              />
-            </td>
-            <td><Score /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="8"
-                verbosity="1"
-                icon="clock"
-                verb="started"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <KRouterLink
-                text="John"
-                :to="classRoute('ReportsGroupReportQuizLearnerPage', {})"
-              />
-            </td>
-            <td><Score :value="0.1" /></td>
-            <td>
-              <LearnerProgressLabel
-                :count="10"
-                verbosity="1"
-                icon="star"
-                verb="completed"
-              />
-            </td>
+            <td><Score :value="tableRow.statusObj.score" /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -88,6 +45,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { PageNames } from '../../constants';
   import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
 
   export default {
@@ -118,9 +76,35 @@
           },
         ];
       },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      recipients() {
+        return this.getLearnersForGroups([this.$route.params.groupId]);
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return mapped;
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      detailLink(learnerId) {
+        return this.classRoute(PageNames.REPORTS_GROUP_REPORT_QUIZ_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+      },
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',

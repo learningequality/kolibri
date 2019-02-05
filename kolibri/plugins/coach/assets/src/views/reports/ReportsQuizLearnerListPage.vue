@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -13,11 +12,6 @@
     <KPageContainer>
 
       <ReportsQuizHeader />
-
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <p v-if="avgScore !== undefined">
-        {{ $tr('averageScore', {score: avgScore }) }}
-      </p>
 
       <CoreTable>
         <thead slot="thead">
@@ -33,7 +27,11 @@
             <td>
               <KRouterLink
                 :text="tableRow.name"
-                :to="classRoute('ReportsQuizLearnerPage', { learnerId: tableRow.id })"
+                :to="classRoute('ReportsQuizLearnerPage', {
+                  learnerId: tableRow.id,
+                  questionId: 0,
+                  interactionIndex: 0
+                })"
               />
             </td>
             <td>
@@ -88,9 +86,6 @@
       },
       recipients() {
         return this.getLearnersForGroups(this.exam.groups);
-      },
-      avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);

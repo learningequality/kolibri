@@ -38,6 +38,7 @@ function defaultState() {
      *     title,
      *     question_sources: [{exercise_id, question_id}, ...],
      *     groups: [id, ...],
+     *     data_model_version,
      *   }
      * }
      */

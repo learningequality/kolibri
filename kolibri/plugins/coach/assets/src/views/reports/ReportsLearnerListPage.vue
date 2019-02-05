@@ -2,7 +2,6 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
@@ -73,7 +72,6 @@
           const contentStatuses = this.contentStatuses.filter(
             status => learner.id === status.learner_id
           );
-
           const augmentedObj = {
             groups: groupNames,
             avgScore: this.avgScore(examStatuses),
