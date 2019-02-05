@@ -188,7 +188,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ("id", "title", "active", "question_sources", "groups")
+        fields = ("id", "title", "active", "question_sources", "groups", "data_model_version")
 
 
 class ContentSerializer(serializers.ModelSerializer):
