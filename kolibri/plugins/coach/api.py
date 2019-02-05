@@ -19,6 +19,7 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 
@@ -190,35 +191,46 @@ class DifficultiesPermissions(permissions.BasePermission):
 @query_params_required(collection_id=str)
 class BaseDifficultQuestionsViewset(viewsets.ViewSet):
     permission_classes = (permissions.IsAuthenticated, DifficultiesPermissions,)
-    values = ('item', )
-
-    def retrieve(self, request, pk):
-
-        collection_id = self.kwargs['collection_id']
-        queryset = HierarchyRelationsFilter(self.get_queryset(pk)).filter_by_hierarchy(
-            ancestor_collection=collection_id,
-            target_user=F("user"),
-        )
-        data = queryset.values(*self.values).annotate(correct=Sum('correct'), total=Count('correct'))
-        return Response(data)
 
 
 class ExerciseDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
 
-    def get_queryset(self, content_id):
+    def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular exercise.
         pk maps to the content_id of the exercise in question.
         """
-        return AttemptLog.objects.filter(masterylog__summarylog__content_id=content_id)
+        collection_id = self.kwargs['collection_id']
+        queryset = AttemptLog.objects.filter(masterylog__summarylog__content_id=pk)
+        queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            ancestor_collection=collection_id,
+            target_user=F("user"),
+        )
+        data = queryset.values('item').annotate(correct=Sum('correct'), total=Count('correct'))
+        return Response(data)
 
 
 class QuizDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
 
-    values = ('item', 'content_id', )
-
-    def get_queryset(self, exam_id):
+    def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular quiz.
         """
-        return ExamAttemptLog.objects.filter(examlog__exam=exam_id)
+        collection_id = self.kwargs['collection_id']
+        queryset = ExamAttemptLog.objects.filter(examlog__exam=pk)
+        queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+            ancestor_collection=collection_id,
+            target_user=F("user"),
+        )
+        data = queryset.values('item', 'content_id').annotate(correct=Sum('correct'))
+
+        # Instead of inferring the totals from the number of logs, use the total
+        # number of people who took the exam as our guide, as people who started the exam
+        # but did not attempt the question, are still important.
+        total = HierarchyRelationsFilter(ExamLog.objects.filter(exam_id=pk)).filter_by_hierarchy(
+            ancestor_collection=collection_id,
+            target_user=F("user"),
+        ).count()
+        for datum in data:
+            datum['total'] = total
+        return Response(data)
