@@ -114,9 +114,6 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         },
       });
     }
-
-    // If 'assigneeCollections' is null, it means the assignment was deleted
-    if (assigneeCollections === null) continue;
   }
 
   return summaryEvents;
