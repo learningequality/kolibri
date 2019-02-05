@@ -37,13 +37,16 @@
         </KGridItem>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
-            ref="numQuest"
+            ref="questionsInput"
             v-model.trim.number="numQuestions"
             type="number"
             :min="1"
             :max="maxQs"
+            :invalidText="$tr('numQuestionsBetween')"
+            :invalid="numQuestionsInvalid"
             :label="$tr('numQuestions')"
             class="number-field"
+            @blur="numQuestionsBlurred = true"
           />
           <UiIconButton
             type="flat"
@@ -136,7 +139,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -146,10 +148,8 @@
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
-
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
@@ -216,6 +216,7 @@
           kind: this.$route.query.kind || null,
           role: this.$route.query.role || null,
         },
+        numQuestionsBlurred: false,
       };
     },
     computed: {
@@ -253,6 +254,11 @@
           return this.$store.state.examCreation.numberOfQuestions;
         },
         set(value) {
+          // If it is cleared out, then set vuex state to null so it can be caught during
+          // validation
+          if (value === '') {
+            this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', null);
+          }
           if (value && value >= 1 && value <= this.maxQs) {
             this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
             this.$store.dispatch('examCreation/updateSelectedQuestions');
@@ -339,6 +345,12 @@
           return '';
         }
         return this.ancestors[this.ancestors.length - 1].description;
+      },
+      numQuestionsInvalid() {
+        return (
+          this.numQuestionsBlurred &&
+          (this.numQuestions === null || this.numQuestions < 0 || this.numQuestions > this.maxQs)
+        );
       },
     },
     watch: {
@@ -484,6 +496,9 @@
           });
       },
       continueProcess() {
+        if (this.numQuestionsInvalid) {
+          this.$refs.questionsInput.focus();
+        }
         if (this.selectionIsInvalidText) {
           this.showError = true;
         } else {
