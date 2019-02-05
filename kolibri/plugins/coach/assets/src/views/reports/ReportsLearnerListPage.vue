@@ -73,7 +73,6 @@
           const contentStatuses = this.contentStatuses.filter(
             status => learner.id === status.learner_id
           );
-
           const augmentedObj = {
             groups: groupNames,
             avgScore: this.avgScore(examStatuses),

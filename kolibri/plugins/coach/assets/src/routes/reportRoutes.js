@@ -153,7 +153,7 @@ export default [
     handler: defaultHandler,
   },
   {
-    path: path(CLASS, GROUP),
+    path: path(CLASS, GROUP, '/reports'),
     component: pages.ReportsGroupReportPage,
     handler: defaultHandler,
   },
