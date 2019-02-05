@@ -428,7 +428,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
+    path: path(CLASS, LESSON, EXERCISE, QUESTION, INTERACTION),
     component: pages.ReportsLessonExerciseQuestionPage,
     handler: generateQuestionDetailHandler(['lessonId', 'exerciseId', 'questionId']),
     meta: {
