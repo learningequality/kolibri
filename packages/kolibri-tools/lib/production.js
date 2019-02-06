@@ -7,7 +7,10 @@ const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
 
 function webpackConfig(pluginData) {
-  const pluginBundle = webpackBaseConfig(pluginData, { mode: 'production' });
+  const pluginBundle = webpackBaseConfig(pluginData, {
+    mode: 'production',
+    devtool: 'cheap-module-source-map',
+  });
 
   pluginBundle.stats = 'normal';
   pluginBundle.plugins = pluginBundle.plugins.concat([
