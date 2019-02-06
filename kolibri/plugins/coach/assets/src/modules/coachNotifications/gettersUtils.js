@@ -89,8 +89,11 @@ function makeParams(notification) {
     lessonId: notification.assignment.id,
     quizId: notification.assignment.id,
     resourceId: notification.resource.id,
-    exerciseId: notification.resource.id,
+    exerciseId: notification.resource.content_id,
     learnerId: notification.learnerSummary.firstUserId,
+    // For individual Quiz or Exercise notifications, default to first index for everything
+    questionId: 0,
+    interactionIndex: 0,
   };
 }
 
@@ -152,7 +155,7 @@ const pageNameToNotificationPropsMap = {
     isMultiple: false,
     isWholeClass: false,
   },
-  ReportsLessonLearnerExercisePage: {
+  REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT: {
     object: 'Exercise',
     isMultiple: false,
     isWholeClass: true,

@@ -1,0 +1,371 @@
+<template>
+
+  <div>
+    <NotificationsFilter
+      :resourceFilter.sync="resourceFilter"
+      :progressFilter.sync="progressFilter"
+    />
+    <br>
+
+    <div>
+      <p v-if="!loading && nextPage === 2 && notifications.length === 0">
+        {{ noActivityString }}
+      </p>
+
+      <NotificationCard
+        v-for="notification in notifications"
+        v-show="showNotification(notification)"
+        :key="notification.id"
+        v-bind="cardPropsForNotification(notification)"
+      >
+        <KRouterLink
+          v-if="notification.targetPage"
+          :to="notification.targetPage"
+          :text="cardTextForNotification(notification)"
+        />
+
+        <span v-else>
+          {{ cardTextForNotification(notification) }}
+        </span>
+      </NotificationCard>
+    </div>
+
+    <div
+      v-if="noFiltersApplied"
+      class="show-more"
+    >
+      <transition mode="out-in">
+        <KLinearLoader
+          v-if="loading"
+          :delay="false"
+        />
+        <template v-else>
+          <KButton
+            v-if="moreResults"
+            :text="coachStrings.$tr('showMoreAction')"
+            @click="fetchNotifications"
+          />
+        </template>
+      </transition>
+    </div>
+  </div>
+
+</template>
+
+
+<script>
+
+  import find from 'lodash/find';
+  import maxBy from 'lodash/maxBy';
+  import get from 'lodash/get';
+  import { mapState } from 'vuex';
+  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoach from '../../common';
+  import { nStringsMixin } from '../notifications/notificationStrings';
+  import notificationsResource from '../../../apiResources/notifications';
+  import { NotificationObjects } from '../../../constants/notificationsConstants';
+  import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
+  import NotificationCard from './NotificationCardNoLink';
+  import NotificationsFilter from './NotificationsFilter';
+
+  const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
+
+  export default {
+    name: 'ActivityList',
+    components: {
+      KLinearLoader,
+      KRouterLink,
+      NotificationsFilter,
+      NotificationCard,
+    },
+    mixins: [commonCoach, nStringsMixin],
+    props: {
+      // getParams for NotificationsResource.fetchCollection
+      notificationParams: {
+        type: Object,
+        required: true,
+      },
+      // String to display when there are no notifications
+      noActivityString: {
+        type: String,
+        default: '',
+      },
+      // Name of embedded page to handle details like the back link query
+      // and the incoming notifications filter
+      embeddedPageName: {
+        type: String,
+        required: true,
+        validator(value) {
+          return [
+            'HomeActivityPage',
+            'ReportsLearnerActivityPage',
+            'ReportsGroupActivityPage',
+          ].includes(value);
+        },
+      },
+    },
+    data() {
+      return {
+        loading: true,
+        error: false,
+        moreResults: true,
+        nextPage: 1,
+        progressFilter: 'all',
+        resourceFilter: 'all',
+        notifications: [],
+        filters: {
+          ALL: 'all',
+          LESSON: 'lesson',
+          QUIZ: 'quiz',
+        },
+      };
+    },
+    computed: {
+      ...mapState('coachNotifications', {
+        allNotifications: 'notifications',
+      }),
+      noFiltersApplied() {
+        return this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL;
+      },
+      lastNotificationId() {
+        if (this.notifications.length > 0) {
+          return Number(maxBy(this.notifications, n => Number(n.id)).id);
+        }
+        return 0;
+      },
+      // Passed through to Notification Card links and used to correctly
+      // handle exiting Exercise and Quiz detail pages.
+      backLinkQuery() {
+        switch (this.embeddedPageName) {
+          case 'HomeActivityPage':
+            return { last: 'homeactivity' };
+          case 'ReportsLearnerActivityPage':
+            return { last: 'learneractivity', last_id: this.$route.params.learnerId };
+          case 'ReportsGroupActivityPage':
+            return { last: 'groupactivity', last_id: this.$route.params.groupId };
+          default:
+            return {};
+        }
+      },
+    },
+    watch: {
+      allNotifications(newVal) {
+        const newNotifications = newVal.filter(
+          n => Number(n.id) > this.lastNotificationId && this.newNotificationsFilter(n)
+        );
+        this.notifications = [
+          ...newNotifications.map(this.reshapeNotification),
+          ...this.notifications,
+        ];
+      },
+    },
+    beforeMount() {
+      this.fetchNotifications();
+    },
+    methods: {
+      fetchNotifications() {
+        this.loading = true;
+        return notificationsResource
+          .fetchCollection({
+            getParams: {
+              ...this.notificationParams,
+              page_size: 10,
+              page: this.nextPage,
+            },
+            force: true,
+          })
+          .then(data => {
+            this.notifications = [
+              ...this.notifications,
+              ...data.results.map(this.reshapeNotification).filter(Boolean),
+            ];
+            this.moreResults = data.next !== null;
+            this.nextPage = this.nextPage + 1;
+            this.loading = false;
+          });
+      },
+      // Filter incoming notifications according to the embedded page
+      // For HomeActivityPage - no filter
+      // For ReportsLearnerActivityPage - notification.user_id === current learnerId
+      // For ReportsGroupActivityPage - notification.user_id in group.users
+      newNotificationsFilter(notification) {
+        if (this.embeddedPageName === 'HomeActivityPage') {
+          return true;
+        }
+        if (this.embeddedPageName === 'ReportsLearnerActivityPage') {
+          return notification.user_id === this.$route.params.learnerId;
+        }
+        if (this.embeddedPageName === 'ReportsGroupActivityPage') {
+          return this.notificationBelongsToGroup(notification, this.$route.params.groupId);
+        }
+        return true;
+      },
+      notificationBelongsToGroup(notification, groupId) {
+        const userInGroup = this.groupMap[groupId].member_ids.includes(notification.user_id);
+        let assignmentInGroup;
+
+        if (notification.object === 'Lesson' || notification.object === 'Resource') {
+          const lessonGroups = this.lessonMap[notification.lesson_id].groups;
+          if (lessonGroups.length === 0) {
+            assignmentInGroup = true;
+          } else {
+            assignmentInGroup = lessonGroups.includes(groupId);
+          }
+        }
+
+        if (notification.object === 'Quiz') {
+          const examGroups = this.examMap[notification.lesson_id].groups;
+          if (examGroups.length === 0) {
+            assignmentInGroup = true;
+          } else {
+            assignmentInGroup = examGroups.includes(groupId);
+          }
+        }
+
+        // Check if Quiz was assigned to the group
+        return userInGroup && assignmentInGroup;
+      },
+      showNotification(notification) {
+        if (this.noFiltersApplied) {
+          return true;
+        }
+        let progressPasses = true;
+        let resourcePasses = true;
+        if (this.progressFilter !== this.filters.ALL) {
+          progressPasses = notification.event === this.progressFilter;
+        }
+        if (this.resourceFilter !== this.filters.ALL) {
+          if (this.resourceFilter === this.filters.LESSON) {
+            resourcePasses = notification.object === LESSON;
+          } else if (this.resourceFilter === this.filters.QUIZ) {
+            resourcePasses = notification.object === QUIZ;
+          } else {
+            resourcePasses = notification.resource.type === this.resourceFilter;
+          }
+        }
+        return progressPasses && resourcePasses;
+      },
+      // Takes the raw notification and reshapes it to match the objects
+      // created by the summarizedNotifications getter.
+      reshapeNotification(notification) {
+        const { object } = notification;
+        // Finds the first group the user_id is in and just uses that label.
+        // Does not make additional notifications if the user is in more than
+        // one group that has been assigned lesson or quiz.
+        let groups;
+        if (object === QUIZ) {
+          const examMatch = this.examMap[notification.quiz_id];
+          if (!examMatch) return null;
+          groups = [...examMatch.groups];
+        } else if (object === LESSON || object === RESOURCE) {
+          const lessonMatch = this.lessonMap[notification.lesson_id];
+          if (!lessonMatch) return null;
+          groups = [...lessonMatch.groups];
+        }
+        let collection = {};
+        // If assigned to whole class
+        if (groups.length === 0) {
+          collection = {
+            id: this.classId,
+            name: this.className,
+            type: CollectionTypes.CLASSROOM,
+          };
+        } else {
+          const groupMatch = find(groups, groupId => {
+            const found = this.groupMap[groupId];
+            if (found) {
+              return found.member_ids.includes(notification.user_id);
+            }
+            return false;
+          });
+          if (groupMatch) {
+            collection = {
+              id: this.groupMap[groupMatch].id,
+              name: this.groupMap[groupMatch].name,
+              type: CollectionTypes.LEARNERGROUP,
+            };
+          } else {
+            // If learner group was deleted, then just give it the header
+            // for the whole class
+            collection = {
+              id: this.classId,
+              name: this.className,
+              type: CollectionTypes.CLASSROOM,
+            };
+          }
+        }
+
+        const baseNotification = {
+          event: notification.event,
+          object,
+          timestamp: notification.timestamp,
+          collection,
+          id: Number(notification.id),
+          assignment: {
+            name: object === QUIZ ? notification.quiz : notification.lesson,
+            type: object === QUIZ ? ContentNodeKinds.EXAM : ContentNodeKinds.LESSON,
+            id: object === QUIZ ? notification.quiz_id : notification.lesson_id,
+          },
+          resource: {
+            name: notification.resource || '',
+            type: notification.contentnode_kind,
+            id: notification.contentnode_id,
+            content_id: get(this.contentNodeMap, [notification.contentnode_id, 'content_id'], ''),
+          },
+          learnerSummary: {
+            firstUserName: notification.user,
+            firstUserId: notification.user_id,
+            total: 1,
+          },
+        };
+
+        const targetPage = notificationLink(baseNotification);
+
+        // This query parameter is used to adjust the 'back' button for different reports
+        if (targetPage) {
+          targetPage.query = {
+            ...this.backLinkQuery,
+          };
+        }
+        return {
+          ...baseNotification,
+          targetPage,
+        };
+      },
+      cardPropsForNotification(notification) {
+        const { collection } = notification;
+        const learnerContext =
+          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
+        // Only differences from ActivityBlock is that there is no targetPage,
+        // and the time is used
+        return {
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
+          contentContext: notification.assignment.name,
+          learnerContext,
+          time: notification.timestamp,
+        };
+      },
+    },
+    $trs: {
+      back: 'Class home',
+      classActivity: 'Class activity',
+      noActivity: 'No activity in your class',
+      viewMore: 'View more',
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  .show-more {
+    height: 100px;
+  }
+
+</style>
