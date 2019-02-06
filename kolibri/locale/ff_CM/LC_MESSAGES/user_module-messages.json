@@ -1,5 +1,5 @@
 {
-  "ChangeUserPasswordModal.cancelButtonLabel": "wilu",
+  "ChangeUserPasswordModal.cancelButtonLabel": "faasutu",
   "ChangeUserPasswordModal.confirmNewPasswordFieldLabel": "Nastin paltirgel fahin",
   "ChangeUserPasswordModal.newPasswordFieldLabel": "Nastin paltirgel kesel",
   "ChangeUserPasswordModal.passwordChangeFormHeader": "Sanju paltirgel",
@@ -16,7 +16,7 @@
   "ProfilePage.isSuperuser": "Yerduye diga mawɗo dawrooɓe ",
   "ProfilePage.limitedPermissions": "Yerduye hetaneego",
   "ProfilePage.manageContent": "Hakkilango ko-woni-nder",
-  "ProfilePage.manageDevicePermissions": "Hakkilana yerduye kompiita",
+  "ProfilePage.manageDevicePermissions": "Hakkilango yerduye kompiita",
   "ProfilePage.name": "Inɗe fuu",
   "ProfilePage.points": "Toɓɓe tiiɗal",
   "ProfilePage.required": "Winndugo ɗo'o ɗum doole",
@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "E woodi desirɗum goɗɗum bee innde nde'e",
   "ProfilePage.usernameNotAlphaNumUnderscore": "Innde kuutiniroowo winndaama bee ɓaleeri, lammbaaji e diidi les tan",
   "ProfilePage.youCan": "A waawii",
-  "SignInPage.accessAsGuest": "Ɓeydu huwugo bana koɗo",
+  "SignInPage.accessAsGuest": "Raarugo bannda waɗugo desirɗum",
   "SignInPage.createAccount": "Waɗu desirɗum",
   "SignInPage.documentTitle": "Nastingo kuutiniroowo",
   "SignInPage.enterPassword": "Nastin paltirgel",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "Innde kuutiniroowo winndaama bee ɓaleeri, lammbaaji e diidi les tan",
   "SignUpPage.usernameAlreadyExistsError": "E woodi desirɗum goɗɗum bee innde nde'e",
   "UserIndex.userProfileTitle": "Tinndinoore",
+  "UserIndex.userSignInTitle": "Waɗu junngo",
+  "UserIndex.userSignUpTitle": "Waɗa junngo",
   "UserPageSnackbars.dismiss": "Riiwu",
   "UserPageSnackbars.signedOut": "A wayrii huwugo, ɗum wurtiniima",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Paltirgel sanjake"

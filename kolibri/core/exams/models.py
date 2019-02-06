@@ -8,6 +8,7 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.notifications.models import LearnerProgressNotification
 
 
 class Exam(AbstractFacilityDataModel):
@@ -83,6 +84,13 @@ class Exam(AbstractFacilityDataModel):
     collection = models.ForeignKey(Collection, related_name='exams', blank=False, null=False)
     creator = models.ForeignKey(FacilityUser, related_name='exams', blank=False, null=False)
     archive = models.BooleanField(default=False)
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        We delete all notifications objects whose quiz is this exam id.
+        """
+        LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
+        super(Exam, self).delete(using, keep_parents)
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may

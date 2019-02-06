@@ -9,7 +9,7 @@
   "MediaPlayerIndex.forward": "Tiến 10 giây",
   "MediaPlayerIndex.fullscreen": "Trọn màn hình",
   "MediaPlayerIndex.loaded": "Đã tải",
-  "MediaPlayerIndex.mute": "Tắt tiếng",
+  "MediaPlayerIndex.mute": "Tắt âm thanh",
   "MediaPlayerIndex.networkError": "Lỗi mạng khiến việc tải video này thất bại giữa chừng",
   "MediaPlayerIndex.nonFullscreen": "Không trọn màn hình",
   "MediaPlayerIndex.pause": "Tạm dừng",
@@ -19,6 +19,6 @@
   "MediaPlayerIndex.progressBar": "Thanh tiến độ",
   "MediaPlayerIndex.replay": "Lùi 10 giây",
   "MediaPlayerIndex.sourceError": "Không tìm thấy nguồn tương thích cho video này",
-  "MediaPlayerIndex.unmute": "Mở tiếng",
+  "MediaPlayerIndex.unmute": "Mở âm thanh",
   "MediaPlayerIndex.volumeLevel": "Âm lượng"
 }

@@ -4,6 +4,8 @@
     <UiIconButton
       type="secondary"
       class="globe"
+      aria-hidden="true"
+      tabindex="-1"
       @click="showLanguageModal = true"
     >
       <mat-svg
@@ -46,7 +48,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import KButton from 'kolibri.coreVue.components.KButton';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 

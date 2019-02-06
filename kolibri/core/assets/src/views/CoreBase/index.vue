@@ -64,6 +64,11 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
+      <div v-if="debug" class="debug">
+        <div>{{ contentComponentName }}</div>
+        <div>{{ routePath }}</div>
+      </div>
+
       <AuthMessage
         v-if="notAuthorized"
         :authorizedRole="authorizedRole"
@@ -75,7 +80,15 @@
     </div>
 
     <GlobalSnackbar />
-    <UpdateNotification />
+    <UpdateNotification
+      v-if="showNotification && !busy"
+      :id="mostRecentNotification.id"
+      :title="mostRecentNotification.title"
+      :msg="mostRecentNotification.msg"
+      :linkText="mostRecentNotification.linkText"
+      :linkUrl="mostRecentNotification.linkUrl"
+      @closeModal="dismissUpdateModal"
+    />
 
   </div>
 
@@ -84,13 +97,16 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import { throttle } from 'frame-throttle';
+  import Lockr from 'lockr';
+  import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -177,9 +193,20 @@
         required: false,
         default: '',
       },
+      // Alternative to using metaInfo in a top level component to set the
+      // title of the HTML Document
+      pageTitle: {
+        type: String,
+        required: false,
+        default: '',
+      },
       // If true, will render the component in the "sub-nav" slot and add 48px
       // to AppBody's top offset.
       showSubNav: {
+        type: Boolean,
+        default: false,
+      },
+      debug: {
         type: Boolean,
         default: false,
       },
@@ -198,20 +225,26 @@
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });
         },
+        title: this.pageTitle,
       };
     },
     data() {
       return {
         navShown: false,
         scrollPosition: 0,
+        updateModalShown: true,
       };
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        busy: state => state.core.signInBusy,
+        notifications: state => state.core.notifications,
       }),
+      ...mapGetters(['$coreBgCanvas']),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },
@@ -239,6 +272,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
+          backgroundColor: this.$coreBgCanvas,
         };
       },
       contentStyles() {
@@ -262,10 +296,52 @@
       throttledHandleScroll() {
         return throttle(this.handleScroll);
       },
+      showNotification() {
+        if (
+          (this.isAdmin || this.isSuperuser) &&
+          !Lockr.get(UPDATE_MODAL_DISMISSED) &&
+          this.updateModalShown &&
+          this.notifications.length !== 0
+        ) {
+          return true;
+        }
+        return false;
+      },
+      mostRecentNotification() {
+        let languageCode = defaultLanguage.id;
+        // notifications should already be ordered by timestamp
+        const notification = this.notifications[0];
+        // check if translated message is available for current language
+        if (notification.i18n[currentLanguage] !== undefined) {
+          languageCode = currentLanguage;
+        }
+        return {
+          id: notification.id,
+          title: notification.i18n[languageCode].title,
+          msg: notification.i18n[languageCode].msg,
+          linkText: notification.i18n[languageCode].link_text,
+          linkUrl: notification.link_url,
+        };
+      },
+      contentComponentName() {
+        return this.$slots.default[0].context.$options.name;
+      },
+      routePath() {
+        if (this.$router.getRouteDefinition(this.contentComponentName)) {
+          return this.$router.getRouteDefinition(this.contentComponentName).path;
+        }
+        return '';
+      },
     },
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
+      },
+      dismissUpdateModal() {
+        if (this.notifications.length === 0) {
+          this.updateModalShown = false;
+          Lockr.set(UPDATE_MODAL_DISMISSED, true);
+        }
       },
     },
   };
@@ -283,7 +359,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: scroll; // has to be scroll, not auto
     -webkit-overflow-scrolling: touch; // iOS momentum scrolling
   }
@@ -298,7 +374,7 @@
   }
 
   .app-bar {
-    @extend %ui-toolbar-box-shadow;
+    @extend %dropshadow-4dp;
 
     width: 100%;
   }
@@ -318,6 +394,13 @@
     margin-right: auto;
     margin-bottom: 128px;
     margin-left: auto;
+  }
+
+  .debug {
+    font-family: monospace;
+    font-size: large;
+    font-weight: bold;
+    line-height: 2em;
   }
 
 </style>

@@ -1,14 +1,13 @@
 from collections import OrderedDict
 
-from django.db.models import Sum
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
-from kolibri.core.logger.models import ExamLog
 
 
 class NestedCollectionSerializer(serializers.ModelSerializer):
@@ -89,6 +88,21 @@ class ExamSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('data_model_version',)
 
+    def validate(self, attrs):
+        title = attrs.get('title')
+        # first condition is for creating object, second is for updating
+        collection = attrs.get('collection') or getattr(self.instance, 'collection')
+        # if obj doesn't exist, return data
+        try:
+            obj = Exam.objects.get(title__iexact=title, collection=collection)
+        except Exam.DoesNotExist:
+            return attrs
+        # if we are updating object, and this `instance` is the same object, return data
+        if self.instance and obj.id == self.instance.id:
+            return attrs
+        else:
+            raise serializers.ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
+
     def validate_question_sources(self, value):
         for question in value:
             if 'exercise_id' not in question:
@@ -152,40 +166,3 @@ class ExamSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-
-
-class UserExamSerializer(serializers.ModelSerializer):
-
-    question_sources = serializers.JSONField()
-
-    class Meta:
-        # Use the ExamAssignment as the primary model, as the permissions are more easily
-        # defined as they are directly attached to a particular user's collection.
-        model = ExamAssignment
-        read_only_fields = (
-            'id', 'title', 'question_count', 'question_sources', 'seed',
-            'active', 'score', 'archive', 'answer_count', 'closed', 'data_model_version',
-            'learners_see_fixed_order'
-        )
-        fields = '__all__'
-
-    def to_representation(self, obj):
-        output = {}
-        exam_fields = (
-            'id', 'title', 'question_count', 'question_sources', 'seed',
-            'active', 'archive', 'data_model_version', 'learners_see_fixed_order'
-        )
-        for field in exam_fields:
-            output[field] = getattr(obj.exam, field)
-        if isinstance(self.context['request'].user, FacilityUser):
-            try:
-                # Try to add the score from the user's ExamLog attempts.
-                output['score'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.aggregate(
-                    Sum('correct')).get('correct__sum')
-                output['answer_count'] = obj.exam.examlogs.get(user=self.context['request'].user).attemptlogs.count()
-                output['closed'] = obj.exam.examlogs.get(user=self.context['request'].user).closed
-            except ExamLog.DoesNotExist:
-                output['score'] = None
-                output['answer_count'] = None
-                output['closed'] = False
-        return output

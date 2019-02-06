@@ -2,10 +2,10 @@ import { ExamResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
-import { examsState } from '../shared/exams';
+import { examsState } from '../examShared/exams';
 
 export function showExamsPage(store, classId) {
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  store.dispatch('loading');
   store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
   const promises = [
@@ -13,7 +13,8 @@ export function showExamsPage(store, classId) {
       getParams: { collection: classId },
       force: true,
     }),
-    store.dispatch('setClassState', classId),
+    // state.classList needs to be set for Copy Exam modal to work
+    store.dispatch('setClassList'),
   ];
 
   return ConditionalPromise.all(promises).only(
@@ -24,8 +25,8 @@ export function showExamsPage(store, classId) {
         examsModalSet: false,
         busy: false,
       });
-      store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('clearError');
+      store.dispatch('notLoading');
     },
     error => store.dispatch('handleError', error)
   );

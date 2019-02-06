@@ -31,6 +31,9 @@ class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
         model = FacilityUser
         fields = ('id', 'username', 'full_name', 'password', )
 
+    def validate(self, attrs):
+        return attrs
+
 
 class DeviceProvisionSerializer(serializers.Serializer):
     facility = FacilitySerializer()

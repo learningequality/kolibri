@@ -440,6 +440,28 @@ class ContentNodeAPITestCase(APITestCase):
         for node in root.get_descendants(include_self=False).filter(available=True):
             self.assertTrue(next(item for item in root_items if item["id"] == node.id))
 
+    def test_contentnode_descendants_availability(self):
+        content.ContentNode.objects.all().update(available=False)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        topics = content.ContentNode.objects.filter(parent=root, kind=content_kinds.TOPIC)
+        topic_ids = topics.values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-descendants"), data={"ids": ",".join(topic_ids)})
+        self.assertEqual(len(response.data), 0)
+
+    def test_contentnode_node_assessments_available(self):
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        exercise_ids = root.get_descendants().filter(kind=content_kinds.EXERCISE).values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-node-assessments"), data={"ids": ",".join(exercise_ids)})
+        self.assertEqual(response.data, 1)
+
+    def test_contentnode_node_assessments_not_available(self):
+        content.ContentNode.objects.all().update(available=False)
+        root = content.ContentNode.objects.get(parent__isnull=True)
+        exercise_ids = root.get_descendants().filter(kind=content_kinds.EXERCISE).values_list('id', flat=True)
+        response = self.client.get(reverse("kolibri:core:contentnode-node-assessments"), data={"ids": ",".join(exercise_ids)})
+        self.assertEqual(response.data, 0)
+
     def test_contentnode_slim_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(reverse("kolibri:core:contentnode_slim-recommendations-for", kwargs={'pk': node_id}))
@@ -833,6 +855,30 @@ class ContentNodeAPITestCase(APITestCase):
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
+    def test_popular_no_coach_content(self):
+        expected_content_ids = self._create_session_logs()
+        node = content.ContentNode.objects.get(content_id=expected_content_ids[0])
+        node.coach_content = True
+        node.save()
+        expected_content_ids = expected_content_ids[1:]
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-popular'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_popular_coach_has_coach_content(self):
+        coach = FacilityUser.objects.create(username="coach", facility=self.facility)
+        coach.set_password(DUMMY_PASSWORD)
+        coach.save()
+        self.facility.add_coach(coach)
+        expected_content_ids = self._create_session_logs()
+        node = content.ContentNode.objects.get(content_id=expected_content_ids[0])
+        node.coach_content = True
+        node.save()
+        self.client.login(username="coach", password=DUMMY_PASSWORD)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-popular'))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
     def test_popular_ten_minute_cache(self):
         self._create_session_logs()
         response = self.client.get(reverse('kolibri:core:contentnode_slim-popular'))
@@ -965,6 +1011,48 @@ class ContentNodeAPITestCase(APITestCase):
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
+    def test_next_steps_prereq_coach_content_not_coach(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        post_req = root.prerequisite_for.first()
+        post_req.coach_content = True
+        post_req.save()
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(), response_content_ids)
+
+    def test_next_steps_prereq_coach_content_coach(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        facility.add_coach(user)
+        root = content.ContentNode.objects.get(title='root')
+        ContentSummaryLog.objects.create(channel_id=root.channel_id,
+                                         content_id=root.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        post_req = root.prerequisite_for.first()
+        post_req.coach_content = True
+        post_req.save()
+        expected_content_ids = (post_req.content_id,)
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
     def test_next_steps_sibling(self):
         facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="user", facility=facility)
@@ -1005,6 +1093,48 @@ class ContentNodeAPITestCase(APITestCase):
                                          start_timestamp=timezone.now(),
                                          kind='audio')
         expected_content_ids = []
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_next_steps_sibling_coach_content_not_coach(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        node = content.ContentNode.objects.get(content_id='ce603df7c46b424b934348995e1b05fb')
+        ContentSummaryLog.objects.create(channel_id=node.channel_id,
+                                         content_id=node.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        sibling = node.get_next_sibling()
+        sibling.coach_content = True
+        sibling.save()
+        response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
+        response_content_ids = set(node['content_id'] for node in response.json())
+        self.assertSetEqual(set(), response_content_ids)
+
+    def test_next_steps_sibling_coach_content_coach(self):
+        facility = Facility.objects.create(name="MyFac")
+        user = FacilityUser.objects.create(username="user", facility=facility)
+        facility.add_coach(user)
+        node = content.ContentNode.objects.get(content_id='ce603df7c46b424b934348995e1b05fb')
+        ContentSummaryLog.objects.create(channel_id=node.channel_id,
+                                         content_id=node.content_id,
+                                         user_id=user.id,
+                                         progress=1,
+                                         start_timestamp=timezone.now(),
+                                         kind='audio')
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        sibling = node.get_next_sibling()
+        sibling.coach_content = True
+        sibling.save()
+        expected_content_ids = (sibling.content_id,)
         response = self.client.get(reverse('kolibri:core:contentnode_slim-next-steps', kwargs={"pk": user.id}))
         response_content_ids = set(node['content_id'] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)

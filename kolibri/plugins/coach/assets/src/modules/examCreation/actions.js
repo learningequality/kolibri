@@ -2,7 +2,7 @@ import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
-import shuffle from 'kolibri.lib.shuffle';
+import shuffled from 'kolibri.utils.shuffled';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
@@ -10,7 +10,8 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
-import { createExam } from '../shared/exams';
+import { MAX_QUESTIONS } from '../../constants/examConstants';
+import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
 
 const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
@@ -31,19 +32,20 @@ export function removeFromSelectedExercises(store, exercises) {
   return updateAvailableQuestions(store);
 }
 
-export function setSelectedExercises(store, exercises) {
-  store.commit('SET_SELECTED_EXERCISES', exercises);
-  return updateAvailableQuestions(store);
-}
-
 export function updateAvailableQuestions(store) {
   const { selectedExercises } = store.state;
+  // Only bother checking this if there is any doubt that we have sufficient
+  // questions available. If we have selected more exercises than we allow questions
+  // then we are sure to have this.
   if (selectedExercises.length > 0) {
-    return ContentNodeResource.fetchNodeAssessments(selectedExercises.map(ex => ex.id)).then(
-      resp => {
+    if (MAX_QUESTIONS > Object.keys(selectedExercises).length) {
+      return ContentNodeResource.fetchNodeAssessments(Object.keys(selectedExercises)).then(resp => {
         store.commit('SET_AVAILABLE_QUESTIONS', resp.entity);
-      }
-    );
+      });
+    } else {
+      store.commit('SET_AVAILABLE_QUESTIONS', MAX_QUESTIONS);
+      return Promise.resolve();
+    }
   }
   store.commit('SET_AVAILABLE_QUESTIONS', 0);
   return Promise.resolve();
@@ -90,32 +92,28 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store) {
+export function createExamAndRoute(store, classId) {
   const exam = {
-    collection: store.rootState.classId,
+    collection: classId,
     title: store.state.title,
     seed: store.state.seed,
     question_count: store.state.numberOfQuestions,
     question_sources: store.state.selectedQuestions,
-    assignments: [{ collection: store.rootState.classId }],
+    assignments: [{ collection: classId }],
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
   };
 
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  createExam(store, exam).then(
-    () => {
-      router.push({ name: PageNames.EXAMS });
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: snackbarTranslator.$tr('newExamCreated'),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
-    },
-    error => store.dispatch('handleApiError', error, { root: true })
-  );
+  return createExam(store, exam).then(() => {
+    router.push({ name: PageNames.EXAMS });
+    store.dispatch(
+      'createSnackbar',
+      {
+        text: snackbarTranslator.$tr('newExamCreated'),
+        autoDismiss: true,
+      },
+      { root: true }
+    );
+  });
 }
 
 function _getTopicsWithExerciseDescendants(topicIds = []) {
@@ -185,7 +183,7 @@ export function filterAndAnnotateContentList(childNodes) {
 }
 
 export function updateSelectedQuestions(store) {
-  if (!store.state.selectedExercises.length) {
+  if (!Object.keys(store.state.selectedExercises).length) {
     store.commit('SET_SELECTED_QUESTIONS', []);
     return Promise.resolve();
   }
@@ -193,8 +191,8 @@ export function updateSelectedQuestions(store) {
   return new Promise(resolve => {
     // If there are more exercises than questions, no need to fetch them all so
     // choose N at random where N is the the number of questions.
-    const exerciseIds = shuffle(
-      uniq(store.state.selectedExercises.map(exercise => exercise.id)),
+    const exerciseIds = shuffled(
+      Object.keys(store.state.selectedExercises),
       store.state.seed
     ).slice(0, store.state.numberOfQuestions);
 
@@ -209,15 +207,16 @@ export function updateSelectedQuestions(store) {
       contentNodes.forEach(exercise => {
         exercises[exercise.id] = exercise;
       });
-      const exerciseTitles = exerciseIds.map(id => exercises[id].title);
-      const questionIdArrays = exerciseIds.map(
+      const availableExercises = exerciseIds.filter(id => exercises[id]);
+      const exerciseTitles = availableExercises.map(id => exercises[id].title);
+      const questionIdArrays = availableExercises.map(
         id => assessmentMetaDataState(exercises[id]).assessmentIds
       );
       store.commit(
         'SET_SELECTED_QUESTIONS',
         selectQuestions(
           store.state.numberOfQuestions,
-          exerciseIds,
+          availableExercises,
           exerciseTitles,
           questionIdArrays,
           store.state.seed

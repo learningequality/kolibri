@@ -113,7 +113,7 @@ oriented data synchronization.
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
-  import shuffle from 'kolibri.lib.shuffle';
+  import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -416,6 +416,10 @@ oriented data synchronization.
           if (this.complete) {
             // Otherwise only save if the attempt is now complete
             this.saveAttemptLogMasterLog();
+          } else if (this.currentInteractions % 4 === 0) {
+            // After every 4 interactions in this exercise, update the attemptlog
+            // so needsHelp notification can be triggered
+            this.saveAttemptLogMasterLog();
           }
         }
       },
@@ -443,7 +447,7 @@ oriented data synchronization.
         const index = this.totalattempts % this.assessmentIds.length;
         if (this.randomize) {
           const seed = this.userid ? this.userid : Date.now();
-          this.itemId = shuffle(this.assessmentIds.slice(0), seed)[index];
+          this.itemId = shuffled(this.assessmentIds, seed)[index];
         } else {
           this.itemId = this.assessmentIds[index];
         }
@@ -472,6 +476,7 @@ oriented data synchronization.
       updateExerciseProgressMethod() {
         this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
         updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
+        this.$emit('updateProgress', this.exerciseProgress);
       },
       sessionInitialized() {
         if (this.isUserLoggedIn) {

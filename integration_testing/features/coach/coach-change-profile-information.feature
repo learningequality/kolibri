@@ -1,4 +1,4 @@
-Feature: Coach change profile information
+Feature: Coach changes profile information
   Coach needs to be able to change their own profile information
 
   Background:

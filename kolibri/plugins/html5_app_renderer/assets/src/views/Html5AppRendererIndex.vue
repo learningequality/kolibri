@@ -34,9 +34,9 @@
   import { mapGetters } from 'vuex';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import Hashi from '../../../../../../packages/hashi';
+  import Hashi from 'hashi';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -69,12 +69,26 @@
       });
       this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
+      this.startTime = now();
+      this.pollProgress();
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
+    },
+    methods: {
+      recordProgress() {
+        const totalTime = now() - this.startTime;
+        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        this.pollProgress();
+      },
+      pollProgress() {
+        this.timeout = setTimeout(() => {
+          this.recordProgress();
+        }, 15000);
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',

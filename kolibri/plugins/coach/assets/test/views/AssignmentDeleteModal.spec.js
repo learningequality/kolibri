@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import AssignmentDeleteModal from '../../src/views/assignments/AssignmentDeleteModal';
+import AssignmentDeleteModal from '../../src/views/plan/assignments/AssignmentDeleteModal';
 
 const defaultProps = {
   modalTitle: '',

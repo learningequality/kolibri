@@ -20,7 +20,7 @@
   "AuthMessage.registeredUser": "O gbọ́dọ̀ wọlé láti wo ojú-ewé yíì",
   "AuthMessage.superuser": "O gbọ́dọ̀ ní aṣẹ Aṣàmúlò-ńlá láti ní àṣẹ láti wo ojú-ewé yíì",
   "CoachContentLabel.coachResourceLabel": "Èròjà iṣẹ́ olùkọ́",
-  "CoachContentLabel.topicTitle": "Tó wà nínú rẹ̀. {count, number, integer} {count, plural, one {coach resource} other {coach resources}}",
+  "CoachContentLabel.topicTitle": "Tó wà nínú rẹ̀. {count, number, integer} {count, plural, one {Èròjà iṣẹ́ olùkọ́} other {awon Èròjà iṣẹ́ olùkọ́}}",
   "ContentIcon.audio": "Ohùn",
   "ContentIcon.channel": "Ìkànnì",
   "ContentIcon.document": "Àwọn àkọsílẹ̀",

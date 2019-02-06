@@ -30,16 +30,13 @@
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
+{% kolibri_sentry_error_reporting %}
 {% kolibri_language_globals %}
 {% kolibri_content_cache_key %}
+{% kolibri_set_urls %}
 {% webpack_asset 'default_frontend' %}
 {% kolibri_set_server_time %}
 {% kolibri_navigation_actions %}
-<script type="text/javascript">
-  {% cache 5000 js_urls %}
-    {% kolibri_set_urls %}
-  {% endcache %}
-</script>
 <!-- Bootstrapping the currently logged in user's session object into the page. -->
 {% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
 {% webpack_base_assets %}

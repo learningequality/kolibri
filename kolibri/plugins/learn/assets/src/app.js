@@ -1,3 +1,4 @@
+import router from 'kolibri.coreVue.router';
 import RootVue from './views/LearnIndex';
 import routes from './routes';
 import { setFacilitiesAndConfig, prepareLearnApp } from './modules/coreLearn/actions';
@@ -20,7 +21,7 @@ class LearnModule extends KolibriApp {
   ready() {
     // after every navigation, block double-clicks
     return super.ready().then(() => {
-      this.routerInstance.afterEach((toRoute, fromRoute) => {
+      router.afterEach((toRoute, fromRoute) => {
         this.store.dispatch('blockDoubleClicks');
         this.store.dispatch('resetModuleState', { toRoute, fromRoute });
       });

@@ -1,0 +1,85 @@
+<template>
+
+  <Block
+    :title="$tr('classActivity')"
+    :allLinkText="$tr('viewAll')"
+    :allLinkRoute="$router.getRoute('HomeActivityPage')"
+  >
+    <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
+    <transition-group name="list">
+      <BlockItem
+        v-for="notification in notifications"
+        :key="notification.groupCode + '_' + notification.lastId"
+        v-bind="cardPropsForNotification(notification)"
+      >
+        <NotificationCard>
+          {{ cardTextForNotification(notification) }}
+        </NotificationCard>
+      </BlockItem>
+    </transition-group>
+    <div v-if="notifications.length === 0">
+      {{ $tr('noActivity') }}
+    </div>
+  </Block>
+
+</template>
+
+
+<script>
+
+  import { mapGetters } from 'vuex';
+  import orderBy from 'lodash/orderBy';
+  import commonCoach from '../../common';
+  import NotificationCard from '../../common/notifications/NotificationCard';
+  import { nStringsMixin } from '../../common/notifications/notificationStrings';
+  import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
+  import Block from './Block';
+  import BlockItem from './BlockItem';
+
+  export default {
+    name: 'ActivityBlock',
+    components: {
+      NotificationCard,
+      Block,
+      BlockItem,
+    },
+    mixins: [nStringsMixin, commonCoach],
+    computed: {
+      ...mapGetters('coachNotifications', ['summarizedNotifications']),
+      notifications() {
+        return orderBy(this.summarizedNotifications, 'lastId', ['desc']);
+      },
+    },
+    methods: {
+      cardPropsForNotification(notification) {
+        const { collection } = notification;
+        const learnerContext =
+          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
+        return {
+          eventType: notification.event,
+          objectType: notification.object,
+          resourceType: notification.resource.type,
+          targetPage: notificationLink(notification),
+          contentContext: notification.assignment.name,
+          learnerContext,
+        };
+      },
+    },
+    $trs: {
+      classActivity: 'Class activity',
+      recentActivity: 'Recent activity',
+      recentClassActivity: 'Recent Class activity',
+      noActivity: 'No activity in your class',
+      viewAll: 'View all',
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  @import '../../common/list-transition';
+
+</style>

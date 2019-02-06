@@ -35,7 +35,6 @@
           color="clear"
           class="user-menu-button"
           :ariaLabel="$tr('userMenu')"
-          :style="{ backgroundColor: $coreActionNormal }"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
           <mat-svg
@@ -43,7 +42,7 @@
             name="person"
             category="social"
           />
-          <template v-if="isUserLoggedIn">{{ username }}</template>
+          <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
           <mat-svg name="arrow_drop_down" category="navigation" />
         </UiButton>
 
@@ -106,7 +105,7 @@
   import { mapGetters, mapState, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -195,10 +194,15 @@
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
-    background-color: white;
     svg {
       fill: white;
     }
+  }
+
+  .username {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .user-menu-dropdown {

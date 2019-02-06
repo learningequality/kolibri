@@ -12,10 +12,10 @@
   >
     <FacilityTopNav slot="sub-nav" />
 
-    <div class="facility-management">
+    <KPageContainer>
       <!-- QUESTION should we explicitly define this in every page? -->
       <component :is="currentPage" />
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 
@@ -26,6 +26,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -59,6 +60,7 @@
     components: {
       CoreBase,
       FacilityTopNav,
+      KPageContainer,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),

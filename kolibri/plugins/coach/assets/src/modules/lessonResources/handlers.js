@@ -10,7 +10,7 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 function showResourceSelectionPage(store, params) {
-  const { classId, lessonId, contentList, pageName, ancestors = [] } = params;
+  const { lessonId, contentList, pageName, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const lessonSummaryState = {
@@ -27,10 +27,7 @@ function showResourceSelectionPage(store, params) {
       ancestors: [],
     });
 
-    const loadRequirements = [
-      store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
-      store.dispatch('setClassState', classId),
-    ];
+    const loadRequirements = [store.dispatch('lessonSummary/updateCurrentLesson', lessonId)];
     return Promise.all(loadRequirements).then(
       ([currentLesson]) => {
         // TODO make a state mapper
@@ -58,35 +55,51 @@ function showResourceSelectionPage(store, params) {
           );
         }
 
+        // store ancestor ids to get their descendants later
+        const ancestorIds = new Set();
+
         return Promise.all(getResourceAncestors).then(
           // there has to be a better way
           resourceAncestors => {
             resourceAncestors.forEach(ancestorArray =>
               ancestorArray.forEach(ancestor => {
+                ancestorIds.add(ancestor.id);
                 if (ancestorCounts[ancestor.id]) {
-                  ancestorCounts[ancestor.id]++;
+                  ancestorCounts[ancestor.id].count++;
                 } else {
-                  ancestorCounts[ancestor.id] = 1;
+                  ancestorCounts[ancestor.id] = {};
+                  // total number of working/added resources
+                  ancestorCounts[ancestor.id].count = 1;
+                  // total number of descendants
+                  ancestorCounts[ancestor.id].total = 0;
                 }
               })
             );
-            store.commit('lessonSummary/resources/SET_ANCESTOR_COUNTS', ancestorCounts);
-            // carry pendingSelections over from other interactions in this modal
-            store.commit('lessonSummary/resources/SET_CONTENT_LIST', contentList);
-            if (params.searchResults) {
-              store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
-            }
-            store.commit('SET_PAGE_NAME', pageName);
-            if (pageName === LessonsPageNames.SELECTION_SEARCH) {
-              store.commit('SET_TOOLBAR_ROUTE', {
-                name: LessonsPageNames.SELECTION_ROOT,
+            ContentNodeResource.fetchDescendants(Array.from(ancestorIds)).then(nodes => {
+              nodes.entity.forEach(node => {
+                // exclude topics from total resource calculation
+                if (node.kind !== ContentNodeKinds.TOPIC) {
+                  ancestorCounts[node.ancestor_id].total++;
+                }
               });
-            } else {
-              store.commit('SET_TOOLBAR_ROUTE', {
-                name: LessonsPageNames.SUMMARY,
-              });
-            }
-            store.dispatch('notLoading');
+              store.commit('lessonSummary/resources/SET_ANCESTOR_COUNTS', ancestorCounts);
+              // carry pendingSelections over from other interactions in this modal
+              store.commit('lessonSummary/resources/SET_CONTENT_LIST', contentList);
+              if (params.searchResults) {
+                store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
+              }
+              store.commit('SET_PAGE_NAME', pageName);
+              if (pageName === LessonsPageNames.SELECTION_SEARCH) {
+                store.commit('SET_TOOLBAR_ROUTE', {
+                  name: LessonsPageNames.SELECTION_ROOT,
+                });
+              } else {
+                store.commit('SET_TOOLBAR_ROUTE', {
+                  name: LessonsPageNames.SUMMARY,
+                });
+              }
+              store.dispatch('notLoading');
+            });
           }
         );
       },

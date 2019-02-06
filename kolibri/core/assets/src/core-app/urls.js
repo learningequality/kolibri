@@ -6,8 +6,9 @@
 import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 
 const urls = {
-  __setStaticURL(staticUrl) {
-    this.__staticURL = staticUrl;
+  setUp() {
+    Object.assign(this, global.kolibriUrls);
+    this.__staticURL = global.staticUrl;
     setWebpackPublicPath(this);
   },
   static(url) {

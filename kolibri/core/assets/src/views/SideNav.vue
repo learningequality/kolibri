@@ -100,7 +100,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import KButton from 'kolibri.coreVue.components.KButton';
   import navComponents from 'kolibri.utils.navComponents';
@@ -194,7 +194,7 @@
           if (isShown) {
             window.addEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement = document.activeElement;
-            this.$refs.toggleButton.$el.focus();
+            this.$refs.sideNav.focus();
           } else {
             window.removeEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement.focus();
@@ -244,22 +244,17 @@
 
   @import '~kolibri.styles.definitions';
 
-  // matches angular material's spec
-  $side-nav-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-    0 1px 10px 0 rgba(0, 0, 0, 0.12);
-
   .side-nav-wrapper {
     overflow-x: hidden;
   }
 
   .side-nav {
-    @extend %ui-toolbar-box-shadow;
+    @extend %dropshadow-16dp;
 
     position: fixed;
     top: 0;
     bottom: 0;
     z-index: 16;
-    box-shadow: $side-nav-box-shadow;
   }
 
   .side-nav-enter {

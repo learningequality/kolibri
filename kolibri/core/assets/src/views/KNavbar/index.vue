@@ -65,7 +65,7 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreActionNormal', '$coreOutline']),
+      ...mapGetters(['$coreActionNormal', '$coreOutlineAnyModality']),
       maxWidth() {
         return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
       },
@@ -76,9 +76,7 @@
       },
       scrollButton() {
         return {
-          ':hover': {
-            outline: this.$coreOutline,
-          },
+          ':hover': this.$coreOutlineAnyModality,
         };
       },
     },

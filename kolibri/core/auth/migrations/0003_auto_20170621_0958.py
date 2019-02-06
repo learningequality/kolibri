@@ -8,7 +8,7 @@ from django.db import migrations
 from django.db import OperationalError
 
 import kolibri.core.fields
-import kolibri.utils.time
+import kolibri.utils.time_utils
 
 
 def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
@@ -34,13 +34,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='deviceowner',
             name='date_joined',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time.local_now, editable=False, verbose_name='date joined'),
+            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now, editable=False, verbose_name='date joined'),
         ),
         migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="DeviceOwner")),
         migrations.AlterField(
             model_name='facilityuser',
             name='date_joined',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time.local_now, editable=False, verbose_name='date joined'),
+            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now, editable=False, verbose_name='date joined'),
         ),
         migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="FacilityUser")),
     ]

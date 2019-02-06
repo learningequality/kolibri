@@ -3,7 +3,7 @@ import { ExamResource, ExamLogResource, FacilityUserResource } from 'kolibri.res
 import { createTranslator } from 'kolibri.utils.i18n';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
-import { createExam, examState } from '../shared/exams';
+import { createExam, examState } from '../examShared/exams';
 
 export function setExamsModal(store, modalName) {
   store.commit('SET_EXAMS_MODAL', modalName);
@@ -48,25 +48,28 @@ export function deactivateExam(store, examId) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  createExam(store, exam).then(
-    () => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.dispatch('setExamsModal', false);
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: snackbarTranslator.$tr('copiedExamToClass', { className }),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
-    },
-    error => store.dispatch('handleApiError', error, { root: true })
-  );
+  return new Promise(resolve => {
+    createExam(store, exam).then(
+      newExam => {
+        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+        store.dispatch('setExamsModal', false);
+        store.dispatch(
+          'createSnackbar',
+          {
+            text: snackbarTranslator.$tr('copiedExamToClass', { className }),
+            autoDismiss: true,
+          },
+          { root: true }
+        );
+        store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
+        resolve(newExam);
+      },
+      error => store.dispatch('handleApiError', error, { root: true })
+    );
+  });
 }
 
 export function updateExamDetails(store, { examId, payload }) {
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
   return new Promise((resolve, reject) => {
     ExamResource.saveModel({
       id: examId,
@@ -92,11 +95,9 @@ export function updateExamDetails(store, { examId, payload }) {
           },
           { root: true }
         );
-        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
         resolve();
       },
       error => {
-        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
         reject(error);
       }
     );

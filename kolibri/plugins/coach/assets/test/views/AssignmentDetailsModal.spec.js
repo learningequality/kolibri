@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
-import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
+import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
   initialDescription: '',
@@ -36,6 +36,7 @@ describe('AssignmentDetailsModal', () => {
       propsData: { ...defaultProps },
     });
     const expected = {
+      active: false,
       title: 'Lesson 1',
       description: 'The first lesson',
       assignments: [],
@@ -76,6 +77,7 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       const expected = {
+        active: false,
         title: 'Old Lesson V2',
         description: props.initialDescription,
         assignments: [],
@@ -90,6 +92,7 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       const expected = {
+        active: false,
         title: props.initialTitle,
         description: 'Its da remix',
         assignments: [],

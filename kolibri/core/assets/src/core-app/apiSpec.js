@@ -14,7 +14,6 @@
 
 import vuex from 'vuex';
 import UiAlert from 'keen-ui/src/UiAlert';
-import shuffle from 'knuth-shuffle-seeded';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
 import logging from '../logging';
@@ -79,9 +78,14 @@ import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
+import KDraggable from '../views/kSortable/KDraggable';
+import KDragHandle from '../views/kSortable/KDragHandle';
+import KDragContainer from '../views/kSortable/KDragContainer';
+import KDragSortWidget from '../views/kSortable/KDragSortWidget';
+import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
+import KPageContainer from '../views/KPageContainer';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
@@ -95,7 +99,9 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import UiIconButton from '../views/KeenUiIconButton.vue';
 import * as colour from '../utils/colour';
+import shuffled from '../utils/shuffled';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
@@ -109,7 +115,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    shuffle,
     tetherDrop,
     tetherTooltip,
   },
@@ -167,10 +172,17 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      UiIconButton,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
       KTooltip,
+      KDraggable,
+      KDragHandle,
+      KDragContainer,
+      KDragSortWidget,
+      KEmptyPlaceholder,
+      KPageContainer,
     },
     router,
     mixins: {
@@ -183,7 +195,6 @@ export default {
   styles: {
     definitions,
     keenVars,
-    buttonAndLinkStyles,
   },
   urls,
   utils: {
@@ -198,5 +209,6 @@ export default {
     samePageCheckGenerator,
     CatchErrors,
     UserType,
+    shuffled,
   },
 };

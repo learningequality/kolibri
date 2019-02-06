@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'kolibri.core.auth.apps.KolibriAuthConfig',
     'kolibri.core.content',
     'kolibri.core.logger',
+    'kolibri.core.notifications.apps.KolibriNotificationsConfig',
     'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
@@ -151,8 +152,17 @@ if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
             'OPTIONS': {
                 'timeout': 100,
             }
+        },
+        'notifications_db': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(conf.KOLIBRI_HOME, 'notifications.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
     }
+    DATABASE_ROUTERS = ('kolibri.core.notifications.models.NotificationsRouter', )
+
 elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
     DATABASES = {
         'default': {
@@ -372,8 +382,6 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
-
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True
@@ -394,3 +402,16 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+
+if conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN']:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN'],
+        integrations=[DjangoIntegration()],
+        release=kolibri.__version__,
+    )
+
+    print("Sentry backend error logging is enabled")

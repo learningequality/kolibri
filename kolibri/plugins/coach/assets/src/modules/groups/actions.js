@@ -30,6 +30,9 @@ export function createGroup(store, { groupName, classId }) {
       store.commit('SET_GROUPS', groups);
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
       store.commit('SET_GROUP_MODAL', '');
+      // We have updated the groups, so update the classSummary
+      // to get that back up to date!
+      return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     },
     error => store.dispatch('handleError', error, { root: true })
   );
@@ -139,19 +142,6 @@ export function addUsersToGroup(store, { groupId, userIds }) {
 export function removeUsersFromGroup(store, { groupId, userIds }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
   return _removeMultipleUsersFromGroup(store, groupId, userIds)
-    .catch(error => store.dispatch('handleError', error, { root: true }))
-    .finally(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
-    });
-}
-
-export function moveUsersBetweenGroups(store, { currentGroupId, newGroupId, userIds }) {
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  return _removeMultipleUsersFromGroup(store, currentGroupId, userIds)
-    .then(() => {
-      return _addMultipleUsersToGroup(store, newGroupId, userIds);
-    })
     .catch(error => store.dispatch('handleError', error, { root: true }))
     .finally(() => {
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });

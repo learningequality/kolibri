@@ -88,7 +88,8 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'classId', 'reportRefreshInterval']),
+      ...mapState(['pageName', 'reportRefreshInterval']),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapGetters(['$coreBgLight']),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',

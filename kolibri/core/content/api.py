@@ -105,9 +105,7 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all() \
-            .order_by('-last_updated') \
-            .select_related('root__lang')
+        return models.ChannelMetadata.objects.all().select_related('root__lang')
 
 
 class IdFilter(FilterSet):
@@ -267,7 +265,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
             def copy_node(new_node):
                 new_node['ancestor_id'] = node.id
                 return new_node
-            node_data = node.get_descendants()
+            node_data = node.get_descendants().filter(available=True)
             if kind:
                 node_data = node_data.filter(kind=kind)
             data += map(copy_node, node_data.values('id', 'title', 'kind', 'content_id'))
@@ -294,7 +292,7 @@ class ContentNodeViewset(viewsets.ReadOnlyModelViewSet):
         ids = self.request.query_params.get('ids', '').split(',')
         data = 0
         if ids and ids[0]:
-            nodes = models.ContentNode.objects.filter(id__in=ids).prefetch_related('assessmentmetadata')
+            nodes = models.ContentNode.objects.filter(id__in=ids, available=True).prefetch_related('assessmentmetadata')
             data = nodes.aggregate(Sum('assessmentmetadata__number_of_assessments'))['assessmentmetadata__number_of_assessments__sum'] or 0
         return Response(data)
 
@@ -447,11 +445,12 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 completed_content_nodes = queryset.filter(content_id__in=completed_content_ids).order_by()
 
                 # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(
-                    user=user).values_list('content_id', flat=True)).filter(
-                    Q(has_prerequisite__in=completed_content_nodes) |
-                    Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
+                queryset = queryset.exclude(content_id__in=ContentSummaryLog.objects.filter(user=user).values_list('content_id', flat=True)).filter(
+                    Q(has_prerequisite__in=completed_content_nodes)
+                    | Q(lft__in=[rght + 1 for rght in completed_content_nodes.values_list('rght', flat=True)])
                 ).order_by()
+                if not (user.roles.exists() or user.is_superuser):  # must have coach role or higher
+                    queryset = queryset.exclude(coach_content=True)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -464,9 +463,16 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         :param request: request object
         :return: 10 most popular content nodes
         """
-        queryset = self.get_queryset(prefetch=True)
-
         cache_key = 'popular_content'
+        coach_content = False
+
+        user = request.user
+        if user.is_facility_user:  # exclude anon users
+            if user.roles.exists() or user.is_superuser:  # must have coach role or higher
+                cache_key = 'popular_content_coach'
+                coach_content = True
+
+        queryset = self.get_queryset(prefetch=True)
 
         if not cache.get(cache_key):
             if ContentSessionLog.objects.count() < 50:
@@ -476,11 +482,16 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 count_cache_key = 'content_count_for_popular'
                 count = cache.get(count_cache_key) or min(pks.count(), 25)
                 queryset = queryset.filter(pk__in=sample(list(pks), count))
+                if not coach_content:
+                    queryset = queryset.exclude(coach_content=True)
             else:
                 # get the most accessed content nodes
                 # search for content nodes that currently exist in the database
+                content_nodes = models.ContentNode.objects.filter(available=True)
+                if not coach_content:
+                    content_nodes = content_nodes.exclude(coach_content=True)
                 content_counts_sorted = ContentSessionLog.objects \
-                    .filter(content_id__in=models.ContentNode.objects.values_list('content_id', flat=True).distinct()) \
+                    .filter(content_id__in=content_nodes.values_list('content_id', flat=True).distinct()) \
                     .values_list('content_id', flat=True) \
                     .annotate(Count('content_id')) \
                     .order_by('-content_id__count')
@@ -770,6 +781,13 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
+
+    @detail_route(methods=['get'])
+    def retrieve_list(self, request, pk=None):
+        baseurl = request.GET.get("baseurl", None)
+        keyword = request.GET.get("keyword", None)
+        language = request.GET.get("language", None)
+        return self._make_channel_endpoint_request(identifier=pk, baseurl=baseurl, keyword=keyword, language=language)
 
 
 class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):

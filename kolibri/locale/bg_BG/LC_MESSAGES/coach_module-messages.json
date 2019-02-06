@@ -589,7 +589,7 @@
   "MasteryModel.mOfN": "Отговори правилно на {M, number, integer} от последните {N, number, integer} въпроса",
   "MasteryModel.one": "Отговори правилно на един въпрос",
   "MasteryModel.streak": "Отговори правилно на {count, number, integer} поредни въпроса",
-  "MasteryModel.unknown": "",
+  "MasteryModel.unknown": "Неизвестен модел за майсторство",
   "MoveLearnersModal.cancel": "Отказ",
   "MoveLearnersModal.move": "Премести",
   "MoveLearnersModal.moveLearnerCount": "Премести {count, number, integer} {count, plural, one {ученик} other {ученици}} към",

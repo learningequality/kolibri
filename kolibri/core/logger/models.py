@@ -33,7 +33,7 @@ from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.content.models import UUIDField
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 
 class BaseLogQuerySet(SyncableModelQuerySet):
@@ -293,7 +293,6 @@ class ExamAttemptLog(BaseAttemptLog):
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here
     content_id = UUIDField()
-    channel_id = UUIDField()
 
     def infer_dataset(self, *args, **kwargs):
         return self.examlog.dataset_id

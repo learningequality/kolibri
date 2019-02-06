@@ -19,10 +19,6 @@ export default class KolibriApp extends KolibriModule {
     return [];
   }
 
-  get routerInstance() {
-    return router.getInstance();
-  }
-
   /*
    * @return {Object} A component definition for the root component of this single page app.
    */
@@ -74,22 +70,27 @@ export default class KolibriApp extends KolibriModule {
       store.registerModule(name, module);
     });
 
+    // enable handlers for all routes
+    router.enableHandlers();
+
     return this.store.dispatch('getCurrentSession').then(() => {
-      return Promise.all([
-        // Invoke each of the state setters before initializing the app.
-        ...this.stateSetters.map(setter => setter(this.store)),
-      ]).then(() => {
-        heartbeat.start();
-        this.rootvue = new Vue(
-          Object.assign(
-            {
-              el: 'rootvue',
-              store: store,
-              router: router.init(this.routes),
-            },
-            this.RootVue
-          )
-        );
+      return this.store.dispatch('getNotifications').then(() => {
+        return Promise.all([
+          // Invoke each of the state setters before initializing the app.
+          ...this.stateSetters.map(setter => setter(this.store)),
+        ]).then(() => {
+          heartbeat.start();
+          this.rootvue = new Vue(
+            Object.assign(
+              {
+                el: 'rootvue',
+                store: store,
+                router: router.init(this.routes),
+              },
+              this.RootVue
+            )
+          );
+        });
       });
     });
   }

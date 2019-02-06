@@ -401,11 +401,11 @@ describe('showPage actions for coach exams section', () => {
     it('store is properly set up when there are no problems', async () => {
       ClassroomResource.__getCollectionFetchReturns(fakeItems);
       ExamResource.__getCollectionFetchReturns(fakeExams);
+      ExamResource.__getCollectionFetchReturns(fakeExams);
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
       await showExamsPage(store, classId)._promise;
-      expect(ClassroomResource.getCollection).toHaveBeenCalled();
       expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
       expect(store.state.examsRoot).toMatchObject({
         exams: fakeExamState,

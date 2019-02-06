@@ -5,7 +5,7 @@
 
       <thead slot="thead">
         <tr>
-          <th v-if="selectable" class="core-table-icon-col">
+          <th v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
               :label="selectAllLabel"
               :showLabel="false"
@@ -29,12 +29,12 @@
         </tr>
       </thead>
 
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr
           v-for="user in users"
           :key="user.id"
         >
-          <td v-if="selectable" class="core-table-icon-col">
+          <td v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
               :label="userCheckboxLabel"
               :showLabel="false"
@@ -49,7 +49,7 @@
             </UiIcon>
           </td>
           <td>
-            <span dir="auto">
+            <span dir="auto" class="maxwidth">
               {{ user.full_name }}
             </span>
             <UserTypeDisplay
@@ -66,12 +66,12 @@
           <td class="visuallyhidden">
             {{ user.kind }}
           </td>
-          <td>{{ user.username }}</td>
+          <td><span class="maxwidth">{{ user.username }}</span></td>
           <td v-if="$scopedSlots.action" class="user-action-button">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p
@@ -191,7 +191,15 @@
     margin-left: 8px;
     font-size: small;
     white-space: nowrap;
+    vertical-align: top;
     border-radius: 0.5em;
+  }
+
+  .maxwidth {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>
