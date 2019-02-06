@@ -3,6 +3,8 @@ require('array-includes').shim();
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
 require('core-js');
+// polyfill for Promise finally
+require('promise.prototype.finally').shim();
 
 // Do this before any async imports to ensure that public paths
 // are set correctly
