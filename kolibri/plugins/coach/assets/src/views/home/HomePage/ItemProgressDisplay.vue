@@ -41,6 +41,7 @@
 
 <script>
 
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import { mapGetters } from 'vuex';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
@@ -71,6 +72,7 @@
       to: {
         type: Object,
         required: false,
+        validators: validateLinkObject,
       },
     },
     computed: {
