@@ -7,8 +7,6 @@ export default {
   state: {
     currentClassroomId: null,
     notifications: [],
-    lastPolled: null,
-    poller: null,
   },
   mutations: {
     SET_NOTIFICATIONS(state, notifications) {
@@ -17,29 +15,12 @@ export default {
     APPEND_NOTIFICATIONS(state, notifications) {
       state.notifications = [...notifications, ...state.notifications];
     },
-    SET_POLLER(state, poller) {
-      state.poller = poller;
-    },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
     },
   },
   getters: {
     summarizedNotifications,
-    notificationsByUserId(state) {
-      return function byUserId(userId) {
-        return state.notifications.filter(notification => notification.user_id === userId);
-      };
-    },
-    notificationsByLearnerGroupId(state, getters, rootState, rootGetters) {
-      return function byLearnerGroupId(groupId) {
-        const groupMembers =
-          rootGetters['classSummary/notificationModuleData'].learnerGroups[groupId].member_ids;
-        return state.notifications.filter(notification =>
-          groupMembers.includes(notification.user_id)
-        );
-      };
-    },
     maxNotificationIndex(state) {
       if (state.notifications.length > 0) {
         // IDs are being converted to strings for some reason
@@ -91,11 +72,6 @@ export default {
           after: store.getters.maxNotificationIndex,
         });
       }, timeout);
-    },
-    stopPollingAndClear(store) {
-      clearInterval(store.state.poller);
-      store.commit('SET_NOTIFICATIONS', null);
-      store.commit('SET_POLLER', null);
     },
   },
 };

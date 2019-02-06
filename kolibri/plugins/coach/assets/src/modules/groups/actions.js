@@ -145,16 +145,3 @@ export function removeUsersFromGroup(store, { groupId, userIds }) {
       store.commit('SET_GROUP_MODAL', '');
     });
 }
-
-export function moveUsersBetweenGroups(store, { currentGroupId, newGroupId, userIds }) {
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  return _removeMultipleUsersFromGroup(store, currentGroupId, userIds)
-    .then(() => {
-      return _addMultipleUsersToGroup(store, newGroupId, userIds);
-    })
-    .catch(error => store.dispatch('handleError', error, { root: true }))
-    .finally(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
-    });
-}
