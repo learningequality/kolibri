@@ -134,7 +134,11 @@ export default {
       if (!lessonId || !learnerId) {
         throw new Error('getLessonStatusStringForLearner: invalid parameter(s)');
       }
-      return get(getters.lessonLearnerStatusMap, [lessonId, learnerId], STATUSES.notStarted);
+      return get(
+        getters.lessonLearnerStatusMap,
+        [lessonId, learnerId, 'status'],
+        STATUSES.notStarted
+      );
     };
   },
   /*

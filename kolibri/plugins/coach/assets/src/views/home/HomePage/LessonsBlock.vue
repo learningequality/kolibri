@@ -71,9 +71,9 @@
         if (!this.lessonLearnerStatusMap[lesson.id]) {
           return undefined;
         }
-        Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(status => {
-          if (status.last_activity > last) {
-            last = status.last_activity;
+        Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(learner => {
+          if (learner.last_activity > last) {
+            last = learner.last_activity;
           }
         });
         return last;
@@ -85,4 +85,3 @@
 
 
 <style lang="scss" scoped></style>
-
