@@ -663,8 +663,7 @@ def main(args=None):  # noqa: max-complexity=13
 
     if arguments['start']:
         try:
-            with open(server.STARTUP_LOCK, 'w') as f:
-                f.write("%d\n%d" % (os.getpid(), port))
+            server._write_pid_file(server.STARTUP_LOCK, port)
         except (IOError, OSError):
             logger.warn('Impossible to create file lock to communicate starting process')
         # Check if the content directory exists when Kolibri runs after the first time.
