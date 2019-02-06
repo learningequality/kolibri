@@ -133,7 +133,7 @@
             : darken(this.$coreTextDefault, '25%'),
         };
         return {
-          backgroundColor: this.primary ? this.coreActionNormal : this.$coreTextDefault,
+          backgroundColor: this.primary ? this.$coreActionNormal : this.$coreTextDefault,
           ':hover': hoverAndFocus,
         };
       },
