@@ -14,6 +14,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.key })"
       />
     </BlockItem>
   </Block>
