@@ -67,9 +67,10 @@
     methods: {
       // return the last activity among all users for a particular lesson
       lastActivity(lesson) {
-        let last = null;
+        // Default to UNIX 0 so activity-less lessons go to the end of the list
+        let last = new Date(0);
         if (!this.lessonLearnerStatusMap[lesson.id]) {
-          return undefined;
+          return last;
         }
         Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(learner => {
           if (learner.last_activity > last) {
