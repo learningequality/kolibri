@@ -3,7 +3,7 @@
   <KPageContainer>
     <p>
       <BackLink
-        v-if="multipleClasses"
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -42,7 +42,7 @@
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
     computed: {
-      ...mapGetters(['multipleClasses']),
+      ...mapGetters(['classListPageEnabled']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },

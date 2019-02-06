@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        v-if="multipleClasses"
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -40,7 +40,7 @@
     components: {},
     mixins: [commonCoach],
     computed: {
-      ...mapGetters(['multipleClasses']),
+      ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
         return LessonsPageNames;
       },

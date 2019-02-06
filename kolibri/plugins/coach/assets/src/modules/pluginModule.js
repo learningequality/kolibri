@@ -41,7 +41,7 @@ export default {
     },
   },
   getters: {
-    multipleClasses(state) {
+    classListPageEnabled(state) {
       return state.classList.length > 1;
     },
   },
