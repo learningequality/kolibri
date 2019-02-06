@@ -71,7 +71,7 @@
           return last;
         }
         Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
-          if (status.last_activity >= last) {
+          if (status.last_activity > last) {
             last = status.last_activity;
           }
         });

@@ -109,9 +109,13 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
       return { status: STATUSES.notStarted };
     }
     const content_id = state.contentNodeMap[node_id].content_id;
-    return get(state.contentLearnerStatusMap, [content_id, learnerId], {
-      status: STATUSES.notStarted,
-    });
+    return {
+      status: get(
+        state.contentLearnerStatusMap,
+        [content_id, learnerId, 'status'],
+        STATUSES.notStarted
+      ),
+    };
   });
 
   const tally = {
@@ -237,7 +241,26 @@ export default {
       Object.values(state.lessonMap).forEach(lesson => {
         map[lesson.id] = {};
         Object.values(state.learnerMap).forEach(learner => {
-          map[lesson.id][learner.id] = _lessonStatusForLearner(state, lesson.id, learner.id);
+          let last = null;
+          // for all content items this learner has interacted with
+          // determine the latest interaction activity
+          Object.values(lesson.node_ids).forEach(node_id => {
+            const content_id = get(state.contentNodeMap, [node_id, 'content_id'], null);
+            const last_activity = get(
+              state.contentLearnerStatusMap,
+              [content_id, learner.id, 'last_activity'],
+              null
+            );
+            if (last_activity > last) {
+              last = last_activity;
+            }
+          });
+          map[lesson.id][learner.id] = {
+            lesson_id: lesson.id,
+            learner_id: learner.id,
+            status: _lessonStatusForLearner(state, lesson.id, learner.id),
+            last_activity: last,
+          };
         });
       });
       return map;
