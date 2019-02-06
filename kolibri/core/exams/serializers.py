@@ -3,6 +3,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.exams.models import Exam
@@ -86,6 +87,21 @@ class ExamSerializer(serializers.ModelSerializer):
             'learners_see_fixed_order'
         )
         read_only_fields = ('data_model_version',)
+
+    def validate(self, attrs):
+        title = attrs.get('title')
+        # first condition is for creating object, second is for updating
+        collection = attrs.get('collection') or getattr(self.instance, 'collection')
+        # if obj doesn't exist, return data
+        try:
+            obj = Exam.objects.get(title__iexact=title, collection=collection)
+        except Exam.DoesNotExist:
+            return attrs
+        # if we are updating object, and this `instance` is the same object, return data
+        if self.instance and obj.id == self.instance.id:
+            return attrs
+        else:
+            raise serializers.ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
 
     def validate_question_sources(self, value):
         for question in value:

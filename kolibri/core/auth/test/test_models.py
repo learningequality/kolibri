@@ -411,7 +411,7 @@ class FacilityTestCase(TestCase):
 
 class FacilityUserTestCase(TestCase):
 
-    def test_able_to_create_user_with_same_username(self):
+    def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
         FacilityUser.objects.create(username='bob', facility=self.facility)

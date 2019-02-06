@@ -43,8 +43,8 @@ export function createLesson(store, { classId, payload }) {
         );
         resolve();
       })
-      .catch(() => {
-        reject();
+      .catch(error => {
+        reject(error);
       });
   });
 }

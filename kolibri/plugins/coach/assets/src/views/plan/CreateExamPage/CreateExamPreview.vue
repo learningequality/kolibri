@@ -23,6 +23,7 @@
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
             :invalidText="titleIsInvalidText"
+            @input="showTitleError = false"
           />
         </KGridItem>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -202,6 +203,8 @@
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoach from '../../common';
   import QuizDetailEditor from '../../common/QuizDetailEditor';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
@@ -250,6 +253,7 @@
       return {
         currentQuestionIndex: 0,
         showError: false,
+        showTitleError: false,
       };
     },
     computed: {
@@ -335,6 +339,9 @@
         if (this.examTitle === '') {
           return createExamPageStrings.$tr('examRequiresTitle');
         }
+        if (this.showTitleError) {
+          return quizDetailStrings.$tr('duplicateTitle');
+        }
         return null;
       },
       numQuestIsInvalidText() {
@@ -402,7 +409,16 @@
           this.showError = true;
           this.$refs.title.focus();
         } else {
-          this.$store.dispatch('examCreation/createExamAndRoute', this.classId);
+          this.$store.dispatch('examCreation/createExamAndRoute', this.classId).catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.showError = true;
+              this.showTitleError = true;
+              this.$refs.title.focus();
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+          });
         }
       },
       listKey(question) {

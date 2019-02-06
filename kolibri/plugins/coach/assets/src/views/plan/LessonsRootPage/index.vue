@@ -81,6 +81,7 @@
         v-if="showModal"
         ref="detailsModal"
         :modalTitle="$tr('newLessonModalTitle')"
+        :modalTitleErrorMessage="lessonDetailEditorStrings.$tr('duplicateTitle')"
         :submitErrorMessage="$tr('saveLessonError')"
         :initialDescription="''"
         :showDescriptionField="true"
@@ -109,12 +110,21 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
+  import {
+    ContentNodeKinds,
+    CollectionKinds,
+    ERROR_CONSTANTS,
+  } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import StatusIcon from '../../plan/assignments/StatusIcon';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
+  import LessonDetailEditor from '../../common/LessonDetailEditor';
+
+  const lessonDetailEditorStrings = crossComponentTranslator(LessonDetailEditor);
 
   export default {
     name: 'LessonsRootPage',
@@ -155,6 +165,9 @@
       activeLessonCounts() {
         return countBy(this.lessons, 'is_active');
       },
+      lessonDetailEditorStrings() {
+        return lessonDetailEditorStrings;
+      },
     },
     beforeMount() {
       this.filterSelection = this.filterOptions[0];
@@ -193,7 +206,14 @@
           },
         })
           .then()
-          .catch(() => this.$refs.detailsModal.handleSubmitFailure());
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else {
+              this.$refs.detailsModal.handleSubmitFailure();
+            }
+          });
       },
     },
     $trs: {
