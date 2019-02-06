@@ -2,10 +2,10 @@ import { AttemptLogResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 export function setAttemptLogs(store, params) {
-  const { userId, exercise } = params;
+  const { learnerId, exercise } = params;
   return AttemptLogResource.fetchCollection({
     getParams: {
-      user: userId,
+      user: learnerId,
       content: exercise.content_id,
     },
     force: true,
