@@ -3,6 +3,7 @@
   <div>
     <p>
       <BackLink
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -30,6 +31,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
 
@@ -38,6 +40,7 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
         return LessonsPageNames;
       },

@@ -3,6 +3,7 @@
   <div>
     <p>
       <BackLink
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -35,12 +36,16 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsHeader',
     components: {},
     mixins: [commonCoach],
+    computed: {
+      ...mapGetters(['classListPageEnabled']),
+    },
     $trs: {
       back: 'All classes',
       description: 'View reports for your learners and class materials',

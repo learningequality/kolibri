@@ -30,6 +30,9 @@ export function createGroup(store, { groupName, classId }) {
       store.commit('SET_GROUPS', groups);
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
       store.commit('SET_GROUP_MODAL', '');
+      // We have updated the groups, so update the classSummary
+      // to get that back up to date!
+      return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     },
     error => store.dispatch('handleError', error, { root: true })
   );

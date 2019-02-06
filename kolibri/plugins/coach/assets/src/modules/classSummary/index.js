@@ -364,5 +364,8 @@ export default {
         store.commit('SET_STATE', summary);
       });
     },
+    refreshClassSummary(store) {
+      return store.dispatch('loadClassSummary', store.state.id);
+    },
   },
 };

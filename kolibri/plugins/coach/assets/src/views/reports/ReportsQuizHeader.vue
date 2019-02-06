@@ -31,7 +31,7 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('percentage', { value: avgScore }) }}</template>
+        <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>

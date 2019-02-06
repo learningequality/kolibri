@@ -25,9 +25,13 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
+                v-if="tableRow.statusObj.status !== STATUSES.notStarted"
                 :text="tableRow.name"
                 :to="detailLink(tableRow.id)"
               />
+              <template v-else>
+                {{ tableRow.name }}
+              </template>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

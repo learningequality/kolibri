@@ -30,7 +30,12 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink :text="tableRow.name" :to="link(tableRow.id)" />
+              <KRouterLink
+                v-if="tableRow.status.status !== STATUSES.notStarted"
+                :text="tableRow.name"
+                :to="link(tableRow.id)"
+              />
+              <template v-else>{{ tableRow.name }}</template>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

@@ -3,6 +3,7 @@
   <KPageContainer>
     <p>
       <BackLink
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -27,6 +28,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../../common';
 
   export default {
@@ -40,6 +42,7 @@
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
     computed: {
+      ...mapGetters(['classListPageEnabled']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },
