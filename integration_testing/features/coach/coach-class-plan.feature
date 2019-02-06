@@ -28,12 +28,12 @@ Feature: General navigation through plan tab
   Scenario: Navigating between subtabs inside *Coach > Plan*
     Given that I am in the *Coach > Plan > Lessons* tab
       And I see the list of lessons
-    When I click on the *Quizzes* subtab
-    Then the *Quizzes* subtab is the active tab
-      And I see the list of quizzes
-    When I click on the *Groups* subtab
-    Then the *Groups* subtab is the active tab
-      And I see the list of groups
+      When I click on the *Quizzes* subtab
+      Then the *Quizzes* subtab is the active tab
+        And I see the list of quizzes
+      When I click on the *Groups* subtab
+      Then the *Groups* subtab is the active tab
+        And I see the list of groups
 
   Scenario: Filter quizzes
     Given that I am in the *Coach > Plan > Quizzes* tab

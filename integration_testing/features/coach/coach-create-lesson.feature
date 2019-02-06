@@ -10,10 +10,22 @@ Feature: Coach creates lessons
     When I click *New lesson* button
     Then I see the *Create new lesson* modal
     When I fill in the title <title>
-     And I fill in the description <description>
+     And I fill in the description <description> # optional
       And I click *Continue* button
     Then the modal closes
-      And I see the <title> lesson under *Lessons* tab 
+      And I see the <title> lesson under *Lessons* tab
+
+  Scenario: Check validation for the title field
+    When I try to enter a title with more than 50 characters
+    Then I see that the name is cut at 50
+    When I input a same lesson title as for an already existing lesson
+    Then I see the error notification *A lesson with that title already exists* 
+    When I leave the title field empty
+      And I click *Continue*
+    Then I see the error notification *This field is required*
+
+  Scenario: Manage lesson resources
+    Given that I have created the lesson with name <title>
     When I click *Manage resources* button
     Then I am on the *Manage resources in '<title>'* page
       And I see the content channel <channel>

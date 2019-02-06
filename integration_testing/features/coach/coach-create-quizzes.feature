@@ -141,19 +141,13 @@ Feature: Coach creates quizzes
     When I select a specific channel from the channel filter dropdown
     Then I see the search results are filtered and present content only from the selected channel
 
-  Scenario: Filter only the coach content
+  Scenario: Filter coach content in and out
     Given I am on the search results page
       When I select *Coach* filter option
       Then I see the search results are filtered and present only content for coaches
-
-  Scenario: Filter only the non-coach content
-    Given I am on the search results page
       When I select *Non-coach* filter option
       Then I see the search results are filtered and exclude content for coaches
-
-  Scenario: Don't filter content by role visibility
-    Given I am on the search results page
-      When I select the *All* filter dropdown
+      When I select the *All* filter option
       Then I see the search results include both coach and non-coach content
 
   Scenario: View metadata on exercise cards in search results
@@ -196,11 +190,17 @@ Feature: Coach creates quizzes
     Then I see the modal is refreshed with reordered randomized question list
 
   Scenario: Check validation for the title field
-    Given I have not inputted an quiz title (yet)
-      When I click *Continue*
-      Then an input validation error appears
-      When I input a valid title into the field
-      Then I don't see the validation error anymore
+    When I try to enter a name with more than 100 characters
+    Then I see that the title is cut at 100
+    When I input a quiz title same as for an already existing quiz
+    Then I see the error notification *A quiz with that name already exists* 
+    When I leave the name field empty
+      And I click *Finish*
+    Then I see the error notification *This field is required*
+    When I input a valid title into the field
+      And I click *Finish*
+    Then I don't see the validation error anymore
+      And I see the quiz on the list at *Coach > Plan > Quizzes* tab 
 
   Scenario: Save quiz
     Given I am on *Create new quiz* page
