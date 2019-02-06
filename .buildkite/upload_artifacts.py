@@ -34,7 +34,6 @@ BUILD_ID = os.getenv("BUILDKITE_BUILD_NUMBER")
 TAG = os.getenv("BUILDKITE_TAG")
 COMMIT = os.getenv("BUILDKITE_COMMIT")
 
-
 RELEASE_DIR = 'release'
 PROJECT_PATH = os.path.join(os.getcwd())
 
@@ -55,9 +54,15 @@ file_manifest = {
         'category': INSTALLER_CAT,
         'content_type': 'application/vnd.debian.binary-package',
     },
-    'exe': {
+    'unsigned-exe': {
         'extension': 'exe',
-        'description': 'Windows Installer',
+        'description': 'Unsigned Windows installer',
+        'category': INSTALLER_CAT,
+        'content_type': 'application/x-ms-dos-executable',
+    },
+    'signed-exe': {
+        'extension': 'exe',
+        'description': 'Signed Windows installer',
         'category': INSTALLER_CAT,
         'content_type': 'application/x-ms-dos-executable',
     },
@@ -89,7 +94,8 @@ file_manifest = {
 
 file_order = [
     'deb',
-    'exe',
+    'unsigned-exe',
+    'signed-exe',
     # 'apk',
     'pex',
     'whl',
@@ -107,13 +113,14 @@ def create_status_report_html(artifacts):
     html = "<html>\n<body>\n<h1>Build Artifacts</h1>\n"
     current_heading = None
     for ext in file_order:
-        artifact = artifacts[ext]
-        if artifact['category'] != current_heading:
-            current_heading = artifact['category']
-            html += "<h2>{heading}</h2>\n".format(heading=current_heading)
-        html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
-            **artifact
-        )
+        if ext in artifacts:
+            artifact = artifacts[ext]
+            if artifact['category'] != current_heading:
+                current_heading = artifact['category']
+                html += "<h2>{heading}</h2>\n".format(heading=current_heading)
+            html += "<p>{description}: <a href='{media_url}'>{name}</a></p>\n".format(
+                **artifact
+            )
     html += "</body>\n</html>"
     return html
 
@@ -144,14 +151,26 @@ def collect_local_artifacts():
 
     artifacts_dict = {}
 
+    def create_exe_data(filename, data):
+        data_name = '-unsigned'
+        if "-signed" in filename:
+            data_name = "-signed"
+        data_name_exe = data_name[1:] + "-exe"
+        data.update(file_manifest[data_name_exe])
+        artifacts_dict[data_name_exe] = data
+
     def create_artifact_data(artifact_dir):
         for artifact in listdir(artifact_dir):
             filename, file_extension = os.path.splitext(artifact)
             # Remove leading '.'
+            # print("...>", artifact, "<......")
             file_extension = file_extension[1:]
+            data = {"name": artifact,
+                    "file_location": "%s/%s" % (artifact_dir, artifact)}
+            if file_extension == "exe":
+                create_exe_data(filename, data)
+
             if file_extension in file_manifest:
-                data = {"name": artifact,
-                        "file_location": "%s/%s" % (artifact_dir, artifact)}
                 data.update(file_manifest[file_extension])
                 logging.info("Collect file data: (%s)" % data)
                 artifacts_dict[file_extension] = data
@@ -180,7 +199,12 @@ def upload_artifacts():
 
     html = create_status_report_html(artifacts)
 
-    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, BUILD_ID))
+    # add count to report html to avoid duplicate.
+    report_count = BUILD_ID + "-first"
+    if 'signed-exe' in artifacts:
+        report_count = BUILD_ID + "-second"
+
+    blob = bucket.blob('kolibri-%s-%s-report.html' % (RELEASE_DIR, report_count))
 
     blob.upload_from_string(html, content_type='text/html')
 
@@ -203,20 +227,21 @@ def upload_artifacts():
             release = repository.release(id=release_id)
             logging.info("Uploading built assets to Github Release: %s" % release_name)
             for file_extension in file_order:
-                artifact = artifacts[file_extension]
-                logging.info("Uploading release asset: %s" % (artifact.get("name")))
-                # For some reason github3 does not let us set a label at initial upload
-                asset = release.upload_asset(
-                    content_type=artifact['content_type'],
-                    name=artifact['name'],
-                    asset=open(artifact['file_location'], 'rb')
-                )
-                if asset:
-                    # So do it after the initial upload instead
-                    asset.edit(artifact['name'], label=artifact['description'])
-                    logging.info("Successfully uploaded release asset: %s" % (artifact.get('name')))
-                else:
-                    logging.error("Error uploading release asset: %s" % (artifact.get('name')))
+                if file_extension in artifacts:
+                    artifact = artifacts[file_extension]
+                    logging.info("Uploading release asset: %s" % (artifact.get("name")))
+                    # For some reason github3 does not let us set a label at initial upload
+                    asset = release.upload_asset(
+                        content_type=artifact['content_type'],
+                        name=artifact['name'],
+                        asset=open(artifact['file_location'], 'rb')
+                    )
+                    if asset:
+                        # So do it after the initial upload instead
+                        asset.edit(artifact['name'], label=artifact['description'])
+                        logging.info("Successfully uploaded release asset: %s" % (artifact.get('name')))
+                    else:
+                        logging.error("Error uploading release asset: %s" % (artifact.get('name')))
 
 
 def main():

@@ -20,6 +20,14 @@ steps:
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh
 
+  - wait
+
+  - label: Cleaning up
+    command: make docker-clean
+
+  - wait
+
+  - block: "Sign Windows installer?"
   - label: Sign Windows installer
     command: .buildkite/sign_windows_installer.bat
     agents:
@@ -27,8 +35,8 @@ steps:
 
   - wait
 
-  - label: Cleaning up
-    command: make docker-clean
+  - label: Upload new artifacts
+    command: .buildkite/setup_and_upload_artifact.sh
 
   - block: "Create APK?"
   - label: Build the Android APK file
