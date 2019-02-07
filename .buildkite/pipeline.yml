@@ -25,6 +25,10 @@ steps:
     agents:
       queue: "windows-sign"
 
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
+
   - wait
 
   - label: Cleaning up
