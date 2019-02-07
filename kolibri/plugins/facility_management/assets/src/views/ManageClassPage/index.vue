@@ -20,8 +20,8 @@
       <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('className') }}</th>
+          <th></th>
+          <th>{{ $tr('className') }}</th>
           <th>{{ $tr('coachesColumnHeader') }}</th>
           <th>{{ $tr('learnersColumnHeader') }}</th>
           <th>{{ $tr('actions') }}</th>
@@ -32,12 +32,12 @@
           v-for="classroom in sortedClassrooms"
           :key="classroom.id"
         >
-          <td class="core-table-icon-col">
+          <td>
             <UiIcon>
               <mat-svg name="business" category="communication" />
             </UiIcon>
           </td>
-          <td class="core-table-main-col">
+          <td>
             <KRouterLink
               :text="classroom.name"
               :to="classEditLink(classroom.id)"

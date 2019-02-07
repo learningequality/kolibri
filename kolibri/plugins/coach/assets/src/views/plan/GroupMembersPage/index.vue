@@ -10,6 +10,12 @@
     :immersivePageRoute="$router.getRoute('GroupsPage')"
   >
     <KPageContainer>
+      <p>
+        <BackLink
+          :to="$router.getRoute('GroupsPage')"
+          :text="coachStrings.$tr('goBackAction')"
+        />
+      </p>
       <div v-if="!currentGroup">
         {{ $tr('groupDoesNotExist') }}
       </div>
@@ -40,7 +46,7 @@
         <CoreTable>
           <thead slot="thead">
             <tr>
-              <th class="core-table-main-col">
+              <th>
                 {{ $tr('fullName') }}
               </th>
               <th>
@@ -59,8 +65,11 @@
               v-for="user in currentGroup.users"
               :key="user.id"
             >
-              <td class="core-table-main-col">
-                {{ user.full_name }}
+              <td>
+                <KLabeledIcon>
+                  <KIcon slot="icon" person />
+                  {{ user.full_name }}
+                </KLabeledIcon>
               </td>
               <td>
                 {{ user.username }}
@@ -157,6 +166,7 @@
 <style lang="scss" scoped>
 
   .button-col {
+    padding: 0;
     text-align: right;
   }
 

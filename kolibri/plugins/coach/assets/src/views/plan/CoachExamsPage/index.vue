@@ -29,8 +29,7 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">{{ $tr('title') }}</th>
+            <th>{{ $tr('title') }}</th>
             <th>{{ $tr('assignedGroupsHeader') }}</th>
             <th>
               {{ $tr('status') }}
@@ -48,18 +47,17 @@
             v-for="exam in filteredExams"
             :key="exam.id"
           >
-            <td class="core-table-icon-col">
-              <ContentIcon :kind="examKind" />
-            </td>
-
-            <td class="core-table-main-col">
-              {{ exam.title }}
+            <td>
+              <KLabeledIcon>
+                <KIcon slot="icon" quiz />
+                {{ exam.title }}
+              </KLabeledIcon>
             </td>
 
             <td> {{ genRecipientsString(exam.groups) }} </td>
 
             <td>
-              <StatusIcon :active="exam.active" :type="examKind" />
+              <QuizActive :active="exam.active" />
             </td>
 
             <td class="options">
@@ -145,7 +143,8 @@
   import { ContentNodeKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import StatusIcon from '../../plan/assignments/StatusIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -153,6 +152,7 @@
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
+  import QuizActive from '../../common/QuizActive';
   import ExamReportPage from './ExamReportPage';
   import ManageExamModals from './ManageExamModals';
 
@@ -193,10 +193,12 @@
       KSelect,
       CoreInfoIcon,
       ContentIcon,
-      StatusIcon,
       AssignmentDetailsModal,
       AssignmentCopyModal,
       AssignmentDeleteModal,
+      QuizActive,
+      KLabeledIcon,
+      KIcon,
     },
     mixins: [commonCoach],
     data() {

@@ -71,11 +71,6 @@
 
 <style lang="scss" scoped>
 
-  // SPECIAL CLASSES
-  // core-table-icon-col - Icon Column
-  // core-table-main-col - Main Column
-  // core-table-checkbox-col - Checkbox column
-
   .core-table-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -99,27 +94,8 @@
     border-bottom: 1px solid rgb(223, 223, 223);
   }
 
-  /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),
-  /deep/ td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
-    min-width: 120px;
-  }
-
-  /deep/ .core-table-icon-col,
   /deep/ .core-table-checkbox-col {
     width: 40px;
-  }
-
-  /deep/ .core-table-main-col {
-    font-weight: bold;
-  }
-
-  /deep/ .core-table-icon-col {
-    .ui-icon {
-      display: inline-block;
-      height: 24px;
-      font-size: 24px;
-      vertical-align: inherit;
-    }
   }
 
   /deep/ .core-table-checkbox-col {

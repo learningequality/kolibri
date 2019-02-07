@@ -5,7 +5,7 @@
     <CoreTable>
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col"></th>
+          <th></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
           <th></th>
@@ -14,13 +14,13 @@
 
       <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="core-table-icon-col">
+          <td>
             <PermissionsIcon
               v-if="Boolean(getPermissionType(user.id))"
               :permissionType="getPermissionType(user.id)"
             />
           </td>
-          <td class="core-table-main-col" dir="auto">
+          <td dir="auto">
             {{ user.full_name }}
             <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
           </td>

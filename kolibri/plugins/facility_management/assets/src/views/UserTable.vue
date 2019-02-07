@@ -13,7 +13,7 @@
               @change="selectAll($event)"
             />
           </th>
-          <th aria-hidden="true" class="core-table-icon-col"></th>
+          <th aria-hidden="true"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">
@@ -43,7 +43,7 @@
             />
 
           </td>
-          <td aria-hidden="true" class="core-table-icon-col">
+          <td aria-hidden="true">
             <UiIcon>
               <mat-svg name="person" category="social" />
             </UiIcon>
