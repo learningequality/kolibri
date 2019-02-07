@@ -15,6 +15,7 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -22,6 +23,7 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
+
 
 collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
 
@@ -134,11 +136,16 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
         if classroom_id:
             try:
-                Collection.objects.get(pk=classroom_id)
+                collection = Collection.objects.get(pk=classroom_id)
             except (Collection.DoesNotExist, ValueError):
                 return []
-
-        notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+        if collection.kind  == collection_kinds.CLASSROOM:
+            classroom_groups = LearnerGroup.objects.filter(parent=collection)
+            learner_groups = [group.id for group in classroom_groups]
+            learner_groups.append(classroom_id)
+            notifications_query = LearnerProgressNotification.objects.filter(classroom_id__in=learner_groups)
+        else:
+            notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
         notifications_query = self.apply_learner_filter(notifications_query)
         after = self.check_after()
         self.remove_default_page_size()
