@@ -9,14 +9,17 @@
           class="icon"
         />
         <div class="icon-spacer">
-          <ContentIcon
-            class="content-icon"
-            :kind="contentIcon"
-            :showTooltip="false"
-          />
-          <span class="message">
-            <slot></slot>
-          </span>
+          <KLabeledIcon>
+            <ContentIcon
+              slot="icon"
+              class="content-icon"
+              :kind="contentIcon"
+              :showTooltip="false"
+            />
+            <span class="message">
+              <slot></slot>
+            </span>
+          </KLabeledIcon>
         </div>
       </KGridItem>
       <KGridItem :size="50" percentage alignment="center">
@@ -123,8 +126,12 @@
 
   @import '~kolibri.styles.definitions';
 
-  .icon {
+  svg.icon {
     position: absolute;
+    top: 28px;
+    left: 2px;
+    width: 1.5em;
+    height: 1.5em;
   }
 
   .icon-spacer {
@@ -132,11 +139,7 @@
   }
 
   .content-icon {
-    margin-right: 8px;
-  }
-
-  .message {
-    font-weight: bold;
+    top: -2px;
   }
 
   .notification {

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KLabeledIcon>
+    <KLabeledIcon nowrap>
       <CoachStatusIcon slot="icon" ref="status" :icon="icon" />
       {{ text }}
     </KLabeledIcon>

@@ -3,31 +3,28 @@
   <div class="notification">
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="75" percentage>
+      <KGridItem :size="100" percentage>
         <CoachStatusIcon
           :icon="statusIcon"
           class="icon"
         />
         <div class="icon-spacer">
-          <ContentIcon
-            class="content-icon"
-            :kind="contentIcon"
-            :showTooltip="false"
-          />
-          <span class="message">
-            <slot></slot>
-          </span>
-        </div>
-      </KGridItem>
-      <KGridItem :size="25" percentage>
-        <div class="button-wrapper">
-          <KRouterLink
-            v-if="targetPage.name"
-            appearance="flat-button"
-            class="show-btn"
-            :text="coachStrings.$tr('showAction')"
-            :to="$router.getRoute(targetPage.name, targetPage.params, targetPage.query)"
-          />
+          <KLabeledIcon>
+            <ContentIcon
+              slot="icon"
+              class="content-icon"
+              :kind="contentIcon"
+              :showTooltip="false"
+            />
+            <KRouterLink
+              v-if="targetPage && targetPage.name"
+              :text="linkText"
+              :to="$router.getRoute(targetPage.name, targetPage.params, targetPage.query)"
+            />
+            <template v-else>
+              {{ linkText }}
+            </template>
+          </KLabeledIcon>
         </div>
       </KGridItem>
     </KGrid>
@@ -91,6 +88,10 @@
         type: String,
         required: false,
       },
+      linkText: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       statusIcon() {
@@ -127,6 +128,10 @@
 
   .icon {
     position: absolute;
+    top: 32px;
+    left: 2px;
+    width: 1.5em;
+    height: 1.5em;
   }
 
   .icon-spacer {
@@ -157,12 +162,6 @@
 
   .button-wrapper {
     position: relative;
-  }
-
-  .show-btn {
-    position: absolute;
-    top: -15px;
-    right: 0;
   }
 
 </style>

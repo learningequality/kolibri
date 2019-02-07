@@ -57,7 +57,6 @@
   .labeled-icon-wrapper {
     position: relative;
     display: inline-block;
-    white-space: nowrap;
   }
 
   .icon {
