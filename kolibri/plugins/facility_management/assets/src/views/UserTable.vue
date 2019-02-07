@@ -13,7 +13,6 @@
               @change="selectAll($event)"
             />
           </th>
-          <th aria-hidden="true"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">
@@ -41,16 +40,17 @@
               :checked="userIsSelected(user.id)"
               @change="selectUser(user.id, $event)"
             />
-
-          </td>
-          <td aria-hidden="true">
-            <UiIcon>
-              <mat-svg name="person" category="social" />
-            </UiIcon>
           </td>
           <td>
             <span dir="auto" class="maxwidth">
-              {{ user.full_name }}
+              <KLabeledIcon>
+                <KIcon
+                  slot="icon"
+                  :coach="isCoach"
+                  :person="!isCoach"
+                />
+                {{ user.full_name }}
+              </KLabeledIcon>
             </span>
             <UserTypeDisplay
               aria-hidden="true"
@@ -66,7 +66,11 @@
           <td class="visuallyhidden">
             {{ user.kind }}
           </td>
-          <td><span class="maxwidth">{{ user.username }}</span></td>
+          <td>
+            <span dir="auto" class="maxwidth">
+              {{ user.username }}
+            </span>
+          </td>
           <td v-if="$scopedSlots.action" class="user-action-button">
             <slot name="action" :user="user"></slot>
           </td>
@@ -92,7 +96,8 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import difference from 'lodash/difference';
 
   export default {
@@ -101,7 +106,8 @@
       CoreTable,
       KCheckbox,
       UserTypeDisplay,
-      UiIcon,
+      KLabeledIcon,
+      KIcon,
     },
     props: {
       users: {
@@ -130,6 +136,10 @@
       value: {
         type: Array,
         default: null,
+      },
+      isCoach: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
@@ -181,18 +191,21 @@
   }
 
   .user-action-button {
+    padding: 0;
     text-align: right;
   }
 
   .role-badge {
+    position: relative;
+    top: -4px;
     display: inline-block;
-    padding-right: 1em;
-    padding-left: 1em;
-    margin-left: 8px;
+    padding: 2px;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
     font-size: small;
     white-space: nowrap;
-    vertical-align: top;
-    border-radius: 0.5em;
+    border-radius: 4px;
   }
 
   .maxwidth {
