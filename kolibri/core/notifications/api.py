@@ -51,6 +51,8 @@ def get_assignments(instance, summarylog, attempt=False):
             del lesson_contentnode[lesson_id]
     # Returns all the affected lessons with the touched contentnode_id, Resource must be inside a lesson
     lesson_resources = [(lesson, lesson_contentnode[lesson.id]) for lesson in filtered_lessons if lesson.id in lesson_contentnode]
+
+    # Try to find out if the lesson is being executed assigned to a Classroom or to a LearnerGroup:
     for lesson in lesson_resources:
         groups = [g.id for g in learner_groups if g.id in [l.collection_id for l in lesson[0].lesson_assignments.all()]]
         lesson[0].group_or_classroom = groups[0] if groups else lesson.collection_id

@@ -24,7 +24,6 @@ from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 
-
 collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
 
 
@@ -139,7 +138,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 collection = Collection.objects.get(pk=classroom_id)
             except (Collection.DoesNotExist, ValueError):
                 return []
-        if collection.kind  == collection_kinds.CLASSROOM:
+        if collection.kind == collection_kinds.CLASSROOM:
             classroom_groups = LearnerGroup.objects.filter(parent=collection)
             learner_groups = [group.id for group in classroom_groups]
             learner_groups.append(classroom_id)
