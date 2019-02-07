@@ -40,4 +40,7 @@ export default {
   CORE_REMOVE_NOTIFICATION(state, notification_id) {
     state.notifications = state.notifications.filter(obj => obj.id !== notification_id);
   },
+  CORE_SET_PAGE_VISIBILITY(state, visible) {
+    state.pageVisible = visible;
+  },
 };

@@ -23,12 +23,10 @@ const timeoutReconnectTime = 60;
 
 const minReconnectTime = 5;
 
+const activeDelay = 240000;
+
 export class HeartBeat {
-  constructor(delay = 240000) {
-    if (typeof delay !== 'number') {
-      throw new ReferenceError('The delay must be a number in milliseconds');
-    }
-    this.delay = delay;
+  constructor() {
     // Do this to have a consistent callback that has 'this' properly bound
     // but can be repeatedly referenced to add and remove listeners.
     this.setActive = this.setActive.bind(this);
@@ -40,8 +38,8 @@ export class HeartBeat {
     logging.debug('Starting heartbeat');
     this.enabled = true;
     this.setActivityListeners();
-    // No need to start it straight away, can wait.
-    this.beat();
+    // Do an immediate check to populate session info
+    return this.beat();
   }
   stop() {
     logging.debug('Stopping heartbeat');
@@ -70,12 +68,20 @@ export class HeartBeat {
   setInactive() {
     this.active = false;
   }
-  wait() {
+  get delay() {
     const { reconnectTime } = store.getters;
-    // If we are currently engaged in exponential backoff in trying to reconnect to the server
-    // use the current reconnect time preferentially instead of the standard delay.
-    // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
-    this.timerId = setTimeout(this.beat, reconnectTime * 1000 || this.delay);
+    if (!store.getters.connected && reconnectTime) {
+      // If we are currently engaged in exponential backoff in trying to reconnect to the server
+      // use the current reconnect time preferentially instead of the standard delay.
+      // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
+      return reconnectTime * 1000;
+    }
+    // If page is not visible, don't poll as frequently, as user activity is unlikely.
+    return store.state.pageVisible ? activeDelay : activeDelay * 2;
+  }
+
+  wait() {
+    this.timerId = setTimeout(this.beat, this.delay);
     return this.timerId;
   }
   /*
@@ -131,11 +137,13 @@ export class HeartBeat {
       path: this.sessionUrl('current'),
     })
       .then(response => {
-        // Check the user id in the response
-        if (response.entity.user_id !== currentUserId) {
+        const session = response.entity;
+        // If our session is already defined, check the user id in the response
+        if (store.state.core.session.id && session.user_id !== currentUserId) {
           // If it is different, then our user has been signed out.
-          this.signOutDueToInactivity();
+          return this.signOutDueToInactivity();
         }
+        store.commit('CORE_SET_SESSION', session);
       })
       .catch(error => {
         // An error occurred.
@@ -157,11 +165,17 @@ export class HeartBeat {
       // We have not already registered that we have been disconnected
       store.commit('CORE_SET_CONNECTED', false);
       let reconnectionTime;
-      if (code === 502) {
-        // Do special behaviour in the case that this is a network timeout.
-        reconnectionTime = timeoutReconnectTime;
-      } else {
+      if (store.state.pageVisible) {
+        // If current page is not visible, back off completely
+        // user can force reconnect with interface when they return
+        reconnectionTime = maxReconnectTime;
+      } else if (code === 0) {
+        // Do special behaviour if the request could not be completed
         reconnectionTime = minReconnectTime;
+      } else {
+        // Otherwise the issue is likely an overload of the Kolibri server,
+        // back off quickly before trying to reconnect.
+        reconnectionTime = timeoutReconnectTime;
       }
       store.commit('CORE_SET_RECONNECT_TIME', reconnectionTime);
       createDisconnectedSnackbar(store, this.beat);
