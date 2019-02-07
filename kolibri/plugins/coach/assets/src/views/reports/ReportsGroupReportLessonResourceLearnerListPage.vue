@@ -45,7 +45,10 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              {{ tableRow.name }}
+              <KLabeledIcon>
+                <KIcon slot="icon" person />
+                {{ tableRow.name }}
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

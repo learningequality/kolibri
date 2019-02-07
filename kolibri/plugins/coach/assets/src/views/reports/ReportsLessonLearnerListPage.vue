@@ -26,10 +26,13 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink
-                :text="tableRow.name"
-                :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" person />
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSimple :status="tableRow.status" />

@@ -12,6 +12,13 @@
   <!-- coaching -->
   <mat-svg v-else-if="coach" name="local_library" category="maps" :style="style" />
   <mat-svg v-else-if="lesson" name="import_contacts" category="communication" :style="style" />
+  <mat-svg
+    v-else-if="question"
+    name="keyboard_arrow_right"
+    category="hardware"
+    :style="style"
+    class="flip"
+  />
   <mat-svg v-else-if="quiz" name="assignment_late" category="action" :style="style" />
   <!-- content -->
   <mat-svg v-else-if="app" name="widgets" category="device" :style="style" />
@@ -23,6 +30,7 @@
   <mat-svg v-else-if="video" name="ondemand_video" category="notification" :style="style" />
   <!-- users -->
   <mat-svg v-else-if="classroom" name="business" category="communication" :style="style" />
+  <mat-svg v-else-if="group" category="action" name="group_work" :style="style" />
   <mat-svg v-else-if="people" name="people" category="social" :style="style" />
   <mat-svg v-else-if="person" name="person" category="social" :style="style" />
   <mat-svg v-else-if="permission" name="vpn_key" category="communication" :style="style" />
@@ -72,6 +80,7 @@
       // coaching
       coach: boolean,
       lesson: boolean,
+      question: boolean,
       quiz: boolean,
       // content
       app: boolean,
@@ -83,6 +92,7 @@
       video: boolean,
       // users
       classroom: boolean,
+      group: boolean,
       people: boolean,
       permission: boolean,
       person: boolean,

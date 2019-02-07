@@ -4,13 +4,10 @@
     <KGridItem size="75" percentage>
       <div>
         <h1 class="title">{{ userName }}</h1>
-        <p class="title">
-          <ContentIcon
-            class="icon"
-            :kind="kind"
-            :showTooltip="false"
-          />
-          {{ $tr('title', { name: contentName }) }}</p>
+        <KLabeledIcon>
+          <KIcon slot="icon" quiz />
+          {{ $tr('title', { name: contentName }) }}
+        </KLabeledIcon>
       </div>
       <div class="questions">
         {{ $tr('overallScore', {score: score}) }}
@@ -44,8 +41,9 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
 
   export default {
     name: 'PageStatus',
@@ -62,7 +60,8 @@
       KGridItem,
       ProgressIcon,
       ElapsedTime,
-      ContentIcon,
+      KIcon,
+      KLabeledIcon,
     },
     props: {
       userName: {

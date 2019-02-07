@@ -12,6 +12,7 @@ import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constant
 import KSelect from 'kolibri.coreVue.components.KSelect';
 import KIcon from 'kolibri.coreVue.components.KIcon';
 import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
@@ -123,6 +124,7 @@ export default {
     KSelect,
     KIcon,
     KLabeledIcon,
+    KBasicContentIcon,
     Answer,
     BackLink,
     TruncatedItemList,

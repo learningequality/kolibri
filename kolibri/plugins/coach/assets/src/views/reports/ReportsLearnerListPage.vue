@@ -29,10 +29,13 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink
-                :text="tableRow.name"
-                :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" person />
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                />
+              </KLabeledIcon>
             </td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td><Score :value="tableRow.avgScore" /></td>

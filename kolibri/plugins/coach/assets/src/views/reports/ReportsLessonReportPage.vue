@@ -24,22 +24,25 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KRouterLink
-                v-if="tableRow.kind === 'exercise'"
-                :text="tableRow.title"
-                :to="classRoute(
-                  'ReportsLessonExerciseLearnerListPage',
-                  { exerciseId: tableRow.content_id }
-                )"
-              />
-              <KRouterLink
-                v-else
-                :text="tableRow.title"
-                :to="classRoute(
-                  'ReportsLessonResourceLearnerListPage',
-                  { resourceId: tableRow.content_id }
-                )"
-              />
+              <KLabeledIcon>
+                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+                <KRouterLink
+                  v-if="tableRow.kind === 'exercise'"
+                  :text="tableRow.title"
+                  :to="classRoute(
+                    'ReportsLessonExerciseLearnerListPage',
+                    { exerciseId: tableRow.content_id }
+                  )"
+                />
+                <KRouterLink
+                  v-else
+                  :text="tableRow.title"
+                  :to="classRoute(
+                    'ReportsLessonResourceLearnerListPage',
+                    { resourceId: tableRow.content_id }
+                  )"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSummary
