@@ -1,9 +1,10 @@
 <template>
 
   <div>
-    <LabeledIcon :label="text">
-      <CoachStatusIcon ref="status" :icon="icon" />
-    </LabeledIcon>
+    <KLabeledIcon>
+      <CoachStatusIcon slot="icon" ref="status" :icon="icon" />
+      {{ text }}
+    </KLabeledIcon>
     <KTooltip
       v-if="false"
       reference="status"
@@ -20,7 +21,7 @@
 <script>
 
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
-  import LabeledIcon from '../LabeledIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { coachStrings } from '../commonCoachStrings';
   import CoachStatusIcon from './CoachStatusIcon';
   import { statusStringsMixin, isValidVerb } from './statusStrings';
@@ -30,7 +31,7 @@
     components: {
       KTooltip,
       CoachStatusIcon,
-      LabeledIcon,
+      KLabeledIcon,
     },
     mixins: [statusStringsMixin],
     props: {

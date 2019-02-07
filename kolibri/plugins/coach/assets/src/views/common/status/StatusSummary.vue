@@ -204,6 +204,10 @@
 
 <style lang="scss" scoped>
 
+  .multi-line {
+    line-height: 1.5em;
+  }
+
   .multi-line .item {
     display: block;
   }
