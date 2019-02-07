@@ -24,6 +24,7 @@ export default {
     // facility
     facilityConfig: {},
     facilities: [],
+    pageVisible: true,
   },
   getters,
   actions,

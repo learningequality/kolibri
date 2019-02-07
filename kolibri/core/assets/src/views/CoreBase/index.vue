@@ -81,7 +81,7 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="showNotification && !busy"
+      v-if="!loading && showNotification && !busy"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
