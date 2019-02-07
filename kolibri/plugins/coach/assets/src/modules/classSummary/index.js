@@ -275,6 +275,7 @@ export default {
         exams: state.examMap,
         classId: state.id,
         className: state.name,
+        contentNodes: state.contentNodeMap,
       };
     },
   },
