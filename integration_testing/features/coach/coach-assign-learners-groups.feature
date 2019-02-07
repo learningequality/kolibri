@@ -15,8 +15,8 @@ Feature: Assign and remove learners to groups
     When I click on the checkbox(es) of the learner(s) I want to enroll
     Then I see the *Confirm* button is active
     When I click the *Confirm* button
-    Then I see the group <group> page again
-      And I see a snackbar notification # This is not implemented
+    Then the modal closes
+      And I see the group <group> page again
       And I see the selected learner(s) listed under *Learners*
       And I see the number of learners is increased
 
@@ -29,6 +29,5 @@ Feature: Assign and remove learners to groups
     When I click the *Remove* button
     Then the modal closes
       And I see the group <group> page again
-      And I see a snackbar notification # This is not implemented
       And I see the selected learner(s) is not listed under *Learners*
       And I see the number of learners is decreased

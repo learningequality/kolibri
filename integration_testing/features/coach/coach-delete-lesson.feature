@@ -18,5 +18,5 @@ Feature: Coach deletes lesson
       And I don't see the <lesson_title> on the list of *Lessons*
 
 Examples:
-| lesson_title          |
-| mathematics exercises |
+| lesson_title |
+| Counting 2   |

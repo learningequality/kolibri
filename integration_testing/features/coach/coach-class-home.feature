@@ -1,4 +1,4 @@
-Feature: General navigation on class home interface
+Feature: General navigation on *Class home* tab
 
   Background:
     Given I am signed in as a class or facility coach
