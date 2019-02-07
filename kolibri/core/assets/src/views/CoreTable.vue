@@ -91,8 +91,11 @@
 
   /deep/ th,
   /deep/ td {
-    padding: 12px 16px 12px 0;
+    max-width: 300px;
+    padding: 12px 8px;
+    overflow-x: hidden;
     line-height: 1.5em;
+    text-overflow: ellipsis;
     vertical-align: top;
   }
 
