@@ -1,46 +1,48 @@
 <template>
 
-  <KGrid>
+  <router-link class="item" :style="{color: $coreTextDefault}" :to="to">
+    <KGrid>
+      <KGridItem size="75" percentage>
+        <h3 class="title">{{ name }}</h3>
+      </KGridItem>
 
-    <KGridItem size="75" percentage>
-      <h3 class="title">{{ name }}</h3>
-    </KGridItem>
+      <KGridItem size="25" percentage alignment="right">
+        <div class="context">
+          <Recipients :groupNames="groupNames" />
+        </div>
+      </KGridItem>
 
-    <KGridItem size="25" percentage alignment="right">
-      <div class="context">
-        <Recipients :groupNames="groupNames" />
-      </div>
-    </KGridItem>
+      <KGridItem size="100" percentage>
+        <ProgressSummaryBar
+          :tally="tally"
+          class="dashboard-bar"
+        />
+      </KGridItem>
 
-    <KGridItem size="100" percentage>
-      <ProgressSummaryBar
-        :tally="tally"
-        class="dashboard-bar"
-      />
-    </KGridItem>
+      <KGridItem size="75" percentage>
+        <StatusSummary
+          :tally="tally"
+        />
+      </KGridItem>
 
-    <KGridItem size="75" percentage>
-      <StatusSummary
-        :tally="tally"
-      />
-    </KGridItem>
-
-    <KGridItem size="25" percentage alignment="right">
-      <HelpNeeded
-        v-if="tally.helpNeeded"
-        :count="tally.helpNeeded"
-        :verbose="false"
-        :ratio="false"
-      />
-    </KGridItem>
-
-  </KGrid>
+      <KGridItem size="25" percentage alignment="right">
+        <HelpNeeded
+          v-if="tally.helpNeeded"
+          :count="tally.helpNeeded"
+          :verbose="false"
+          :ratio="false"
+        />
+      </KGridItem>
+    </KGrid>
+  </router-link>
 
 </template>
 
 
 <script>
 
+  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { mapGetters } from 'vuex';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
@@ -67,6 +69,14 @@
         type: Boolean,
         default: false,
       },
+      to: {
+        type: Object,
+        required: false,
+        validators: validateLinkObject,
+      },
+    },
+    computed: {
+      ...mapGetters(['$coreTextDefault']),
     },
   };
 
@@ -105,6 +115,10 @@
 
   .progress.help {
     right: -12px;
+  }
+
+  .item {
+    text-decoration: none;
   }
 
 </style>
