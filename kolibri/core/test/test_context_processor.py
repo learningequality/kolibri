@@ -13,26 +13,6 @@ from rest_framework.test import APITestCase
 from kolibri.core.context_processors.custom_context_processor import pass_browser_entry
 
 
-class ContextProcessorTestCase(APITestCase):
-
-    def setUp(self):
-        self.request = mock.Mock()
-        self.request.session = {}
-        self.request.META = {}
-        self.template = Template("My name is...")
-        self.context = RequestContext(self.request)
-
-    def test_context_added_with_context_processor(self):
-        with mock.patch('kolibri.core.auth.api.SessionViewSet.get_session', return_value={"context": True}):
-            with self.context.bind_template(self.template):
-                self.assertEqual(json.loads(self.context['session'])['context'], True)
-
-    def tearDown(self):
-        self.request = None
-        self.template = None
-        self.context = None
-
-
 class BrowserEntryTestCase(TestCase):
     def test_pass_browser_entry_patch_fail(self):
         user_agent = mock.MagicMock()
