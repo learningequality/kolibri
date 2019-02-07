@@ -131,20 +131,22 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
 
 export function addUsersToGroup(store, { groupId, userIds }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
+  const final = () => {
+    store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+    store.commit('SET_GROUP_MODAL', '');
+  };
   return _addMultipleUsersToGroup(store, groupId, userIds)
     .catch(error => store.dispatch('handleError', error, { root: true }))
-    .finally(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
-    });
+    .then(final, final);
 }
 
 export function removeUsersFromGroup(store, { groupId, userIds }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
+  const final = () => {
+    store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+    store.commit('SET_GROUP_MODAL', '');
+  };
   return _removeMultipleUsersFromGroup(store, groupId, userIds)
     .catch(error => store.dispatch('handleError', error, { root: true }))
-    .finally(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
-    });
+    .then(final, final);
 }
