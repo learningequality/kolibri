@@ -1,11 +1,14 @@
 <template>
 
   <Block
-    :title="coachStrings.$tr('quizzesLabel')"
     :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
-    <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" quiz />
+      {{ coachStrings.$tr('quizzesLabel') }}
+    </KLabeledIcon>
+
     <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"

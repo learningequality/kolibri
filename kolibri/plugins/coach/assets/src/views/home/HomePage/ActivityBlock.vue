@@ -1,10 +1,13 @@
 <template>
 
   <Block
-    :title="$tr('classActivity')"
     :allLinkText="$tr('viewAll')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
   >
+    <template slot="title">
+      {{ $tr('classActivity') }}
+    </template>
+
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
     <transition-group name="list">
       <BlockItem

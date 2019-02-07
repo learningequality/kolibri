@@ -10,6 +10,8 @@ import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import KIcon from 'kolibri.coreVue.components.KIcon';
+import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
@@ -122,6 +124,8 @@ export default {
     KGridItem,
     KRouterLink,
     KSelect,
+    KIcon,
+    KLabeledIcon,
     Answer,
     BackLink,
     TruncatedItemList,
