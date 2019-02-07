@@ -34,7 +34,6 @@
 {% kolibri_content_cache_key %}
 {% kolibri_set_urls %}
 {% webpack_asset 'default_frontend' %}
-{% kolibri_set_server_time %}
 {% kolibri_navigation_actions %}
 <!-- Bootstrapping the currently logged in user's session object into the page. -->
 {% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
