@@ -17,9 +17,9 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ $tr('classNameLabel') }}</td>
-            <td>{{ coachStrings.$tr('coachesLabel') }}</td>
-            <td>{{ coachStrings.$tr('learnersLabel') }}</td>
+            <th>{{ $tr('classNameLabel') }}</th>
+            <th>{{ coachStrings.$tr('coachesLabel') }}</th>
+            <th>{{ coachStrings.$tr('learnersLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

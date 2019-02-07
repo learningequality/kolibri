@@ -20,11 +20,11 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('nameLabel') }}</td>
-            <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
-            <td>{{ coachStrings.$tr('groupsLabel') }}</td>
-            <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
+            <th>{{ coachStrings.$tr('nameLabel') }}</th>
+            <th>{{ coachStrings.$tr('progressLabel') }}</th>
+            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
+            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

@@ -14,11 +14,11 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('nameLabel') }}</td>
-            <td>{{ coachStrings.$tr('avgQuizScoreLabel') }}</td>
-            <td>{{ coachStrings.$tr('exercisesCompletedLabel') }}</td>
-            <td>{{ coachStrings.$tr('resourcesViewedLabel') }}</td>
-            <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
+            <th>{{ coachStrings.$tr('nameLabel') }}</th>
+            <th>{{ coachStrings.$tr('avgQuizScoreLabel') }}</th>
+            <th>{{ coachStrings.$tr('exercisesCompletedLabel') }}</th>
+            <th>{{ coachStrings.$tr('resourcesViewedLabel') }}</th>
+            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

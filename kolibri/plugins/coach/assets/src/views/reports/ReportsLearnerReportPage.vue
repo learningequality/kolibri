@@ -19,8 +19,8 @@
           <CoreTable>
             <thead slot="thead">
               <tr>
-                <td>{{ coachStrings.$tr('titleLabel') }}</td>
-                <td>{{ coachStrings.$tr('progressLabel') }}</td>
+                <th>{{ coachStrings.$tr('titleLabel') }}</th>
+                <th>{{ coachStrings.$tr('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -46,9 +46,9 @@
           <CoreTable>
             <thead slot="thead">
               <tr>
-                <td>{{ coachStrings.$tr('titleLabel') }}</td>
-                <td>{{ coachStrings.$tr('progressLabel') }}</td>
-                <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+                <th>{{ coachStrings.$tr('titleLabel') }}</th>
+                <th>{{ coachStrings.$tr('progressLabel') }}</th>
+                <th>{{ coachStrings.$tr('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
