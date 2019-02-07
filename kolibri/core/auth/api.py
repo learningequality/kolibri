@@ -18,6 +18,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -311,6 +312,7 @@ class SignUpViewSet(viewsets.ViewSet):
 
 
 @method_decorator(signin_redirect_exempt, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class SessionViewSet(viewsets.ViewSet):
 
     def create(self, request):
@@ -346,10 +348,6 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
-        # Set last activity on session to the current time to prevent session timeout
-        request.session['last_session_request'] = int(time.time())
-        # Default to active, only assume not active when explicitly set.
-        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
         if isinstance(user, AnonymousUser):
             return {'id': 'current',
@@ -361,6 +359,11 @@ class SessionViewSet(viewsets.ViewSet):
                     'error': '200'}
 
         session = {'id': 'current',
+        # Set last activity on session to the current time to prevent session timeout
+        # Only do this for logged in users, as anonymous users cannot get logged out!
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
                    'username': user.username,
                    'full_name': user.full_name,
                    'user_id': user.id,

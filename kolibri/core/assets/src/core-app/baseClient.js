@@ -4,11 +4,43 @@
  * circular dependencies and repeated code.
  */
 import rest from 'rest';
-import csrf from 'rest/interceptor/csrf';
+import interceptor from 'rest/interceptor';
 import errorCode from 'rest/interceptor/errorCode';
 import cookiejs from 'js-cookie';
 
-export default rest.wrap(errorCode).wrap(csrf, {
-  name: 'X-CSRFToken',
-  token: cookiejs.get('csrftoken'),
+/*
+ * Vendored and modified from https://github.com/cujojs/rest/blob/master/interceptor/csrf.js
+ */
+
+/**
+ * Applies a Cross-Site Request Forgery protection header to a request
+ *
+ * CSRF protection helps a server verify that a request came from a
+ * trusted  client and not another client that was able to masquerade
+ * as an authorized client. Sites that use cookie based authentication
+ * are particularly vulnerable to request forgeries without extra
+ * protection.
+ *
+ * @see http://en.wikipedia.org/wiki/Cross-site_request_forgery
+ *
+ * @param {Client} [client] client to wrap
+ *
+ * @returns {Client}
+ */
+const csrf = interceptor({
+  request: function handleRequest(request) {
+    var headers, name, token;
+
+    headers = request.headers || (request.headers = {});
+    name = request.csrfTokenName || 'X-CSRFToken';
+    token = request.csrfToken || cookiejs.get('csrftoken');
+
+    if (token) {
+      headers[name] = token;
+    }
+
+    return request;
+  },
 });
+
+export default rest.wrap(errorCode).wrap(csrf);
