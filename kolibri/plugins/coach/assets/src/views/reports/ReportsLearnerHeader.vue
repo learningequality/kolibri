@@ -7,7 +7,12 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ learner.name }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" person />
+        {{ learner.name }}
+      </KLabeledIcon>
+    </h1>
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('usernameLabel') }}</template>

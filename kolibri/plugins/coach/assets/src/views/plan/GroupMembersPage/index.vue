@@ -22,7 +22,10 @@
 
       <div v-else>
         <h1>
-          {{ currentGroup.name }}
+          <KLabeledIcon>
+            <KIcon slot="icon" group />
+            {{ currentGroup.name }}
+          </KLabeledIcon>
         </h1>
 
         <KGrid>

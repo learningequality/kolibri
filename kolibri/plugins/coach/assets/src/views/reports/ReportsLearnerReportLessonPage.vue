@@ -16,7 +16,12 @@
           :text="learner.name"
         />
       </p>
-      <h1>{{ lesson.title }}</h1>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" lesson />
+          {{ lesson.title }}
+        </KLabeledIcon>
+      </h1>
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
