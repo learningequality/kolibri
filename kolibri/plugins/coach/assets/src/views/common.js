@@ -54,23 +54,28 @@ function formatPageTitle() {
   const { params } = this.$route;
 
   let strings = parts.map(part => {
-    switch (part) {
-      case 'GROUP_NAME':
-        return classSummary.groupMap[params.groupId].name;
-      case 'CLASS_NAME':
-        return classSummary.name;
-      case 'LEARNER_NAME':
-        return classSummary.learnerMap[params.learnerId].name;
-      case 'LESSON_NAME':
-        return classSummary.lessonMap[params.lessonId].title;
-      case 'QUIZ_NAME':
-        return classSummary.examMap[params.quizId].title;
-      case 'EXERCISE_NAME':
-        return classSummary.contentMap[params.exerciseId].title;
-      case 'RESOURCE_NAME':
-        return classSummary.contentMap[params.resourceId].title;
-      default:
-        return coachStrings.$tr(part);
+    try {
+      switch (part) {
+        case 'GROUP_NAME':
+          return classSummary.groupMap[params.groupId].name;
+        case 'CLASS_NAME':
+          return classSummary.name;
+        case 'LEARNER_NAME':
+          return classSummary.learnerMap[params.learnerId].name;
+        case 'LESSON_NAME':
+          return classSummary.lessonMap[params.lessonId].title;
+        case 'QUIZ_NAME':
+          return classSummary.examMap[params.quizId].title;
+        case 'EXERCISE_NAME':
+          return classSummary.contentMap[params.exerciseId].title;
+        case 'RESOURCE_NAME':
+          return classSummary.contentMap[params.resourceId].title;
+        default:
+          return coachStrings.$tr(part);
+      }
+    } catch (err) {
+      // TODO - make this error handling cleaner
+      return '';
     }
   });
 
