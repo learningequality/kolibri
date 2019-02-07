@@ -57,12 +57,10 @@
         :text="coachStrings.$tr('membersLabel')"
         :to="classRoute('ReportsGroupLearnerListPage', {})"
       />
-      <!-- TODO COACH
       <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
         :to="classRoute('ReportsGroupActivityPage', {})"
       />
-       -->
     </HeaderTabs>
   </div>
 

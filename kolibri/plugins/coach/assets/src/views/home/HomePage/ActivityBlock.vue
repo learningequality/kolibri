@@ -13,9 +13,10 @@
       <BlockItem
         v-for="notification in notifications"
         :key="notification.groupCode + '_' + notification.lastId"
-        v-bind="cardPropsForNotification(notification)"
       >
-        <NotificationCard>
+        <NotificationCard
+          v-bind="cardPropsForNotification(notification)"
+        >
           {{ cardTextForNotification(notification) }}
         </NotificationCard>
       </BlockItem>
@@ -63,7 +64,12 @@
           eventType: notification.event,
           objectType: notification.object,
           resourceType: notification.resource.type,
-          targetPage: notificationLink(notification),
+          targetPage: {
+            ...notificationLink(notification),
+            query: {
+              last: 'homepage',
+            },
+          },
           contentContext: notification.assignment.name,
           learnerContext,
         };

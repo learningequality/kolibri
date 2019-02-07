@@ -27,11 +27,11 @@
       LearnerExerciseReport,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
-        return this.classRoute('ReportsLessonExerciseLearnerListPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsLessonExerciseLearnerListPage', {});
       },
     },
     methods: {
@@ -43,6 +43,7 @@
             lessonId: this.$route.params.lessonId,
             ...params,
           },
+          query: this.$route.query,
         });
       },
     },

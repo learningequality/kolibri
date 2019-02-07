@@ -1,0 +1,6 @@
+guest-change-language.feature
+guest-sign-up-account.feature
+guest-engage-content-recommended.feature
+guest-modify-renderer-settings.feature
+guest-engage-content-channels.feature
+guest-find-content-item.feature

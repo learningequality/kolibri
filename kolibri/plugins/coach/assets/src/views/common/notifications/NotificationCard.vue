@@ -22,11 +22,11 @@
       <KGridItem :size="25" percentage>
         <div class="button-wrapper">
           <KRouterLink
-            v-if="targetPage"
+            v-if="targetPage.name"
             appearance="flat-button"
             class="show-btn"
             :text="coachStrings.$tr('showAction')"
-            :to="$router.getRoute(targetPage.name, targetPage.params)"
+            :to="$router.getRoute(targetPage.name, targetPage.params, targetPage.query)"
           />
         </div>
       </KGridItem>

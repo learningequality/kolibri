@@ -222,5 +222,26 @@ export default {
       }
       return router.getRoute(name, params);
     },
+    // In ActivityList, set the backLinkQuery to set the correct exit behavior
+    // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
+    backRouteForQuery(query) {
+      const lastPage = query.last;
+      switch (lastPage) {
+        case 'homepage':
+          return this.classRoute('HomePage', {});
+        case 'homeactivity':
+          return this.classRoute('HomeActivityPage', {});
+        case 'groupactivity':
+          return this.classRoute('ReportsGroupActivityPage', {
+            groupId: this.$route.query.last_id,
+          });
+        case 'learneractivity':
+          return this.classRoute('ReportsLearnerActivityPage', {
+            learnerId: this.$route.query.last_id,
+          });
+        default:
+          return null;
+      }
+    },
   },
 };
