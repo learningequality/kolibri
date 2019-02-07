@@ -76,12 +76,15 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import '~keen-ui/src/styles/imports';
 
   $ui-snackbar-background-color: #323232 !default;
   $ui-snackbar-font-size: rem-calc(14px) !default;
 
   .ui-snackbar {
+    @include font-family-noto;
+
     display: inline-flex;
     align-items: center;
     /* stylelint-disable csstree/validator */
@@ -90,7 +93,6 @@
     min-height: rem-calc(48px);
     padding: rem-calc(14px 24px);
     /* stylelint-enable */
-    font-family: $font-stack;
     background-color: $ui-snackbar-background-color;
     border-radius: $ui-default-border-radius;
     /* stylelint-disable csstree/validator */
@@ -115,6 +117,8 @@
   }
 
   .ui-snackbar-action-button {
+    @include font-family-noto;
+
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -131,7 +135,6 @@
     /* stylelint-enable */
     margin: 0;
     overflow: hidden;
-    font-family: $font-stack;
     font-size: $ui-button-font-size;
     font-weight: bold;
     line-height: 1;

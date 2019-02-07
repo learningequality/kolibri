@@ -114,6 +114,7 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import '~keen-ui/src/styles/imports';
 
   /* stylelint-disable csstree/validator */
@@ -121,9 +122,9 @@
   $ui-select-option-checkbox-color: rgba(black, 0.38) !default;
 
   .ui-select-option {
-    display: flex;
+    @include font-family-noto display: flex;
+
     align-items: center;
-    font-family: $font-stack;
     font-size: $ui-dropdown-item-font-size;
     cursor: pointer;
     user-select: none;
