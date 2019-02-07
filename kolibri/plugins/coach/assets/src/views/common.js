@@ -41,9 +41,6 @@ import HeaderTab from './common/HeaderTabs/HeaderTab';
 import StatusSummary from './common/status/StatusSummary';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
-import ItemStatusRatio from './common/status/ItemStatusRatio';
-import ItemStatusCount from './common/status/ItemStatusCount';
-import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
 import { VERBS, ICONS } from './common/status/constants';
 
@@ -144,9 +141,6 @@ export default {
     StatusSummary,
     StatusSimple,
     HelpNeeded,
-    ItemStatusRatio,
-    ItemStatusCount,
-    ItemStatusLabel,
     Placeholder,
   },
   mixins: [coachStringsMixin],
