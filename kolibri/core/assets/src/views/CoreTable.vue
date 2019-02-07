@@ -96,9 +96,6 @@
 
   /deep/ .core-table-checkbox-col {
     width: 40px;
-  }
-
-  /deep/ .core-table-checkbox-col {
     .k-checkbox-container {
       margin: 0 0 0 2px;
     }
