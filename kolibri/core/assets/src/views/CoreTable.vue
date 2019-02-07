@@ -81,6 +81,10 @@
     font-size: 14px;
   }
 
+  /deep/ thead th {
+    vertical-align: bottom;
+  }
+
   /deep/ tr {
     text-align: left;
   }
@@ -88,6 +92,8 @@
   /deep/ th,
   /deep/ td {
     padding: 12px 16px 12px 0;
+    line-height: 1.5em;
+    vertical-align: top;
   }
 
   /deep/ tr:not(:last-child) {
