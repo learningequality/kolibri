@@ -9,6 +9,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="$tr('documentTitle')"
+    :marginBottom="72"
   >
 
     <KPageContainer>
