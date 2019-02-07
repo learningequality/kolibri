@@ -13,7 +13,7 @@
       />
     </td>
 
-    <td class="title display-cell core-table-main-col">
+    <td class="title display-cell">
       <ContentIcon
         class="icon"
         :kind="node.kind"

@@ -8,7 +8,12 @@
         :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
-    <h1>{{ exercise.title }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" exercise />
+        {{ exercise.title }}
+      </KLabeledIcon>
+    </h1>
 
     <!-- TODO COACH
     <p>{{ exercise.description }}</p>

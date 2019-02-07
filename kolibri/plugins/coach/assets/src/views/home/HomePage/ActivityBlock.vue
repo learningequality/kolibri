@@ -1,10 +1,13 @@
 <template>
 
   <Block
-    :title="$tr('classActivity')"
     :allLinkText="$tr('viewAll')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
   >
+    <template slot="title">
+      {{ $tr('classActivity') }}
+    </template>
+
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
     <transition-group name="list">
       <BlockItem
@@ -13,9 +16,8 @@
       >
         <NotificationCard
           v-bind="cardPropsForNotification(notification)"
-        >
-          {{ cardTextForNotification(notification) }}
-        </NotificationCard>
+          :linkText="cardTextForNotification(notification)"
+        />
       </BlockItem>
     </transition-group>
     <div v-if="notifications.length === 0">
@@ -61,12 +63,7 @@
           eventType: notification.event,
           objectType: notification.object,
           resourceType: notification.resource.type,
-          targetPage: {
-            ...notificationLink(notification),
-            query: {
-              last: 'homepage',
-            },
-          },
+          targetPage: notificationLink(notification),
           contentContext: notification.assignment.name,
           learnerContext,
         };

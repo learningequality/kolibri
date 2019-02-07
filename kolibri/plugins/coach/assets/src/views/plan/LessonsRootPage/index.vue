@@ -29,8 +29,7 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">{{ $tr('title') }}</th>
+            <th>{{ $tr('title') }}</th>
             <th>{{ $tr('size') }}</th>
             <th>{{ $tr('assignedGroupsHeader') }}</th>
             <th>
@@ -49,19 +48,19 @@
             v-show="showLesson(lesson)"
             :key="lesson.id"
           >
-            <td class="core-table-icon-col">
-              <ContentIcon :kind="lessonKind" />
-            </td>
-            <td class="core-table-main-col lesson-title-col">
-              <KRouterLink
-                :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-                :text="lesson.title"
-              />
+            <td>
+              <KLabeledIcon>
+                <KIcon slot="icon" lesson />
+                <KRouterLink
+                  :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                  :text="lesson.title"
+                />
+              </KLabeledIcon>
             </td>
             <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
             <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
             <td>
-              <StatusIcon :active="lesson.is_active" :type="lessonKind" />
+              <LessonActive :active="lesson.is_active" />
             </td>
           </tr>
         </transition-group>
@@ -106,10 +105,11 @@
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import {
     ContentNodeKinds,
     CollectionKinds,
@@ -117,9 +117,9 @@
   } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import LessonActive from '../../common/LessonActive';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
-  import StatusIcon from '../../plan/assignments/StatusIcon';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
   import LessonDetailEditor from '../../common/LessonDetailEditor';
@@ -137,11 +137,12 @@
       PlanHeader,
       CoreTable,
       CoreInfoIcon,
-      StatusIcon,
-      ContentIcon,
       KButton,
       KRouterLink,
       KSelect,
+      KLabeledIcon,
+      KIcon,
+      LessonActive,
       AssignmentDetailsModal,
     },
     mixins: [commonCoach],
@@ -246,10 +247,6 @@
 
 
 <style lang="scss" scoped>
-
-  .lesson-title-col {
-    width: 40%;
-  }
 
   .filter-and-button {
     display: flex;

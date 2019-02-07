@@ -4,8 +4,7 @@
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
         <h2>
-          <span class="icon"><slot name="icon"></slot></span>
-          {{ title }}
+          <slot name="title"></slot>
         </h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage alignment="right">
@@ -31,10 +30,6 @@
     name: 'Block',
     mixins: [commonCoach],
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
       allLinkText: {
         type: String,
         required: true,
@@ -53,12 +48,6 @@
 
   .block {
     margin-top: 16px;
-  }
-
-  .icon {
-    position: relative;
-    display: inline-block;
-    margin-right: 4px;
   }
 
   .btn {

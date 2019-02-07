@@ -8,7 +8,12 @@
       <div>
         <KGrid>
           <KGridItem sizes="100, 50, 50" percentage>
-            <h1>{{ content.title }}</h1>
+            <h1>
+              <KLabeledIcon>
+                <KBasicContentIcon slot="icon" :kind="content.kind" />
+                {{ content.title }}
+              </KLabeledIcon>
+            </h1>
           </KGridItem>
           <KGridItem sizes="100, 50, 50" percentage alignment="right">
             <SelectOptions

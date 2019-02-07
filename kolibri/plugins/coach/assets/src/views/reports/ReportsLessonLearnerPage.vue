@@ -16,25 +16,33 @@
           :text="lesson.title"
         />
       </p>
-      <h1>{{ learner.name }}</h1>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" person />
+          {{ learner.name }}
+        </KLabeledIcon>
+      </h1>
 
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('titleLabel') }}</td>
-            <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <td>{{ coachStrings.$tr('timeSpentLabel') }}</td>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('progressLabel') }}</th>
+            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KRouterLink
-                v-if="tableRow.kind === 'exercise'"
-                :text="tableRow.title"
-                :to="exerciseLink(tableRow.content_id)"
-              />
-              <template v-else>{{ tableRow.title }}</template>
+              <KLabeledIcon>
+                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+                <KRouterLink
+                  v-if="tableRow.kind === 'exercise'"
+                  :text="tableRow.title"
+                  :to="exerciseLink(tableRow.content_id)"
+                />
+                <template v-else>{{ tableRow.title }}</template>
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

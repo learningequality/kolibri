@@ -84,6 +84,9 @@ import KDragContainer from '../views/kSortable/KDragContainer';
 import KDragSortWidget from '../views/kSortable/KDragSortWidget';
 import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
 import KPageContainer from '../views/KPageContainer';
+import KIcon from '../views/icons/KIcon';
+import KLabeledIcon from '../views/icons/KLabeledIcon';
+import KBasicContentIcon from '../views/icons/KBasicContentIcon';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -183,6 +186,9 @@ export default {
       KDragSortWidget,
       KEmptyPlaceholder,
       KPageContainer,
+      KIcon,
+      KLabeledIcon,
+      KBasicContentIcon,
     },
     router,
     mixins: {

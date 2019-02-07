@@ -10,6 +10,7 @@
         <KButton
           :text="$tr('newUserButtonLabel')"
           :primary="true"
+          class="move-down"
           @click="displayModal(Modals.CREATE_USER)"
         />
       </KGridItem>
@@ -32,7 +33,7 @@
     </KGrid>
 
     <UserTable
-      class="user-roster"
+      class="user-roster move-down"
       :users="visibleUsers"
       :emptyMessage="emptyMessage"
     >
@@ -216,6 +217,11 @@
 
 
 <style lang="scss" scoped>
+
+  .move-down {
+    position: relative;
+    margin-top: 24px;
+  }
 
   .type-filter {
     margin-bottom: 0;

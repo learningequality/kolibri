@@ -1,21 +1,16 @@
 <template>
 
   <tr>
-
-    <td class="core-table-icon-col">
-      <mat-svg
-        class="icon"
-        category="action"
-        name="group_work"
-      />
+    <td>
+      <KLabeledIcon>
+        <KIcon slot="icon" group />
+        <KRouterLink
+          :text="group.name"
+          :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
+        />
+      </KLabeledIcon>
     </td>
-    <td class="core-table-main-col">
-      <KRouterLink
-        :text="group.name"
-        :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
-      />
-    </td>
-    <td class="ta-r">
+    <td>
       {{ group.users.length }}
     </td>
     <td class="ta-r">
@@ -38,6 +33,8 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import sortBy from 'lodash/sortBy';
   import commonCoach from '../../common';
 
@@ -46,6 +43,8 @@
     components: {
       KDropdownMenu,
       KRouterLink,
+      KLabeledIcon,
+      KIcon,
     },
     mixins: [commonCoach, responsiveWindow],
     props: {

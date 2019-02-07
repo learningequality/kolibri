@@ -10,6 +10,9 @@ import KGridItem from 'kolibri.coreVue.components.KGridItem';
 import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import KSelect from 'kolibri.coreVue.components.KSelect';
+import KIcon from 'kolibri.coreVue.components.KIcon';
+import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
@@ -39,9 +42,6 @@ import HeaderTab from './common/HeaderTabs/HeaderTab';
 import StatusSummary from './common/status/StatusSummary';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
-import ItemStatusRatio from './common/status/ItemStatusRatio';
-import ItemStatusCount from './common/status/ItemStatusCount';
-import ItemStatusLabel from './common/status/ItemStatusLabel';
 import Placeholder from './common/Placeholder';
 import { VERBS, ICONS } from './common/status/constants';
 
@@ -54,23 +54,28 @@ function formatPageTitle() {
   const { params } = this.$route;
 
   let strings = parts.map(part => {
-    switch (part) {
-      case 'GROUP_NAME':
-        return classSummary.groupMap[params.groupId].name;
-      case 'CLASS_NAME':
-        return classSummary.name;
-      case 'LEARNER_NAME':
-        return classSummary.learnerMap[params.learnerId].name;
-      case 'LESSON_NAME':
-        return classSummary.lessonMap[params.lessonId].title;
-      case 'QUIZ_NAME':
-        return classSummary.examMap[params.quizId].title;
-      case 'EXERCISE_NAME':
-        return classSummary.contentMap[params.exerciseId].title;
-      case 'RESOURCE_NAME':
-        return classSummary.contentMap[params.resourceId].title;
-      default:
-        return coachStrings.$tr(part);
+    try {
+      switch (part) {
+        case 'GROUP_NAME':
+          return classSummary.groupMap[params.groupId].name;
+        case 'CLASS_NAME':
+          return classSummary.name;
+        case 'LEARNER_NAME':
+          return classSummary.learnerMap[params.learnerId].name;
+        case 'LESSON_NAME':
+          return classSummary.lessonMap[params.lessonId].title;
+        case 'QUIZ_NAME':
+          return classSummary.examMap[params.quizId].title;
+        case 'EXERCISE_NAME':
+          return classSummary.contentMap[params.exerciseId].title;
+        case 'RESOURCE_NAME':
+          return classSummary.contentMap[params.resourceId].title;
+        default:
+          return coachStrings.$tr(part);
+      }
+    } catch (err) {
+      // TODO - make this error handling cleaner
+      return '';
     }
   });
 
@@ -122,6 +127,9 @@ export default {
     KGridItem,
     KRouterLink,
     KSelect,
+    KIcon,
+    KLabeledIcon,
+    KBasicContentIcon,
     Answer,
     BackLink,
     TruncatedItemList,
@@ -140,9 +148,6 @@ export default {
     StatusSummary,
     StatusSimple,
     HelpNeeded,
-    ItemStatusRatio,
-    ItemStatusCount,
-    ItemStatusLabel,
     Placeholder,
   },
   mixins: [coachStringsMixin],
