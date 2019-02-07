@@ -16,7 +16,12 @@
           :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
-      <h1>{{ resource.title }}</h1>
+      <h1>
+        <KLabeledIcon>
+          <KBasicContentIcon slot="icon" :kind="resource.kind" />
+          {{ resource.title }}
+        </KLabeledIcon>
+      </h1>
       <!-- TODO COACH
       <KButton :text="coachStrings.$tr('previewAction')" />
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />

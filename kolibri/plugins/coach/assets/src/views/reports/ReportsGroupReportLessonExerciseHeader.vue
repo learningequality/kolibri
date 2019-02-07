@@ -27,11 +27,11 @@
     <HeaderTabs>
       <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        :to="link('ReportsGroupReportLessonExerciseLearnerListPage')"
+        :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        :to="link('ReportsGroupReportLessonExerciseQuestionListPage')"
+        :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>
 
