@@ -206,7 +206,7 @@ class ExerciseDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
             ancestor_collection=collection_id,
             target_user=F("user"),
         )
-        data = queryset.values('item').annotate(correct=Sum('correct'), total=Count('correct'))
+        data = queryset.values('item').annotate(total=Count('correct')).annotate(correct=Sum('correct'))
         return Response(data)
 
 
