@@ -96,8 +96,8 @@ def check_name(str_arg):
 
 
 def create_artifact(str_arg):
-    buikite_path = get_kolibri_path() + "/.buildkite/"
-    txt_path = buikite_path + 'spreadsheet-link.txt'
+    buidkite_path = get_kolibri_path() + "/.buildkite/"
+    txt_path = buidkite_path + 'spreadsheet-link.txt'
     file = open(txt_path, 'w')
     file.write(str_arg)
     file.close()
@@ -329,9 +329,9 @@ def create_spreadsheet():
     cell_counter = 0
     for cell in cell_list:
         try:
-            feature_vall = feature_contents[cell_counter]
-            if not feature_vall == CELL_VALUE_SEPARATOR:
-                    cell.value = feature_vall
+            feature_val = feature_contents[cell_counter]
+            if not feature_val == CELL_VALUE_SEPARATOR:
+                    cell.value = feature_val
             cell_counter += 1
         except Exception:
             pass

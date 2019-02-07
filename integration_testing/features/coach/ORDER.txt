@@ -3,6 +3,8 @@ coach-change-profile-information.feature
 coach-change-language.feature
 coach-create-group.feature
 coach-rename-group.feature
+coach-class-reports-groups.feature
+coach-assign-learners-groups.feature
 coach-delete-group.feature
 coach-create-lesson.feature
 coach-activate-lesson.feature
@@ -14,8 +16,6 @@ coach-lesson-remove-resources.feature
 coach-rename-lesson.feature
 coach-reassign-lesson.feature
 coach-copy-lesson.feature
-coach-assign-learners-groups.feature
-coach-class-reports-groups.feature
 coach-class-reports-learners.feature
 coach-class-reports-lessons.feature
 coach-class-reports-quizzes.feature
