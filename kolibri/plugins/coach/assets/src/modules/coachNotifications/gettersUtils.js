@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import findKey from 'lodash/findKey';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
@@ -88,7 +89,7 @@ function makeParams(notification) {
     groupId: notification.collection.id,
     lessonId: notification.assignment.id,
     quizId: notification.assignment.id,
-    resourceId: notification.resource.id,
+    resourceId: notification.resource.content_id,
     exerciseId: notification.resource.content_id,
     learnerId: notification.learnerSummary.firstUserId,
     // For individual Quiz or Exercise notifications, default to first index for everything
