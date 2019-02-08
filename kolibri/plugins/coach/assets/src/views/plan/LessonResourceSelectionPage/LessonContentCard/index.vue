@@ -53,7 +53,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -69,6 +69,7 @@
       CoachContentLabel,
       KRouterLink,
     },
+    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -105,7 +106,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       isTopic() {
         return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },

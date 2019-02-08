@@ -31,7 +31,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import { now } from 'kolibri.utils.serverClock';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -44,7 +44,7 @@
       UiIconButton,
       CoreFullscreen,
     },
-    mixins: [contentRendererMixin],
+    mixins: [contentRendererMixin, themeMixin],
     props: {
       defaultFile: {
         type: Object,
@@ -57,7 +57,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreBgCanvas']),
       rooturl() {
         return this.defaultFile.storage_url;
       },

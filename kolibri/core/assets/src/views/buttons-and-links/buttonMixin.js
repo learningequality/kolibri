@@ -1,4 +1,4 @@
-import { mapGetters } from 'vuex';
+import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 import { FLAT_BUTTON, RAISED_BUTTON, BASIC_LINK, validator } from './appearances.js';
 
 const $primaryRaisedColor = 'white';
@@ -11,6 +11,7 @@ const disabledStyle = {
 };
 
 export default {
+  mixins: [themeMixin],
   props: {
     /**
      * Button label text
@@ -36,14 +37,6 @@ export default {
     },
   },
   computed: {
-    ...mapGetters([
-      '$coreGrey200',
-      '$coreGrey300',
-      '$coreOutline',
-      '$coreActionDark',
-      '$coreActionNormal',
-      '$coreTextDefault',
-    ]),
     buttonClasses() {
       const buttonClass = 'button';
       const linkClass = 'link';

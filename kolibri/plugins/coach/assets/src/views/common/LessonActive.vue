@@ -12,9 +12,9 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'LessonActive',
@@ -22,6 +22,7 @@
       KLabeledIcon,
       KIcon,
     },
+    mixins: [themeMixin],
     props: {
       active: {
         type: Boolean,
@@ -33,7 +34,6 @@
       inactive: 'Inactive',
     },
     computed: {
-      ...mapGetters(['$coreStatusCorrect', '$coreGrey300']),
       label() {
         return this.active ? this.$tr('active') : this.$tr('inactive');
       },

@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import SubmissionStatePage from './SubmissionStatePage';
 
@@ -39,9 +39,7 @@
         "If retrying doesn't work, restart the server and refresh the page.",
       errorPageRetryButtonLabel: 'Retry',
     },
-    computed: {
-      ...mapGetters(['$coreTextAnnotation']),
-    },
+    mixins: [themeMixin],
     methods: {
       refreshPage() {
         global.location.reload(true);

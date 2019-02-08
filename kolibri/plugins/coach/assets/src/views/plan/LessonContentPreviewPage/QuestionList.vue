@@ -31,7 +31,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
@@ -39,6 +39,7 @@
     components: {
       KButton,
     },
+    mixins: [themeMixin],
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',
       questionLabel: 'Question { questionNumber, number }',
@@ -60,7 +61,6 @@
       },
     },
     computed: {
-      ...mapGetters(['coreTextDisabled', '$coreGrey300']),
       buttonAndHeaderBorder() {
         return {
           borderBottom: `2px solid ${this.$coreTextDisabled}`,

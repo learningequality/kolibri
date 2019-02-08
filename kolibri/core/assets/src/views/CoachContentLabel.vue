@@ -34,7 +34,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -44,6 +44,7 @@
       UiIcon,
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       value: {
         type: Number,
@@ -56,7 +57,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusProgress']),
       titleText() {
         if (this.isTopic) {
           return this.$tr('topicTitle', { count: this.value });

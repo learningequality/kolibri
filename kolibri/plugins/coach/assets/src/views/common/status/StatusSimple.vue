@@ -13,7 +13,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { STATUSES } from '../../../modules/classSummary/constants';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressLabel from './LearnerProgressLabel';
@@ -37,6 +37,7 @@
     components: {
       LearnerProgressLabel,
     },
+    mixins: [themeMixin],
     props: {
       verbose: {
         type: Boolean,
@@ -48,7 +49,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey300']),
       verb() {
         return VERB_MAP[this.status];
       },

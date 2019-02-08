@@ -94,7 +94,8 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -137,13 +138,13 @@
       UiAlert,
       MultiPaneLayout,
     },
+    mixins: [themeMixin],
     data() {
       return {
         submitModalOpen: false,
       };
     },
     computed: {
-      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       ...mapState(['examAttemptLogs']),
       ...mapState('examViewer', [
         'channelId',

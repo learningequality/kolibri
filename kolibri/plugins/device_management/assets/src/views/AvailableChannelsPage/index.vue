@@ -93,6 +93,7 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
@@ -127,7 +128,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},
@@ -136,7 +137,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',

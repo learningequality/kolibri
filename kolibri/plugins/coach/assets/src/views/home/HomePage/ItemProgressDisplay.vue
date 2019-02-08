@@ -42,7 +42,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
@@ -51,7 +51,7 @@
     components: {
       ProgressSummaryBar,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, themeMixin],
     props: {
       name: {
         type: String,
@@ -74,9 +74,6 @@
         required: false,
         validators: validateLinkObject,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreTextDefault']),
     },
   };
 

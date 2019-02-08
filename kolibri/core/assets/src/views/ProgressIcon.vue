@@ -32,7 +32,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -46,6 +46,7 @@
       UiIcon,
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       progress: {
         type: Number,
@@ -56,7 +57,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered']),
       isInProgress() {
         return this.progress !== null && this.progress >= 0 && this.progress < 1;
       },

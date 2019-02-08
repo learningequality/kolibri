@@ -23,6 +23,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -33,8 +34,9 @@
       PointsIcon,
       KTooltip,
     },
+    mixins: [themeMixin],
     computed: {
-      ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn', '$coreTextAnnotation']),
+      ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {

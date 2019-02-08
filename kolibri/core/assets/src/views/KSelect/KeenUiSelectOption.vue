@@ -43,15 +43,15 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'KeenUiSelectOption',
-
     components: {
       UiIcon,
     },
+    mixins: [themeMixin],
 
     props: {
       option: {
@@ -86,7 +86,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
           `ui-select-option--type-${this.type}`,

@@ -47,7 +47,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
 
   export default {
@@ -60,6 +60,7 @@
     components: {
       KLinearLoader,
     },
+    mixins: [themeMixin],
     props: {
       heading: {
         type: String,
@@ -77,9 +78,6 @@
         type: Boolean,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreGrey200']),
     },
     methods: {
       handleChange(newValue) {

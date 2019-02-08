@@ -69,7 +69,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
@@ -77,6 +77,7 @@
     components: {
       CoachContentLabel,
     },
+    mixins: [themeMixin],
     $trs: {
       header: 'Answer history',
       today: 'Today',
@@ -93,15 +94,6 @@
         type: Number,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters([
-        '$coreBgLight',
-        '$coreTextAnnotation',
-        '$coreStatusWrong',
-        '$coreStatusCorrect',
-        '$coreTextDisabled',
-      ]),
     },
     mounted() {
       this.$nextTick(() => {

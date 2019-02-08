@@ -21,7 +21,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   export default {
@@ -30,13 +30,11 @@
     $trs: {
       viewMoreFromSectionButton: 'View more',
     },
+    mixins: [themeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },
       showViewMore: { type: Boolean },
-    },
-    computed: {
-      ...mapGetters(['$coreTextDefault']),
     },
   };
 

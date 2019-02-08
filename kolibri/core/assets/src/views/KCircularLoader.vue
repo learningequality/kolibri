@@ -80,14 +80,14 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   /**
    * Used to show indeterminate loading
    */
   export default {
     name: 'KCircularLoader',
-
+    mixins: [themeMixin],
     props: {
       /**
        * Whether there should be a delay before the loader displays
@@ -120,7 +120,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreLoading', '$coreActionNormal']),
       classes() {
         return [`ui-progress-circular--type-${this.type}`];
       },

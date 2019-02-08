@@ -170,7 +170,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import fuzzysearch from 'fuzzysearch';
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
@@ -190,7 +190,7 @@
       KCircularLoader,
       KeenUiSelectOption,
     },
-
+    mixins: [themeMixin],
     props: {
       name: String,
       value: {
@@ -279,7 +279,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
           `ui-select-type-${this.type}`,

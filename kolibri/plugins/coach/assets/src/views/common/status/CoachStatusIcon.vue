@@ -13,8 +13,8 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ICONS } from './constants';
 
   export default {
@@ -22,6 +22,7 @@
     components: {
       KIcon,
     },
+    mixins: [themeMixin],
     props: {
       icon: {
         type: String,
@@ -32,12 +33,6 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreStatusMastered',
-        '$coreStatusProgress',
-        '$coreStatusWrong',
-        '$coreGrey300',
-      ]),
       ICONS() {
         return ICONS;
       },
