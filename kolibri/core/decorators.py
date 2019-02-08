@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import sys
 from functools import wraps
 
+from django.utils.cache import patch_response_headers
+
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from six import string_types
@@ -320,3 +322,19 @@ def signin_redirect_exempt(view_func):
 
     wrapped_view.signin_redirect_exempt = True
     return wraps(view_func)(wrapped_view)
+
+
+def cache_no_user_data(view_func):
+    """
+    Set appropriate Vary on headers on a view that specify there is
+    no user specific data being rendered in the view.
+    """
+    def inner_func(*args, **kwargs):
+        request = args[0]
+        del request.session
+        response = view_func(*args, **kwargs)
+        headers = ['accept-language', 'accept-encoding', 'accept', 'user-agent']
+        patch_response_headers(response, cache_timeout=300)
+        response['Vary'] = ', '.join(headers)
+        return response
+    return inner_func
