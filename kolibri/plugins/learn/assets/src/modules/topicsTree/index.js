@@ -10,6 +10,7 @@ function defaultState() {
     topic: {},
     // used in RECOMMENDED_CONTENT
     recommended: [],
+    progress: null,
   };
 }
 
@@ -24,18 +25,21 @@ export default {
       state.isRoot = payload.isRoot || null;
       state.topic = payload.topic || {};
       state.recommended = payload.recommended || [];
-      state.childrenChildren = payload.childrenChildren || null;
+      state.progress = payload.progress || null;
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },
     SET_NODE_PROGRESS(state, progressArray) {
+      console.log('contents:', JSON.stringify(state.contents));
       progressArray.forEach(progress => {
         const contentNode = state.contents.find(node => node.id === progress.id);
+        console.log('contentNode', JSON.stringify(contentNode));
         if (contentNode) {
           Vue.set(contentNode, 'progress', progress.progress_fraction);
         }
       });
+      console.log('contents after:', JSON.stringify(state.contents));
     },
   },
 };

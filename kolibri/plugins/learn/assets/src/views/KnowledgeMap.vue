@@ -2,7 +2,7 @@
 
   <div>
 
-    <PageHeader :title="topic.title" />
+    <PageHeader :title="topic.title" :progress="progress" />
 
     <TextTruncator
       v-if="topic.description"
@@ -23,9 +23,18 @@
     <!--<hr>-->
 
     <div v-for="child in contents">
-      <PageHeader :title="child.title" />
+      {{ hidden }}
+      <PageHeader :title="child.title" :progress="child.progress" @click.native="hidden = !hidden" />
+      <!--<UiIconButton-->
+      <!--size="small"-->
+      <!--type="secondary"-->
+      <!--@click="hidden = !hidden"-->
+      <!--&gt;-->
+      <!--<mat-svg v-if="hidden" name="expand_less" category="navigation" />-->
+      <!--<mat-svg v-else name="expand_more" category="navigation" />-->
+      <!--</UiIconButton>-->
       <ContentCardGroupGrid
-        v-if="child.children.length"
+        v-if="child.children.length && hidden"
         :contents="child.children"
         :genContentLink="genContentLink"
       />
@@ -74,7 +83,7 @@
       return { title };
     },
     computed: {
-      ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic', 'childrenChildren']),
+      ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic', 'progress']),
       channelId() {
         return this.channel.id;
       },
@@ -95,6 +104,11 @@
           params: { channel_id: this.channelId, id },
         };
       },
+    },
+    data: function() {
+      return {
+        hidden: false,
+      };
     },
   };
 

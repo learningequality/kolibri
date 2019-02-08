@@ -21,7 +21,7 @@
       reference="icon"
       :refs="$refs"
     >
-      {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
+      {{ isInProgress ? $tr('inProgress') + ": " + progress : $tr('completed') }}
     </KTooltip>
   </span>
 
