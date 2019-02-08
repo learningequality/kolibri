@@ -17,17 +17,8 @@
         v-show="showNotification(notification)"
         :key="notification.id"
         v-bind="cardPropsForNotification(notification)"
-      >
-        <KRouterLink
-          v-if="notification.targetPage"
-          :to="notification.targetPage"
-          :text="cardTextForNotification(notification)"
-        />
-
-        <span v-else>
-          {{ cardTextForNotification(notification) }}
-        </span>
-      </NotificationCard>
+        :linkText="cardTextForNotification(notification)"
+      />
     </div>
 
     <div
@@ -60,7 +51,6 @@
   import get from 'lodash/get';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
   import { nStringsMixin } from '../notifications/notificationStrings';
@@ -68,7 +58,7 @@
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
-  import NotificationCard from './NotificationCardNoLink';
+  import NotificationCard from './NotificationCard';
   import NotificationsFilter from './NotificationsFilter';
 
   const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
@@ -77,7 +67,6 @@
     name: 'ActivityList',
     components: {
       KLinearLoader,
-      KRouterLink,
       NotificationsFilter,
       NotificationCard,
     },
@@ -298,17 +287,28 @@
           }
         }
 
+        let assignment = {};
+        if (object === QUIZ) {
+          assignment = {
+            name: notification.quiz,
+            type: ContentNodeKinds.EXAM,
+            id: notification.quiz_id,
+          };
+        } else {
+          assignment = {
+            name: notification.lesson,
+            type: ContentNodeKinds.LESSON,
+            id: notification.lesson_id,
+          };
+        }
+
         const baseNotification = {
           event: notification.event,
           object,
           timestamp: notification.timestamp,
           collection,
           id: Number(notification.id),
-          assignment: {
-            name: object === QUIZ ? notification.quiz : notification.lesson,
-            type: object === QUIZ ? ContentNodeKinds.EXAM : ContentNodeKinds.LESSON,
-            id: object === QUIZ ? notification.quiz_id : notification.lesson_id,
-          },
+          assignment,
           resource: {
             name: notification.resource || '',
             type: notification.contentnode_kind,
@@ -348,6 +348,7 @@
           contentContext: notification.assignment.name,
           learnerContext,
           time: notification.timestamp,
+          targetPage: notification.targetPage,
         };
       },
     },
