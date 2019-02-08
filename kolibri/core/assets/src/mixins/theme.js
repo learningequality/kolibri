@@ -1,8 +1,8 @@
 import { mapGetters } from 'vuex';
-import themeModule, { nameSpace } from '../state/modules/theme';
+import themeModule, { THEME_MODULE_NAMESPACE } from '../state/modules/theme';
 
 export default {
   computed: {
-    ...mapGetters(nameSpace, Object.keys(themeModule.getters)),
+    ...mapGetters(THEME_MODULE_NAMESPACE, Object.keys(themeModule.getters)),
   },
 };

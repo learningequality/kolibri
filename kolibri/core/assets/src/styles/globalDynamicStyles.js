@@ -1,6 +1,6 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
 import store from 'kolibri.coreVue.vuex.store';
-import { nameSpace } from '../state/modules/theme';
+import { THEME_MODULE_NAMESPACE } from '../state/modules/theme';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {
@@ -15,7 +15,7 @@ const globalExtension = { selectorHandler: globalSelectorHandler };
 const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
 function getter(value) {
-  return store.getters[`${nameSpace}/${value}`];
+  return store.getters[`${THEME_MODULE_NAMESPACE}/${value}`];
 }
 
 function generateGlobalStyles() {
