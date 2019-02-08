@@ -142,6 +142,7 @@
         'inLocalImportMode',
         'inRemoteImportMode',
         'inExportMode',
+        'isStudioApplication',
       ]),
       ...mapState('manageContent/wizard', [
         'availableChannels',
@@ -184,7 +185,7 @@
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.inRemoteImportMode;
+        return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       allLanguagesOption() {
         return {

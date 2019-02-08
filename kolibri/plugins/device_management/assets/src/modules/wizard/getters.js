@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
 import sumBy from 'lodash/sumBy';
-import { TransferTypes } from '../../constants';
+import { ApplicationTypes, TransferTypes } from '../../constants';
 
 export function cachedTopicPath(state) {
   return function getPath(id) {
@@ -50,6 +50,10 @@ export function inRemoteImportMode(state) {
 
 export function inPeerImportMode(state) {
   return state.transferType === TransferTypes.PEERIMPORT;
+}
+
+export function isStudioApplication(state) {
+  return state.selectedPeer.application === ApplicationTypes.STUDIO;
 }
 
 export function driveCanBeUsedForTransfer(state, getters, rootState, rootGetters) {
