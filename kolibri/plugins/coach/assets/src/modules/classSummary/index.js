@@ -39,6 +39,7 @@ function defaultState() {
      *     question_sources: [{exercise_id, question_id}, ...],
      *     groups: [id, ...],
      *     data_model_version,
+     *     question_count,
      *   }
      * }
      */
@@ -108,9 +109,13 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
       return { status: STATUSES.notStarted };
     }
     const content_id = state.contentNodeMap[node_id].content_id;
-    return get(state.contentLearnerStatusMap, [content_id, learnerId], {
-      status: STATUSES.notStarted,
-    });
+    return {
+      status: get(
+        state.contentLearnerStatusMap,
+        [content_id, learnerId, 'status'],
+        STATUSES.notStarted
+      ),
+    };
   });
 
   const tally = {
@@ -236,7 +241,26 @@ export default {
       Object.values(state.lessonMap).forEach(lesson => {
         map[lesson.id] = {};
         Object.values(state.learnerMap).forEach(learner => {
-          map[lesson.id][learner.id] = _lessonStatusForLearner(state, lesson.id, learner.id);
+          let last = null;
+          // for all content items this learner has interacted with
+          // determine the latest interaction activity
+          Object.values(lesson.node_ids).forEach(node_id => {
+            const content_id = get(state.contentNodeMap, [node_id, 'content_id'], null);
+            const last_activity = get(
+              state.contentLearnerStatusMap,
+              [content_id, learner.id, 'last_activity'],
+              null
+            );
+            if (last_activity > last) {
+              last = last_activity;
+            }
+          });
+          map[lesson.id][learner.id] = {
+            lesson_id: lesson.id,
+            learner_id: learner.id,
+            status: _lessonStatusForLearner(state, lesson.id, learner.id),
+            last_activity: last,
+          };
         });
       });
       return map;
@@ -251,6 +275,7 @@ export default {
         exams: state.examMap,
         classId: state.id,
         className: state.name,
+        contentNodes: state.contentNodeMap,
       };
     },
   },
@@ -264,8 +289,7 @@ export default {
         if (status.num_correct === null) {
           status.score = null;
         } else {
-          status.score =
-            (1.0 * status.num_correct) / examMap[status.exam_id].question_sources.length;
+          status.score = (1.0 * status.num_correct) / examMap[status.exam_id].question_count;
         }
       });
       summary.content_learner_status.forEach(status => {
@@ -340,6 +364,9 @@ export default {
       return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
         store.commit('SET_STATE', summary);
       });
+    },
+    refreshClassSummary(store) {
+      return store.dispatch('loadClassSummary', store.state.id);
     },
   },
 };

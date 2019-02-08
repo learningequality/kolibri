@@ -71,9 +71,9 @@
     <Bottom>
       <KRouterLink
         :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachStrings.$tr('finishAction')"
-        primary
+        :primary="true"
         appearance="raised-button"
-        :to="toolbarRoute"
+        :to="exitButtonRoute"
       />
     </Bottom>
 
@@ -210,6 +210,16 @@
       channelsLink() {
         return selectionRootLink(this.$route.params);
       },
+      exitButtonRoute() {
+        const lastId = this.$route.query.last_id;
+        if (this.inSearchMode && lastId) {
+          return topicListingLink({ ...this.routerParams, topicId: lastId });
+        } else if (this.inSearchMode) {
+          return selectionRootLink({ ...this.routerParams });
+        } else {
+          return this.toolbarRoute;
+        }
+      },
     },
     watch: {
       workingResources(newVal, oldVal) {
@@ -321,14 +331,6 @@
             }),
           },
         };
-      },
-      handleExitSearch() {
-        const lastId = this.$route.query.last_id;
-        if (lastId) {
-          this.$router.push(topicListingLink({ ...this.routerParams, topicId: lastId }));
-        } else {
-          this.$router.push(selectionRootLink({ ...this.routerParams }));
-        }
       },
       saveResources() {
         return this.saveLessonResources({

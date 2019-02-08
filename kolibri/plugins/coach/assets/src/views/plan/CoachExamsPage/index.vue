@@ -29,8 +29,7 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">{{ $tr('title') }}</th>
+            <th>{{ $tr('title') }}</th>
             <th>{{ $tr('assignedGroupsHeader') }}</th>
             <th>
               {{ $tr('status') }}
@@ -48,18 +47,17 @@
             v-for="exam in filteredExams"
             :key="exam.id"
           >
-            <td class="core-table-icon-col">
-              <ContentIcon :kind="examKind" />
-            </td>
-
-            <td class="core-table-main-col">
-              {{ exam.title }}
+            <td>
+              <KLabeledIcon>
+                <KIcon slot="icon" quiz />
+                {{ exam.title }}
+              </KLabeledIcon>
             </td>
 
             <td> {{ genRecipientsString(exam.groups) }} </td>
 
             <td>
-              <StatusIcon :active="exam.active" :type="examKind" />
+              <QuizActive :active="exam.active" />
             </td>
 
             <td class="options">
@@ -88,7 +86,9 @@
 
     <AssignmentDetailsModal
       v-if="showEditModal"
+      ref="detailsModal"
       :modalTitle="manageExamModalStrings.$tr('editExamDetails')"
+      :modalTitleErrorMessage="manageExamModalStrings.$tr('duplicateTitle')"
       :submitErrorMessage="manageExamModalStrings.$tr('saveExamError')"
       :showDescriptionField="false"
       :isInEditMode="true"
@@ -139,10 +139,11 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import StatusIcon from '../../plan/assignments/StatusIcon';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -150,6 +151,7 @@
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
+  import QuizActive from '../../common/QuizActive';
   import ExamReportPage from './ExamReportPage';
   import ManageExamModals from './ManageExamModals';
 
@@ -189,11 +191,12 @@
       KRouterLink,
       KSelect,
       CoreInfoIcon,
-      ContentIcon,
-      StatusIcon,
       AssignmentDetailsModal,
       AssignmentCopyModal,
       AssignmentDeleteModal,
+      QuizActive,
+      KLabeledIcon,
+      KIcon,
     },
     mixins: [commonCoach],
     data() {
@@ -298,16 +301,25 @@
           active: result.active,
           assignments: this.serverAssignmentPayload(listOfIDs),
         };
-        this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload }).then(() => {
-          const object = {
-            id: this.editExam.id,
-            title: result.title,
-            groups: this.clientAssigmentState(listOfIDs),
-            active: result.active,
-          };
-          this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
-          this.showEditModal = false;
-        });
+        this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload })
+          .then(() => {
+            const object = {
+              id: this.editExam.id,
+              title: result.title,
+              groups: this.clientAssigmentState(listOfIDs),
+              active: result.active,
+            };
+            this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
+            this.showEditModal = false;
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else {
+              this.$refs.detailsModal.handleSubmitFailure();
+            }
+          });
       },
       handleExamCopy(selectedClassroomId, listOfIDs) {
         const title = manageExamModalStrings

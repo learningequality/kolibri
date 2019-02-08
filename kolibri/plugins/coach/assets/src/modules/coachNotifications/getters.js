@@ -1,4 +1,5 @@
 import groupBy from 'lodash/groupBy';
+import get from 'lodash/get';
 import find from 'lodash/find';
 import maxBy from 'lodash/maxBy';
 import { NotificationObjects } from '../../constants/notificationsConstants';
@@ -62,6 +63,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     if (object === RESOURCE) {
       resource = {
         id: firstEvent.contentnode_id,
+        content_id: get(classSummary.contentNodes, [firstEvent.contentnode_id, 'content_id'], ''),
         type: firstEvent.contentnode_kind,
         name: firstEvent.resource,
       };
@@ -114,9 +116,6 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         },
       });
     }
-
-    // If 'assigneeCollections' is null, it means the assignment was deleted
-    if (assigneeCollections === null) continue;
   }
 
   return summaryEvents;

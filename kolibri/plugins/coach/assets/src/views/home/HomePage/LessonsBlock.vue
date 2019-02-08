@@ -1,11 +1,14 @@
 <template>
 
   <Block
-    :title="coachStrings.$tr('lessonsLabel')"
     :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
-    <ContentIcon slot="icon" :kind="ContentNodeKinds.LESSON" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" lesson />
+      {{ coachStrings.$tr('lessonsLabel') }}
+    </KLabeledIcon>
+
     <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"
@@ -15,6 +18,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :to="classRoute('ReportsLessonLearnerListPage', { lessonId: tableRow.key })"
       />
     </BlockItem>
   </Block>
@@ -67,13 +71,14 @@
     methods: {
       // return the last activity among all users for a particular lesson
       lastActivity(lesson) {
-        let last = null;
+        // Default to UNIX 0 so activity-less lessons go to the end of the list
+        let last = new Date(0);
         if (!this.lessonLearnerStatusMap[lesson.id]) {
-          return undefined;
+          return last;
         }
-        Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(status => {
-          if (status.last_activity > last) {
-            last = status.last_activity;
+        Object.values(this.lessonLearnerStatusMap[lesson.id]).forEach(learner => {
+          if (learner.last_activity > last) {
+            last = learner.last_activity;
           }
         });
         return last;
@@ -85,4 +90,3 @@
 
 
 <style lang="scss" scoped></style>
-

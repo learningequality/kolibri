@@ -16,23 +16,30 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('titleLabel') }}</td>
-            <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <td>{{ coachStrings.$tr('scoreLabel') }}</td>
-            <td>{{ coachStrings.$tr('groupsLabel') }}</td>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('progressLabel') }}</th>
+            <th>{{ coachStrings.$tr('scoreLabel') }}</th>
+            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink
-                :text="tableRow.name"
-                :to="classRoute('ReportsQuizLearnerPage', {
-                  learnerId: tableRow.id,
-                  questionId: 0,
-                  interactionIndex: 0
-                })"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" person />
+                <KRouterLink
+                  v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsQuizLearnerPage', {
+                    learnerId: tableRow.id,
+                    questionId: 0,
+                    interactionIndex: 0
+                  })"
+                />
+                <template v-else>
+                  {{ tableRow.name }}
+                </template>
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

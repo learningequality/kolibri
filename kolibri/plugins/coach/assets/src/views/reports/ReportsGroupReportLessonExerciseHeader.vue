@@ -8,7 +8,12 @@
         :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
-    <h1>{{ exercise.title }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" exercise />
+        {{ exercise.title }}
+      </KLabeledIcon>
+    </h1>
 
     <!--
     <p>{{ exercise.description }}</p>
@@ -22,11 +27,11 @@
     <HeaderTabs>
       <HeaderTab
         :text="coachStrings.$tr('reportLabel')"
-        :to="link('ReportsGroupReportLessonExerciseLearnerListPage')"
+        :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
         :text="coachStrings.$tr('difficultQuestionsLabel')"
-        :to="link('ReportsGroupReportLessonExerciseQuestionListPage')"
+        :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>
 

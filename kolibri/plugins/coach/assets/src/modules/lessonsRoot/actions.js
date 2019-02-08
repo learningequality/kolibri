@@ -32,7 +32,6 @@ export function createLesson(store, { classId, payload }) {
       },
     })
       .then(newLesson => {
-        router.push(lessonSummaryLink({ classId, lessonId: newLesson.id }));
         store.dispatch(
           'createSnackbar',
           {
@@ -41,10 +40,14 @@ export function createLesson(store, { classId, payload }) {
           },
           { root: true }
         );
-        resolve();
+        // Update the class summary now that we have a new lesson in town!
+        store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+          router.push(lessonSummaryLink({ classId, lessonId: newLesson.id }));
+          resolve();
+        });
       })
-      .catch(() => {
-        reject();
+      .catch(error => {
+        reject(error);
       });
   });
 }

@@ -21,8 +21,8 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('questionLabel') }}</td>
-            <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+            <th>{{ coachStrings.$tr('questionLabel') }}</th>
+            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

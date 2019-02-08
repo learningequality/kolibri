@@ -83,8 +83,12 @@
     position: relative;
   }
 
-  .icon {
-    vertical-align: text-bottom;
+  // from KIcon
+  svg {
+    position: relative;
+    top: 0.125em;
+    width: 1.125em;
+    height: 1.125em;
   }
 
 </style>

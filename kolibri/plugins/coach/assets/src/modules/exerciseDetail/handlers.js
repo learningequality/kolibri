@@ -1,7 +1,7 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 
-export function exerciseRootRedirectHandler(params, name, next) {
+export function exerciseRootRedirectHandler(params, name, next, query) {
   return showExerciseDetailView(params).then(attemptId => {
     next({
       name: name,
@@ -10,6 +10,7 @@ export function exerciseRootRedirectHandler(params, name, next) {
         attemptId,
         interactionIndex: 0,
       },
+      query,
     });
   });
 }

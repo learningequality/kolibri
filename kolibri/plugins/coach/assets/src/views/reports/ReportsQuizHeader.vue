@@ -8,7 +8,12 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ exam.title }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" quiz />
+        {{ exam.title }}
+      </KLabeledIcon>
+    </h1>
 
     <!-- COACH TODO
     <KDropdownMenu
@@ -31,7 +36,7 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('percentage', { value: avgScore }) }}</template>
+        <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>

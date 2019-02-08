@@ -3,13 +3,16 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .. import models
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+
 
 DUMMY_PASSWORD = "password"
 
@@ -229,6 +232,24 @@ class ExamAPITestCase(APITestCase):
             "collection": self.facility.id,
         })
         self.assertEqual(response.status_code, 403)
+
+    def test_cannot_create_exam_same_title_case_insensitive(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("kolibri:core:exam-list"), {
+            "title": "TiTlE",
+            "question_count": 1,
+            "active": True,
+            "collection": self.facility.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
+            "assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
 class ExamAssignmentAPITestCase(APITestCase):

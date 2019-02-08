@@ -392,8 +392,13 @@ export default [
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
-      const { params } = to;
-      return exerciseRootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      const { params, query } = to;
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLessonExerciseLearnerPage.name,
+        next,
+        query
+      );
     },
     meta: {
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],

@@ -200,12 +200,13 @@ export class HeartBeat {
     if (this.timerId) {
       clearTimeout(this.timerId);
     }
-    return this.checkSession().finally(() => {
+    const final = () => {
       if (this.enabled) {
         this.setInactive();
         this.wait();
       }
-    });
+    };
+    return this.checkSession().then(final, final);
   }
   get events() {
     return [

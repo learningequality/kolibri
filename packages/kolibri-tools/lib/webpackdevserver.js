@@ -32,7 +32,7 @@ const CONFIG = {
 
 function webpackConfig(pluginData, hot) {
   const pluginBundle = webpackBaseConfig(pluginData, { hot });
-  pluginBundle.devtool = '#cheap-module-source-map';
+  pluginBundle.devtool = 'cheap-module-source-map';
   pluginBundle.plugins = pluginBundle.plugins.concat([
     new webpack.DefinePlugin({
       'process.env': {

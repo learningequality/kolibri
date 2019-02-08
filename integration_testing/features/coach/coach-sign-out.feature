@@ -1,5 +1,5 @@
 Feature: Coach sign-out
-  Coach need to be able to sign out when finished using Kolibri
+  Coach needs to be able to sign out when finished using Kolibri
 
   Background:
     Given I am signed in to Kolibri as coach user
