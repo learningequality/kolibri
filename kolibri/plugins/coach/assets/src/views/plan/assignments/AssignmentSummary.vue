@@ -74,7 +74,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -93,6 +93,7 @@
       HeaderTable,
       HeaderTableRow,
     },
+    mixins: [themeMixin],
     props: {
       kind: {
         type: String,
@@ -133,7 +134,6 @@
       entireClass: 'Entire class',
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation']),
       showDescription() {
         return this.description !== null;
       },

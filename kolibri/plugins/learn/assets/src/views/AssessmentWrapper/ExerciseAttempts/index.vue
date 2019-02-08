@@ -25,12 +25,13 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import AnswerIcon from './AnswerIcon';
 
   export default {
     name: 'ExerciseAttempts',
     components: { AnswerIcon },
+    mixins: [themeMixin],
     props: {
       // Creates an empty space awaiting a new attempt
       waitingForAttempt: {
@@ -52,7 +53,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation']),
       numItemsToRender() {
         if (this.waitingForAttempt) {
           return this.numSpaces;

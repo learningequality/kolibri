@@ -60,6 +60,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -82,7 +83,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, themeMixin],
     $trs: {},
     data() {
       return {
@@ -98,7 +99,6 @@
         'questionId',
         'title',
       ]),
-      ...mapGetters(['$coreBgLight']),
       ...mapGetters('questionDetail', [
         'currentLearner',
         'currentInteraction',

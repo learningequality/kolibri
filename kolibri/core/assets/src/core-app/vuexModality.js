@@ -1,4 +1,9 @@
-/* global kolibriGlobal */
+import store from 'kolibri.coreVue.vuex.store';
+import logger from 'kolibri.lib.logging';
+import { nameSpace } from '../state/modules/theme';
+
+const logging = logger.getLogger(__filename);
+
 /**
  * Adapted from https://github.com/alice/modality
  * Version: 1.0.2
@@ -42,8 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return el.msMatchesSelector;
     }
 
-    /* eslint-disable-next-line */
-    console.error("Couldn't find any matchesSelector method on document.body.");
+    logging.error("Couldn't find any matchesSelector method on document.body.");
   })();
 
   const disableFocusRingByDefault = function() {
@@ -96,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'focus',
     e => {
       if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target)) {
-        kolibriGlobal.coreVue.vuex.store.commit('SET_MODALITY', 'keyboard');
+        store.commit(`${nameSpace}/SET_MODALITY`, 'keyboard');
       }
     },
     true
@@ -105,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.addEventListener(
     'blur',
     () => {
-      kolibriGlobal.coreVue.vuex.store.commit('SET_MODALITY', null);
+      store.commit(`${nameSpace}/SET_MODALITY`, null);
     },
     true
   );

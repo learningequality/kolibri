@@ -23,7 +23,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -33,6 +33,7 @@
       UiIcon,
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       iconAriaLabel: {
         type: String,
@@ -46,9 +47,6 @@
         type: String,
         required: false,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreAccentColor']),
     },
   };
 

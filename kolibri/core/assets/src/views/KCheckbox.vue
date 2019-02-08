@@ -62,13 +62,14 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   /**
    * Used for toggling boolean user input
    */
   export default {
     name: 'KCheckbox',
+    mixins: [themeMixin],
     props: {
       /**
        * Label
@@ -112,13 +113,6 @@
       isActive: false,
     }),
     computed: {
-      ...mapGetters([
-        '$coreActionNormal',
-        '$coreTextAnnotation',
-        '$coreOutline',
-        '$coreGrey300',
-        '$coreTextDisabled',
-      ]),
       id() {
         return `k-checkbox-${this._uid}`;
       },

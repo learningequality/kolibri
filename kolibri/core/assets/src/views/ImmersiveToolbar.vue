@@ -70,7 +70,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { darken } from 'kolibri.utils.colour';
@@ -82,6 +82,7 @@
       UiToolbar,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: {
       appBarTitle: {
         type: String,
@@ -116,13 +117,6 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreGrey200',
-        '$coreGrey300',
-        '$coreActionDark',
-        '$coreActionNormal',
-        '$coreTextDefault',
-      ]),
       hasRoute() {
         return Boolean(this.route);
       },

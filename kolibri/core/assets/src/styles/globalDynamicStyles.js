@@ -1,5 +1,6 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
 import store from 'kolibri.coreVue.vuex.store';
+import { nameSpace } from '../state/modules/theme';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {
@@ -13,19 +14,23 @@ const globalExtension = { selectorHandler: globalSelectorHandler };
 
 const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
+function getter(value) {
+  return store.getters[`${nameSpace}/${value}`];
+}
+
 function generateGlobalStyles() {
   const htmlBodyStyles = {
-    color: store.getters.$coreTextDefault,
-    backgroundColor: store.getters.$coreBgCanvas,
+    color: getter('$coreTextDefault'),
+    backgroundColor: getter('$coreBgCanvas'),
   };
 
   const globalStyles = StyleSheet.create({
     globals: {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
-      '*:focus': store.getters.$coreOutline,
+      '*:focus': getter('$coreOutline'),
       '*hr': {
-        borderTop: `1px solid ${store.getters.$coreTextDisabled}`,
+        borderTop: `1px solid ${getter('$coreTextDisabled')}`,
       },
     },
   });

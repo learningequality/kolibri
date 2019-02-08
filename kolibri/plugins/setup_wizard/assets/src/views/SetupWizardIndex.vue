@@ -38,7 +38,8 @@
 
 <script>
 
-  import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
+  import { mapActions, mapState, mapMutations } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
@@ -69,7 +70,7 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     $trs: {
       onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
@@ -88,7 +89,6 @@
     },
     computed: {
       ...mapState(['onboardingStep', 'onboardingData', 'loading', 'error']),
-      ...mapGetters(['$coreActionNormal']),
       currentOnboardingForm() {
         return stepToOnboardingFormMap[this.onboardingStep] || null;
       },

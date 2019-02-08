@@ -55,7 +55,8 @@
 
 <script>
 
-  import { mapActions, mapGetters } from 'vuex';
+  import { mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -73,6 +74,7 @@
       KCircularLoader,
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       type: RequiredString,
       status: RequiredString,
@@ -96,7 +98,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreStatusCorrect', '$coreTextError']),
       TaskStatuses: () => TaskStatuses,
       stageText() {
         // Special case for Channel DB downloading, since they never go into RUNNING

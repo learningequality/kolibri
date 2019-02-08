@@ -114,6 +114,7 @@
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import pickBy from 'lodash/pickBy';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -161,7 +162,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         username: this.$store.state.core.session.username,
@@ -181,7 +182,6 @@
         'isSuperuser',
         'totalPoints',
         'userHasPermissions',
-        '$coreStatusCorrect',
       ]),
       ...mapState({
         session: state => state.core.session,

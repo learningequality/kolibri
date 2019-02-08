@@ -37,13 +37,13 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
 
   export default {
     name: 'ImmersiveFullScreen',
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     props: {
       backPageLink: {
         type: Object,
@@ -53,9 +53,6 @@
       backPageText: {
         type: String,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreBgCanvas', '$coreActionDark', '$coreBgLight']),
     },
   };
 

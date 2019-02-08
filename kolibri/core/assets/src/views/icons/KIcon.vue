@@ -51,7 +51,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   const boolean = {
     type: Boolean,
@@ -60,6 +60,7 @@
 
   export default {
     name: 'KIcon',
+    mixins: [themeMixin],
     props: {
       /**
        * color to apply to the icon
@@ -109,7 +110,6 @@
       search: boolean,
     },
     computed: {
-      ...mapGetters(['$coreTextDefault']),
       style() {
         if (this.color) {
           return { fill: this.color };

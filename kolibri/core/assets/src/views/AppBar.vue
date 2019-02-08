@@ -103,6 +103,7 @@
 <script>
 
   import { mapGetters, mapState, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -128,7 +129,7 @@
       LogoutSideNavEntry,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, navComponentsMixin],
+    mixins: [responsiveWindow, navComponentsMixin, themeMixin],
     $trs: {
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
@@ -151,7 +152,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'getUserKind', '$coreActionNormal', '$coreTextDefault']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
       ...mapState({
         username: state => state.core.session.username,
       }),

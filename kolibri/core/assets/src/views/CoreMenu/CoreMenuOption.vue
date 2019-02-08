@@ -45,7 +45,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
@@ -53,6 +53,7 @@
     components: {
       UiIcon,
     },
+    mixins: [themeMixin],
     props: {
       type: String,
       label: String,
@@ -64,12 +65,6 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreGrey200',
-        '$coreAccentColor',
-        '$coreTextAnnotation',
-        '$coreTextDefault',
-      ]),
       classes() {
         return {
           'is-divider': this.isDivider,

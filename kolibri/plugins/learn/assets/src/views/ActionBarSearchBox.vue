@@ -34,7 +34,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import SearchBox from './SearchBox';
@@ -45,14 +45,13 @@
       UiIconButton,
       SearchBox,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         searchBoxIsOpen: false,
       };
     },
     computed: {
-      ...mapGetters(['$coreActionNormal']),
       searchBoxIsDropdown() {
         return this.windowIsSmall;
       },

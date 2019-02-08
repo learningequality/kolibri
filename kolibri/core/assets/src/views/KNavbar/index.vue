@@ -49,7 +49,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import throttle from 'lodash/throttle';
 
@@ -58,14 +58,13 @@
    */
   export default {
     name: 'KNavbar',
-    mixins: [responsiveElement],
+    mixins: [responsiveElement, themeMixin],
     data() {
       return {
         enoughSpace: true,
       };
     },
     computed: {
-      ...mapGetters(['$coreActionNormal', '$coreOutlineAnyModality']),
       maxWidth() {
         return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
       },

@@ -32,7 +32,8 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ClipboardJS from 'clipboard';
 
@@ -46,6 +47,7 @@
     components: {
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       text: {
         type: String,
@@ -61,7 +63,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgError', '$coreGrey300']),
       ...mapState({
         error: state => state.core.error,
       }),

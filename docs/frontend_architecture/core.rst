@@ -64,11 +64,11 @@ In order to apply a style using a computed class, define a style object as a com
 
 .. code-block:: javascript
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
+    mixins: [themeMixin],
     computed: {
-      ...mapGetters(['$coreBgCanvas'])
       pseudoStyle() {
         return {
           ':hover': {

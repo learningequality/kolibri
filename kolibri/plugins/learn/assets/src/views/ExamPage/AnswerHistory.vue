@@ -30,13 +30,15 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'AnswerHistory',
     $trs: {
       question: 'Question { num }',
     },
+    mixins: [themeMixin],
     props: {
       questionNumber: {
         type: Number,
@@ -44,7 +46,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey', '$coreBgLight']),
       ...mapState('examViewer', ['questions']),
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },

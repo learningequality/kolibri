@@ -10,10 +10,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'Placeholder',
+    mixins: [themeMixin],
     props: {
       ready: {
         type: Boolean,
@@ -29,7 +30,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreTextDisabled']),
       placeholderStyle() {
         return {
           backgroundColor: this.$coreTextDisabled,

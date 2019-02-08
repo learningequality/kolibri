@@ -65,7 +65,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
@@ -76,6 +76,7 @@
       ContentIcon,
       ProgressIcon,
     },
+    mixins: [themeMixin],
     props: {
       thumbnail: {
         type: String,
@@ -105,13 +106,6 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreGrey',
-        '$coreBgLight',
-        '$coreStatusMastered',
-        '$coreStatusProgress',
-        '$coreTextAnnotation',
-      ]),
       isMastered() {
         return this.progress === 1;
       },

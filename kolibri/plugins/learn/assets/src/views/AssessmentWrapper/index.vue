@@ -112,6 +112,7 @@ oriented data synchronization.
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
@@ -130,7 +131,7 @@ oriented data synchronization.
       KButton,
       UiAlert,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     $trs: {
       goal: 'Get {count, number, integer} {count, plural, other {correct}}',
       tryAgain: 'Try again',
@@ -210,15 +211,7 @@ oriented data synchronization.
       };
     },
     computed: {
-      ...mapGetters([
-        'isUserLoggedIn',
-        '$coreBgLight',
-        '$coreBgLight',
-        '$coreGrey',
-        '$coreStatusMastered',
-        '$coreTextAnnotation',
-        '$coreTextDefault',
-      ]),
+      ...mapGetters(['isUserLoggedIn']),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
       }),

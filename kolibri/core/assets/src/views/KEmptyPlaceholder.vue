@@ -7,13 +7,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'KEmptyPlaceholder',
-    computed: {
-      ...mapGetters(['$coreGrey300']),
-    },
+    mixins: [themeMixin],
   };
 
 </script>

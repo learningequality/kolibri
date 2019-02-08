@@ -31,11 +31,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'KeenUiSnackbar',
-
+    mixins: [themeMixin],
     props: {
       message: String,
       action: String,
@@ -46,7 +46,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreBgLight']),
       transitionName() {
         return 'ui-snackbar--transition-' + this.transition;
       },

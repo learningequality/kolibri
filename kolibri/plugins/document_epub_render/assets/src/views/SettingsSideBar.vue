@@ -80,7 +80,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -107,6 +107,7 @@
       KGridItem,
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       theme: {
         type: Object,
@@ -127,7 +128,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreOutline']),
       themes() {
         return THEMES;
       },

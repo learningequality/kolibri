@@ -36,7 +36,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -63,6 +63,7 @@
       KIcon,
       KLabeledIcon,
     },
+    mixins: [themeMixin],
     props: {
       userName: {
         type: String,
@@ -83,7 +84,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight']),
       questionsCorrect() {
         return this.questions.reduce((a, q) => a + (q.correct === 1 ? 1 : 0), 0);
       },
