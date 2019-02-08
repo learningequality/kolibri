@@ -6,7 +6,9 @@ const versionTools = require('./kolibri-tools/lib/version');
  * Step 1 - Set the version of the kolibri package by the current Kolibri version
  */
 
-const version = versionTools.setVersion(path.resolve(__dirname, 'kolibri/package.json'));
+const version = versionTools.setVersion(
+  path.resolve(__dirname, 'kolibri-core-for-export/package.json')
+);
 
 /*
  * Step 2 - Set the version of the kolibri-tools package by the current Kolibri version
@@ -26,7 +28,7 @@ versionTools.setVersion(path.resolve(__dirname, 'eslint-plugin-kolibri/package.j
 
 versionTools.setDependencyVersion(
   'kolibri-tools',
-  path.resolve(__dirname, 'kolibri/package.json'),
+  path.resolve(__dirname, 'kolibri-core-for-export/package.json'),
   version
 );
 
