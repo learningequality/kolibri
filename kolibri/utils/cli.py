@@ -674,6 +674,10 @@ def main(args=None):  # noqa: max-complexity=13
         call_command("clearsessions")
 
         daemon = not arguments['--foreground']
+        # On Mac, Python 2.7 crashes when forking the process, so prevent daemonization until we can figure out
+        # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+        if sys.platform == 'darwin' and sys.version_info < (3, 0):
+            daemon = False
         start(port, daemon=daemon)
         return
 
