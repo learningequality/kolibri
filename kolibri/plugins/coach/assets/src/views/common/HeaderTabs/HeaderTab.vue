@@ -18,10 +18,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'HeaderTab',
+    mixins: [themeMixin],
     props: {
       text: {
         type: String,
@@ -38,7 +39,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreActionNormal', '$coreTextAnnotation', '$coreGrey300', '$coreOutline']),
       activeClasses() {
         // return both fixed and dynamic classes
         return `router-link-active ${this.$computedClass({ color: this.$coreActionNormal })}`;

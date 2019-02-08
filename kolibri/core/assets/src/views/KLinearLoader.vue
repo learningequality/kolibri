@@ -46,14 +46,14 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   /**
    * Used to show determinate or indeterminate loading
    */
   export default {
     name: 'KLinearLoader',
-
+    mixins: [themeMixin],
     props: {
       /**
        * Whether there should be a delay before the loader displays
@@ -79,7 +79,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreLoading']),
       classes() {
         return [`ui-progress-linear--type-${this.type}`, this.delay ? 'delay' : ''];
       },

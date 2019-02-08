@@ -19,17 +19,20 @@
           <CoreTable>
             <thead slot="thead">
               <tr>
-                <td>{{ coachStrings.$tr('titleLabel') }}</td>
-                <td>{{ coachStrings.$tr('progressLabel') }}</td>
+                <th>{{ coachStrings.$tr('titleLabel') }}</th>
+                <th>{{ coachStrings.$tr('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
               <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
                 <td>
-                  <KRouterLink
-                    :to="classRoute('ReportsLearnerReportLessonPage', { lessonId: tableRow.id })"
-                    :text="tableRow.title"
-                  />
+                  <KLabeledIcon>
+                    <KIcon slot="icon" lesson />
+                    <KRouterLink
+                      :to="classRoute('ReportsLearnerReportLessonPage', { lessonId: tableRow.id })"
+                      :text="tableRow.title"
+                    />
+                  </KLabeledIcon>
                 </td>
                 <td>
                   <StatusSimple :status="tableRow.status" />
@@ -43,18 +46,21 @@
           <CoreTable>
             <thead slot="thead">
               <tr>
-                <td>{{ coachStrings.$tr('titleLabel') }}</td>
-                <td>{{ coachStrings.$tr('progressLabel') }}</td>
-                <td>{{ coachStrings.$tr('scoreLabel') }}</td>
+                <th>{{ coachStrings.$tr('titleLabel') }}</th>
+                <th>{{ coachStrings.$tr('progressLabel') }}</th>
+                <th>{{ coachStrings.$tr('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
               <tr v-for="tableRow in examsTable" :key="tableRow.id">
                 <td>
-                  <KRouterLink
-                    :to="quizLink(tableRow.id)"
-                    :text="tableRow.title"
-                  />
+                  <KLabeledIcon>
+                    <KIcon slot="icon" quiz />
+                    <KRouterLink
+                      :to="quizLink(tableRow.id)"
+                      :text="tableRow.title"
+                    />
+                  </KLabeledIcon>
                 </td>
                 <td>
                   <StatusSimple :status="tableRow.statusObj.status" />

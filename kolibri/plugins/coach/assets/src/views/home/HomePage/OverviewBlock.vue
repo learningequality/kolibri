@@ -11,11 +11,17 @@
     <h1>{{ $store.state.classSummary.name }}</h1>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ $tr('coach', {count: coachNames.length}) }}</template>
+        <KLabeledIcon slot="key">
+          <KIcon slot="icon" coach />
+          {{ $tr('coach', {count: coachNames.length}) }}
+        </KLabeledIcon>
         <template slot="value"><TruncatedItemList :items="coachNames" /></template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ $tr('learner', {count: learnerNames.length}) }}</template>
+        <KLabeledIcon slot="key">
+          <KIcon slot="icon" people />
+          {{ $tr('learner', {count: learnerNames.length}) }}
+        </KLabeledIcon>
         <template slot="value">
           {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
         </template>

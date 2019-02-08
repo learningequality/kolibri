@@ -18,10 +18,13 @@
           <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
-              <KRouterLink
-                :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
-                :text="lesson.title"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" lesson />
+                <KRouterLink
+                  :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
+                  :text="lesson.title"
+                />
+              </KLabeledIcon>
             </li>
           </ul>
         </KGridItem>
@@ -29,10 +32,13 @@
           <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
-              <KRouterLink
-                :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
-                :text="exam.title"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" quiz />
+                <KRouterLink
+                  :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
+                  :text="exam.title"
+                />
+              </KLabeledIcon>
             </li>
           </ul>
         </KGridItem>
@@ -80,6 +86,7 @@
   .list {
     padding: 0;
     margin: 0;
+    font-size: 14px;
     line-height: 2em;
     list-style: none;
   }

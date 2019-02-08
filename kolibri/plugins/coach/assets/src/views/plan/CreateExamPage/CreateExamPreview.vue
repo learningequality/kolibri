@@ -8,6 +8,7 @@
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :marginBottom="72"
   >
 
     <KPageContainer>

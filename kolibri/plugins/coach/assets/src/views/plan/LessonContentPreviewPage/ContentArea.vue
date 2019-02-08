@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
 
   export default {
@@ -33,6 +33,7 @@
     components: {
       ContentRenderer,
     },
+    mixins: [themeMixin],
     props: {
       content: {
         type: Object,
@@ -55,7 +56,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight']),
       hasHeader() {
         return Boolean(this.header);
       },

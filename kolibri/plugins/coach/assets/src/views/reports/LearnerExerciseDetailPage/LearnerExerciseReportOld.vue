@@ -54,6 +54,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
@@ -82,6 +83,7 @@
       KCheckbox,
       MultiPaneLayout,
     },
+    mixins: [themeMixin],
     data() {
       return {
         showCorrectAnswer: false,
@@ -90,7 +92,6 @@
     computed: {
       ...mapState(['pageName', 'reportRefreshInterval']),
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapGetters(['$coreBgLight']),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',
         'currentInteraction',

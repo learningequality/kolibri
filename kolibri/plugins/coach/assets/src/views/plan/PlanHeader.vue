@@ -4,8 +4,8 @@
     <p>
       <BackLink
         v-if="classListPageEnabled"
-        :to="$router.getRoute('CoachClassListPage')"
-        :text="$tr('back')"
+        :to="$router.getRoute(PageNames.REPORTS_PAGE)"
+        :text="coachStrings.$tr('reportsLabel')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>

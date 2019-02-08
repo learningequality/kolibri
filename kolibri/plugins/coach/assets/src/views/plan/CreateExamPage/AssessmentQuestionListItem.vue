@@ -35,7 +35,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
 
@@ -54,6 +54,7 @@
       CoachContentLabel,
       KDragSortWidget,
     },
+    mixins: [themeMixin],
     props: {
       draggable: {
         type: Boolean,
@@ -85,7 +86,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreOutline']),
       text() {
         if (this.questionNumberOfExercise === undefined) {
           return this.exerciseName;

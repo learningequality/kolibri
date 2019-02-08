@@ -11,13 +11,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'Bottom',
-    computed: {
-      ...mapGetters(['$coreBgLight']),
-    },
+    mixins: [themeMixin],
   };
 
 </script>

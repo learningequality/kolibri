@@ -17,17 +17,20 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('questionLabel') }}</td>
-            <td>{{ coachStrings.$tr('helpNeededLabel') }}</td>
+            <th>{{ coachStrings.$tr('questionLabel') }}</th>
+            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="(tableRow, index) in table" :key="tableRow.question_id">
             <td>
-              <KRouterLink
-                :text="questionTitle(index + 1)"
-                :to="questionLink(tableRow.question_id)"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" person />
+                <KRouterLink
+                  :text="questionTitle(index + 1)"
+                  :to="questionLink(tableRow.question_id)"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               <LearnerProgressRatio

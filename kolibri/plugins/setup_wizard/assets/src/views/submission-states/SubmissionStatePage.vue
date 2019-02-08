@@ -21,20 +21,18 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
   export default {
     name: 'SubmissionStatePage',
     components: { KCircularLoader },
+    mixins: [themeMixin],
     props: {
       header: {
         type: String,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreAccentColor']),
     },
   };
 

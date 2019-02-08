@@ -214,8 +214,10 @@
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
           return topicListingLink({ ...this.routerParams, topicId: lastId });
-        } else {
+        } else if (this.inSearchMode) {
           return selectionRootLink({ ...this.routerParams });
+        } else {
+          return this.toolbarRoute;
         }
       },
     },

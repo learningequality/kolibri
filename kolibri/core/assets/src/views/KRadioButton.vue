@@ -56,13 +56,14 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   /**
    * Used to display all options
    */
   export default {
     name: 'KRadioButton',
+    mixins: [themeMixin],
     model: {
       prop: 'currentValue',
     },
@@ -114,13 +115,6 @@
       active: false,
     }),
     computed: {
-      ...mapGetters([
-        '$coreActionNormal',
-        '$coreTextAnnotation',
-        '$coreOutline',
-        '$coreGrey300',
-        '$coreTextDisabled',
-      ]),
       isChecked() {
         return this.value.toString() === this.currentValue.toString();
       },

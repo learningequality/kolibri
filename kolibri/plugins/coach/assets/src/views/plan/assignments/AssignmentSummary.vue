@@ -3,10 +3,6 @@
   <div>
     <div class="lesson-summary-header">
       <div class="lesson-summary-header-title-block">
-        <ContentIcon
-          :kind="kind"
-          class="title-lesson-icon"
-        />
         <h1 class="lesson-summary-header-title" dir="auto">
           {{ title }}
         </h1>
@@ -24,7 +20,8 @@
           />
         </template>
         <template slot="value" class="description">
-          <StatusIcon :active="active" :type="kind" />
+          <LessonActive v-if="kind==='lesson'" :active="active" />
+          <QuizActive v-else :active="active" />
           <KButton
             appearance="basic-link"
             class="change-status-button"
@@ -77,25 +74,26 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
-  import StatusIcon from './StatusIcon';
+  import LessonActive from '../../common/LessonActive';
+  import QuizActive from '../../common/QuizActive';
 
   export default {
     name: 'AssignmentSummary',
     components: {
       CoreInfoIcon,
-      ContentIcon,
-      StatusIcon,
+      LessonActive,
+      QuizActive,
       KButton,
       HeaderTable,
       HeaderTableRow,
     },
+    mixins: [themeMixin],
     props: {
       kind: {
         type: String,
@@ -136,7 +134,6 @@
       entireClass: 'Entire class',
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation']),
       showDescription() {
         return this.description !== null;
       },
@@ -219,8 +216,7 @@
   }
 
   .change-status-button {
-    margin-left: 0.5em;
-    vertical-align: sub; // hack for now
+    margin-left: 1.5em;
   }
 
   .lesson-summary-header {

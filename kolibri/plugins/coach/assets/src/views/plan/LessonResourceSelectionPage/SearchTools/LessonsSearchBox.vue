@@ -64,7 +64,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
@@ -77,13 +77,13 @@
     components: {
       UiIconButton,
     },
+    mixins: [themeMixin],
     data() {
       return {
         searchTerm: this.$route.params.searchTerm || '',
       };
     },
     computed: {
-      ...mapGetters(['$coreActionDark', '$coreTextAnnotation', '$coreTextDefault']),
       searchTermHasChanged() {
         return this.searchTerm !== this.$route.params.searchTerm;
       },

@@ -9,7 +9,12 @@
     </p>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ lesson.title }}</h1>
+        <h1>
+          <KLabeledIcon>
+            <KIcon slot="icon" lesson />
+            {{ lesson.title }}
+          </KLabeledIcon>
+        </h1>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage alignment="right">
         <!-- TODO COACH

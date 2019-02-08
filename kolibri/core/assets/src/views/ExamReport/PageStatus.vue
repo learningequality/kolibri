@@ -4,13 +4,10 @@
     <KGridItem size="75" percentage>
       <div>
         <h1 class="title">{{ userName }}</h1>
-        <p class="title">
-          <ContentIcon
-            class="icon"
-            :kind="kind"
-            :showTooltip="false"
-          />
-          {{ $tr('title', { name: contentName }) }}</p>
+        <KLabeledIcon>
+          <KIcon slot="icon" quiz />
+          {{ $tr('title', { name: contentName }) }}
+        </KLabeledIcon>
       </div>
       <div class="questions">
         {{ $tr('overallScore', {score: score}) }}
@@ -39,13 +36,14 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
 
   export default {
     name: 'PageStatus',
@@ -62,8 +60,10 @@
       KGridItem,
       ProgressIcon,
       ElapsedTime,
-      ContentIcon,
+      KIcon,
+      KLabeledIcon,
     },
+    mixins: [themeMixin],
     props: {
       userName: {
         type: String,
@@ -84,7 +84,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight']),
       questionsCorrect() {
         return this.questions.reduce((a, q) => a + (q.correct === 1 ? 1 : 0), 0);
       },

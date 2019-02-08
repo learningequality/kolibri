@@ -12,11 +12,11 @@
     <KPageContainer>
       <p>
         <BackLink
-          :to="classRoute('ReportsGroupReportPage', {})"
-          text="Group A"
+          :to="classRoute('ReportsGroupReportPage')"
+          :text="group.name"
         />
       </p>
-      <h1>Group A</h1>
+      <h1>{{ lesson.title }}</h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
         <HeaderTableRow>
@@ -34,30 +34,33 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('titleLabel') }}</td>
-            <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <td>{{ coachStrings.$tr('avgTimeSpentLabel') }}</td>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('progressLabel') }}</th>
+            <th>{{ coachStrings.$tr('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KRouterLink
-                v-if="tableRow.kind === 'exercise'"
-                :text="tableRow.title"
-                :to="classRoute(
-                  'ReportsGroupReportLessonExerciseLearnerListPage',
-                  { exerciseId: tableRow.content_id }
-                )"
-              />
-              <KRouterLink
-                v-else
-                :text="tableRow.title"
-                :to="classRoute(
-                  'ReportsGroupReportLessonResourceLearnerListPage',
-                  { resourceId: tableRow.content_id }
-                )"
-              />
+              <KLabeledIcon>
+                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+                <KRouterLink
+                  v-if="tableRow.kind === 'exercise'"
+                  :text="tableRow.title"
+                  :to="classRoute(
+                    'ReportsGroupReportLessonExerciseLearnerListPage',
+                    { exerciseId: tableRow.content_id }
+                  )"
+                />
+                <KRouterLink
+                  v-else
+                  :text="tableRow.title"
+                  :to="classRoute(
+                    'ReportsGroupReportLessonResourceLearnerListPage',
+                    { resourceId: tableRow.content_id }
+                  )"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSummary
@@ -97,6 +100,9 @@
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
       },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);

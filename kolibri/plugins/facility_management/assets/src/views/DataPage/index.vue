@@ -72,6 +72,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -90,6 +91,7 @@
       KGridItem,
       DataPageTaskProgress,
     },
+    mixins: [themeMixin],
     data() {
       return {
         lista: urls,
@@ -121,7 +123,6 @@
       documentTitle: 'Manage Data',
     },
     computed: {
-      ...mapGetters(['$coreBgWarning', '$coreTextAnnotation']),
       ...mapGetters('manageCSV', [
         'inSessionCSVCreation',
         'inSummaryCSVCreation',

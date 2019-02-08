@@ -27,7 +27,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -37,6 +37,7 @@
   export default {
     name: 'KNavbarLink',
     components: { UiIcon },
+    mixins: [themeMixin],
     props: {
       /**
        * The text
@@ -55,7 +56,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgCanvas', '$coreActionDark', '$coreOutline']),
       tabStyles() {
         return {
           color: this.$coreBgCanvas,

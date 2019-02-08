@@ -84,6 +84,9 @@ import KDragContainer from '../views/kSortable/KDragContainer';
 import KDragSortWidget from '../views/kSortable/KDragSortWidget';
 import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
 import KPageContainer from '../views/KPageContainer';
+import KIcon from '../views/icons/KIcon';
+import KLabeledIcon from '../views/icons/KLabeledIcon';
+import KBasicContentIcon from '../views/icons/KBasicContentIcon';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -102,6 +105,7 @@ import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
+import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
@@ -183,12 +187,16 @@ export default {
       KDragSortWidget,
       KEmptyPlaceholder,
       KPageContainer,
+      KIcon,
+      KLabeledIcon,
+      KBasicContentIcon,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
       contentRendererMixin,
+      themeMixin,
     },
   },
   resources,

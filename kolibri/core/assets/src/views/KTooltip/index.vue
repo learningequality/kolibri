@@ -23,7 +23,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import isArray from 'lodash/isArray';
   import Popper from './Popper';
 
@@ -35,6 +35,7 @@
     components: {
       Popper,
     },
+    mixins: [themeMixin],
     props: {
       /**
        * String of ref which tooltip will be positioned relative to.
@@ -71,7 +72,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreTextDefault']),
       readyToInit() {
         return this.mounted && this.htmlElement;
       },

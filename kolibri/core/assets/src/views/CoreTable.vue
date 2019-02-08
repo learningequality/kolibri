@@ -1,9 +1,10 @@
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'CoreTable',
+    mixins: [themeMixin],
     props: {
       selectable: {
         type: Boolean,
@@ -12,7 +13,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey', '$coreTextAnnotation']),
       tHeadStyle() {
         return {
           borderBottom: `solid 1px ${this.$coreGrey}`,
@@ -71,11 +71,6 @@
 
 <style lang="scss" scoped>
 
-  // SPECIAL CLASSES
-  // core-table-icon-col - Icon Column
-  // core-table-main-col - Main Column
-  // core-table-checkbox-col - Checkbox column
-
   .core-table-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -86,43 +81,30 @@
     font-size: 14px;
   }
 
+  /deep/ thead th {
+    vertical-align: bottom;
+  }
+
   /deep/ tr {
     text-align: left;
   }
 
   /deep/ th,
   /deep/ td {
-    padding: 12px 16px 12px 0;
+    max-width: 300px;
+    padding: 12px 8px;
+    overflow-x: hidden;
+    line-height: 1.5em;
+    text-overflow: ellipsis;
+    vertical-align: top;
   }
 
   /deep/ tr:not(:last-child) {
     border-bottom: 1px solid rgb(223, 223, 223);
   }
 
-  /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),
-  /deep/ td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
-    min-width: 120px;
-  }
-
-  /deep/ .core-table-icon-col,
   /deep/ .core-table-checkbox-col {
     width: 40px;
-  }
-
-  /deep/ .core-table-main-col {
-    font-weight: bold;
-  }
-
-  /deep/ .core-table-icon-col {
-    .ui-icon {
-      display: inline-block;
-      height: 24px;
-      font-size: 24px;
-      vertical-align: inherit;
-    }
-  }
-
-  /deep/ .core-table-checkbox-col {
     .k-checkbox-container {
       margin: 0 0 0 2px;
     }

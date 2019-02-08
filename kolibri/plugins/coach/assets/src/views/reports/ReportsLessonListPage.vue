@@ -19,19 +19,22 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('titleLabel') }}</td>
-            <td>{{ coachStrings.$tr('progressLabel') }}</td>
-            <td>{{ coachStrings.$tr('recipientsLabel') }}</td>
-            <td>{{ coachStrings.$tr('statusLabel') }}</td>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('progressLabel') }}</th>
+            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
+            <th>{{ coachStrings.$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink
-                :text="tableRow.title"
-                :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" lesson />
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               <StatusSummary

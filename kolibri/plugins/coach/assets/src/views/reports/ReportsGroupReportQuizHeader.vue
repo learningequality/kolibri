@@ -8,7 +8,12 @@
         :text="group.name"
       />
     </p>
-    <h1>{{ exam.title }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" quiz />
+        {{ exam.title }}
+      </KLabeledIcon>
+    </h1>
 
     <HeaderTable>
       <HeaderTableRow>

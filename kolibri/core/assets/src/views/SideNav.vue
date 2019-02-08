@@ -96,6 +96,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -129,7 +130,7 @@
       KButton,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
+    mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
     $trs: {
       kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
@@ -160,16 +161,7 @@
       };
     },
     computed: {
-      ...mapGetters([
-        'isUserLoggedIn',
-        'isSuperuser',
-        'isAdmin',
-        'isCoach',
-        'canManageContent',
-        '$coreBgLight',
-        '$coreTextAnnotation',
-        '$coreTextDefault',
-      ]),
+      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
       ...mapState({
         session: state => state.core.session,
       }),

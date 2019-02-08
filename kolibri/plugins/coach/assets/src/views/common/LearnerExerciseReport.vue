@@ -73,6 +73,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
@@ -91,7 +92,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, themeMixin],
     $trs: {},
     data() {
       return {
@@ -99,7 +100,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreBgLight']),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',
         'currentInteraction',

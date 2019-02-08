@@ -48,6 +48,7 @@
     <UserTable
       :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
+      isCoach
     >
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
