@@ -41,6 +41,7 @@ export const TransferTypes = {
   REMOTEIMPORT: 'remoteimport',
 };
 
+// maps to possible network applications that we import/export content from
 export const ApplicationTypes = {
   KOLIBRI: 'kolibri',
   STUDIO: 'studio',
