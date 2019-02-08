@@ -47,7 +47,7 @@
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration :seconds="tableRow.statusObj.timeSpent" /></td>
+            <td><TimeDuration :seconds="tableRow.statusObj.time_spent" /></td>
           </tr>
         </transition-group>
       </CoreTable>
