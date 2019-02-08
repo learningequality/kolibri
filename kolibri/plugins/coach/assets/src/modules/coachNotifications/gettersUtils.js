@@ -1,4 +1,3 @@
-import orderBy from 'lodash/orderBy';
 import findKey from 'lodash/findKey';
 import map from 'lodash/map';
 import partition from 'lodash/partition';
