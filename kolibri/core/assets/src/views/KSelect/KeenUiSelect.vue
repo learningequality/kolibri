@@ -788,16 +788,18 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import '~keen-ui/src/styles/imports';
 
   /* stylelint-disable csstree/validator */
 
   .ui-select {
+    @include font-family-noto;
+
     position: relative;
     display: flex;
     align-items: flex-start;
     margin-bottom: $ui-input-margin-bottom;
-    font-family: $font-stack;
     outline: none;
 
     &:hover:not(.is-disabled) {
@@ -940,7 +942,6 @@
     align-items: center;
     width: 100%;
     padding: 0;
-    font-family: $font-stack;
     font-size: $ui-input-text-font-size;
     font-weight: normal;
     color: $ui-input-text-color;
@@ -989,11 +990,12 @@
   }
 
   .ui-select-search-input {
+    @include font-family-noto;
+
     width: 100%;
     height: $ui-input-height + rem-calc(4px);
     padding: rem-calc(0 12px);
     padding-left: rem-calc(40px);
-    font-family: $font-stack;
     font-size: $ui-input-text-font-size - rem-calc(1px);
     font-weight: normal;
     color: $ui-input-text-color;
