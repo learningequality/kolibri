@@ -16,3 +16,6 @@ KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
+
+[Timer]
+OnStartupSec=20

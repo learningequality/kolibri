@@ -56,6 +56,7 @@ do_start()
 	service kolibri start
 	mkdir -p /var/run/$NAME
 	chown "$KOLIBRI_USER" /var/run/$NAME
+	sleep 15 # ugly hack to avoid race condition when kolibri does vacuum
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
 		|| return 1
 	start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
