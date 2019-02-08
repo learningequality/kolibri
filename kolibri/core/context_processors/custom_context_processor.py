@@ -33,12 +33,10 @@ def pass_browser_entry(agent, entry):
 
 
 def supported_browser(request):
-    if 'supported_browser' not in request.session:
-
-        user_agent = user_agents.parse(request.META.get('HTTP_USER_AGENT', ''))
-        request.session['supported_browser'] = all(
-            pass_browser_entry(user_agent, entry) for entry in browser_requirements)
-    return {'supported_browser': request.session['supported_browser']}
+    user_agent = user_agents.parse(request.META.get('HTTP_USER_AGENT', ''))
+    return {
+        'supported_browser': all(pass_browser_entry(user_agent, entry) for entry in browser_requirements)
+    }
 
 
 def developer_mode(request):
