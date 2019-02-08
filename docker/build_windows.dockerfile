@@ -13,7 +13,8 @@ RUN apt-get update -y && \
 RUN git lfs install
 
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
       ttf-mscorefonts-installer \
       wine-stable \
       make \
