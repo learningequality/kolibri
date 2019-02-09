@@ -15,7 +15,6 @@ import user_agents
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import get_resolver
 from django.core.urlresolvers import get_script_prefix
 from django.core.urlresolvers import resolve

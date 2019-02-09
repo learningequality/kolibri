@@ -12,7 +12,9 @@ jest.mock(
 );
 
 jest.mock('kolibri.heartbeat', () => ({
-  start() {},
+  start() {
+    return Promise.resolve();
+  },
 }));
 
 class TestApp extends KolibriApp {
