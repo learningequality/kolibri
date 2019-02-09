@@ -3,7 +3,7 @@
   <div class="notification">
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="100" percentage>
+      <KGridItem :size="time ? 50 : 100" percentage>
         <CoachStatusIcon
           :icon="statusIcon"
           class="icon"
@@ -26,6 +26,15 @@
             </template>
           </KLabeledIcon>
         </div>
+      </KGridItem>
+
+      <KGridItem
+        v-if="time"
+        :size="50"
+        percentage
+        alignment="center"
+      >
+        <ElapsedTime :date="parseDate(time)" />
       </KGridItem>
     </KGrid>
   </div>
@@ -67,11 +76,17 @@
       eventType: {
         type: String,
         required: true,
+        validator(value) {
+          return Object.values(NotificationEvents).includes(value);
+        },
       },
       // Notification object: 'Lesson', 'Quiz', 'Resource',
       objectType: {
         type: String,
         required: true,
+        validator(value) {
+          return Object.values(NotificationObjects).includes(value);
+        },
       },
       // A ContentNodeKind
       resourceType: {
@@ -91,6 +106,10 @@
       linkText: {
         type: String,
         required: true,
+      },
+      time: {
+        type: String,
+        required: false,
       },
     },
     computed: {
@@ -115,6 +134,11 @@
           return this.contentContext;
         }
         return '';
+      },
+    },
+    methods: {
+      parseDate(dateString) {
+        return new Date(dateString);
       },
     },
   };

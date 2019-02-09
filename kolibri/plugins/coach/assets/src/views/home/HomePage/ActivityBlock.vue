@@ -40,6 +40,8 @@
   import Block from './Block';
   import BlockItem from './BlockItem';
 
+  const MAX_NOTIFICATIONS = 10;
+
   export default {
     name: 'ActivityBlock',
     components: {
@@ -51,7 +53,10 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, 'lastId', ['desc']);
+        return orderBy(this.summarizedNotifications, 'lastId', ['desc']).slice(
+          0,
+          MAX_NOTIFICATIONS
+        );
       },
     },
     methods: {

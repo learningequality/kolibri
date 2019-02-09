@@ -63,10 +63,11 @@
               <p>© {{ copyrightYear }} Learning Equality</p>
               <p>
                 <KButton
+                  ref="privacyLink"
                   :text="$tr('privacyLink')"
                   class="privacy-link"
                   appearance="basic-link"
-                  @click="privacyModalVisible = true"
+                  @click="handleClickPrivacyLink"
                 />
               </p>
             </div>
@@ -197,6 +198,12 @@
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
+      },
+      handleClickPrivacyLink() {
+        this.privacyModalVisible = true;
+        // HACK to fix https://github.com/learningequality/kolibri/issues/4973.
+        // For some reason, the button maintains focus even when the modal is opened.
+        this.$refs.privacyLink.$el.blur();
       },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:
