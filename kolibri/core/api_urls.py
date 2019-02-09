@@ -1,6 +1,8 @@
 from django.conf.urls import include
 from django.conf.urls import url
 
+from kolibri.plugins.registry import get_api_urls as plugin_api_urls
+
 urlpatterns = [
     url(r'^auth/', include('kolibri.core.auth.api_urls')),
     url(r'^content/', include('kolibri.core.content.api_urls')),
@@ -12,4 +14,5 @@ urlpatterns = [
     url(r'^discovery/', include('kolibri.core.discovery.api_urls')),
     url(r'^notifications/', include('kolibri.core.analytics.api_urls')),
     url(r'^public/', include('kolibri.core.public.api_urls')),
+    url(r'^plugins/', include(plugin_api_urls())),
 ]
