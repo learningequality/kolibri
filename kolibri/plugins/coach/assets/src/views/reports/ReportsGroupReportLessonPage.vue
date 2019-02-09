@@ -12,11 +12,11 @@
     <KPageContainer>
       <p>
         <BackLink
-          :to="classRoute('ReportsGroupReportPage', {})"
-          text="Group A"
+          :to="classRoute('ReportsGroupReportPage')"
+          :text="group.name"
         />
       </p>
-      <h1>Group A</h1>
+      <h1>{{ lesson.title }}</h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
         <HeaderTableRow>
@@ -100,6 +100,9 @@
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
+      },
+      group() {
+        return this.groupMap[this.$route.params.groupId];
       },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);

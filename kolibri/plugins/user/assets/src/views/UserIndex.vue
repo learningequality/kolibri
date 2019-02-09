@@ -17,10 +17,13 @@
 
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../constants';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
+
+  const createAccountString = crossComponentTranslator(SignUpPage).$tr('createAccount');
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,
@@ -39,7 +42,7 @@
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
-          return this.$tr('userSignUpTitle');
+          return createAccountString;
         }
         return this.$tr('userSignInTitle');
       },
@@ -55,7 +58,6 @@
     },
     $trs: {
       userProfileTitle: 'Profile',
-      userSignUpTitle: 'Sign up',
       userSignInTitle: 'Sign in',
     },
   };

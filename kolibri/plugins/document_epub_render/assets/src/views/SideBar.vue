@@ -9,13 +9,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'SideBar',
-    computed: {
-      ...mapGetters(['$coreBgCanvas']),
-    },
+    mixins: [themeMixin],
   };
 
 </script>

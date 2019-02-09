@@ -47,7 +47,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -66,6 +66,7 @@
       TextTruncator,
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -122,7 +123,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight', '$coreTextDefault']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },

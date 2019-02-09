@@ -40,7 +40,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   /**
@@ -56,6 +56,7 @@
       UiIcon,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: {
       /**
        * v-model
@@ -79,7 +80,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation', '$coreTextDefault', '$coreGrey300']),
       model: {
         get() {
           return this.value;

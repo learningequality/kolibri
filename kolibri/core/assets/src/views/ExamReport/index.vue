@@ -53,7 +53,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
@@ -80,6 +80,7 @@
       KCheckbox,
       MultiPaneLayout,
     },
+    mixins: [themeMixin],
     props: {
       examAttempts: {
         type: Array,
@@ -150,7 +151,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreBgLight']),
       attemptLogs() {
         return this.examAttempts.map(attempt => {
           const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;

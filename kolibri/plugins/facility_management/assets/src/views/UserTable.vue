@@ -92,7 +92,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -109,6 +109,7 @@
       KLabeledIcon,
       KIcon,
     },
+    mixins: [themeMixin],
     props: {
       users: {
         type: Array,
@@ -143,7 +144,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreBgLight', '$coreTextAnnotation']),
       allAreSelected() {
         return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
       },

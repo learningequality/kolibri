@@ -63,10 +63,11 @@
               <p>© {{ copyrightYear }} Learning Equality</p>
               <p>
                 <KButton
+                  ref="privacyLink"
                   :text="$tr('privacyLink')"
                   class="privacy-link"
                   appearance="basic-link"
-                  @click="privacyModalVisible = true"
+                  @click="handleClickPrivacyLink"
                 />
               </p>
             </div>
@@ -96,6 +97,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -129,7 +131,7 @@
       KButton,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, responsiveElement, navComponentsMixin],
+    mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
     $trs: {
       kolibri: 'Kolibri',
       navigationLabel: 'Main user navigation',
@@ -160,16 +162,7 @@
       };
     },
     computed: {
-      ...mapGetters([
-        'isUserLoggedIn',
-        'isSuperuser',
-        'isAdmin',
-        'isCoach',
-        'canManageContent',
-        '$coreBgLight',
-        '$coreTextAnnotation',
-        '$coreTextDefault',
-      ]),
+      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
       ...mapState({
         session: state => state.core.session,
       }),
@@ -205,6 +198,12 @@
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
+      },
+      handleClickPrivacyLink() {
+        this.privacyModalVisible = true;
+        // HACK to fix https://github.com/learningequality/kolibri/issues/4973.
+        // For some reason, the button maintains focus even when the modal is opened.
+        this.$refs.privacyLink.$el.blur();
       },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:

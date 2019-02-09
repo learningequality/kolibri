@@ -76,6 +76,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
@@ -105,7 +106,7 @@
       KRouterLink,
       UiIcon,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     props: {
       channel: {
         type: Object,
@@ -124,7 +125,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey', '$coreStatusCorrect', '$coreTextAnnotation']),
       ...mapGetters('manageContent', ['channelIsInstalled']),
       ...mapState('manageContent', ['taskList']),
       manageChannelActions() {

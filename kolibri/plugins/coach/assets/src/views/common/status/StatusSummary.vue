@@ -139,7 +139,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { VERBS, ICONS } from './constants';
   import LearnerProgressCount from './LearnerProgressCount';
   import LearnerProgressRatio from './LearnerProgressRatio';
@@ -152,7 +152,7 @@
       // eslint-disable-next-line vue/no-unused-components
       LearnerProgressRatio, // it is used, it's just referenced dynamically
     },
-    mixins: [tallyMixin],
+    mixins: [tallyMixin, themeMixin],
     props: {
       verbose: {
         type: Boolean,
@@ -172,7 +172,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey300']),
       verbosity() {
         return this.verbose ? 1 : 0;
       },

@@ -29,7 +29,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
@@ -39,6 +39,7 @@
       KRouterLink,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: {
       text: {
         type: String,
@@ -48,9 +49,6 @@
         type: Object,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreActionNormal']),
     },
   };
 

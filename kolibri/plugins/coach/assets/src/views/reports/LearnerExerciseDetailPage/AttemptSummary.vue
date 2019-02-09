@@ -68,7 +68,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
@@ -91,6 +91,7 @@
       KGrid,
       KGridItem,
     },
+    mixins: [themeMixin],
     props: {
       userName: {
         type: String,
@@ -110,7 +111,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey', '$coreBgLight']),
       isCompleted() {
         try {
           return this.summaryLog.currentmasterylog.complete;

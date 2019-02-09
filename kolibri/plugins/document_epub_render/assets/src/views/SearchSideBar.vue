@@ -89,7 +89,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -144,6 +144,7 @@
       SideBar,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: {
       book: {
         type: Object,
@@ -159,7 +160,6 @@
       markInstance: null,
     }),
     computed: {
-      ...mapGetters(['$coreTextAnnotation', '$coreGrey']),
       numberOfSearchResults() {
         if (this.maxSearchResultsExceeded) {
           return this.$tr('overCertainNumberOfSearchResults', { num: MAX_SEARCH_RESULTS });

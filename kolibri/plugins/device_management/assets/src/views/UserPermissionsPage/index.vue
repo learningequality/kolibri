@@ -100,6 +100,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UserType from 'kolibri.utils.UserType';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -125,6 +126,7 @@
       PermissionsIcon,
       UserTypeDisplay,
     },
+    mixins: [themeMixin],
     data() {
       return {
         devicePermissionsChecked: undefined,
@@ -134,7 +136,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'facilities', '$coreTextAnnotation', '$coreTextDisabled']),
+      ...mapGetters(['isSuperuser', 'facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       ...mapState({
         currentUsername: state => state.core.session.username,

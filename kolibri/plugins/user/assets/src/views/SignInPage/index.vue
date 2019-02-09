@@ -139,6 +139,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -190,7 +191,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         username: '',
@@ -208,7 +209,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', '$coreGrey', '$coreActionNormal', '$coreBgLight']),
+      ...mapGetters(['facilityConfig']),
       // backend's default facility on load
       ...mapState(['facilityId']),
       ...mapState('signIn', ['hasMultipleFacilities']),

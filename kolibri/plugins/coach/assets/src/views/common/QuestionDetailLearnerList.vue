@@ -50,13 +50,13 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'QuestionDetailLearnerList',
     $trs: {},
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, themeMixin],
     props: {
       learners: {
         type: Array,
@@ -66,15 +66,6 @@
         type: Number,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters([
-        '$coreBgLight',
-        '$coreTextAnnotation',
-        '$coreStatusWrong',
-        '$coreStatusCorrect',
-        '$coreTextDisabled',
-      ]),
     },
     mounted() {
       this.$nextTick(() => {

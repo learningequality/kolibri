@@ -15,12 +15,12 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import tallyMixin from './tallyMixin';
 
   export default {
     name: 'ProgressSummaryBar',
-    mixins: [tallyMixin],
+    mixins: [tallyMixin, themeMixin],
     props: {
       showErrorBar: {
         type: Boolean,
@@ -28,7 +28,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered', '$coreStatusWrong']),
       barStyleCompleted() {
         return {
           width: `${Math.ceil((100 * this.completed) / this.total)}%`,

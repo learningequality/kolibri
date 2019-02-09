@@ -1,5 +1,7 @@
 import { lighten, darken } from 'kolibri.utils.colour';
 
+export const THEME_MODULE_NAMESPACE = 'kolibriCoreTheme';
+
 const initialState = {
   '$core-action-light': '#e2d1e0',
   '$core-action-dark': '#72486f',
@@ -28,6 +30,7 @@ const initialState = {
 };
 
 export default {
+  namespaced: true,
   state: { ...initialState },
   getters: {
     $coreActionNormal(state) {

@@ -20,7 +20,7 @@ __builder.buildApiSpec();
  * Step 3: Generate the exported copy of the Core API itself, to constitute the `kolibri` package.
  */
 
-__builder.exportApiSpec(path.resolve(__dirname, '../kolibri'));
+__builder.exportApiSpec(path.resolve(__dirname, '../kolibri-core-for-export'));
 
 /*
  * Step 4: Copy the kolibri-core module dependencies to the exported kolibri module.
@@ -28,7 +28,7 @@ __builder.exportApiSpec(path.resolve(__dirname, '../kolibri'));
 
 const kolibriCorePkg = require(path.resolve(__dirname, '../../kolibri/core/package.json'));
 
-const kolibriPackageFile = path.resolve(__dirname, '../kolibri/package.json');
+const kolibriPackageFile = path.resolve(__dirname, '../kolibri-core-for-export/package.json');
 
 const kolibriPkg = require(kolibriPackageFile);
 

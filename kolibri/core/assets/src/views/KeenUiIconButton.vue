@@ -70,7 +70,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
@@ -86,6 +86,7 @@
       KCircularLoader,
       UiTooltip,
     },
+    mixins: [themeMixin],
 
     props: {
       type: {
@@ -138,7 +139,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal', '$coreOutline']),
       classes() {
         return [
           `keen-ui-icon-button--type-${this.type}`,

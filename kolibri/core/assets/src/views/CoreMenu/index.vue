@@ -34,10 +34,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'CoreMenu',
+    mixins: [themeMixin],
     props: {
       hasIcons: {
         type: Boolean,
@@ -58,7 +59,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreTextDefault']),
       classes() {
         return {
           'is-raised': this.raised,

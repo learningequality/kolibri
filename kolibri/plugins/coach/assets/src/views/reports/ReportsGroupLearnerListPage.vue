@@ -26,7 +26,10 @@
             <td>
               <KLabeledIcon>
                 <KIcon slot="icon" person />
-                {{ tableRow.name }}
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                />
               </KLabeledIcon>
             </td>
             <td><Score :value="tableRow.avgScore" /></td>

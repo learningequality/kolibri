@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'ProgressBar',
@@ -36,6 +36,7 @@
       label: 'Progress',
       pct: '{0, number, percent}',
     },
+    mixins: [themeMixin],
     props: {
       progress: {
         type: Number,
@@ -52,7 +53,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreGrey', '$coreActionNormal']),
       percent() {
         return Math.max(Math.min(this.progress * 100, 100), 0);
       },
