@@ -134,3 +134,24 @@ def get_urls():
             )
 
     return urlpatterns
+
+
+def get_api_urls():
+    global __initialized, __registry
+    assert __initialized, "Registry not initialized"
+
+    api_urlpatterns = []
+    for plugin_instance in __registry:
+        api_url_module = plugin_instance.api_url_module()
+        if api_url_module:
+            api_urlpatterns.append(
+                url(
+                    plugin_instance.url_slug(),
+                    include(
+                        api_url_module,
+                        namespace=plugin_instance.url_namespace()
+                    )
+                )
+            )
+
+    return api_urlpatterns
