@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get';
 import find from 'lodash/find';
@@ -93,7 +94,9 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       // that has been deleted.
       if (partitioning === null || partitioning.hasEvent.length === 0) continue;
 
-      const firstUser = find(allEvents, { user_id: partitioning.hasEvent[0] });
+      const firstUser = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
+        return partitioning.hasEvent.includes(event.user_id);
+      });
 
       summaryEvents.push({
         type,

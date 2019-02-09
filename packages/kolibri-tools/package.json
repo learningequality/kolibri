@@ -67,7 +67,7 @@
     "stylelint-scss": "^3.3.2",
     "svg-icon-inline-loader": "^3.0.0",
     "temp": "^0.8.3",
-    "uglifyjs-webpack-plugin": "^1.2.5",
+    "terser-webpack-plugin": "^1.2.2",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.3",
     "vue-jest": "^3.0.0",

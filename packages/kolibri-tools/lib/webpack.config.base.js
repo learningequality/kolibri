@@ -15,7 +15,7 @@ const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const extract$trs = require('./extract_$trs');
 const logging = require('./logging');
@@ -168,10 +168,17 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     },
     optimization: {
       minimizer: [
-        new UglifyJsPlugin({
+        new TerserPlugin({
           cache: true,
           parallel: true,
-          sourceMap: false,
+          sourceMap: true,
+          terserOptions: {
+            mangle: false,
+            safari10: true,
+            output: {
+              comments: false,
+            },
+          },
         }),
         new OptimizeCSSAssetsPlugin({}),
       ],
