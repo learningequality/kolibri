@@ -1,10 +1,5 @@
 import ReportsGroupActivityPage from './ReportsGroupActivityPage';
-import ReportsGroupLearnerActivityPage from './ReportsGroupLearnerActivityPage';
 import ReportsGroupLearnerListPage from './ReportsGroupLearnerListPage';
-import ReportsGroupLearnerReportLessonExercisePage from './ReportsGroupLearnerReportLessonExercisePage';
-import ReportsGroupLearnerReportLessonPage from './ReportsGroupLearnerReportLessonPage';
-import ReportsGroupLearnerReportPage from './ReportsGroupLearnerReportPage';
-import ReportsGroupLearnerReportQuizPage from './ReportsGroupLearnerReportQuizPage';
 import ReportsGroupListPage from './ReportsGroupListPage';
 import ReportsGroupReportLessonExerciseLearnerListPage from './ReportsGroupReportLessonExerciseLearnerListPage';
 import ReportsGroupReportLessonExerciseLearnerPage from './ReportsGroupReportLessonExerciseLearnerPage';
@@ -46,12 +41,7 @@ import ReportsQuizQuestionPage from './ReportsQuizQuestionPage';
 
 export default {
   ReportsGroupActivityPage,
-  ReportsGroupLearnerActivityPage,
   ReportsGroupLearnerListPage,
-  ReportsGroupLearnerReportLessonExercisePage,
-  ReportsGroupLearnerReportLessonPage,
-  ReportsGroupLearnerReportPage,
-  ReportsGroupLearnerReportQuizPage,
   ReportsGroupListPage,
   ReportsGroupReportLessonExerciseLearnerListPage,
   ReportsGroupReportLessonExerciseLearnerPage,
