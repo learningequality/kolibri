@@ -9,7 +9,7 @@ const logger = require('./logging');
 function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData, {
     mode: 'production',
-    devtool: 'cheap-module-source-map',
+    devtool: 'source-map',
   });
 
   pluginBundle.stats = 'normal';
