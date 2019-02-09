@@ -6,6 +6,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import sys
+from importlib import import_module
+
+from django.utils.module_loading import module_has_submodule
 
 from kolibri.utils.conf import config
 
@@ -79,16 +83,17 @@ class KolibriPluginBase(object):
         """Modify the kolibri config dict to your plugin's needs"""
         cls._installed_apps_remove()
 
+    def _return_module(self, module_name):
+        if module_has_submodule(sys.modules[self._module_path()], module_name):
+            models_module_name = '%s.%s' % (self._module_path(), module_name)
+            return import_module(models_module_name)
+
+        return None
+
     def url_module(self):
         """
         Return a url module, containing ``urlpatterns = [...]``, a conventional
         Django application url module.
-
-        If your application has a urls.py, you should do this::
-
-            def url_module(self):
-                from . import urls
-                return api_urls
 
         URLs are by default accessed through Django's reverse lookups like
         this::
@@ -98,9 +103,10 @@ class KolibriPluginBase(object):
         To customize "mypluginclass" (which is automatically derived from the
         plugin's class name), override ``url_namespace``.
 
-        .. note:: We *could* make urls.py auto-detected.
+        By default urls.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
         """
-        return None
+        return self._return_module('urls')
 
     def api_url_module(self):
         """
@@ -110,12 +116,6 @@ class KolibriPluginBase(object):
         Do this separately for API endpoints so that they do not need
         to be prefixed by the language code.
 
-        If your application has a api_urls.py, you should do this::
-
-            def api_url_module(self):
-                from . import api_urls
-                return api_urls
-
         URLs are by default accessed through Django's reverse lookups like
         this::
 
@@ -124,9 +124,10 @@ class KolibriPluginBase(object):
         To customize "mypluginclass" (which is automatically derived from the
         plugin's class name), override ``url_namespace``.
 
-        .. note:: We *could* make api_urls.py auto-detected.
+        By default api_urls.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
         """
-        return None
+        return self._return_module('api_urls')
 
     def url_namespace(self):
         """
