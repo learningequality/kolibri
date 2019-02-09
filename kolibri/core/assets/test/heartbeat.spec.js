@@ -9,18 +9,6 @@ jest.mock('http');
 
 describe('HeartBeat', function() {
   describe('constructor method', function() {
-    it('should set the delay property to the first argument', function() {
-      const delay = 10000;
-      const test = new HeartBeat(delay);
-      expect(delay).toEqual(test.delay);
-    });
-    it('should raise an error if delay is not a number', function() {
-      function testCall() {
-        const delay = true;
-        new HeartBeat(delay);
-      }
-      expect(testCall).toThrow(ReferenceError);
-    });
     it('should set the setActive method to a bound method', function() {
       const test = new HeartBeat();
       expect(HeartBeat.prototype.setActive).not.toEqual(test.setActive);
@@ -117,14 +105,25 @@ describe('HeartBeat', function() {
       jest.spyOn(heartBeat, 'sessionUrl').mockReturnValue('url');
     });
     it('should sign out if an auto logout is detected', function() {
-      coreStore.commit('CORE_SET_SESSION', { userId: 'test' });
+      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
       const http = require('http');
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: 'nottest' });
+      http.__setEntity({ user_id: 'nottest', id: 'current' });
       const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat.checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(1);
+      });
+    });
+    it('should not sign out if user_id changes but session is being set for first time', function() {
+      coreStore.commit('CORE_SET_SESSION', { user_id: undefined, id: undefined });
+      const http = require('http');
+      http.__setCode(200);
+      http.__setHeaders({ 'Content-Type': 'application/json' });
+      http.__setEntity({ user_id: 'nottest', id: 'current' });
+      const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
+      return heartBeat.checkSession().finally(() => {
+        expect(stub).toHaveBeenCalledTimes(0);
       });
     });
     describe('when is connected', function() {

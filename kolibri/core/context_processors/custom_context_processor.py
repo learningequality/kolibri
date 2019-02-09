@@ -1,9 +1,5 @@
-import json
-
 import user_agents
 from django.conf import settings
-
-from kolibri.utils import conf
 
 
 browser_requirements = [
