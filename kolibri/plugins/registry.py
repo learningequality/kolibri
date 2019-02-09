@@ -125,33 +125,18 @@ def get_urls():
     urlpatterns = []
     for plugin_instance in __registry:
         url_module = plugin_instance.url_module()
+        api_url_module = plugin_instance.api_url_module()
+        instance_patterns = []
         if url_module:
+            instance_patterns.extend(url_module.urlpatterns)
+        if api_url_module:
+            instance_patterns.append(url('^api/', include(api_url_module)),)
+        if instance_patterns:
             urlpatterns.append(
                 url(
                     plugin_instance.url_slug(),
-                    include(url_module, namespace=plugin_instance.url_namespace()),
+                    include(instance_patterns, namespace=plugin_instance.url_namespace())
                 )
             )
 
     return urlpatterns
-
-
-def get_api_urls():
-    global __initialized, __registry
-    assert __initialized, "Registry not initialized"
-
-    api_urlpatterns = []
-    for plugin_instance in __registry:
-        api_url_module = plugin_instance.api_url_module()
-        if api_url_module:
-            api_urlpatterns.append(
-                url(
-                    plugin_instance.url_slug(),
-                    include(
-                        api_url_module,
-                        namespace=plugin_instance.url_namespace()
-                    )
-                )
-            )
-
-    return api_urlpatterns
