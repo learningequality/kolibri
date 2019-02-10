@@ -37,7 +37,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
@@ -48,6 +48,7 @@
       UserTypeDisplay,
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       permissionType: {
         type: String,
@@ -58,7 +59,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusMastered', '$coreTextDefault']),
       UserKinds() {
         return UserKinds;
       },
@@ -83,8 +83,12 @@
     position: relative;
   }
 
-  .icon {
-    vertical-align: text-bottom;
+  // from KIcon
+  svg {
+    position: relative;
+    top: 0.125em;
+    width: 1.125em;
+    height: 1.125em;
   }
 
 </style>

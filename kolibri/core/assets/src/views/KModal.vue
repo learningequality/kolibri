@@ -92,7 +92,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -105,7 +105,7 @@
     components: {
       KButton,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     $trs: {
       // error alerts
       errorAlert: 'Error in { title }',
@@ -177,7 +177,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreBgLight', '$coreGrey']),
       modalSizeStyles() {
         return {
           'max-width': `${this.maxModalWidth - 32}px`,

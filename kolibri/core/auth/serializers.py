@@ -37,28 +37,20 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
         fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
 
-    def create(self, validated_data):
-        if FacilityUser.objects.filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
-                                              code=error_constants.USERNAME_ALREADY_EXISTS)
-        return super(FacilityUserSerializer, self).create(validated_data)
-
-    def update(self, instance, validated_data):
-        if validated_data.get('username') and FacilityUser.objects.exclude(id__exact=instance.id).filter(username__iexact=validated_data['username']).exists():
-            raise serializers.ValidationError(detail={'username': ['An account with that username already exists.']},
-                                              code=error_constants.USERNAME_ALREADY_EXISTS)
-        return super(FacilityUserSerializer, self).update(instance, validated_data)
-
-
-class FacilityUserSignupSerializer(FacilityUserSerializer):
-
-    def validate_username(self, value):
-        if FacilityUser.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError(
-                detail='An account with that username already exists.',
-                code=error_constants.USERNAME_ALREADY_EXISTS
-            )
-        return value
+    def validate(self, attrs):
+        username = attrs.get('username')
+        # first condition is for creating object, second is for updating
+        facility = attrs.get('facility') or getattr(self.instance, 'facility')
+        # if obj doesn't exist, return data
+        try:
+            obj = FacilityUser.objects.get(username__iexact=username, facility=facility)
+        except FacilityUser.DoesNotExist:
+            return attrs
+        # if we are updating object, and this `instance` is the same object, return data
+        if self.instance and obj.id == self.instance.id:
+            return attrs
+        else:
+            raise serializers.ValidationError('An account with that username already exists.', code=error_constants.USERNAME_ALREADY_EXISTS)
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
@@ -145,7 +137,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
 
         validators = [
             UniqueTogetherValidator(
-                queryset=Classroom.objects.all(),
+                queryset=LearnerGroup.objects.all(),
                 fields=('parent', 'name')
             )
         ]

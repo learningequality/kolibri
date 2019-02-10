@@ -21,9 +21,11 @@ export function updateWithNotifications(store, notifications) {
 
     if (object === QUIZ) {
       reloadSummary = reloadSummary || !examMap[notification.quiz_id];
-    } else if (object === LESSON || object === RESOURCE) {
+    }
+    if (object === LESSON || object === RESOURCE) {
       reloadSummary = reloadSummary || !lessonMap[notification.lesson_id];
-    } else if (object === RESOURCE) {
+    }
+    if (object === RESOURCE) {
       reloadSummary = reloadSummary || !contentNodeMap[notification.contentnode_id];
     }
 

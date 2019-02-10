@@ -145,11 +145,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "username")
 
 
-class LessonNodeIdsField(serializers.Field):
-    def to_representation(self, values):
-        return [value["contentnode_id"] for value in values]
-
-
 class LessonAssignmentsField(serializers.RelatedField):
     def to_representation(self, assignment):
         return assignment.collection.id
@@ -157,7 +152,7 @@ class LessonAssignmentsField(serializers.RelatedField):
 
 class LessonSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(source="is_active")
-    node_ids = LessonNodeIdsField(default=[], source="resources")
+    node_ids = serializers.SerializerMethodField()
 
     # classrooms are in here, and filtered out later
     groups = LessonAssignmentsField(
@@ -167,6 +162,9 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ("id", "title", "active", "node_ids", "groups")
+
+    def get_node_ids(self, obj):
+        return [resource['contentnode_id'] for resource in obj.resources]
 
 
 class ExamQuestionSourcesField(serializers.Field):
@@ -188,7 +186,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ("id", "title", "active", "question_sources", "groups", "data_model_version")
+        fields = ("id", "title", "active", "question_sources", "groups", "data_model_version", "question_count")
 
 
 class ContentSerializer(serializers.ModelSerializer):
@@ -204,6 +202,7 @@ def data(Serializer, queryset):
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
+
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
         query_learners = classroom.get_members()
@@ -231,7 +230,25 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             exam_node_ids = [question['exercise_id'] for question in exam.get("question_sources")]
             all_node_ids |= set(exam_node_ids)
 
+        # map node ids => content_ids so we can replace missing nodes, if another matching content_id node exists
+        content_id_map = {resource['contentnode_id']: resource['content_id'] for lesson in query_lesson for resource in lesson.resources}
         query_content = ContentNode.objects.filter(id__in=all_node_ids)
+        # final list of available nodes
+        list_of_ids = [node.id for node in query_content]
+        # determine a new list of node_ids for each lesson, removing/replacing missing content items
+        for lesson in lesson_data:
+            node_ids = []
+            for node_id in lesson['node_ids']:
+                # if resource exists, add to node_ids
+                if node_id in list_of_ids:
+                    node_ids.append(node_id)
+                else:
+                    # if resource does not exist, check if another resource with same content_id exists
+                    nodes = ContentNode.objects.filter(content_id=content_id_map[node_id])
+                    if nodes:
+                        node_ids.append(nodes[0].id)
+            # point to new list of node ids
+            lesson['node_ids'] = node_ids
 
         learners_data = data(UserSerializer, query_learners)
 

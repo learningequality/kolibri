@@ -60,7 +60,8 @@
 
 <script>
 
-  import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
+  import { mapActions, mapState, mapMutations } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
   import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
   import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
@@ -86,6 +87,7 @@
       KGridItem,
       ContentIcon,
     },
+    mixins: [themeMixin],
     data() {
       return {
         workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
@@ -93,7 +95,6 @@
       };
     },
     computed: {
-      ...mapGetters(['$coreTextAnnotation', '$coreBgLight']),
       ...mapState('lessonSummary', {
         lessonId: state => state.currentLesson.id,
         workingResources: state => state.workingResources,

@@ -21,11 +21,12 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'TruncatedItemList',
     components: {},
+    mixins: [themeMixin],
     props: {
       items: {
         type: Array,
@@ -37,9 +38,6 @@
       twoItems: '{item1}, {item2}',
       threeItems: '{item1}, {item2}, {item3}',
       manyItems: '{item1}, {item2}, and {count, number, integer} others',
-    },
-    computed: {
-      ...mapGetters(['$coreGrey300']),
     },
   };
 

@@ -62,7 +62,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 
@@ -72,6 +72,7 @@
       KButton,
       KExternalLink,
     },
+    mixins: [themeMixin],
     $trs: {
       demoServerHeader: 'Welcome to the Kolibri demo site!',
       demoServerP1: 'You are welcome to explore with any of the three primary user types:',
@@ -89,9 +90,6 @@
       return {
         bannerClosed: false,
       };
-    },
-    computed: {
-      ...mapGetters(['$coreBgLight']),
     },
     methods: {
       toggleBannerState(event) {

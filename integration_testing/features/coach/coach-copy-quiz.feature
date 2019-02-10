@@ -1,9 +1,9 @@
-Feature: Coach copy quiz
+Feature: Coach copies quiz
    Coaches need to be able to copy quizzes to the same or a different class, and assign it to different groups or an entire class
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on *Coach > Quizzes* page
+      And I am on *Coach > Plan > Quizzes* page
       And I see the quiz <quiz>
 
   Scenario: Copy quiz to the same class and assign to the entire class

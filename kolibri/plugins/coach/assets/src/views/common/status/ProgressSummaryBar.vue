@@ -3,8 +3,8 @@
   <div class="bar-wrapper">
     <div class="bar" :style="barStyleStarted"></div>
     <div
-      v-if="showErrorBar" 
-      class="help-line" 
+      v-if="showErrorBar"
+      class="help-line"
       :style="helpLineStyle"
     ></div>
     <div class="bar" :style="barStyleCompleted"></div>
@@ -15,12 +15,12 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import tallyMixin from './tallyMixin';
 
   export default {
     name: 'ProgressSummaryBar',
-    mixins: [tallyMixin],
+    mixins: [tallyMixin, themeMixin],
     props: {
       showErrorBar: {
         type: Boolean,
@@ -28,18 +28,17 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusProgress', '$coreStatusMastered', '$coreStatusWrong']),
       barStyleCompleted() {
         return {
-          width: `${Math.floor((100 * this.completed) / this.total)}%`,
+          width: `${Math.ceil((100 * this.completed) / this.total)}%`,
           backgroundColor: this.$coreStatusMastered,
         };
       },
       barStyleStarted() {
         const widthRatio = this.started / this.total;
         return {
-          marginLeft: `${Math.floor((100 * this.completed) / this.total)}%`,
-          width: `${Math.floor(100 * widthRatio)}%`,
+          marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
+          width: `${Math.ceil(100 * widthRatio)}%`,
           backgroundColor: this.$coreStatusProgress,
         };
       },
@@ -47,8 +46,8 @@
         // add on 'completed' for offset
         const widthRatio = this.helpNeeded / this.total;
         return {
-          marginLeft: `${Math.floor((100 * this.completed) / this.total)}%`,
-          width: `${Math.floor(100 * widthRatio)}%`,
+          marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
+          width: `${Math.ceil(100 * widthRatio)}%`,
           backgroundColor: this.$coreStatusWrong,
         };
       },

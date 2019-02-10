@@ -53,70 +53,11 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, LEARNER, ACTIVITY),
-    component: pages.ReportsGroupLearnerActivityPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['activityLabel', 'LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
     path: path(CLASS, GROUP, LEARNERS),
     component: pages.ReportsGroupLearnerListPage,
     handler: defaultHandler,
     meta: {
       titleParts: ['membersLabel', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, GROUP, LEARNER, LESSON, EXERCISE),
-    component: pages.ReportsGroupLearnerReportLessonExercisePage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['EXERCISE_NAME', 'LESSON_NAME', 'LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, GROUP, LEARNER, LESSON),
-    component: pages.ReportsGroupLearnerReportLessonPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, GROUP, LEARNER),
-    component: pages.ReportsGroupLearnerReportPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, GROUP, LEARNER, QUIZ),
-    name: PageNames.REPORTS_GROUP_LEARNER_REPORT_QUIZ_PAGE_ROOT,
-    redirect: to => {
-      const { params } = to;
-      return {
-        name: pages.ReportsGroupLearnerReportQuizPage.name,
-        params: {
-          ...params,
-          questionId: 0,
-          interactionIndex: 0,
-        },
-      };
-    },
-    meta: {
-      titleParts: ['QUIZ_NAME', 'LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, GROUP, LEARNER, QUIZ, QUESTION, INTERACTION),
-    component: pages.ReportsGroupLearnerReportQuizPage,
-    handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
-    meta: {
-      // Leaves out question and interaction
-      titleParts: ['QUIZ_NAME', 'LEARNER_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
   {
@@ -392,8 +333,13 @@ export default [
     path: path(CLASS, LESSON, EXERCISE, LEARNER),
     name: PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
-      const { params } = to;
-      return exerciseRootRedirectHandler(params, pages.ReportsLessonExerciseLearnerPage.name, next);
+      const { params, query } = to;
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLessonExerciseLearnerPage.name,
+        next,
+        query
+      );
     },
     meta: {
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],

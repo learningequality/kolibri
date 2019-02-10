@@ -1,20 +1,23 @@
 <template>
 
   <Block
-    :title="$tr('classActivity')"
     :allLinkText="$tr('viewAll')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
   >
+    <template slot="title">
+      {{ $tr('classActivity') }}
+    </template>
+
     <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
     <transition-group name="list">
       <BlockItem
         v-for="notification in notifications"
         :key="notification.groupCode + '_' + notification.lastId"
-        v-bind="cardPropsForNotification(notification)"
       >
-        <NotificationCard>
-          {{ cardTextForNotification(notification) }}
-        </NotificationCard>
+        <NotificationCard
+          v-bind="cardPropsForNotification(notification)"
+          :linkText="cardTextForNotification(notification)"
+        />
       </BlockItem>
     </transition-group>
     <div v-if="notifications.length === 0">
@@ -37,6 +40,8 @@
   import Block from './Block';
   import BlockItem from './BlockItem';
 
+  const MAX_NOTIFICATIONS = 10;
+
   export default {
     name: 'ActivityBlock',
     components: {
@@ -48,7 +53,10 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, 'lastId', ['desc']);
+        return orderBy(this.summarizedNotifications, 'lastId', ['desc']).slice(
+          0,
+          MAX_NOTIFICATIONS
+        );
       },
     },
     methods: {

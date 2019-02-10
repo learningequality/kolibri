@@ -40,6 +40,11 @@ export default {
       state.toolbarRoute = toolbarRoute;
     },
   },
+  getters: {
+    classListPageEnabled(state) {
+      return state.classList.length > 1;
+    },
+  },
   actions: {
     setClassList(store) {
       return ClassroomResource.fetchCollection({ getParams: { role: 'coach' } })
@@ -88,6 +93,9 @@ export default {
       if (store.state.classSummary.id !== classId) {
         store.dispatch('loading');
         return Promise.all([
+          // Make sure we load any class list data, so that we know
+          // whether this user has access to multiple classes or not.
+          store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]);

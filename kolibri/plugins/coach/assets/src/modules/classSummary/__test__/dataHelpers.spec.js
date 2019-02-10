@@ -108,6 +108,21 @@ describe('coach summary data helpers', () => {
       });
     });
   });
+  describe('getLessonStatusTally', () => {
+    it('returns total statuses given a lesson item and a list of learners', () => {
+      const output = store.getters.getLessonStatusTally('lesson_id_2', [
+        'learner_id_1',
+        'learner_id_3',
+        'learner_id_6',
+      ]);
+      expect(output).toEqual({
+        completed: 1,
+        started: 1,
+        notStarted: 1,
+        helpNeeded: 0,
+      });
+    });
+  });
   describe('getContentAvgTimeSpent', () => {
     it('returns average time a list of learners has worked on an item, omitting not started', () => {
       const output = store.getters.getContentAvgTimeSpent('content_Q', [

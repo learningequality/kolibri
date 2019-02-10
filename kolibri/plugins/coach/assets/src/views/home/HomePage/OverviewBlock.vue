@@ -3,6 +3,7 @@
   <KPageContainer>
     <p>
       <BackLink
+        v-if="classListPageEnabled"
         :to="$router.getRoute('CoachClassListPage')"
         :text="$tr('back')"
       />
@@ -10,11 +11,17 @@
     <h1>{{ $store.state.classSummary.name }}</h1>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ $tr('coach', {count: coachNames.length}) }}</template>
+        <KLabeledIcon slot="key">
+          <KIcon slot="icon" coach />
+          {{ $tr('coach', {count: coachNames.length}) }}
+        </KLabeledIcon>
         <template slot="value"><TruncatedItemList :items="coachNames" /></template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ $tr('learner', {count: learnerNames.length}) }}</template>
+        <KLabeledIcon slot="key">
+          <KIcon slot="icon" people />
+          {{ $tr('learner', {count: learnerNames.length}) }}
+        </KLabeledIcon>
         <template slot="value">
           {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
         </template>
@@ -27,6 +34,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoach from '../../common';
 
   export default {
@@ -40,6 +48,7 @@
       learner: '{count, plural, one {Learner} other {Learners}}',
     },
     computed: {
+      ...mapGetters(['classListPageEnabled']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },

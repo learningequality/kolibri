@@ -41,8 +41,8 @@
           <caption class="visuallyhidden">{{ $tr('examReport') }}</caption>
           <thead slot="thead">
             <tr>
-              <th class="core-table-icon-col"></th>
-              <th class="core-table-main-col">{{ $tr('name') }}</th>
+              <th></th>
+              <th>{{ $tr('name') }}</th>
               <th>{{ $tr('progress') }}</th>
               <th>{{ $tr('score') }}</th>
               <th v-if="!viewByGroups">{{ $tr('group') }}</th>
@@ -50,10 +50,10 @@
           </thead>
           <transition-group slot="tbody" tag="tbody" name="list">
             <tr v-for="(examTaker, j) in reportGrouping" :key="j">
-              <td class="core-table-icon-col">
+              <td>
                 <ContentIcon :kind="USER" />
               </td>
-              <td class="core-table-main-col">
+              <td>
                 <KRouterLink
                   v-if="examTaker.progress !== undefined"
                   :text="examTaker.name"

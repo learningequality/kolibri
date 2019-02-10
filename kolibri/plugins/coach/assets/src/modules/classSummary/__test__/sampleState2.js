@@ -810,6 +810,13 @@ export default {
         last_activity: new Date('2019-01-24T22:49:46.776Z'),
         time_spent: 123.34,
       },
+      learner_id_6: {
+        learner_id: 'learner_id_6',
+        content_id: 'content_V',
+        status: 'Completed',
+        last_activity: new Date('2019-01-24T22:47:10.710Z'),
+        time_spent: 123.34,
+      },
     },
     content_L: {
       learner_id_3: {

@@ -1,23 +1,10 @@
 <template>
 
   <span>
-    <LabeledIcon
-      :label="label"
-      :style="active ? {} : { color: $coreGrey300 }"
-    >
-      <mat-svg
-        v-if="active"
-        category="image"
-        name="brightness_1"
-        :style="{ fill: $coreStatusCorrect }"
-      />
-      <mat-svg
-        v-else
-        category="image"
-        name="brightness_1"
-        :style="{ fill: $coreGrey300 }"
-      />
-    </LabeledIcon>
+    <KLabeledIcon :style="active ? {} : { color: $coreGrey300 }">
+      <KIcon slot="icon" dot :color="active ? $coreStatusCorrect : $coreGrey300" />
+      {{ label }}
+    </KLabeledIcon>
   </span>
 
 </template>
@@ -25,14 +12,17 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
-  import LabeledIcon from './LabeledIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'QuizActive',
     components: {
-      LabeledIcon,
+      KLabeledIcon,
+      KIcon,
     },
+    mixins: [themeMixin],
     props: {
       active: {
         type: Boolean,
@@ -44,7 +34,6 @@
       inactive: 'Inactive',
     },
     computed: {
-      ...mapGetters(['$coreStatusCorrect', '$coreGrey300']),
       label() {
         return this.active ? this.$tr('active') : this.$tr('inactive');
       },

@@ -4,8 +4,8 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "@shopify/draggable": "^1.0.0-beta.8",
     "@sentry/browser": "4.5.3",
+    "@shopify/draggable": "^1.0.0-beta.8",
     "aphrodite": "https://github.com/learningequality/aphrodite/",
     "array-includes": "^3.0.3",
     "clipboard": "^2.0.1",
@@ -39,7 +39,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "kolibri-tools": "0.12.0-dev.1",
+    "kolibri-tools": "0.12.0-beta.3.2",
     "responselike": "^1.0.2",
     "vue-color": "^2.7.0"
   }

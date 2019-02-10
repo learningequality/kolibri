@@ -159,6 +159,7 @@
   import FocusLock from 'vue-focus-lock';
 
   import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -216,7 +217,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, themeMixin],
     data: () => ({
       book: null,
       rendition: null,
@@ -237,7 +238,7 @@
       updateContentStateInterval: null,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent', '$coreBgLight']),
+      ...mapGetters(['sessionTimeSpent']),
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;

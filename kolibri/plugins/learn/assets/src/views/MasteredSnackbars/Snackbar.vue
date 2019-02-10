@@ -28,7 +28,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
@@ -39,9 +39,7 @@
     components: {
       UiIconButton,
     },
-    computed: {
-      ...mapGetters(['$coreBgCanvas']),
-    },
+    mixins: [themeMixin],
   };
 
 </script>

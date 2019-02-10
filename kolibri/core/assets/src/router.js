@@ -51,11 +51,11 @@ class Router {
     this._vueRouter.addRoutes(routes);
 
     // attach a helper method that generates a route object and warns if it's not valid
-    this._vueRouter.getRoute = this.getRoute = (name, params = {}) => {
+    this._vueRouter.getRoute = this.getRoute = (name, params = {}, query = {}) => {
       if (!this._routes[name]) {
         logging.warn(`Route name '${name}' is not registered`);
       }
-      return { name, params };
+      return { name, params, query };
     };
 
     // attach a helper method that returns original route definition

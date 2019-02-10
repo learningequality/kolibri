@@ -41,6 +41,12 @@ export const TransferTypes = {
   REMOTEIMPORT: 'remoteimport',
 };
 
+// maps to possible network applications that we import/export content from
+export const ApplicationTypes = {
+  KOLIBRI: 'kolibri',
+  STUDIO: 'studio',
+};
+
 export const ContentWizardErrors = {
   INVALID_PARAMETERS: 'INVALID_PARAMETERS',
   CHANNEL_NOT_FOUND_ON_SERVER: 'CHANNEL_NOT_FOUND_ON_SERVER',

@@ -23,9 +23,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th class="core-table-icon-col"></th>
-            <th class="core-table-main-col">Title</th>
-            <th class="ta-r">
+            <th>
+              {{ coachStrings.$tr('nameLabel') }}
+            </th>
+            <th>
               {{ coachStrings.$tr('learnersLabel') }}
             </th>
             <th></th>

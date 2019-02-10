@@ -50,8 +50,11 @@
         return false;
       },
     },
+    beforeDestroy() {
+      this.clearSnackbar();
+    },
     methods: {
-      ...mapActions(['createSnackbar']),
+      ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['addToResourceCache']),
       handleAddResource(content) {
         this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);

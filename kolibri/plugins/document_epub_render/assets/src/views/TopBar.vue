@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -87,6 +87,7 @@
       SettingsButton,
       SearchButton,
     },
+    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -96,9 +97,6 @@
         type: Boolean,
         required: true,
       },
-    },
-    computed: {
-      ...mapGetters(['$coreGrey200']),
     },
     methods: {
       focusOnTocButton() {

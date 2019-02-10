@@ -43,15 +43,15 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
     name: 'KeenUiSelectOption',
-
     components: {
       UiIcon,
     },
+    mixins: [themeMixin],
 
     props: {
       option: {
@@ -86,7 +86,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
           `ui-select-option--type-${this.type}`,
@@ -114,6 +113,7 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import '~keen-ui/src/styles/imports';
 
   /* stylelint-disable csstree/validator */
@@ -121,9 +121,9 @@
   $ui-select-option-checkbox-color: rgba(black, 0.38) !default;
 
   .ui-select-option {
-    display: flex;
+    @include font-family-noto display: flex;
+
     align-items: center;
-    font-family: $font-stack;
     font-size: $ui-dropdown-item-font-size;
     cursor: pointer;
     user-select: none;

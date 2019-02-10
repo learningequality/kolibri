@@ -1,33 +1,11 @@
 <template>
 
-  <mat-svg
-    v-if="icon === ICONS.clock"
-    category="device"
-    name="access_time"
-    :style="{ fill: $coreStatusProgress }"
-  />
-  <mat-svg
-    v-else-if="icon === ICONS.star"
-    category="action"
-    name="stars"
-    :style="{ fill: $coreStatusMastered }"
-  />
-  <mat-svg
-    v-else-if="icon === ICONS.help"
-    category="alert"
-    name="error"
-    :style="{ fill: $coreStatusWrong }"
-  />
-  <mat-svg
-    v-else-if="icon === ICONS.learners"
-    category="social"
-    name="people"
-  />
-  <mat-svg
-    v-else-if="icon === ICONS.nothing"
-    category="image"
-    name="brightness_1"
-    :style="{ fill: $coreGrey300 }"
+  <KIcon
+    :inProgress="icon === ICONS.clock"
+    :mastered="icon === ICONS.star"
+    :helpNeeded="icon === ICONS.help"
+    :notStarted="icon === ICONS.nothing"
+    :color="color"
   />
 
 </template>
@@ -35,11 +13,16 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ICONS } from './constants';
 
   export default {
     name: 'CoachStatusIcon',
+    components: {
+      KIcon,
+    },
+    mixins: [themeMixin],
     props: {
       icon: {
         type: String,
@@ -50,14 +33,22 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreStatusMastered',
-        '$coreStatusProgress',
-        '$coreStatusWrong',
-        '$coreGrey300',
-      ]),
       ICONS() {
         return ICONS;
+      },
+      color() {
+        if (this.icon === ICONS.clock) {
+          return this.$coreStatusProgress;
+        }
+        if (this.icon === ICONS.star) {
+          return this.$coreStatusMastered;
+        }
+        if (this.icon === ICONS.help) {
+          return this.$coreStatusWrong;
+        }
+        if (this.icon === ICONS.nothing) {
+          return this.$coreGrey300;
+        }
       },
     },
   };

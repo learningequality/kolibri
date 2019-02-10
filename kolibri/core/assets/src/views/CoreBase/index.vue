@@ -99,6 +99,7 @@
 
   import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -131,7 +132,7 @@
       ScrollingHeader,
       UpdateNotification,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     props: {
       appBarTitle: {
         type: String,
@@ -244,7 +245,6 @@
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
       }),
-      ...mapGetters(['$coreBgCanvas']),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
       },

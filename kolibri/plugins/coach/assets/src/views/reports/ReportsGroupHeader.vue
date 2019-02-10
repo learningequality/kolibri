@@ -7,7 +7,12 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ group.name }}</h1>
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" group />
+        {{ group.name }}
+      </KLabeledIcon>
+    </h1>
 
     <!-- TODO COACH
     <HeaderTable>
@@ -52,12 +57,10 @@
         :text="coachStrings.$tr('membersLabel')"
         :to="classRoute('ReportsGroupLearnerListPage', {})"
       />
-      <!-- TODO COACH
       <HeaderTab
         :text="coachStrings.$tr('activityLabel')"
         :to="classRoute('ReportsGroupActivityPage', {})"
       />
-       -->
     </HeaderTabs>
   </div>
 

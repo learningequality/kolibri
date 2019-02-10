@@ -18,8 +18,10 @@
     <section v-if="userHasPermissions">
       <h2>{{ $tr('devicePermissions') }}</h2>
       <p>
-        <PermissionsIcon :permissionType="permissionType" class="permissions-icon" />
-        {{ permissionTypeText }}
+        <KLabeledIcon>
+          <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
+          {{ permissionTypeText }}
+        </KLabeledIcon>
       </p>
       <p>
         {{ $tr('youCan') }}
@@ -110,7 +112,9 @@
 <script>
 
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import pickBy from 'lodash/pickBy';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -151,13 +155,14 @@
     components: {
       KButton,
       KTextbox,
+      KLabeledIcon,
       UiAlert,
       PointsIcon,
       PermissionsIcon,
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         username: this.$store.state.core.session.username,
@@ -177,7 +182,6 @@
         'isSuperuser',
         'totalPoints',
         'userHasPermissions',
-        '$coreStatusCorrect',
       ]),
       ...mapState({
         session: state => state.core.session,

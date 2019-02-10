@@ -48,8 +48,8 @@ Testing:
 
 - [ ] Contributor has fully tested the PR manually
 - [ ] If there are any front-end changes, before/after screenshots are included
-- [ ] Gherkin stories have been updated
-- [ ] Unit tests have been updated
+- [ ] Critical user journeys are covered by Gherkin stories
+- [ ] Critical and brittle code paths are covered by unit tests
 
 ### Reviewer Checklist
 

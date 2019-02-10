@@ -43,7 +43,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
@@ -51,6 +51,7 @@
     components: {
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       answer: {
         type: String,
@@ -61,7 +62,6 @@
       },
     },
     computed: {
-      ...mapGetters(['$coreStatusCorrect', '$coreTextAnnotation']),
       tooltipText() {
         switch (this.answer) {
           case 'right':

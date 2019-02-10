@@ -14,21 +14,24 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <td>{{ coachStrings.$tr('groupNameLabel') }}</td>
-            <td>{{ coachStrings.$tr('lessonsLabel') }}</td>
-            <td>{{ coachStrings.$tr('quizzesLabel') }}</td>
-            <td>{{ coachStrings.$tr('learnersLabel') }}</td>
-            <td>{{ coachStrings.$tr('avgQuizScoreLabel') }}</td>
-            <td>{{ coachStrings.$tr('lastActivityLabel') }}</td>
+            <th>{{ coachStrings.$tr('groupNameLabel') }}</th>
+            <th>{{ coachStrings.$tr('lessonsLabel') }}</th>
+            <th>{{ coachStrings.$tr('quizzesLabel') }}</th>
+            <th>{{ coachStrings.$tr('learnersLabel') }}</th>
+            <th>{{ coachStrings.$tr('avgQuizScoreLabel') }}</th>
+            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KRouterLink
-                :text="tableRow.name"
-                :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
-              />
+              <KLabeledIcon>
+                <KIcon slot="icon" group />
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
+                />
+              </KLabeledIcon>
             </td>
             <td>
               {{ coachStrings.$tr('integer', {value: tableRow.numLessons}) }}

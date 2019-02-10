@@ -41,10 +41,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'InteractionItem',
+    mixins: [themeMixin],
     props: {
       interaction: {
         type: Object,
@@ -56,13 +57,6 @@
       },
     },
     computed: {
-      ...mapGetters([
-        '$coreTextAnnotation',
-        '$coreStatusWrong',
-        '$coreStatusCorrect',
-        '$coreTextDisabled',
-        '$coreTextDefault',
-      ]),
       isAnswer() {
         return this.interaction.type === 'answer';
       },

@@ -170,7 +170,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import fuzzysearch from 'fuzzysearch';
   import startswith from 'lodash/startsWith';
   import sortby from 'lodash/sortBy';
@@ -190,7 +190,7 @@
       KCircularLoader,
       KeenUiSelectOption,
     },
-
+    mixins: [themeMixin],
     props: {
       name: String,
       value: {
@@ -279,7 +279,6 @@
     },
 
     computed: {
-      ...mapGetters(['$coreActionNormal']),
       classes() {
         return [
           `ui-select-type-${this.type}`,
@@ -788,16 +787,18 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import '~keen-ui/src/styles/imports';
 
   /* stylelint-disable csstree/validator */
 
   .ui-select {
+    @include font-family-noto;
+
     position: relative;
     display: flex;
     align-items: flex-start;
     margin-bottom: $ui-input-margin-bottom;
-    font-family: $font-stack;
     outline: none;
 
     &:hover:not(.is-disabled) {
@@ -940,7 +941,6 @@
     align-items: center;
     width: 100%;
     padding: 0;
-    font-family: $font-stack;
     font-size: $ui-input-text-font-size;
     font-weight: normal;
     color: $ui-input-text-color;
@@ -989,11 +989,12 @@
   }
 
   .ui-select-search-input {
+    @include font-family-noto;
+
     width: 100%;
     height: $ui-input-height + rem-calc(4px);
     padding: rem-calc(0 12px);
     padding-left: rem-calc(40px);
-    font-family: $font-stack;
     font-size: $ui-input-text-font-size - rem-calc(1px);
     font-weight: normal;
     color: $ui-input-text-color;

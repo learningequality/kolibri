@@ -160,7 +160,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         """
         It provides the list of ClassroomNotificationsViewset from DRF.
         Then it fetches and saves the needed information to know how many coaches
-        are requesting notificatios in the last five minutes
+        are requesting notifications in the last five minutes
         """
         response = super(viewsets.ReadOnlyModelViewSet, self).list(request, *args, **kwargs)
 
@@ -212,7 +212,7 @@ class ExerciseDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
             ancestor_collection=collection_id,
             target_user=F("user"),
         )
-        data = queryset.values('item').annotate(correct=Sum('correct'), total=Count('correct'))
+        data = queryset.values('item').annotate(total=Count('correct')).annotate(correct=Sum('correct'))
         return Response(data)
 
 

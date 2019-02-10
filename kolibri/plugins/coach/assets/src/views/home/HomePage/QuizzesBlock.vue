@@ -1,11 +1,14 @@
 <template>
 
   <Block
-    :title="coachStrings.$tr('quizzesLabel')"
     :allLinkText="viewAllString"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
-    <ContentIcon slot="icon" :kind="ContentNodeKinds.EXAM" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" quiz />
+      {{ coachStrings.$tr('quizzesLabel') }}
+    </KLabeledIcon>
+
     <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"
@@ -14,6 +17,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.key })"
       />
     </BlockItem>
   </Block>
@@ -71,7 +75,7 @@
           return last;
         }
         Object.values(this.examLearnerStatusMap[exam.id]).forEach(status => {
-          if (status.last_activity >= last) {
+          if (status.last_activity > last) {
             last = status.last_activity;
           }
         });
