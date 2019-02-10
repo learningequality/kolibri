@@ -296,9 +296,8 @@ def get_status():  # noqa: max-complexity=16
     :raises: NotRunning
     """
 
-    # Is there a startup lock?
+    # Check if the system is still starting (clear sessions and vacuum not finished yet):
     if os.path.isfile(STARTUP_LOCK):
-
         try:
             pid, port = _read_pid_file(STARTUP_LOCK)
             # Does the PID in there still exist?
@@ -315,7 +314,7 @@ def get_status():  # noqa: max-complexity=16
             # There is no PID file (created by server daemon)
             raise NotRunning(STATUS_STOPPED)  # Stopped
 
-    # PID file exists, check if it is running
+    # PID file exists and startup has finished, check if it is running
     try:
         pid, port = _read_pid_file(PID_FILE)
     except (ValueError, OSError):
