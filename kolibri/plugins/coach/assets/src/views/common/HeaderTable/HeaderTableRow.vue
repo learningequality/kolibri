@@ -30,8 +30,4 @@
     font-size: 14px;
   }
 
-  td {
-    width: 100%;
-  }
-
 </style>
