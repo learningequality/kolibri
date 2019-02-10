@@ -104,6 +104,7 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
 
+CACHE_MIDDLEWARE_KEY_PREFIX = 'pages'
 CACHES = {
     # Default cache
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
