@@ -131,20 +131,20 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
         :param: page integer: sets the page to provide when paginating.
         """
-        classroom_id = self.kwargs['collection_id']
+        collection_id = self.kwargs['collection_id']
 
-        if classroom_id:
+        if collection_id:
             try:
-                collection = Collection.objects.get(pk=classroom_id)
+                collection = Collection.objects.get(pk=collection_id)
             except (Collection.DoesNotExist, ValueError):
                 return []
         if collection.kind == collection_kinds.CLASSROOM:
             classroom_groups = LearnerGroup.objects.filter(parent=collection)
             learner_groups = [group.id for group in classroom_groups]
-            learner_groups.append(classroom_id)
+            learner_groups.append(collection_id)
             notifications_query = LearnerProgressNotification.objects.filter(classroom_id__in=learner_groups)
         else:
-            notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+            notifications_query = LearnerProgressNotification.objects.filter(classroom_id=collection_id)
         notifications_query = self.apply_learner_filter(notifications_query)
         after = self.check_after()
         self.remove_default_page_size()
