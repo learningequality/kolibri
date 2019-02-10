@@ -45,4 +45,4 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
         return Lesson.objects.filter(
             lesson_assignments__in=assignments,
             is_active=True
-        )
+        ).distinct()
