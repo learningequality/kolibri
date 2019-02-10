@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
@@ -22,34 +23,28 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 
 # Modified from django.views.i18n
 @signin_redirect_exempt
+@require_POST
 def set_language(request):
     """
     Since this view changes how the user will see the rest of the site, it must
     only be accessed as a POST request. If called as a GET request, it will
-    redirect to the page in the request (the 'next' parameter) without changing
-    any state.
+    error.
     """
-    if request.method == "POST":
-        response = HttpResponse(status=204)
-        lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
-        if lang_code and check_for_language(lang_code):
-            if hasattr(request, "session"):
-                request.session[LANGUAGE_SESSION_KEY] = lang_code
-            # Always set cookie
-            response.set_cookie(
-                settings.LANGUAGE_COOKIE_NAME,
-                lang_code,
-                max_age=settings.LANGUAGE_COOKIE_AGE,
-                path=settings.LANGUAGE_COOKIE_PATH,
-                domain=settings.LANGUAGE_COOKIE_DOMAIN,
-            )
-        else:
-            if hasattr(request, "session"):
-                request.session.pop(LANGUAGE_SESSION_KEY, "")
-            response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
-        return response
+    response = HttpResponse(status=204)
+    lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
+    if lang_code and check_for_language(lang_code):
+        if hasattr(request, "session"):
+            request.session[LANGUAGE_SESSION_KEY] = lang_code
+        # Always set cookie
+        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
+                            max_age=settings.LANGUAGE_COOKIE_AGE,
+                            path=settings.LANGUAGE_COOKIE_PATH,
+                            domain=settings.LANGUAGE_COOKIE_DOMAIN)
     else:
-        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
+        if hasattr(request, "session"):
+            request.session.pop(LANGUAGE_SESSION_KEY, "")
+        response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
+    return response
 
 
 def logout_view(request):

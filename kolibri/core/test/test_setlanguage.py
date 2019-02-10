@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponseNotAllowed
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import get_language
@@ -46,12 +47,12 @@ class I18NTests(TestCase):
 
     def test_setlang_get(self):
         """
-        The set_language view redirects if accessed via GET
+        The set_language view is forbidden to be accessed via GET
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
         response = self.client.get(reverse("kolibri:core:set_language"), data=post_data)
-        self.assertEqual(response.url, reverse("kolibri:core:redirect_user"))
+        self.assertEqual(type(response), HttpResponseNotAllowed)
 
     def test_setlang_for_ajax(self):
         """
