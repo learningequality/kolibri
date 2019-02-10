@@ -8,6 +8,39 @@ from validate import Validator
 
 
 option_spec = {
+    "Cache": {
+        "CACHE_BACKEND": {
+            "type": "option",
+            "options": ("disk", "memory", "memcached",),
+            "default": "memory",
+            "envvars": ("KOLIBRI_CACHE_BACKEND",),
+        },
+        "CACHE_TIMEOUT": {
+            "type": "integer",
+            "default": 300,
+            "envvars": ("KOLIBRI_CACHE_TIMEOUT",),
+        },
+        "CACHE_CULL_LIMIT": {
+            "type": "integer",
+            "default": 5,
+            "envvars": ("KOLIBRI_CACHE_CULL_LIMIT",),
+        },
+        "CACHE_ENTRY_LIMIT": {
+            "type": "integer",
+            "default": 500,
+            "envvars": ("KOLIBRI_CACHE_ENTRY_LIMIT",),
+        },
+        "CACHE_SIZE_LIMIT": {
+            "type": "integer",
+            "default": 2 ** 27,
+            "envvars": ("KOLIBRI_CACHE_SIZE_LIMIT",),
+        },
+        "CACHE_LOCATION": {
+            "type": "string",
+            "default": 'kolibri_cache',
+            "envvars": ("KOLIBRI_CACHE_LOCATION",),
+        },
+    },
     "Database": {
         "DATABASE_ENGINE": {
             "type": "option",
@@ -107,6 +140,10 @@ option_spec = {
         "SENTRY_FRONTEND_DSN": {
             "type": "string",
             "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN", ),
+        },
+        "COLLECT_CACHE_STATS": {
+            "type": "boolean",
+            "default": False,
         },
     },
 }

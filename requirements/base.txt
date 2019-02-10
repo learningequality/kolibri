@@ -5,6 +5,7 @@ django==1.11.18  # pyup: >=1.11,<2
 six==1.11.0
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
+diskcache==3.1.1
 docopt==0.6.2
 django-mptt==0.9.1
 djangorestframework-csv==2.1.0
@@ -26,6 +27,7 @@ clint==0.5.1
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
+python-memcached==1.59
 ifcfg==0.17
 sqlalchemy==1.2.10
 user-agents==1.1.0
