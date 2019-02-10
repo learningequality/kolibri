@@ -247,8 +247,28 @@ kolibri_configure()
     # while using errexit
     ( ! getent passwd "$KOLIBRI_USER" 1>/dev/null ) && {
         echo "Creating new user $KOLIBRI_USER"
-        adduser --system --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
+        adduser --system --group --shell /bin/bash --home "/var/$KOLIBRI_USER" "$KOLIBRI_USER"
     }
+
+    # Sets the primary user group for previous installations w/o one
+    # THIS CAN BE DEPRECATED ONCE WE DO NOT WANT TO SUPPORT DIRECT UPGRADES FROM
+    # RELEASES BEFORE 0.11.1-ubuntu1.
+    if [ "${args[0]}" = "upgrade" ]
+    then
+        # Ensure that a primary system group for the "kolibri" user is created
+        KOLIBRI_USER_GROUP=`id "$KOLIBRI_USER" -g`
+        if [ "$KOLIBRI_USER_GROUP" = "65534" ]
+        then
+            if getent group "$KOLIBRI_USER" 1>/dev/null
+            then
+                new_group_name="${KOLIBRI_USER}_group"
+            else
+                new_group_name="$KOLIBRI_USER"
+            fi
+            addgroup --system "$new_group_name"
+            usermod -g "$KOLIBRI_USER" "$new_group_name"
+        fi
+    fi
 
     # After the user has been successfully created, save it in the configuration
     # for the system service.
