@@ -21,11 +21,10 @@ class LearnerClassroomViewset(ReadOnlyModelViewSet):
     serializer_class = LearnerClassroomSerializer
 
     def get_queryset(self):
-        current_user = self.request.user
-        memberships = current_user.memberships.filter(
-            collection__kind='classroom',
-        ).values('collection_id')
-        return Classroom.objects.filter(id__in=memberships)
+        return HierarchyRelationsFilter(Classroom.objects.all()).filter_by_hierarchy(
+            target_user=self.request.user,
+            ancestor_collection=F('id')
+        )
 
 
 class LearnerLessonViewset(ReadOnlyModelViewSet):
