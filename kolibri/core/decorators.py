@@ -9,7 +9,6 @@ import sys
 from functools import wraps
 
 from django.utils.cache import patch_response_headers
-
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from six import string_types
@@ -288,7 +287,7 @@ def cache_no_user_data(view_func):
         request = args[0]
         del request.session
         response = view_func(*args, **kwargs)
-        headers = ['accept-language', 'accept-encoding', 'accept', 'user-agent']
+        headers = ['accept-encoding', 'accept', 'user-agent']
         patch_response_headers(response, cache_timeout=300)
         response['Vary'] = ', '.join(headers)
         return response

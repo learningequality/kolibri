@@ -49,6 +49,7 @@ from django.conf.urls import include
 from django.conf.urls import url
 
 from .base import KolibriPluginBase
+from kolibri.core.device.translation import i18n_patterns
 
 logger = logging.getLogger(__name__)
 
@@ -116,14 +117,16 @@ def get_urls():
         url_module = plugin_instance.url_module()
         api_url_module = plugin_instance.api_url_module()
         instance_patterns = []
+        # Normalize slug
+        slug = plugin_instance.url_slug().lstrip('^').rstrip('/') + '/'
         if url_module:
-            instance_patterns.extend(url_module.urlpatterns)
+            instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
         if api_url_module:
-            instance_patterns.append(url('^api/', include(api_url_module)),)
+            instance_patterns.append(url(slug + 'api/', include(api_url_module)),)
         if instance_patterns:
             urlpatterns.append(
                 url(
-                    plugin_instance.url_slug(),
+                    '',
                     include(
                         instance_patterns,
                         namespace=plugin_instance.url_namespace()

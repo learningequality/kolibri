@@ -1,3 +1,4 @@
+import { redirectBrowser } from 'kolibri.utils.browser';
 import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
 import { httpClient } from 'kolibri.client';
 
@@ -9,8 +10,10 @@ export default {
       httpClient({
         path,
         entity,
-      }).then(() => {
-        global.location.reload(true);
+      }).then(response => {
+        // Endpoint returns a URL to redirect to.
+        // Redirect to it.
+        redirectBrowser(response.entity);
       });
     },
     compareLanguages(a, b) {

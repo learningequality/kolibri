@@ -2,17 +2,21 @@ from django import http
 from django.conf import settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
-from django.core.urlresolvers import translate_url
 from django.http import Http404
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import resolve
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
+from django.utils.translation import activate
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
+from six.moves.urllib.parse import urlparse
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
@@ -24,35 +28,33 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 
 # Modified from django.views.i18n
 @signin_redirect_exempt
+@require_POST
 def set_language(request):
     """
-    Redirect to a given url while setting the chosen language in the
-    session or cookie. The url and the language code need to be
-    specified in the request parameters.
     Since this view changes how the user will see the rest of the site, it must
     only be accessed as a POST request. If called as a GET request, it will
-    redirect to the page in the request (the 'next' parameter) without changing
-    any state.
+    error.
     """
-    next = request.POST.get('next', request.GET.get('next'))
+    next = request.POST.get('next', None)
     if not is_safe_url(url=next, host=request.get_host()):
         next = request.META.get('HTTP_REFERER')
+    lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
+    if lang_code and check_for_language(lang_code):
+        resolved_next = resolve(urlparse(next)[2])
+        activate(lang_code)
+        next = reverse(resolved_next.view_name, args=resolved_next.args, kwargs=resolved_next.kwargs)
+        if hasattr(request, 'session'):
+            request.session[LANGUAGE_SESSION_KEY] = lang_code
         if not is_safe_url(url=next, host=request.get_host()):
             next = reverse('kolibri:core:redirect_user')
-    response = http.HttpResponseRedirect(next)
-    if request.method == 'POST':
-        lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
-        if lang_code and check_for_language(lang_code):
-            next_trans = translate_url(next, lang_code)
-            if next_trans != next:
-                response = http.HttpResponseRedirect(next_trans)
-            if hasattr(request, 'session'):
-                request.session[LANGUAGE_SESSION_KEY] = lang_code
-            # Always set cookie
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
-                                max_age=settings.LANGUAGE_COOKIE_AGE,
-                                path=settings.LANGUAGE_COOKIE_PATH,
-                                domain=settings.LANGUAGE_COOKIE_DOMAIN)
+        response = HttpResponse(next)
+        # Always set cookie
+        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
+                            max_age=settings.LANGUAGE_COOKIE_AGE,
+                            path=settings.LANGUAGE_COOKIE_PATH,
+                            domain=settings.LANGUAGE_COOKIE_DOMAIN)
+    else:
+        response = HttpResponse(next)
     return response
 
 
