@@ -151,8 +151,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         elif self.request.query_params.get('page', None) is None:
-            today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
-            notifications_query = notifications_query.filter(timestamp__gte=today)
+            last_24h = datetime.datetime.now() - datetime.timedelta(days=1)
+            notifications_query = notifications_query.filter(timestamp__gte=last_24h)
 
         return notifications_query.order_by('-id')
 
