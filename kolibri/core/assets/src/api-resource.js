@@ -839,7 +839,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[detailName]) {
         logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[detailName].method === 'get') {
+      } else if (this.__schema[detailName].method !== 'get') {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
@@ -866,7 +866,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[detailName]) {
         logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[detailName].method === 'get') {
+      } else if (this.__schema[detailName].method !== 'get') {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
@@ -888,7 +888,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[listName]) {
         logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[listName].method === 'get') {
+      } else if (this.__schema[listName].method !== 'get') {
         logging.error(`${listName} list endpoint does not accept get requests.`);
       }
     }
@@ -912,7 +912,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[listName]) {
         logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[listName].method === method.toLowerCase()) {
+      } else if (this.__schema[listName].method !== method.toLowerCase()) {
         logging.error(
           `${listName} list endpoint does not accept ${method.toLowerCase()} requests.`
         );

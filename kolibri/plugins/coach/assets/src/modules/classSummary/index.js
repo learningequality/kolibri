@@ -296,7 +296,6 @@ export default {
         // convert dates
         status.last_activity = new Date(status.last_activity);
       });
-      summary.exam_learner_status;
       Object.assign(state, {
         id: summary.id,
         name: summary.name,

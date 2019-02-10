@@ -11,7 +11,7 @@ const moduleNameMapper = {
 };
 
 Object.keys(apiSpecAliases).forEach(key => {
-  moduleNameMapper['^' + key.replace(/\./g, '\\.') + '$'] = apiSpecAliases[key];
+  moduleNameMapper['^' + key.replace(/\\./g, '\\.') + '$'] = apiSpecAliases[key];
 });
 
 module.exports = {
