@@ -244,6 +244,7 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
+        startingScroll: state => state.core.scrollPosition,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -333,9 +334,22 @@
         return '';
       },
     },
+    mounted() {
+      // Set a one time watcher so that if the router sets a new
+      // starting scroll position based on the history, then it gets
+      // set here.
+      const unwatch = this.$watch('startingScroll', () => {
+        unwatch();
+        this.$el.scrollTop = this.startingScroll;
+      });
+    },
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
+        // Setting this will not affect the page layout,
+        // but this will then get properly stored in the
+        // browser history.
+        window.pageYOffset = this.scrollPosition;
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
