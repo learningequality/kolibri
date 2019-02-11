@@ -53,7 +53,7 @@
         <KGridItem
           v-for="(value, key) in themes"
           :key="key"
-          :size="12 / Object.keys(themes).length"
+          :size="3"
           :percentage="false"
         >
           <KButton
