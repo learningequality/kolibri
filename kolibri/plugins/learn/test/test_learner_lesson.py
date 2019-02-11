@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
@@ -77,3 +78,29 @@ class LearnerLessonTestCase(APITestCase):
         self.client.login(username='learner', password='password')
         get_request = self.client.get(reverse(self.basename + '-detail', kwargs={'pk': own_lesson.id}))
         self.assertEqual(get_request.status_code, 404)
+
+    def test_learner_assigned_same_lesson_multiple_times_only_return_one(self):
+        own_lesson = Lesson.objects.create(
+            title='Lesson',
+            collection=self.classroom,
+            created_by=self.learner_user,
+            is_active=True,
+        )
+        LessonAssignment.objects.create(
+            lesson=own_lesson,
+            assigned_by=self.learner_user,
+            collection=self.classroom,
+        )
+        group = LearnerGroup.objects.create(
+            name='Own Group',
+            parent=self.classroom,
+        )
+        group.add_member(self.learner_user)
+        LessonAssignment.objects.create(
+            lesson=own_lesson,
+            assigned_by=self.learner_user,
+            collection=group,
+        )
+        self.client.login(username='learner', password='password')
+        get_request = self.client.get(reverse(self.basename + '-detail', kwargs={'pk': own_lesson.id}))
+        self.assertEqual(get_request.status_code, 200)
