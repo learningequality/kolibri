@@ -11,14 +11,20 @@ Feature: General navigation on *Class home* tab
       And I see a list of all the facility classes, or those I'm assigned to (if class coach)
 
   Scenario: There are no quizzes
-    Given there are no created quizzes 
-        Then there should be a quizzes block with an empty state string saying “No quizzes assigned” # Not yet implemented?
-        And Then I should not see any quizzes
+    Given there are no created quizzes
+      When I look at the *Quizzes* block
+      Then I see no quizzes
+      When I click *View all*
+      Then I am on *Coach > Reports > Quizzes* subtab
+        And I see no quizzes
 
   Scenario: There are no lessons
     Given there are no created lessons
-      Then there should be a lessons block with an empty state string saying “No lessons assigned” # Not yet implemented?
-        And Then I should not see any lessons
+      When I look at the *Lessons* block
+      Then I see no lessons
+      When I click *View all*
+      Then I am on *Coach > Reports > Lessons* subtab
+        And I see no lessons
 
   Scenario: There has been no activity in the class
     Given that there has not been any learner engagement in the class
@@ -30,9 +36,9 @@ Feature: General navigation on *Class home* tab
 
   Scenario: No coaches assigned to class
     Given there are no coaches assigned to the class
-    When I look at the <class> class home summary block at the top
-    Then I see no coaches listed
-      And I see *0* instead # Not yet implemented? Does not show anything for coaches
+      When I look at the <class> class home summary block at the top
+      Then I see no coaches listed
+        And I see *-* instead
 
   Scenario: No learners enrolled in the class
     Given there are no learners assigned to the class
