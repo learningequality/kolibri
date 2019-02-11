@@ -193,6 +193,7 @@
   .user-action-button {
     padding: 0;
     text-align: right;
+    vertical-align: middle;
   }
 
   .role-badge {
