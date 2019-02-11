@@ -1,11 +1,12 @@
 coach-sign-in.feature
 coach-change-profile-information.feature
 coach-change-language.feature
+coach-class-home.feature
 coach-create-group.feature
 coach-rename-group.feature
-coach-class-reports-groups.feature
-coach-assign-learners-groups.feature
 coach-delete-group.feature
+coach-assign-learners-groups.feature
+
 coach-create-lesson.feature
 coach-activate-lesson.feature
 coach-edit-lesson.feature
@@ -22,7 +23,7 @@ coach-class-reports-quizzes.feature
 coach-class-reports.feature
 coach-class-plan.feature
 class-coach-view.feature
-coach-class-home.feature
+
 coach-delete-lesson.feature
 coach-create-quizzes.feature
 coach-activate-quiz.feature
@@ -34,3 +35,6 @@ coach-reassign-quiz.feature
 coach-rename-quiz.feature
 coach-delete-quiz.feature
 coach-sign-out.feature
+
+
+coach-class-reports-groups.feature

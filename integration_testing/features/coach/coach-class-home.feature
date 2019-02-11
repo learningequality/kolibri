@@ -48,47 +48,18 @@ Feature: General navigation on *Class home* tab
   Scenario: Review progress of a started quiz
     Given there is a <quiz> quiz available
       And there has been learner progress on a <quiz> quiz
-    When I click the <quiz> quiz progress bar # Not yet implemented?
+    When I click the <quiz> quiz progress bar
     Then I am on <quiz> quiz page in the *Reports* tab
       And I see high level quiz summary data
       And I see a list of learners with quiz progress
-
-  # Active but not started quizzes do not appear on Class home
-  Scenario: Review a not-started quiz 
-    Given there is a <quiz> quiz available
-      And there has been no learner progress on a <quiz> quiz
-    When I click the <quiz> quiz progress bar # Not yet implemented?
-    Then I am on <quiz> quiz page in the *Reports* tab
-      And I see high level quiz summary data
-      And I see a list of learners with quiz progress
-
-  Scenario: View all quizzes
-    Given that there may or may not be any quizzes available
-      When I press the *View all* button in the quizzes block
-      Then I am in *Coach > Reports > Quizzes* tab
-        And I see a list of all the class quizzes
 
   Scenario: Review progress of a started lesson
     Given there is a <lesson> lesson available
       And there has been learner progress on a <lesson> lesson
-    When I click the <lesson> lesson progress bar # Not yet implemented?
+    When I click the <lesson> lesson progress bar
     Then I am on <lesson> lesson page in the *Reports* tab
       And I see high level lesson summary data
       And I see a list of learners with lesson progress
-
-  Scenario: Review a not-started lesson 
-    Given there is a <lesson> lesson available
-      And there has been no learner progress on a <lesson> lesson
-    When I click the <lesson> lesson progress bar # Not yet implemented?
-    Then I am on <lesson> lesson page in the *Reports* tab
-      And I see high level lesson summary data
-      And I see a list of lesson items with their completion status
-
-  Scenario: View all lessons
-    Given that there may or may not be any lessons available
-      When I press the *View all* button in the lessons block
-      Then I am in *Coach > Reports > Lessons* tab
-        And I see a list of all the class lessons      
 
   Scenario: Review all class activity notifications
     When I click *View all* in the *Class activity* block
@@ -102,34 +73,3 @@ Feature: General navigation on *Class home* tab
       Then I see a list of resource options
       When I open the *Progress type* filter
       Then I see a list of progress options: all, completed, started, help needed
-
-  Scenario: Review details of a notification
-    Given that a notification just appeared in the *Class activity* notifications block
-      And I can see the notification displays the in-progress, completed, or help needed icon
-    When I click on the *Show* button for that notification
-    Then I am on the progress report page for the resource that emitted the notification
-
-# This does not make much sense as the user cannot arrive on the *Class home* if there are NO classes...?
-Feature: No classes in facility
-  Scenario: User clicks on the CLASS HOME tab
-    Given that I am a coach user And there haven’t been classes made
-    When I click on the CLASS HOME tab
-    Then I should only see a block of notifications
-    And these notifications should only display resource engagement
-    And I should not see notifications pertaining to lessons or exams
-
-  Scenario: User clicks on the REPORTS tab
-    Given that I am a coach user And there haven’t been classes made
-    When I click on the REPORTS Tab
-    Then I should see a list of learners
-    And Then When I click on a learner, I should see their recent Activity
-
-  Scenario: User clicks on a specific notification
-    Given that there are notifications on the CLASS HOME tab
-    When I click into a specific notification
-    Then I should be redirected to the report page for that Notification
-
-  Scenario: User clicks on a specific user profile in REPORTS
-    Given that I am on the REPORTS tab
-    When I click on a user’s name 
-    Then I should be redirected to their profile where I can see their recent activity
