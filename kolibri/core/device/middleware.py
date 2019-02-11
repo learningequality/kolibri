@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import is_valid_path
 from django.utils import translation
+from rest_framework.views import APIView
 
 from .translation import get_language_from_request
 from kolibri.utils.conf import OPTIONS
@@ -23,7 +24,9 @@ class KolibriLocaleMiddleware:
 
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)
 
-        if response.status_code == 404 and not language_from_path:
+        i18n_redirect = getattr(request, 'i18n_redirect', True)
+
+        if response.status_code == 404 and not language_from_path and i18n_redirect:
             # Maybe the language code is missing in the URL? Try adding the
             # language prefix and redirecting to that URL.
             script_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"].strip("/")
@@ -53,6 +56,13 @@ class KolibriLocaleMiddleware:
             response["Content-Language"] = language
 
         return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if hasattr(view_func, 'cls'):
+            if issubclass(view_func.cls, APIView):
+                # Don't redirect API views for language prefixes.
+                setattr(request, 'i18n_redirect', False)
+        return None
 
 
 class IgnoreGUIMiddleware(object):
