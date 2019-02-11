@@ -90,6 +90,10 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(self.zip_file_base_url + "qqq" + self.test_name_1)
         self.assertEqual(response.status_code, 404)
 
+    def test_non_allowed_file_internal_file_access(self):
+        response = self.client.get(self.zip_file_base_url.replace('zip', 'png') + self.test_name_1)
+        self.assertEqual(response.status_code, 404)
+
     def test_not_modified_response_when_if_modified_since_header_set(self):
         caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
         response = caching_client.get(self.zip_file_base_url + self.test_name_1)
