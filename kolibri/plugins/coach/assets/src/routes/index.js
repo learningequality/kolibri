@@ -31,6 +31,9 @@ export default [
         error => store.dispatch('handleApiError', error)
       );
     },
+    meta: {
+      titleParts: ['classesLabel'],
+    },
   },
   {
     path: '/:classId/home',
