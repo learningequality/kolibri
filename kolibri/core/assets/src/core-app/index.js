@@ -3,6 +3,7 @@ require('array-includes').shim();
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
 require('core-js');
+require('url-polyfill');
 
 // Do this before any async imports to ensure that public paths
 // are set correctly
