@@ -112,7 +112,6 @@ def block():
             time.sleep(100000)
     except Exception as e:
         logger.error('Block interrupted!', e)
-        pass
     # Waiting for ALL child threads to finish is necessary on OS X.
     # See https://github.com/cherrypy/cherrypy/issues/581.
     # It's also good to let them all shut down before allowing
@@ -345,7 +344,7 @@ def get_status():  # noqa: max-complexity=16
 
     else:
         try:
-            response = requests.get(check_url, timeout=3)
+            requests.get(check_url, timeout=3)
         except (requests.exceptions.RequestException):
             return pid, '', ''
 

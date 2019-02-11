@@ -78,7 +78,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         try:
-            kolibri_cpu, kolibri_mem = get_kolibri_use()
+            get_kolibri_use()
         except NotRunning:
             sys.exit("Profile command executed while Kolibri server was not running")
         get_requests_info()
