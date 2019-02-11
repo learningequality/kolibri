@@ -57,8 +57,11 @@
           :percentage="false"
         >
           <KButton
-            :class="['settings-button', 'theme-button', $computedClass(settingsButtonFocus)]"
-            :style="{ backgroundColor: value.backgroundColor }"
+            :class="[
+              'settings-button',
+              'theme-button',
+              $computedClass(generateStyle(value.backgroundColor))
+            ]"
             :aria-label="generateThemeAriaLabel(key)"
             @click="$emit('setTheme', value)"
           >
@@ -158,6 +161,12 @@
           theme.textColor === this.theme.textColor
         );
       },
+      generateStyle(backgroundColor) {
+        return {
+          ...this.settingsButtonFocus,
+          backgroundColor,
+        };
+      },
     },
   };
 
@@ -168,7 +177,7 @@
 
   @import './EpubStyles';
 
-  .settings-button.button.secondary.raised {
+  .settings-button {
     width: calc(100% - 4px);
     min-width: unset;
     padding: 8px;
