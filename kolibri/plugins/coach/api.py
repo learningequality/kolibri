@@ -15,6 +15,7 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.decorators import query_params_required
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -130,23 +131,33 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
         :param: page integer: sets the page to provide when paginating.
         """
-        classroom_id = self.kwargs['collection_id']
+        collection_id = self.kwargs['collection_id']
 
-        if classroom_id:
+        if collection_id:
             try:
-                Collection.objects.get(pk=classroom_id)
+                collection = Collection.objects.get(pk=collection_id)
             except (Collection.DoesNotExist, ValueError):
                 return []
-
-        notifications_query = LearnerProgressNotification.objects.filter(classroom_id=classroom_id)
+        if collection.kind == collection_kinds.CLASSROOM:
+            classroom_groups = LearnerGroup.objects.filter(parent=collection)
+            learner_groups = [group.id for group in classroom_groups]
+            learner_groups.append(collection_id)
+            notifications_query = LearnerProgressNotification.objects.filter(classroom_id__in=learner_groups)
+        else:
+            notifications_query = LearnerProgressNotification.objects.filter(classroom_id=collection_id)
         notifications_query = self.apply_learner_filter(notifications_query)
         after = self.check_after()
         self.remove_default_page_size()
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         elif self.request.query_params.get('page', None) is None:
-            today = datetime.datetime.combine(datetime.datetime.now(), datetime.time(0))
-            notifications_query = notifications_query.filter(timestamp__gte=today)
+            try:
+                last_id_record = notifications_query.latest('id')
+                # returns all the notifications 24 hours older than the latest
+                last_24h = last_id_record.timestamp - datetime.timedelta(days=1)
+                notifications_query = notifications_query.filter(timestamp__gte=last_24h)
+            except (LearnerProgressNotification.DoesNotExist):
+                return []
 
         return notifications_query.order_by('-id')
 
