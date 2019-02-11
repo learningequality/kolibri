@@ -334,14 +334,28 @@
         return '';
       },
     },
-    mounted() {
-      // Set a one time watcher so that if the router sets a new
-      // starting scroll position based on the history, then it gets
-      // set here.
-      const unwatch = this.$watch('startingScroll', () => {
-        unwatch();
-        this.$el.scrollTop = this.startingScroll;
-      });
+    watch: {
+      startingScroll(newVal) {
+        // Set a watcher so that if the router sets a new
+        // starting scroll position based on the history, then it gets
+        // set here.
+        if (this.unwatchScrollHeight) {
+          this.unwatchScrollHeight();
+        }
+        if (newVal > this.$el.scrollHeight && this.loading) {
+          // The scroll top we are trying to set is
+          // larger than the current length of the page
+          // Create a watcher to monitor changes in loading
+          // to try to set the scrollHeight after the contents
+          // have loaded.
+          this.unwatchScrollHeight = this.$watch('loading', () => {
+            this.unwatchScrollHeight();
+            this.$el.scrollTop = newVal;
+          });
+        } else {
+          this.$el.scrollTop = newVal;
+        }
+      },
     },
     methods: {
       handleScroll(e) {
