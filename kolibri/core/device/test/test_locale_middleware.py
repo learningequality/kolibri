@@ -13,8 +13,8 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils._os import upath
 from django.views.generic import TemplateView
+from mock import patch
 
-from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.translation import i18n_patterns
 
 view = TemplateView.as_view(template_name='dummy.html')
@@ -44,6 +44,7 @@ urlpatterns += i18n_patterns([
         ('fr-fr', 'French'),
     ],
     MIDDLEWARE=[
+        'django.contrib.sessions.middleware.SessionMiddleware',
         'kolibri.core.device.middleware.KolibriLocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
     ],
@@ -51,11 +52,6 @@ urlpatterns += i18n_patterns([
     TEMPLATES=[{
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(os.path.dirname(upath(__file__)), 'templates')],
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.i18n',
-            ],
-        },
     }],
 )
 class URLTestCaseBase(TestCase):
@@ -111,7 +107,9 @@ class URLRedirectTests(URLTestCaseBase):
         self.assertRedirects(response, '/fr-fr/prefixed/', 302)
 
     def test_fr_fr_prefixed_redirect_session(self):
-        self.client.session[translation.LANGUAGE_SESSION_KEY] = 'fr-fr'
+        session = self.client.session
+        session[translation.LANGUAGE_SESSION_KEY] = 'fr-fr'
+        session.save()
         response = self.client.get('/prefixed/', follow=True)
         self.assertRedirects(response, '/fr-fr/prefixed/', 302)
 
@@ -121,9 +119,9 @@ class URLRedirectTests(URLTestCaseBase):
         self.assertRedirects(response, '/fr-fr/prefixed/', 302)
 
     def test_fr_fr_prefixed_redirect_device_setting(self):
-        DeviceSettings.objects.create(language_id='fr-fr')
-        response = self.client.get('/prefixed/', follow=True)
-        self.assertRedirects(response, '/fr-fr/prefixed/', 302)
+        with patch('kolibri.core.device.translation.get_device_language', return_value='fr-fr'):
+            response = self.client.get('/prefixed/', follow=True)
+            self.assertRedirects(response, '/fr-fr/prefixed/', 302)
 
 
 class URLRedirectWithoutTrailingSlashTests(URLTestCaseBase):
