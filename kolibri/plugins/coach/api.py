@@ -167,6 +167,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         Then it fetches and saves the needed information to know how many coaches
         are requesting notifications in the last five minutes
         """
+        # Use super on the parent class to prevent an infinite recursion.
         response = super(viewsets.ReadOnlyModelViewSet, self).list(request, *args, **kwargs)
 
         # L
