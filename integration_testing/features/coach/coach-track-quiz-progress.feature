@@ -1,4 +1,4 @@
-Feature: Coach tracks learner progress
+Feature: Coach tracks learner progress in a quiz
 # START testing this scenario with a FRESH DB (make a copy of the current if you want to reuse it later), and use the `kolibri manage importusers your-csv-file.csv` command to import a set of users for this case.
 # Prepare two browsers, or two windows/tabs of the same browser, one of them being incognito/private mode, in order to sign in into one as a learner user, and as a coach in the other
   
@@ -9,18 +9,28 @@ Feature: Coach tracks learner progress
       And there is quiz <quiz> assigned to group <group>
 
   Scenario: Learner has not started the quiz
-    Given have both sessions visible in two browsers/tabs (sign in into one as learner, and in the other as coach)
-      When as learner <learner1> in one window I go to the *Learn > Class* page for <class>
+    Given I have both sessions visible in two browser windws/tabs (sign in into one as learner, and in the other as coach)
+      When as learner <learner> in one window I go to the *Learn > Class* page for <class>
       Then I see there's a quiz assigned to me that I have not started
       When as a coach <coach> in another window I go to the *Coach > Reports > Groups > '<group>' > Quizzes assigned > '<quiz>'* detail page
       Then I see the <learner> progress is *Has not started*
         And I see the <learner> score is *-*
 
   Scenario: Learner has started the quiz
-    Given have both sessions visible in two browsers/tabs (sign in into one as learner, and in the other as coach)
-      When as learner <learner1> in one window I open the <quiz>
-        But I don't do anything else
-      Then I see there's a quiz assigned to me that I have not started
-      When as a coach <coach> in another window I go to the *Coach > Reports > Groups > '<group>' > Quizzes assigned > '<quiz>'* detail page
-      Then I see the <learner> progress is *Has not started*
-        And I see the <learner> score is *-*
+    Given I have both sessions visible in two browser windows/tabs
+      And in one window I am sign as learner on a <quiz> quiz page
+      And in the other window I am signed as coach on the *Coach > Reports > Groups > '<group>' > Quizzes assigned > '<quiz>'* detail page
+        When as learner <learner> in one window I open the <quiz>
+          But I don't do anything else
+        Then within 30 seconds as a coach <coach> in another window I see the <learner> progress is *Started*
+          And I see the <learner> score is <quiz_score>
+
+  Scenario: Learner completes the quiz
+    Given I have both sessions visible in two browser windows/tabs
+      And in one window I am sign as learner on a <quiz> quiz page
+      And in the other window I am signed as coach on the *Coach > Reports > Groups > '<group>' > Quizzes assigned > '<quiz>'* detail page
+        When as learner <learner> in one window I get one question correct and one question incorrect
+          And I submit the quiz
+        Then within 30 seconds as a coach <coach> in another window I see the <learner> progress is *Completed*
+          And I see the <learner> score is 50%
+          And I see the *Average score* for the group is also 50%
