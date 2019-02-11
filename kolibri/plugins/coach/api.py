@@ -151,12 +151,12 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
         elif self.request.query_params.get('page', None) is None:
-            last_id_record = notifications_query.latest('id')
-            if last_id_record:
+            try:
+                last_id_record = notifications_query.latest('id')
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_id_record.timestamp - datetime.timedelta(days=1)
                 notifications_query = notifications_query.filter(timestamp__gte=last_24h)
-            else:
+            except (LearnerProgressNotification.DoesNotExist):
                 return []
 
         return notifications_query.order_by('-id')
