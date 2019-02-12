@@ -29,6 +29,9 @@ import cookiejs from 'js-cookie';
  */
 const csrf = interceptor({
   request: function handleRequest(request) {
+    // For more information on how the CSRF token is used on the backend
+    // please refer to the Django documentation on the subject:
+    // https://docs.djangoproject.com/en/1.11/ref/csrf/
     var headers, name, token;
 
     headers = request.headers || (request.headers = {});
