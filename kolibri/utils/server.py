@@ -310,9 +310,9 @@ def get_status():  # noqa: max-complexity=16
         except (TypeError, ValueError):
             raise NotRunning(STATUS_STOPPED)
 
-        if not os.path.isfile(PID_FILE):
-            # There is no PID file (created by server daemon)
-            raise NotRunning(STATUS_STOPPED)  # Stopped
+    if not os.path.isfile(PID_FILE):
+        # There is no PID file (created by server daemon)
+        raise NotRunning(STATUS_STOPPED)  # Stopped
 
     # PID file exists and startup has finished, check if it is running
     try:
