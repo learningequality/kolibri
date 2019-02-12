@@ -198,6 +198,7 @@ class LessonAPITestCase(APITestCase):
         self.client.login(username=user.username, password="pass")
 
         response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
             "title": "title",
             "is_active": True,
             "collection": self.facility.id,
@@ -209,6 +210,56 @@ class LessonAPITestCase(APITestCase):
 
         response = self.client.post(reverse("kolibri:core:lesson-list"), {
             "title": "TiTlE",
+            "is_active": True,
+            "collection": self.facility.id,
+            "lesson_assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
+
+    def test_can_update_lesson_same_title(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "title",
+            "is_active": False,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_update_lesson_multiple_same_title(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "title",
+            "is_active": False,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cannot_create_lesson_same_title_as_multiple_lessons(self):
+        # Make a second copy of the lesson so that we now have two with the same title
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
+            "title": self.lesson.title,
             "is_active": True,
             "collection": self.facility.id,
             "lesson_assignments": [{
