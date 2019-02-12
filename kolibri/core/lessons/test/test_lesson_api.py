@@ -248,6 +248,25 @@ class LessonAPITestCase(APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_can_update_lesson_to_same_title_as_other_lesson(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        models.Lesson.objects.create(
+            title="titular",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "titular",
+            "is_active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
+
     def test_cannot_create_lesson_same_title_as_multiple_lessons(self):
         # Make a second copy of the lesson so that we now have two with the same title
         models.Lesson.objects.create(
