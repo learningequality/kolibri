@@ -1,5 +1,6 @@
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
+import { redirectBrowser } from 'kolibri.utils.browser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import mime from 'rest/interceptor/mime';
@@ -164,10 +165,16 @@ export class HeartBeat {
         const session = response.entity;
         // If our session is already defined, check the user id in the response
         if (store.state.core.session.id && session.user_id !== currentUserId) {
-          // If it is different, then our user has been signed out.
-          return this._signOutDueToInactivity();
+          if (session.user_id === null) {
+            // If it is different, and the user_id is now null then our user has been signed out.
+            return this._signOutDueToInactivity();
+          } else {
+            // Otherwise someone has logged in as another user within the same browser session
+            // Redirect them and let that page sort them out.
+            redirectBrowser();
+          }
         }
-        store.commit('CORE_SET_SESSION', session);
+        store.dispatch('setSession', session);
       })
       .catch(error => {
         // An error occurred.
@@ -222,9 +229,9 @@ export class HeartBeat {
   _signOutDueToInactivity() {
     // Store that this sign out was for inactivity in local storage.
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
-    // Just navigate to the root URL and let the server sort out where
-    // we should be.
-    window.location = window.origin;
+    // Redirect the user to let the server sort out where they should
+    // be now
+    redirectBrowser();
   }
   _sessionUrl(id) {
     return urls['kolibri:core:session-detail'](id);

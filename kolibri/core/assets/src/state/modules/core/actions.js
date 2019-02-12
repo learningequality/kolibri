@@ -206,8 +206,8 @@ export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(session => {
-      store.commit('CORE_SET_SESSION', session);
+    .then(() => {
+      // Redirect on login
       redirectBrowser();
     })
     .catch(error => {

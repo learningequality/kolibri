@@ -72,11 +72,16 @@ export default {
       return state;
     },
   },
+  actions: {
+    setSession(store, sessionObj) {
+      const serverTime = sessionObj.server_time;
+      setServerTime(serverTime);
+      sessionObj = pick(sessionObj, Object.keys(baseSessionState));
+      store.commit('CORE_SET_SESSION', sessionObj);
+    },
+  },
   mutations: {
     CORE_SET_SESSION(state, value) {
-      const serverTime = value.server_time;
-      setServerTime(serverTime);
-      value = pick(value, Object.keys(baseSessionState));
       Object.assign(state, value);
     },
   },
