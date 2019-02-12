@@ -54,7 +54,8 @@ def get_assignments(instance, summarylog, attempt=False):
 
     # Try to find out if the lesson is being executed assigned to a Classroom or to a LearnerGroup:
     for lesson in lesson_resources:
-        groups = [g.id for g in learner_groups if g.id in [l.collection_id for l in lesson[0].lesson_assignments.all()]]
+        assignments = [l.collection_id for l in lesson[0].lesson_assignments.all()]
+        groups = [g.id for g in learner_groups if g.id in assignments]
         lesson[0].group_or_classroom = groups[0] if groups else lesson.collection_id
 
     return lesson_resources
