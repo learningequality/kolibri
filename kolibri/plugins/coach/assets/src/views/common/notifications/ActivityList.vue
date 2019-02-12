@@ -4,6 +4,7 @@
     <NotificationsFilter
       :resourceFilter.sync="resourceFilter"
       :progressFilter.sync="progressFilter"
+      :enabledFilters="enabledFilters"
     />
     <br>
 
@@ -49,6 +50,8 @@
   import find from 'lodash/find';
   import maxBy from 'lodash/maxBy';
   import get from 'lodash/get';
+  import uniq from 'lodash/uniq';
+  import map from 'lodash/map';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -138,6 +141,15 @@
           default:
             return {};
         }
+      },
+      enabledFilters() {
+        return {
+          resource: [
+            ...uniq(map(this.notifications, 'object')),
+            ...uniq(map(this.notifications, 'resource.type')),
+          ],
+          progress: uniq(map(this.notifications, 'event')),
+        };
       },
     },
     watch: {
