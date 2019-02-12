@@ -8,7 +8,7 @@
     />
     <br>
 
-    <div>
+    <div class="notifications">
       <p v-if="!loading && nextPage === 2 && notifications.length === 0">
         {{ noActivityString }}
       </p>
@@ -54,13 +54,14 @@
   import map from 'lodash/map';
   import { mapState } from 'vuex';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoach from '../../common';
-  import { nStringsMixin } from '../notifications/notificationStrings';
+  import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import NotificationCard from './NotificationCard';
   import NotificationsFilter from './NotificationsFilter';
 
@@ -69,11 +70,11 @@
   export default {
     name: 'ActivityList',
     components: {
+      KButton,
       KLinearLoader,
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [commonCoach, nStringsMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {
@@ -113,11 +114,17 @@
           LESSON: 'lesson',
           QUIZ: 'quiz',
         },
+        coachStrings,
       };
     },
     computed: {
       ...mapState('coachNotifications', {
         allNotifications: 'notifications',
+      }),
+      ...mapState('classSummary', ['examMap', 'lessonMap', 'groupMap', 'contentNodeMap']),
+      ...mapState('classSummary', {
+        classId: 'id',
+        className: 'name',
       }),
       noFiltersApplied() {
         return this.progressFilter === this.filters.ALL && this.resourceFilter === this.filters.ALL;
@@ -167,6 +174,8 @@
       this.fetchNotifications();
     },
     methods: {
+      cardTextForNotification,
+      notificationLink,
       fetchNotifications() {
         this.loading = true;
         return notificationsResource
@@ -334,7 +343,7 @@
           },
         };
 
-        const targetPage = notificationLink(baseNotification);
+        const targetPage = this.notificationLink(baseNotification);
 
         // This query parameter is used to adjust the 'back' button for different reports
         if (targetPage) {

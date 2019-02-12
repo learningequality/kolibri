@@ -90,7 +90,7 @@ function cardTextForNotification(notification) {
     }
   }
 
-  return this.nStrings.$tr(stringType, stringDetails);
+  return nStrings.$tr(stringType, stringDetails);
 }
 
 export { nStrings, nStringsMixin, cardTextForNotification };
