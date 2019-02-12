@@ -9,6 +9,7 @@ from ...utils import annotation
 from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
@@ -140,7 +141,12 @@ class Command(AsyncCommand):
                     break
 
                 filename = f.get_filename()
-                dest = paths.get_content_storage_file_path(filename)
+                try:
+                    dest = paths.get_content_storage_file_path(filename)
+                except InvalidStorageFilenameError:
+                    # If the destination file name is malformed, just stop now.
+                    overall_progress_update(f.file_size)
+                    continue
 
                 # if the file already exists, add its size to our overall progress, and skip
                 if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
@@ -153,7 +159,12 @@ class Command(AsyncCommand):
                     url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
                     filetransfer = transfer.FileDownload(url, dest, session=session)
                 elif method == COPY_METHOD:
-                    srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    try:
+                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    except InvalidStorageFilenameError:
+                        # If the source file name is malformed, just stop now.
+                        overall_progress_update(f.file_size)
+                        continue
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
                 finished = False

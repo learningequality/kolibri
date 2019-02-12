@@ -65,6 +65,7 @@ from mptt.models import TreeForeignKey
 from mptt.querysets import TreeQuerySet
 
 from .utils import paths
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.conf import OPTIONS
@@ -303,7 +304,7 @@ class LocalFileManager(models.Manager):
         for file in self.filter(files__isnull=True):
             try:
                 os.remove(paths.get_content_storage_file_path(file.get_filename()))
-            except (IOError, OSError,):
+            except (IOError, OSError, InvalidStorageFilenameError,):
                 pass
             yield file
 
