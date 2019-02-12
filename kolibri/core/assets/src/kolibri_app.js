@@ -70,9 +70,6 @@ export default class KolibriApp extends KolibriModule {
       store.registerModule(name, module);
     });
 
-    // enable handlers for all routes
-    router.enableHandlers();
-
     return this.store.dispatch('getCurrentSession').then(() => {
       return this.store.dispatch('getNotifications').then(() => {
         return Promise.all([

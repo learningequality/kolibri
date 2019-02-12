@@ -63,6 +63,8 @@ class Router {
       return this._routes[name];
     };
 
+    this.enableHandlers();
+
     // return a copy of underlying router
     return this._vueRouter;
   }
