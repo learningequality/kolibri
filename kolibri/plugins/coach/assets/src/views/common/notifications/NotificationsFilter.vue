@@ -22,11 +22,12 @@
 
 <script>
 
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { NotificationEvents } from '../../../constants/notificationsConstants';
   import commonCoach from '../../common';
 
   export default {
     name: 'NotificationsFilter',
-    components: {},
     mixins: [commonCoach],
     $trs: {
       allLabel: 'All',
@@ -58,15 +59,15 @@
           },
           {
             label: this.coachStrings.$tr('helpNeededLabel'),
-            value: 'HelpNeeded',
+            value: NotificationEvents.HELP_NEEDED,
           },
           {
             label: this.coachStrings.$tr('startedLabel'),
-            value: 'Started',
+            value: NotificationEvents.STARTED,
           },
           {
             label: this.coachStrings.$tr('completedLabel'),
-            value: 'Completed',
+            value: NotificationEvents.COMPLETED,
           },
         ];
       },
@@ -78,7 +79,7 @@
           },
           {
             label: this.coachStrings.$tr('lessonsLabel'),
-            value: 'lesson',
+            value: ContentNodeKinds.LESSON,
           },
           {
             label: this.coachStrings.$tr('quizzesLabel'),
@@ -86,23 +87,23 @@
           },
           {
             label: this.$tr('exercisesLabel'),
-            value: 'exercise',
+            value: ContentNodeKinds.EXERCISE,
           },
           {
             label: this.$tr('videosLabel'),
-            value: 'video',
+            value: ContentNodeKinds.VIDEO,
           },
           {
             label: this.$tr('audioLabel'),
-            value: 'audio',
+            value: ContentNodeKinds.AUDIO,
           },
           {
             label: this.$tr('documentsLabel'),
-            value: 'document',
+            value: ContentNodeKinds.DOCUMENT,
           },
           {
             label: this.$tr('appsLabel'),
-            value: 'html5',
+            value: ContentNodeKinds.HTML5,
           },
         ];
       },
