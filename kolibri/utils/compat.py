@@ -35,7 +35,7 @@ def module_exists(module_path):
         raise NotImplementedError("No compatibility with Python 3.0 and 3.2")
 
 
-class VersionCompat:
+class VersionCompat(object):
     """
     This is an exactly-what-we-need version of the newer
     packaging.version.Version object.

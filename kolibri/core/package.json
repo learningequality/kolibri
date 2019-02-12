@@ -30,6 +30,7 @@
     "rest": "^1.3.2",
     "screenfull": "^4.0.0",
     "shave": "^2.1.3",
+    "url-polyfill": "^1.1.3",
     "vue": "^2.5.17",
     "vue-intl": "3.0.0",
     "vue-markdown": "^2.1.3",

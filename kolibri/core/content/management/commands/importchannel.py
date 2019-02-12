@@ -127,7 +127,6 @@ class Command(AsyncCommand):
                     except IOError as e:
                         logger.error("Tried to remove {}, but exception {} occurred.".format(
                             dest, e))
-                        pass
                     self.cancel()
                 return True
 

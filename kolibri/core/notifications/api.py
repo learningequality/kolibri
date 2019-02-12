@@ -51,6 +51,12 @@ def get_assignments(instance, summarylog, attempt=False):
             del lesson_contentnode[lesson_id]
     # Returns all the affected lessons with the touched contentnode_id, Resource must be inside a lesson
     lesson_resources = [(lesson, lesson_contentnode[lesson.id]) for lesson in filtered_lessons if lesson.id in lesson_contentnode]
+
+    # Try to find out if the lesson is being executed assigned to a Classroom or to a LearnerGroup:
+    for lesson in lesson_resources:
+        groups = [g.id for g in learner_groups if g.id in [l.collection_id for l in lesson[0].lesson_assignments.all()]]
+        lesson[0].group_or_classroom = groups[0] if groups else lesson.collection_id
+
     return lesson_resources
 
 
@@ -104,7 +110,7 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id):
         notification = create_notification(NotificationObjectType.Resource,
                                            NotificationEventType.Completed,
                                            user_id,
-                                           lesson.collection_id,
+                                           lesson.group_or_classroom,
                                            lesson_id=lesson.id,
                                            contentnode_id=contentnode_id)
     return notification
@@ -117,11 +123,11 @@ def check_and_created_completed_lesson(lesson, user_id):
                                                       notification_object=NotificationObjectType.Lesson,
                                                       notification_event=NotificationEventType.Completed,
                                                       lesson_id=lesson.id,
-                                                      classroom_id=lesson.collection_id).exists():
+                                                      classroom_id=lesson.group_or_classroom).exists():
         # Let's create an Lesson Completion notification
         notification = create_notification(NotificationObjectType.Lesson, NotificationEventType.Completed,
                                            user_id,
-                                           lesson.collection_id, lesson_id=lesson.id)
+                                           lesson.group_or_classroom, lesson_id=lesson.id)
     return notification
 
 
@@ -139,7 +145,7 @@ def check_and_created_started(lesson, user_id, contentnode_id):
     notifications.append(create_notification(NotificationObjectType.Resource,
                                              NotificationEventType.Started,
                                              user_id,
-                                             lesson.collection_id,
+                                             lesson.group_or_classroom,
                                              lesson_id=lesson.id,
                                              contentnode_id=contentnode_id))
 
@@ -148,11 +154,11 @@ def check_and_created_started(lesson, user_id, contentnode_id):
                                                       notification_object=NotificationObjectType.Lesson,
                                                       notification_event=NotificationEventType.Started,
                                                       lesson_id=lesson.id,
-                                                      classroom_id=lesson.collection_id).exists():
+                                                      classroom_id=lesson.group_or_classroom).exists():
         # and create it if that's not the case
         notifications.append(create_notification(NotificationObjectType.Lesson, NotificationEventType.Started,
                                                  user_id,
-                                                 lesson.collection_id, lesson_id=lesson.id))
+                                                 lesson.group_or_classroom, lesson_id=lesson.id))
     return notifications
 
 
@@ -279,11 +285,11 @@ def parse_attemptslog(attemptlog):
                                                           notification_object=NotificationObjectType.Resource,
                                                           notification_event=NotificationEventType.Help,
                                                           lesson_id=lesson.id,
-                                                          classroom_id=lesson.collection_id,
+                                                          classroom_id=lesson.group_or_classroom,
                                                           contentnode_id=contentnode_id).exists():
                 continue
             notification = create_notification(NotificationObjectType.Resource, NotificationEventType.Help,
-                                               attemptlog.user_id, lesson.collection_id,
+                                               attemptlog.user_id, lesson.group_or_classroom,
                                                lesson_id=lesson.id,
                                                contentnode_id=contentnode_id,
                                                reason=HelpReason.Multiple)
