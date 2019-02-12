@@ -75,7 +75,12 @@ program
   )
   .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
-  .option('-p, --port', 'Set a port number to start devservers or bundle stats servers on')
+  .option(
+    '-p, --port <port>',
+    'Set a port number to start devservers or bundle stats servers on',
+    Number,
+    3000
+  )
   .action(function(mode, options) {
     const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
@@ -115,11 +120,6 @@ program
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
-      process.exit(1);
-    }
-
-    if (options.port && mode !== modes.DEV && mode !== modes.STATS) {
-      cliLogging.error('Port setting is only used in dev or stats mode');
       process.exit(1);
     }
 
