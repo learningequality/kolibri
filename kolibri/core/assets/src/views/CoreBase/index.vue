@@ -342,20 +342,27 @@
         if (this.unwatchScrollHeight) {
           this.unwatchScrollHeight();
         }
-        if (newVal > this.$el.scrollHeight && this.loading) {
-          // The scroll top we are trying to set is
-          // larger than the current length of the page
+        if (this.loading) {
+          // Don't set scroll position until the main content
+          // of coreBase is shown in the DOM.
           // Create a watcher to monitor changes in loading
           // to try to set the scrollHeight after the contents
           // have loaded.
           this.unwatchScrollHeight = this.$watch('loading', () => {
             this.unwatchScrollHeight();
-            this.$el.scrollTop = newVal;
+            this.$nextTick(() => {
+              // Set the scroll in next tick for safety, to ensure
+              // that the child components have finished mounting
+              this.setScroll(newVal);
+            });
           });
         } else {
-          this.$el.scrollTop = newVal;
+          this.setScroll(newVal);
         }
       },
+    },
+    mounted() {
+      this.setScroll(this.startingScroll);
     },
     methods: {
       handleScroll(e) {
@@ -370,6 +377,10 @@
           this.updateModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
+      },
+      setScroll(scrollValue) {
+        this.$el.scrollTop = scrollValue;
+        window.pageYOffset = scrollValue;
       },
     },
   };
