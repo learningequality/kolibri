@@ -1,9 +1,21 @@
+kolibri-source (0.11.1-0ubuntu3) trusty; urgency=medium
+
+  * Fixes primary user group on existing system service owners
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 10 Feb 2019 02:24:34 +0100
+
+kolibri-source (0.11.1-0ubuntu2) trusty; urgency=medium
+
+  * Create a primary user group for the kolibri system service owner
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 10 Feb 2019 01:37:00 +0100
+
 kolibri-source (0.11.1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
   * Removing upper limit on Python 3 that prohibited Python 3.7
 
- -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Jan 2019 21:54:45 +0100
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 14 Jan 2019 23:40:04 +0100
 
 kolibri-source (0.11.0-0ubuntu1) trusty; urgency=medium
 
