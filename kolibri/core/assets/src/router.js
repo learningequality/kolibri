@@ -30,6 +30,10 @@ class Router {
   }
 
   _hook(toRoute, fromRoute, next) {
+    // Set scroll position to 0 by default
+    // Can be updated by the scroll behaviour
+    // hook above.
+    store.commit('SET_SCROLL_POSITION', 0);
     if (this._actions[toRoute.name]) {
       this._actions[toRoute.name](toRoute, fromRoute);
     }
