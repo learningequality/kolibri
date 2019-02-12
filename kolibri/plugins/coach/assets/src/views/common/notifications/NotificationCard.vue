@@ -19,11 +19,11 @@
             <KRouterLink
               v-if="targetPage && targetPage.name"
               :text="linkText"
-              :to="$router.getRoute(targetPage.name, targetPage.params, targetPage.query)"
+              :to="getRoute(targetPage)"
             />
-            <template v-else>
+            <span v-else>
               {{ linkText }}
-            </template>
+            </span>
           </KLabeledIcon>
         </div>
       </KGridItem>
@@ -45,8 +45,12 @@
 <script>
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import commonCoach from '../../common';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
     NotificationEvents,
@@ -64,8 +68,12 @@
     components: {
       ContentIcon,
       CoachStatusIcon,
+      ElapsedTime,
+      KLabeledIcon,
+      KGrid,
+      KGridItem,
+      KRouterLink,
     },
-    mixins: [commonCoach],
     props: {
       targetPage: {
         type: Object,
@@ -139,6 +147,9 @@
     methods: {
       parseDate(dateString) {
         return new Date(dateString);
+      },
+      getRoute({ name, params, query }) {
+        return this.$router.getRoute(name, params, query);
       },
     },
   };
