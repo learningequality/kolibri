@@ -16,7 +16,7 @@
       <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('nameLabel') }}</th>
             <th>{{ coachStrings.$tr('progressLabel') }}</th>
             <th>{{ coachStrings.$tr('scoreLabel') }}</th>
           </tr>
