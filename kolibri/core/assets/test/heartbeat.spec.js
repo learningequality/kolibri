@@ -1,4 +1,5 @@
 import coreStore from 'kolibri.coreVue.vuex.store';
+import * as browser from 'kolibri.utils.browser';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
@@ -178,10 +179,21 @@ describe('HeartBeat', function() {
       const http = require('http');
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: 'nottest', id: 'current' });
+      http.__setEntity({ user_id: null, id: 'current' });
       const stub = jest.spyOn(heartBeat, '_signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(1);
+      });
+    });
+    it('should redirect if a change in user is detected', function() {
+      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      const http = require('http');
+      http.__setCode(200);
+      http.__setHeaders({ 'Content-Type': 'application/json' });
+      http.__setEntity({ user_id: 'nottest', id: 'current' });
+      const redirectStub = jest.spyOn(browser, 'redirectBrowser');
+      return heartBeat._checkSession().finally(() => {
+        expect(redirectStub).toHaveBeenCalledTimes(1);
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function() {
@@ -189,7 +201,7 @@ describe('HeartBeat', function() {
       const http = require('http');
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: 'nottest', id: 'current' });
+      http.__setEntity({ user_id: null, id: 'current' });
       const stub = jest.spyOn(heartBeat, '_signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(0);

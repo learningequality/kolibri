@@ -1,9 +1,7 @@
 import some from 'lodash/some';
-import pick from 'lodash/pick';
-import { setServerTime } from 'kolibri.utils.serverClock';
 import { UserKinds } from '../../constants';
 
-const baseSessionState = {
+export const baseSessionState = {
   can_manage_content: false,
   facility_id: undefined,
   full_name: '',
@@ -70,14 +68,6 @@ export default {
     },
     session(state) {
       return state;
-    },
-  },
-  actions: {
-    setSession(store, sessionObj) {
-      const serverTime = sessionObj.server_time;
-      setServerTime(serverTime);
-      sessionObj = pick(sessionObj, Object.keys(baseSessionState));
-      store.commit('CORE_SET_SESSION', sessionObj);
     },
   },
   mutations: {

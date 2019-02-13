@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce';
+import pick from 'lodash/pick';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
@@ -14,13 +15,14 @@ import {
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
-import { now } from 'kolibri.utils.serverClock';
+import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
+import { baseSessionState } from '../session';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -194,6 +196,13 @@ export function blockDoubleClicks(store) {
       store.commit('CORE_BLOCK_CLICKS', false);
     }, 500);
   }
+}
+
+export function setSession(store, sessionObj) {
+  const serverTime = sessionObj.server_time;
+  setServerTime(serverTime);
+  sessionObj = pick(sessionObj, Object.keys(baseSessionState));
+  store.commit('CORE_SET_SESSION', sessionObj);
 }
 
 /**
