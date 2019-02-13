@@ -13,7 +13,7 @@
 
       <ReportsQuizHeader />
 
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>

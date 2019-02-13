@@ -42,7 +42,7 @@
       },
     },
     render(createElement) {
-      let tableHasRows = false;
+      let tableHasRows = true;
       this.$slots.thead.forEach(thead => {
         thead.data.style = Object.assign(thead.data.style || {}, this.tHeadStyle);
       });

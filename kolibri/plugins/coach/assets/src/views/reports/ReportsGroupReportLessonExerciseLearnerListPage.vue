@@ -17,7 +17,7 @@
         <StatusSummary :tally="tally" />
       </p>
 
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('nameLabel') }}</th>

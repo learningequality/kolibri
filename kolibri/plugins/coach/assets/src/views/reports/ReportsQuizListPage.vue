@@ -17,7 +17,7 @@
         :options="filterOptions"
         :inline="true"
       />
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('quizListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>

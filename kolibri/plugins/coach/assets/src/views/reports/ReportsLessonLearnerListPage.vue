@@ -15,7 +15,7 @@
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
 
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>
