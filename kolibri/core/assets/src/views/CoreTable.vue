@@ -129,4 +129,8 @@
     }
   }
 
+  /deep/ .core-table-button-col {
+    padding: 4px;
+  }
+
 </style>
