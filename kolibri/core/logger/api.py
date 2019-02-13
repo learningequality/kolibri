@@ -170,7 +170,7 @@ class AttemptFilter(BaseLogFilter):
 
     class Meta:
         model = AttemptLog
-        fields = ['masterylog', 'complete', 'user', 'content']
+        fields = ['masterylog', 'complete', 'user', 'content', 'item']
 
 
 class AttemptLogViewSet(LoggerViewSet):
@@ -197,7 +197,7 @@ class ExamAttemptFilter(BaseLogFilter):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ['examlog', 'exam', 'user', 'content']
+        fields = ['examlog', 'exam', 'user', 'content', 'item']
 
 
 class ExamAttemptLogViewSet(LoggerViewSet):
