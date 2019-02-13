@@ -194,7 +194,7 @@ export default {
       const statusObjects = [];
       learnerIds.forEach(learnerId => {
         const statusObj = getters.getExamStatusObjForLearner(examId, learnerId);
-        if (statusObj.status !== STATUSES.notStarted) {
+        if (statusObj.status === STATUSES.completed) {
           statusObjects.push(statusObj);
         }
       });

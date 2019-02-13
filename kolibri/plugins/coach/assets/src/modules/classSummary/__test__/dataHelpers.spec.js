@@ -139,4 +139,20 @@ describe('coach summary data helpers', () => {
       expect(output).toBeCloseTo(7.3, 5);
     });
   });
+  describe('getExamAvgScore', () => {
+    it('returns average exam score for a list of learners, only for completed exams', () => {
+      const output = store.getters.getExamAvgScore('exam_id_2', [
+        'learner_id_1',
+        'learner_id_2',
+        'learner_id_3',
+        'learner_id_4',
+        'learner_id_5',
+        'learner_id_6',
+        'learner_id_7',
+        'learner_id_8',
+        'learner_id_9',
+      ]);
+      expect(output).toBeCloseTo(0.75, 5);
+    });
+  });
 });
