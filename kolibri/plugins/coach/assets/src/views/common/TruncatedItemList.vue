@@ -1,8 +1,6 @@
 <template>
 
-  <span v-if="!items.length" :style="{ color: this.$coreGrey300 }">
-    {{ $tr('noItems') }}
-  </span>
+  <KEmptyPlaceholder v-if="!items.length" />
   <span v-else-if="items.length === 1">
     {{ items[0] }}
   </span>
@@ -21,12 +19,13 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
 
   export default {
     name: 'TruncatedItemList',
-    components: {},
-    mixins: [themeMixin],
+    components: {
+      KEmptyPlaceholder,
+    },
     props: {
       items: {
         type: Array,
@@ -34,7 +33,6 @@
       },
     },
     $trs: {
-      noItems: '–',
       twoItems: '{item1}, {item2}',
       threeItems: '{item1}, {item2}, {item3}',
       manyItems: '{item1}, {item2}, and {count, number, integer} others',
