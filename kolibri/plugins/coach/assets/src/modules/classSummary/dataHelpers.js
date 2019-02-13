@@ -121,7 +121,7 @@ export default {
       };
       learnerIds.forEach(learnerId => {
         const status = getters.getExamStatusObjForLearner(examId, learnerId);
-        tallies[keyMap[status]] += 1;
+        tallies[keyMap[status.status]] += 1;
       });
       return tallies;
     };

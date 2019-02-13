@@ -155,4 +155,25 @@ describe('coach summary data helpers', () => {
       expect(output).toBeCloseTo(0.75, 5);
     });
   });
+  describe('getExamStatusTally', () => {
+    it('returns total statuses given a lesson item and a list of learners', () => {
+      const output = store.getters.getExamStatusTally('exam_id_2', [
+        'learner_id_1',
+        'learner_id_2',
+        'learner_id_3',
+        'learner_id_4',
+        'learner_id_5',
+        'learner_id_6',
+        'learner_id_7',
+        'learner_id_8',
+        'learner_id_9',
+      ]);
+      expect(output).toEqual({
+        completed: 2,
+        started: 1,
+        notStarted: 6,
+        helpNeeded: 0,
+      });
+    });
+  });
 });
