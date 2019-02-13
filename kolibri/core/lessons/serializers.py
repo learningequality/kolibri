@@ -61,13 +61,13 @@ class LessonSerializer(ModelSerializer):
         title = attrs.get('title')
         # first condition is for creating object, second is for updating
         collection = attrs.get('collection') or getattr(self.instance, 'collection')
-        # if obj doesn't exist, return data
-        try:
-            obj = Lesson.objects.get(title__iexact=title, collection=collection)
-        except Lesson.DoesNotExist:
+        # if no lessons exist matching this, return data
+        lessons = Lesson.objects.filter(title__iexact=title, collection=collection)
+        if not lessons.exists():
             return attrs
-        # if we are updating object, and this `instance` is the same object, return data
-        if self.instance and obj.id == self.instance.id:
+        # if we are updating object, and this `instance` is a current model
+        # and this lesson already has this title, return the data
+        if self.instance is not None and lessons.filter(id=self.instance.id).exists():
             return attrs
         else:
             raise ValidationError('The fields title, collection must make a unique set.', code=error_constants.UNIQUE)
