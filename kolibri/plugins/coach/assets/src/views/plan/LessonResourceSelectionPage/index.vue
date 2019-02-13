@@ -8,7 +8,6 @@
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
     :pageTitle="pageTitle"
   >
 
