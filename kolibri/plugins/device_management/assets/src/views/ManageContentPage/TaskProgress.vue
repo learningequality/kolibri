@@ -197,7 +197,7 @@
     width: 100%;
     height: 5em;
     padding-right: 1em;
-    padding-left: 1em;
+    margin-left: -6px;
     vertical-align: middle;
   }
 
@@ -207,13 +207,13 @@
 
   .progress-bar {
     width: 50%;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
+    padding-left: 8px;
     font-size: 0.75em;
   }
 
   .progress-messages {
-    padding-right: 1em;
-    padding-left: 1em;
+    padding-left: 16px;
   }
 
   .percentage {
