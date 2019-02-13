@@ -180,7 +180,11 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
             },
           },
         }),
-        new OptimizeCSSAssetsPlugin({}),
+        new OptimizeCSSAssetsPlugin({
+          cssProcessorPluginOptions: {
+            preset: ['default', { reduceIdents: false, zindex: false }],
+          },
+        }),
       ],
     },
     output: {
@@ -221,11 +225,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         chunkFilename: '[name]' + data.version + '[id].css',
       }),
       new WebpackRTLPlugin({
-        minify: {
-          zindex: false,
-          // prevent renaming keyframes
-          reduceIdents: false,
-        },
+        minify: false,
       }),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.
