@@ -72,7 +72,7 @@
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
-              @select="showLanguageModal = true"
+              @select="handleChangeLanguage"
             >
               <mat-svg
                 slot="icon"
@@ -85,11 +85,6 @@
 
         </CoreMenu>
 
-        <LanguageSwitcherModal
-          v-if="showLanguageModal"
-          :style="{ color: $coreTextDefault }"
-          @close="showLanguageModal = false"
-        />
       </div>
     </UiToolbar>
     <div class="subpage-nav">
@@ -114,7 +109,6 @@
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
-  import LanguageSwitcherModal from './language-switcher/LanguageSwitcherModal';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
 
   export default {
@@ -124,7 +118,6 @@
       UiIconButton,
       CoreMenu,
       UiButton,
-      LanguageSwitcherModal,
       CoreMenuOption,
       LogoutSideNavEntry,
       UserTypeDisplay,
@@ -147,7 +140,6 @@
     },
     data() {
       return {
-        showLanguageModal: false,
         userMenuDropdownIsOpen: false,
       };
     },
@@ -163,13 +155,13 @@
       },
     },
     created() {
-      window.addEventListener('click', this.handleClick);
+      window.addEventListener('click', this.handleWindowClick);
     },
     beforeDestroy() {
-      window.removeEventListener('click', this.handleClick);
+      window.removeEventListener('click', this.handleWindowClick);
     },
     methods: {
-      handleClick(event) {
+      handleWindowClick(event) {
         if (
           !this.$refs.userMenuDropdown.$el.contains(event.target) &&
           !this.$refs.userMenuButton.$el.contains(event.target) &&
@@ -178,6 +170,10 @@
           this.userMenuDropdownIsOpen = false;
         }
         return event;
+      },
+      handleChangeLanguage() {
+        this.$emit('showLanguageModal');
+        this.userMenuDropdownIsOpen = false;
       },
       ...mapActions(['kolibriLogout']),
     },
