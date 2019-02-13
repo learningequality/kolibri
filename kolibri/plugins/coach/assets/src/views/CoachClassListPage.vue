@@ -14,7 +14,18 @@
       <h1>{{ coachStrings.$tr('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
-      <CoreTable>
+      <p v-if="classList.length === 0">
+        <KExternalLink
+          v-if="isAdmin && createClassUrl"
+          :text="$tr('noClassesDetailsForAdmin')"
+          :href="createClassUrl"
+        />
+        <span v-else>
+          {{ emptyStateDetails }}
+        </span>
+      </p>
+
+      <CoreTable v-else>
         <thead slot="thead">
           <tr>
             <th>{{ $tr('classNameLabel') }}</th>
@@ -51,13 +62,39 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import urls from 'kolibri.urls';
   import commonCoach from './common';
 
   export default {
     name: 'CoachClassListPage',
-    components: {},
+    components: {
+      KExternalLink,
+    },
     mixins: [commonCoach],
+    computed: {
+      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
+      ...mapState(['classList']),
+      // Message that shows up when state.classList is empty
+      emptyStateDetails() {
+        if (this.isClassCoach) {
+          return this.$tr('noAssignedClassesDetails');
+        }
+        if (this.isAdmin) {
+          return this.$tr('noClassesDetailsForAdmin');
+        }
+        if (this.isFacilityCoach) {
+          return this.$tr('noClassesDetailsForFacilityCoach');
+        }
+      },
+      createClassUrl() {
+        const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
+        if (facilityUrl) {
+          return facilityUrl();
+        }
+      },
+    },
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
       classNameLabel: 'Class name',
@@ -67,9 +104,6 @@
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       noClassesInFacility: 'There are no classes yet',
-    },
-    computed: {
-      ...mapState(['classList']),
     },
   };
 
