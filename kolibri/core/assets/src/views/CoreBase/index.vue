@@ -241,6 +241,7 @@
       return {
         navShown: false,
         scrollPosition: 0,
+        unwatchScrollHeight: undefined,
         notificationModalShown: true,
         languageModalShown: false,
       };
@@ -253,6 +254,7 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
+        startingScroll: state => state.core.scrollPosition,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -342,15 +344,53 @@
         return '';
       },
     },
+    watch: {
+      startingScroll(newVal) {
+        // Set a watcher so that if the router sets a new
+        // starting scroll position based on the history, then it gets
+        // set here.
+        if (this.unwatchScrollHeight) {
+          this.unwatchScrollHeight();
+        }
+        if (this.loading) {
+          // Don't set scroll position until the main content
+          // of coreBase is shown in the DOM.
+          // Create a watcher to monitor changes in loading
+          // to try to set the scrollHeight after the contents
+          // have loaded.
+          this.unwatchScrollHeight = this.$watch('loading', () => {
+            this.unwatchScrollHeight();
+            this.$nextTick(() => {
+              // Set the scroll in next tick for safety, to ensure
+              // that the child components have finished mounting
+              this.setScroll(newVal);
+            });
+          });
+        } else {
+          this.setScroll(newVal);
+        }
+      },
+    },
+    mounted() {
+      this.setScroll(this.startingScroll);
+    },
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
+        // Setting this will not affect the page layout,
+        // but this will then get properly stored in the
+        // browser history.
+        window.pageYOffset = this.scrollPosition;
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
           this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
+      },
+      setScroll(scrollValue) {
+        this.$el.scrollTop = scrollValue;
+        window.pageYOffset = scrollValue;
       },
     },
   };
