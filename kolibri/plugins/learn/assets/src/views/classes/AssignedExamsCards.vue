@@ -53,7 +53,7 @@
     },
     methods: {
       examStarted(exam) {
-        return exam.progress.answer_count > 0;
+        return exam.progress.started;
       },
       examSubmitted(exam) {
         return exam.progress.closed === true;
@@ -67,8 +67,15 @@
         } else if (!this.examStarted(exam)) {
           return 0;
         } else if (this.examStartedNotSubmitted(exam)) {
-          // So it is not displayed as completed
-          return exam.progress.answer_count / exam.question_count - 0.01;
+          // so it shows as started
+          if (exam.progress.answer_count === 0) {
+            return 0.01;
+          }
+          // So it is not shown as completed
+          else if (exam.progress.answer_count === exam.question_count) {
+            return 0.99;
+          }
+          return exam.progress.answer_count / exam.question_count;
         }
       },
       genExamSubtitle(exam) {

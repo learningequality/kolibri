@@ -121,7 +121,7 @@ export default {
       };
       learnerIds.forEach(learnerId => {
         const status = getters.getExamStatusObjForLearner(examId, learnerId);
-        tallies[keyMap[status]] += 1;
+        tallies[keyMap[status.status]] += 1;
       });
       return tallies;
     };
@@ -194,7 +194,7 @@ export default {
       const statusObjects = [];
       learnerIds.forEach(learnerId => {
         const statusObj = getters.getExamStatusObjForLearner(examId, learnerId);
-        if (statusObj.status !== STATUSES.notStarted) {
+        if (statusObj.status === STATUSES.completed) {
           statusObjects.push(statusObj);
         }
       });
