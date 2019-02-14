@@ -234,6 +234,7 @@
         navShown: false,
         scrollPosition: 0,
         updateModalShown: true,
+        unwatchScrollHeight: undefined,
       };
     },
     computed: {
