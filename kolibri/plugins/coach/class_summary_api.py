@@ -70,7 +70,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         """
         content_id = log["content_id"]
         if content_id in content_map:
-            # Don't try to lookup anything if we don't know the content_id
+            # Don't try to look up anything if we don't know the content_id
             # node_id mapping - might happen if a channel has since been deleted
             key = lookup_key.format(user_id=log["user_id"], node_id=content_map[content_id])
             if key in needs_help:
