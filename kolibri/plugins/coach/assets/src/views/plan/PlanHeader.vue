@@ -4,8 +4,8 @@
     <p>
       <BackLink
         v-if="classListPageEnabled"
-        :to="$router.getRoute(PageNames.REPORTS_PAGE)"
-        :text="coachStrings.$tr('reportsLabel')"
+        :to="$router.getRoute('HomePage')"
+        :text="navStrings.$tr('home')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
@@ -31,9 +31,13 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
+  import TopNavbar from '../TopNavbar';
+
+  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'PlanHeader',
@@ -43,6 +47,9 @@
       ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
         return LessonsPageNames;
+      },
+      navStrings() {
+        return navStrings;
       },
     },
     $trs: {
