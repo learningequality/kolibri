@@ -21,7 +21,7 @@
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value"><LessonActive :active="true" /></template>
+          <template slot="value"><LessonActive :active="lesson.active" /></template>
         </HeaderTableRow>
         <!-- TODO COACH
         <HeaderTableRow>
