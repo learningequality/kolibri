@@ -13,40 +13,34 @@ def kolibri_version():
         # p4a only likes digits and decimals
         return version_file.read().strip()
 
-def android_commit_hash():
+def commit_hash():
     """
     Returns the number of commits of the Kolibri Android repo. Returns 0 if something fails.
 
     TODO hash, unless there's a tag. Use alias to annotate
     """
     repo_dir = os.path.dirname(os.path.abspath(__file__))
-    try:
-        p = subprocess.Popen(
-            "git rev-parse HEAD",
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True,
-            cwd=repo_dir,
-            universal_newlines=True
-        )
-        return p.communicate()[0].rstrip()
-    except OSError:
-        return 0
+    p = subprocess.Popen(
+        "git rev-parse --short HEAD",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        cwd=repo_dir,
+        universal_newlines=True
+    )
+    return p.communicate()[0].rstrip()
 
-def android_git_tag():
+def git_tag():
     repo_dir = os.path.dirname(os.path.abspath(__file__))
-    try:
-        p = subprocess.Popen(
-            "git tag --points-at {}".format(android_commit_hash()),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True,
-            cwd=repo_dir,
-            universal_newlines=True
-        )
-        return p.communicate()[0].rstrip()
-    except OSError:
-        return 0
+    p = subprocess.Popen(
+        "git tag --points-at {}".format(commit_hash()),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        cwd=repo_dir,
+        universal_newlines=True
+    )
+    return p.communicate()[0].rstrip()
 
 def build_type():
     key_alias = os.getenv('P4A_RELEASE_KEY', 'unknown')
@@ -56,28 +50,20 @@ def build_type():
         return 'official'
     return key_alias
 
-def current_time():
-    """
-    Returns the current timestamp.
-    """
-    return datetime.now().strftime('%y%m%d%H%M')
-
-
 def apk_version():
     """
     Returns the version to be used for the Kolibri Android app.
-    Schema: [kolibri version].[android installer version or githash]-[build signature type]
+    Schema: [kolibri version]-[android installer version or githash]-[build signature type]
     """
-    android_version_indicator = android_git_tag() or android_commit_hash()
-    return '{}|{}-{}'.format(kolibri_version(), android_version_indicator, build_type())
+    android_version_indicator = git_tag() or commit_hash()
+    return '{}-{}-{}'.format(kolibri_version(), android_version_indicator, build_type())
 
 def build_number():
     """
     Returns the build number for the apk. This is the mechanism used to understand whether one
-    build is newer than another. Format: [Time of build].[apk version, stripped to digits]
+    build is newer than another. Uses buildkite build number with time as local dev backup
     """
-    raw_build = '{}.{}'.format(current_time(),apk_version()).strip()
-    return re.sub('[^0-9]', '', raw_build)
+    return os.getenv('BUILDKITE_BUILD_NUMBER', datetime.now().strftime('%y%m%d%H%M'))
 
 def create_project_info():
     """

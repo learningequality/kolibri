@@ -15,7 +15,7 @@ src/kolibri:
 	unzip -q "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
 
 # Generate the project info file
-project_info.json: project_info.template src/kolibri
+project_info.json: project_info.template src/kolibri scripts/create_project_info.py
 	python ./scripts/create_project_info.py
 
 
@@ -24,7 +24,7 @@ pew_release_flag = --release
 endif
 
 # Buld the debug version of the apk
-Kolibri*.apk: project_info.json
+Kolibri%.apk: project_info.json
 	pew build android $(pew_release_flag)
 
 # DOCKER BUILD
@@ -37,5 +37,5 @@ build_docker: project_info.template Dockerfile
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?
-run_docker: build_docker clean
+run_docker: clean project_info.json build_docker
 	./scripts/rundocker.sh

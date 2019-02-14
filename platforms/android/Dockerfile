@@ -59,4 +59,4 @@ COPY --chown=kivy:kivy icon.png .
 COPY --chown=kivy:kivy src/main.py src/
 
 # Extract .whl files and build the apk
-CMD make Kolibri*.apk
+CMD make Kolibri%.apk
