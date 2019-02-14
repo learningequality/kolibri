@@ -80,8 +80,6 @@ def content_status_serializer(lesson_data, learners_data, classroom):
                     return HELP_NEEDED
         if log["progress"] == 1:
             return COMPLETED
-        elif log["progress"] == 0:
-            return NOT_STARTED
         return STARTED
 
     def map_content_logs(log):
