@@ -1,7 +1,4 @@
 VPATH = ./dist/android/
-.PHONY: clean dummy_project_info
-
-
 
 # Clear out apks
 clean:
@@ -20,11 +17,6 @@ src/kolibri:
 # Generate the project info file
 project_info.json: project_info.template src/kolibri
 	python ./scripts/create_project_info.py
-
-# PHONY
-# Generate the dummy project info file, no unpack required
-dummy_project_info.json: project_info.template clean
-	python ./scripts/create_dummy_project_info.py
 
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD
