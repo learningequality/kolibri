@@ -142,7 +142,7 @@ class MetricsMiddleware(MiddlewareMixin):
             duration, memory_before, memory, load_before, load = self.metrics.get_stats()
             max_time = False
             if float(duration) > MetricsMiddleware.slowest_request_time:
-                MetricsMiddleware.slowest_request_time = int(duration)
+                MetricsMiddleware.slowest_request_time = float(duration)
                 max_time = True
             timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
             collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))
