@@ -25,7 +25,6 @@ function genPublicPath(address, port, basePath) {
 
 const CONFIG = {
   address: 'localhost',
-  port: 3000,
   host: '0.0.0.0',
   basePath: 'js-dist',
 };
@@ -51,7 +50,7 @@ function webpackConfig(pluginData, hot) {
 }
 
 function buildWebpack(data, index, startCallback, doneCallback, options) {
-  const port = (options.port || CONFIG.port) + index;
+  const port = options.port + index;
   const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
   const hot = options.hot;
 

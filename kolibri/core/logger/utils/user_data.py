@@ -235,10 +235,10 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
             assessment_item_ids = random_node.assessmentmetadata.first().assessment_item_ids
             if not assessment_item_ids:
                 continue
-            for i, session_log in enumerate(reversed(session_logs)):
+            for j, session_log in enumerate(reversed(session_logs)):
                 # Always make students get 5 attempts correct in the most recent session
                 # if the exercise is complete
-                complete = (i == 0 and mastery_log.complete)
+                complete = (j == 0 and mastery_log.complete)
                 if complete:
                     n = 5
                 else:
@@ -247,7 +247,7 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                 # How long did they spend on these n questions?
                 timespan = session_log.end_timestamp - session_log.start_timestamp
                 # Index through each individual question
-                for j in range(0, n):
+                for k in range(0, n):
                     if complete:
                         # If this is the session where they completed the exercise, always
                         # make them get it right
@@ -256,11 +256,11 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                         # Otherwise only let students get odd indexed questions right,
                         # ensuring they will always have a mastery breaking sequence
                         # as zero based indexing means their first attempt will always be wrong!
-                        correct = j % 2 == 1
+                        correct = k % 2 == 1
 
-                    start_timestamp = session_log.end_timestamp - (timespan / n) * (j + 1)
+                    start_timestamp = session_log.end_timestamp - (timespan / n) * (k + 1)
 
-                    end_timestamp = session_log.end_timestamp - (timespan / n) * j
+                    end_timestamp = session_log.end_timestamp - (timespan / n) * k
 
                     # If incorrect, must have made at least two attempts at the question
                     question_attempts = 1 if correct else random.randint(2, 5)

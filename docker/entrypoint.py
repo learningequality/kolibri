@@ -1,9 +1,9 @@
 """
-This script is the first thing that runs when a Kolibri container starts and 
+This script is the first thing that runs when a Kolibri container starts and
 receives as args the Kolibri command CMD, e.g., ['kolibri', 'start', '--foreground']
 The purpose of this script is to perform optional 'setup tasks' before starting Kolibri.
 The following environment variables are used for setup steps:
- - set KOLIBRI_PEX_URL to 'default' or something like http://host.org/nameof.pex 
+ - set KOLIBRI_PEX_URL to 'default' or something like http://host.org/nameof.pex
  - set DOCKERMNT_PEX_PATH to ``/docker/mnt/nameof.pex`` will run the from ``./docker/mnt/``
  - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
  - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
@@ -17,13 +17,9 @@ import sys
 
 # py2+py3 compatible imports via http://python-future.org/compatible_idioms.html
 try:
-    from urllib.parse import urlparse, urlencode
-    from urllib.request import urlopen, Request, build_opener, HTTPRedirectHandler
-    from urllib.error import HTTPError
+    from urllib.request import Request, build_opener, HTTPRedirectHandler
 except ImportError:
-    from urlparse import urlparse
-    from urllib import urlencode
-    from urllib2 import urlopen, Request, HTTPError, HTTPRedirectHandler, build_opener
+    from urllib2 import Request, HTTPRedirectHandler, build_opener
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,7 +27,6 @@ logging.basicConfig(level=logging.INFO)
 # SETTINGS
 ################################################################################
 DEFAULT_KOLIBRI_PEX_URL = "https://learningequality.org/r/kolibri-pex-latest"
-
 
 
 # ENV VARIABLES
@@ -53,6 +48,7 @@ DEFAULT_ENVS = {
     'KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD': 'admin123',
 }
 
+
 def set_default_envs():
     """
     Set default values for ENV variables and infer DEPLOY_TYPE.
@@ -62,7 +58,7 @@ def set_default_envs():
         env = os.getenv(key, None)
         if env is None:
             envs[key] = DEFAULT_ENVS[key]
-    
+
     # Logic to detemine DEPLOY_TYPE and KOLIBRI_PEX_PATH when using pex deploy
     ############################################################################
     # Check for edge case when both URL and BUILDPATH specified
@@ -89,7 +85,6 @@ def set_default_envs():
     # CASE C: If no PEX url is spefified, we'll run kolibri from source code
     else:
         envs['DEPLOY_TYPE'] = 'source'
-
 
 
 # FACILITY CREATION
@@ -136,9 +131,10 @@ def create_facility(kolibri_cmd):
         else:
             logging.info('Skipping automated facility creation step.')
 
+
 def provisiondevice(kolibri_cmd):
     envs = os.environ
-    logging.info('>'*80 + '\n' + 'Provisioning device in facility {}'.format(envs['KOLIBRI_PROVISIONDEVICE_FACILITY']))    
+    logging.info('>' * 80 + '\n' + 'Provisioning device in facility {}'.format(envs['KOLIBRI_PROVISIONDEVICE_FACILITY']))
     cmd = kolibri_cmd[:]
     cmd += ['manage', 'provisiondevice']
     cmd += ['--facility "{}"'.format(envs['KOLIBRI_PROVISIONDEVICE_FACILITY'])]
@@ -153,8 +149,6 @@ def provisiondevice(kolibri_cmd):
     subprocess.call(cmd_str, shell=True)
 
 
-
-
 # OTHER SETUP TASKS
 ################################################################################
 
@@ -162,7 +156,7 @@ def import_channels(kolibri_cmd):
     """
     Import the channels in comma-separeted string `KOLIBRI_CHANNELS_TO_IMPORT`.
     """
-    logging.info('>'*80 + '\n' + 'Importing content channels...')
+    logging.info('>' * 80 + '\n' + 'Importing content channels...')
     envs = os.environ
     assert 'KOLIBRI_CHANNELS_TO_IMPORT' in envs, 'no KOLIBRI_CHANNELS_TO_IMPORT'
     channels_list_str = envs['KOLIBRI_CHANNELS_TO_IMPORT']
@@ -177,7 +171,6 @@ def import_channels(kolibri_cmd):
         subprocess.call(importcontent_cmd_str, shell=True)
 
 
-
 # PEX DEPLOY
 ################################################################################
 
@@ -185,14 +178,16 @@ class SmartRedirectHandler(HTTPRedirectHandler):
     """
     Helper to handle redirects (don't want to use `requests`; rely only stdlib).
     """
-    def http_error_301(self, req, fp, code, msg, headers):  
+    def http_error_301(self, req, fp, code, msg, headers):
         result = HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)
         result.status = code
         return result
+
     def http_error_302(self, req, fp, code, msg, headers):
         result = HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
         result.status = code
         return result
+
 
 def copy_pex_file_to_kolibrihome():
     """
@@ -213,9 +208,6 @@ def copy_pex_file_to_kolibrihome():
             with open(pex_path, 'wb') as pex_file:
                 pex_file.write(dockermnt_pex.read())
     logging.info("Pex file saved to {}".format(pex_path))
-
-
-
 
 
 # MAIN LOGIC
@@ -241,7 +233,7 @@ def run_kolibri(cmd):
     subprocess.call(cmd_str, shell=True)
     # This results in pstree: init --> /docker/entrypoint.py --> sh --> kolibri
     # the extra sh-intemediary is because yarn needs to read ENV variables
-    # 
+    #
     # The option of running kolibri as PID 1, i.e. process tree init --> kolibri
     # does not work because kolibri (like all django servers) does not register
     # an explicit handler for ^C so killing container is harder (needs kill -9)

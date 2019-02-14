@@ -30,7 +30,8 @@
         :title="toolbarTitle || appBarTitle"
         :height="headerHeight"
         :navShown="navShown"
-        @toggleSideNav="navShown=!navShown"
+        @toggleSideNav="navShown = !navShown"
+        @showLanguageModal="languageModalShown = true"
       >
         <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
         <div slot="app-bar-actions" class="app-bar-actions">
@@ -81,13 +82,18 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="showNotification && !busy"
+      v-if="!loading && showNotification && !busy"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
       :linkUrl="mostRecentNotification.linkUrl"
       @closeModal="dismissUpdateModal"
+    />
+    <LanguageSwitcherModal
+      v-if="languageModalShown"
+      :style="{ color: $coreTextDefault }"
+      @close="languageModalShown = false"
     />
 
   </div>
@@ -112,6 +118,7 @@
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
   import UpdateNotification from '../UpdateNotification';
+  import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import ScrollingHeader from './ScrollingHeader';
 
   export default {
@@ -131,6 +138,7 @@
       KLinearLoader,
       ScrollingHeader,
       UpdateNotification,
+      LanguageSwitcherModal,
     },
     mixins: [responsiveWindow, themeMixin],
     props: {
@@ -233,8 +241,9 @@
       return {
         navShown: false,
         scrollPosition: 0,
-        updateModalShown: true,
         unwatchScrollHeight: undefined,
+        notificationModalShown: true,
+        languageModalShown: false,
       };
     },
     computed: {
@@ -302,7 +311,7 @@
         if (
           (this.isAdmin || this.isSuperuser) &&
           !Lockr.get(UPDATE_MODAL_DISMISSED) &&
-          this.updateModalShown &&
+          this.notificationModalShown &&
           this.notifications.length !== 0
         ) {
           return true;
@@ -375,7 +384,7 @@
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
-          this.updateModalShown = false;
+          this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },

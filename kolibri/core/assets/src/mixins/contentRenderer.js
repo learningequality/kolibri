@@ -44,7 +44,7 @@ function fileValidator(file) {
   let result = true;
   for (const key in fileFieldMap) {
     const val =
-      typeof file[key] !== undefined &&
+      typeof file[key] !== 'undefined' &&
       typeof file[key] === typeof fileFieldMap[key].type() &&
       (fileFieldMap[key].validator ? fileFieldMap[key].validator(file[key]) : true);
     if (!val) {

@@ -43,4 +43,7 @@ export default {
   SET_SCROLL_POSITION(state, scrollPosition) {
     state.scrollPosition = scrollPosition;
   },
+  CORE_SET_PAGE_VISIBILITY(state, visible) {
+    state.pageVisible = visible;
+  },
 };

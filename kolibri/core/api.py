@@ -12,6 +12,7 @@ class CSVModelViewSet(viewsets.ModelViewSet):
     csv_export_filename = 'export'
 
     def __init__(self, *args, **kwargs):
+        super(CSVModelViewSet, self).__init__(*args, **kwargs)
         self.renderer_classes = self.generate_csv_renderer()
 
     def get_queryset(self):

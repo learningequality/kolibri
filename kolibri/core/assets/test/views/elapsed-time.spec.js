@@ -25,7 +25,7 @@ function getTimeText(wrapper) {
 }
 
 describe('elapsed time component', () => {
-  it('should show display a "–" if no date is passed in', () => {
+  it('should show display a "—" if no date is passed in', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const timeText = getTimeText(wrapper);
     expect(timeText).toEqual('—');

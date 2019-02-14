@@ -2,10 +2,10 @@ from django.db.models import Q
 from le_utils.constants import content_kinds
 
 from kolibri.core.content.hooks import ContentRendererHook
-from kolibri.core.content.models import ContentNode
 
-# Start with an empty queryset, as we'll be using OR to add conditions
-renderable_contentnodes_without_topics_q_filter = ContentNode.objects.none()
+# Start with an empty Q object, as we'll be using OR to add conditions
+renderable_contentnodes_without_topics_q_filter = Q()
+
 
 # loop through all the registered content renderer hooks
 for hook in ContentRendererHook().registered_hooks:

@@ -1,7 +1,7 @@
 import some from 'lodash/some';
 import { UserKinds } from '../../constants';
 
-const baseSessionState = {
+export const baseSessionState = {
   can_manage_content: false,
   facility_id: undefined,
   full_name: '',

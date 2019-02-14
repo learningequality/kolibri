@@ -54,7 +54,6 @@ exports[`app bar component drop down user menu should show the language modal li
             <div tabindex="0" class="ui-menu-focus-redirector"></div>
           </ul>
         </div>
-        <!---->
       </div>
     </div>
     <div class="ui-progress-linear ui-toolbar__progress ui-progress-linear--color-white ui-progress-linear--type-indeterminate" name="ui-progress-linear--transition-fade" style="display: none;">

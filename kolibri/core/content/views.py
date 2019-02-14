@@ -87,7 +87,10 @@ def _add_content_security_policy_header(request, response):
 
 
 def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
-    zipped_path = get_content_storage_file_path(zipped_filename)
+    try:
+        zipped_path = get_content_storage_file_path(zipped_filename)
+    except AssertionError:
+        return None
 
     # if no path, or a directory, is being referenced, look for an index.html file
     if not embedded_filepath or embedded_filepath.endswith("/"):
@@ -99,6 +102,14 @@ def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
         return hashlib.md5(get_hashi_filename().encode('utf-8')).hexdigest()
 
     return hashlib.md5((zipped_filename + embedded_filepath).encode('utf-8')).hexdigest()
+
+
+def get_path_or_404(zipped_filename):
+    try:
+        # calculate the local file path to the zip file
+        return get_content_storage_file_path(zipped_filename)
+    except AssertionError:
+        raise Http404('"%(filename)s" is not a valid zip file' % {'filename': zipped_filename})
 
 
 class ZipContentView(View):
@@ -120,9 +131,7 @@ class ZipContentView(View):
         """
         Handles GET requests and serves a static file from within the zip file.
         """
-
-        # calculate the local file path to the zip file
-        zipped_path = get_content_storage_file_path(zipped_filename)
+        zipped_path = get_path_or_404(zipped_filename)
 
         # file size
         file_size = 0
