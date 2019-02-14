@@ -53,10 +53,9 @@
     computed: {
       ...mapGetters('coachNotifications', ['summarizedNotifications']),
       notifications() {
-        return orderBy(this.summarizedNotifications, 'lastId', ['desc']).slice(
-          0,
-          MAX_NOTIFICATIONS
-        );
+        return orderBy(this.summarizedNotifications, ({ lastId }) => Number(lastId), [
+          'desc',
+        ]).slice(0, MAX_NOTIFICATIONS);
       },
     },
     methods: {
