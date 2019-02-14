@@ -42,9 +42,11 @@ option_spec = {
             "default": True,
             "envvars": ("KOLIBRI_CHERRYPY_START",),
         },
+        # The number of worker threads to start up in the pool. 10 is the default
+        # 60 & 150 should be tested too
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
-            "default": 10,
+            "default": 100,
             "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
@@ -52,9 +54,12 @@ option_spec = {
             "default": 10,
             "envvars": ("KOLIBRI_CHERRYPY_SOCKET_TIMEOUT",),
         },
+        # The maximum number of requests which will be queued up before
+        # the server refuses to accept it (default -1, meaning no limit).
+        # -1, 30 & 100 should be tested
         "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
-            "default": 30,
+            "default": 100,
             "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
         },
         "CHERRYPY_QUEUE_TIMEOUT": {
