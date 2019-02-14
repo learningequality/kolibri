@@ -1,5 +1,6 @@
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
+import { redirectBrowser } from 'kolibri.utils.browser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import mime from 'rest/interceptor/mime';
@@ -15,68 +16,98 @@ import {
 
 const logging = logger.getLogger(__filename);
 
-const reconnectMultiplier = 2;
+// Multiplier to use when doing exponential backoff
+const RECONNECT_MULTIPLIER = 2;
 
-const maxReconnectTime = 600;
+// The longest time to wait to reconnect during exponential
+// backoff when server is disconnected
+const MAX_RECONNECT_TIME = 600;
 
-const timeoutReconnectTime = 60;
+// How long to wait after a timeout is recorded in requests
+// before attempting to reconnect, this is intentionally
+// much larger than the backoff in case of disconnect events
+// to prevent hammering the Kolibri server when it is under load
+// (which is the most likely cause of a timeout)
+const TIMEOUT_RECONNECT_TIME = 60;
 
-const minReconnectTime = 5;
+// How long to wait after a disconnection is detected for the first
+// check - this is then used as the basis for exponential backoff.
+const MIN_RECONNECT_TIME = 5;
+
+// The usual time to wait between session check pings, this is set
+// at 4 minutes, as this will maintain activity in the user activity
+// log in the Kolibri server, if the user has been active in this time,
+// as this is windowed at activity being logged in the last 5 minutes.
+// In the case of the page being backgrounded, we double this, which is
+// sufficient to maintain the current Kolibri session, but will start a
+// new user session log when activity is detected again.
+const ACTIVE_DELAY = 240;
 
 export class HeartBeat {
-  constructor(delay = 240000) {
-    if (typeof delay !== 'number') {
-      throw new ReferenceError('The delay must be a number in milliseconds');
-    }
-    this.delay = delay;
+  constructor() {
     // Do this to have a consistent callback that has 'this' properly bound
     // but can be repeatedly referenced to add and remove listeners.
-    this.setActive = this.setActive.bind(this);
-    this.beat = this.beat.bind(this);
-    this.setInactive();
-    this.enabled = false;
+    this.setUserActive = this.setUserActive.bind(this);
+    this._pollSessionEndPoint = this._pollSessionEndPoint.bind(this);
+    this.setUserInactive();
+    this._enabled = false;
   }
-  start() {
-    logging.debug('Starting heartbeat');
-    this.enabled = true;
-    this.setActivityListeners();
-    // No need to start it straight away, can wait.
-    this.beat();
+  startPolling() {
+    if (!this._enabled) {
+      logging.debug('Starting heartbeat');
+      this._enabled = true;
+      this._setActivityListeners();
+      // Do an immediate check to populate session info
+      return this._pollSessionEndPoint();
+    }
+    // Either return the promise for the current session endpoint
+    // poll, or return an immediately resolved promise, if that
+    // has already completed and been resolved.
+    return this._activePromise || Promise.resolve();
   }
-  stop() {
+  stopPolling() {
     logging.debug('Stopping heartbeat');
-    this.enabled = false;
-    this.clearActivityListeners();
-    if (this.timerId) {
-      clearTimeout(this.timerId);
+    this._enabled = false;
+    this._clearActivityListeners();
+    if (this._timerId) {
+      clearTimeout(this._timerId);
     }
   }
-  setActivityListeners() {
-    this.events.forEach(event => {
-      document.addEventListener(event, this.setActive, { capture: true, passive: true });
+  _setActivityListeners() {
+    this._userActivityEvents.forEach(event => {
+      document.addEventListener(event, this.setUserActive, { capture: true, passive: true });
     });
   }
-  clearActivityListeners() {
-    this.events.forEach(event => {
-      document.removeEventListener(event, this.setActive, { capture: true, passive: true });
+  _clearActivityListeners() {
+    this._userActivityEvents.forEach(event => {
+      document.removeEventListener(event, this.setUserActive, { capture: true, passive: true });
     });
   }
-  setActive() {
-    if (this.active !== true) {
-      this.active = true;
-      this.clearActivityListeners();
+  setUserActive() {
+    if (this._active !== true) {
+      this._active = true;
+      this._clearActivityListeners();
     }
   }
-  setInactive() {
-    this.active = false;
+  setUserInactive() {
+    this._active = false;
   }
-  wait() {
+  get _delay() {
     const { reconnectTime } = store.getters;
-    // If we are currently engaged in exponential backoff in trying to reconnect to the server
-    // use the current reconnect time preferentially instead of the standard delay.
-    // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
-    this.timerId = setTimeout(this.beat, reconnectTime * 1000 || this.delay);
-    return this.timerId;
+    if (!store.getters.connected && reconnectTime) {
+      // If we are currently engaged in exponential backoff in trying to reconnect to the server
+      // use the current reconnect time preferentially instead of the standard delay.
+      // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
+      return reconnectTime;
+    }
+    // If page is not visible, don't poll as frequently, as user activity is unlikely.
+    return store.state.pageVisible ? ACTIVE_DELAY : ACTIVE_DELAY * 2;
+  }
+
+  _wait() {
+    // Convert delay to milliseconds for use in setTimeout
+    this._timerId = setTimeout(this._pollSessionEndPoint, this._delay * 1000);
+    return this._timerId;
   }
   /*
    * Method to check the current session endpoint, and record whether the user was active
@@ -85,7 +116,7 @@ export class HeartBeat {
    * been lost.
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
-  checkSession() {
+  _checkSession() {
     const { currentUserId, connected, reconnectTime } = store.getters;
     // Record the current user id to check if a different one is returned by the server.
     // Don't use the regular client, to avoid circular imports, and to use different custom
@@ -103,7 +134,7 @@ export class HeartBeat {
             if (!errorCodes.includes(response.status.code)) {
               // Not one of our 'disconnected' status codes, so we are connected again
               // Set connected and return the response here to prevent any further processing.
-              heartbeat.setConnected();
+              heartbeat._setConnected();
               return response;
             }
             // If we have got here, then the error code meant that the server is still not reachable
@@ -114,7 +145,7 @@ export class HeartBeat {
             store.commit(
               'CORE_SET_RECONNECT_TIME',
               // Multiply the previous interval by our multiplier, but max out at a high interval.
-              Math.min(reconnectMultiplier * reconnect, maxReconnectTime)
+              Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
             );
             createDisconnectedSnackbar(store, heartbeat.beat);
             return response;
@@ -126,16 +157,24 @@ export class HeartBeat {
       params: {
         // Only send active when both connected and activity has been registered.
         // Do this to prevent a user logging activity cascade on the server side.
-        active: connected && this.active,
+        active: connected && this._active,
       },
-      path: this.sessionUrl('current'),
+      path: this._sessionUrl('current'),
     })
       .then(response => {
-        // Check the user id in the response
-        if (response.entity.user_id !== currentUserId) {
-          // If it is different, then our user has been signed out.
-          this.signOutDueToInactivity();
+        const session = response.entity;
+        // If our session is already defined, check the user id in the response
+        if (store.state.core.session.id && session.user_id !== currentUserId) {
+          if (session.user_id === null) {
+            // If it is different, and the user_id is now null then our user has been signed out.
+            return this._signOutDueToInactivity();
+          } else {
+            // Otherwise someone has logged in as another user within the same browser session
+            // Redirect them and let that page sort them out.
+            redirectBrowser();
+          }
         }
+        store.dispatch('setSession', session);
       })
       .catch(error => {
         // An error occurred.
@@ -157,58 +196,74 @@ export class HeartBeat {
       // We have not already registered that we have been disconnected
       store.commit('CORE_SET_CONNECTED', false);
       let reconnectionTime;
-      if (code === 502) {
-        // Do special behaviour in the case that this is a network timeout.
-        reconnectionTime = timeoutReconnectTime;
+      if (store.state.pageVisible) {
+        // If current page is not visible, back off completely
+        // user can force reconnect with interface when they return
+        reconnectionTime = MAX_RECONNECT_TIME;
+      } else if (code === 0) {
+        // Do special behaviour if the request could not be completed
+        reconnectionTime = MIN_RECONNECT_TIME;
       } else {
-        reconnectionTime = minReconnectTime;
+        // Otherwise the issue is likely an overload of the Kolibri server,
+        // back off quickly before trying to reconnect.
+        reconnectionTime = TIMEOUT_RECONNECT_TIME;
       }
       store.commit('CORE_SET_RECONNECT_TIME', reconnectionTime);
-      createDisconnectedSnackbar(store, this.beat);
-      this.wait();
+      createDisconnectedSnackbar(store, this._pollSessionEndPoint);
+      this._wait();
     }
   }
   /*
    * Method to reset the vuex state to the connected state and restart server polling
    * on the regular heartbeat delay.
    */
-  setConnected() {
+  _setConnected() {
     store.commit('CORE_SET_CONNECTED', true);
     store.commit('CORE_SET_RECONNECT_TIME', null);
     createReconnectedSnackbar(store);
-    this.wait();
+    this._wait();
   }
   /*
    * Method to signout when automatic signout has been detected.
    */
-  signOutDueToInactivity() {
+  _signOutDueToInactivity() {
     // Store that this sign out was for inactivity in local storage.
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
-    // Just navigate to the root URL and let the server sort out where
-    // we should be.
-    window.location = window.origin;
+    // Redirect the user to let the server sort out where they should
+    // be now
+    redirectBrowser();
   }
-  sessionUrl(id) {
+  _sessionUrl(id) {
     return urls['kolibri:core:session-detail'](id);
   }
-  beat() {
-    if (this.active) {
-      this.setActivityListeners();
-    } else {
-      logging.debug('No user activity');
-    }
-    if (this.timerId) {
-      clearTimeout(this.timerId);
-    }
-    const final = () => {
-      if (this.enabled) {
-        this.setInactive();
-        this.wait();
+  /*
+   * Method to reset activity listeners clear timeouts waiting to
+   * check the session endpoint, and then check the session endpoint
+   * catching any errors and then setting off a timeout for the next
+   * session endpoint poll.
+   */
+  _pollSessionEndPoint() {
+    if (!this._activePromise) {
+      if (this._active) {
+        this._setActivityListeners();
+      } else {
+        logging.debug('No user activity');
       }
-    };
-    return this.checkSession().then(final, final);
+      if (this._timerId) {
+        clearTimeout(this._timerId);
+      }
+      const final = () => {
+        delete this._activePromise;
+        if (this._enabled) {
+          this.setUserInactive();
+          this._wait();
+        }
+      };
+      this._activePromise = this._checkSession().then(final, final);
+    }
+    return this._activePromise;
   }
-  get events() {
+  get _userActivityEvents() {
     return [
       'mousemove',
       'mousedown',
