@@ -156,7 +156,7 @@ describe('coach summary data helpers', () => {
     });
   });
   describe('getExamStatusTally', () => {
-    it('returns total statuses given a lesson item and a list of learners', () => {
+    it('returns total statuses given an exam item and a list of learners', () => {
       const output = store.getters.getExamStatusTally('exam_id_2', [
         'learner_id_1',
         'learner_id_2',
