@@ -22,7 +22,7 @@ else
   export KOLIBRI_USER="kolibri"
 fi
 
-KOLIBRI_HOME="~/.kolibri"
+KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
 KOLIBRI_COMMAND="kolibri"
 DJANGO_SETTINGS_MODULE="kolibri.deployment.default.settings.base"
 
