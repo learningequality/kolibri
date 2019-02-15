@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Sum
 from le_utils.constants import content_kinds
 
 from .models import HelpReason
@@ -82,7 +83,7 @@ def save_notifications(notifications):
 
 def create_notification(notification_object, notification_event, user_id, group_id, lesson_id=None,
                         contentnode_id=None,
-                        quiz_id=None, reason=None):
+                        quiz_id=None, quiz_num_correct=None, reason=None):
     notification = LearnerProgressNotification()
     notification.user_id = user_id
     notification.classroom_id = group_id
@@ -94,6 +95,8 @@ def create_notification(notification_object, notification_event, user_id, group_
         notification.lesson_id = lesson_id
     if quiz_id:
         notification.quiz_id = quiz_id
+    if quiz_num_correct:
+        notification.quiz_num_correct = quiz_num_correct
     if reason:
         notification.reason = reason
     return notification
@@ -220,6 +223,16 @@ def exist_exam_notification(user_id, exam_id):
                                                       notification_event=NotificationEventType.Started).exists()
 
 
+def num_correct(examlog):
+    return (
+        examlog.attemptlogs.values_list('item')
+        .order_by('completion_timestamp')
+        .distinct()
+        .aggregate(Sum('correct'))
+        .get('correct__sum')
+    )
+
+
 def created_quiz_notification(examlog, event_type):
     user_classrooms = examlog.user.memberships.all()
 
@@ -227,7 +240,8 @@ def created_quiz_notification(examlog, event_type):
     notifications = []
     for group in touched_groups:
         notification = create_notification(NotificationObjectType.Quiz, event_type,
-                                           examlog.user_id, group, quiz_id=examlog.exam_id)
+                                           examlog.user_id, group, quiz_id=examlog.exam_id,
+                                           quiz_num_correct=num_correct(examlog))
         notifications.append(notification)
 
     save_notifications(notifications)

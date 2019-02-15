@@ -13,7 +13,7 @@
     <td>
       {{ group.users.length }}
     </td>
-    <td class="ta-r">
+    <td class="ta-r core-table-button-col">
       <KDropdownMenu
         v-if="!isUngrouped"
         appearance="flat-button"

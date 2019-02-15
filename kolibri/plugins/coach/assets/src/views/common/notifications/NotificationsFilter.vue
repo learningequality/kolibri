@@ -22,11 +22,15 @@
 
 <script>
 
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import {
+    NotificationEvents,
+    NotificationObjects,
+  } from '../../../constants/notificationsConstants';
   import commonCoach from '../../common';
 
   export default {
     name: 'NotificationsFilter',
-    components: {},
     mixins: [commonCoach],
     $trs: {
       allLabel: 'All',
@@ -43,6 +47,12 @@
       typeLabel: 'Type',
       videosLabel: 'Videos',
     },
+    props: {
+      enabledFilters: {
+        type: Object,
+        required: true,
+      },
+    },
     data() {
       return {
         progressType: null,
@@ -58,15 +68,18 @@
           },
           {
             label: this.coachStrings.$tr('helpNeededLabel'),
-            value: 'HelpNeeded',
+            value: NotificationEvents.HELP_NEEDED,
+            disabled: this.progressIsDisabled(NotificationEvents.HELP_NEEDED),
           },
           {
             label: this.coachStrings.$tr('startedLabel'),
-            value: 'Started',
+            value: NotificationEvents.STARTED,
+            disabled: this.progressIsDisabled(NotificationEvents.STARTED),
           },
           {
             label: this.coachStrings.$tr('completedLabel'),
-            value: 'Completed',
+            value: NotificationEvents.COMPLETED,
+            disabled: this.progressIsDisabled(NotificationEvents.COMPLETED),
           },
         ];
       },
@@ -78,31 +91,38 @@
           },
           {
             label: this.coachStrings.$tr('lessonsLabel'),
-            value: 'lesson',
+            value: ContentNodeKinds.LESSON,
+            disabled: this.resourceIsDisabled(NotificationObjects.LESSON),
           },
           {
             label: this.coachStrings.$tr('quizzesLabel'),
             value: 'quiz',
+            disabled: this.resourceIsDisabled(NotificationObjects.QUIZ),
           },
           {
             label: this.$tr('exercisesLabel'),
-            value: 'exercise',
+            value: ContentNodeKinds.EXERCISE,
+            disabled: this.resourceIsDisabled(ContentNodeKinds.EXERCISE),
           },
           {
             label: this.$tr('videosLabel'),
-            value: 'video',
+            value: ContentNodeKinds.VIDEO,
+            disabled: this.resourceIsDisabled(ContentNodeKinds.VIDEO),
           },
           {
             label: this.$tr('audioLabel'),
-            value: 'audio',
+            value: ContentNodeKinds.AUDIO,
+            disabled: this.resourceIsDisabled(ContentNodeKinds.AUDIO),
           },
           {
             label: this.$tr('documentsLabel'),
-            value: 'document',
+            value: ContentNodeKinds.DOCUMENT,
+            disabled: this.resourceIsDisabled(ContentNodeKinds.DOCUMENT),
           },
           {
             label: this.$tr('appsLabel'),
-            value: 'html5',
+            value: ContentNodeKinds.HTML5,
+            disabled: this.resourceIsDisabled(ContentNodeKinds.HTML5),
           },
         ];
       },
@@ -110,6 +130,14 @@
     beforeMount() {
       this.progressType = this.progressTypeOptions[0];
       this.resourceType = this.resourceTypeOptions[0];
+    },
+    methods: {
+      resourceIsDisabled(value) {
+        return !this.enabledFilters.resource.includes(value);
+      },
+      progressIsDisabled(value) {
+        return !this.enabledFilters.progress.includes(value);
+      },
     },
   };
 

@@ -14,6 +14,7 @@ from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -161,10 +162,14 @@ def set_local_file_availability_from_disk(checksums=None):
         logger.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
-    checksums_to_update = [
-        # Only update if the file exists, *and* the localfile is set as unavailable.
-        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available
-    ]
+    checksums_to_update = []
+    for file in files:
+        try:
+            # Only update if the file exists, *and* the localfile is set as unavailable.
+            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available:
+                checksums_to_update.append(file.id)
+        except InvalidStorageFilenameError:
+            continue
 
     bridge.end()
 

@@ -38,9 +38,7 @@ export default class KolibriApp extends KolibriModule {
    *                           Each function should return a promise that resolves when the state
    *                           has been set. These will be invoked after the current session has
    *                           been set in the vuex store, in order to allow these actions to
-   *                           reference getters that return data set by the getCurrentSession
-   *                           action. As this has always been bootstrapped into the base template
-   *                           this should not cause any real slow down in page loading.
+   *                           reference getters that return data set by the heartbeat.
    */
   get stateSetters() {
     return [];
@@ -70,24 +68,22 @@ export default class KolibriApp extends KolibriModule {
       store.registerModule(name, module);
     });
 
-    return this.store.dispatch('getCurrentSession').then(() => {
-      return this.store.dispatch('getNotifications').then(() => {
-        return Promise.all([
-          // Invoke each of the state setters before initializing the app.
-          ...this.stateSetters.map(setter => setter(this.store)),
-        ]).then(() => {
-          heartbeat.start();
-          this.rootvue = new Vue(
-            Object.assign(
-              {
-                el: 'rootvue',
-                store: store,
-                router: router.init(this.routes),
-              },
-              this.RootVue
-            )
-          );
-        });
+    return heartbeat.startPolling().then(() => {
+      this.store.dispatch('getNotifications');
+      return Promise.all([
+        // Invoke each of the state setters before initializing the app.
+        ...this.stateSetters.map(setter => setter(this.store)),
+      ]).then(() => {
+        this.rootvue = new Vue(
+          Object.assign(
+            {
+              el: 'rootvue',
+              store: store,
+              router: router.init(this.routes),
+            },
+            this.RootVue
+          )
+        );
       });
     });
   }

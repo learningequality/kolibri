@@ -60,7 +60,7 @@
               <QuizActive :active="exam.active" />
             </td>
 
-            <td class="options">
+            <td class="options core-table-button-col">
               <KDropdownMenu
                 slot="optionsDropdown"
                 :text="examReportPageStrings.$tr('options')"

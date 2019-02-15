@@ -51,6 +51,9 @@ export default class CoreApp {
       }`;
     }
 
+    // Start the heartbeat polling here, as any URL needs should be set by now
+    this.heartbeat.startPolling();
+
     const intlReady = () => {
       mediator.registerMessages();
       mediator.setReady();

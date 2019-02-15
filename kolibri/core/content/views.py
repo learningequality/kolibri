@@ -23,6 +23,7 @@ from six.moves.urllib.parse import urlunparse
 
 from .api import cache_forever
 from .utils.paths import get_content_storage_file_path
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.utils.conf import OPTIONS
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
@@ -89,7 +90,7 @@ def _add_content_security_policy_header(request, response):
 def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
     try:
         zipped_path = get_content_storage_file_path(zipped_filename)
-    except AssertionError:
+    except InvalidStorageFilenameError:
         return None
 
     # if no path, or a directory, is being referenced, look for an index.html file
@@ -108,7 +109,7 @@ def get_path_or_404(zipped_filename):
     try:
         # calculate the local file path to the zip file
         return get_content_storage_file_path(zipped_filename)
-    except AssertionError:
+    except InvalidStorageFilenameError:
         raise Http404('"%(filename)s" is not a valid zip file' % {'filename': zipped_filename})
 
 

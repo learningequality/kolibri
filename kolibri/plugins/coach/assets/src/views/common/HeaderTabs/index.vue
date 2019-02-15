@@ -1,6 +1,6 @@
 <template>
 
-  <div class="tab-block" :class="{small : windowIsSmall }">
+  <div class="tab-block" :class="{ small: windowIsSmall }">
     <slot></slot>
   </div>
 

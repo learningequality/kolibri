@@ -2,7 +2,7 @@
 
   <div
     class="block-item"
-    :class="{small : windowIsSmall }"
+    :class="{ small : windowIsSmall }"
   >
     <slot></slot>
   </div>

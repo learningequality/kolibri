@@ -16,6 +16,7 @@ export default {
     loginError: null,
     signInBusy: false,
     totalProgress: null,
+    scrollPosition: 0,
     notifications: [],
     channels: {
       list: [],
@@ -24,6 +25,7 @@ export default {
     // facility
     facilityConfig: {},
     facilities: [],
+    pageVisible: true,
   },
   getters,
   actions,

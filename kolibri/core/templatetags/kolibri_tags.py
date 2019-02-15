@@ -15,14 +15,12 @@ import user_agents
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import get_resolver
 from django.core.urlresolvers import get_script_prefix
 from django.core.urlresolvers import resolve
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils.html import mark_safe
-from django.utils.timezone import now
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
@@ -189,15 +187,6 @@ def kolibri_set_urls(context):
             global_object=js_global_object_name,
             static_url=settings.STATIC_URL))
     return mark_safe(js)
-
-
-@register.simple_tag()
-def kolibri_set_server_time():
-    html = ("<script type='text/javascript'>"
-            "{0}.utils.serverClock.setServerTime({1});"
-            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
-                               json.dumps(now(), cls=DjangoJSONEncoder)))
-    return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
