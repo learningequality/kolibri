@@ -102,7 +102,8 @@
   @import './buttons';
 
   .dropdown-arrow {
-    vertical-align: middle;
+    position: relative;
+    top: 6px;
   }
 
 </style>
