@@ -99,7 +99,6 @@
 
   import { mapGetters, mapState, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiToolbar from 'keen-ui/src/UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -122,7 +121,7 @@
       LogoutSideNavEntry,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, navComponentsMixin, themeMixin],
+    mixins: [navComponentsMixin, themeMixin],
     $trs: {
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
