@@ -9,6 +9,10 @@
       {{ coachStrings.$tr('lessonsLabel') }}
     </KLabeledIcon>
 
+    <p v-if="table.length === 0">
+      {{ coachStrings.$tr('lessonListEmptyState') }}
+    </p>
+
     <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"

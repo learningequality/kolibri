@@ -14,7 +14,7 @@
       <ReportsGroupReportQuizHeader />
 
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('questionLabel') }}</th>

@@ -19,18 +19,9 @@
         />
       </KGridItem>
 
-      <KGridItem size="75" percentage>
+      <KGridItem size="100" percentage>
         <StatusSummary
           :tally="tally"
-        />
-      </KGridItem>
-
-      <KGridItem size="25" percentage alignment="right">
-        <HelpNeeded
-          v-if="tally.helpNeeded"
-          :count="tally.helpNeeded"
-          :verbose="false"
-          :ratio="false"
         />
       </KGridItem>
     </KGrid>

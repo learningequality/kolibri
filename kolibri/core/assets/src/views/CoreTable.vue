@@ -11,6 +11,10 @@
         default: false,
         required: false,
       },
+      emptyMessage: {
+        type: String,
+        required: false,
+      },
     },
     computed: {
       tHeadStyle() {
@@ -38,11 +42,20 @@
       },
     },
     render(createElement) {
+      let tableHasRows = true;
       this.$slots.thead.forEach(thead => {
         thead.data.style = Object.assign(thead.data.style || {}, this.tHeadStyle);
       });
+
       this.$slots.tbody.forEach(tbody => {
+        // Need to check componentOptions if wrapped in <transition-group>, or just children
+        // if in regular <tbody>
+        if (tbody.componentOptions && tbody.componentOptions.children) {
+          tableHasRows = tbody.componentOptions.children.length > 0;
+        }
+
         if (tbody.children) {
+          tableHasRows = tbody.children.length > 0;
           tbody.children.forEach(child => {
             if (!child.data) {
               child.data = {};
@@ -56,12 +69,18 @@
           });
         }
       });
+
+      // Insert an empty message as a <p> at the end if it is provided and the
+      // table has no rows.
+      const showEmptyMessage = this.emptyMessage && !tableHasRows;
+
       return createElement('div', { class: 'core-table-container' }, [
         createElement('table', { class: 'core-table' }, [
           ...(this.$slots.default || []),
           this.$slots.thead,
           this.$slots.tbody,
         ]),
+        showEmptyMessage && createElement('p', this.emptyMessage),
       ]);
     },
   };
@@ -108,6 +127,10 @@
     .k-checkbox-container {
       margin: 0 0 0 2px;
     }
+  }
+
+  /deep/ .core-table-button-col {
+    padding: 4px;
   }
 
 </style>

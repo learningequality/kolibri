@@ -16,7 +16,7 @@
         :options="filterOptions"
         :inline="true"
       />
-      <CoreTable>
+      <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>
@@ -59,8 +59,12 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import LessonsRootPage from '../plan/LessonsRootPage';
   import ReportsHeader from './ReportsHeader';
+
+  const LessonsRootPageStrings = crossComponentTranslator(LessonsRootPage);
 
   export default {
     name: 'ReportsLessonListPage',
@@ -74,6 +78,17 @@
       };
     },
     computed: {
+      emptyMessage() {
+        if (this.filter.value === 'allLessons') {
+          return this.coachStrings.$tr('lessonListEmptyState');
+        }
+        if (this.filter.value === 'activeLessons') {
+          return LessonsRootPageStrings.$tr('noActiveLessons');
+        }
+        if (this.filter.value === 'inactiveLessons') {
+          return LessonsRootPageStrings.$tr('noInactiveLessons');
+        }
+      },
       filterOptions() {
         return [
           {

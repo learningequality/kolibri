@@ -9,6 +9,10 @@
       {{ coachStrings.$tr('quizzesLabel') }}
     </KLabeledIcon>
 
+    <p v-if="table.length === 0">
+      {{ coachStrings.$tr('quizListEmptyState') }}
+    </p>
+
     <BlockItem
       v-for="tableRow in table"
       :key="tableRow.key"

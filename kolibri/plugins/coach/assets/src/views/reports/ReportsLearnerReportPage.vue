@@ -16,7 +16,7 @@
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
-          <CoreTable>
+          <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachStrings.$tr('titleLabel') }}</th>
@@ -43,7 +43,7 @@
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
-          <CoreTable>
+          <CoreTable :emptyMessage="coachStrings.$tr('quizListEmptyState')">
             <thead slot="thead">
               <tr>
                 <th>{{ coachStrings.$tr('titleLabel') }}</th>
