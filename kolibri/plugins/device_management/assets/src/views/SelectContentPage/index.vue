@@ -41,7 +41,10 @@
           v-if="transferredChannel && onDeviceInfoIsReady"
           class="updates"
         >
-          <div v-if="newVersionAvailable">
+          <div
+            v-if="newVersionAvailable"
+            class="updates-available"
+          >
             <span>
               {{ $tr('newVersionAvailable', { version: transferredChannel.version }) }}
             </span>
