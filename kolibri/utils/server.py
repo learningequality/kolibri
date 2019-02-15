@@ -197,6 +197,9 @@ def run_server(port):
         "environment": "production",
         "tools.gzip.on": True,
         "tools.gzip.mime_types": ["text/*", "application/javascript"],
+        "tools.caching.on": True,
+        "tools.caching.maxobj_size": 2000000,
+        "tools.caching.maxsize": 50000000,
     })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
