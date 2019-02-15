@@ -1,6 +1,7 @@
 import { AttemptLogResource, ExamAttemptLogResource } from 'kolibri.resources';
 
-export function setLearners(store, { questionId, exerciseId, quizId, classId, groupId }) {
+export function setLearners(store, params) {
+  const { questionId, exerciseId, quizId, classId, groupId, learnerId } = params;
   let resource = AttemptLogResource;
   const getParams = {
     item: questionId,
@@ -19,7 +20,7 @@ export function setLearners(store, { questionId, exerciseId, quizId, classId, gr
   return resource
     .fetchCollection({
       getParams,
-      force: true,
+      force: !learnerId,
     })
     .then(attemptLogs => {
       attemptLogs = attemptLogs.filter(attemptLog => !attemptLog.correct);
