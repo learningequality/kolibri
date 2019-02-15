@@ -34,7 +34,6 @@
 
   export default {
     name: 'ScrollingHeader',
-    components: {},
     props: {
       // height of the bar being passed into the slot
       height: {
