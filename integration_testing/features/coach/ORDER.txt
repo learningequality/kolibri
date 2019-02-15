@@ -38,3 +38,4 @@ coach-track-lesson-progress.feature
 coach-track-quiz-progress.feature
 coach-notified-learner-needs-help.feature
 coach-lesson-difficult-questions.feature
+coach-non-lesson-quiz-resource-notifications.feature
