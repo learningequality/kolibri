@@ -15,9 +15,9 @@ describe('HeartBeat', function() {
       const test = new HeartBeat();
       expect(HeartBeat.prototype.setUserActive).not.toEqual(test.setUserActive);
     });
-    it('should set the _pollSessionEndPoint method to a bound method', function() {
+    it('should set the pollSessionEndPoint method to a bound method', function() {
       const test = new HeartBeat();
-      expect(HeartBeat.prototype._pollSessionEndPoint).not.toEqual(test._pollSessionEndPoint);
+      expect(HeartBeat.prototype.pollSessionEndPoint).not.toEqual(test.pollSessionEndPoint);
     });
     it('should call the setUserInactive method', function() {
       const spy = jest.spyOn(HeartBeat.prototype, 'setUserInactive');
@@ -34,22 +34,22 @@ describe('HeartBeat', function() {
   });
   describe('startPolling method', function() {
     let heartBeat;
-    let _pollSessionEndPointStub;
+    let pollSessionEndPointStub;
     beforeEach(function() {
       heartBeat = new HeartBeat();
-      _pollSessionEndPointStub = jest
-        .spyOn(heartBeat, '_pollSessionEndPoint')
+      pollSessionEndPointStub = jest
+        .spyOn(heartBeat, 'pollSessionEndPoint')
         .mockReturnValue(Promise.resolve());
     });
-    it('should call __pollSessionEndPoint if not currently enabled', function() {
+    it('should call pollSessionEndPoint if not currently enabled', function() {
       heartBeat._enabled = false;
       heartBeat.startPolling();
-      expect(_pollSessionEndPointStub).toHaveBeenCalledTimes(1);
+      expect(pollSessionEndPointStub).toHaveBeenCalledTimes(1);
     });
-    it('should not call __pollSessionEndPoint if currently enabled', function() {
+    it('should not call pollSessionEndPoint if currently enabled', function() {
       heartBeat._enabled = true;
       heartBeat.startPolling();
-      expect(_pollSessionEndPointStub).toHaveBeenCalledTimes(0);
+      expect(pollSessionEndPointStub).toHaveBeenCalledTimes(0);
     });
     it('should return _activePromise if currently defined and _enabled true', function() {
       heartBeat._enabled = true;
@@ -62,7 +62,7 @@ describe('HeartBeat', function() {
       expect(heartBeat.startPolling()).toBeInstanceOf(Promise);
     });
   });
-  describe('_pollSessionEndPoint method', function() {
+  describe('pollSessionEndPoint method', function() {
     let heartBeat;
     let _checkSessionStub;
     beforeEach(function() {
@@ -73,61 +73,61 @@ describe('HeartBeat', function() {
     });
     it('should call setUserInactive', function() {
       const spy = jest.spyOn(heartBeat, 'setUserInactive');
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it('should call _wait', function() {
       const spy = jest.spyOn(heartBeat, '_wait');
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it('should set _timerId to a setTimeout identifier', function() {
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(typeof heartBeat._timerId).toEqual('number');
       });
     });
     it('should call _checkSession if no _activePromise property', function() {
-      heartBeat._pollSessionEndPoint();
+      heartBeat.pollSessionEndPoint();
       expect(_checkSessionStub).toHaveBeenCalledTimes(1);
     });
     it('should call remove _activePromise property once the session check is complete', function() {
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(heartBeat._activePromise).toBeUndefined();
       });
     });
     it('should call setUserInactive once the session check is complete if enabled', function() {
       const setUserInactiveStub = jest.spyOn(heartBeat, 'setUserInactive');
       heartBeat._enabled = true;
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(setUserInactiveStub).toHaveBeenCalledTimes(1);
       });
     });
     it('should not call setUserInactive once the session check is complete if not enabled', function() {
       const setUserInactiveStub = jest.spyOn(heartBeat, 'setUserInactive');
       heartBeat._enabled = false;
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(setUserInactiveStub).toHaveBeenCalledTimes(0);
       });
     });
     it('should call _wait once the session check is complete if enabled', function() {
       const _waitStub = jest.spyOn(heartBeat, '_wait');
       heartBeat._enabled = true;
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(_waitStub).toHaveBeenCalledTimes(1);
       });
     });
     it('should not call _wait once the session check is complete if not enabled', function() {
       const _waitStub = jest.spyOn(heartBeat, '_wait');
       heartBeat._enabled = false;
-      return heartBeat._pollSessionEndPoint().then(() => {
+      return heartBeat.pollSessionEndPoint().then(() => {
         expect(_waitStub).toHaveBeenCalledTimes(0);
       });
     });
     it('should not call _checkSession if there is an _activePromise property', function() {
       heartBeat._activePromise = Promise.resolve();
-      heartBeat._pollSessionEndPoint();
+      heartBeat.pollSessionEndPoint();
       expect(_checkSessionStub).toHaveBeenCalledTimes(0);
     });
     describe('and activity is detected', function() {
@@ -136,7 +136,7 @@ describe('HeartBeat', function() {
       });
       it('should call _setActivityListeners', function() {
         const spy = jest.spyOn(heartBeat, '_setActivityListeners');
-        heartBeat._pollSessionEndPoint();
+        heartBeat.pollSessionEndPoint();
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
@@ -180,7 +180,7 @@ describe('HeartBeat', function() {
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
       http.__setEntity({ user_id: null, id: 'current' });
-      const stub = jest.spyOn(heartBeat, '_signOutDueToInactivity');
+      const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(1);
       });
@@ -202,7 +202,7 @@ describe('HeartBeat', function() {
       http.__setCode(200);
       http.__setHeaders({ 'Content-Type': 'application/json' });
       http.__setEntity({ user_id: null, id: 'current' });
-      const stub = jest.spyOn(heartBeat, '_signOutDueToInactivity');
+      const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(0);
       });

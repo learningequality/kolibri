@@ -48,7 +48,7 @@ export class HeartBeat {
     // Do this to have a consistent callback that has 'this' properly bound
     // but can be repeatedly referenced to add and remove listeners.
     this.setUserActive = this.setUserActive.bind(this);
-    this._pollSessionEndPoint = this._pollSessionEndPoint.bind(this);
+    this.pollSessionEndPoint = this.pollSessionEndPoint.bind(this);
     this.setUserInactive();
     this._enabled = false;
   }
@@ -58,7 +58,7 @@ export class HeartBeat {
       this._enabled = true;
       this._setActivityListeners();
       // Do an immediate check to populate session info
-      return this._pollSessionEndPoint();
+      return this.pollSessionEndPoint();
     }
     // Either return the promise for the current session endpoint
     // poll, or return an immediately resolved promise, if that
@@ -106,7 +106,7 @@ export class HeartBeat {
 
   _wait() {
     // Convert delay to milliseconds for use in setTimeout
-    this._timerId = setTimeout(this._pollSessionEndPoint, this._delay * 1000);
+    this._timerId = setTimeout(this.pollSessionEndPoint, this._delay * 1000);
     return this._timerId;
   }
   /*
@@ -167,7 +167,7 @@ export class HeartBeat {
         if (store.state.core.session.id && session.user_id !== currentUserId) {
           if (session.user_id === null) {
             // If it is different, and the user_id is now null then our user has been signed out.
-            return this._signOutDueToInactivity();
+            return this.signOutDueToInactivity();
           } else {
             // Otherwise someone has logged in as another user within the same browser session
             // Redirect them and let that page sort them out.
@@ -209,7 +209,7 @@ export class HeartBeat {
         reconnectionTime = TIMEOUT_RECONNECT_TIME;
       }
       store.commit('CORE_SET_RECONNECT_TIME', reconnectionTime);
-      createDisconnectedSnackbar(store, this._pollSessionEndPoint);
+      createDisconnectedSnackbar(store, this.pollSessionEndPoint);
       this._wait();
     }
   }
@@ -226,7 +226,7 @@ export class HeartBeat {
   /*
    * Method to signout when automatic signout has been detected.
    */
-  _signOutDueToInactivity() {
+  signOutDueToInactivity() {
     // Store that this sign out was for inactivity in local storage.
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
     // Redirect the user to let the server sort out where they should
@@ -242,7 +242,7 @@ export class HeartBeat {
    * catching any errors and then setting off a timeout for the next
    * session endpoint poll.
    */
-  _pollSessionEndPoint() {
+  pollSessionEndPoint() {
     if (!this._activePromise) {
       if (this._active) {
         this._setActivityListeners();
