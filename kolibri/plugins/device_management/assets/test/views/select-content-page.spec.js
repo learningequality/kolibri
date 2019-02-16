@@ -2,7 +2,6 @@ import VueRouter from 'vue-router';
 import { mount } from '@vue/test-utils';
 import SelectContentPage from '../../src/views/SelectContentPage';
 import ChannelContentsSummary from '../../src/views/SelectContentPage/ChannelContentsSummary';
-import SelectedResourcesSize from '../../src/views/SelectContentPage/SelectedResourcesSize';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
 SelectContentPage.methods.getAvailableSpaceOnDrive = () => {};
