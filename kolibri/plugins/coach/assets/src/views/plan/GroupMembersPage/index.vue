@@ -10,12 +10,6 @@
     :immersivePageRoute="$router.getRoute('GroupsPage')"
   >
     <KPageContainer>
-      <p>
-        <BackLink
-          :to="$router.getRoute('GroupsPage')"
-          :text="coachStrings.$tr('goBackAction')"
-        />
-      </p>
       <div v-if="!currentGroup">
         {{ $tr('groupDoesNotExist') }}
       </div>

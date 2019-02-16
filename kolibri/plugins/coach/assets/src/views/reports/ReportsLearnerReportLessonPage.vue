@@ -25,7 +25,7 @@
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value"><LessonActive :active="true" /></template>
+          <template slot="value"><LessonActive :active="lesson.active" /></template>
         </HeaderTableRow>
         <!-- TODO COACH
         <HeaderTableRow>
@@ -35,7 +35,7 @@
          -->
       </HeaderTable>
 
-      <CoreTable>
+      <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>
@@ -78,13 +78,19 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import LessonSummaryPage from '../plan/LessonSummaryPage';
+
+  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
-    components: {},
     mixins: [commonCoach],
     computed: {
+      emptyMessage() {
+        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+      },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

@@ -30,7 +30,8 @@
         :title="toolbarTitle || appBarTitle"
         :height="headerHeight"
         :navShown="navShown"
-        @toggleSideNav="navShown=!navShown"
+        @toggleSideNav="navShown = !navShown"
+        @showLanguageModal="languageModalShown = true"
       >
         <slot slot="totalPointsMenuItem" name="totalPointsMenuItem"></slot>
         <div slot="app-bar-actions" class="app-bar-actions">
@@ -81,13 +82,18 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="showNotification && !busy"
+      v-if="!loading && showNotification && !busy"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
       :linkUrl="mostRecentNotification.linkUrl"
       @closeModal="dismissUpdateModal"
+    />
+    <LanguageSwitcherModal
+      v-if="languageModalShown"
+      :style="{ color: $coreTextDefault }"
+      @close="languageModalShown = false"
     />
 
   </div>
@@ -112,6 +118,7 @@
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
   import UpdateNotification from '../UpdateNotification';
+  import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import ScrollingHeader from './ScrollingHeader';
 
   export default {
@@ -131,6 +138,7 @@
       KLinearLoader,
       ScrollingHeader,
       UpdateNotification,
+      LanguageSwitcherModal,
     },
     mixins: [responsiveWindow, themeMixin],
     props: {
@@ -233,7 +241,9 @@
       return {
         navShown: false,
         scrollPosition: 0,
-        updateModalShown: true,
+        unwatchScrollHeight: undefined,
+        notificationModalShown: true,
+        languageModalShown: false,
       };
     },
     computed: {
@@ -244,6 +254,7 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
+        startingScroll: state => state.core.scrollPosition,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -289,8 +300,7 @@
         };
       },
       fixedAppBar() {
-        return this.windowIsLarge;
-        // return this.windowIsLarge || this.immersivePage;
+        return this.windowIsLarge && !this.windowIsShort;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
@@ -300,7 +310,7 @@
         if (
           (this.isAdmin || this.isSuperuser) &&
           !Lockr.get(UPDATE_MODAL_DISMISSED) &&
-          this.updateModalShown &&
+          this.notificationModalShown &&
           this.notifications.length !== 0
         ) {
           return true;
@@ -333,15 +343,53 @@
         return '';
       },
     },
+    watch: {
+      startingScroll(newVal) {
+        // Set a watcher so that if the router sets a new
+        // starting scroll position based on the history, then it gets
+        // set here.
+        if (this.unwatchScrollHeight) {
+          this.unwatchScrollHeight();
+        }
+        if (this.loading) {
+          // Don't set scroll position until the main content
+          // of coreBase is shown in the DOM.
+          // Create a watcher to monitor changes in loading
+          // to try to set the scrollHeight after the contents
+          // have loaded.
+          this.unwatchScrollHeight = this.$watch('loading', () => {
+            this.unwatchScrollHeight();
+            this.$nextTick(() => {
+              // Set the scroll in next tick for safety, to ensure
+              // that the child components have finished mounting
+              this.setScroll(newVal);
+            });
+          });
+        } else {
+          this.setScroll(newVal);
+        }
+      },
+    },
+    mounted() {
+      this.setScroll(this.startingScroll);
+    },
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
+        // Setting this will not affect the page layout,
+        // but this will then get properly stored in the
+        // browser history.
+        window.pageYOffset = this.scrollPosition;
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
-          this.updateModalShown = false;
+          this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
+      },
+      setScroll(scrollValue) {
+        this.$el.scrollTop = scrollValue;
+        window.pageYOffset = scrollValue;
       },
     },
   };

@@ -139,6 +139,14 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
   return STATUSES.started;
 }
 
+// convert quiz scores to percentages from integer counts of correct answers
+function _score(numCorrect, numQuestions) {
+  if (numCorrect === null || numCorrect === undefined) {
+    return null;
+  }
+  return (1.0 * numCorrect) / numQuestions;
+}
+
 export default {
   namespaced: true,
   state: defaultState(),
@@ -285,18 +293,12 @@ export default {
       summary.exam_learner_status.forEach(status => {
         // convert dates
         status.last_activity = new Date(status.last_activity);
-        // convert quiz scores to percentages from integer counts of correct answers
-        if (status.num_correct === null) {
-          status.score = null;
-        } else {
-          status.score = (1.0 * status.num_correct) / examMap[status.exam_id].question_count;
-        }
+        status.score = _score(status.num_correct, examMap[status.exam_id].question_count);
       });
       summary.content_learner_status.forEach(status => {
         // convert dates
         status.last_activity = new Date(status.last_activity);
       });
-      summary.exam_learner_status;
       Object.assign(state, {
         id: summary.id,
         name: summary.name,
@@ -342,15 +344,15 @@ export default {
 
       examLearnerStatusMapUpdates.forEach(update => {
         const path = [update.exam_id, update.learner_id];
+        const scoredUpdate = {
+          ...update,
+          score: _score(update.num_correct, state.examMap[update.exam_id].question_count),
+        };
         const currentStatus = get(examLearnerStatusMap, path);
         if (currentStatus) {
-          Object.assign(currentStatus, update);
+          Object.assign(currentStatus, scoredUpdate);
         } else {
-          set(state.examLearnerStatusMap, path, {
-            ...update,
-            num_correct: 0,
-            score: 0,
-          });
+          set(state.examLearnerStatusMap, path, scoredUpdate);
         }
       });
 

@@ -186,7 +186,7 @@ def get_git_describe(version):
     Detects a valid tag, 1.2.3-<alpha|beta|rc>(-123-sha123)
     :returns: None if no git tag available (no git, no tags, or not in a repo)
     """
-    valid_pattern = re.compile(r"^v[0-9\\-\\.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
+    valid_pattern = re.compile(r"^v[0-9-.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         p = subprocess.Popen(
@@ -269,8 +269,8 @@ def get_prerelease_version(version):
     Called when kolibri.VERSION is set to a non-final version:
 
     if version ==
-    \*, \*, \*, "alpha", 0: Maps to latest commit timestamp
-    \*, \*, \*, "alpha", >0: Uses latest git tag, asserting that there is such.
+    \\*, \\*, \\*, "alpha", 0: Maps to latest commit timestamp
+    \\*, \\*, \\*, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
 
     mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'rc'}
@@ -310,9 +310,9 @@ def get_prerelease_version(version):
 
         if git_version[3] == 'final' and version[3] != 'final':
             raise AssertionError(
-                "You have added a final tag without bumping kolibri.VERSION, " +
-                "OR you need to make a new alpha0 tag. Current tag: {}".format(git_version) +
-                "\n\n"
+                "You have added a final tag without bumping kolibri.VERSION, "
+                + "OR you need to make a new alpha0 tag. Current tag: {}".format(git_version)
+                + "\n\n"
                 "Often, this is because of missing tag information, try "
                 "running:\n"
                 "\n"
@@ -320,10 +320,10 @@ def get_prerelease_version(version):
             )
 
         return (
-            get_major_version(git_version) +
-            mapping[git_version[3]] +
-            str(git_version[4]) +
-            suffix
+            get_major_version(git_version)
+            + mapping[git_version[3]]
+            + str(git_version[4])
+            + suffix
         )
 
     # No git data, will look for a VERSION file

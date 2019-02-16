@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce';
+import pick from 'lodash/pick';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
@@ -14,13 +15,14 @@ import {
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
-import { now } from 'kolibri.utils.serverClock';
+import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
+import { baseSessionState } from '../session';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -99,19 +101,6 @@ function _contentSessionModel(store) {
     progress: sessionLog.progress,
     extra_fields: sessionLog.extra_fields,
     user: store.getters.session.user_id,
-  };
-}
-
-function _sessionState(data) {
-  return {
-    id: data.id,
-    username: data.username,
-    full_name: data.full_name,
-    user_id: data.user_id,
-    facility_id: data.facility_id,
-    kind: data.kind,
-    error: data.error,
-    can_manage_content: data.can_manage_content,
   };
 }
 
@@ -209,6 +198,13 @@ export function blockDoubleClicks(store) {
   }
 }
 
+export function setSession(store, sessionObj) {
+  const serverTime = sessionObj.server_time;
+  setServerTime(serverTime);
+  sessionObj = pick(sessionObj, Object.keys(baseSessionState));
+  store.commit('CORE_SET_SESSION', sessionObj);
+}
+
 /**
  * Signs in user.
  *
@@ -219,8 +215,8 @@ export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(session => {
-      store.commit('CORE_SET_SESSION', _sessionState(session));
+    .then(() => {
+      // Redirect on login
       redirectBrowser();
     })
     .catch(error => {
@@ -246,19 +242,12 @@ export function kolibriLogout() {
   redirectBrowser(urls['kolibri:core:logout']());
 }
 
-export function getCurrentSession(store, force = false) {
-  return SessionResource.fetchModel({
-    id: 'current',
-    force,
-  })
-    .then(session => {
-      logging.info('Session set.');
-      store.commit('CORE_SET_SESSION', _sessionState(session));
-      return session;
-    })
-    .catch(error => {
-      store.dispatch('handleApiError', error);
-    });
+const _setPageVisibility = debounce((store, visibility) => {
+  store.commit('CORE_SET_PAGE_VISIBILITY', visibility);
+}, 500);
+
+export function setPageVisibility(store) {
+  _setPageVisibility(store, document.visibilityState === 'visible');
 }
 
 export function getNotifications(store) {
@@ -542,7 +531,11 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
 
   /* Save models if needed */
   if (forceSave || completedContent || progressThresholdMet) {
-    saveLogs(store);
+    if (store.state.pageVisible) {
+      // Only update logs if page is currently visible, prevent background tabs
+      // from generating server load.
+      saveLogs(store);
+    }
   }
   return summaryProgress;
 }

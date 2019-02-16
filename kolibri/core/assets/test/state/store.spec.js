@@ -33,15 +33,15 @@ describe('Vuex store/actions for core module', () => {
 
   describe('kolibriLogin', () => {
     let store;
-    let assignStub;
+    let redirectStub;
 
     beforeEach(() => {
       store = makeStore();
-      assignStub = jest.spyOn(browser, 'redirectBrowser');
+      redirectStub = jest.spyOn(browser, 'redirectBrowser');
     });
 
     afterEach(() => {
-      assignStub.mockRestore();
+      redirectStub.mockRestore();
     });
 
     it('successful login', async () => {
@@ -57,20 +57,8 @@ describe('Vuex store/actions for core module', () => {
         }),
       });
 
-      const mockHref = jest.fn();
-
-      window.location = {
-        set href(val) {
-          mockHref(val);
-        },
-      };
-
       await store.dispatch('kolibriLogin', {});
-      const { session } = store.state.core;
-      expect(session.id).toEqual('123');
-      expect(session.username).toEqual('e_fermi');
-      expect(session.kind).toEqual(['cool-guy-user']);
-      expect(assignStub).toHaveBeenCalled();
+      expect(redirectStub).toHaveBeenCalled();
     });
 
     it('failed login (401)', async () => {

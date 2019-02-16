@@ -42,7 +42,9 @@ export default {
   },
   getters: {
     classListPageEnabled(state) {
-      return state.classList.length > 1;
+      // If the number of classes is exactly 1, then redirect to its home page,
+      // otherwise show the whole class list
+      return state.classList.length !== 1;
     },
   },
   actions: {

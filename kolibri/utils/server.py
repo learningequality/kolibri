@@ -107,12 +107,12 @@ def start(port=8080, run_cherrypy=True):
 def block():
     # Modified from:
     # https://github.com/cherrypy/cherrypy/blob/e5de08887ddb960b337e1f335c819c0b2873d850/cherrypy/process/wspbus.py#L326
+    unlock_after_vacuum()
     try:
         while True:
             time.sleep(100000)
     except Exception as e:
-        logger.error('Block interrupted!', e)
-        pass
+        logger.error('Block interrupted! %s' % e)
     # Waiting for ALL child threads to finish is necessary on OS X.
     # See https://github.com/cherrypy/cherrypy/issues/581.
     # It's also good to let them all shut down before allowing
@@ -197,6 +197,9 @@ def run_server(port):
         "environment": "production",
         "tools.gzip.on": True,
         "tools.gzip.mime_types": ["text/*", "application/javascript"],
+        "tools.caching.on": True,
+        "tools.caching.maxobj_size": 2000000,
+        "tools.caching.maxsize": 50000000,
     })
 
     serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
@@ -221,8 +224,19 @@ def run_server(port):
     server.subscribe()
 
     # Start the server engine (Option 1 *and* 2)
+    unlock_after_vacuum()  # don't start the server until vacuum finishes
     cherrypy.engine.start()
     cherrypy.engine.block()
+
+
+def unlock_after_vacuum():
+    while vacuum_db_lock.locked():
+        time.sleep(0.5)
+    if os.path.exists(STARTUP_LOCK):
+        try:
+            os.remove(STARTUP_LOCK)
+        except OSError:
+            pass  # lock file was deleted by other process
 
 
 def serve_static_dir(root, url):
@@ -285,24 +299,25 @@ def get_status():  # noqa: max-complexity=16
     :raises: NotRunning
     """
 
-    # There is no PID file (created by server daemon)
+    # Check if the system is still starting (clear sessions and vacuum not finished yet):
+    if os.path.isfile(STARTUP_LOCK):
+        try:
+            pid, port = _read_pid_file(STARTUP_LOCK)
+            # Does the PID in there still exist?
+            if pid_exists(pid):
+                raise NotRunning(STATUS_STARTING_UP)
+            # It's dead so assuming the startup went badly
+            else:
+                raise NotRunning(STATUS_FAILED_TO_START)
+        # Couldn't parse to int or empty PID file
+        except (TypeError, ValueError):
+            raise NotRunning(STATUS_STOPPED)
+
     if not os.path.isfile(PID_FILE):
-        # Is there a startup lock?
-        if os.path.isfile(STARTUP_LOCK):
-            try:
-                pid, port = _read_pid_file(STARTUP_LOCK)
-                # Does the PID in there still exist?
-                if pid_exists(pid):
-                    raise NotRunning(STATUS_STARTING_UP)
-                # It's dead so assuming the startup went badly
-                else:
-                    raise NotRunning(STATUS_FAILED_TO_START)
-            # Couldn't parse to int or empty PID file
-            except (TypeError, ValueError):
-                raise NotRunning(STATUS_STOPPED)
+        # There is no PID file (created by server daemon)
         raise NotRunning(STATUS_STOPPED)  # Stopped
 
-    # PID file exists, check if it is running
+    # PID file exists and startup has finished, check if it is running
     try:
         pid, port = _read_pid_file(PID_FILE)
     except (ValueError, OSError):
@@ -345,7 +360,7 @@ def get_status():  # noqa: max-complexity=16
 
     else:
         try:
-            response = requests.get(check_url, timeout=3)
+            requests.get(check_url, timeout=3)
         except (requests.exceptions.RequestException):
             return pid, '', ''
 

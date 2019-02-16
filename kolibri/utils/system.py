@@ -153,7 +153,7 @@ def get_free_space(path=KOLIBRI_HOME):
         if check == 0:
             raise ctypes.winError()
         result = free.value
-    if 'ANDROID_ARGUMENT' in os.environ:
+    elif 'ANDROID_ARGUMENT' in os.environ:
         # This is meant for android, which needs to interact with android API to understand free
         # space. If we're somehow getting here on non-android, we've got a problem.
         try:

@@ -8,7 +8,6 @@
     :appBarTitle="coachStrings.$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
     :pageTitle="pageTitle"
   >
 
@@ -277,6 +276,9 @@
       }),
       showResourcesDifferenceMessage(difference) {
         let text;
+        if (difference === 0) {
+          return;
+        }
         if (difference > 0) {
           text = this.$tr('resourcesAddedSnackbarText', { count: difference });
         } else {

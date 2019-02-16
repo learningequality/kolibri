@@ -3,6 +3,7 @@ require('array-includes').shim();
 // polyfill for older browsers
 // TODO: rtibbles whittle down these polyfills to only what is needed for the application
 require('core-js');
+require('url-polyfill');
 
 // Do this before any async imports to ensure that public paths
 // are set correctly
@@ -12,6 +13,7 @@ require('purecss/build/base-min.css');
 require('../styles/main.scss');
 require('../styles/globalDynamicStyles');
 require('./vuexModality');
+require('./monitorPageVisibility');
 
 // Required to setup Keen UI, should be imported only once in your project
 require('keen-ui/src/bootstrap');

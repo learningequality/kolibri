@@ -4,6 +4,7 @@ import os
 from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
@@ -71,8 +72,13 @@ class Command(AsyncCommand):
 
                 filename = f.get_filename()
 
-                srcpath = paths.get_content_storage_file_path(filename)
-                dest = paths.get_content_storage_file_path(filename, datafolder=data_dir)
+                try:
+                    srcpath = paths.get_content_storage_file_path(filename)
+                    dest = paths.get_content_storage_file_path(filename, datafolder=data_dir)
+                except InvalidStorageFilenameError:
+                    # If any files have an invalid storage file name, don't export them.
+                    overall_progress_update(f.file_size)
+                    continue
 
                 # if the file already exists, add its size to our overall progress, and skip
                 if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:

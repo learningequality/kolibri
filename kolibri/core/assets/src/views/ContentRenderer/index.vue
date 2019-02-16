@@ -198,31 +198,31 @@
       },
       answerGiven(...args) {
         this.$emit('answerGiven', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       hintTaken(...args) {
         this.$emit('hintTaken', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       itemError(...args) {
         this.$emit('itemError', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       interaction(...args) {
         this.$emit('interaction', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       updateContentState(...args) {
         this.$emit('updateContentState', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
@@ -237,7 +237,7 @@
         } else if (!this.$refs.contentView.checkAnswer) {
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
-        heartbeat.setActive();
+        heartbeat.setUserActive();
         return null;
       },
     },

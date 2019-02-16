@@ -11,7 +11,7 @@
 
     <KPageContainer>
       <ReportsHeader />
-      <CoreTable>
+      <CoreTable :emptyMessage="coachStrings.$tr('groupListEmptyState')">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('groupNameLabel') }}</th>

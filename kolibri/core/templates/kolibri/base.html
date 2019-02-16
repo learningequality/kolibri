@@ -24,7 +24,6 @@
   {% endif %}
 </head>
 <body>
-{% csrf_token %}
 {% if supported_browser %}
 <rootvue>
   {% include "kolibri/loading_snippet.html" %}
@@ -35,10 +34,7 @@
 {% kolibri_content_cache_key %}
 {% kolibri_set_urls %}
 {% webpack_asset 'default_frontend' %}
-{% kolibri_set_server_time %}
 {% kolibri_navigation_actions %}
-<!-- Bootstrapping the currently logged in user's session object into the page. -->
-{% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}
 {% content_renderer_assets %}

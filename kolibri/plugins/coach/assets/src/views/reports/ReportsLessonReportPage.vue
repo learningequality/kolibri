@@ -13,7 +13,7 @@
 
       <ReportsLessonHeader />
 
-      <CoreTable>
+      <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
             <th>{{ coachStrings.$tr('titleLabel') }}</th>
@@ -64,8 +64,12 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import LessonSummaryPage from '../plan/LessonSummaryPage';
   import ReportsLessonHeader from './ReportsLessonHeader';
+
+  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLessonReportPage',
@@ -74,6 +78,9 @@
     },
     mixins: [commonCoach],
     computed: {
+      emptyMessage() {
+        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+      },
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },

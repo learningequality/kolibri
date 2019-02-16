@@ -223,7 +223,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
     // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
     // Create a path without ~ because this is used for node_module or alias import resolution in SCSS/CSS
     if (sourcePath.startsWith('/') || sourcePath.startsWith('.')) {
-      source = path.join(sourceFolder, sourcePath);
+      const source = path.join(sourceFolder, sourcePath);
       // Find the actual source file name, as many path references do not have an extension.
       const sourceFile = resolve.sync(source, {
         extensions: ['.js', '.json', '.vue', '.scss', '.css'],

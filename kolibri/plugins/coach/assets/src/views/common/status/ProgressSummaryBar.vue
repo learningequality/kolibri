@@ -1,12 +1,8 @@
 <template>
 
   <div class="bar-wrapper">
+    <div class="bar help" :style="helpLineStyle"></div>
     <div class="bar" :style="barStyleStarted"></div>
-    <div
-      v-if="showErrorBar"
-      class="help-line"
-      :style="helpLineStyle"
-    ></div>
     <div class="bar" :style="barStyleCompleted"></div>
   </div>
 
@@ -21,12 +17,6 @@
   export default {
     name: 'ProgressSummaryBar',
     mixins: [tallyMixin, themeMixin],
-    props: {
-      showErrorBar: {
-        type: Boolean,
-        default: false,
-      },
-    },
     computed: {
       barStyleCompleted() {
         return {
@@ -46,7 +36,7 @@
         // add on 'completed' for offset
         const widthRatio = this.helpNeeded / this.total;
         return {
-          marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
+          marginLeft: `${Math.ceil((100 * (this.completed + this.started)) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
           backgroundColor: this.$coreStatusWrong,
         };
@@ -74,18 +64,12 @@
     position: absolute;
     height: 100%;
     margin-right: auto;
-    opacity: 0.55;
+    opacity: 0.75;
     transition: all $core-time ease;
   }
 
-  .help-line {
-    position: absolute;
-    bottom: 0;
-    width: 45%;
-    height: 2px;
-    margin-right: auto;
-    background-color: red;
-    transition: all $core-time ease;
+  .help {
+    opacity: 0.85;
   }
 
 </style>

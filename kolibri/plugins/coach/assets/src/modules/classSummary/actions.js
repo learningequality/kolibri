@@ -45,7 +45,11 @@ export function updateWithNotifications(store, notifications) {
     }
 
     if (object === QUIZ) {
-      examLearnerStatusMapUpdates.push({ ...update, exam_id: notification.quiz_id });
+      examLearnerStatusMapUpdates.push({
+        ...update,
+        num_correct: notification.quiz_num_correct,
+        exam_id: notification.quiz_id,
+      });
     }
   }
 

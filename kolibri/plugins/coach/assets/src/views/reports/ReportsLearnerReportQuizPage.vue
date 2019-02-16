@@ -30,7 +30,8 @@
     computed: {
       ...mapState('examReportDetail', ['exam']),
       toolbarRoute() {
-        return this.classRoute('ReportsLearnerReportPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsLearnerReportPage', {});
       },
     },
     $trs: {},

@@ -6,7 +6,7 @@
       class="icon"
       tabIndex="-1"
       aria-hidden="true"
-      @click="$emit('navIconClick')"
+      @click="go"
     >
       <mat-svg
         v-if="!isRtl"
@@ -48,6 +48,11 @@
       to: {
         type: Object,
         required: true,
+      },
+    },
+    methods: {
+      go() {
+        this.$router.push(this.to);
       },
     },
   };

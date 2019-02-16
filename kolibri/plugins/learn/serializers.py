@@ -40,12 +40,14 @@ class ExamProgressSerializer(ModelSerializer):
                 'score': examlogs.attemptlogs.aggregate(Sum('correct')).get('correct__sum'),
                 'answer_count': examlogs.attemptlogs.count(),
                 'closed': examlogs.closed,
+                'started': True,
             }
         except ExamLog.DoesNotExist:
             return {
                 'score': None,
                 'answer_count': None,
                 'closed': None,
+                'started': False,
             }
 
 
