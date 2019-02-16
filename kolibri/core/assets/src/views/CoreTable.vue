@@ -126,6 +126,7 @@
     width: 40px;
     .k-checkbox-container {
       margin: 0 0 0 2px;
+      line-height: 1em;
     }
   }
 
