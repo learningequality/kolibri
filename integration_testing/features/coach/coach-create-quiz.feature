@@ -158,7 +158,7 @@ Feature: Coach creates quizzes
       And I see its description
       And I see whether it is a coach exercise or not
 
-  Scenario: Views metadata on topic cards in search results
+  Scenario: View metadata on topic cards in search results
     Given I am on the search results page
       And there are topics in the search results
     When I see a topic card

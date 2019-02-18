@@ -1,4 +1,4 @@
-Feature: General navigation
+Feature: General navigation on the *Reports* tab
 
   Background: 
     Given I am signed in as a facility or class coach
