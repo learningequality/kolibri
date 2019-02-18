@@ -17,7 +17,7 @@ Feature: Assign and remove learners to groups
     When I click the *Confirm* button
     Then the modal closes
       And I see the <group> group page again
-      And I see the selected learner(s) listed under *Learners*
+      And I see the list of enrolled learner(s)
       And I see the number of learners is increased
 
   Scenario: Remove learners
@@ -29,5 +29,5 @@ Feature: Assign and remove learners to groups
     When I click the *Remove* button
     Then the modal closes
       And I see the <group> group page again
-      And I see the selected learner(s) is not listed under *Learners*
+      And I see the name of removed learner(s) is not listed
       And I see the number of learners is decreased

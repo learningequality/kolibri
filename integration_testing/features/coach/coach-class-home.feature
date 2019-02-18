@@ -3,6 +3,7 @@ Feature: General navigation on *Class home* tab
 
   Background:
     Given I am signed in as a class or facility coach
+      And there is more than one class in the facility
       And I am on *Class home* for class <class>
       And there are learners and coaches assigned to the class <class>
 
