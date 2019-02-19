@@ -160,12 +160,6 @@
     padding: 16px;
   }
 
-  .description {
-    // HACK to get long descriptions to fit in the card
-    height: $thumb-height * 0.5;
-    overflow-y: scroll;
-  }
-
   .title,
   .description {
     margin: 0;
@@ -189,6 +183,9 @@
   }
 
   .description {
+    // HACK to get long descriptions to fit in the card
+    height: $thumb-height * 0.5;
+    overflow-y: scroll;
     font-size: 14px;
   }
 
