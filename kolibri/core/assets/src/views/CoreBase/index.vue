@@ -409,7 +409,6 @@
     left: 0;
     overflow-x: auto;
     overflow-y: scroll; // has to be scroll, not auto
-    -webkit-overflow-scrolling: touch; // iOS momentum scrolling
   }
 
   .click-mask {
