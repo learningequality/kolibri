@@ -221,6 +221,8 @@
 <style lang="scss" scoped>
 
   .select-all {
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
     white-space: nowrap;
     .k-checkbox-container {
       margin-right: -70px;
