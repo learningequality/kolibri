@@ -12,11 +12,8 @@
       />
     </div>
 
-    <p v-if="interactions.length">
-      {{ $tr('currAnswer', {value: selectedInteractionIndex + 1 }) }}
-    </p>
-    <p v-else>
-      {{ $tr('noInteractions') }}
+    <p>
+      {{ interactionsMessage }}
     </p>
 
   </div>
@@ -45,6 +42,18 @@
       selectedInteractionIndex: {
         type: Number,
         required: true,
+      },
+    },
+    computed: {
+      interactionsMessage() {
+        const numAttempts = this.interactions.length;
+        if (numAttempts === 0) {
+          return this.$tr('noInteractions');
+        }
+        if (numAttempts > 1) {
+          return this.$tr('currAnswer', { value: this.selectedInteractionIndex + 1 });
+        }
+        return '';
       },
     },
     methods: {
