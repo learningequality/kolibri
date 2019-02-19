@@ -41,7 +41,7 @@
         <KRouterLink
           v-if="!isTopic"
           :text="$tr('previewButtonLabel')"
-          :to="{}"
+          :to="link"
         />
       </p>
     </div>
