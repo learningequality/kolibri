@@ -1,15 +1,15 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 RUN apt-get -y update
 
 # Install wine and related packages
 RUN dpkg --add-architecture i386
-RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates sudo software-properties-common
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates sudo software-properties-common git-lfs
 
-RUN add-apt-repository ppa:ubuntu-wine/ppa && apt-get update
+RUN git lfs install
+
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
-RUN apt-get install -y ttf-mscorefonts-installer
-RUN apt-get install -y wine1.8
+RUN apt-get install -y ttf-mscorefonts-installer wine-stable
 
 COPY ./ /kolibri
 
