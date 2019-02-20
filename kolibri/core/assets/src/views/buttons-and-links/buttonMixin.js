@@ -61,7 +61,8 @@ export default {
         },
         ':focus': this.$coreOutline,
         ':disabled': {
-          color: `rgba(${this.$coreActionNormal}, 0.5)`,
+          color: this.$coreActionNormal,
+          opacity: 0.5,
         },
       };
     },
@@ -76,7 +77,8 @@ export default {
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
-            backgroundColor: `rgba(${this.$coreActionNormal}, 0.75)`,
+            backgroundColor: this.$coreActionNormal,
+            opacity: 0.5,
             svg: {
               fill: $primaryRaisedDisabledColor,
             },
@@ -97,9 +99,10 @@ export default {
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
-            color: `rgba(${this.$coreActionNormal}, 0.5)`,
+            color: this.$coreActionNormal,
+            opacity: 0.5,
             svg: {
-              fill: `rgba(${this.$coreActionNormal}, 0.5)`,
+              fill: this.$coreActionNormal,
             },
           },
           disabledStyle
@@ -119,10 +122,11 @@ export default {
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
-            color: `rgba(${this.$coreTextDefault}, 0.25)`,
-            backgroundColor: `rgba(${this.$coreTextDefault}, 0.1)`,
+            color: this.$coreTextDefault,
+            opacity: 0.25,
+            backgroundColor: this.$coreTextDefault,
             svg: {
-              fill: `rgba(${this.$coreTextDefault}, 0.25)`,
+              fill: this.$coreTextDefault,
             },
           },
           disabledStyle
@@ -141,7 +145,8 @@ export default {
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': Object.assign(
           {
-            color: `rgba(${this.$coreTextDefault}, 0.25)`,
+            color: this.$coreTextDefault,
+            opacity: 0.25,
             svg: {
               fill: this.$coreTextDefault,
             },
