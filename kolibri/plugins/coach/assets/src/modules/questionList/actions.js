@@ -3,9 +3,11 @@ import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
 
-export function setItemStats(store, { exerciseId, quizId, classId, groupId }) {
+export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let resource = ExerciseDifficulties;
-  const getParams = {};
+  const getParams = {
+    classroom_id: classId,
+  };
   const promises = [];
   const pk = exerciseId || quizId;
   if (quizId) {
@@ -22,7 +24,12 @@ export function setItemStats(store, { exerciseId, quizId, classId, groupId }) {
       })
     );
   }
-  getParams.collection_id = groupId || classId;
+  if (lessonId) {
+    getParams.lesson_id = lessonId;
+  }
+  if (groupId) {
+    getParams.group_id = groupId;
+  }
 
   promises.push(resource.fetchDetailCollection('detail', pk, getParams, true));
   return Promise.all(promises).then(([item, stats]) => {
