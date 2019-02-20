@@ -3,36 +3,19 @@ set -e
 
 . /usr/share/debconf/confmodule
 
-do_remove_port()
-{
-	grep -v "[Deployment]" $DAEMON_HOME/options.ini > $DAEMON_HOME/options.ini.1 || true
-  grep -v "HTTP_PORT" $DAEMON_HOME/options.ini.1 > $DAEMON_HOME/options.ini || true
-}
-
 case "$1" in
   configure)
-    # get KOLIBRI_HOME from kolibri installer package:
+    # get KOLIBRI_USER from kolibri installer package:
     . /etc/default/kolibri
     KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
     DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
-    echo "
-location /static {
-    alias  $DAEMON_HOME/static;
-}
- location /content {
-    alias   $DAEMON_HOME/content/;
-}
-"> $DAEMON_HOME/nginx.conf
-    do_remove_port
 
+    # to avoid problems with previous installations of kolibri-server beta versions:
+    rm -f /etc/kolibri/nginx.d/port.conf
+
+    # create nginx configurations:
     echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
-
-    db_get kolibri-server/port
-    echo "listen $RET;" > /etc/kolibri/nginx.d/port.conf
-    # This is damn ugly, but it's going to be only for kolibri <0.12:
-	  echo "[Deployment]
-HTTP_PORT=9989
-" >> $DAEMON_HOME/options.ini
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -r true"
 
     service kolibri stop || true
     service nginx reload || true

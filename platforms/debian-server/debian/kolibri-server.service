@@ -3,9 +3,9 @@
 
 [Unit]
 Description=A high performance web server setup for Kolibri
-After=kolibri.service
+After=kolibri.service nginx.service
 Wants=network-online.target
-Requires=kolibri.service
+Requires=kolibri.service nginx.service
 
 [Service]
 Type=forking
