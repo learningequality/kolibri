@@ -16,8 +16,8 @@
               @change="selectAll($event)"
             />
           </th>
-          <!-- "Full name" header is empty -->
-          <th></th>
+          <!-- "Full name" header is empty if checkbox is on -->
+          <th v-else> {{ $tr('fullName') }}</th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('role') }}
