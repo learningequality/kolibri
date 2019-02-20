@@ -9,7 +9,7 @@
     :disabled="disabled"
     tabindex="0"
     @click="handleClick"
-    @keyup.enter.stop.prevent="handlePress"
+    @keyup.enter.stop.prevent="handelPressEnter"
   >
     <slot v-if="$slots.default"></slot>
     <template v-else>{{ text }}</template>
@@ -83,12 +83,22 @@
         /**
          * Emitted when the button is triggered
          */
+        this.blurWhenClicked();
         this.$emit('click', event);
       },
-      handlePress(event) {
+      handelPressEnter(event) {
+        this.blurWhenClicked();
         // HACK: for 'a' tags, the 'click' event is not getting fired
         if (this.htmlTag === 'a') {
           this.$emit('click', event);
+        }
+      },
+      // To prevent the <a> from maintaining focus when link does not
+      // destroy parent component (e.g. opens a modal), we need to blur it,
+      // because it will be "clicked" again when the user hits the Enter key.
+      blurWhenClicked() {
+        if (this.htmlTag === 'a') {
+          this.$el.blur();
         }
       },
     },
