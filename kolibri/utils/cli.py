@@ -617,7 +617,8 @@ def main(args=None):  # noqa: max-complexity=13
 
     if arguments['start']:
         port = _get_port(arguments['--port'])
-        check_other_kolibri_running(port)
+        if OPTIONS["Server"]["CHERRYPY_START"]:
+            check_other_kolibri_running(port)
 
     try:
         initialize(debug=debug)
