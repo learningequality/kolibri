@@ -2,6 +2,7 @@
 
   <form
     class="box"
+    :class="searchClasses"
     @submit.prevent="search"
     @keydown.esc.prevent="clearSearchTerm"
   >
@@ -84,6 +85,11 @@
       };
     },
     computed: {
+      searchClasses() {
+        return this.$computedClass({
+          borderColor: this.$coreTextAnnotation,
+        });
+      },
       searchTermHasChanged() {
         return this.searchTerm !== this.$route.params.searchTerm;
       },
@@ -115,6 +121,8 @@
 
   .box {
     margin-right: 8px;
+    border-style: solid;
+    border-width: 1px;
   }
 
   .box-within-action-bar {

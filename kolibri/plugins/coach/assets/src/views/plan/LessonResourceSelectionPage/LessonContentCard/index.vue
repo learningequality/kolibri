@@ -41,7 +41,7 @@
         <KRouterLink
           v-if="!isTopic"
           :text="$tr('previewButtonLabel')"
-          :to="{}"
+          :to="link"
         />
       </p>
     </div>
@@ -183,6 +183,9 @@
   }
 
   .description {
+    // HACK to get long descriptions to fit in the card
+    height: $thumb-height * 0.5;
+    overflow-y: scroll;
     font-size: 14px;
   }
 

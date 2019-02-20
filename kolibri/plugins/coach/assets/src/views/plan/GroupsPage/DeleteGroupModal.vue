@@ -8,7 +8,6 @@
     @cancel="close"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
-    <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
   </KModal>
 
 </template>
@@ -24,7 +23,6 @@
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      learnersWillBecomeUngrouped: "Learners within this group will become 'Ungrouped'.",
       cancel: 'Cancel',
       deleteGroup: 'Delete',
     },

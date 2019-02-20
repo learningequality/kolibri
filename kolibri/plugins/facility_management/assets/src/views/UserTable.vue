@@ -5,15 +5,24 @@
 
       <thead slot="thead">
         <tr>
-          <th v-if="selectable" class="core-table-checkbox-col">
+          <th
+            v-if="selectable"
+            class="core-table-checkbox-col select-all"
+          >
             <KCheckbox
               :label="selectAllLabel"
-              :showLabel="false"
+              :showLabel="true"
               :checked="allAreSelected"
+              class="overflow-label"
               @change="selectAll($event)"
             />
           </th>
-          <th>{{ $tr('fullName') }}</th>
+          <th>
+            <!-- "Full name" header visually hidden if checkbox is on -->
+            <span :class="{visuallyhidden: selectable}">
+              {{ $tr('fullName') }}
+            </span>
+          </th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('role') }}
@@ -186,6 +195,22 @@
 
 <style lang="scss" scoped>
 
+  .select-all {
+    position: relative;
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
+
+    // white-space: nowrap;
+    .k-checkbox-container {
+      margin-right: -70px;
+    }
+
+    .k-checkbox-label {
+      // Add extra padding to align label with table headers
+      padding-top: 4px;
+    }
+  }
+
   .empty-message {
     margin-bottom: 16px;
   }
@@ -214,6 +239,12 @@
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .overflow-label {
+    position: absolute;
+    top: 8px;
+    white-space: nowrap;
   }
 
 </style>
