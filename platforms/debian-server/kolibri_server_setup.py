@@ -158,13 +158,21 @@ if __name__ == '__main__':
         default=False,
         help="Used to configure the system when installing/reconfiguring kolibri-server package",
     )
+    parser.add_argument(
+        "-p",
+        "--debconfport",
+        required=False,
+        default="",
+        help="Initial port to be used when installing/reconfiguring kolibri-server package",
+    )
     args = parser.parse_args()
     if args.reconfigure:  # To be executed only when installing/reconfiguring the Debian package
-        debconf_port = get_debconf_port()
+        debconf_port = args.debconfport if args.debconfport else get_debconf_port()
         disable_cherrypy()
         set_port(debconf_port)
     else:
         disable_cherrypy()
         save_nginx_conf_include(STATIC_ROOT)
         save_nginx_conf_port(port)
+        # Let's update debconf, just in case the user has changed the port in options.ini:
         set_debconf_port(port)

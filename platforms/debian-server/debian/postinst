@@ -5,6 +5,8 @@ set -e
 
 case "$1" in
   configure)
+    service kolibri stop || true
+
     # get KOLIBRI_USER from kolibri installer package:
     . /etc/default/kolibri
     KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
@@ -14,10 +16,9 @@ case "$1" in
     rm -f /etc/kolibri/nginx.d/port.conf
 
     # create nginx configurations:
+    db_get kolibri-server/port
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -r true -p $RET"
     echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -r true"
-
-    service kolibri stop || true
     service nginx reload || true
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
