@@ -8,7 +8,7 @@
     @cancel="closeModal"
   >
     <p>{{ modalDescription }}</p>
-    <p>{{ modalConfirmation }}</p>
+    <p v-if="modalConfirmation">{{ modalConfirmation }}</p>
   </KModal>
 
 </template>
