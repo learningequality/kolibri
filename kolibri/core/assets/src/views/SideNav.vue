@@ -201,9 +201,6 @@
       },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;
-        // HACK to fix https://github.com/learningequality/kolibri/issues/4973.
-        // For some reason, the button maintains focus even when the modal is opened.
-        this.$refs.privacyLink.$el.blur();
       },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:
