@@ -23,8 +23,6 @@ export function setLearners(store, params) {
       force: !learnerId,
     })
     .then(attemptLogs => {
-      attemptLogs = attemptLogs.filter(attemptLog => !attemptLog.correct);
-
       let learners;
       // Add learner information to each attemptLog to turn this into
       // a list of learners with attempt information intermixed.
@@ -61,6 +59,8 @@ export function setLearners(store, params) {
           };
         });
       }
+
+      learners = learners.filter(learner => !learner.correct);
 
       // Re-set the learner data.
       store.commit('SET_LEARNERS', learners);
