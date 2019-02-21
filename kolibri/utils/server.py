@@ -405,22 +405,44 @@ def installation_type(cmd_line=None):  # noqa:C901
     if cmd_line is None:
         cmd_line = sys.argv
     install_type = 'Unknown'
-    if len(cmd_line) > 1:
+
+    def is_debian_package():
+        # find out if this is from the debian package
+        install_type = 'dpkg'
+        try:
+            check_output(['apt-cache', 'show', 'kolibri'])
+            apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+            if apt_repo:
+                install_type = 'apt'
+        except CalledProcessError:  # kolibri package not installed!
+            install_type = 'whl'
+        return install_type
+
+    def is_kolibri_server():
+        # running under uwsgi, finding out if we are using kolibri-server
+        install_type = ''
+        try:
+            package_info = check_output(['apt-cache', 'show', 'kolibri-server']).decode('utf-8').split('\n')
+            version = [output for output in package_info if 'Version' in output]
+            install_type = 'kolibri-server {}'.format(version[0])
+        except CalledProcessError:  # kolibri-server package not installed!
+            install_type = 'uwsgi'
+        return install_type
+
+    if len(cmd_line) > 1 or 'uwsgi' in cmd_line:
         launcher = cmd_line[0]
         if launcher.endswith('.pex'):
             install_type = 'pex'
         elif 'runserver' in cmd_line:
             install_type = 'devserver'
         elif launcher == '/usr/bin/kolibri':
-            # find out if this is from the debian package
-            install_type = 'dpkg'
-            try:
-                check_output(['apt-cache', 'show', 'kolibri'])
-                apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
-                if apt_repo:
-                    install_type = 'apt'
-            except CalledProcessError:  # kolibri package not installed!
-                install_type = 'whl'
+            install_type = is_debian_package()
+        elif launcher == 'uwsgi':
+            package = is_debian_package()
+            if package != 'whl':
+                kolibri_server = is_kolibri_server()
+                install_type = 'kolibri({kolibri_type}) with {kolibri_server}'.format(kolibri_type=package,
+                                                                                      kolibri_server=kolibri_server)
         elif '\\Scripts\\kolibri' in launcher:
             paths = sys.path
             for path in paths:
