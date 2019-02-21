@@ -47,10 +47,11 @@
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration
-              v-if="tableRow.statusObj.status !== STATUSES.notStarted"
-              :seconds="tableRow.statusObj.time_spent"
-            /></td>
+            <td>
+              <TimeDuration
+                :seconds="showTimeDuration(tableRow)"
+              />
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -63,7 +64,6 @@
 <script>
 
   import commonCoach from '../common';
-  import { STATUSES } from '../../modules/classSummary/constants';
   import { PageNames } from './../../constants';
 
   export default {
@@ -97,8 +97,14 @@
       showLink(tableRow) {
         return (
           tableRow.kind === this.ContentNodeKinds.EXERCISE &&
-          tableRow.statusObj.status !== STATUSES.notStarted
+          tableRow.statusObj.status !== this.STATUSES.notStarted
         );
+      },
+      showTimeDuration(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.time_spent;
+        }
+        return undefined;
       },
     },
     $trs: {

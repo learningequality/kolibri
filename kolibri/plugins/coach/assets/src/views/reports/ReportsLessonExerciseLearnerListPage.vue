@@ -36,7 +36,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                v-if="showComponent(tableRow.statusObj.status)"
+                v-if="showLink(tableRow)"
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
@@ -47,8 +47,7 @@
             </td>
             <td>
               <TimeDuration
-                v-if="showComponent(tableRow.statusObj.status)"
-                :seconds="tableRow.statusObj.time_spent"
+                :seconds="showTimeDuration(tableRow)"
               />
             </td>
             <td>
@@ -56,8 +55,7 @@
             </td>
             <td>
               <ElapsedTime
-                v-if="showComponent(tableRow.statusObj.status)"
-                :date="tableRow.statusObj.last_activity"
+                :date="showElapsedTime(tableRow)"
               />
             </td>
           </tr>
@@ -73,8 +71,6 @@
 
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
-  import { STATUSES } from '../../modules/classSummary/constants';
-
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
 
   export default {
@@ -114,8 +110,20 @@
       link(learnerId) {
         return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, { learnerId });
       },
-      showComponent(status) {
-        return status !== STATUSES.notStarted;
+      showLink(tableRow) {
+        return tableRow.statusObj.status !== this.STATUSES.notStarted;
+      },
+      showTimeDuration(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.time_spent;
+        }
+        return undefined;
+      },
+      showElapsedTime(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.last_activity;
+        }
+        return undefined;
       },
     },
   };
