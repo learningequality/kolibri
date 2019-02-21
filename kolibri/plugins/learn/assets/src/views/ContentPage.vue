@@ -31,6 +31,7 @@
     <AssessmentWrapper
       v-else
       :id="content.id"
+      ref="assessmentWrapper"
       class="content-renderer"
       :kind="content.kind"
       :files="content.files"
@@ -49,6 +50,12 @@
       @updateProgress="updateExerciseProgress"
       @updateContentState="updateContentState"
     />
+
+    <div v-if="content.assessment" class="panic">
+      <button @click="panic">
+        😩
+      </button>
+    </div>
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- eslint-disable-next-line vue/no-v-html -->
@@ -131,6 +138,7 @@
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
+  import { httpClient } from 'kolibri.client';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
@@ -254,6 +262,7 @@
         stopTracking: 'stopTrackingProgress',
         updateContentNodeState: 'updateContentState',
       }),
+      ...mapActions(['createSnackbar']),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
@@ -285,6 +294,24 @@
           params: { id },
         };
       },
+      panic() {
+        const values = {
+          channel_id: this.channelId,
+          content_id: this.contentId,
+          node_id: this.content.id,
+          question_id: this.$refs.assessmentWrapper.itemId,
+        };
+        httpClient({
+          path: '/api/logger/panic/',
+          method: 'POST',
+          entity: values,
+        }).then(() => {
+          this.createSnackbar({
+            text: 'ok, sorry',
+            autoDismiss: true,
+          });
+        });
+      },
     },
   };
 
@@ -307,6 +334,25 @@
 
   .download-button {
     display: block;
+  }
+
+  .panic {
+    height: 250px;
+    text-align: center;
+    button {
+      padding: 48px;
+      font-size: 68px;
+      font-weight: bold;
+      text-shadow: 0 7px 9px rgba(0, 0, 0, 0.2), 0 14px 21px rgba(0, 0, 0, 0.14),
+        0 5px 26px rgba(0, 0, 0, 0.12);
+      transition: all 0.1s ease;
+
+      &:hover {
+        font-size: 128px;
+        text-shadow: 0 11px 15px rgba(0, 0, 0, 0.2), 0 24px 38px rgba(0, 0, 0, 0.14),
+          0 9px 46px rgba(0, 0, 0, 0.12);
+      }
+    }
   }
 
 </style>
