@@ -1,8 +1,10 @@
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
+import { crossComponentTranslator } from 'kolibri.utils.i18n';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
+import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let resource = ExerciseDifficulties;
@@ -45,19 +47,35 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
+        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+          name: source.title,
+          number: source.counterInExercise,
+        });
         return {
           ...stat,
           ...source,
+          title,
         };
       });
     } else {
       item.assessmentmetadata = assessmentMetaDataState(item);
       store.commit('SET_STATE', { exercise: item });
-      stats = stats.map(stat => ({
-        ...stat,
-        exercise_id: exerciseId,
-        question_id: stat.item,
-      }));
+      stats = stats.map(stat => {
+        const questionNumber = Math.max(
+          1,
+          item.assessmentmetadata.assessmentIds.indexOf(stat.item)
+        );
+        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+          name: item.title,
+          number: questionNumber,
+        });
+        return {
+          ...stat,
+          exercise_id: exerciseId,
+          question_id: stat.item,
+          title,
+        };
+      });
     }
 
     // Set the ItemStat data
