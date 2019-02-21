@@ -39,26 +39,6 @@ def stop_debconf_dialog(dccomm):
     dccomm.stdin.flush()
 
 
-def get_debconf_port():
-    """
-    Reads from debconf database the TCP port that has been chosen
-    while installing the kolibri-server package to run the webserver
-    """
-    dccomm = start_debconf_dialog()
-
-    dccomm.stdin.write("GET kolibri-server/port\n")
-    dccomm.stdin.flush()
-    resp = dccomm.stdout.readline().rstrip('\n')
-    if ' ' in resp:
-        status, port = resp.split(' ', 1)
-    else:
-        status, port = resp, ''
-    if status != '0':
-        raise Exception(resp)
-    stop_debconf_dialog(dccomm)
-    return port
-
-
 def set_debconf_port(port):
     """
     Sets the port kolibri uses in debconf database, to be used by future
@@ -151,25 +131,16 @@ def save_nginx_conf_include(static_root, nginx_conf=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Tool to configure kolibri-server")
     parser.add_argument(
-        "-r",
-        "--reconfigure",
-        type=bool,
-        required=False,
-        default=False,
-        help="Used to configure the system when installing/reconfiguring kolibri-server package",
-    )
-    parser.add_argument(
-        "-p",
+        "-d",
         "--debconfport",
         required=False,
         default="",
         help="Initial port to be used when installing/reconfiguring kolibri-server package",
     )
     args = parser.parse_args()
-    if args.reconfigure:  # To be executed only when installing/reconfiguring the Debian package
-        debconf_port = args.debconfport if args.debconfport else get_debconf_port()
+    if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
         disable_cherrypy()
-        set_port(debconf_port)
+        set_port(args.debconfport)
     else:
         disable_cherrypy()
         save_nginx_conf_include(STATIC_ROOT)

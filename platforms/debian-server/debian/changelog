@@ -1,4 +1,4 @@
-kolibri-server (0.2-1) unstable; urgency=low
+kolibri-server (0.2-0beta1) unstable; urgency=low
 
   * Adapted to work with kolibri > 0.12
   * kolibri_server_setup.py added

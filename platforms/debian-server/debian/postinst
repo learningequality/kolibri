@@ -17,7 +17,7 @@ case "$1" in
 
     # create nginx configurations:
     db_get kolibri-server/port
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -r true -p $RET"
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $RET"
     echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
     service nginx reload || true
     ;;
