@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.http import HttpResponse
 from rest_framework import routers
+
 import csv
 import time
 import os
@@ -14,8 +15,8 @@ from .api import ExamLogViewSet
 from .api import MasteryLogViewSet
 from .api import TotalContentProgressViewSet
 from .api import UserSessionLogViewSet
-from .csv import download_csv_file
-from .csv import exported_logs_info
+from .k_csv import download_csv_file
+from .k_csv import exported_logs_info
 router = routers.SimpleRouter()
 
 router.register(r'contentsessionlog', ContentSessionLogViewSet, base_name='contentsessionlog')

@@ -4,8 +4,8 @@ import sys
 
 from rest_framework import serializers
 
-from kolibri.core.logger.csv import ContentSessionLogCSVExportViewSet
-from kolibri.core.logger.csv import ContentSummaryLogCSVExportViewSet
+from kolibri.core.logger.k_csv import ContentSessionLogCSVExportViewSet
+from kolibri.core.logger.k_csv import ContentSummaryLogCSVExportViewSet
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
