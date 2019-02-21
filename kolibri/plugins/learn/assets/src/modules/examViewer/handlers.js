@@ -12,7 +12,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import shuffled from 'kolibri.utils.shuffled';
 import { canViewExam } from '../../utils/exams';
-import { PageNames, ClassesPageNames } from '../../constants';
+import { ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
 
@@ -47,7 +47,15 @@ export function showExam(store, params) {
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
           store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
         } else if (examLogs.length > 0 && examLogs.some(log => log.closed)) {
-          return router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+          // If exam is closed, then redirect to route for the report
+          return router.replace({
+            name: ClassesPageNames.EXAM_REPORT_VIEWER,
+            params: {
+              ...examParams,
+              questionNumber: 0,
+              questionInteraction: 0,
+            },
+          });
         } else {
           ExamLogResource.createModel({ ...examParams, closed: false })
             .save()
