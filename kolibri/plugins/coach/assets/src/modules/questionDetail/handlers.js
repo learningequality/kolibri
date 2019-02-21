@@ -40,7 +40,7 @@ function showQuestionDetailView(params) {
   let { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   interactionIndex = Number(interactionIndex);
   let promise;
-  if (!exerciseId) {
+  if (quizId) {
     // If this is showing for a quiz, then no exerciseId will be passed in
     // set the appropriate exerciseId here based on the question sources
     const baseExam = store.state.classSummary.examMap[quizId];
@@ -88,6 +88,7 @@ function showQuestionDetailView(params) {
         return store
           .dispatch('questionDetail/setLearners', {
             ...params,
+            exerciseId,
             exercise,
           })
           .then(learners => {

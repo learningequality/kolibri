@@ -9,7 +9,7 @@ export function setLearners(store, params) {
   };
   if (quizId) {
     resource = ExamAttemptLogResource;
-    getParams.examId = quizId;
+    getParams.exam = quizId;
   }
   if (classId) {
     getParams.classroom = classId;
