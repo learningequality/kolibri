@@ -83,7 +83,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachStrings.$tr('lessonListEmptyState');
+          return this.coachStrings.$tr('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
           return CoachExamsPageStrings.$tr('noActiveExams');

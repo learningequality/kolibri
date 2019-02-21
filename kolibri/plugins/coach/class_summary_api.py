@@ -1,6 +1,7 @@
 from django.db.models import Max
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from le_utils.constants import content_kinds
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -36,7 +37,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # relevant content items.
     content_log_values = logger_models.ContentSummaryLog.objects.filter(
         content_id__in=set(content_map.keys()), user__in=[learner["id"] for learner in learners_data]
-    ).values("user_id", "content_id", "end_timestamp", "time_spent", "progress")
+    ).values("user_id", "content_id", "end_timestamp", "time_spent", "progress", "kind")
 
     # In order to make the lookup speedy, generate a unique key for each user/node that we find
     # listed in the needs help notifications that are relevant. We can then just check
@@ -80,8 +81,10 @@ def content_status_serializer(lesson_data, learners_data, classroom):
                     return HELP_NEEDED
         if log["progress"] == 1:
             return COMPLETED
-        elif log["progress"] == 0:
-            return NOT_STARTED
+        if log["kind"] == content_kinds.EXERCISE:
+            # if there are no attempt logs for this exercise, status is NOT_STARTED
+            if logger_models.AttemptLog.objects.filter(user_id=log['user_id'], sessionlog__content_id=log['content_id']).count() == 0:
+                return NOT_STARTED
         return STARTED
 
     def map_content_logs(log):

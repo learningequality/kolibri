@@ -37,7 +37,7 @@
               <KLabeledIcon>
                 <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
                 <KRouterLink
-                  v-if="tableRow.kind === 'exercise'"
+                  v-if="showLink(tableRow)"
                   :text="tableRow.title"
                   :to="exerciseLink(tableRow.content_id)"
                 />
@@ -47,7 +47,10 @@
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><TimeDuration :seconds="tableRow.statusObj.time_spent" /></td>
+            <td><TimeDuration
+              v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+              :seconds="tableRow.statusObj.time_spent"
+            /></td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -60,6 +63,7 @@
 <script>
 
   import commonCoach from '../common';
+  import { STATUSES } from '../../modules/classSummary/constants';
   import { PageNames } from './../../constants';
 
   export default {
@@ -89,6 +93,12 @@
     methods: {
       exerciseLink(exerciseId) {
         return this.classRoute(PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
+      },
+      showLink(tableRow) {
+        return (
+          tableRow.kind === this.ContentNodeKinds.EXERCISE &&
+          tableRow.statusObj.status !== STATUSES.notStarted
+        );
       },
     },
     $trs: {

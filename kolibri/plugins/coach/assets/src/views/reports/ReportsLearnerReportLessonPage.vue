@@ -49,7 +49,7 @@
               <KLabeledIcon>
                 <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
                 <KRouterLink
-                  v-if="tableRow.kind === 'exercise'"
+                  v-if="showLink(tableRow)"
                   :text="tableRow.title"
                   :to="classRoute(
                     'ReportsLearnerReportLessonExercisePage',
@@ -65,7 +65,10 @@
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+              <TimeDuration
+                v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+                :seconds="tableRow.statusObj.time_spent"
+              />
             </td>
           </tr>
         </transition-group>
@@ -80,6 +83,8 @@
 
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
+  import { STATUSES } from '../../modules/classSummary/constants';
+
   import LessonSummaryPage from '../plan/LessonSummaryPage';
 
   const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
@@ -108,6 +113,14 @@
           return tableRow;
         });
         return mapped;
+      },
+    },
+    methods: {
+      showLink(tableRow) {
+        return (
+          tableRow.kind === this.ContentNodeKinds.EXERCISE &&
+          tableRow.statusObj.status !== STATUSES.notStarted
+        );
       },
     },
     $trs: {
