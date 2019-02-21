@@ -356,14 +356,16 @@ def get_status():  # noqa: max-complexity=16
             # Probably a mis-configured kolibri
             raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
 
-        return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
-
     else:
         try:
             requests.get(check_url, timeout=3)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
             return pid, '', ''
 
+    return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
     # is dumb because kolibri could be running in a worker pool with different
