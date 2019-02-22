@@ -54,7 +54,7 @@
     },
     computed: {
       isInProgress() {
-        return this.progress !== null && this.progress >= 0 && this.progress < 1;
+        return this.progress !== null && this.progress > 0 && this.progress < 1;
       },
       isCompleted() {
         return this.progress >= 1;

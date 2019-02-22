@@ -300,6 +300,7 @@ export class Collection {
             resolve(this.data);
           } else {
             this.synced = false;
+            console.log('url:', this.url, this.getParams);
             this.resource.client({ path: this.url, params: this.getParams }).then(
               response => {
                 // Set response object - an Array - on the Collection to record the data.

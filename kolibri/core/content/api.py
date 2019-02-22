@@ -428,6 +428,13 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         return obj
 
     @detail_route(methods=['get'])
+    def testing(self, request, **kwargs):#########################################################################################################################################################################################
+        # prerequisites = str(models.ContentNode.objects.filter(title='Counting with small numbers'))
+        prerequisites = self.get_object(prefetch=False).has_prerequisite.values('id', 'title')
+
+        return Response(prerequisites)
+
+    @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
         cache_key = 'contentnode_slim_ancestors_{pk}'.format(pk=kwargs.get('pk'))
 

@@ -1,11 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { showSearch } from '../modules/search/handlers';
-import {
-  showTopicsTopic,
-  showKnowledgeMap,
-  showTopicsContent,
-} from '../modules/topicsTree/handlers';
+import { showKnowledgeMap, showTopicsContent } from '../modules/topicsTree/handlers';
 import {
   showRecommended,
   showPopularPage,

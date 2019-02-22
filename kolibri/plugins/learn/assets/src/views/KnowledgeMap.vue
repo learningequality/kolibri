@@ -2,7 +2,7 @@
 
   <div>
 
-    <PageHeader :title="topic.title" :progress="progress" />
+    <PageHeader :title="topic.title" :progress="progress" style="font-size: 32px" />
 
     <TextTruncator
       v-if="topic.description"
@@ -13,33 +13,10 @@
       dir="auto"
       class="page-description"
     />
-
-    <!--<ContentCardGroupGrid-->
-    <!--v-if="contents.length"-->
-    <!--:contents="contents"-->
-    <!--:genContentLink="genContentLink"-->
-    <!--/>-->
-
-    <!--<hr>-->
-
+    <hr>
     <div v-for="child in contents">
-      {{ hidden }}
-      <PageHeader :title="child.title" :progress="child.progress" @click.native="hidden = !hidden" />
-      <!--<UiIconButton-->
-      <!--size="small"-->
-      <!--type="secondary"-->
-      <!--@click="hidden = !hidden"-->
-      <!--&gt;-->
-      <!--<mat-svg v-if="hidden" name="expand_less" category="navigation" />-->
-      <!--<mat-svg v-else name="expand_more" category="navigation" />-->
-      <!--</UiIconButton>-->
-      <ContentCardGroupGrid
-        v-if="child.children.length && hidden"
-        :contents="child.children"
-        :genContentLink="genContentLink"
-      />
+      <ExpandableContentCardGroupGrid :child="child" />
     </div>
-
 
   </div>
 
@@ -54,6 +31,7 @@
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import ExpandableContentCardGroupGrid from './ExpandableContentCardGroupGrid';
 
   export default {
     name: 'KnowledgeMap',
@@ -64,6 +42,7 @@
       documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },
     components: {
+      ExpandableContentCardGroupGrid,
       PageHeader,
       ContentCardGroupGrid,
       TextTruncator,
