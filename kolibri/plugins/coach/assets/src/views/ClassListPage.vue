@@ -43,7 +43,7 @@
             <td class="core-table-main-col">
               <KRouterLink
                 :text="classroom.name"
-                :to="learnerPageLink(classroom.id)"
+                :to="learnerPageLink(classroom.id, classroom.name)"
               />
             </td>
             <td data-test="coach-names">
@@ -84,10 +84,10 @@
   import { PageNames } from '../constants';
   import { filterAndSortUsers } from '../../../../facility_management/assets/src/userSearchUtils';
 
-  function learnerPageLink(classId) {
+  function learnerPageLink(classId, className) {
     return {
       name: PageNames.LEARNER_LIST,
-      params: { classId },
+      params: { classId, className },
     };
   }
 

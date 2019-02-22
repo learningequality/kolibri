@@ -84,7 +84,11 @@
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
-    <CoachUserCreateModal v-if="modalShown===Modals.COACH_CREATE_USER" />
+    <CoachUserCreateModal
+      v-if="modalShown===Modals.COACH_CREATE_USER"
+      :classId="thisClassId"
+      :className="thisClassName"
+    />
 
   </div>
 
@@ -154,7 +158,7 @@
       documentTitleForLearners: 'Learners',
     },
     computed: {
-      ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
+      ...mapState(['classId', 'className', 'pageName', 'reportRefreshInterval']),
       ...mapGetters('reports', ['standardDataTable', 'exerciseCount', 'contentCount']),
       ...mapState('reports', ['channelId', 'contentScopeSummary', 'contentScopeId', 'userScope']),
       ...mapGetters(['currentUserId', 'isSuperuser', 'isCoach']),
@@ -172,6 +176,12 @@
       },
       isExercisePage() {
         return this.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
+      },
+      thisClassName() {
+        return this.className;
+      },
+      thisClassId() {
+        return this.classId;
       },
       isRootLearnerPage() {
         return this.pageName === PageNames.LEARNER_LIST;

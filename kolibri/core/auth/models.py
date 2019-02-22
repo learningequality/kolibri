@@ -64,6 +64,7 @@ from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from .permissions.general import AllowCoach
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
@@ -522,6 +523,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     permissions = (
         IsSelf() |  # FacilityUser can be read and written by itself
         IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
+        AllowCoach() |
         RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
             target_field=".",
             can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
@@ -903,6 +905,7 @@ class Membership(AbstractFacilityDataModel):
     morango_model_name = "membership"
 
     permissions = (
+        AllowCoach() |
         IsOwn(read_only=True) |  # users can read their own Memberships
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
             target_field="user",
