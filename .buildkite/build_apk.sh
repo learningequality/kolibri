@@ -15,7 +15,15 @@ echo $PWD
 
 # Ensure that we're on the latest version of develop
 git fetch origin
-git checkout origin/develop
+
+# Defined in buildkite agent for release
+if [ -v ANDROID_VERSION_TAG ]; then
+  git checkout $ANDROID_VERSION_TAG
+  echo "Building with Android Installer Version $ANDROID_VERSION_TAG"
+else
+  git checkout origin/develop
+  echo "BUilding with Android Installer's Develop Branch"
+fi
 
 echo '--- :ferris_wheel: Copying in latest Kolibri whl'
 # copy in the latest whl to make it available to the Docker build script
