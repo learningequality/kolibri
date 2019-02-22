@@ -40,24 +40,25 @@ function showQuestionDetailView(params) {
   let { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   interactionIndex = Number(interactionIndex);
   let promise;
+  let exerciseNodeId;
   if (quizId) {
     // If this is showing for a quiz, then no exerciseId will be passed in
     // set the appropriate exerciseId here based on the question sources
     const baseExam = store.state.classSummary.examMap[quizId];
     promise = fetchNodeDataAndConvertExam(baseExam).then(exam => {
-      exerciseId = exam.question_sources.find(source => source.question_id === questionId)
+      exerciseNodeId = exam.question_sources.find(source => source.question_id === questionId)
         .exercise_id;
       return exam;
     });
   } else {
     // Passed in exerciseId is the content_id of the contentNode
     // Map this to the id of the content node to do this fetch
-    exerciseId = store.state.classSummary.contentMap[exerciseId].node_id;
+    exerciseNodeId = store.state.classSummary.contentMap[exerciseId].node_id;
     promise = Promise.resolve();
   }
   return promise
     .then(exam => {
-      return ContentNodeResource.fetchModel({ id: exerciseId }).then(exercise => {
+      return ContentNodeResource.fetchModel({ id: exerciseNodeId }).then(exercise => {
         exercise.assessmentmetadata = assessmentMetaDataState(exercise);
         let title;
         if (exam) {
@@ -89,7 +90,6 @@ function showQuestionDetailView(params) {
         return store
           .dispatch('questionDetail/setLearners', {
             ...params,
-            exerciseId,
             exercise,
           })
           .then(learners => {
