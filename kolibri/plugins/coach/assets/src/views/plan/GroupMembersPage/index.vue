@@ -71,7 +71,7 @@
               <td>
                 {{ user.username }}
               </td>
-              <td class="button-col">
+              <td class="core-table-button-col">
                 <KButton
                   :text="$tr('removeButton')"
                   appearance="flat-button"
@@ -160,11 +160,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .button-col {
-    padding: 0;
-    text-align: right;
-  }
-
-</style>
+<style lang="scss" scoped></style>

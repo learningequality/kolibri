@@ -136,7 +136,7 @@
     padding: 4px;
     text-align: right;
 
-    & button {
+    button {
       margin: 0;
     }
   }
