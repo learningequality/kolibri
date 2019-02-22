@@ -36,7 +36,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="classObj in classList" :key="classObj.id">
             <td>
-              <KLabeledIcon bold>
+              <KLabeledIcon>
                 <KIcon slot="icon" classroom />
                 <KRouterLink
                   :text="classObj.name"
