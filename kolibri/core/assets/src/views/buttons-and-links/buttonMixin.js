@@ -8,6 +8,7 @@ const disabledStyle = {
   pointerEvents: 'none',
   cursor: 'default',
   boxShadow: 'none',
+  opacity: 0.5,
 };
 
 export default {
@@ -56,29 +57,20 @@ export default {
     linkStyle() {
       return {
         color: this.$coreActionNormal,
-        ':hover': {
-          color: this.$coreActionDark,
-        },
+        ':hover': { color: this.$coreActionDark },
         ':focus': this.$coreOutline,
-        ':disabled': {
-          color: this.$coreActionNormal,
-          opacity: 0.5,
-        },
+        ':disabled': { opacity: 0.5 },
       };
     },
     primaryRaisedStyle() {
       return {
         color: $primaryRaisedColor,
         backgroundColor: this.$coreActionNormal,
-        ':hover': {
-          backgroundColor: this.$coreActionDark,
-        },
+        ':hover': { backgroundColor: this.$coreActionDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
-            backgroundColor: this.$coreActionNormal,
-            opacity: 0.5,
             svg: {
               fill: $primaryRaisedDisabledColor,
             },
@@ -97,16 +89,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
-        ':disabled': Object.assign(
-          {
-            color: this.$coreActionNormal,
-            opacity: 0.5,
-            svg: {
-              fill: this.$coreActionNormal,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreActionNormal,
         },
@@ -120,17 +103,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
-        ':disabled': Object.assign(
-          {
-            color: this.$coreTextDefault,
-            opacity: 0.25,
-            backgroundColor: this.$coreTextDefault,
-            svg: {
-              fill: this.$coreTextDefault,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreTextDefault,
         },
@@ -143,16 +116,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
-        ':disabled': Object.assign(
-          {
-            color: this.$coreTextDefault,
-            opacity: 0.25,
-            svg: {
-              fill: this.$coreTextDefault,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreTextDefault,
         },
