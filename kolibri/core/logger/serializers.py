@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.utils.timezone import now
+from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
 
@@ -158,6 +159,10 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     def create(self, validated_data):
         instance = super(ContentSummaryLogSerializer, self).create(validated_data)
+        # dont create notifications upon creating a summary log for an exercise
+        # notifications should only be triggered upon first attempting a question in the exercise
+        if instance.kind == content_kinds.EXERCISE:
+            return instance
         # to check if a notification must be created:
         wrap_to_save_queue(create_summarylog, instance)
         return instance
