@@ -3,36 +3,33 @@
   <div class="notification">
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="time ? 50 : 100" percentage>
+      <KGridItem :sizes="mainColSizes">
         <CoachStatusIcon
           :icon="statusIcon"
           class="icon"
         />
         <div class="icon-spacer">
-          <KLabeledIcon>
-            <ContentIcon
-              slot="icon"
-              class="content-icon"
-              :kind="contentIcon"
-              :showTooltip="false"
-            />
-            <KRouterLink
-              v-if="targetPage && targetPage.name"
-              :text="linkText"
-              :to="getRoute(targetPage)"
-            />
-            <span v-else>
-              {{ linkText }}
-            </span>
-          </KLabeledIcon>
+          <ContentIcon
+            slot="icon"
+            class="content-icon"
+            :kind="contentIcon"
+            :showTooltip="false"
+          />
+          <KRouterLink
+            v-if="targetPage && targetPage.name"
+            :text="linkText"
+            :to="getRoute(targetPage)"
+          />
+          <span v-else>
+            {{ linkText }}
+          </span>
         </div>
       </KGridItem>
 
       <KGridItem
         v-if="time"
-        :size="50"
-        percentage
-        alignment="center"
+        sizes="1, 2, 3"
+        alignment="right"
       >
         <ElapsedTime :date="parseDate(time)" />
       </KGridItem>
@@ -69,7 +66,6 @@
       ContentIcon,
       CoachStatusIcon,
       ElapsedTime,
-      KLabeledIcon,
       KGrid,
       KGridItem,
       KRouterLink,
@@ -143,6 +139,12 @@
         }
         return '';
       },
+      mainColSizes() {
+        if (this.time) {
+          return [3, 6, 9];
+        }
+        return [4, 8, 12];
+      },
     },
     methods: {
       parseDate(dateString) {
@@ -163,8 +165,8 @@
 
   .icon {
     position: absolute;
-    top: 32px;
-    left: 2px;
+    top: 33px;
+    left: 4px;
     width: 1.5em;
     height: 1.5em;
   }

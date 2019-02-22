@@ -393,9 +393,7 @@
 
   // Copied from BlockItem.vue
   .notification-card {
-    padding-right: 24px;
     padding-bottom: 16px;
-    padding-left: 24px;
 
     &:not(:last-child) {
       border-bottom: 1px solid #dedede;
