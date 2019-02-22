@@ -1,6 +1,8 @@
+from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from le_utils.constants import content_kinds
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -35,8 +37,9 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # Get all the values we need from the summary logs to be able to summarize current status on the
     # relevant content items.
     content_log_values = logger_models.ContentSummaryLog.objects.filter(
-        content_id__in=set(content_map.keys()), user__in=[learner["id"] for learner in learners_data]
-    ).values("user_id", "content_id", "end_timestamp", "time_spent", "progress")
+        content_id__in=set(content_map.keys()), user__in=[learner["id"] for learner in learners_data]) \
+        .annotate(attempts=Count('masterylogs__attemptlogs')) \
+        .values("user_id", "content_id", "end_timestamp", "time_spent", "progress", "kind", "attempts")
 
     # In order to make the lookup speedy, generate a unique key for each user/node that we find
     # listed in the needs help notifications that are relevant. We can then just check
@@ -80,8 +83,10 @@ def content_status_serializer(lesson_data, learners_data, classroom):
                     return HELP_NEEDED
         if log["progress"] == 1:
             return COMPLETED
-        elif log["progress"] == 0:
-            return NOT_STARTED
+        if log["kind"] == content_kinds.EXERCISE:
+            # if there are no attempt logs for this exercise, status is NOT_STARTED
+            if log["attempts"] == 0:
+                return NOT_STARTED
         return STARTED
 
     def map_content_logs(log):

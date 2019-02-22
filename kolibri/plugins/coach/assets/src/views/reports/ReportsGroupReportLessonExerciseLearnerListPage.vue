@@ -31,7 +31,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                v-if="tableRow.status.status !== STATUSES.notStarted"
+                v-if="showLink(tableRow.statusObj.status)"
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
@@ -102,6 +102,9 @@
         return this.classRoute(PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
           learnerId,
         });
+      },
+      showLink(status) {
+        return status !== this.STATUSES.notStarted;
       },
     },
   };

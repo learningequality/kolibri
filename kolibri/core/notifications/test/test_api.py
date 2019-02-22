@@ -34,7 +34,7 @@ from kolibri.core.notifications.models import NotificationObjectType
 from kolibri.utils.time_utils import local_now
 
 
-class ContentSessionLogAPITestCase(APITestCase):
+class NotificationsAPITestCase(APITestCase):
 
     def setUp(self):
         provision_device()
@@ -71,6 +71,14 @@ class ContentSessionLogAPITestCase(APITestCase):
             channel_id=self.channel_id,
             kind=content_kinds.EXERCISE
         )
+        self.node_2 = ContentNode.objects.create(
+            title='Node 2',
+            available=True,
+            id=self.contentnode_ids[1],
+            content_id=self.content_ids[1],
+            channel_id=self.channel_id,
+            kind=content_kinds.EXERCISE
+        )
         self.lesson = Lesson.objects.create(
             id=self.lesson_id,
             title='My Lesson',
@@ -80,6 +88,10 @@ class ContentSessionLogAPITestCase(APITestCase):
             resources=json.dumps([{
                 'contentnode_id': self.node_1.id,
                 'content_id': self.node_1.content_id,
+                'channel_id': self.channel_id
+            }, {
+                'contentnode_id': self.node_2.id,
+                'content_id': self.node_2.content_id,
                 'channel_id': self.channel_id
             }])
         )
@@ -105,6 +117,11 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.summarylog1 = ContentSummaryLogFactory.create(user=self.user1,
                                                            content_id=self.node_1.content_id,
                                                            channel_id=self.channel_id)
+
+        self.summarylog2 = ContentSummaryLogFactory.create(user=self.user1,
+                                                           content_id=self.node_2.content_id,
+                                                           channel_id=self.channel_id,
+                                                           kind=content_kinds.EXERCISE)
 
     def test_get_assignments(self):
         # user2 has no classroom assigned, thus no lessons:
@@ -145,6 +162,16 @@ class ContentSessionLogAPITestCase(APITestCase):
         assert notification.notification_event == NotificationEventType.Completed
         assert notification.lesson_id == self.lesson.id
         assert notification.contentnode_id == self.node_1.id
+
+    @patch('kolibri.core.notifications.api.save_notifications')
+    def test_parse_summarylog_exercise(self, save_notifications):
+        parse_summarylog(self.summarylog2)
+        assert save_notifications.called
+        notification = save_notifications.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Resource
+        assert notification.notification_event == NotificationEventType.Started
+        assert notification.lesson_id == self.lesson.id
+        assert notification.contentnode_id == self.node_2.id
 
     @patch('kolibri.core.notifications.api.save_notifications')
     def test_create_summarylog(self, save_notifications):

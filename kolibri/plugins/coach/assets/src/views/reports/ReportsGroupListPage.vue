@@ -104,7 +104,10 @@
       lastActivity(learnerIds) {
         const statuses = [
           ...this.examStatuses.filter(status => learnerIds.includes(status.learner_id)),
-          ...this.contentStatuses.filter(status => learnerIds.includes(status.learner_id)),
+          ...this.contentStatuses.filter(
+            status =>
+              status.status !== this.STATUSES.notStarted && learnerIds.includes(status.learner_id)
+          ),
         ];
         if (!statuses.length) {
           return null;
