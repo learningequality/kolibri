@@ -132,6 +132,11 @@
 
   /deep/ .core-table-button-col {
     padding: 4px;
+    text-align: right;
+
+    & button {
+      margin: 0;
+    }
   }
 
 </style>

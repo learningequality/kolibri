@@ -80,7 +80,7 @@
               {{ user.username }}
             </span>
           </td>
-          <td v-if="$scopedSlots.action" class="user-action-button">
+          <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
@@ -213,12 +213,6 @@
 
   .empty-message {
     margin-bottom: 16px;
-  }
-
-  .user-action-button {
-    padding: 0;
-    text-align: right;
-    vertical-align: middle;
   }
 
   .role-badge {
