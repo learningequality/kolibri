@@ -66,12 +66,8 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
-
-  const examStrings = crossComponentTranslator(ExamReport);
 
   export default {
     name: 'QuestionLearnersReport',
@@ -118,9 +114,6 @@
           return this.currentInteraction.answer;
         }
         return null;
-      },
-      questionTitle() {
-        return examStrings.$tr('question', { questionNumber: this.questionNumber });
       },
     },
     methods: {

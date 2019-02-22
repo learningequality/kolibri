@@ -337,14 +337,14 @@ describe('exam report state', () => {
       exerciseContentNodes,
     };
     const questions = [
-      { exercise_id: '12345', question_id: 14, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 16, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 13, title: 'exercise title 1' },
-      { exercise_id: '54321', question_id: 18, title: 'exercise title 2' },
-      { exercise_id: '12345', question_id: 0, title: 'exercise title 1' },
-      { exercise_id: '54321', question_id: 0, title: 'exercise title 2' },
-      { exercise_id: '12345', question_id: 18, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 12, title: 'exercise title 1' },
+      { exercise_id: '12345', question_id: 14, title: 'exercise title 1', counterInExercise: 15 },
+      { exercise_id: '12345', question_id: 16, title: 'exercise title 1', counterInExercise: 17 },
+      { exercise_id: '12345', question_id: 13, title: 'exercise title 1', counterInExercise: 14 },
+      { exercise_id: '54321', question_id: 18, title: 'exercise title 2', counterInExercise: 19 },
+      { exercise_id: '12345', question_id: 0, title: 'exercise title 1', counterInExercise: 1 },
+      { exercise_id: '54321', question_id: 0, title: 'exercise title 2', counterInExercise: 1 },
+      { exercise_id: '12345', question_id: 18, title: 'exercise title 1', counterInExercise: 19 },
+      { exercise_id: '12345', question_id: 12, title: 'exercise title 1', counterInExercise: 13 },
     ];
     expect(examReportStore.getters.examQuestions(state)).toEqual(questions);
   });
@@ -357,16 +357,16 @@ describe('exam report state', () => {
       exerciseContentNodes,
     };
     const questions = [
-      { exercise_id: '123', question_id: 10, title: 'exercise title 5' },
-      { exercise_id: 'xyz', question_id: 8, title: 'exercise title 3' },
-      { exercise_id: 'xyz', question_id: 10, title: 'exercise title 3' },
-      { exercise_id: '123', question_id: 13, title: 'exercise title 5' },
-      { exercise_id: 'abc', question_id: 8, title: 'exercise title 4' },
-      { exercise_id: 'abc', question_id: 17, title: 'exercise title 4' },
-      { exercise_id: '123', question_id: 8, title: 'exercise title 5' },
-      { exercise_id: 'xyz', question_id: 17, title: 'exercise title 3' },
-      { exercise_id: '123', question_id: 17, title: 'exercise title 5' },
-      { exercise_id: 'abc', question_id: 10, title: 'exercise title 4' },
+      { exercise_id: '123', question_id: 10, title: 'exercise title 5', counterInExercise: 11 },
+      { exercise_id: 'xyz', question_id: 8, title: 'exercise title 3', counterInExercise: 9 },
+      { exercise_id: 'xyz', question_id: 10, title: 'exercise title 3', counterInExercise: 11 },
+      { exercise_id: '123', question_id: 13, title: 'exercise title 5', counterInExercise: 14 },
+      { exercise_id: 'abc', question_id: 8, title: 'exercise title 4', counterInExercise: 9 },
+      { exercise_id: 'abc', question_id: 17, title: 'exercise title 4', counterInExercise: 18 },
+      { exercise_id: '123', question_id: 8, title: 'exercise title 5', counterInExercise: 9 },
+      { exercise_id: 'xyz', question_id: 17, title: 'exercise title 3', counterInExercise: 18 },
+      { exercise_id: '123', question_id: 17, title: 'exercise title 5', counterInExercise: 18 },
+      { exercise_id: 'abc', question_id: 10, title: 'exercise title 4', counterInExercise: 11 },
     ];
     expect(examReportStore.getters.examQuestions(state)).toEqual(questions);
   });

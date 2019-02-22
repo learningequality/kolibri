@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import sortBy from 'lodash/sortBy';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import * as actions from './actions';
@@ -50,9 +49,11 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_LEARNERS(state, learners) {
+      const learnerMap = {};
       learners.forEach(learner => {
-        Vue.set(state.learnerMap, learner.id, learner);
+        learnerMap[learner.id] = learner;
       });
+      state.learnerMap = learnerMap;
     },
   },
 };

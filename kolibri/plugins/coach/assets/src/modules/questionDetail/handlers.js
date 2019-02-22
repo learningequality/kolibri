@@ -40,7 +40,7 @@ function showQuestionDetailView(params) {
   let { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   interactionIndex = Number(interactionIndex);
   let promise;
-  if (!exerciseId) {
+  if (quizId) {
     // If this is showing for a quiz, then no exerciseId will be passed in
     // set the appropriate exerciseId here based on the question sources
     const baseExam = store.state.classSummary.examMap[quizId];
@@ -59,24 +59,25 @@ function showQuestionDetailView(params) {
     .then(exam => {
       return ContentNodeResource.fetchModel({ id: exerciseId }).then(exercise => {
         exercise.assessmentmetadata = assessmentMetaDataState(exercise);
-        let questionNumber;
+        let title;
         if (exam) {
-          questionNumber = Math.max(
-            1,
-            exam.question_sources
-              .filter(source => source.exercise_id === exerciseId)
-              .findIndex(source => source.question_id === questionId)
+          const question = exam.question_sources.find(
+            source => source.question_id === questionId && source.exercise_id === exerciseId
           );
+          title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+            name: question.title,
+            number: question.counterInExercise,
+          });
         } else {
-          questionNumber = Math.max(
+          const questionNumber = Math.max(
             1,
             exercise.assessmentmetadata.assessmentIds.indexOf(questionId)
           );
+          title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+            name: exercise.title,
+            number: questionNumber,
+          });
         }
-        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
-          name: exercise.title,
-          number: questionNumber,
-        });
         store.commit('questionDetail/SET_STATE', {
           learnerId,
           interactionIndex,
@@ -88,6 +89,7 @@ function showQuestionDetailView(params) {
         return store
           .dispatch('questionDetail/setLearners', {
             ...params,
+            exerciseId,
             exercise,
           })
           .then(learners => {

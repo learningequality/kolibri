@@ -1,6 +1,7 @@
 import { AttemptLogResource, ExamAttemptLogResource } from 'kolibri.resources';
 
-export function setLearners(store, { questionId, exerciseId, quizId, classId, groupId }) {
+export function setLearners(store, params) {
+  const { questionId, exerciseId, quizId, classId, groupId, learnerId } = params;
   let resource = AttemptLogResource;
   const getParams = {
     item: questionId,
@@ -8,7 +9,7 @@ export function setLearners(store, { questionId, exerciseId, quizId, classId, gr
   };
   if (quizId) {
     resource = ExamAttemptLogResource;
-    getParams.examId = quizId;
+    getParams.exam = quizId;
   }
   if (classId) {
     getParams.classroom = classId;
@@ -19,11 +20,9 @@ export function setLearners(store, { questionId, exerciseId, quizId, classId, gr
   return resource
     .fetchCollection({
       getParams,
-      force: true,
+      force: !learnerId,
     })
     .then(attemptLogs => {
-      attemptLogs = attemptLogs.filter(attemptLog => !attemptLog.correct);
-
       let learners;
       // Add learner information to each attemptLog to turn this into
       // a list of learners with attempt information intermixed.
@@ -60,6 +59,8 @@ export function setLearners(store, { questionId, exerciseId, quizId, classId, gr
           };
         });
       }
+
+      learners = learners.filter(learner => !learner.correct);
 
       // Re-set the learner data.
       store.commit('SET_LEARNERS', learners);
