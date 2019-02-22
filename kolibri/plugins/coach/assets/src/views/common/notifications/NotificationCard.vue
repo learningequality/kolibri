@@ -28,7 +28,7 @@
 
       <KGridItem
         v-if="time"
-        sizes="1, 2, 3"
+        :sizes="[1, 2, 3]"
         alignment="right"
       >
         <ElapsedTime :date="parseDate(time)" />
