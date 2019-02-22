@@ -51,7 +51,7 @@
             />
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               <KLabeledIcon>
                 <KIcon
                   slot="icon"
@@ -76,7 +76,7 @@
             {{ user.kind }}
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               {{ user.username }}
             </span>
           </td>
@@ -216,8 +216,6 @@
   }
 
   .role-badge {
-    position: relative;
-    top: -4px;
     display: inline-block;
     padding: 2px;
     padding-right: 8px;
@@ -226,13 +224,6 @@
     font-size: small;
     white-space: nowrap;
     border-radius: 4px;
-  }
-
-  .maxwidth {
-    display: inline-block;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .overflow-label {
