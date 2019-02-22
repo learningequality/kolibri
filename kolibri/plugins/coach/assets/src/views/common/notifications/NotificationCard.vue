@@ -1,13 +1,13 @@
 <template>
 
   <div class="notification">
+    <CoachStatusIcon
+      :icon="statusIcon"
+      class="icon"
+    />
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
       <KGridItem :sizes="mainColSizes">
-        <CoachStatusIcon
-          :icon="statusIcon"
-          class="icon"
-        />
         <div class="icon-spacer">
           <ContentIcon
             slot="icon"
@@ -45,7 +45,6 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachStatusIcon from '../status/CoachStatusIcon';
@@ -164,15 +163,17 @@
   @import '~kolibri.styles.definitions';
 
   .icon {
+    // vertically align icon
     position: absolute;
-    top: 33px;
-    left: 4px;
+    top: 50%;
+    left: 2px;
     width: 1.5em;
     height: 1.5em;
+    margin-top: -0.75em; // offset height
   }
 
   .icon-spacer {
-    margin-left: 40px;
+    margin-left: 48px;
   }
 
   .content-icon {
