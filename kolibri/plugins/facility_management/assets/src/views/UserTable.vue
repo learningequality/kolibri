@@ -51,7 +51,7 @@
             />
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               <KLabeledIcon>
                 <KIcon
                   slot="icon"
@@ -76,11 +76,11 @@
             {{ user.kind }}
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               {{ user.username }}
             </span>
           </td>
-          <td v-if="$scopedSlots.action" class="user-action-button">
+          <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
@@ -215,15 +215,7 @@
     margin-bottom: 16px;
   }
 
-  .user-action-button {
-    padding: 0;
-    text-align: right;
-    vertical-align: middle;
-  }
-
   .role-badge {
-    position: relative;
-    top: -4px;
     display: inline-block;
     padding: 2px;
     padding-right: 8px;
@@ -232,13 +224,6 @@
     font-size: small;
     white-space: nowrap;
     border-radius: 4px;
-  }
-
-  .maxwidth {
-    display: inline-block;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .overflow-label {

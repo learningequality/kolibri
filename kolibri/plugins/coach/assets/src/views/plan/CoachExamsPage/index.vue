@@ -60,7 +60,7 @@
               <QuizActive :active="exam.active" />
             </td>
 
-            <td class="options core-table-button-col">
+            <td class="core-table-button-col">
               <KDropdownMenu
                 slot="optionsDropdown"
                 :text="examReportPageStrings.$tr('options')"
@@ -389,10 +389,6 @@
 
   .center-text {
     text-align: center;
-  }
-
-  .options {
-    text-align: right;
   }
 
 </style>
