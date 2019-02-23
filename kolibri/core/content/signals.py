@@ -29,7 +29,7 @@ def reorder_channels_upon_deletion(sender, instance=None, *args, **kwargs):
 def update_lesson_resources_before_delete(sender, instance=None, *args, **kwargs):
     # Update the resources array of all lessons to ensure they don't have
     # any deleted content
-    lessons = Lesson.objects.all()
+    lessons = Lesson.objects.filter(resources__contains=instance.id)
     for lesson in lessons:
         updated_resources = [r for r in lesson.resources if r['channel_id'] != instance.id]
         if len(updated_resources) < len(lesson.resources):
