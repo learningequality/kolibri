@@ -195,6 +195,8 @@ def run_server(port):
 
     cherrypy.config.update({
         "environment": "production",
+        "tools.expires.on": True,
+        "tools.expires.secs": 31536000,
     })
 
     # Mount static files
