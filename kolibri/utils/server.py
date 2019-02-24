@@ -195,16 +195,30 @@ def run_server(port):
 
     cherrypy.config.update({
         "environment": "production",
-        "tools.gzip.on": True,
-        "tools.gzip.mime_types": ["text/*", "application/javascript"],
-        "tools.caching.on": True,
-        "tools.caching.maxobj_size": 2000000,
-        "tools.caching.maxsize": 50000000,
+        "tools.expires.on": True,
+        "tools.expires.secs": 31536000,
     })
 
-    serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(paths.get_content_dir_path(),
-                     paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
+    # Mount static files
+    static_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=settings.STATIC_ROOT)
+    cherrypy.tree.mount(static_files_handler, settings.STATIC_URL, config={
+        "/": {
+            "tools.gzip.on": True,
+            "tools.gzip.mime_types": ["text/*", "application/javascript"],
+            "tools.caching.on": True,
+            "tools.caching.maxobj_size": 2000000,
+            "tools.caching.maxsize": 50000000,
+        }
+    })
+
+    # Mount content files
+    content_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=paths.get_content_dir_path())
+    cherrypy.tree.mount(content_files_handler,
+                        paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -237,15 +251,6 @@ def unlock_after_vacuum():
             os.remove(STARTUP_LOCK)
         except OSError:
             pass  # lock file was deleted by other process
-
-
-def serve_static_dir(root, url):
-
-    static_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=os.path.split(root)[1],
-        root=os.path.abspath(os.path.split(root)[0]))
-    cherrypy.tree.mount(static_handler, url)
 
 
 def _read_pid_file(filename):
