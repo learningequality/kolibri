@@ -12,6 +12,11 @@ Internationalization and localization
 
  - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
 
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+ - Quizzes with content from deleted channels will now show an error message when a learner or coach is viewing the problems in the quiz or quiz report.
+ - Lessons with content from deleted channels will have those contents automatically removed. If you have created lessons with deleted content prior to 0.12, learner playlists and coach reports for those lessons will be broken. To fix the lesson, simply view it as a coach under Coach > Plan, and it will be fixed and updated automatically.
 
 See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.0>`__ of changes on Github
 

@@ -17,7 +17,7 @@ import { contentState } from '../coreLearn/utils';
 import { calcQuestionsAnswered } from './utils';
 
 export function showExam(store, params) {
-  let questionNumber = params.questionNumber;
+  const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
@@ -30,8 +30,6 @@ export function showExam(store, params) {
     store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
     store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
-    questionNumber = Number(questionNumber); // eslint-disable-line no-param-reassign
-
     const promises = [
       ExamResource.fetchModel({ id: examId }),
       ExamLogResource.fetchCollection({ getParams: examParams }),
@@ -68,16 +66,6 @@ export function showExam(store, params) {
         if (!canViewExam(exam, store.state.examLog)) {
           return router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS, params: { classId } });
         }
-        // Sort through all the exam attempt logs retrieved and organize them into objects
-        // keyed first by content_id and then item id under that.
-        examAttemptLogs.forEach(log => {
-          const { content_id, item } = log;
-          if (!attemptLogs[content_id]) {
-            attemptLogs[content_id] = {};
-          }
-          attemptLogs[content_id][item] = { ...log };
-        });
-
         // Sort through all the exam attempt logs retrieved and organize them into objects
         // keyed first by content_id and then item id under that.
         examAttemptLogs.forEach(log => {
@@ -138,22 +126,21 @@ export function showExam(store, params) {
             }
 
             const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.question_id;
-            const contentId = currentQuestion.exercise_id;
+            const { question_id, exercise_id } = currentQuestion;
             const questionsAnswered = Math.max(
               store.state.examViewer.questionsAnswered || 0,
               calcQuestionsAnswered(attemptLogs)
             );
 
-            if (!attemptLogs[currentQuestion.exercise_id]) {
-              attemptLogs[currentQuestion.exercise_id] = {};
+            if (!attemptLogs[exercise_id]) {
+              attemptLogs[exercise_id] = {};
             }
-            if (!attemptLogs[contentId][itemId]) {
-              attemptLogs[contentId][itemId] = {
+            if (!attemptLogs[exercise_id][question_id]) {
+              attemptLogs[exercise_id][question_id] = {
                 start_timestamp: now(),
                 completion_timestamp: null,
                 end_timestamp: null,
-                item: itemId,
+                item: question_id,
                 complete: false,
                 time_spent: 0,
                 correct: 0,
@@ -161,16 +148,16 @@ export function showExam(store, params) {
                 simple_answer: '',
                 interaction_history: [],
                 hinted: false,
-                content_id: contentId,
+                content_id: exercise_id,
               };
             }
             store.commit('SET_EXAM_ATTEMPT_LOGS', attemptLogs);
             store.commit('examViewer/SET_STATE', {
-              content: contentState(contentNodes.find(node => node.id === contentId)),
-              currentAttempt: attemptLogs[contentId][itemId],
+              content: contentState(contentNodes.find(node => node.id === exercise_id)),
+              currentAttempt: attemptLogs[exercise_id][question_id],
               currentQuestion,
               exam,
-              itemId,
+              itemId: question_id,
               questionNumber,
               questions,
               questionsAnswered,
