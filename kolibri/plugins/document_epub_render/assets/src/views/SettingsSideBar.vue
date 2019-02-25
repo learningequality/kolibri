@@ -137,7 +137,11 @@
       },
       settingsButtonFocus() {
         return {
-          ':focus': this.$coreOutline,
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '0px',
+            outlineWidth: '2px',
+          },
         };
       },
     },
