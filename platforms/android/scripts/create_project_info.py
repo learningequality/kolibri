@@ -43,7 +43,7 @@ def git_tag():
     return p.communicate()[0].rstrip()
 
 def build_type():
-    key_alias = os.getenv('P4A_RELEASE_KEY', 'unknown')
+    key_alias = os.getenv('P4A_RELEASE_KEYALIAS', 'unknown')
     if key_alias == 'LE_DEV_KEY':
         return 'dev'
     if key_alias == 'LE_RELEASE_KEY':
