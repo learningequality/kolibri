@@ -2,4 +2,4 @@
 Contributing
 ============
 
-Please see the 'contributing' section of our `online documentation <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`__.
+Please see the 'contributing' section of our `online developer documentation <https://kolibri-dev.readthedocs.io>`__.
