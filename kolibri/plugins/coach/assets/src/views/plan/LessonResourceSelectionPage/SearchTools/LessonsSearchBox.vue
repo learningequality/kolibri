@@ -132,7 +132,6 @@
   .box-row {
     display: table;
     width: 100%;
-    max-width: 450px;
     background-color: white;
   }
 
