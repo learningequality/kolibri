@@ -2,7 +2,11 @@
 
   <div>
 
-    <PageHeader :title="content.title" dir="auto" />
+    <PageHeader
+      :title="content.title"
+      :progress="progress"
+      dir="auto"
+    />
     <CoachContentLabel
       class="coach-content-label"
       :value="content.coach_content ? 1 : 0"
@@ -188,6 +192,7 @@
         channelId: state => state.content.channel_id,
       }),
       ...mapState({
+        masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
@@ -217,6 +222,10 @@
       },
       progress() {
         if (this.isUserLoggedIn) {
+          // if there no attempts for this exercise, there is no progress
+          if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
+            return undefined;
+          }
           return this.summaryProgress;
         }
         return this.sessionProgress;
