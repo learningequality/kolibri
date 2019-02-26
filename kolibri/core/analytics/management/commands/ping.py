@@ -6,6 +6,7 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand
+from django.db import connection
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
@@ -65,6 +66,7 @@ class Command(BaseCommand):
                     if "id" in data:
                         stat_data = self.perform_statistics(server, data["id"])
                         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+                    connection.close()
                 if once:
                     break
                 logger.info("Sleeping for {} minutes.".format(interval))
