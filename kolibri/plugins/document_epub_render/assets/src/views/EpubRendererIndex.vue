@@ -788,6 +788,7 @@
   }
 
   .column {
+    position: relative;
     display: inline-block;
     height: 100%;
     overflow: hidden;
