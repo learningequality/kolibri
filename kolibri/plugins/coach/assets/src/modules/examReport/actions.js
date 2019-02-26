@@ -2,11 +2,7 @@ import { ExamResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
-import { createExam, examState } from '../examShared/exams';
-
-export function setExamsModal(store, modalName) {
-  store.commit('SET_EXAMS_MODAL', modalName);
-}
+import { createExam } from '../examShared/exams';
 
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
   changesToExamSaved: 'Changes to quiz saved',
@@ -22,7 +18,6 @@ export function copyExam(store, { exam, className }) {
     createExam(store, exam).then(
       newExam => {
         store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-        store.dispatch('setExamsModal', false);
         store.dispatch(
           'createSnackbar',
           {
@@ -45,18 +40,9 @@ export function updateExamDetails(store, { examId, payload }) {
       id: examId,
       data: payload,
     }).then(
-      exam => {
-        const exams = store.state.exams;
-        const examIndex = exams.findIndex(exam => exam.id === examId);
-        exams[examIndex] = examState(exam);
-
-        store.commit('SET_EXAMS', exams);
+      () => {
         // Update state.exam if it was just saved.
         // Is this necessary? Where is state.exams used?
-        if (store.state.exam.id === exam.id) {
-          store.commit('SET_EXAM', exam);
-        }
-        store.dispatch('setExamsModal', false);
         store.dispatch(
           'createSnackbar',
           {
@@ -77,10 +63,6 @@ export function updateExamDetails(store, { examId, payload }) {
 export function deleteExam(store, examId) {
   return ExamResource.deleteModel({ id: examId }).then(
     () => {
-      const exams = store.state.exams;
-      const updatedExams = exams.filter(exam => exam.id !== examId);
-      store.commit('SET_EXAMS', updatedExams);
-
       router.replace({ name: PageNames.EXAMS });
       store.dispatch(
         'createSnackbar',
@@ -90,7 +72,6 @@ export function deleteExam(store, examId) {
         },
         { root: true }
       );
-      store.dispatch('setExamsModal', false);
     },
     error => store.dispatch('handleError', error, { root: true })
   );
