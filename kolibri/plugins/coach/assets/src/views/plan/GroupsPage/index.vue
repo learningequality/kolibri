@@ -109,11 +109,10 @@
           name: '',
           id: '',
         },
-        usersToMove: [],
       };
     },
     computed: {
-      ...mapState('groups', ['classUsers', 'groupModalShown', 'groups']),
+      ...mapState('groups', ['groupModalShown', 'groups']),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
