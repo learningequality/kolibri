@@ -16,6 +16,7 @@ case "$1" in
     rm -f /etc/kolibri/nginx.d/port.conf
 
     # create nginx configurations:
+    ln -sf /etc/kolibri/dist/nginx.conf /etc/nginx/conf.d/kolibri.conf
     db_get kolibri-server/port
     su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $RET"
     echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
