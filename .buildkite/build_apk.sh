@@ -7,7 +7,7 @@ set -euo pipefail
 # clone the repo if folder does not exist
 if [ ! -d $ANDROID_REPO_NAME ]; then
   echo '--- :robot_face: Cloning android repo'
-  git clone https://github.com/learningequality/${ANDROID_REPO_NAME}.git
+  git clone -b develop https://github.com/learningequality/${ANDROID_REPO_NAME}.git
 fi
 
 cd $ANDROID_REPO_NAME
