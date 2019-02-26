@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 
+from django.db import connection
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
@@ -48,6 +49,7 @@ def update_channel_metadata():
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
     fix_multiple_trees_with_id_one()
+    connection.close()
 
 
 def fix_multiple_trees_with_id_one():

@@ -6,6 +6,7 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand
+from django.db import connection
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
@@ -61,6 +62,8 @@ class Command(BaseCommand):
                     logger.info("Ping succeeded! (response: {})".format(data))
                     if "id" in data:
                         self.perform_statistics(server, data["id"])
+                    connection.close()
+
                 if once:
                     break
                 logger.info("Sleeping for {} minutes.".format(interval))
