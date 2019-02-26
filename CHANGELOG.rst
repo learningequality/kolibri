@@ -7,16 +7,42 @@ List of the most important changes for each release.
 0.12.0
 ------
 
-Internationalization and localization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Added
+~~~~~
 
- - Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
+- Coach Dashboard - added regularly updating notifications and new information architecture for the coach interface, to provide actionable feedback for coaches about learner progress
+- New capability for sandboxed HTML5 app content to utilize sessionStorage, localStorage and cookies, with the latter two restored between user sessions
+- Support for enrolling learners in multiple groups in a class
+- Management command to reorder channels to provide more customized display in learn
+
 
 Changed or fixed
 ~~~~~~~~~~~~~~~~
 
- - Quizzes with content from deleted channels will now show an error message when a learner or coach is viewing the problems in the quiz or quiz report.
- - Lessons with content from deleted channels will have those contents automatically removed. If you have created lessons with deleted content prior to 0.12, learner playlists and coach reports for those lessons will be broken. To fix the lesson, simply view it as a coach under Coach > Plan, and it will be fixed and updated automatically.
+- Exams are now known as Quizzes
+- Quizzes with content from deleted channels will now show an error message when a learner or coach is viewing the problems in the quiz or quiz report
+- Lessons with content from deleted channels will have those contents automatically removed. If you have created lessons with deleted content prior to 0.12, learner playlists and coach reports for those lessons will be broken. To fix the lesson, simply view it as a coach under Coach > Plan, and it will be fixed and updated automatically
+- Changes the sub-navigation to a Material Design tabs-like experience
+- Make facility log exporting a background process for a better user experience when downloading large logs
+- Allow daemonization on Mac OSX, to allow background running of Kolibri
+- Allow appbar to move off screen when scrolling on mobile, to increase screen real estate
+- Kolibri now supports for iOS Safari 9.3+
+- Validation is now done in the 'provisiondevice' command for the username of the super admin user being created
+- Disable import and export buttons while a channel is being downloaded to prevent accidental clicks
+- Prevent quizzes and lessons in the same class from being created with the same name
+- Update quiz and lesson progress for learners without refreshing the page
+- Improved focus rings for keyboard navigation
+- Coach content no longer appears in recommendations for non-coach users
+- The Kolibri loading animation is now beautiful, and much quicker to load
+- Icons and tables are now more standardized across Kolibri, to give a more consistent user experience
+- Enable two high contrast themes for EPUB rendering for better accessibility
+- Supports accessing Kolibri through uwsgi
+
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Languages: English, Arabic, Bengali, Bulgarian, Chinyanja, Farsi, French, Fulfulde Mbororoore, Hindi, Marathi, Portuguese (Brazilian), Spanish, Swahili, Telugu, Urdu, Vietnamese, and Yoruba
 
 See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.0>`__ of changes on Github
 
