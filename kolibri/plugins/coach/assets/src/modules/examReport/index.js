@@ -1,6 +1,5 @@
 import find from 'lodash/find';
 import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-
 import { convertExamQuestionSourcesV0V1 } from 'kolibri.utils.exams';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import * as actions from './actions';
