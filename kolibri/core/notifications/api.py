@@ -83,7 +83,7 @@ def save_notifications(notifications):
 
 def create_notification(notification_object, notification_event, user_id, group_id, lesson_id=None,
                         contentnode_id=None,
-                        quiz_id=None, quiz_num_correct=None, reason=None):
+                        quiz_id=None, quiz_num_correct=None, reason=None, timestamp=None):
     notification = LearnerProgressNotification()
     notification.user_id = user_id
     notification.classroom_id = group_id
@@ -99,10 +99,12 @@ def create_notification(notification_object, notification_event, user_id, group_
         notification.quiz_num_correct = quiz_num_correct
     if reason:
         notification.reason = reason
+    if timestamp:
+        notification.timestamp = timestamp
     return notification
 
 
-def check_and_created_completed_resource(lesson, user_id, contentnode_id):
+def check_and_created_completed_resource(lesson, user_id, contentnode_id, timestamp):
     notification = None
     # Check if the notification has been previously saved:
     if not LearnerProgressNotification.objects.filter(user_id=user_id,
@@ -116,11 +118,12 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id):
                                            user_id,
                                            lesson.group_or_classroom,
                                            lesson_id=lesson.id,
-                                           contentnode_id=contentnode_id)
+                                           contentnode_id=contentnode_id,
+                                           timestamp=timestamp)
     return notification
 
 
-def check_and_created_completed_lesson(lesson, user_id):
+def check_and_created_completed_lesson(lesson, user_id, timestamp):
     notification = None
     # Check if the notification has been previously saved:
     if not LearnerProgressNotification.objects.filter(user_id=user_id,
@@ -131,11 +134,11 @@ def check_and_created_completed_lesson(lesson, user_id):
         # Let's create an Lesson Completion notification
         notification = create_notification(NotificationObjectType.Lesson, NotificationEventType.Completed,
                                            user_id,
-                                           lesson.group_or_classroom, lesson_id=lesson.id)
+                                           lesson.group_or_classroom, lesson_id=lesson.id, timestamp=timestamp)
     return notification
 
 
-def check_and_created_started(lesson, user_id, contentnode_id):
+def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
     # If the Resource started notification exists, nothing to do here:
     if LearnerProgressNotification.objects.filter(user_id=user_id,
                                                   notification_object=NotificationObjectType.Resource,
@@ -151,7 +154,8 @@ def check_and_created_started(lesson, user_id, contentnode_id):
                                              user_id,
                                              lesson.group_or_classroom,
                                              lesson_id=lesson.id,
-                                             contentnode_id=contentnode_id))
+                                             contentnode_id=contentnode_id,
+                                             timestamp=timestamp))
 
     # Check if the Lesson started  has already been created:
     if not LearnerProgressNotification.objects.filter(user_id=user_id,
@@ -162,7 +166,7 @@ def check_and_created_started(lesson, user_id, contentnode_id):
         # and create it if that's not the case
         notifications.append(create_notification(NotificationObjectType.Lesson, NotificationEventType.Started,
                                                  user_id,
-                                                 lesson.group_or_classroom, lesson_id=lesson.id))
+                                                 lesson.group_or_classroom, lesson_id=lesson.id, timestamp=timestamp))
     return notifications
 
 
@@ -175,7 +179,7 @@ def create_summarylog(summarylog):
     lessons = get_assignments(summarylog, summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
-        notifications_started = check_and_created_started(lesson, summarylog.user_id, contentnode_id)
+        notifications_started = check_and_created_started(lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp)
         notifications += notifications_started
 
     save_notifications(notifications)
@@ -202,7 +206,7 @@ def parse_summarylog(summarylog):
     notifications = []
     for lesson, contentnode_id in lessons:
         # Now let's check completed resources and lessons:
-        notification_completed = check_and_created_completed_resource(lesson, summarylog.user_id, contentnode_id)
+        notification_completed = check_and_created_completed_resource(lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp)
         if notification_completed:
             notifications.append(notification_completed)
         else:
@@ -214,7 +218,7 @@ def parse_summarylog(summarylog):
                                                           content_id__in=lesson_content_ids,
                                                           progress=1.0).count()
         if user_completed == len(lesson_content_ids):
-            notification_completed = check_and_created_completed_lesson(lesson, summarylog.user_id)
+            notification_completed = check_and_created_completed_lesson(lesson, summarylog.user_id, summarylog.end_timestamp)
             if notification_completed:
                 notifications.append(notification_completed)
 
@@ -238,7 +242,7 @@ def num_correct(examlog):
     )
 
 
-def created_quiz_notification(examlog, event_type):
+def created_quiz_notification(examlog, event_type, timestamp):
     user_classrooms = examlog.user.memberships.all()
 
     touched_groups = get_exam_group(user_classrooms, examlog.exam_id)
@@ -246,13 +250,13 @@ def created_quiz_notification(examlog, event_type):
     for group in touched_groups:
         notification = create_notification(NotificationObjectType.Quiz, event_type,
                                            examlog.user_id, group, quiz_id=examlog.exam_id,
-                                           quiz_num_correct=num_correct(examlog))
+                                           quiz_num_correct=num_correct(examlog), timestamp=timestamp)
         notifications.append(notification)
 
     save_notifications(notifications)
 
 
-def create_examlog(examlog):
+def create_examlog(examlog, timestamp):
     """
     Method called by the ExamLogSerializer when the
     examlog is created.
@@ -263,10 +267,10 @@ def create_examlog(examlog):
         return  # the event has already been triggered
     event_type = NotificationEventType.Started
     exist_exam_notification.cache_clear()
-    created_quiz_notification(examlog, event_type)
+    created_quiz_notification(examlog, event_type, timestamp)
 
 
-def parse_examlog(examlog):
+def parse_examlog(examlog, timestamp):
     """
     Method called by the ExamLogSerializer everytime the
     summarylog is updated.
@@ -275,7 +279,7 @@ def parse_examlog(examlog):
     if not examlog.closed:
         return
     event_type = NotificationEventType.Completed
-    created_quiz_notification(examlog, event_type)
+    created_quiz_notification(examlog, event_type, timestamp)
 
 
 def parse_attemptslog(attemptlog):
@@ -312,6 +316,7 @@ def parse_attemptslog(attemptlog):
                                                attemptlog.user_id, lesson.group_or_classroom,
                                                lesson_id=lesson.id,
                                                contentnode_id=contentnode_id,
-                                               reason=HelpReason.Multiple)
+                                               reason=HelpReason.Multiple,
+                                               timestamp=attemptlog.end_timestamp)
             notifications.append(notification)
         save_notifications(notifications)

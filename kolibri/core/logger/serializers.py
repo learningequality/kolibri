@@ -20,6 +20,7 @@ from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogSerializer(KolibriModelSerializer):
@@ -59,13 +60,13 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         instance = super(ExamLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(parse_examlog, instance)
+        wrap_to_save_queue(parse_examlog, instance, local_now())
         return instance
 
     def create(self, validated_data):
         instance = super(ExamLogSerializer, self).create(validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(create_examlog, instance)
+        wrap_to_save_queue(create_examlog, instance, local_now())
         return instance
 
 
