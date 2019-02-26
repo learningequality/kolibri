@@ -1,28 +1,40 @@
-Feature: Super admin receives upgrade notification
-    Super admin needs to be able to dismiss or click out of notification
+Feature: Super admin receives the notification to upgrade Kolibri
+    Super admin needs to be able to temporarily or permanently dismiss the upgrade notification
 
   Background:
     Given I am signed in to Kolibri as super admin
-      And I see a notification message
+      And I see the upgrade notification message
+
+  Scenario: Trigger a notification
+    When I set KOLIBRI_RUN_MODE to "GHERKIN-[string]" where `[string]` is any string of letters and numbers
+      And I start the server
+      And I log in
+    Then I should get a notification
+
+  Scenario: Trigger a different notification
+    When I set KOLIBRI_RUN_MODE to a different  "GHERKIN-[string]"
+      And I start the server
+      And I log in
+    Then I should get a different notification
 
   Scenario: Temporarily dismiss notification
     When I click *OK*
-    Then the notification goes away
-      And I log out
-      And I log back in
-    Then the notification appears again
+    Then the notification closes
+    When I sign out
+      And I sign back in
+    Then I see the upgrade notification again
 
   Scenario: Permanently dismiss notification
     When I check *Do not show again* box
-    Then I click *OK*
-    Then the notification goes away
-      And I log out
-      And I log back in
-    Then the notification does not appear
+      And I click *OK*
+    Then the notification closes
+    When I sign out
+      And I sign back in
+    Then I don't see the upgrade notification
 
-  Scenario: Upgrade kolibri through notification link
+  Scenario: Upgrade Kolibri through the link inside notification message
     When I click on the upgrade link
-    Then I download latest kolibri installer
-    Then I install latest kolibri
-    When I log in
-    Then the previous upgrade notification does not appear
+    Then I download the most recent Kolibri installer
+    When I finish the Kolibri upgrade
+      And I sign back in
+    Then I don't see the upgrade notification
