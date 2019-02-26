@@ -11,7 +11,6 @@
     <KPageContainer>
       <PlanHeader />
 
-      <h1>{{ $tr('classLessons') }}</h1>
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"

@@ -10,7 +10,6 @@
 
     <KPageContainer>
       <PlanHeader />
-      <h1>{{ $tr('classGroups') }}</h1>
       <div class="ta-r">
         <KButton
           class="new-group-button"
