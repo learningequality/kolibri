@@ -130,14 +130,14 @@ class NotificationsAPITestCase(APITestCase):
         summarylog = ContentSummaryLogFactory.create(user=self.user2,
                                                      content_id=self.node_1.content_id,
                                                      channel_id=self.channel_id)
-        lessons = get_assignments(summarylog, summarylog, attempt=False)
+        lessons = get_assignments(self.user2, summarylog, attempt=False)
         assert lessons == []
         # user1 has one lesson:
-        lessons = get_assignments(self.summarylog1, self.summarylog1, attempt=False)
+        lessons = get_assignments(self.user1, self.summarylog1, attempt=False)
         assert len(lessons) > 0
         assert type(lessons[0][0]) == Lesson
         # being the node an Exercise, it should be available for attempts:
-        lessons = get_assignments(self.summarylog1, self.summarylog1, attempt=True)
+        lessons = get_assignments(self.user1, self.summarylog1, attempt=True)
         assert len(lessons) > 0
 
     def test_get_exam_group(self):
