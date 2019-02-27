@@ -12,6 +12,7 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 import django
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
+from django.db import connections
 from django.db.utils import DatabaseError
 from docopt import docopt
 
@@ -318,6 +319,11 @@ def start(port=None, daemon=True):
         )
         kwargs['out_log'] = server.DAEMON_LOG
         kwargs['err_log'] = server.DAEMON_LOG
+
+        # close all connections before forking, to avoid SQLite corruption:
+        # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
+        connections.close_all()
+
         become_daemon(**kwargs)
 
     server.start(port=port, run_cherrypy=run_cherrypy)
