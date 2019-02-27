@@ -298,37 +298,30 @@ def parse_attemptslog(attemptlog):
     # More than 3 errors in this mastery log:
     needs_help = len(failed_interactions) > 3
 
-    if needs_help:
-        notifications = []
-        for lesson, contentnode_id in lessons:
+    notifications = []
+    for lesson, contentnode_id in lessons:
+        if needs_help:
             # This Event should be triggered only once
             # TODO: Decide if add a day interval filter, to trigger the event in different days
-            if LearnerProgressNotification.objects.filter(user_id=attemptlog.user_id,
-                                                          notification_object=NotificationObjectType.Resource,
-                                                          notification_event=NotificationEventType.Help,
-                                                          lesson_id=lesson.id,
-                                                          classroom_id=lesson.group_or_classroom,
-                                                          contentnode_id=contentnode_id).exists():
-                continue
-            notification = create_notification(NotificationObjectType.Resource, NotificationEventType.Help,
-                                               attemptlog.user_id, lesson.group_or_classroom,
-                                               lesson_id=lesson.id,
-                                               contentnode_id=contentnode_id,
-                                               reason=HelpReason.Multiple,
-                                               timestamp=attemptlog.end_timestamp)
-            notifications.append(notification)
-        save_notifications(notifications)
-
-    else:
-        notifications = []
-        for lesson, contentnode_id in lessons:
-            if LearnerProgressNotification.objects.filter(user_id=attemptlog.user_id,
+            if not LearnerProgressNotification.objects.filter(user_id=attemptlog.user_id,
+                                                              notification_object=NotificationObjectType.Resource,
+                                                              notification_event=NotificationEventType.Help,
+                                                              lesson_id=lesson.id,
+                                                              classroom_id=lesson.group_or_classroom,
+                                                              contentnode_id=contentnode_id).exists():
+                notification = create_notification(NotificationObjectType.Resource, NotificationEventType.Help,
+                                                   attemptlog.user_id, lesson.group_or_classroom,
+                                                   lesson_id=lesson.id,
+                                                   contentnode_id=contentnode_id,
+                                                   reason=HelpReason.Multiple,
+                                                   timestamp=attemptlog.end_timestamp)
+                notifications.append(notification)
+        if not LearnerProgressNotification.objects.filter(user_id=attemptlog.user_id,
                                                           notification_object=NotificationObjectType.Resource,
                                                           notification_event=NotificationEventType.Started,
                                                           lesson_id=lesson.id,
                                                           classroom_id=lesson.group_or_classroom,
                                                           contentnode_id=contentnode_id).exists():
-                continue
             notification = create_notification(NotificationObjectType.Resource,
                                                NotificationEventType.Started,
                                                attemptlog.user_id,
@@ -337,4 +330,5 @@ def parse_attemptslog(attemptlog):
                                                contentnode_id=contentnode_id,
                                                timestamp=attemptlog.start_timestamp)
             notifications.append(notification)
+    if notifications:
         save_notifications(notifications)
