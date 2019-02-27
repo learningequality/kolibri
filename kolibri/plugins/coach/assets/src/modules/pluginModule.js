@@ -106,7 +106,7 @@ export default {
       store
         .dispatch('classSummary/loadClassSummary', classId)
         .catch(error => this.store.dispatch('handleApiError', error));
-      Promise.resolve();
+      return Promise.resolve();
     },
   },
   modules: {
