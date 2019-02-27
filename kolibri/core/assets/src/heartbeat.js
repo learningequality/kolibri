@@ -147,7 +147,7 @@ export class HeartBeat {
               // Multiply the previous interval by our multiplier, but max out at a high interval.
               Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
             );
-            createDisconnectedSnackbar(store, heartbeat.beat);
+            createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
             return response;
           },
         })
