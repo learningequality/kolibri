@@ -39,7 +39,7 @@
             {{ content.license_name }}
             <InfoIcon
               v-if="content.license_description"
-              :tooltipText="content.license_description"
+              :tooltipText="licenseHelpText"
               :iconAriaLabel="content.license_description"
             />
           </li>
@@ -82,6 +82,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import { licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -169,6 +170,21 @@
       },
       content() {
         return this.currentContentNode;
+      },
+      translatedLicense() {
+        if (
+          licenseTranslations[global.languageCode] &&
+          licenseTranslations[global.languageCode][this.content.license_name]
+        ) {
+          return licenseTranslations[global.languageCode][this.content.license_name];
+        }
+        return null;
+      },
+      licenseHelpText() {
+        if (this.translatedLicense) {
+          return `${this.translatedLicense.name} – ${this.translatedLicense.description}`;
+        }
+        return this.content.license_description;
       },
     },
     methods: {
