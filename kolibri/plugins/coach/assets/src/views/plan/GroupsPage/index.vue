@@ -64,6 +64,7 @@
         v-if="showDeleteGroupModal"
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
+        @success="handleSuccessDeleteGroup"
       />
 
     </KPageContainer>
@@ -151,6 +152,13 @@
       handleSuccessCreateGroup() {
         this.createSnackbar({
           text: groupMgmtStrings.$tr('groupCreatedNotice'),
+          autoDismiss: true,
+        });
+        this.displayModal(false);
+      },
+      handleSuccessDeleteGroup() {
+        this.createSnackbar({
+          text: groupMgmtStrings.$tr('groupDeletedNotice'),
           autoDismiss: true,
         });
         this.displayModal(false);
