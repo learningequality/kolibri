@@ -194,11 +194,6 @@ def parse_summarylog(summarylog):
     Lesson Completed notification.
     """
 
-    # updating an exercise summary log might mean they made their first attempt in the exercise/lesson
-    # we try to create notifications for this event
-    if summarylog.kind == content_kinds.EXERCISE:
-        create_summarylog(summarylog)
-
     if summarylog.progress < 1.0:
         return
 

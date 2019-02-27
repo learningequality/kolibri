@@ -166,12 +166,7 @@ class NotificationsAPITestCase(APITestCase):
     @patch('kolibri.core.notifications.api.save_notifications')
     def test_parse_summarylog_exercise(self, save_notifications):
         parse_summarylog(self.summarylog2)
-        assert save_notifications.called
-        notification = save_notifications.call_args[0][0][0]
-        assert notification.notification_object == NotificationObjectType.Resource
-        assert notification.notification_event == NotificationEventType.Started
-        assert notification.lesson_id == self.lesson.id
-        assert notification.contentnode_id == self.node_2.id
+        assert save_notifications.called is False
 
     @patch('kolibri.core.notifications.api.save_notifications')
     def test_create_summarylog(self, save_notifications):
