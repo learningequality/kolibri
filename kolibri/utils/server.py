@@ -17,6 +17,7 @@ from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
+from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
 
@@ -456,5 +457,11 @@ def installation_type(cmd_line=None):  # noqa:C901
                     break
         elif 'start' in cmd_line:
             install_type = 'whl'
+    if on_android():
+        from jnius import autoclass
+        context = autoclass('org.kivy.android.PythonActivity')
+        version_name = context.getPackageManager().getPackageInfo(
+            context.getPackageName(), 0).versionName
+        install_type = 'apk - {}'.format(version_name)
 
     return install_type
