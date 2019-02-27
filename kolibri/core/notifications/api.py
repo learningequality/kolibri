@@ -15,11 +15,11 @@ from kolibri.core.logger.models import ContentSummaryLog
 
 
 @memoize
-def get_assignments(instance, summarylog, attempt=False):
+def get_assignments(user, summarylog, attempt=False):
     """
     Returns all Lessons assigned to the user having the content_id
     """
-    memberships = instance.user.memberships.all()
+    memberships = user.memberships.all()
     # If the user is not in any classroom nor group, nothing to notify
     if not memberships:
         return []
@@ -176,7 +176,7 @@ def create_summarylog(summarylog):
     summarylog is created.
     It creates the Resource and, if needed, the Lesson Started event
     """
-    lessons = get_assignments(summarylog, summarylog)
+    lessons = get_assignments(summarylog.user, summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
         notifications_started = check_and_created_started(lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp)
@@ -202,7 +202,7 @@ def parse_summarylog(summarylog):
     if summarylog.progress < 1.0:
         return
 
-    lessons = get_assignments(summarylog, summarylog)
+    lessons = get_assignments(summarylog.user, summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
         # Now let's check completed resources and lessons:
@@ -290,13 +290,16 @@ def parse_attemptslog(attemptlog):
     for the user & resource
     """
     # This Event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
-    lessons = get_assignments(attemptlog, attemptlog.masterylog.summarylog, attempt=True)
+    lessons = get_assignments(attemptlog.user, attemptlog.masterylog.summarylog, attempt=True)
     if not lessons:
         return
     # get all the attempt logs on this exercise:
     failed_interactions = []
     attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
+
+    # NOTE: saw at elast one error here where failed['correct'] raised a key error
     failed_interactions = [failed for attempt in attempts for failed in attempt.interaction_history if failed['correct'] == 0]
+
     # More than 3 errors in this mastery log:
     needs_help = len(failed_interactions) > 3
 
