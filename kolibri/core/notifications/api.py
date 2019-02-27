@@ -337,6 +337,6 @@ def parse_attemptslog(attemptlog):
                                                lesson.group_or_classroom,
                                                lesson_id=lesson.id,
                                                contentnode_id=contentnode_id,
-                                               reason=HelpReason.Multiple)
+                                               timestamp=attemptlog.start_timestamp)
             notifications.append(notification)
         save_notifications(notifications)

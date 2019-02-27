@@ -184,10 +184,10 @@ class NotificationsAPITestCase(APITestCase):
     @patch('kolibri.core.notifications.api.save_notifications')
     def test_parse_examlog(self, save_notifications):
         examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
-        parse_examlog(examlog)
+        parse_examlog(examlog, local_now())
         assert save_notifications.called is False
         examlog.closed = True
-        parse_examlog(examlog)
+        parse_examlog(examlog, local_now())
         assert save_notifications.called
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Quiz
@@ -196,7 +196,7 @@ class NotificationsAPITestCase(APITestCase):
     @patch('kolibri.core.notifications.api.save_notifications')
     def test_create_examlog(self, save_notifications):
         examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
-        create_examlog(examlog)
+        create_examlog(examlog, local_now())
         assert save_notifications.called
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Quiz
@@ -218,7 +218,17 @@ class NotificationsAPITestCase(APITestCase):
                                                 interaction_history=interactions
                                                 )
         parse_attemptslog(attemptlog1)
-        assert save_notifications.called is False
+        assert save_notifications.called
+        save_notifications.reset_mock()
+        attemptlog2 = AttemptLog.objects.create(masterylog=masterylog, sessionlog=log,
+                                                user=self.user1, start_timestamp=now,
+                                                end_timestamp=now, time_spent=1.0,
+                                                complete=True, correct=1,
+                                                hinted=False, error=False,
+                                                interaction_history=interactions
+                                                )
+        parse_attemptslog(attemptlog2)
+        assert save_notifications.called
         # more than 3 attempts will trigger the help notification
         interactions.append({"type": "answer", "correct": 0})
         attemptlog2 = AttemptLog.objects.create(masterylog=masterylog, sessionlog=log,
