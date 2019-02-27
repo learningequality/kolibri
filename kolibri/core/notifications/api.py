@@ -315,3 +315,23 @@ def parse_attemptslog(attemptlog):
                                                reason=HelpReason.Multiple)
             notifications.append(notification)
         save_notifications(notifications)
+
+    else:
+        notifications = []
+        for lesson, contentnode_id in lessons:
+            if LearnerProgressNotification.objects.filter(user_id=attemptlog.user_id,
+                                                          notification_object=NotificationObjectType.Resource,
+                                                          notification_event=NotificationEventType.Started,
+                                                          lesson_id=lesson.id,
+                                                          classroom_id=lesson.group_or_classroom,
+                                                          contentnode_id=contentnode_id).exists():
+                continue
+            notification = create_notification(NotificationObjectType.Resource,
+                                               NotificationEventType.Started,
+                                               attemptlog.user_id,
+                                               lesson.group_or_classroom,
+                                               lesson_id=lesson.id,
+                                               contentnode_id=contentnode_id,
+                                               reason=HelpReason.Multiple)
+            notifications.append(notification)
+        save_notifications(notifications)
