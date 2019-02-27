@@ -64,7 +64,6 @@
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
-
       <p v-if="content.license_name">
         {{ $tr('license', {license: content.license_name}) }}
 
@@ -78,9 +77,13 @@
             <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
             <mat-svg v-else name="expand_more" category="navigation" />
           </UiIconButton>
-          <p v-if="licenceDescriptionIsVisible" dir="auto">
-            {{ content.license_description }}
-          </p>
+          <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
+            <template v-if="translatedLicense">
+              <p class="license-details-name">{{ licenseName }}</p>
+              <p>{{ licenseDescription }}</p>
+            </template>
+            <p v-else>{{ content.license_description }}</p>
+          </div>
         </template>
       </p>
 
@@ -135,6 +138,7 @@
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
+  import { licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
@@ -251,6 +255,27 @@
           params: { id: this.content.next_content.id },
         };
       },
+      translatedLicense() {
+        if (
+          licenseTranslations[global.languageCode] &&
+          licenseTranslations[global.languageCode][this.content.license_name]
+        ) {
+          return licenseTranslations[global.languageCode][this.content.license_name];
+        }
+        return null;
+      },
+      licenseName() {
+        if (this.translatedLicense) {
+          return this.translatedLicense.name;
+        }
+        return this.content.license_name;
+      },
+      licenseDescription() {
+        if (this.translatedLicense) {
+          return this.translatedLicense.description;
+        }
+        return this.content.license_description;
+      },
     },
     beforeDestroy() {
       this.stopTracking();
@@ -316,6 +341,15 @@
 
   .download-button {
     display: block;
+  }
+
+  .license-details {
+    margin-bottom: 24px;
+    margin-left: 16px;
+  }
+
+  .license-details-name {
+    font-weight: bold;
   }
 
 </style>

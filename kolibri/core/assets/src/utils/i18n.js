@@ -4,6 +4,8 @@ import logger from 'kolibri.lib.logging';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
+export { licenseTranslations } from './licenseTranslations';
+
 const logging = logger.getLogger(__filename);
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
