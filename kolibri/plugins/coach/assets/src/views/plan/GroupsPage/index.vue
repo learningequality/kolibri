@@ -50,6 +50,7 @@
       <CreateGroupModal
         v-if="showCreateGroupModal"
         :groups="sortedGroups"
+        @success="handleSuccessCreateGroup"
       />
 
       <RenameGroupModal
@@ -80,6 +81,7 @@
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -128,6 +130,7 @@
     },
     methods: {
       ...mapActions('groups', ['displayModal']),
+      ...mapActions(['createSnackbar']),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -144,6 +147,13 @@
           id: groupId,
         };
         this.displayModal(GroupModals.DELETE_GROUP);
+      },
+      handleSuccessCreateGroup() {
+        this.createSnackbar({
+          text: groupMgmtStrings.$tr('groupCreatedNotice'),
+          autoDismiss: true,
+        });
+        this.displayModal(false);
       },
     },
   };
