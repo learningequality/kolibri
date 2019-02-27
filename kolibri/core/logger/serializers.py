@@ -20,6 +20,7 @@ from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogSerializer(KolibriModelSerializer):
@@ -59,13 +60,13 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         instance = super(ExamLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(parse_examlog, instance)
+        wrap_to_save_queue(parse_examlog, instance, local_now())
         return instance
 
     def create(self, validated_data):
         instance = super(ExamLogSerializer, self).create(validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(create_examlog, instance)
+        wrap_to_save_queue(create_examlog, instance, local_now())
         return instance
 
 
@@ -109,6 +110,12 @@ class AttemptLogSerializer(KolibriModelSerializer):
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history', 'error')
+
+    def create(self, validated_data):
+        instance = super(AttemptLogSerializer, self).create(validated_data)
+        # to check if a notification must be created:
+        wrap_to_save_queue(parse_attemptslog, instance)
+        return instance
 
     def update(self, instance, validated_data):
         instance = super(AttemptLogSerializer, self).update(instance, validated_data)
