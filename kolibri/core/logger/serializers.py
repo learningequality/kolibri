@@ -111,6 +111,12 @@ class AttemptLogSerializer(KolibriModelSerializer):
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history', 'error')
 
+    def create(self, validated_data):
+        instance = super(AttemptLogSerializer, self).create(validated_data)
+        # to check if a notification must be created:
+        wrap_to_save_queue(parse_attemptslog, instance)
+        return instance
+
     def update(self, instance, validated_data):
         instance = super(AttemptLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
