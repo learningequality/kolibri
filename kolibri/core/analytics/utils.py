@@ -72,13 +72,10 @@ def version_matches_range(version, version_range):
 
 def normalize_version_to_semver(version):
 
-    initial, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
-
-    # clean up after some funny versions we've seen (e.g. 0.8.0-alpha-0)
-    initial = initial.split("-")[0].split("+")[0]
+    _, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
 
     # extract the numeric semver component and the stuff that comes after
-    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", initial).groups()
+    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", version).groups()
 
     # clean up the different variations of the post-numeric component to ease checking
     after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
