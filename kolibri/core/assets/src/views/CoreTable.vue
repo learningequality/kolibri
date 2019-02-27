@@ -117,7 +117,7 @@
 
   /deep/ td {
     max-width: 300px;
-    overflow-x: scroll;
+    overflow-x: auto;
   }
 
   /deep/ tr:not(:last-child) {
