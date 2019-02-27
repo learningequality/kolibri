@@ -3,6 +3,7 @@ from django.db.models import Max
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
+from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -207,6 +208,10 @@ def data(Serializer, queryset):
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
+
+    # TODO use more granular permissions. Not sure if KolibriReportPermissions will
+    # work as is, though.
+    permission_classes = (permissions.IsAuthenticated,)
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
