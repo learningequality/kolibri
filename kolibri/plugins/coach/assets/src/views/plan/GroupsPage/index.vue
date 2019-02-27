@@ -10,7 +10,6 @@
 
     <KPageContainer>
       <PlanHeader />
-      <h1>{{ $tr('classGroups') }}</h1>
       <div class="ta-r">
         <KButton
           class="new-group-button"
@@ -110,11 +109,10 @@
           name: '',
           id: '',
         },
-        usersToMove: [],
       };
     },
     computed: {
-      ...mapState('groups', ['classUsers', 'groupModalShown', 'groups']),
+      ...mapState('groups', ['groupModalShown', 'groups']),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },

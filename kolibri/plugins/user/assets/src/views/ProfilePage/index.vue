@@ -186,7 +186,10 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', {
+        profileErrors: 'errors',
+      }),
       userPermissions() {
         return pickBy(this.getUserPermissions);
       },
@@ -253,10 +256,7 @@
         return Boolean(this.usernameIsInvalidText);
       },
       usernameAlreadyExists() {
-        if (this.profileErrors) {
-          return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-        }
-        return false;
+        return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
       },
       formIsValid() {
         return !this.usernameIsInvalid;

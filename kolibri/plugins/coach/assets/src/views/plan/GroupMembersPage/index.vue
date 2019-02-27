@@ -1,15 +1,22 @@
 <template>
 
   <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="arrow_back"
-    :immersivePagePrimary="true"
-    :primary="true"
-    :toolbarTitle="$tr('groupsHeader')"
-    :appBarTitle="$tr('groupsHeader')"
-    :immersivePageRoute="$router.getRoute('GroupsPage')"
+    :immersivePage="false"
+    :authorized="userIsAuthorized"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
   >
+    <TopNavbar slot="sub-nav" />
+
     <KPageContainer>
+      <p>
+        <BackLink
+          :to="$router.getRoute('GroupsPage')"
+          :text="backLinkString"
+        />
+
+      </p>
+
       <div v-if="!currentGroup">
         {{ $tr('groupDoesNotExist') }}
       </div>
@@ -98,9 +105,13 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
+  import ReportsGroupHeader from '../../reports/ReportsGroupHeader';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
+
+  const ReportsGroupHeaderStrings = crossComponentTranslator(ReportsGroupHeader);
 
   export default {
     name: 'GroupMembersPage',
@@ -128,6 +139,9 @@
     },
     computed: {
       ...mapState('groups', ['groups']),
+      backLinkString() {
+        return ReportsGroupHeaderStrings.$tr('back');
+      },
       currentGroup() {
         return this.groups.find(g => g.id === this.$route.params.groupId);
       },
