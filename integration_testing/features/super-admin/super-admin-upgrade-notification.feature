@@ -6,13 +6,13 @@ Feature: Super admin receives the notification to upgrade Kolibri
       And I see the upgrade notification message
 
   Scenario: Trigger a notification
-    When I set KOLIBRI_RUN_MODE to "GHERKIN-[string]" where `[string]` is any string of letters and numbers
+    When I set KOLIBRI_RUN_MODE to "msg-[string]" where `[string]` is any string of letters and numbers
       And I start the server
       And I log in
     Then I should get a notification
 
   Scenario: Trigger a different notification
-    When I set KOLIBRI_RUN_MODE to a different  "GHERKIN-[string]"
+    When I set KOLIBRI_RUN_MODE to a different  "msg-[string]"
       And I start the server
       And I log in
     Then I should get a different notification
