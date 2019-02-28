@@ -30,6 +30,19 @@ describe('elapsed time component', () => {
     const timeText = getTimeText(wrapper);
     expect(timeText).toEqual('—');
   });
+  it('should ceiling the time at now if the time is bigger than now', () => {
+    const date20SecondsInTheFuture = new Date(DUMMY_CURRENT_DATE);
+    date20SecondsInTheFuture.setSeconds(date20SecondsInTheFuture.getSeconds() + 20);
+    const wrapper = makeWrapper({
+      propsData: {
+        date: date20SecondsInTheFuture,
+      },
+    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
+    const timeText = getTimeText(wrapper);
+    expect(/now/.test(timeText)).toEqual(true);
+  });
+
   it('should use seconds if the date passed in 1 second ago', () => {
     const date1SecondAgo = new Date(DUMMY_CURRENT_DATE);
     date1SecondAgo.setSeconds(date1SecondAgo.getSeconds() - 1);
