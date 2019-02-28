@@ -52,20 +52,20 @@ class AsyncNotificationQueue():
         Execute any log saving functions in the self.running list
         """
         if self.running:
-            logging.warn('>>> AsyncNotificationQueue.run 2')
+            logging.error('>>> AsyncNotificationQueue.run 2')
             # Do this conditionally to avoid opening an unnecessary transaction
             with transaction.atomic():
-                logging.warn('>>> AsyncNotificationQueue.run 3')
+                logging.error('>>> AsyncNotificationQueue.run 3')
                 for fn in self.running:
-                    logging.warn('>>> AsyncNotificationQueue.run 4')
+                    logging.error('>>> AsyncNotificationQueue.run 4')
                     try:
-                        logging.warn('>>> AsyncNotificationQueue.run 5')
+                        logging.error('>>> AsyncNotificationQueue.run 5')
                         fn()
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.warn('>>> AsyncNotificationQueue.run 6 FAIL')
-                        logging.warn("Exception raised during background notification calculation: ", e)
+                        logging.error('>>> AsyncNotificationQueue.run 6 FAIL')
+                        logging.error("Exception raised during background notification calculation: ", e)
                         raise
             connection.close()
 
