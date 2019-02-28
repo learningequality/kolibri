@@ -217,13 +217,20 @@ class NotificationsAPITestCase(APITestCase):
                                                 )
         parse_attemptslog(attemptlog1)
         assert save_notifications.called
-        create_notification.assert_called_once_with(NotificationObjectType.Resource,
-                                                    NotificationEventType.Started,
-                                                    attemptlog1.user_id,
-                                                    self.classroom.id,
-                                                    lesson_id=self.lesson_id,
-                                                    contentnode_id=self.node_1.id,
-                                                    timestamp=attemptlog1.start_timestamp)
+        create_notification.assert_any_call(NotificationObjectType.Resource,
+                                            NotificationEventType.Started,
+                                            attemptlog1.user_id,
+                                            self.classroom.id,
+                                            lesson_id=self.lesson_id,
+                                            contentnode_id=self.node_1.id,
+                                            timestamp=attemptlog1.start_timestamp)
+
+        create_notification.assert_any_call(NotificationObjectType.Lesson,
+                                            NotificationEventType.Started,
+                                            attemptlog1.user_id,
+                                            self.classroom.id,
+                                            lesson_id=self.lesson_id,
+                                            timestamp=attemptlog1.start_timestamp)
 
     @patch('kolibri.core.notifications.api.create_notification')
     @patch('kolibri.core.notifications.api.save_notifications')
@@ -247,6 +254,13 @@ class NotificationsAPITestCase(APITestCase):
                                                    classroom_id=self.classroom.id,
                                                    lesson_id=self.lesson_id,
                                                    contentnode_id=self.node_1.id,
+                                                   timestamp=attemptlog1.start_timestamp)
+
+        LearnerProgressNotification.objects.create(notification_object=NotificationObjectType.Lesson,
+                                                   notification_event=NotificationEventType.Started,
+                                                   user_id=attemptlog1.user_id,
+                                                   classroom_id=self.classroom.id,
+                                                   lesson_id=self.lesson_id,
                                                    timestamp=attemptlog1.start_timestamp)
 
         attemptlog2 = AttemptLog.objects.create(masterylog=masterylog, sessionlog=log,
@@ -300,6 +314,13 @@ class NotificationsAPITestCase(APITestCase):
                                                    lesson_id=self.lesson_id,
                                                    contentnode_id=self.node_1.id,
                                                    timestamp=attemptlog3.start_timestamp)
+
+        LearnerProgressNotification.objects.create(notification_object=NotificationObjectType.Lesson,
+                                                   notification_event=NotificationEventType.Started,
+                                                   user_id=attemptlog3.user_id,
+                                                   classroom_id=self.classroom.id,
+                                                   lesson_id=self.lesson_id,
+                                                   timestamp=attemptlog3.start_timestamp)
         parse_attemptslog(attemptlog3)
         assert save_notifications.called
         create_notification.assert_called_once_with(NotificationObjectType.Resource,
@@ -350,6 +371,13 @@ class NotificationsAPITestCase(APITestCase):
                                                    classroom_id=self.classroom.id,
                                                    lesson_id=self.lesson_id,
                                                    contentnode_id=self.node_1.id,
+                                                   timestamp=attemptlog3.start_timestamp)
+
+        LearnerProgressNotification.objects.create(notification_object=NotificationObjectType.Lesson,
+                                                   notification_event=NotificationEventType.Started,
+                                                   user_id=attemptlog3.user_id,
+                                                   classroom_id=self.classroom.id,
+                                                   lesson_id=self.lesson_id,
                                                    timestamp=attemptlog3.start_timestamp)
         parse_attemptslog(attemptlog3)
         assert save_notifications.called
