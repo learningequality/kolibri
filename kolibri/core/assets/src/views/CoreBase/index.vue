@@ -45,7 +45,7 @@
         </slot>
       </AppBar>
       <KLinearLoader
-        v-if="loading"
+        v-if="loading && !fullScreen"
         class="loader"
         :style="{top: `${appbarHeight}px`}"
         type="indeterminate"
