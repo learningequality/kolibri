@@ -109,6 +109,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
   import ReportsGroupHeader from '../../reports/ReportsGroupHeader';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   const ReportsGroupHeaderStrings = crossComponentTranslator(ReportsGroupHeader);
@@ -148,12 +149,17 @@
     },
     methods: {
       ...mapActions('groups', ['removeUsersFromGroup']),
+      ...mapActions(['createSnackbar']),
       removeSelectedUserFromGroup() {
         if (this.userForRemoval) {
           this.removeUsersFromGroup({
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
+            this.createSnackbar({
+              text: groupMgmtStrings.$tr('removedLearnersNotice', { value: 1 }),
+              autoDismiss: true,
+            });
             this.userForRemoval = null;
           });
         }

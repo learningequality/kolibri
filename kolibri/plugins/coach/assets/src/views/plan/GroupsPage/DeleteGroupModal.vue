@@ -4,7 +4,7 @@
     :title="$tr('deleteLearnerGroup')"
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
-    @submit="deleteGroup(groupId)"
+    @submit="handleSubmit"
     @cancel="close"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
@@ -41,6 +41,11 @@
     },
     methods: {
       ...mapActions('groups', ['displayModal', 'deleteGroup']),
+      handleSubmit() {
+        this.deleteGroup(this.groupId).then(() => {
+          this.$emit('success');
+        });
+      },
       close() {
         this.displayModal(false);
       },

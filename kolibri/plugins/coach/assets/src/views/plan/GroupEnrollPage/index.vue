@@ -115,6 +115,7 @@
   import ClassEnrollForm from '../../../../../../facility_management/assets/src/views/ClassEnrollForm';
   import LearnerClassEnrollmentPage from '../../../../../../facility_management/assets/src/views/LearnerClassEnrollmentPage';
   import GroupsPage from '../GroupsPage';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
 
   const classEnrollFormStrings = crossComponentTranslator(ClassEnrollForm);
   const learnerClassEnrollmentPageStrings = crossComponentTranslator(LearnerClassEnrollmentPage);
@@ -208,12 +209,19 @@
     },
     methods: {
       ...mapActions('groups', ['addUsersToGroup']),
+      ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
+        const value = this.selectedUsers.length;
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
-          this.$router.push(this.$router.getRoute('GroupMembersPage'));
+          this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
+            this.createSnackbar({
+              text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
+              autoDismiss: true,
+            });
+          });
         });
       },
       reducePageNum() {
