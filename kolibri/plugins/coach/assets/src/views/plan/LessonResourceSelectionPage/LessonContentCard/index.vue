@@ -29,7 +29,6 @@
       <TextTruncator
         :text="description"
         :maxHeight="80"
-        :showViewMore="true"
         class="description"
       />
       <CoachContentLabel
@@ -185,7 +184,7 @@
   .description {
     // HACK to get long descriptions to fit in the card
     height: $thumb-height * 0.5;
-    overflow-y: scroll;
+    overflow-y: visible;
     font-size: 14px;
   }
 
