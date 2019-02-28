@@ -138,7 +138,7 @@
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
-  import { licenseTranslations } from 'kolibri.utils.i18n';
+  import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
@@ -257,10 +257,10 @@
       },
       translatedLicense() {
         if (
-          licenseTranslations[global.languageCode] &&
-          licenseTranslations[global.languageCode][this.content.license_name]
+          licenseTranslations[currentLanguage] &&
+          licenseTranslations[currentLanguage][this.content.license_name]
         ) {
-          return licenseTranslations[global.languageCode][this.content.license_name];
+          return licenseTranslations[currentLanguage][this.content.license_name];
         }
         return null;
       },

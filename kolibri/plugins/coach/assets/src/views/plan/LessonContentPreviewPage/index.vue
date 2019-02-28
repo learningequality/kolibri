@@ -82,7 +82,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import { licenseTranslations } from 'kolibri.utils.i18n';
+  import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -173,10 +173,10 @@
       },
       translatedLicense() {
         if (
-          licenseTranslations[global.languageCode] &&
-          licenseTranslations[global.languageCode][this.content.license_name]
+          licenseTranslations[currentLanguage] &&
+          licenseTranslations[currentLanguage][this.content.license_name]
         ) {
-          return licenseTranslations[global.languageCode][this.content.license_name];
+          return licenseTranslations[currentLanguage][this.content.license_name];
         }
         return null;
       },
