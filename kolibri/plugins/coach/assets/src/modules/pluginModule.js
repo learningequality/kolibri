@@ -100,13 +100,15 @@ export default {
           store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
-        ]);
+        ]).catch(error => {
+          store.dispatch('handleError', error);
+        });
+      } else {
+        // otherwise refresh but don't block
+        return store
+          .dispatch('classSummary/loadClassSummary', classId)
+          .catch(error => this.store.dispatch('handleApiError', error));
       }
-      // otherwise refresh but don't block
-      store
-        .dispatch('classSummary/loadClassSummary', classId)
-        .catch(error => this.store.dispatch('handleApiError', error));
-      return Promise.resolve();
     },
   },
   modules: {
