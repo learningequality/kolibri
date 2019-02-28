@@ -12,6 +12,8 @@ class AsyncNotificationQueue():
 
     def __init__(self):
 
+        logging.warn('>>> AsyncNotificationQueue.__init__')
+
         # Value in seconds to determine the sleep time between log saving batches
         self.log_saving_interval = 5
 
@@ -50,15 +52,21 @@ class AsyncNotificationQueue():
         Execute any log saving functions in the self.running list
         """
         if self.running:
+            logging.warn('>>> AsyncNotificationQueue.run 2')
             # Do this conditionally to avoid opening an unnecessary transaction
             with transaction.atomic():
+                logging.warn('>>> AsyncNotificationQueue.run 3')
                 for fn in self.running:
+                    logging.warn('>>> AsyncNotificationQueue.run 4')
                     try:
+                        logging.warn('>>> AsyncNotificationQueue.run 5')
                         fn()
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.debug("Exception raised during background notification calculation: ", e)
+                        logging.warn('>>> AsyncNotificationQueue.run 6 FAIL')
+                        logging.warn("Exception raised during background notification calculation: ", e)
+                        raise
             connection.close()
 
     def start(self):
@@ -73,11 +81,14 @@ log_queue = AsyncNotificationQueue()
 
 
 def add_to_save_queue(fn):
+    logging.warn('>>> add_to_save_queue', fn)
     log_queue.append(fn)
 
 
 def wrap_to_save_queue(fn, *args):
+    logging.warn('>>> wrap_to_save_queue', fn)
     def wrapper():
+        logging.warn('>>> run wrapper', fn)
         fn(*args)
     log_queue.append(wrapper)
 
@@ -86,10 +97,12 @@ class AsyncNotificationsThread(threading.Thread):
 
     @classmethod
     def start_command(cls):
+        logging.warn('>>> start_command')
         thread = cls()
         thread.daemon = True
         thread.start()
 
     def run(self):
+        logging.warn('>>> Initializing background log saving process')
         logging.info("Initializing background log saving process")
         log_queue.start()
