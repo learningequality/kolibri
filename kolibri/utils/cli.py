@@ -636,7 +636,6 @@ def main(args=None):  # noqa: max-complexity=13
                 "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
                 "contact Learning Equality. Thank you!"
             )
-            sys.exit(1)
         raise
 
     # Alias
