@@ -267,7 +267,7 @@ oriented data synchronization.
         if (this.mastered) {
           return 1;
         }
-        if (this.pastattempts) {
+        if (this.pastattempts.length) {
           let calculatedMastery;
           if (this.pastattempts.length > this.attemptsWindowN) {
             calculatedMastery = Math.min(
