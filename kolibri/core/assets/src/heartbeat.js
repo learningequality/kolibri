@@ -154,7 +154,7 @@ export class HeartBeat {
       );
     }
     // Log the time at the start of the request for time diff setting.
-    const pollStart = new Date();
+    const pollStart = Date.now();
     return client({
       params: {
         // Only send active when both connected and activity has been registered.
@@ -165,7 +165,7 @@ export class HeartBeat {
     })
       .then(response => {
         // Log the time that the poll of the session endpoint ended.
-        const pollEnd = new Date();
+        const pollEnd = Date.now();
         const session = response.entity;
         // If our session is already defined, check the user id in the response
         if (store.state.core.session.id && session.user_id !== currentUserId) {
@@ -189,7 +189,7 @@ export class HeartBeat {
           // frame of reference. If the client is moving relative to the server at speeds
           // approaching the speed of light, this may produce some odd results,
           // but I think that was always true.
-          clientNow: new Date((pollEnd.getTime() + pollStart.getTime()) / 2),
+          clientNow: new Date((pollEnd + pollStart) / 2),
         });
       })
       .catch(error => {
