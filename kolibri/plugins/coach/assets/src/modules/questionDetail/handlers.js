@@ -63,7 +63,7 @@ function showQuestionDetailView(params) {
         let title;
         if (exam) {
           const question = exam.question_sources.find(
-            source => source.question_id === questionId && source.exercise_id === exerciseId
+            source => source.question_id === questionId && source.exercise_id === exerciseNodeId
           );
           title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
             name: question.title,
