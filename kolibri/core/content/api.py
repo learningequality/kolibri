@@ -428,11 +428,32 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         return obj
 
     @detail_route(methods=['get'])
-    def testing(self, request, **kwargs):#########################################################################################################################################################################################
-        # prerequisites = str(models.ContentNode.objects.filter(title='Counting with small numbers'))
-        prerequisites = self.get_object(prefetch=False).has_prerequisite.values('id', 'title')
+    def endpoint(self, request, pk=None, **kwargs):#########################################################################################################################################################################################
+        def get_children_with_progress(parent_id):
+            children = models.ContentNode.objects.filter(parent=parent_id)
+            serialized = self.serializer_class(children, many=True).data
+            for c, s in zip(children, serialized):
+                serializer = ContentNodeProgressViewset.serializer_class(c)
+                serializer.context['request'] = request
+                # logger.warning("prog: %s" % serializer.data['progress_fraction'])
+                s['progress'] = serializer.data['progress_fraction']
+            return serialized
 
-        return Response(prerequisites)
+        children = get_children_with_progress(pk)
+        logger.warning("children: %s pk: %s" % (children, pk))
+        # prerequisites = self.get_object(prefetch=False).has_prerequisite.values('id', 'content_id', 'title')
+        #
+        # def satisfied(prerequisite):
+        #     csl = ContentSummaryLog.objects.filter(content_id=prerequisite['content_id'])
+        #     return False if len(csl) == 0 else csl[0].progress == 1.0
+        #
+        # progresses = map(satisfied, prerequisites)
+        for child in children:
+            grand_children = get_children_with_progress(child['id'])
+            logger.warning("grand child: %s" % grand_children)
+            child['children'] = grand_children
+        return Response(children)
+
 
     @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
