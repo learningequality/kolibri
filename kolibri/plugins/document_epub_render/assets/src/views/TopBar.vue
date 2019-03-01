@@ -119,7 +119,7 @@
   @import './EpubStyles';
 
   .top-bar {
-    z-index: 4;
+    z-index: 2;
     box-shadow: $epub-box-shadow;
   }
 
