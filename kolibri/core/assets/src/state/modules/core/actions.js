@@ -566,10 +566,10 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
 /**
 summary and session log progress update for exercise
 **/
-export function updateExerciseProgress(store, { progressPercent, forceSave = false }) {
+export function updateExerciseProgress(store, { progressPercent }) {
   /* Update the logging state with new progress information */
   progressPercent = progressPercent || 0;
-  return _updateProgress(store, progressPercent, progressPercent, forceSave);
+  return _updateProgress(store, progressPercent, progressPercent, true);
 }
 
 /**

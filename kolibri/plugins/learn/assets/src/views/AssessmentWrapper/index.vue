@@ -267,18 +267,23 @@ oriented data synchronization.
         if (this.mastered) {
           return 1;
         }
-        if (this.pastattempts) {
+        if (this.pastattempts.length) {
+          let calculatedMastery;
           if (this.pastattempts.length > this.attemptsWindowN) {
-            return Math.min(
+            calculatedMastery = Math.min(
               this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
                 this.totalCorrectRequiredM,
               1
             );
+          } else {
+            calculatedMastery = Math.min(
+              this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
+              1
+            );
           }
-          return Math.min(
-            this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-            1
-          );
+          // If there are any attempts at all, set some progress on the exercise
+          // because they have now started the exercise.
+          return Math.max(calculatedMastery, 0.001);
         }
         return 0;
       },
@@ -402,6 +407,8 @@ oriented data synchronization.
           });
           // Save attempt log on first attempt
           this.saveAttemptLogMasterLog();
+          // Update exercise progress when the first answer is given
+          this.updateExerciseProgressMethod();
         } else {
           this.updateAttemptLogMasteryLog({
             complete: this.complete,
