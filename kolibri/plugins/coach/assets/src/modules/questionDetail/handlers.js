@@ -91,6 +91,7 @@ function showQuestionDetailView(params) {
           .dispatch('questionDetail/setLearners', {
             ...params,
             exercise,
+            exerciseNodeId,
           })
           .then(learners => {
             // No learnerId was passed in, so we should trigger a url redirect
