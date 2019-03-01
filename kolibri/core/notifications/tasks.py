@@ -52,20 +52,20 @@ class AsyncNotificationQueue():
         Execute any log saving functions in the self.running list
         """
         if self.running:
-            logging.error('>>> AsyncNotificationQueue.run 2')
+            logging.warn('>>> AsyncNotificationQueue.run 2')
             # Do this conditionally to avoid opening an unnecessary transaction
             with transaction.atomic():
-                logging.error('>>> AsyncNotificationQueue.run 3')
+                logging.warn('>>> AsyncNotificationQueue.run 3')
                 for fn in self.running:
-                    logging.error('>>> AsyncNotificationQueue.run 4')
+                    logging.warn('>>> AsyncNotificationQueue.run 4')
                     try:
-                        logging.error('>>> AsyncNotificationQueue.run 5')
+                        logging.warn('>>> AsyncNotificationQueue.run 5')
                         fn()
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.error('>>> AsyncNotificationQueue.run 6 FAIL')
-                        logging.error("Exception raised during background notification calculation: ", e)
+                        logging.warn('>>> AsyncNotificationQueue.run 6 FAIL')
+                        logging.warn("Exception raised during background notification calculation: ", e)
                         raise
             connection.close()
 
@@ -81,14 +81,14 @@ log_queue = AsyncNotificationQueue()
 
 
 def add_to_save_queue(fn):
-    logging.warn('>>> add_to_save_queue', fn)
+    logging.warn('>>> add_to_save_queue')
     log_queue.append(fn)
 
 
 def wrap_to_save_queue(fn, *args):
-    logging.warn('>>> wrap_to_save_queue', fn)
+    logging.warn('>>> wrap_to_save_queue')
     def wrapper():
-        logging.warn('>>> run wrapper', fn)
+        logging.warn('>>> run wrapper')
         fn(*args)
     log_queue.append(wrapper)
 
