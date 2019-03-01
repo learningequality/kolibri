@@ -629,28 +629,13 @@ def main(args=None):  # noqa: max-complexity=13
     try:
         initialize(debug=debug)
     except (DatabaseError, SQLite3DatabaseError) as e:
-        from django.conf import settings
         if "malformed" in str(e):
-            recover_cmd = (
-                "    sqlite3 {path} .dump | sqlite3 fixed.db \n"
-                "    cp fixed.db {path}"
-                ""
-            ).format(
-                path=settings.DATABASES['default']['NAME'],
-            )
             logger.error(
-                "\n"
-                "Your database is corrupted. This is a "
-                "known issue that is usually fixed by running this "
-                "command: "
-                "\n\n"
-                + recover_cmd
-                + "\n\n"
-                "Notice that you need the 'sqlite3' command available "
-                "on your system prior to running this."
-                "\n\n"
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
             )
-            sys.exit(1)
         raise
 
     # Alias
