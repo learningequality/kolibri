@@ -58,7 +58,6 @@ class Command(BaseCommand):
             cursor.execute('vacuum;')
             connection.close()
         except Exception as e:
-            logger.error(e)
             new_msg = (
                 "Vacuum of database {db_name} couldn't be executed. Possible reasons:\n"
                 "  * There is an open transaction in the db.\n"
