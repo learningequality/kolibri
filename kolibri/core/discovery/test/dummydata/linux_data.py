@@ -43,9 +43,10 @@ os_access_read = {
 
 os_access_write = {
     "/": True,
-    "/media/user/F571-7814": True,
+    "/media/user/F571-7814": False,
     "/media/user/KEEPOD": False,
     "/media/user/disk": False,
+    "/media/user/F571-7814/KOLIBRI_DATA": True,
 }
 
 has_kolibri_data_folder = {

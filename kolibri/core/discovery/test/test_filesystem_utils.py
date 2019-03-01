@@ -145,7 +145,7 @@ class WindowsFilesystemTestCase(TestCase):
 
     def test_drive_writability(self):
         self.assertTrue(self.c_drive.writable)
-        self.assertFalse(self.d_drive.writable)
+        self.assertTrue(self.d_drive.writable)
 
     def test_drive_data_folders(self):
         self.assertEqual(self.c_drive.datafolder, "C:\\" + EXPORT_FOLDER_NAME)

@@ -13,6 +13,7 @@ os_access_write = {
     "C:\\": True,
     "D:\\": False,
     "E:\\": False,
+    "D:\\KOLIBRI_DATA": True,
 }
 
 has_kolibri_data_folder = {
