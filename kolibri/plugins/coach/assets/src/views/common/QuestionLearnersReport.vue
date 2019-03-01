@@ -121,7 +121,6 @@
         this.showCorrectAnswer = false;
         const learnerId = this.learners[learnerIndex].id;
         this.$emit('navigate', {
-          exerciseId: this.exercise.content_id,
           questionId: this.questionId,
           learnerId,
           interactionIndex: 0,
@@ -130,7 +129,6 @@
       },
       navigateToNewInteraction(interactionIndex) {
         this.$emit('navigate', {
-          exerciseId: this.exercise.content_id,
           questionId: this.questionId,
           learnerId: this.learnerId,
           interactionIndex,

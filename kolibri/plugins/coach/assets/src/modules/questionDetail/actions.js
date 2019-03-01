@@ -1,7 +1,7 @@
 import { AttemptLogResource, ExamAttemptLogResource } from 'kolibri.resources';
 
 export function setLearners(store, params) {
-  const { questionId, exerciseId, quizId, classId, groupId, learnerId } = params;
+  const { questionId, exerciseId, exerciseNodeId, quizId, classId, groupId, learnerId } = params;
   let resource = AttemptLogResource;
   const getParams = {
     item: questionId,
@@ -10,6 +10,7 @@ export function setLearners(store, params) {
   if (quizId) {
     resource = ExamAttemptLogResource;
     getParams.exam = quizId;
+    getParams.content = exerciseNodeId;
   }
   if (classId) {
     getParams.classroom = classId;
