@@ -167,7 +167,10 @@
         return !isEmpty(this.currentTopicNode);
       },
       metadataDownloadTask() {
-        return find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+        return (
+          find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
+          find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
+        );
       },
       contentDownloadTask() {
         return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
