@@ -60,6 +60,10 @@
       },
       handleStop(event) {
         const { oldIndex, newIndex } = event.data;
+        // Do nothing if the item hasn't been moved
+        if (oldIndex === newIndex) {
+          return;
+        }
         const itemRemovedArray = [
           ...this.items.slice(0, oldIndex),
           ...this.items.slice(oldIndex + 1, this.items.length),
