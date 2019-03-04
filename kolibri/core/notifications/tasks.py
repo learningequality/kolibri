@@ -18,14 +18,19 @@ class AsyncNotificationQueue():
         # Where new log saving functions are appended
         self.queue = []
 
-        # Where the to be executed log saving functions are stored
+        # Where the to be executed notifications calculating functions are stored
         # once a batch save has been invoked
         self.running = []
+
+        # flag to decide if the async queue must be started
+        self.started = False
 
     def append(self, fn):
         """
         Convenience method to append log saving function to the current queue
         """
+        if not self.started:
+            AsyncNotificationsThread.start_command()
         self.queue.append(fn)
 
     def toggle_queue(self):
@@ -62,6 +67,7 @@ class AsyncNotificationQueue():
             connection.close()
 
     def start(self):
+        self.started = True
         while True:
             self.toggle_queue()
             self.run()

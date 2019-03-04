@@ -79,10 +79,6 @@ def start(port=8080, run_cherrypy=True):
     # Do a db vacuum periodically
     VacuumThread.start_command()
 
-    from kolibri.core.notifications.tasks import AsyncNotificationsThread
-
-    AsyncNotificationsThread.start_command()
-
     # Write the new PID
     with open(PID_FILE, 'w') as f:
         f.write("%d\n%d" % (os.getpid(), port))
