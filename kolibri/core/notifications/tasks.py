@@ -54,20 +54,15 @@ class AsyncNotificationQueue():
             with transaction.atomic():
                 for fn in self.running:
                     try:
-                        logging.warn('>>>>>> AsyncNotificationQueue.run try')
                         fn()
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.warn('>>>>>> AsyncNotificationQueue.run except {}'.format(e))
-                        logging.debug("Exception raised during background notification calculation: ", e)
+                        logging.warn("Exception raised during background notification calculation: ", e)
             connection.close()
 
     def start(self):
         while True:
-            logging.warn('>>>>>> AsyncNotificationQueue.start: {}'.format(threading.currentThread().ident))
-            logging.warn('\t\t len(self.running): {}'.format(self.running))
-            logging.warn('\t\t len(self.queue): {}'.format(self.queue))
             self.toggle_queue()
             self.run()
             self.clear_running()
@@ -91,12 +86,10 @@ class AsyncNotificationsThread(threading.Thread):
 
     @classmethod
     def start_command(cls):
-        logging.warn('>>>>>> AsyncNotificationsThread.start_command: {}'.format(threading.currentThread().ident))
         thread = cls()
         thread.daemon = True
         thread.start()
 
     def run(self):
         logging.info("Initializing background log saving process")
-        logging.warn('>>>>>> AsyncNotificationsThread.run: {}'.format(threading.currentThread().ident))
         log_queue.start()
