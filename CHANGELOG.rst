@@ -24,7 +24,6 @@ Changed or fixed
 - Lessons with content from deleted channels will have those contents automatically removed. If you have created lessons with deleted content prior to 0.12, learner playlists and coach reports for those lessons will be broken. To fix the lesson, simply view it as a coach under Coach > Plan, and it will be fixed and updated automatically
 - Changes the sub-navigation to a Material Design tabs-like experience
 - Make facility log exporting a background process for a better user experience when downloading large logs
-- Allow daemonization on Mac OSX, to allow background running of Kolibri
 - Allow appbar to move off screen when scrolling on mobile, to increase screen real estate
 - Kolibri now supports for iOS Safari 9.3+
 - Validation is now done in the 'provisiondevice' command for the username of the super admin user being created
