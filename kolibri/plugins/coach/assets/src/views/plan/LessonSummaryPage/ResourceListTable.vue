@@ -166,6 +166,7 @@
 
         this.createSnackbar({
           text: this.removalMessage,
+          autoDismiss: true,
           duration: removalSnackbarTime,
           autoDismiss: true,
           actionText: this.$tr('undoActionPrompt'),

@@ -11,6 +11,7 @@ export function createTryingToReconnectSnackbar(store) {
   store.commit('CORE_CREATE_SNACKBAR', {
     text: trs.$tr('tryingToReconnect'),
     backdrop: true,
+    autoDismiss: false,
   });
 }
 
@@ -29,6 +30,7 @@ export function createDisconnectedSnackbar(store, beatCallback) {
     actionCallback: beatCallback,
     backdrop: true,
     forceReuse: true,
+    autoDismiss: false,
   });
   // start timeout
   timer = setInterval(() => {
