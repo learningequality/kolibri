@@ -189,7 +189,12 @@ HTMLHint.addRule({
       for (var i = stack.length - 1; i > pos; i--) {
         arrTags.push('</' + stack[i].tagName + '>');
       }
-      stack.length = pos;
+      try {
+        stack.length = pos;
+      } catch (e) {
+        // if this fails, it's because `pos < 0`, i.e. more tags are closed than were ever opened
+        // this should get caught by the standard linting rules, so we'll let it slide here.
+      }
     });
   },
 });
