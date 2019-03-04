@@ -217,9 +217,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar({
-              text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
-            });
+            this.createSnackbar(groupMgmtStrings.$tr('addedLearnersNotice', { value }));
           });
         });
       },

@@ -14,6 +14,10 @@ const translator = createTranslator('LessonSummaryActionsTexts', {
   changesToLessonSaved: 'Changes to lesson saved',
 });
 
+function showSnackbar(store, string) {
+  return store.dispatch('createSnackbar', string, { root: true });
+}
+
 export function resetLessonSummaryState(store) {
   store.commit('RESET_STATE');
   store.commit('resources/RESET_STATE');
@@ -110,14 +114,9 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
     .then(lesson => {
       store.commit('SET_CURRENT_LESSON', lesson);
       store.dispatch('setLessonsModal', null);
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: isActive
-            ? translator.$tr('lessonIsNowActive')
-            : translator.$tr('lessonIsNowInactive'),
-        },
-        { root: true }
+      showSnackbar(
+        store,
+        isActive ? translator.$tr('lessonIsNowActive') : translator.$tr('lessonIsNowInactive')
       );
     })
     .catch(err => {
@@ -137,13 +136,7 @@ export function deleteLesson(store, { lessonId, classId }) {
           lessonId,
         },
       });
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: translator.$tr('lessonDeleted'),
-        },
-        { root: true }
-      );
+      showSnackbar(store, translator.$tr('lessonDeleted'));
     })
     .catch(error => {
       // TODO handle error inside the current page
@@ -158,13 +151,7 @@ export function copyLesson(store, { payload, classroomName }) {
       // Update the class summary now that there is a new lesson
       store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
         store.dispatch('setLessonsModal', null);
-        store.dispatch(
-          'createSnackbar',
-          {
-            text: translator.$tr('copiedLessonTo', { classroomName }),
-          },
-          { root: true }
-        );
+        showSnackbar(store, translator.$tr('copiedLessonTo', { classroomName }));
       });
     })
     .catch(error => {
@@ -181,13 +168,7 @@ export function updateLesson(store, { lessonId, payload }) {
     })
       .then(() => {
         store.dispatch('setLessonsModal', null);
-        store.dispatch(
-          'createSnackbar',
-          {
-            text: translator.$tr('changesToLessonSaved'),
-          },
-          { root: true }
-        );
+        showSnackbar(store, translator.$tr('changesToLessonSaved'));
         store.dispatch('updateCurrentLesson', lessonId);
         resolve();
       })

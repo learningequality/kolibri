@@ -32,13 +32,7 @@ export function createLesson(store, { classId, payload }) {
       },
     })
       .then(newLesson => {
-        store.dispatch(
-          'createSnackbar',
-          {
-            text: translator.$tr('newLessonCreated'),
-          },
-          { root: true }
-        );
+        store.dispatch('createSnackbar', translator.$tr('newLessonCreated'), { root: true });
         // Update the class summary now that we have a new lesson in town!
         store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
           router.push(lessonSummaryLink({ classId, lessonId: newLesson.id }));

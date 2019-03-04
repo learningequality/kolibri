@@ -150,15 +150,11 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar({
-          text: groupMgmtStrings.$tr('groupCreatedNotice'),
-        });
+        this.createSnackbar(groupMgmtStrings.$tr('groupCreatedNotice'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar({
-          text: groupMgmtStrings.$tr('groupDeletedNotice'),
-        });
+        this.createSnackbar(groupMgmtStrings.$tr('groupDeletedNotice'));
         this.displayModal(false);
       },
     },

@@ -86,9 +86,7 @@
         });
 
         this.clipboard.on('success', () => {
-          this.createSnackbar({
-            text: this.$tr('copiedToClipboardConfirmation'),
-          });
+          this.createSnackbar(this.$tr('copiedToClipboardConfirmation'));
         });
       }
     },

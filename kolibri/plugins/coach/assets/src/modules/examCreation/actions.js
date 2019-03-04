@@ -105,13 +105,7 @@ export function createExamAndRoute(store, classId) {
 
   return createExam(store, exam).then(() => {
     router.push({ name: PageNames.EXAMS });
-    store.dispatch(
-      'createSnackbar',
-      {
-        text: snackbarTranslator.$tr('newExamCreated'),
-      },
-      { root: true }
-    );
+    store.dispatch('createSnackbar', snackbarTranslator.$tr('newExamCreated'), { root: true });
   });
 }
 
