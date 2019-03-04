@@ -814,8 +814,9 @@ export function updateMasteryAttemptState(
   });
 }
 
-export function createSnackbar(store, snackbarOptions) {
-  store.commit('CORE_CREATE_SNACKBAR', snackbarOptions);
+// Creates a snackbar that automatically dismisses and has no action buttons.
+export function createSnackbar(store, text) {
+  store.commit('CORE_CREATE_SNACKBAR', { text, autoDismiss: true });
 }
 
 export function clearSnackbar(store) {
