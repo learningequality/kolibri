@@ -158,7 +158,6 @@
           }).then(() => {
             this.createSnackbar({
               text: groupMgmtStrings.$tr('removedLearnersNotice', { value: 1 }),
-              autoDismiss: true,
             });
             this.userForRemoval = null;
           });

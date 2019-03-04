@@ -109,7 +109,6 @@ export function createExamAndRoute(store, classId) {
       'createSnackbar',
       {
         text: snackbarTranslator.$tr('newExamCreated'),
-        autoDismiss: true,
       },
       { root: true }
     );

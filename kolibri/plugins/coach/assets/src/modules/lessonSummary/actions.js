@@ -116,7 +116,6 @@ export function updateLessonStatus(store, { lessonId, isActive }) {
           text: isActive
             ? translator.$tr('lessonIsNowActive')
             : translator.$tr('lessonIsNowInactive'),
-          autoDismiss: true,
         },
         { root: true }
       );
@@ -142,7 +141,6 @@ export function deleteLesson(store, { lessonId, classId }) {
         'createSnackbar',
         {
           text: translator.$tr('lessonDeleted'),
-          autoDismiss: true,
         },
         { root: true }
       );
@@ -164,7 +162,6 @@ export function copyLesson(store, { payload, classroomName }) {
           'createSnackbar',
           {
             text: translator.$tr('copiedLessonTo', { classroomName }),
-            autoDismiss: true,
           },
           { root: true }
         );
@@ -188,7 +185,6 @@ export function updateLesson(store, { lessonId, payload }) {
           'createSnackbar',
           {
             text: translator.$tr('changesToLessonSaved'),
-            autoDismiss: true,
           },
           { root: true }
         );

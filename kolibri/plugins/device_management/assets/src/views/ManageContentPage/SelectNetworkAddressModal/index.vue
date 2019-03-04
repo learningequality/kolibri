@@ -60,14 +60,12 @@
       handleAddedAddress() {
         this.createSnackbar({
           text: this.$tr('addAddressSnackbarText'),
-          autoDismiss: true,
         });
         this.goToSelectAddress();
       },
       handleRemovedAddress() {
         this.createSnackbar({
           text: this.$tr('removeAddressSnackbarText'),
-          autoDismiss: true,
         });
       },
       handleSelectAddressSubmit(address) {

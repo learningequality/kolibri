@@ -435,13 +435,11 @@
           this.addToSelectedExercises(this.addableExercises);
           this.createSnackbar({
             text: this.$tr('added', { item: this.topicTitle }),
-            autoDismiss: true,
           });
         } else {
           this.removeFromSelectedExercises(this.allExercises);
           this.createSnackbar({
             text: this.$tr('removed', { item: this.topicTitle }),
-            autoDismiss: true,
           });
         }
       },
@@ -455,7 +453,6 @@
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
             text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
           });
         } else if (checked && !isTopic) {
           this.showError = false;
@@ -463,21 +460,18 @@
           this.addToSelectedExercises(exercises);
           this.createSnackbar({
             text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
           });
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
             text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
           });
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
           this.createSnackbar({
             text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
           });
         }
       },

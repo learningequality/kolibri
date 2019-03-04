@@ -36,7 +36,6 @@ export function createLesson(store, { classId, payload }) {
           'createSnackbar',
           {
             text: translator.$tr('newLessonCreated'),
-            autoDismiss: true,
           },
           { root: true }
         );

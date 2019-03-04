@@ -59,12 +59,12 @@
       handleAddResource(content) {
         this.addToSelectedExercises([content]);
         const text = indexStrings.$tr('added', { item: this.currentContentNode.title });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar({ text });
       },
       handleRemoveResource(content) {
         this.removeFromSelectedExercises([content]);
         const text = indexStrings.$tr('removed', { item: this.currentContentNode.title });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar({ text });
       },
     },
   };

@@ -168,7 +168,6 @@
           text: this.removalMessage,
           autoDismiss: true,
           duration: removalSnackbarTime,
-          autoDismiss: true,
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
@@ -200,7 +199,6 @@
 
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
         });
       },
       handleDrag({ newArray }) {
@@ -208,7 +206,6 @@
         this.autoSave(this.lessonId, newArray);
         this.createSnackbar({
           text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
         });
       },
       autoSave(id, resources) {

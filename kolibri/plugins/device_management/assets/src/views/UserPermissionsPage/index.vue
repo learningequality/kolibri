@@ -211,7 +211,6 @@
           .then(() => {
             this.createSnackbar({
               text: this.$tr('permissionChangeConfirmation'),
-              autoDismiss: true,
             });
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;

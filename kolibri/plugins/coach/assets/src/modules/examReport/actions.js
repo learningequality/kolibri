@@ -22,7 +22,6 @@ export function copyExam(store, { exam, className }) {
           'createSnackbar',
           {
             text: snackbarTranslator.$tr('copiedExamToClass', { className }),
-            autoDismiss: true,
           },
           { root: true }
         );
@@ -47,7 +46,6 @@ export function updateExamDetails(store, { examId, payload }) {
           'createSnackbar',
           {
             text: snackbarTranslator.$tr('changesToExamSaved'),
-            autoDismiss: true,
           },
           { root: true }
         );
@@ -68,7 +66,6 @@ export function deleteExam(store, examId) {
         'createSnackbar',
         {
           text: snackbarTranslator.$tr('examDeleted'),
-          autoDismiss: true,
         },
         { root: true }
       );

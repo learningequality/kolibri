@@ -59,6 +59,5 @@ export function createReconnectedSnackbar(store) {
   clearTimer();
   store.commit('CORE_CREATE_SNACKBAR', {
     text: trs.$tr('successfullyReconnected'),
-    autoDismiss: true,
   });
 }

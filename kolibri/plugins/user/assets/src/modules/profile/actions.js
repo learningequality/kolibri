@@ -71,7 +71,6 @@ export function updateUserProfilePassword(store, password) {
         'CORE_CREATE_SNACKBAR',
         {
           text: snackbarTranslator.$tr('passwordChangeSuccessMessage'),
-          autoDismiss: true,
         },
         { root: true }
       );

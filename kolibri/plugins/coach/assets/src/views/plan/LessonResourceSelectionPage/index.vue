@@ -284,12 +284,11 @@
         } else {
           text = this.$tr('resourcesRemovedSnackbarText', { count: -difference });
         }
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar({ text });
       },
       showResourcesChangedError() {
         this.createSnackbar({
           text: this.$tr('resourcesChangedErrorSnackbarText'),
-          autoDismiss: true,
         });
       },
       toggleTopicInWorkingResources(isChecked) {

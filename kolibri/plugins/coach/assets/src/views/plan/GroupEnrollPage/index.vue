@@ -219,7 +219,6 @@
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
             this.createSnackbar({
               text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
-              autoDismiss: true,
             });
           });
         });
