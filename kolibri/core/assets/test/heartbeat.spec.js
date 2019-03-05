@@ -1,5 +1,6 @@
 import coreStore from 'kolibri.coreVue.vuex.store';
 import * as browser from 'kolibri.utils.browser';
+import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
@@ -205,6 +206,22 @@ describe('HeartBeat', function() {
       const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(0);
+      });
+    });
+    it('should call setServerTime with a clientNow value that is between the start and finish of the poll', function() {
+      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      const http = require('http');
+      http.__setCode(200);
+      http.__setHeaders({ 'Content-Type': 'application/json' });
+      const serverTime = new Date().toJSON();
+      http.__setEntity({ user_id: 'test', id: 'current', server_time: serverTime });
+      const stub = jest.spyOn(serverClock, 'setServerTime');
+      const start = new Date();
+      return heartBeat._checkSession().finally(() => {
+        const end = new Date();
+        expect(stub.mock.calls[0][0]).toEqual(serverTime);
+        expect(stub.mock.calls[0][1].getTime()).toBeGreaterThan(start.getTime());
+        expect(stub.mock.calls[0][1].getTime()).toBeLessThan(end.getTime());
       });
     });
     describe('when is connected', function() {

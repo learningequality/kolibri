@@ -22,12 +22,12 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="(tableRow, index) in table" :key="tableRow.question_id">
+          <tr v-for="tableRow in table" :key="tableRow.question_id">
             <td>
               <KLabeledIcon>
                 <KIcon slot="icon" person />
                 <KRouterLink
-                  :text="questionTitle(index + 1)"
+                  :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"
                 />
               </KLabeledIcon>
@@ -53,14 +53,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
   import { PageNames } from './../../constants';
-
-  const examStrings = crossComponentTranslator(ExamReport);
 
   export default {
     name: 'ReportsGroupReportLessonExerciseQuestionListPage',
@@ -86,9 +82,6 @@
           questionId,
           exerciseId: this.$route.params.exerciseId,
         });
-      },
-      questionTitle(questionNumber) {
-        return examStrings.$tr('question', { questionNumber });
       },
     },
     $trs: {},

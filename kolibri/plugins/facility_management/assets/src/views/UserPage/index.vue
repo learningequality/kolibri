@@ -165,6 +165,9 @@
         if (user.kind === UserKinds.ASSIGNABLE_COACH) {
           return filterKind === UserKinds.COACH;
         }
+        if (filterKind === UserKinds.ADMIN) {
+          return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
+        }
         return filterKind === user.kind;
       },
       manageUserOptions(userId) {

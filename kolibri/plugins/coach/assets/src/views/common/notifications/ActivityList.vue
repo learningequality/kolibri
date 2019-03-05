@@ -17,6 +17,7 @@
         v-for="notification in notifications"
         v-show="showNotification(notification)"
         :key="notification.id"
+        class="notification-card"
         v-bind="cardPropsForNotification(notification)"
         :linkText="cardTextForNotification(notification)"
       />
@@ -388,6 +389,15 @@
 
   .show-more {
     height: 100px;
+  }
+
+  // Copied from BlockItem.vue
+  .notification-card {
+    padding-bottom: 16px;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #dedede;
+    }
   }
 
 </style>

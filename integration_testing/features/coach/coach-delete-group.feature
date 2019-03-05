@@ -14,7 +14,7 @@ Feature: Coach deletes group
     When I click the *Delete* button
     Then the modal closes
       And I don't see the deleted group
-      And I see the snackbar notification
+      # And I see the snackbar notification
       # Snackbar is still not implemented here...?
     But if I click the *Cancel* button
     Then the modal closes

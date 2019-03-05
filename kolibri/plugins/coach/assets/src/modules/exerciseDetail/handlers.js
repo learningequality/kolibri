@@ -47,18 +47,13 @@ function showExerciseDetailView({ learnerId, exerciseId, attemptId = null, inter
         interactionIndex,
         learnerId,
       });
-      return store
-        .dispatch('exerciseDetail/setAttemptLogs', {
-          learnerId,
-          exercise,
-        })
-        .then(attemptLogs => {
-          // No attemptId was passed in, so we should trigger a url redirect
-          // to the first attempt.
-          if (attemptId === null) {
-            return attemptLogs[0].id;
-          }
-        });
+      return store.dispatch('exerciseDetail/setAttemptLogs').then(attemptLogs => {
+        // No attemptId was passed in, so we should trigger a url redirect
+        // to the first attempt.
+        if (attemptId === null) {
+          return attemptLogs[0].id;
+        }
+      });
     },
     error => {
       store.dispatch('handleCoachPageError', error);

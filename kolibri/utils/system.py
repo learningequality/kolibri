@@ -22,6 +22,7 @@ import sys
 import six
 
 from .conf import KOLIBRI_HOME
+from kolibri.utils.android import on_android
 
 
 def _posix_pid_exists(pid):
@@ -153,7 +154,7 @@ def get_free_space(path=KOLIBRI_HOME):
         if check == 0:
             raise ctypes.winError()
         result = free.value
-    elif 'ANDROID_ARGUMENT' in os.environ:
+    elif on_android():
         # This is meant for android, which needs to interact with android API to understand free
         # space. If we're somehow getting here on non-android, we've got a problem.
         try:
@@ -165,7 +166,7 @@ def get_free_space(path=KOLIBRI_HOME):
             try:
                 # for api version 18+
                 result = st.getFreeBlocksLong() * st.getBlockSizeLong()
-            except Exception as e:
+            except Exception:
                 # for api versions < 18
                 result = st.getFreeBlocks() * st.getBlockSize()
 

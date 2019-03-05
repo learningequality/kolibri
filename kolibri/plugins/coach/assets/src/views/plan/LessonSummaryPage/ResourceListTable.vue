@@ -89,15 +89,21 @@
     },
     mixins: [themeMixin],
     data() {
+      const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
+      const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;
+      const filteredContents = workingResourcesIds.filter(
+        resourceId => resourceContentNodes[resourceId]
+      );
       return {
-        workingResourcesBackup: this.$store.state.lessonSummary.workingResources,
+        workingResourcesBackup: filteredContents,
         firstRemovalTitle: '',
+        contentMightBeDeleted: filteredContents.length < workingResourcesIds.length,
       };
     },
     computed: {
       ...mapState('lessonSummary', {
         lessonId: state => state.currentLesson.id,
-        workingResources: state => state.workingResources,
+        workingResourcesIds: state => state.workingResources,
         // consider loading this async?
         resourceContentNodes: state => state.resourceCache,
         getCachedResource(state) {
@@ -106,6 +112,13 @@
           };
         },
       }),
+      // HACK for broken lessons: Prior to 0.12, lessons can hold resources that have
+      // been deleted. We need to filter them out here. As a remedy for users
+      // with 'broken' lessons, they can visit the lesson and the 'mounted' hook
+      // will save the fixed lesson.
+      workingResources() {
+        return this.workingResourcesIds.filter(resourceId => this.resourceContentNodes[resourceId]);
+      },
       removalMessage() {
         const numberOfRemovals = this.workingResourcesBackup.length - this.workingResources.length;
 
@@ -121,6 +134,13 @@
           numberOfRemovals,
         });
       },
+    },
+    mounted() {
+      // HACK for broken lessons: Automatically save the lesson if we
+      // infer that is has missing items at first render.
+      if (this.contentMightBeDeleted) {
+        this.autoSave(this.lessonId, this.workingResources);
+      }
     },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),

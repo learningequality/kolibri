@@ -13,9 +13,8 @@
     <td>
       {{ group.users.length }}
     </td>
-    <td class="ta-r core-table-button-col">
+    <td class="core-table-button-col">
       <KDropdownMenu
-        v-if="!isUngrouped"
         appearance="flat-button"
         :text="coachStrings.$tr('optionsLabel')"
         :options="menuOptions"
@@ -29,13 +28,11 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
-  import sortBy from 'lodash/sortBy';
   import commonCoach from '../../common';
 
   export default {
@@ -55,60 +52,21 @@
           return group.name && group.users;
         },
       },
-      isUngrouped: {
-        type: Boolean,
-        default: false,
-      },
-      canMove: {
-        type: Boolean,
-        default: true,
-      },
     },
     computed: {
-      ...mapState('groups', ['groupModalShown']),
-      sortedGroupUsers() {
-        return sortBy(this.group.users, user => user.full_name.toLowerCase());
-      },
       menuOptions() {
         return [this.coachStrings.$tr('renameAction'), this.coachStrings.$tr('deleteAction')];
-      },
-      allUsersAreSelected() {
-        return (
-          this.group.users.length === this.selectedUsers.length && this.selectedUsers.length !== 0
-        );
-      },
-      someUsersAreSelected() {
-        return !this.allUsersAreSelected && this.selectedUsers.length !== 0;
       },
     },
     methods: {
       handleSelection(selectedOption) {
+        let emitted;
         if (selectedOption === this.coachStrings.$tr('renameAction')) {
-          this.$emit('rename', this.group.name, this.group.id);
+          emitted = 'rename';
         } else if (selectedOption === this.coachStrings.$tr('deleteAction')) {
-          this.$emit('delete', this.group.name, this.group.id);
+          emitted = 'delete';
         }
-      },
-      isSelected(userId) {
-        return this.selectedUsers.includes(userId);
-      },
-      toggleSelection(userId) {
-        const index = this.selectedUsers.indexOf(userId);
-        if (index === -1) {
-          this.selectedUsers.push(userId);
-        } else {
-          this.selectedUsers.splice(index, 1);
-        }
-      },
-      toggleSelectAll() {
-        if (this.allUsersAreSelected) {
-          this.selectedUsers = [];
-        } else {
-          this.selectedUsers = this.group.users.map(user => user.id);
-        }
-      },
-      emitMove() {
-        this.$emit('move', this.group.name, this.group.id, this.selectedUsers, this.isUngrouped);
+        this.$emit(emitted, this.group.name, this.group.id);
       },
     },
   };
@@ -117,10 +75,6 @@
 
 
 <style lang="scss" scoped>
-
-  .ta-r {
-    text-align: right;
-  }
 
   .icon {
     margin-right: 8px;

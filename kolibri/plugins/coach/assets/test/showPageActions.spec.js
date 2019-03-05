@@ -1,7 +1,6 @@
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { showExamsPage } from '../src/modules/examsRoot/handlers';
-import examReportStore from '../src/modules/examReport';
 import makeStore from './makeStore';
 
 jestMockResource(ClassroomResource);
@@ -324,67 +323,6 @@ fakeExamState.forEach(fakeExam => {
         { assessment_item_ids: questionIds, mastery_model: { doStuff: 'doStuff' } },
       ],
     });
-  });
-});
-
-describe('exam report state', () => {
-  it('examQuestions getter handles a v0 exam', () => {
-    const state = {
-      exams: fakeExamState,
-      exam: fakeExams[0],
-      examsModalSet: false,
-      busy: false,
-      exerciseContentNodes,
-    };
-    const questions = [
-      { exercise_id: '12345', question_id: 14, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 16, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 13, title: 'exercise title 1' },
-      { exercise_id: '54321', question_id: 18, title: 'exercise title 2' },
-      { exercise_id: '12345', question_id: 0, title: 'exercise title 1' },
-      { exercise_id: '54321', question_id: 0, title: 'exercise title 2' },
-      { exercise_id: '12345', question_id: 18, title: 'exercise title 1' },
-      { exercise_id: '12345', question_id: 12, title: 'exercise title 1' },
-    ];
-    expect(examReportStore.getters.examQuestions(state)).toEqual(questions);
-  });
-  it('examQuestions getter handles another v0 exam', () => {
-    const state = {
-      exams: fakeExamState,
-      exam: fakeExams[1],
-      examsModalSet: false,
-      busy: false,
-      exerciseContentNodes,
-    };
-    const questions = [
-      { exercise_id: '123', question_id: 10, title: 'exercise title 5' },
-      { exercise_id: 'xyz', question_id: 8, title: 'exercise title 3' },
-      { exercise_id: 'xyz', question_id: 10, title: 'exercise title 3' },
-      { exercise_id: '123', question_id: 13, title: 'exercise title 5' },
-      { exercise_id: 'abc', question_id: 8, title: 'exercise title 4' },
-      { exercise_id: 'abc', question_id: 17, title: 'exercise title 4' },
-      { exercise_id: '123', question_id: 8, title: 'exercise title 5' },
-      { exercise_id: 'xyz', question_id: 17, title: 'exercise title 3' },
-      { exercise_id: '123', question_id: 17, title: 'exercise title 5' },
-      { exercise_id: 'abc', question_id: 10, title: 'exercise title 4' },
-    ];
-    expect(examReportStore.getters.examQuestions(state)).toEqual(questions);
-  });
-  it('examQuestions getter handles a v1 exam', () => {
-    const state = {
-      exams: fakeExamState,
-      exam: fakeExams[2],
-      examsModalSet: false,
-      busy: false,
-      exerciseContentNodes,
-    };
-    const questions = [
-      { exercise_id: 'exercise_3', question_id: '00001', title: 'exercise title 3' },
-      { exercise_id: 'exercise_4', question_id: '00002', title: 'exercise title 4' },
-      { exercise_id: 'exercise_5', question_id: '00003', title: 'exercise title 5' },
-      { exercise_id: 'exercise_5', question_id: '00001', title: 'exercise title 5' },
-    ];
-    expect(examReportStore.getters.examQuestions(state)).toEqual(questions);
   });
 });
 

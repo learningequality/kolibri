@@ -13,7 +13,6 @@ export function displayModal(store, modalName) {
 }
 
 export function createGroup(store, { groupName, classId }) {
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
   return LearnerGroupResource.saveModel({
     data: {
       parent: classId,
@@ -28,8 +27,6 @@ export function createGroup(store, { groupName, classId }) {
       LearnerGroupResource.clearCache();
 
       store.commit('SET_GROUPS', groups);
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
       // We have updated the groups, so update the classSummary
       // to get that back up to date!
       return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
@@ -58,15 +55,11 @@ export function renameGroup(store, { groupId, newGroupName }) {
 }
 
 export function deleteGroup(store, groupId) {
-  store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
   return LearnerGroupResource.deleteModel({ id: groupId }).then(
     () => {
       const groups = store.state.groups;
       const updatedGroups = groups.filter(group => group.id !== groupId);
-
       store.commit('SET_GROUPS', updatedGroups);
-      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('SET_GROUP_MODAL', '');
     },
     error => store.dispatch('handleError', error, { root: true })
   );

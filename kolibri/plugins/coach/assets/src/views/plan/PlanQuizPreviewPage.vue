@@ -4,7 +4,7 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -29,8 +29,10 @@
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
   import Index from '../CoachIndex';
+  import CreateExamPage from './CreateExamPage';
 
   const indexStrings = crossComponentTranslator(Index);
+  const CreateExamPageStrings = crossComponentTranslator(CreateExamPage);
 
   export default {
     name: 'PlanQuizPreviewPage',
@@ -38,12 +40,14 @@
       LessonContentPreviewPage,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['preview', 'selectedExercises', 'currentContentNode']),
       isSelected() {
         return Boolean(this.selectedExercises[this.currentContentNode.id]);
+      },
+      appBarTitle() {
+        return CreateExamPageStrings.$tr('createNewExam');
       },
     },
     beforeDestroy() {

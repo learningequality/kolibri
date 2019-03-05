@@ -17,6 +17,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.decorators import query_params_required
+from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ExamAttemptLog
@@ -188,57 +189,117 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         return response
 
 
-class DifficultiesPermissions(permissions.BasePermission):
+class ExerciseDifficultiesPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        collection_id = view.kwargs.get('collection_id', None)
+        classroom_id = request.GET.get('classroom_id', None)
+        group_id = request.GET.get('group_id', None)
+        collection_id = group_id or classroom_id
+        lesson_id = request.GET.get('lesson_id', None)
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        if lesson_id:
+            try:
+                lesson = Lesson.objects.get(id=lesson_id)
+                classroom = lesson.collection
+                return request.user.has_role_for(allowed_roles, classroom)
+            except (FacilityUser.DoesNotExist, Collection.DoesNotExist, Lesson.DoesNotExist, ValueError):
+                return False
         try:
             return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
         except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
             return False
 
 
-@query_params_required(collection_id=str)
-class BaseDifficultQuestionsViewset(viewsets.ViewSet):
-    permission_classes = (permissions.IsAuthenticated, DifficultiesPermissions,)
+# Define a base class so that the inherited class is properly introspectable,
+# rather than being the result of our wrapping
+@query_params_required(classroom_id=str)
+class BaseExerciseDifficultQuestionsViewset(viewsets.ViewSet):
+    pass
 
 
-class ExerciseDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
+class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
+    permission_classes = (permissions.IsAuthenticated, ExerciseDifficultiesPermissions,)
 
     def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular exercise.
         pk maps to the content_id of the exercise in question.
         """
-        collection_id = self.kwargs['collection_id']
+        classroom_id = request.GET.get('classroom_id', None)
+        group_id = request.GET.get('group_id', None)
+        lesson_id = request.GET.get('lesson_id', None)
         queryset = AttemptLog.objects.filter(masterylog__summarylog__content_id=pk)
-        queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=collection_id,
-            target_user=F("user"),
-        )
+        if lesson_id is not None:
+            collection_ids = Lesson.objects.get(id=lesson_id).lesson_assignments.values_list('collection_id', flat=True)
+            if group_id is not None:
+                if group_id not in collection_ids and classroom_id not in collection_ids:
+                    # In the special case that the group is not in the lesson assignments
+                    # nor the containing classroom, just return an empty queryset.
+                    queryset = AttemptLog.objects.none()
+            else:
+                # Only filter by all the collections in the lesson if we are not also
+                # filtering by a specific group. Otherwise the group should be sufficient.
+                base_queryset = queryset
+                # Set starting queryset to null, then OR.
+                queryset = AttemptLog.objects.none()
+                for collection_id in collection_ids:
+                    queryset |= HierarchyRelationsFilter(base_queryset).filter_by_hierarchy(
+                        ancestor_collection=collection_id,
+                        target_user=F("user"),
+                    )
+                queryset = queryset.distinct()
+        if group_id is not None:
+            collection_id = group_id or classroom_id
+            queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+                ancestor_collection=collection_id,
+                target_user=F("user"),
+            )
+
         data = queryset.values('item').annotate(total=Count('correct')).annotate(correct=Sum('correct'))
         return Response(data)
 
 
-class QuizDifficultQuestionsViewset(BaseDifficultQuestionsViewset):
+class QuizDifficultiesPermissions(permissions.BasePermission):
+
+    # check if requesting user has permission for collection or user
+    def has_permission(self, request, view):
+        exam_id = view.kwargs.get('pk', None)
+        if exam_id is None:
+            return False
+        try:
+            collection = Exam.objects.get(id=exam_id).collection
+        except Exam.DoesNotExist:
+            return False
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        try:
+            return request.user.has_role_for(allowed_roles, collection)
+        except (FacilityUser.DoesNotExist, ValueError):
+            return False
+
+
+class QuizDifficultQuestionsViewset(viewsets.ViewSet):
+    permission_classes = (permissions.IsAuthenticated, QuizDifficultiesPermissions,)
 
     def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular quiz.
         """
-        collection_id = self.kwargs['collection_id']
+        group_id = request.GET.get('group_id', None)
         queryset = ExamAttemptLog.objects.filter(examlog__exam=pk)
-        queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=collection_id,
-            target_user=F("user"),
-        )
+        if group_id is not None:
+            queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
+                ancestor_collection=group_id,
+                target_user=F("user"),
+            )
+            collection_id = group_id
+        else:
+            collection_id = Exam.objects.get(pk=pk).collection_id
         data = queryset.values('item', 'content_id').annotate(correct=Sum('correct'))
 
         # Instead of inferring the totals from the number of logs, use the total
         # number of people who took the exam as our guide, as people who started the exam
-        # but did not attempt the question, are still important.
+        # but did not attempt the question are still important.
         total = HierarchyRelationsFilter(ExamLog.objects.filter(exam_id=pk)).filter_by_hierarchy(
             ancestor_collection=collection_id,
             target_user=F("user"),

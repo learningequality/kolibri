@@ -40,7 +40,7 @@
         :style="{ background: $coreBgLight }"
       >
         <ContentRenderer
-          v-if="itemId"
+          v-if="content && itemId"
           :id="content.id"
           ref="contentRenderer"
           :kind="content.kind"

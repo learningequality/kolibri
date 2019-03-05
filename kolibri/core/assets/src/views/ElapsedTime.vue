@@ -1,7 +1,7 @@
 <template>
 
   <span v-if="date">
-    {{ $formatRelative(date, { now: now }) }}
+    {{ $formatRelative(ceilingDate, { now: now }) }}
   </span>
   <KEmptyPlaceholder v-else />
 
@@ -28,6 +28,14 @@
       now: now(),
       timer: null,
     }),
+    computed: {
+      ceilingDate() {
+        if (this.date > this.now) {
+          return this.now;
+        }
+        return this.date;
+      },
+    },
     mounted() {
       this.timer = setInterval(() => {
         this.now = now();

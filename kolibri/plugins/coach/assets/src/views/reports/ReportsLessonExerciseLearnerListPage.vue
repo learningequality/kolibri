@@ -36,24 +36,26 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KRouterLink
-                v-if="tableRow.status.status !== STATUSES.notStarted"
+                v-if="showLink(tableRow)"
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
               <template v-else>{{ tableRow.name }}</template>
             </td>
             <td>
-              <StatusSimple :status="tableRow.status.status" />
+              <StatusSimple :status="tableRow.statusObj.status" />
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.status.time_spent" />
+              <TimeDuration
+                :seconds="showTimeDuration(tableRow)"
+              />
             </td>
             <td>
               <TruncatedItemList :items="tableRow.groups" />
             </td>
             <td>
               <ElapsedTime
-                :date="tableRow.status.last_activity"
+                :date="showElapsedTime(tableRow)"
               />
             </td>
           </tr>
@@ -93,7 +95,10 @@
         const mapped = sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
-            status: this.getContentStatusObjForLearner(this.$route.params.exerciseId, learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.exerciseId,
+              learner.id
+            ),
           };
           Object.assign(tableRow, learner);
           return tableRow;
@@ -104,6 +109,21 @@
     methods: {
       link(learnerId) {
         return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, { learnerId });
+      },
+      showLink(tableRow) {
+        return tableRow.statusObj.status !== this.STATUSES.notStarted;
+      },
+      showTimeDuration(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.time_spent;
+        }
+        return undefined;
+      },
+      showElapsedTime(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.last_activity;
+        }
+        return undefined;
       },
     },
   };

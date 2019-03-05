@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 
 import django.db.models.deletion
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 
 
 class Migration(migrations.Migration):
@@ -19,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DevicePermissions',
             fields=[
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='devicepermissions', serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='devicepermissions', serialize=False, to='kolibriauth.FacilityUser')),
                 ('is_superuser', models.BooleanField(default=False)),
                 ('can_manage_content', models.BooleanField(default=False)),
             ],

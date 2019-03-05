@@ -1,14 +1,15 @@
 import { AttemptLogResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
-export function setAttemptLogs(store, params) {
-  const { learnerId, exercise } = params;
+export function setAttemptLogs(store) {
+  const { learnerId, exercise, attemptId } = store.state;
   return AttemptLogResource.fetchCollection({
     getParams: {
       user: learnerId,
       content: exercise.content_id,
     },
-    force: true,
+    // Only force when accessing the root url
+    force: attemptId === null,
   }).then(attemptLogs => {
     const exerciseQuestions = assessmentMetaDataState(exercise).assessmentIds;
     // Add their question number
@@ -17,7 +18,6 @@ export function setAttemptLogs(store, params) {
         attemptLog.questionNumber = exerciseQuestions.indexOf(attemptLog.item) + 1;
       });
     }
-
     // Re-set the attempt logs.
     store.commit('SET_ATTEMPT_LOGS', attemptLogs);
     return store.getters.attemptLogs;

@@ -147,12 +147,14 @@ export class HeartBeat {
               // Multiply the previous interval by our multiplier, but max out at a high interval.
               Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
             );
-            createDisconnectedSnackbar(store, heartbeat.beat);
+            createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
             return response;
           },
         })
       );
     }
+    // Log the time at the start of the request for time diff setting.
+    const pollStart = Date.now();
     return client({
       params: {
         // Only send active when both connected and activity has been registered.
@@ -162,6 +164,8 @@ export class HeartBeat {
       path: this._sessionUrl('current'),
     })
       .then(response => {
+        // Log the time that the poll of the session endpoint ended.
+        const pollEnd = Date.now();
         const session = response.entity;
         // If our session is already defined, check the user id in the response
         if (store.state.core.session.id && session.user_id !== currentUserId) {
@@ -174,7 +178,19 @@ export class HeartBeat {
             redirectBrowser();
           }
         }
-        store.dispatch('setSession', session);
+        store.dispatch('setSession', {
+          session,
+          // Calculate an approximation of the client 'now' that was simultaneous to the server
+          // 'now' that was sent back with the request. We calculate this as the mean of the
+          // start of the request and the end of the request, which assumes that the calculation
+          // of the local_now on the server side happens at the midpoint of the request response
+          // cycle. Evidently this is not completely accurate, but it is the best that we can do.
+          // Further, this fails to account for relativity, as simultaneity depends on your specific
+          // frame of reference. If the client is moving relative to the server at speeds
+          // approaching the speed of light, this may produce some odd results,
+          // but I think that was always true.
+          clientNow: new Date((pollEnd + pollStart) / 2),
+        });
       })
       .catch(error => {
         // An error occurred.

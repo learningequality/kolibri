@@ -50,8 +50,7 @@ describe('NotificationCard component', () => {
 
     const link = wrapper.find({ name: 'KRouterLink' });
     expect(link.exists()).toEqual(false);
-    const linkText = wrapper.find('.icon-spacer span');
-    expect(linkText.text()).toEqual('JB finished a lesson');
+    expect(wrapper.text()).toEqual('JB finished a lesson');
   });
 
   it('has a single KGridItem if no time is provided', () => {
@@ -60,7 +59,7 @@ describe('NotificationCard component', () => {
     });
     const gridItems = wrapper.findAll({ name: 'KGridItem' });
     expect(gridItems.length).toEqual(1);
-    expect(gridItems.at(0).props().size).toEqual(100);
+    expect(gridItems.at(0).props().sizes).toEqual([4, 8, 12]);
   });
 
   it('has a second KGridItem with the time if it is provided', () => {
@@ -72,8 +71,8 @@ describe('NotificationCard component', () => {
     });
     const gridItems = wrapper.findAll({ name: 'KGridItem' });
     expect(gridItems.length).toEqual(2);
-    expect(gridItems.at(0).props().size).toEqual(50);
-    expect(gridItems.at(1).props().size).toEqual(50);
+    expect(gridItems.at(0).props().sizes).toEqual([3, 6, 9]);
+    expect(gridItems.at(1).props().sizes).toEqual([1, 2, 3]);
 
     const elapsedTime = wrapper.find({ name: 'ElapsedTime' });
     const timeObject = new Date(timeString).getTime();

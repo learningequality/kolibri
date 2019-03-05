@@ -6,18 +6,22 @@
     :title="title"
     @submit="submit"
   >
-    {{ msg }}
-    <KExternalLink
-      v-if="linkUrl"
-      :href="linkUrl"
-      :text="linkText || linkUrl"
-    />
+    <p>{{ msg }}</p>
+    <p>
+      <KExternalLink
+        v-if="linkUrl"
+        :href="linkUrl"
+        :text="linkText || linkUrl"
+      />
+    </p>
     <p v-if="!isSuperuser">{{ $tr('adminMessage') }}</p>
-    <KCheckbox
-      :label="$tr('hideNotificationLabel')"
-      :checked="dontShowNotificationAgain"
-      @change="dontShowNotificationAgain = !dontShowNotificationAgain"
-    />
+    <p>
+      <KCheckbox
+        :label="$tr('hideNotificationLabel')"
+        :checked="dontShowNotificationAgain"
+        @change="dontShowNotificationAgain = !dontShowNotificationAgain"
+      />
+    </p>
   </KModal>
 
 </template>

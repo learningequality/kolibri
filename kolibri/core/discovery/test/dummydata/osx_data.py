@@ -125,8 +125,9 @@ os_access_read = {
 
 os_access_write = {
     "/": False,
-    "/Volumes/HP v125w": True,
+    "/Volumes/HP v125w": False,
     "/Volumes/NO NAME": False,
+    "/Volumes/HP v125w/KOLIBRI_DATA": True,
 }
 
 has_kolibri_data_folder = {

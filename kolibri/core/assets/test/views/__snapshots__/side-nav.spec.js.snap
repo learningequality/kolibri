@@ -28,7 +28,7 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p><a dir="auto" type="button" tabindex="0" class="privacy-link KButton-noKey-0_khtjim link">Usage and privacy
+          <p><a dir="auto" type="button" tabindex="0" class="privacy-link KButton-noKey-0_48nhro link">Usage and privacy
               <!----></a></p>
         </div>
       </div>
@@ -75,7 +75,7 @@ exports[`side nav component should show nothing if no components are added and u
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
-          <p><a dir="auto" type="button" tabindex="0" class="privacy-link KButton-noKey-0_khtjim link">Usage and privacy
+          <p><a dir="auto" type="button" tabindex="0" class="privacy-link KButton-noKey-0_48nhro link">Usage and privacy
               <!----></a></p>
         </div>
       </div>

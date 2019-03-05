@@ -24,7 +24,11 @@
           <th>{{ $tr('className') }}</th>
           <th>{{ $tr('coachesColumnHeader') }}</th>
           <th>{{ $tr('learnersColumnHeader') }}</th>
-          <th class="right">{{ $tr('actions') }}</th>
+          <th>
+            <span class="visuallyhidden">
+              {{ $tr('actions') }}
+            </span>
+          </th>
         </tr>
       </thead>
       <transition-group slot="tbody" tag="tbody" name="list">
@@ -60,7 +64,7 @@
           <td>
             {{ classroom.learner_count }}
           </td>
-          <td class="right button-col">
+          <td class="core-table-button-col">
             <KButton
               appearance="flat-button"
               :text="$tr('deleteClass')"
@@ -204,14 +208,6 @@
   .move-down {
     position: relative;
     margin-top: 24px;
-  }
-
-  .right {
-    text-align: right;
-  }
-
-  .button-col {
-    padding: 0;
   }
 
 </style>

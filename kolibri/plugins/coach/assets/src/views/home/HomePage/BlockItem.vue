@@ -25,8 +25,9 @@
 <style lang="scss" scoped>
 
   .block-item {
+    padding-top: 8px;
     padding-right: 24px;
-    padding-bottom: 16px;
+    padding-bottom: 8px;
     padding-left: 24px;
     margin-right: -24px;
     margin-left: -24px;

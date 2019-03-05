@@ -26,7 +26,7 @@ const groupMgmtStrings = createTranslator('GroupManagementStrings', {
 
   // notifications
   groupDeletedNotice: 'Group deleted',
-  groupCreatedNotice: 'Group ceated',
+  groupCreatedNotice: 'Group created',
   addedLearnersNotice:
     'Added {value, number, integer} {value, plural, one {learner} other {learners}}',
   removedLearnersNotice:

@@ -9,10 +9,13 @@
     <template v-else>
       <div class="section user-info">
         <h1 dir="auto">
-          {{ user.full_name }}
-          <span v-if="isCurrentUser">
-            ({{ $tr('you') }})
-          </span>
+          <KLabeledIcon>
+            <KIcon slot="icon" person />
+            {{ user.full_name }}
+            <span v-if="isCurrentUser">
+              ({{ $tr('you') }})
+            </span>
+          </KLabeledIcon>
         </h1>
 
         <table>
@@ -104,6 +107,8 @@
   import UserType from 'kolibri.utils.UserType';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -125,6 +130,8 @@
       KCheckbox,
       PermissionsIcon,
       UserTypeDisplay,
+      KIcon,
+      KLabeledIcon,
     },
     mixins: [themeMixin],
     data() {

@@ -67,6 +67,7 @@
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
+        :disabled="facilityList.length === 1"
         @blur="facilityBlurred = true"
       />
 
