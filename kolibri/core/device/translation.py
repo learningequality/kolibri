@@ -15,6 +15,7 @@ from .models import DeviceSettings
 
 DEVICE_LANGUAGE = None
 
+
 def get_language_from_request(request):  # noqa complexity-16
     """
     Analyzes the request to find what language the user wants the system to
@@ -40,6 +41,13 @@ def get_language_from_request(request):  # noqa complexity-16
     except LookupError:
         pass
 
+    try:
+        if DEVICE_LANGUAGE is None:
+            DEVICE_LANGUAGE = DeviceSettings.objects.get().language_id
+        return get_supported_language_variant(DEVICE_LANGUAGE)
+    except (DeviceSettings.DoesNotExist, LookupError):
+        pass
+
     accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
     for accept_lang, unused in parse_accept_lang_header(accept):
         if accept_lang == '*':
@@ -52,13 +60,6 @@ def get_language_from_request(request):  # noqa complexity-16
             return get_supported_language_variant(accept_lang)
         except LookupError:
             continue
-
-    try:
-        if DEVICE_LANGUAGE is None:
-            DEVICE_LANGUAGE = DeviceSettings.objects.get().language_id
-        return get_supported_language_variant(DEVICE_LANGUAGE)
-    except (DeviceSettings.DoesNotExist, LookupError):
-        pass
 
     try:
         return get_supported_language_variant(settings.LANGUAGE_CODE)
