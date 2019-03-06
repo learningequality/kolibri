@@ -34,11 +34,15 @@ class DeviceSettings(models.Model):
     This class stores data about settings particular to this device
     """
     is_provisioned = models.BooleanField(default=False)
-    language_id = models.CharField(max_length=15, default=settings.LANGUAGE_CODE)
+    language_id = models.CharField(max_length=15, default=settings.LANGUAGE_CODE, blank=True, null=True)
     default_facility = models.ForeignKey(Facility, on_delete=models.SET_NULL, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        # Import here to prevent circular dependency.
+        from kolibri.core.device.translation import DEVICE_LANGUAGE_CACHE_KEY
+        # Delete any cache of the device language setting just in case.
+        cache.delete(DEVICE_LANGUAGE_CACHE_KEY)
         super(DeviceSettings, self).save(*args, **kwargs)
 
 

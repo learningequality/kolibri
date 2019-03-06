@@ -742,19 +742,6 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(get_progress_fraction(c2), 0.4)
         self.assertEqual(get_progress_fraction(c2c1), 0.7)
 
-    @mock.patch.object(cache, 'set')
-    def test_parent_query_cache_is_set(self, mock_cache_set):
-        id = content.ContentNode.objects.get(title="c3").id
-        self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
-        self.assertTrue(mock_cache_set.called)
-
-    def test_parent_query_cache_hit(self):
-        id = content.ContentNode.objects.get(title="c2c3").id
-        self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
-        with mock.patch.object(cache, 'set') as mock_cache_set:
-            self.client.get(reverse("kolibri:core:contentnode-list"), data={"parent": id})
-            self.assertFalse(mock_cache_set.called)
-
     def test_filtering_coach_content_anon(self):
         response = self.client.get(reverse("kolibri:core:contentnode-list"), data={"by_role": True})
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
