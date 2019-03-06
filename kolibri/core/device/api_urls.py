@@ -6,6 +6,7 @@ from .api import DeviceInfoView
 from .api import DevicePermissionsViewSet
 from .api import DeviceProvisionView
 from .api import FreeSpaceView
+from .api import DeviceLanguageSettingViewset
 
 router = routers.SimpleRouter()
 router.register(r'devicepermissions', DevicePermissionsViewSet, base_name='devicepermissions')
@@ -15,4 +16,5 @@ urlpatterns = [
     url(r'^deviceprovision/', DeviceProvisionView.as_view({'post': 'create'}), name='deviceprovision'),
     url(r'^freespace/', FreeSpaceView.as_view({'get': 'list'}), name='freespace'),
     url(r'^deviceinfo/', DeviceInfoView.as_view(), name='deviceinfo'),
+    url(r'^devicelanguage/', DeviceLanguageSettingViewset.as_view(), name='devicelanguage'),
 ]
