@@ -9,8 +9,13 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <PlanHeader />
+      <p>
+        <BackLink
+          :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
+          :text="backLinkString"
+        />
 
+      </p>
       <div class="lesson-summary">
 
         <AssignmentSummary
@@ -69,17 +74,20 @@
 
   import { mapState, mapActions } from 'vuex';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
-  import PlanHeader from '../../plan/PlanHeader';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
+  import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
+
+  const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
   export default {
     name: 'LessonSummaryPage',
@@ -89,7 +97,6 @@
       };
     },
     components: {
-      PlanHeader,
       KDropdownMenu,
       ResourceListTable,
       ManageLessonModals,
@@ -98,6 +105,9 @@
     },
     mixins: [commonCoach],
     computed: {
+      backLinkString() {
+        return ReportsLessonHeaderStrings.$tr('back');
+      },
       ...mapState(['reportRefreshInterval']),
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', {

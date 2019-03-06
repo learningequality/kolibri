@@ -71,6 +71,7 @@
         return true;
       },
       nameIsInvalidText() {
+        if (this.submitting) return '';
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
             return this.$tr('required');
@@ -94,7 +95,9 @@
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
-          this.createGroup({ groupName: this.name, classId: this.classId });
+          this.createGroup({ groupName: this.name, classId: this.classId }).then(() => {
+            this.$emit('success');
+          });
         } else {
           this.$refs.name.focus();
         }

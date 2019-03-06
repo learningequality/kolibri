@@ -1,38 +1,35 @@
 <template>
 
   <div class="notification">
+    <CoachStatusIcon
+      :icon="statusIcon"
+      class="icon"
+    />
     <p class="context icon-spacer">{{ context }}</p>
     <KGrid>
-      <KGridItem :size="time ? 50 : 100" percentage>
-        <CoachStatusIcon
-          :icon="statusIcon"
-          class="icon"
-        />
+      <KGridItem :sizes="mainColSizes">
         <div class="icon-spacer">
-          <KLabeledIcon>
-            <ContentIcon
-              slot="icon"
-              class="content-icon"
-              :kind="contentIcon"
-              :showTooltip="false"
-            />
-            <KRouterLink
-              v-if="targetPage && targetPage.name"
-              :text="linkText"
-              :to="getRoute(targetPage)"
-            />
-            <span v-else>
-              {{ linkText }}
-            </span>
-          </KLabeledIcon>
+          <ContentIcon
+            slot="icon"
+            class="content-icon"
+            :kind="contentIcon"
+            :showTooltip="false"
+          />
+          <KRouterLink
+            v-if="targetPage && targetPage.name"
+            :text="linkText"
+            :to="getRoute(targetPage)"
+          />
+          <span v-else>
+            {{ linkText }}
+          </span>
         </div>
       </KGridItem>
 
       <KGridItem
         v-if="time"
-        :size="50"
-        percentage
-        alignment="center"
+        :sizes="[1, 2, 3]"
+        alignment="right"
       >
         <ElapsedTime :date="parseDate(time)" />
       </KGridItem>
@@ -48,7 +45,6 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachStatusIcon from '../status/CoachStatusIcon';
@@ -69,7 +65,6 @@
       ContentIcon,
       CoachStatusIcon,
       ElapsedTime,
-      KLabeledIcon,
       KGrid,
       KGridItem,
       KRouterLink,
@@ -143,6 +138,12 @@
         }
         return '';
       },
+      mainColSizes() {
+        if (this.time) {
+          return [3, 6, 9];
+        }
+        return [4, 8, 12];
+      },
     },
     methods: {
       parseDate(dateString) {
@@ -162,15 +163,17 @@
   @import '~kolibri.styles.definitions';
 
   .icon {
+    // vertically align icon
     position: absolute;
-    top: 32px;
+    top: 50%;
     left: 2px;
     width: 1.5em;
     height: 1.5em;
+    margin-top: -0.75em; // offset height
   }
 
   .icon-spacer {
-    margin-left: 40px;
+    margin-left: 48px;
   }
 
   .content-icon {

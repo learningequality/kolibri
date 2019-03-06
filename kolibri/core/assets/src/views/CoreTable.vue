@@ -110,12 +110,14 @@
 
   /deep/ th,
   /deep/ td {
-    max-width: 300px;
     padding: 12px 8px;
-    overflow-x: hidden;
     line-height: 1.5em;
-    text-overflow: ellipsis;
     vertical-align: top;
+  }
+
+  /deep/ td {
+    max-width: 300px;
+    overflow-x: auto;
   }
 
   /deep/ tr:not(:last-child) {
@@ -126,11 +128,17 @@
     width: 40px;
     .k-checkbox-container {
       margin: 0 0 0 2px;
+      line-height: 1em;
     }
   }
 
   /deep/ .core-table-button-col {
     padding: 4px;
+    text-align: right;
+
+    button {
+      margin: 0;
+    }
   }
 
 </style>

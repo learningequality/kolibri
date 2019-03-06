@@ -12,6 +12,7 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 import django
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
+from django.db import connections
 from django.db.utils import DatabaseError
 from docopt import docopt
 
@@ -318,6 +319,11 @@ def start(port=None, daemon=True):
         )
         kwargs['out_log'] = server.DAEMON_LOG
         kwargs['err_log'] = server.DAEMON_LOG
+
+        # close all connections before forking, to avoid SQLite corruption:
+        # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
+        connections.close_all()
+
         become_daemon(**kwargs)
 
     server.start(port=port, run_cherrypy=run_cherrypy)
@@ -617,33 +623,19 @@ def main(args=None):  # noqa: max-complexity=13
 
     if arguments['start']:
         port = _get_port(arguments['--port'])
-        check_other_kolibri_running(port)
+        if OPTIONS["Server"]["CHERRYPY_START"]:
+            check_other_kolibri_running(port)
 
     try:
         initialize(debug=debug)
     except (DatabaseError, SQLite3DatabaseError) as e:
-        from django.conf import settings
         if "malformed" in str(e):
-            recover_cmd = (
-                "    sqlite3 {path} .dump | sqlite3 fixed.db \n"
-                "    cp fixed.db {path}"
-                ""
-            ).format(
-                path=settings.DATABASES['default']['NAME'],
-            )
             logger.error(
-                "\n"
-                "Your database is corrupted. This is a "
-                "known issue that is usually fixed by running this "
-                "command: "
-                "\n\n"
-                + recover_cmd
-                + "\n\n"
-                "Notice that you need the 'sqlite3' command available "
-                "on your system prior to running this."
-                "\n\n"
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
             )
-            sys.exit(1)
         raise
 
     # Alias
@@ -676,9 +668,9 @@ def main(args=None):  # noqa: max-complexity=13
         call_command("clearsessions")
 
         daemon = not arguments['--foreground']
-        # On Mac, Python 2.7 crashes when forking the process, so prevent daemonization until we can figure out
+        # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
         # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-        if sys.platform == 'darwin' and sys.version_info < (3, 0):
+        if sys.platform == 'darwin':
             daemon = False
         start(port, daemon=daemon)
         return

@@ -7,25 +7,22 @@ Feature: Coach activates quizzes
       And I see the quiz <quiz_title>
 
   Scenario: Change the quiz status to *Active*
-    When I click the quiz <quiz_title>
-    # Is this going to be re-implemented, or this can be achived just through the *Edit details* option?
-    Then I see the <quiz_title> quiz page
-      And I see the quiz *Status* is *Inactive*
-    When I click *Change*
-    Then I see the *Change quiz status* modal
-    When I select *Active*
+    Given that quiz <quiz_title> *Status* is *Inactive*
+      When I click the *Options* button
+        And I select *Edit details*
+      Then I see the *Edit quiz details* modal
+      When I select *Active* under *Status*
       And I click *Save* button
     Then the modal closes
       And I see the snackbar notification *Changes to quiz saved*
       And I see the quiz *Status* is *Active*
 
   Scenario: Change the quiz status to *Inactive*
-    When I click the quiz <quiz_title>
-    Then I see the <quiz_title> quiz page
-      And I see the quiz *Status* is *Active*
-    When I click *Change*
-    Then I see the *Change quiz status* modal
-    When I select *Inactive*
+    Given that quiz <quiz_title> *Status* is *Active*
+      When I click the *Options* button
+        And I select *Edit details*
+      Then I see the *Edit quiz details* modal
+      When I select *Inactive* under *Status*
       And I click *Save* button
     Then the modal closes
       And I see the snackbar notification *Changes to quiz saved*

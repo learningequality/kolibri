@@ -121,10 +121,11 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
-            this.set(payload);
           } else {
-            this.set(attrs);
-            payload = this.attributes;
+            payload = {
+              ...this.attributes,
+              ...attrs,
+            };
           }
           if (!Object.keys(payload).length) {
             // Nothing to save, so just resolve the promise now.

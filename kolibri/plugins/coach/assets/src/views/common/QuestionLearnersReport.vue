@@ -66,12 +66,8 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
-
-  const examStrings = crossComponentTranslator(ExamReport);
 
   export default {
     name: 'QuestionLearnersReport',
@@ -119,16 +115,12 @@
         }
         return null;
       },
-      questionTitle() {
-        return examStrings.$tr('question', { questionNumber: this.questionNumber });
-      },
     },
     methods: {
       navigateToNewAttempt(learnerIndex) {
         this.showCorrectAnswer = false;
         const learnerId = this.learners[learnerIndex].id;
         this.$emit('navigate', {
-          exerciseId: this.exercise.content_id,
           questionId: this.questionId,
           learnerId,
           interactionIndex: 0,
@@ -137,7 +129,6 @@
       },
       navigateToNewInteraction(interactionIndex) {
         this.$emit('navigate', {
-          exerciseId: this.exercise.content_id,
           questionId: this.questionId,
           learnerId: this.learnerId,
           interactionIndex,

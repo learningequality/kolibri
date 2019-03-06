@@ -2,16 +2,14 @@
 
   <tr>
     <td class="core-table-checkbox-col">
-      <div class="checkbox">
-        <KCheckbox
-          :label="node.title"
-          :showLabel="false"
-          :checked="checked"
-          :indeterminate="indeterminate"
-          :disabled="disabled"
-          @change="$emit('changeselection', node)"
-        />
-      </div>
+      <KCheckbox
+        :label="node.title"
+        :showLabel="false"
+        :checked="checked"
+        :indeterminate="indeterminate"
+        :disabled="disabled"
+        @change="$emit('changeselection', node)"
+      />
     </td>
 
     <td class="title">
@@ -104,10 +102,6 @@
 
 
 <style lang="scss" scoped>
-
-  .checkbox {
-    max-height: 24px;
-  }
 
   .coach-content-label {
     display: inline-block;

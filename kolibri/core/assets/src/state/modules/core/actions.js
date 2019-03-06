@@ -198,11 +198,11 @@ export function blockDoubleClicks(store) {
   }
 }
 
-export function setSession(store, sessionObj) {
-  const serverTime = sessionObj.server_time;
-  setServerTime(serverTime);
-  sessionObj = pick(sessionObj, Object.keys(baseSessionState));
-  store.commit('CORE_SET_SESSION', sessionObj);
+export function setSession(store, { session, clientNow }) {
+  const serverTime = session.server_time;
+  setServerTime(serverTime, clientNow);
+  session = pick(session, Object.keys(baseSessionState));
+  store.commit('CORE_SET_SESSION', session);
 }
 
 /**
@@ -566,10 +566,10 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
 /**
 summary and session log progress update for exercise
 **/
-export function updateExerciseProgress(store, { progressPercent, forceSave = false }) {
+export function updateExerciseProgress(store, { progressPercent }) {
   /* Update the logging state with new progress information */
   progressPercent = progressPercent || 0;
-  return _updateProgress(store, progressPercent, progressPercent, forceSave);
+  return _updateProgress(store, progressPercent, progressPercent, true);
 }
 
 /**

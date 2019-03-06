@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.utils.timezone import now
+from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
 
@@ -19,6 +20,7 @@ from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.core.serializers import KolibriModelSerializer
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogSerializer(KolibriModelSerializer):
@@ -58,13 +60,13 @@ class ExamLogSerializer(KolibriModelSerializer):
             instance.completion_timestamp = now()
         instance = super(ExamLogSerializer, self).update(instance, validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(parse_examlog, instance)
+        wrap_to_save_queue(parse_examlog, instance, local_now())
         return instance
 
     def create(self, validated_data):
         instance = super(ExamLogSerializer, self).create(validated_data)
         # to check if a notification must be created:
-        wrap_to_save_queue(create_examlog, instance)
+        wrap_to_save_queue(create_examlog, instance, local_now())
         return instance
 
 
@@ -108,6 +110,12 @@ class AttemptLogSerializer(KolibriModelSerializer):
         fields = ('id', 'masterylog', 'start_timestamp', 'sessionlog',
                   'end_timestamp', 'completion_timestamp', 'item', 'time_spent', 'user',
                   'complete', 'correct', 'hinted', 'answer', 'simple_answer', 'interaction_history', 'error')
+
+    def create(self, validated_data):
+        instance = super(AttemptLogSerializer, self).create(validated_data)
+        # to check if a notification must be created:
+        wrap_to_save_queue(parse_attemptslog, instance)
+        return instance
 
     def update(self, instance, validated_data):
         instance = super(AttemptLogSerializer, self).update(instance, validated_data)
@@ -158,6 +166,10 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
 
     def create(self, validated_data):
         instance = super(ContentSummaryLogSerializer, self).create(validated_data)
+        # dont create notifications upon creating a summary log for an exercise
+        # notifications should only be triggered upon first attempting a question in the exercise
+        if instance.kind == content_kinds.EXERCISE:
+            return instance
         # to check if a notification must be created:
         wrap_to_save_queue(create_summarylog, instance)
         return instance

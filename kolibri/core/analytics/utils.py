@@ -53,7 +53,8 @@ def dump_zipped_json(data):
 #  TODO: move to le-utils package
 def version_matches_range(version, version_range):
 
-    if version_range == '*':
+    # if no version range is provided, assume we don't have opinions about the version
+    if not version_range or version_range == '*':
         return True
 
     # support having multiple comma-delimited version criteria
@@ -61,7 +62,7 @@ def version_matches_range(version, version_range):
         return all([version_matches_range(version, vrange) for vrange in version_range.split(",")])
 
     # extract and normalize version strings
-    operator, range_version = re.match(r"([<>=!]*)(\d.*)""", version_range).groups()
+    operator, range_version = re.match(r"([<>=!]*)(\d.*)", version_range).groups()
     range_version = normalize_version_to_semver(range_version)
     version = normalize_version_to_semver(version)
 
@@ -224,16 +225,17 @@ def extract_channel_statistics(channel):
 
 @transaction.atomic
 def create_and_update_notifications(data, source):
-    messages = data.get('messages', [])
-    excluded_ids = [obj.get('msg_id') for obj in messages if obj.get('msg_id')]
+    messages = [obj for obj in data.get('messages', []) if obj.get('msg_id')]
+    excluded_ids = [obj.get('msg_id') for obj in messages]
     PingbackNotification.objects.filter(source=source).exclude(id__in=excluded_ids).update(active=False)
     for msg in messages:
-        new_msg = {}
-        if msg.get('msg_id'):
-            new_msg['id'] = msg['msg_id']
-            new_msg['version_range'] = msg.get('version_range')
-            new_msg['link_url'] = msg.get('link_url')
-            new_msg['i18n'] = msg.get('i18n')
-            new_msg['timestamp'] = msg.get('timestamp')
-            new_msg['source'] = source
-            PingbackNotification.objects.update_or_create(defaults=new_msg, id=new_msg['id'])
+        new_msg = {
+            'id': msg['msg_id'],
+            'version_range': msg.get('version_range'),
+            'link_url': msg.get('link_url'),
+            'i18n': msg.get('i18n'),
+            'timestamp': msg.get('timestamp'),
+            'source': source,
+            'active': True,
+        }
+        PingbackNotification.objects.update_or_create(id=new_msg['id'], defaults=new_msg)

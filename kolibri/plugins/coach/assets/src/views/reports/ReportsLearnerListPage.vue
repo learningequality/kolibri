@@ -98,7 +98,10 @@
         return this._.meanBy(statuses, 'score');
       },
       lastActivity(examStatuses, contentStatuses) {
-        const statuses = [...examStatuses, ...contentStatuses];
+        const statuses = [
+          ...examStatuses,
+          ...contentStatuses.filter(status => status.status !== this.STATUSES.notStarted),
+        ];
         if (!statuses.length) {
           return null;
         }

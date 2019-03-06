@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import * as actions from './actions';
 
 function defaultState() {
@@ -49,9 +48,11 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_ATTEMPT_LOGS(state, attemptLogs) {
+      const attemptLogMap = {};
       attemptLogs.forEach(attemptLog => {
-        Vue.set(state.attemptLogMap, attemptLog.id, attemptLog);
+        attemptLogMap[attemptLog.id] = attemptLog;
       });
+      state.attemptLogMap = attemptLogMap;
     },
   },
 };

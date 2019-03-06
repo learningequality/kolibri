@@ -4,7 +4,7 @@
     <div class="icon">
       <slot name="icon"></slot>
     </div>
-    <div class="label" :style="labelStyle">
+    <div class="label">
       <slot></slot>
     </div>
   </span>
@@ -24,25 +24,6 @@
       nowrap: {
         type: Boolean,
         default: false,
-      },
-      /**
-       * Whether the label should be bold
-       */
-      bold: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    computed: {
-      labelStyle() {
-        const labelStyle = {};
-        if (this.nowrap) {
-          labelStyle.whiteSpace = 'nowrap';
-        }
-        if (this.bold) {
-          labelStyle.fontWeight = 'bold';
-        }
-        return labelStyle;
       },
     },
   };

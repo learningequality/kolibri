@@ -4,11 +4,10 @@
     :title="$tr('deleteLearnerGroup')"
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
-    @submit="deleteGroup(groupId)"
+    @submit="handleSubmit"
     @cancel="close"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
-    <p>{{ $tr('learnersWillBecomeUngrouped') }}</p>
   </KModal>
 
 </template>
@@ -24,7 +23,6 @@
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      learnersWillBecomeUngrouped: "Learners within this group will become 'Ungrouped'.",
       cancel: 'Cancel',
       deleteGroup: 'Delete',
     },
@@ -43,6 +41,11 @@
     },
     methods: {
       ...mapActions('groups', ['displayModal', 'deleteGroup']),
+      handleSubmit() {
+        this.deleteGroup(this.groupId).then(() => {
+          this.$emit('success');
+        });
+      },
       close() {
         this.displayModal(false);
       },

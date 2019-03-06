@@ -1,7 +1,7 @@
 <template>
 
-  <router-link class="item" :style="{color: $coreTextDefault}" :to="to">
-    <KGrid>
+  <router-link class="link" :style="{color: $coreTextDefault}" :to="to">
+    <KGrid class="wrapper">
       <KGridItem size="75" percentage>
         <h3 class="title">{{ name }}</h3>
       </KGridItem>
@@ -105,8 +105,12 @@
     right: -12px;
   }
 
-  .item {
+  .link {
     text-decoration: none;
+  }
+
+  .wrapper {
+    margin-bottom: 8px;
   }
 
 </style>

@@ -17,6 +17,7 @@ from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
+from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,10 @@ def start(port=8080, run_cherrypy=True):
 
     # Do a db vacuum periodically
     VacuumThread.start_command()
+
+    from kolibri.core.notifications.tasks import AsyncNotificationsThread
+
+    AsyncNotificationsThread.start_command()
 
     # Write the new PID
     with open(PID_FILE, 'w') as f:
@@ -195,16 +200,30 @@ def run_server(port):
 
     cherrypy.config.update({
         "environment": "production",
-        "tools.gzip.on": True,
-        "tools.gzip.mime_types": ["text/*", "application/javascript"],
-        "tools.caching.on": True,
-        "tools.caching.maxobj_size": 2000000,
-        "tools.caching.maxsize": 50000000,
+        "tools.expires.on": True,
+        "tools.expires.secs": 31536000,
     })
 
-    serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(paths.get_content_dir_path(),
-                     paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
+    # Mount static files
+    static_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=settings.STATIC_ROOT)
+    cherrypy.tree.mount(static_files_handler, settings.STATIC_URL, config={
+        "/": {
+            "tools.gzip.on": True,
+            "tools.gzip.mime_types": ["text/*", "application/javascript"],
+            "tools.caching.on": True,
+            "tools.caching.maxobj_size": 2000000,
+            "tools.caching.maxsize": 50000000,
+        }
+    })
+
+    # Mount content files
+    content_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=paths.get_content_dir_path())
+    cherrypy.tree.mount(content_files_handler,
+                        paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -237,15 +256,6 @@ def unlock_after_vacuum():
             os.remove(STARTUP_LOCK)
         except OSError:
             pass  # lock file was deleted by other process
-
-
-def serve_static_dir(root, url):
-
-    static_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=os.path.split(root)[1],
-        root=os.path.abspath(os.path.split(root)[0]))
-    cherrypy.tree.mount(static_handler, url)
 
 
 def _read_pid_file(filename):
@@ -356,14 +366,16 @@ def get_status():  # noqa: max-complexity=16
             # Probably a mis-configured kolibri
             raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
 
-        return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
-
     else:
         try:
             requests.get(check_url, timeout=3)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
             return pid, '', ''
 
+    return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
     # is dumb because kolibri could be running in a worker pool with different
@@ -403,22 +415,44 @@ def installation_type(cmd_line=None):  # noqa:C901
     if cmd_line is None:
         cmd_line = sys.argv
     install_type = 'Unknown'
-    if len(cmd_line) > 1:
+
+    def is_debian_package():
+        # find out if this is from the debian package
+        install_type = 'dpkg'
+        try:
+            check_output(['apt-cache', 'show', 'kolibri'])
+            apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+            if apt_repo:
+                install_type = 'apt'
+        except CalledProcessError:  # kolibri package not installed!
+            install_type = 'whl'
+        return install_type
+
+    def is_kolibri_server():
+        # running under uwsgi, finding out if we are using kolibri-server
+        install_type = ''
+        try:
+            package_info = check_output(['apt-cache', 'show', 'kolibri-server']).decode('utf-8').split('\n')
+            version = [output for output in package_info if 'Version' in output]
+            install_type = 'kolibri-server {}'.format(version[0])
+        except CalledProcessError:  # kolibri-server package not installed!
+            install_type = 'uwsgi'
+        return install_type
+
+    if len(cmd_line) > 1 or 'uwsgi' in cmd_line:
         launcher = cmd_line[0]
         if launcher.endswith('.pex'):
             install_type = 'pex'
         elif 'runserver' in cmd_line:
             install_type = 'devserver'
         elif launcher == '/usr/bin/kolibri':
-            # find out if this is from the debian package
-            install_type = 'dpkg'
-            try:
-                check_output(['apt-cache', 'show', 'kolibri'])
-                apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
-                if apt_repo:
-                    install_type = 'apt'
-            except CalledProcessError:  # kolibri package not installed!
-                install_type = 'whl'
+            install_type = is_debian_package()
+        elif launcher == 'uwsgi':
+            package = is_debian_package()
+            if package != 'whl':
+                kolibri_server = is_kolibri_server()
+                install_type = 'kolibri({kolibri_type}) with {kolibri_server}'.format(kolibri_type=package,
+                                                                                      kolibri_server=kolibri_server)
         elif '\\Scripts\\kolibri' in launcher:
             paths = sys.path
             for path in paths:
@@ -427,5 +461,11 @@ def installation_type(cmd_line=None):  # noqa:C901
                     break
         elif 'start' in cmd_line:
             install_type = 'whl'
+    if on_android():
+        from jnius import autoclass
+        context = autoclass('org.kivy.android.PythonActivity')
+        version_name = context.getPackageManager().getPackageInfo(
+            context.getPackageName(), 0).versionName
+        install_type = 'apk - {}'.format(version_name)
 
     return install_type

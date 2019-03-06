@@ -45,6 +45,11 @@ export default {
           if (!store.state.poller) {
             store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
           }
+        })
+        .catch(() => {
+          if (!store.state.poller) {
+            store.dispatch('startingPolling', { coachesPolling: 0 });
+          }
         });
     },
     updateNotificationsForClass(store, { classroomId, after }) {
@@ -62,6 +67,9 @@ export default {
             store.dispatch('classSummary/updateWithNotifications', data.results, { root: true });
           }
           store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
+        })
+        .catch(() => {
+          store.dispatch('startingPolling', { coachesPolling: 0 });
         });
     },
     startingPolling(store, { coachesPolling }) {
