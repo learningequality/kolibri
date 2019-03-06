@@ -39,6 +39,10 @@ class DeviceSettings(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        # Import here to prevent circular dependency.
+        from kolibri.core.device.translation import DEVICE_LANGUAGE_CACHE_KEY
+        # Delete any cache of the device language setting just in case.
+        cache.delete(DEVICE_LANGUAGE_CACHE_KEY)
         super(DeviceSettings, self).save(*args, **kwargs)
 
 
