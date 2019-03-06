@@ -26,7 +26,6 @@ def get_language_from_request(request):  # noqa complexity-16
     If check_path is True, the URL path prefix will be checked for a language
     code, otherwise this is skipped for backwards compatibility.
     """
-    global DEVICE_LANGUAGE
 
     supported_lang_codes = get_languages()
 
