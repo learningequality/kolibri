@@ -54,6 +54,14 @@ const routes = [
       showDeviceInfoPage(store).then(hideLoadingScreen);
     },
   },
+  {
+    name: PageNames.DEVICE_SETTINGS_PAGE,
+    path: '/settings',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name });
+      hideLoadingScreen();
+    },
+  },
   ...wizardTransitionRoutes,
   {
     path: '/content/*',

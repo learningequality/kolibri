@@ -40,6 +40,7 @@
   import WelcomeModal from './WelcomeModal';
   import AvailableChannelsPage from './AvailableChannelsPage';
   import SelectContentPage from './SelectContentPage';
+  import DeviceSettingsPage from './DeviceSettingsPage';
 
   const pageNameComponentMap = {
     [PageNames.MANAGE_CONTENT_PAGE]: ManageContentPage,
@@ -48,6 +49,7 @@
     [PageNames.DEVICE_INFO_PAGE]: DeviceInfoPage,
     [ContentWizardPages.AVAILABLE_CHANNELS]: AvailableChannelsPage,
     [ContentWizardPages.SELECT_CONTENT]: SelectContentPage,
+    [PageNames.DEVICE_SETTINGS_PAGE]: DeviceSettingsPage,
   };
 
   export default {
