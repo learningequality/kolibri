@@ -1,4 +1,9 @@
+import Vue from 'vue';
 import { lighten, darken } from 'kolibri.utils.colour';
+
+export const dynamicState = Vue.observable({
+  modality: null,
+});
 
 export const THEME_MODULE_NAMESPACE = 'kolibriCoreTheme';
 
@@ -26,7 +31,6 @@ const initialState = {
   '$core-grey': '#e0e0e0',
 
   '$core-loading': '#03a9f4',
-  modality: null,
 };
 
 export default {
@@ -97,7 +101,7 @@ export default {
     // Should only use these styles to outline stuff that will be focused
     // on keyboard-tab-focus
     $coreOutline(state) {
-      if (state.modality !== 'keyboard') {
+      if (dynamicState.modality !== 'keyboard') {
         return {
           outline: 'none',
         };
@@ -127,9 +131,6 @@ export default {
     },
     RESET_THEME_VALUE(state, varName) {
       state[varName] = initialState[varName];
-    },
-    SET_MODALITY(state, modality) {
-      state.modality = modality;
     },
   },
 };
