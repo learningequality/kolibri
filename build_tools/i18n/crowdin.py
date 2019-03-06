@@ -450,8 +450,10 @@ def command_stats(branch):
         strings_total = branch_node["phrases"]  # should be the same across languages
         words_total = branch_node["words"]  # should be the same across languages
 
-    avg_untranslated_strings = round(sum([row[1] for row in strings_table]) / len(strings_table))
-    avg_unapproved_strings = round(sum([row[2] for row in strings_table]) / len(strings_table))
+    total_untranslated_strings = sum([row[1] for row in strings_table])
+    total_unapproved_strings = sum([row[2] for row in strings_table])
+    avg_untranslated_strings = round(total_untranslated_strings / len(strings_table))
+    avg_unapproved_strings = round(total_unapproved_strings / len(strings_table))
     strings_table.append(
         (
             "Average - all languages",
@@ -459,8 +461,10 @@ def command_stats(branch):
             avg_unapproved_strings,
         )
     )
-    avg_untranslated_words = round(sum([row[1] for row in words_table]) / len(words_table))
-    avg_unapproved_words = round(sum([row[2] for row in words_table]) / len(words_table))
+    total_untranslated_words = sum([row[1] for row in words_table])
+    total_unapproved_words = sum([row[2] for row in words_table])
+    avg_untranslated_words = round(total_untranslated_words / len(words_table))
+    avg_unapproved_words = round(total_unapproved_words / len(words_table))
     words_table.append(
         (
             "Average - all languages",
@@ -470,8 +474,8 @@ def command_stats(branch):
     )
     summary_table_headers = ["", "Untranslated", "Needs approval"]
     summary_table = [
-        ("Words", avg_untranslated_words, avg_unapproved_words),
-        ("Strings", avg_untranslated_strings, avg_unapproved_strings),
+        ("Words", total_untranslated_words, total_unapproved_words),
+        ("Strings", total_untranslated_strings, total_unapproved_strings),
     ]
     strings_table_headers = ["Language", "Untranslated", "Needs approval"]
     words_table_headers = ["Language", "Untranslated", "Needs approval"]

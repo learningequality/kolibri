@@ -4,7 +4,10 @@
     <div class="lesson-summary-header">
       <div class="lesson-summary-header-title-block">
         <h1 class="lesson-summary-header-title" dir="auto">
-          {{ title }}
+          <KLabeledIcon>
+            <KIcon slot="icon" lesson />
+            {{ title }}
+          </KLabeledIcon>
         </h1>
       </div>
       <slot name="optionsDropdown"></slot>
@@ -77,6 +80,8 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
@@ -90,6 +95,8 @@
       LessonActive,
       QuizActive,
       KButton,
+      KIcon,
+      KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
     },

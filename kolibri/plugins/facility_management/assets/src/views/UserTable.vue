@@ -5,15 +5,24 @@
 
       <thead slot="thead">
         <tr>
-          <th v-if="selectable" class="core-table-checkbox-col">
+          <th
+            v-if="selectable"
+            class="core-table-checkbox-col select-all"
+          >
             <KCheckbox
               :label="selectAllLabel"
-              :showLabel="false"
+              :showLabel="true"
               :checked="allAreSelected"
+              class="overflow-label"
               @change="selectAll($event)"
             />
           </th>
-          <th>{{ $tr('fullName') }}</th>
+          <th>
+            <!-- "Full name" header visually hidden if checkbox is on -->
+            <span :class="{visuallyhidden: selectable}">
+              {{ $tr('fullName') }}
+            </span>
+          </th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('role') }}
@@ -42,7 +51,7 @@
             />
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               <KLabeledIcon>
                 <KIcon
                   slot="icon"
@@ -67,11 +76,11 @@
             {{ user.kind }}
           </td>
           <td>
-            <span dir="auto" class="maxwidth">
+            <span dir="auto">
               {{ user.username }}
             </span>
           </td>
-          <td v-if="$scopedSlots.action" class="user-action-button">
+          <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
@@ -186,19 +195,27 @@
 
 <style lang="scss" scoped>
 
+  .select-all {
+    position: relative;
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
+
+    // white-space: nowrap;
+    .k-checkbox-container {
+      margin-right: -70px;
+    }
+
+    .k-checkbox-label {
+      // Add extra padding to align label with table headers
+      padding-top: 4px;
+    }
+  }
+
   .empty-message {
     margin-bottom: 16px;
   }
 
-  .user-action-button {
-    padding: 0;
-    text-align: right;
-    vertical-align: middle;
-  }
-
   .role-badge {
-    position: relative;
-    top: -4px;
     display: inline-block;
     padding: 2px;
     padding-right: 8px;
@@ -209,11 +226,10 @@
     border-radius: 4px;
   }
 
-  .maxwidth {
-    display: inline-block;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .overflow-label {
+    position: absolute;
+    top: 8px;
+    white-space: nowrap;
   }
 
 </style>

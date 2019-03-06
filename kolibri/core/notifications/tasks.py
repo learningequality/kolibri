@@ -2,6 +2,7 @@ import logging as logger
 import threading
 import time
 
+from django.db import connection
 from django.db import transaction
 
 logging = logger.getLogger(__name__)
@@ -57,7 +58,8 @@ class AsyncNotificationQueue():
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.debug("Exception raised during background notification calculation: ", e)
+                        logging.warn("Exception raised during background notification calculation: ", e)
+            connection.close()
 
     def start(self):
         while True:

@@ -49,7 +49,7 @@
               <KLabeledIcon>
                 <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
                 <KRouterLink
-                  v-if="tableRow.kind === 'exercise'"
+                  v-if="showLink(tableRow)"
                   :text="tableRow.title"
                   :to="classRoute(
                     'ReportsLearnerReportLessonExercisePage',
@@ -65,7 +65,9 @@
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
             <td>
-              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+              <TimeDuration
+                :seconds="showTime(tableRow)"
+              />
             </td>
           </tr>
         </transition-group>
@@ -108,6 +110,20 @@
           return tableRow;
         });
         return mapped;
+      },
+    },
+    methods: {
+      showLink(tableRow) {
+        return (
+          tableRow.kind === this.ContentNodeKinds.EXERCISE &&
+          tableRow.statusObj.status !== this.STATUSES.notStarted
+        );
+      },
+      showTime(tableRow) {
+        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
+          return tableRow.statusObj.time_spent;
+        }
+        return undefined;
       },
     },
     $trs: {

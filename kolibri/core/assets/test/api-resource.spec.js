@@ -1145,10 +1145,10 @@ describe('Model', function() {
             done();
           });
         });
-        it('should call set twice', function(done) {
+        it('should call set once', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            expect(setSpy).toHaveBeenCalledTimes(2);
+            expect(setSpy).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1237,6 +1237,14 @@ describe('Model', function() {
           model.synced = false;
           model.save().catch(() => {
             expect(model.promises).toEqual([]);
+            done();
+          });
+        });
+        it('should not set data on the model', function(done) {
+          model.synced = false;
+          model.attributes.test = 'notatest';
+          model.save({ test: 'test' }).catch(() => {
+            expect(model.attributes.test).toEqual('notatest');
             done();
           });
         });

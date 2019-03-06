@@ -10,84 +10,86 @@
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
     :pageTitle="pageTitle"
   >
-    <h1>
-      {{ learnerClassEnrollmentPageStrings.$tr('pageHeader', { className: currentGroup.name }) }}
-    </h1>
-    <form @submit.prevent="addSelectedUsersToGroup">
-      <div class="actions-header">
-        <KFilterTextbox
-          v-model.trim="filterInput"
-          :placeholder="classEnrollFormStrings.$tr('searchForUser')"
-          @input="pageNum = 1"
+    <KPageContainer>
+      <h1>
+        {{ learnerClassEnrollmentPageStrings.$tr('pageHeader', { className: currentGroup.name }) }}
+      </h1>
+      <form @submit.prevent="addSelectedUsersToGroup">
+        <div class="actions-header">
+          <KFilterTextbox
+            v-model.trim="filterInput"
+            :placeholder="classEnrollFormStrings.$tr('searchForUser')"
+            @input="pageNum = 1"
+          />
+        </div>
+
+        <h2>{{ classEnrollFormStrings.$tr('userTableLabel') }}</h2>
+
+        <UserTable
+          v-model="selectedUsers"
+          :users="visibleFilteredUsers"
+          :selectable="true"
+          :selectAllLabel="classEnrollFormStrings.$tr('selectAllOnPage')"
+          :userCheckboxLabel="classEnrollFormStrings.$tr('selectUser')"
+          :emptyMessage="emptyMessage"
         />
-      </div>
 
-      <h2>{{ classEnrollFormStrings.$tr('userTableLabel') }}</h2>
+        <nav>
+          <span>
+            {{ classEnrollFormStrings.$tr('pagination', {
+              visibleStartRange,
+              visibleEndRange,
+              numFilteredUsers
+            }) }}
+          </span>
+          <UiIconButton
+            type="primary"
+            :ariaLabel="classEnrollFormStrings.$tr('previousResults')"
+            :disabled="pageNum === 1"
+            size="small"
+            @click="goToPage(pageNum - 1)"
+          >
+            <mat-svg
+              v-if="isRtl"
+              name="chevron_right"
+              category="navigation"
+            />
+            <mat-svg
+              v-else
+              name="chevron_left"
+              category="navigation"
+            />
+          </UiIconButton>
+          <UiIconButton
+            type="primary"
+            :ariaLabel="classEnrollFormStrings.$tr('nextResults')"
+            :disabled="pageNum === numPages"
+            size="small"
+            @click="goToPage(pageNum + 1)"
+          >
+            <mat-svg
+              v-if="isRtl"
+              name="chevron_left"
+              category="navigation"
+            />
+            <mat-svg
+              v-else
+              name="chevron_right"
+              category="navigation"
+            />
+          </UiIconButton>
+        </nav>
 
-      <UserTable
-        v-model="selectedUsers"
-        :users="visibleFilteredUsers"
-        :selectable="true"
-        :selectAllLabel="classEnrollFormStrings.$tr('selectAllOnPage')"
-        :userCheckboxLabel="classEnrollFormStrings.$tr('selectUser')"
-        :emptyMessage="emptyMessage"
-      />
-
-      <nav>
-        <span>
-          {{ classEnrollFormStrings.$tr('pagination', {
-            visibleStartRange,
-            visibleEndRange,
-            numFilteredUsers
-          }) }}
-        </span>
-        <UiIconButton
-          type="primary"
-          :ariaLabel="classEnrollFormStrings.$tr('previousResults')"
-          :disabled="pageNum === 1"
-          size="small"
-          @click="goToPage(pageNum - 1)"
-        >
-          <mat-svg
-            v-if="isRtl"
-            name="chevron_right"
-            category="navigation"
+        <div class="footer">
+          <KButton
+            :text="classEnrollFormStrings.$tr('confirmSelectionButtonLabel')"
+            :primary="true"
+            type="submit"
+            :disabled="selectedUsers.length === 0"
           />
-          <mat-svg
-            v-else
-            name="chevron_left"
-            category="navigation"
-          />
-        </UiIconButton>
-        <UiIconButton
-          type="primary"
-          :ariaLabel="classEnrollFormStrings.$tr('nextResults')"
-          :disabled="pageNum === numPages"
-          size="small"
-          @click="goToPage(pageNum + 1)"
-        >
-          <mat-svg
-            v-if="isRtl"
-            name="chevron_left"
-            category="navigation"
-          />
-          <mat-svg
-            v-else
-            name="chevron_right"
-            category="navigation"
-          />
-        </UiIconButton>
-      </nav>
-
-      <div class="footer">
-        <KButton
-          :text="classEnrollFormStrings.$tr('confirmSelectionButtonLabel')"
-          :primary="true"
-          type="submit"
-          :disabled="selectedUsers.length === 0"
-        />
-      </div>
-    </form>
+        </div>
+      </form>
+    </KPageContainer>
 
 
   </CoreBase>
@@ -113,6 +115,7 @@
   import ClassEnrollForm from '../../../../../../facility_management/assets/src/views/ClassEnrollForm';
   import LearnerClassEnrollmentPage from '../../../../../../facility_management/assets/src/views/LearnerClassEnrollmentPage';
   import GroupsPage from '../GroupsPage';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
 
   const classEnrollFormStrings = crossComponentTranslator(ClassEnrollForm);
   const learnerClassEnrollmentPageStrings = crossComponentTranslator(LearnerClassEnrollmentPage);
@@ -206,12 +209,19 @@
     },
     methods: {
       ...mapActions('groups', ['addUsersToGroup']),
+      ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
+        const value = this.selectedUsers.length;
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
-          this.$router.push(this.$router.getRoute('GroupMembersPage'));
+          this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
+            this.createSnackbar({
+              text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
+              autoDismiss: true,
+            });
+          });
         });
       },
       reducePageNum() {

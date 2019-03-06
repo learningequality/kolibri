@@ -38,7 +38,7 @@ Feature: Coach creates lessons
       And I see the *Add* button
     When I click *Add* button
     Then I see the snackbar notification
-      And I see the *Added* notification
+      And I see the *Added* state notification
       And I see the *Remove* button
     When I click on *back arrow* button
     Then I see the *Manage resources in '<title>'* page again

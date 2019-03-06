@@ -5,13 +5,13 @@
     immersivePageIcon="close"
     immersivePagePrimary
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :appBarTitle="coachStrings.$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
   >
 
-    <div>
+    <KPageContainer>
       <h1>
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
@@ -65,7 +65,7 @@
         @moreresults="handleMoreResults"
       />
 
-    </div>
+    </KPageContainer>
 
     <Bottom>
       <KRouterLink

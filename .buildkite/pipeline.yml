@@ -7,6 +7,13 @@ steps:
 
   - wait
 
+    # Android build only requires whl file
+  - label: Build Android APK
+    env:
+      KOLIBRI_ANDROID_BUILD_MODE: dev
+    command: &android_build
+      - .buildkite/build_apk.sh
+
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
@@ -42,11 +49,11 @@ steps:
   - label: Upload new artifacts
     command: .buildkite/setup_and_upload_artifact.sh
 
-  - block: "Create APK?"
-  - label: Build the Android APK file
-    command:
-     - mkdir -p dist
-     - .buildkite/build_apk.sh
+  - block: "Build release APK?"
+  - label: "Build Release APK"
+    env:
+      KOLIBRI_ANDROID_BUILD_MODE: release
+    command: *android_build
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic

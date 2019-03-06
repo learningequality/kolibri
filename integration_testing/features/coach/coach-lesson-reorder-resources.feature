@@ -28,17 +28,8 @@ Feature: Coach reorders lesson resources
 
   Scenario: Cancel lesson editing
     Given that I haven’t made any changes on *Manage resources in '<lesson_title>'* page
-      When I click on the back arrow
+      When I click on the *X* to close the *Manage resources in '<lesson_title>'* page
       Then I am back on the <lesson_title> summary under the *Lessons* tab
-
-  Scenario: Cancels changes made after edits
-    Given that I have made certain changes to my lesson
-      When I click on the back arrow
-      # Is this going to be implemented?
-      Then a confirmation modal appears
-      IF I click “YES” to continuing without saving my changes
-      Then I should be directed back to the lesson details page
-      And my changes that I made in the edit view should not be applied
 
 Examples:
 | lesson_title   | resource          |

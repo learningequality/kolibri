@@ -8,6 +8,7 @@ const disabledStyle = {
   pointerEvents: 'none',
   cursor: 'default',
   boxShadow: 'none',
+  opacity: 0.5,
 };
 
 export default {
@@ -56,27 +57,20 @@ export default {
     linkStyle() {
       return {
         color: this.$coreActionNormal,
-        ':hover': {
-          color: this.$coreActionDark,
-        },
+        ':hover': { color: this.$coreActionDark },
         ':focus': this.$coreOutline,
-        ':disabled': {
-          color: `rgba(${this.$coreActionNormal}, 0.5)`,
-        },
+        ':disabled': { opacity: 0.5 },
       };
     },
     primaryRaisedStyle() {
       return {
         color: $primaryRaisedColor,
         backgroundColor: this.$coreActionNormal,
-        ':hover': {
-          backgroundColor: this.$coreActionDark,
-        },
+        ':hover': { backgroundColor: this.$coreActionDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
             color: $primaryRaisedDisabledColor,
-            backgroundColor: `rgba(${this.$coreActionNormal}, 0.75)`,
             svg: {
               fill: $primaryRaisedDisabledColor,
             },
@@ -95,15 +89,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
-        ':disabled': Object.assign(
-          {
-            color: `rgba(${this.$coreActionNormal}, 0.5)`,
-            svg: {
-              fill: `rgba(${this.$coreActionNormal}, 0.5)`,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreActionNormal,
         },
@@ -117,16 +103,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
-        ':disabled': Object.assign(
-          {
-            color: `rgba(${this.$coreTextDefault}, 0.25)`,
-            backgroundColor: `rgba(${this.$coreTextDefault}, 0.1)`,
-            svg: {
-              fill: `rgba(${this.$coreTextDefault}, 0.25)`,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreTextDefault,
         },
@@ -139,15 +116,7 @@ export default {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
-        ':disabled': Object.assign(
-          {
-            color: `rgba(${this.$coreTextDefault}, 0.25)`,
-            svg: {
-              fill: this.$coreTextDefault,
-            },
-          },
-          disabledStyle
-        ),
+        ':disabled': disabledStyle,
         svg: {
           fill: this.$coreTextDefault,
         },

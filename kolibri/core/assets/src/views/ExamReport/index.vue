@@ -17,7 +17,12 @@
       @select="handleNavigateToQuestion"
     />
 
-    <div slot="main" class="exercise-container" :style="{ backgroundColor: $coreBgLight }">
+    <div
+      v-if="exercise"
+      slot="main"
+      class="exercise-container"
+      :style="{ backgroundColor: $coreBgLight }"
+    >
       <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
@@ -32,6 +37,7 @@
         @select="navigateToQuestionAttempt"
       />
       <ContentRenderer
+        v-if="exercise"
         :id="exercise.id"
         :itemId="itemId"
         :allowHints="false"
@@ -46,6 +52,10 @@
         :showCorrectAnswer="showCorrectAnswer"
       />
     </div>
+
+    <p v-else slot="main">
+      {{ noItemIdString }}
+    </p>
   </MultiPaneLayout>
 
 </template>
@@ -53,6 +63,7 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
@@ -60,7 +71,10 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import ExamPage from '../../../../../plugins/learn/assets/src/views/ExamPage';
   import PageStatus from './PageStatus';
+
+  const ExamPageStrings = crossComponentTranslator(ExamPage);
 
   export default {
     name: 'ExamReport',
@@ -148,14 +162,18 @@
     data() {
       return {
         showCorrectAnswer: false,
+        noItemIdString: ExamPageStrings.$tr('noItemId'),
       };
     },
     computed: {
       attemptLogs() {
         return this.examAttempts.map(attempt => {
+          let num_coach_contents = 0;
           const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
-          const num_coach_contents = find(this.exerciseContentNodes, { id: exerciseId })
-            .num_coach_contents;
+          const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
+          if (exerciseMatch) {
+            num_coach_contents = exerciseMatch.num_coach_contents;
+          }
           return { ...attempt, num_coach_contents };
         });
       },

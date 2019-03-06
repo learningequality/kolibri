@@ -104,6 +104,12 @@ export function _statusMap(statuses, key) {
 
 function _lessonStatusForLearner(state, lessonId, learnerId) {
   const lesson = state.lessonMap[lessonId];
+  // Add trap door for lesson status, if a lesson has no resources
+  // make it impossible for a learner to be registered as anything
+  // but not started.
+  if (lesson.node_ids.length === 0) {
+    return STATUSES.notStarted;
+  }
   const statuses = lesson.node_ids.map(node_id => {
     if (!state.contentNodeMap[node_id]) {
       return { status: STATUSES.notStarted };

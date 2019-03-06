@@ -16,7 +16,7 @@
       <div class="mb">
         <h2>{{ $tr('currentFacilityHeader') }}</h2>
         <p class="current-facility-name">
-          {{ currentFacilityName }}
+          {{ facilityName }}
         </p>
       </div>
 
@@ -95,12 +95,14 @@
       KCheckbox,
       KButton,
     },
-    data: () => ({
-      showModal: false,
-      settingsCopy: {},
-    }),
+    data() {
+      return {
+        showModal: false,
+        settingsCopy: {},
+      };
+    },
     computed: {
-      ...mapState('facilityConfig', ['currentFacilityName', 'settings', 'notification']),
+      ...mapState('facilityConfig', ['facilityName', 'settings', 'notification']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);

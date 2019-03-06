@@ -10,7 +10,6 @@
 
     <KPageContainer>
       <PlanHeader />
-      <h1>{{ $tr('classGroups') }}</h1>
       <div class="ta-r">
         <KButton
           class="new-group-button"
@@ -51,6 +50,7 @@
       <CreateGroupModal
         v-if="showCreateGroupModal"
         :groups="sortedGroups"
+        @success="handleSuccessCreateGroup"
       />
 
       <RenameGroupModal
@@ -64,6 +64,7 @@
         v-if="showDeleteGroupModal"
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
+        @success="handleSuccessDeleteGroup"
       />
 
     </KPageContainer>
@@ -81,6 +82,7 @@
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -110,11 +112,10 @@
           name: '',
           id: '',
         },
-        usersToMove: [],
       };
     },
     computed: {
-      ...mapState('groups', ['classUsers', 'groupModalShown', 'groups']),
+      ...mapState('groups', ['groupModalShown', 'groups']),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
@@ -130,6 +131,7 @@
     },
     methods: {
       ...mapActions('groups', ['displayModal']),
+      ...mapActions(['createSnackbar']),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -146,6 +148,20 @@
           id: groupId,
         };
         this.displayModal(GroupModals.DELETE_GROUP);
+      },
+      handleSuccessCreateGroup() {
+        this.createSnackbar({
+          text: groupMgmtStrings.$tr('groupCreatedNotice'),
+          autoDismiss: true,
+        });
+        this.displayModal(false);
+      },
+      handleSuccessDeleteGroup() {
+        this.createSnackbar({
+          text: groupMgmtStrings.$tr('groupDeletedNotice'),
+          autoDismiss: true,
+        });
+        this.displayModal(false);
       },
     },
   };

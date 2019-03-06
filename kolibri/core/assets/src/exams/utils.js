@@ -61,6 +61,10 @@ function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
     exercise_id: question.exercise_id,
     question_id: shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
     title: question.title,
+    counterInExercise:
+      questionIds[question.exercise_id].findIndex(
+        id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber]
+      ) + 1,
   }));
 }
 

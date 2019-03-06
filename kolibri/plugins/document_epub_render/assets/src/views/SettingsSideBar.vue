@@ -89,6 +89,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import { darken } from 'kolibri.utils.colour';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -136,7 +137,11 @@
       },
       settingsButtonFocus() {
         return {
-          ':focus': this.$coreOutline,
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '0px',
+            outlineWidth: '2px',
+          },
         };
       },
     },
@@ -165,6 +170,9 @@
         return {
           ...this.settingsButtonFocus,
           backgroundColor,
+          ':hover': {
+            backgroundColor: darken(backgroundColor, '10%'),
+          },
         };
       },
     },

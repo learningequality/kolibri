@@ -27,6 +27,9 @@
               </KLabeledIcon>
             </li>
           </ul>
+          <p v-if="lessonsList.length === 0">
+            {{ coachStrings.$tr('lessonListEmptyState') }}
+          </p>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
           <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
@@ -41,6 +44,9 @@
               </KLabeledIcon>
             </li>
           </ul>
+          <p v-if="examsList.length === 0">
+            {{ coachStrings.$tr('quizListEmptyState') }}
+          </p>
         </KGridItem>
       </KGrid>
 
