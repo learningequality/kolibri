@@ -27,6 +27,13 @@ Internationalization and localization
 See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.1>`__ of changes on Github
 
 
+0.12.y
+------
+
+Added
+~~~~~
+- Device Settings Page - The default language can now be changed under Device > Settings. This is the language that will be used on browsers that have never opened Kolibri before (but can be changed after opening Kolibri using the language selector).
+
 0.12.0
 ------
 
