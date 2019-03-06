@@ -211,4 +211,13 @@ describe('--vue-component-conventions', function() {
       expectRuleName(output, '--vue-component-conventions');
     });
   });
+  describe('defer unpaired tags', function() {
+    it('should not check for, or fail on, unpaired tags', function() {
+      const input =
+        '<template>\n\n  </div>\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
+      const output = HTMLHint.verify(input, ruleset);
+      expect(output).toHaveLength(1);
+      expectRuleName(output, 'tag-pair');
+    });
+  });
 });
