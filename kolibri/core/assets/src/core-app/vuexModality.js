@@ -1,5 +1,5 @@
 import logger from 'kolibri.lib.logging';
-import { dynamicState } from '../state/modules/theme';
+import { dynamicState } from '../styles/theme';
 
 const logging = logger.getLogger(__filename);
 
