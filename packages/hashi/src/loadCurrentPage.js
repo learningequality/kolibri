@@ -18,6 +18,10 @@ export function seq(arr, index) {
       const DOMContentLoadedEvent = document.createEvent('Event');
       DOMContentLoadedEvent.initEvent('DOMContentLoaded', true, true);
       document.dispatchEvent(DOMContentLoadedEvent);
+      const $body = document.querySelector('body');
+      if ($body && $body.onload) {
+        $body.onload();
+      }
     }
   }
 
