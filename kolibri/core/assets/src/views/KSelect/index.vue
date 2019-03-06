@@ -9,7 +9,7 @@
     :value="selection"
     :options="options"
     :label="label"
-    :floatingLabel="true"
+    :floatingLabel="floatingLabel"
     :disabled="disabled"
     :invalid="invalid"
     :error="invalidText"
@@ -108,6 +108,10 @@
       inline: {
         type: Boolean,
         default: false,
+      },
+      floatingLabel: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
