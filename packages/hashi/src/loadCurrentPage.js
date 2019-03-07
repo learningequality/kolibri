@@ -18,10 +18,11 @@ export function seq(arr, index) {
       const DOMContentLoadedEvent = document.createEvent('Event');
       DOMContentLoadedEvent.initEvent('DOMContentLoaded', true, true);
       document.dispatchEvent(DOMContentLoadedEvent);
-      const $body = document.querySelector('body');
-      if ($body && $body.onload) {
-        $body.onload();
-      }
+      const loadEvent = document.createEvent('Event');
+      loadEvent.initEvent('load', true, true);
+      [].forEach.call(document.getElementsByTagName('*'), function(elem) {
+        elem.dispatchEvent(loadEvent);
+      });
     }
   }
 
