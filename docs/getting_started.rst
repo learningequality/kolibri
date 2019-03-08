@@ -28,12 +28,12 @@ Install environment dependencies
 
 #. Install `Python <https://www.python.org/downloads/windows/>`__ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
 #. Install `pip <https://pypi.python.org/pypi/pip>`__ package installer.
-#. Install `Node.js <https://nodejs.org/en/>`__ (version 6 is required).
+#. Install `Node.js <https://nodejs.org/en/>`__ (version 10 is required).
 #. Install `Yarn <https://yarnpkg.com/>`__ according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__.
 #. Install and set up the `Git LFS extension <https://git-lfs.github.com/>`__. Remember to initialize with ``git lfs install`` after installing.
 
 .. note::
-  Installing Node.js version 6.x:
+  Installing Node.js version 10.x:
 
   * On a Mac, you can use the `Homebrew <http://brew.sh/>`__ package manager.
   * On Ubuntu/Debian, either install Node.js via `nvm <https://github.com/creationix/nvm>`__ or use the `apt` package manager to install a system-wide version and block upgrades:
@@ -41,15 +41,12 @@ Install environment dependencies
    .. code-block:: bash
 
      # Add apt sources from nodesource.com
-     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-     # Verify the latest version 6 of nodejs
-     apt-cache showpkg nodejs-legacy
-     # Install latest version 6 nodejs
-     sudo apt install nodejs=6.14.1-1nodesource1
+     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+     # Install latest version 10 nodejs
+     sudo apt install nodejs
      # Make sure it doesn't get upgrade to later versions available in
      # the official repos.
      sudo apt-mark hold nodejs
-
 
 Ready for the fun part in the Terminal? Here we go!
 
