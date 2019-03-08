@@ -1,16 +1,13 @@
 <template>
 
   <div @click="hidden = !hidden">
-    <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
-    <UiIconButton
-      size="large"
-      color="red"
-    >
-      <mat-svg v-if="hidden" name="expand_less" category="navigation" />
+    <UiIconButton type="primary" size="large">
+      <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
       <mat-svg v-else name="expand_more" category="navigation" />
     </UiIconButton>
+    <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
     <ContentCardGroupGrid
-      v-if="child.children.length && hidden"
+      v-if="child.children.length && !hidden"
       :contents="child.children"
       :genContentLink="genContentLink"
     />
@@ -21,9 +18,8 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import UiIconButton from 'keen-ui/src/UiIconButton';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -33,6 +29,7 @@
     components: {
       PageHeader,
       ContentCardGroupGrid,
+      UiIconButton,
     },
     props: { child: Object },
     data() {

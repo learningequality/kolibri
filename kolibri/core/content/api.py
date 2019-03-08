@@ -428,31 +428,37 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         return obj
 
     @detail_route(methods=['get'])
-    def endpoint(self, request, pk=None, **kwargs):#########################################################################################################################################################################################
-        def get_children_with_progress(parent_id):
+    def knowledge_map(self, request, pk=None, **kwargs):
+        def get_progress(node):
+            serializer = ContentNodeProgressViewset.serializer_class(node)
+            serializer.context['request'] = request
+            return serializer.data['progress_fraction']
+
+        def get_progress_by_id(id):
+            nodes = models.ContentNode.objects.filter(id=id)
+            return 0.0 if len(nodes) == 0 else get_progress(nodes[0])
+
+        def prerequisites_done(node):
+            prerequisites = node.has_prerequisite.all()
+            for prerequisite in prerequisites:
+                if get_progress(prerequisite) < 1.0:
+                    return False
+            return True
+
+        def get_children(parent_id, grand=False):
             children = models.ContentNode.objects.filter(parent=parent_id)
             serialized = self.serializer_class(children, many=True).data
             for c, s in zip(children, serialized):
-                serializer = ContentNodeProgressViewset.serializer_class(c)
-                serializer.context['request'] = request
-                # logger.warning("prog: %s" % serializer.data['progress_fraction'])
-                s['progress'] = serializer.data['progress_fraction']
+                s['progress' if grand else 'progress_fraction'] = get_progress(c)
+                if grand:
+                    s['prerequisitesDone'] = prerequisites_done(c)
             return serialized
 
-        children = get_children_with_progress(pk)
-        logger.warning("children: %s pk: %s" % (children, pk))
-        # prerequisites = self.get_object(prefetch=False).has_prerequisite.values('id', 'content_id', 'title')
-        #
-        # def satisfied(prerequisite):
-        #     csl = ContentSummaryLog.objects.filter(content_id=prerequisite['content_id'])
-        #     return False if len(csl) == 0 else csl[0].progress == 1.0
-        #
-        # progresses = map(satisfied, prerequisites)
+        children = get_children(pk)
         for child in children:
-            grand_children = get_children_with_progress(child['id'])
-            logger.warning("grand child: %s" % grand_children)
+            grand_children = get_children(child['id'], grand=True)
             child['children'] = grand_children
-        return Response(children)
+        return Response({'results': children, 'progress': get_progress_by_id(pk)})
 
 
     @detail_route(methods=['get'])

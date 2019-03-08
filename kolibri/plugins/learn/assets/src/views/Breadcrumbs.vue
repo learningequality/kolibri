@@ -27,7 +27,6 @@
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
-      //...mapState(['root']),
       ...mapState('topicsTree', {
         channelRootId: state => (state.channel || {}).root_id,
         channelTitle: state => (state.channel || {}).title,
@@ -53,15 +52,6 @@
       },
       middleTopicBreadcrumbs() {
         let crumbs = [];
-
-        // Channels have no previous topics
-        // if (
-        //   this.pageName === PageNames.TOPICS_CHANNEL ||
-        //   (this.pageName === PageNames.KNOWLEDGE_MAP && this.root)
-        // ) {
-        //   return crumbs;
-        // }
-
         // Link to top-level Channel
         if (this.pageName === PageNames.TOPICS_CONTENT || this.topicCrumbs.length != 0) {
           crumbs.push({
@@ -74,22 +64,7 @@
             },
           });
         }
-
-        // Links to previous topics
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
-        } else if (this.pageName === PageNames.KNOWLEDGE_MAP) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
-        }
-        console.log('crumbs:', JSON.stringify(crumbs));
-        let crumbs2 = [];
-        let i = 0;
-
-        for (let i = 0; i < crumbs.length; i += 2) {
-          crumbs2.push(crumbs[i]);
-        }
-        console.log('crumbs2: ', JSON.stringify(crumbs2));
-        return crumbs2;
+        return crumbs;
       },
       lastTopicBreadcrumb() {
         if (this.pageName === PageNames.TOPICS_CONTENT) {
@@ -99,7 +74,6 @@
         }
       },
       topicsBreadcrumbs() {
-        console.log('topicCrumbs: ', JSON.stringify(this.topicCrumbs));
         return [
           // All Channels Link
           {

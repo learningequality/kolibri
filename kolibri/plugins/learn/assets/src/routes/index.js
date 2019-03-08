@@ -1,7 +1,11 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { showSearch } from '../modules/search/handlers';
-import { showKnowledgeMap, showTopicsContent } from '../modules/topicsTree/handlers';
+import {
+  showKnowledgeMap,
+  showTopicsTopic,
+  showTopicsContent,
+} from '../modules/topicsTree/handlers';
 import {
   showRecommended,
   showPopularPage,
@@ -62,13 +66,13 @@ export default [
       showKnowledgeMap(store, toRoute.params.id);
     },
   },
-  // {
-  //   name: PageNames.KNOWLEDGE_MAP,
-  //   path: '/topics/t/:id',
-  //   handler: toRoute => {
-  //     showKnowledgeMap(store, toRoute.params.id);
-  //   },
-  // },
+  {
+    name: PageNames.TOPICS_TOPIC,
+    path: '/topics/t/:id',
+    handler: toRoute => {
+      showTopicsTopic(store, { id: toRoute.params.id });
+    },
+  },
   {
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',

@@ -31,15 +31,12 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_NODE_PROGRESS(state, progressArray) {
-      console.log('contents:', JSON.stringify(state.contents));
       progressArray.forEach(progress => {
         const contentNode = state.contents.find(node => node.id === progress.id);
-        console.log('contentNode', JSON.stringify(contentNode));
         if (contentNode) {
           Vue.set(contentNode, 'progress', progress.progress_fraction);
         }
       });
-      console.log('contents after:', JSON.stringify(state.contents));
     },
   },
 };

@@ -19,7 +19,7 @@ export const PageNames = {
 
 // switch between modes
 export const PageModes = {
-  TOPICS: 'TOPICS',
+  TOPICS: 'topic',
   RECOMMENDED: 'RECOMMENDED',
   SEARCH: 'SEARCH',
   EXAM: 'EXAM',

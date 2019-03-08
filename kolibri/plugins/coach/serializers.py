@@ -233,12 +233,11 @@ class ContentReportSerializer(serializers.ModelSerializer):
 class ContentSummarySerializer(ContentReportSerializer):
     ancestors = serializers.SerializerMethodField()
     num_users = serializers.SerializerMethodField()
-    has_prerequisite = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
         fields = (
-            'id', 'content_id', 'title', 'kind', 'ancestors', 'num_users', 'has_prerequisite'
+            'id', 'content_id', 'title', 'kind', 'ancestors', 'num_users',
         )
         list_serializer_class = ContentReportListSerializer
 
@@ -247,9 +246,6 @@ class ContentSummarySerializer(ContentReportSerializer):
         in descending order (root ancestor first, immediate parent last)
         """
         return target_node.get_ancestors().values('id', 'title')
-
-    # def get_has_prerequisite(self, target_node):
-    #     return ContentNode.objects.filter(title='Counting with small numbers')##target_node.get_has_prerequisite().values('id', 'title')
 
     def get_num_users(self, target_node):
         kwargs = self.context['view'].kwargs
