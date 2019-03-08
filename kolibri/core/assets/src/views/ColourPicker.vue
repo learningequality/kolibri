@@ -35,8 +35,8 @@
 <script>
 
   import { Chrome } from 'vue-color';
-  import store from 'kolibri.coreVue.vuex.store';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import { dynamicState, resetThemeValue } from '../styles/theme';
 
   const themeColours = {
     '$core-action-light': 'Core Action Light',
@@ -70,7 +70,7 @@
     },
     computed: {
       theme() {
-        return store.state.core.theme;
+        return dynamicState;
       },
     },
     methods: {
@@ -79,12 +79,12 @@
       },
       setColourValue(value) {
         if (this.currentValue && value) {
-          store.commit('SET_CORE_THEME', { [this.currentValue]: value.hex8 });
+          dynamicState[this.currentValue] = value.hex8;
         }
       },
       resetState() {
         if (this.currentValue) {
-          store.commit('RESET_THEME_VALUE', this.currentValue);
+          resetThemeValue(this.currentValue);
         }
       },
       getValue(key) {

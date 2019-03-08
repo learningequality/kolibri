@@ -137,6 +137,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           options: {
             objectAssign: 'Object.assign',
           },
+          exclude: /node_modules\/vue/,
         },
         {
           test: /\.css$/,
