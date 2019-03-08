@@ -42,7 +42,7 @@
 
   const MAX_LESSONS = 3;
 
-  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
+  const translator = crossComponentTranslator(ActivityBlock);
 
   export default {
     name: 'LessonsBlock',
@@ -69,7 +69,7 @@
         });
       },
       viewAllString() {
-        return viewAllString;
+        return translator.$tr('viewAll');
       },
     },
     methods: {

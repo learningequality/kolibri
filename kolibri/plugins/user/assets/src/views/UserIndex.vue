@@ -23,7 +23,7 @@
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
 
-  const createAccountString = crossComponentTranslator(SignUpPage).$tr('createAccount');
+  const translator = crossComponentTranslator(SignUpPage);
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,
@@ -42,7 +42,7 @@
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
-          return createAccountString;
+          return translator.$tr('createAccount');
         }
         return this.$tr('userSignInTitle');
       },

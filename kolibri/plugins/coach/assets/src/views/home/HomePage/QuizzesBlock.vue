@@ -39,7 +39,7 @@
   import ItemProgressDisplay from './ItemProgressDisplay';
   import ActivityBlock from './ActivityBlock';
 
-  const viewAllString = crossComponentTranslator(ActivityBlock).$tr('viewAll');
+  const translator = crossComponentTranslator(ActivityBlock);
   const MAX_QUIZZES = 3;
 
   export default {
@@ -67,7 +67,7 @@
         });
       },
       viewAllString() {
-        return viewAllString;
+        return translator.$tr('viewAll');
       },
     },
     methods: {
