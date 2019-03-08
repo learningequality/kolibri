@@ -70,6 +70,13 @@
     "default_font": "NotoSansDevanagari"
   },
   {
+    "crowdin_code": "my",
+    "intl_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese",
+    "default_font": "NotoSansMyanmar"
+  },
+  {
     "crowdin_code": "ny",
     "intl_code": "nyn",
     "language_name": "Chinyanja",
