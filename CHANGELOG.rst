@@ -3,6 +3,29 @@ Release Notes
 
 List of the most important changes for each release.
 
+0.12.1
+------
+
+Added
+~~~~~
+
+- Initial support for uwsgi serving mode.
+
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+- Fixed 0.12.0 regression in HTML5 rendering that affected African Storybooks and some other HTML5 content.
+- Fixed 0.12.0 regression that prevented some pages from loading properly on older versions of Safari/iOS.
+
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added Burmese
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.1>`__ of changes on Github
+
 
 0.12.0
 ------
