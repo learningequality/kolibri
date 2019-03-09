@@ -68,6 +68,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/mr.js'));
         });
       });
+    case 'my':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/my.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/my.js'));
+        });
+      });
     case 'nyn':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/nyn.js'], function(require) {

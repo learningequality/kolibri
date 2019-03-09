@@ -264,11 +264,11 @@ export function i18nSetup(skipPolyfill = false) {
       resolve();
     } else {
       Promise.all([
-        new Promise(resolve => {
+        new Promise(res => {
           require.ensure(
             ['intl'],
             require => {
-              resolve(() => require('intl'));
+              res(() => require('intl'));
             },
             'intl'
           );

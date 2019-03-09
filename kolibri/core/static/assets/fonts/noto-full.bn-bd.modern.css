@@ -82,6 +82,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansMyanmar.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansMyanmar.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansTelugu.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -347,24 +365,6 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+D01-D03,U+D05-D0C,U+D0E-D10,U+D12-D3A,U+D3D-D44,U+D46-D48,U+D4A-D4F,U+D54-D63,U+D66-D7F;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansMyanmar.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansMyanmar.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+1000-109F,U+A9E0-A9FE,U+AA60-AA7F;
   font-display: swap;
 }
 
