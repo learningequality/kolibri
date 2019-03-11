@@ -1,13 +1,9 @@
 <template>
 
   <CoreBase
-    :appBarTitle="appBarTitle"
     :marginBottom="bottomSpaceReserved"
-    :immersivePage="isImmersivePage"
-    :immersivePageIcon="immersivePageIcon"
-    :immersivePagePrimary="immersivePageIsPrimary"
-    :immersivePageRoute="immersiveToolbarRoute"
     :showSubNav="topNavIsVisible"
+    v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="!isWithinSearchPage" />
@@ -18,7 +14,7 @@
     <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
-      <Breadcrumbs />
+      <Breadcrumbs v-if="currentPage.name !== 'ContentPage'" />
       <component :is="currentPage" />
     </div>
 
@@ -71,12 +67,6 @@
     [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
-  const immersivePages = [
-    ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    ClassesPageNames.EXAM_REPORT_VIEWER,
-    PageNames.TOPICS_CONTENT,
-  ];
-
   export default {
     name: 'LearnIndex',
     $trs: {
@@ -107,55 +97,46 @@
         }
         return pageNameToComponentMap[this.pageName] || null;
       },
-      appBarTitle() {
+      immersivePageProps() {
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return this.lessonContent.title || '';
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
+          return {
+            appBarTitle: this.lessonContent.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
+        if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
           if (this.exam) {
-            return this.$tr('examReportTitle', {
-              examTitle: this.exam.title,
-            });
+            return {
+              appBarTitle: this.$tr('examReportTitle', {
+                examTitle: this.exam.title,
+              }),
+              immersivePage: true,
+              immersivePageRoute: this.$router.getRoute(ClassesPageNames.EXAM_REPORT_VIEWER),
+              immersivePagePrimary: false,
+              immersivePageIcon: 'arrow_back',
+            };
           }
-        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
-          return this.topicsTreeContent.title;
         }
-        return this.$tr('learnTitle');
-      },
-      isImmersivePage() {
-        return immersivePages.includes(this.pageName);
-      },
-      immersiveToolbarRoute() {
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+
+        if (this.pageName === PageNames.TOPICS_CONTENT && this.topicsTreeContent.parent) {
           return {
-            name: ClassesPageNames.LESSON_PLAYLIST,
+            appBarTitle: this.topicsTreeContent.title,
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute('TOPICS_TOPIC', {
+              id: this.topicsTreeContent.parent,
+            }),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
           };
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
-          return {
-            name: ClassesPageNames.CLASS_ASSIGNMENTS,
-          };
-        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
-          return this.$router.getRoute('TOPICS_TOPIC', { id: this.topicsTreeContent.parent });
         }
-      },
-      immersivePageIsPrimary() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER ||
-          this.pageName === PageNames.TOPICS_CONTENT
-        ) {
-          return false;
-        }
-        return true;
-      },
-      immersivePageIcon() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER ||
-          this.pageName === PageNames.TOPICS_CONTENT
-        ) {
-          return 'arrow_back';
-        }
-        return null;
+
+        return {
+          appBarTitle: this.$tr('learnTitle'),
+          immersivePage: false,
+        };
       },
       isWithinSearchPage() {
         return this.pageName === PageNames.SEARCH;
