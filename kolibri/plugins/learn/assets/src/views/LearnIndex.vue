@@ -14,7 +14,7 @@
     <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
-      <Breadcrumbs v-if="currentPage.name !== 'ContentPage'" />
+      <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" />
     </div>
 
@@ -121,13 +121,26 @@
           }
         }
 
-        if (this.pageName === PageNames.TOPICS_CONTENT && this.topicsTreeContent.parent) {
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          let immersivePageRoute = {};
+          if (this.$route.query.searchTerm) {
+            immersivePageRoute = this.$router.getRoute(
+              PageNames.SEARCH,
+              {},
+              {
+                searchTerm: this.$route.query.searchTerm,
+              }
+            );
+          } else if (this.topicsTreeContent.parent) {
+            // Need to guard for parent being non-empty to avoid console errors
+            immersivePageRoute = this.$router.getRoute('TOPICS_TOPIC', {
+              id: this.topicsTreeContent.parent,
+            });
+          }
           return {
             appBarTitle: this.topicsTreeContent.title,
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute('TOPICS_TOPIC', {
-              id: this.topicsTreeContent.parent,
-            }),
+            immersivePageRoute,
             immersivePagePrimary: false,
             immersivePageIcon: 'arrow_back',
           };
@@ -145,7 +158,7 @@
         return (
           this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
           this.pageName !== PageNames.SEARCH &&
-          !this.isImmersivePage
+          !this.immersivePageProps.immersivePage
         );
       },
       bottomSpaceReserved() {

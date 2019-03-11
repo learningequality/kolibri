@@ -96,6 +96,9 @@
           params: {
             id: contentId,
           },
+          query: {
+            searchTerm: this.searchTerm,
+          },
         };
       },
       loadMore() {
