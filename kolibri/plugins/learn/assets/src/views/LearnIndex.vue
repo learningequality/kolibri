@@ -74,6 +74,7 @@
   const immersivePages = [
     ClassesPageNames.LESSON_RESOURCE_VIEWER,
     ClassesPageNames.EXAM_REPORT_VIEWER,
+    PageNames.TOPICS_CONTENT,
   ];
 
   export default {
@@ -115,6 +116,8 @@
               examTitle: this.exam.title,
             });
           }
+        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
+          return this.topicsTreeContent.title;
         }
         return this.$tr('learnTitle');
       },
@@ -130,12 +133,15 @@
           return {
             name: ClassesPageNames.CLASS_ASSIGNMENTS,
           };
+        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
+          return this.$router.getRoute('TOPICS_TOPIC', { id: this.topicsTreeContent.parent });
         }
       },
       immersivePageIsPrimary() {
         if (
           this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
+          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER ||
+          this.pageName === PageNames.TOPICS_CONTENT
         ) {
           return false;
         }
@@ -144,7 +150,8 @@
       immersivePageIcon() {
         if (
           this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
+          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER ||
+          this.pageName === PageNames.TOPICS_CONTENT
         ) {
           return 'arrow_back';
         }
