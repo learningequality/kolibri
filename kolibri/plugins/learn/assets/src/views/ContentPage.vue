@@ -13,6 +13,25 @@
       :isTopic="isTopic"
     />
 
+    <div v-if="parentTopic" class="topic-link">
+      <mat-svg
+        ref="folderIcon"
+        class="folder-svg"
+        category="file"
+        name="folder"
+      />
+      <KTooltip
+        reference="folderIcon"
+        :refs="$refs"
+      >
+        {{ $tr('topicLocationTooltip') }}
+      </KTooltip>
+      <KRouterLink
+        :text="parentTopic.title"
+        :to="$router.getRoute('TOPICS_TOPIC', { id: parentTopic.id })"
+      />
+    </div>
+
     <ContentRenderer
       v-if="!content.assessment"
       :id="content.id"
@@ -135,6 +154,8 @@
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
@@ -157,6 +178,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
     components: {
       CoachContentLabel,
@@ -167,6 +189,8 @@
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,
+      KRouterLink,
+      KTooltip,
     },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer
@@ -223,6 +247,11 @@
       },
       recommendedText() {
         return this.$tr('recommended');
+      },
+      parentTopic() {
+        if (this.content.breadcrumbs.length > 0) {
+          return this.content.breadcrumbs[this.content.breadcrumbs.length - 1];
+        }
       },
       progress() {
         if (this.isUserLoggedIn) {
@@ -326,6 +355,12 @@
 
 
 <style lang="scss" scoped>
+
+  .folder-svg {
+    margin-right: 8px;
+    margin-bottom: -2px;
+    vertical-align: bottom;
+  }
 
   .coach-content-label {
     margin: 8px 0;
