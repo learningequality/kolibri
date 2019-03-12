@@ -123,14 +123,18 @@
 
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
-          if (this.$route.query.searchTerm) {
+          const { searchTerm, last } = this.$route.query;
+          if (searchTerm) {
             immersivePageRoute = this.$router.getRoute(
               PageNames.SEARCH,
               {},
               {
-                searchTerm: this.$route.query.searchTerm,
+                searchTerm: searchTerm,
               }
             );
+          } else if (last) {
+            // 'last' should only be route names for Recommended Page and its subpages
+            immersivePageRoute = this.$router.getRoute(last);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute('TOPICS_TOPIC', {

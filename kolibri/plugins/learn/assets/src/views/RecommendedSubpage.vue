@@ -89,6 +89,9 @@
         return {
           name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
           params: { id },
+          query: {
+            last: this.pageName,
+          },
         };
       },
     },
