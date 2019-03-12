@@ -2,11 +2,12 @@
 set -e
 
 case "$1" in
-  purge)
-    rm -f /etc/kolibri/nginx_cache.conf
+  remove|purge)
+    rm -f /etc/nginx/con.d/kolibri.conf
     ;;
 
-  upgrade|remove|failed-upgrade|abort-install|abort-upgrade|disappear)
+
+  upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
   *)

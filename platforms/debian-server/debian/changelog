@@ -1,3 +1,10 @@
+kolibri-server (0.2.0-0ubuntu1) xenial; urgency=low
+
+  * debian/control: updated dependency to kolibri 0.12.1
+  * debian/kolibri-server.init: solve ports conflicts with kolibri
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 12 Mar 2019 09:30:58 +0100
+
 kolibri-server (0.2-0beta3) bionic; urgency=low
 
   * Moved nginx conf link to postinst to avoid chicken-egg problems with apt
