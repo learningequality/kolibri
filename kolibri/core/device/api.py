@@ -119,12 +119,15 @@ class DeviceLanguageSettingViewset(views.APIView):
 
         try:
             request_lang = request.data.get('language_id', '')
-        except (Exception):
-            request_lang = ''
+        except AttributeError:
+            return HttpResponseBadRequest('Value must be a JSON object with "language_id" field: {}'.format(request.data))
+
+        if request_lang == '':
+            return HttpResponseBadRequest('"language_id" is required')
 
         if request_lang is None or check_for_language(request_lang):
             settings.language_id = request_lang
             settings.save()
             return self.get(request)
         else:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest('Unknown language: {}'.format(request_lang))
