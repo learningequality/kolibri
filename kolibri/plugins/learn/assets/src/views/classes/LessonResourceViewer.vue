@@ -46,6 +46,9 @@
       contentNodeId() {
         return this.content.id;
       },
+      parentTopic() {
+        return null;
+      },
       channelId() {
         return this.content.channel_id;
       },

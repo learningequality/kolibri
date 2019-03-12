@@ -249,8 +249,9 @@
         return this.$tr('recommended');
       },
       parentTopic() {
-        if (this.content.breadcrumbs.length > 0) {
-          return this.content.breadcrumbs[this.content.breadcrumbs.length - 1];
+        const { breadcrumbs = [] } = this.content;
+        if (breadcrumbs.length > 0) {
+          return breadcrumbs[breadcrumbs.length - 1];
         }
       },
       progress() {
