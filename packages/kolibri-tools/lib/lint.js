@@ -8,10 +8,10 @@ const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
+const defaultStylelintConfig = require('../.stylelintrc.js');
 const prettierOptions = require('../.prettier.js');
 const esLintConfig = require('../.eslintrc.js');
 const htmlHintConfig = require('../.htmlhintrc.js');
-const stylelintConfig = require('../.stylelintrc.js');
 const logger = require('./logging');
 
 require('./htmlhint_custom');
@@ -27,6 +27,13 @@ const esLinter = new ESLintCLIEngine({
 // Create them here so that we can reuse, rather than creating many many objects.
 const styleLangs = ['scss', 'css', 'less'];
 const styleLinters = {};
+
+let stylelintConfig
+try {
+  stylelintConfig = require(process.cwd()+'/.stylelintrc.js');
+} catch(e) {
+  stylelintConfig = defaultStylelintConfig;
+}
 styleLangs.forEach(lang => {
   styleLinters[lang] = stylelint.createLinter({
     config: stylelintConfig,
