@@ -101,11 +101,11 @@ class ZipContentTestCase(TestCase):
 
     def test_content_security_policy_header(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
-        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver")
 
     def test_content_security_policy_header_http_referer(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1, HTTP_REFERER="http://testserver:1234/iam/a/real/path/#thatsomeonemightuse")
-        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver:1234")
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver:1234")
 
     def test_access_control_allow_origin_header(self):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
@@ -178,7 +178,7 @@ class ZipContentTestCase(TestCase):
     @patch('kolibri.core.content.views.get_hashi_filename', return_value=DUMMY_FILENAME)
     def test_non_xhr_content_security_policy_header(self, filename_patch):
         response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
-        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://testserver")
+        self.assertEqual(response.get("Content-Security-Policy"), "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver")
 
     @patch('kolibri.core.content.views.get_hashi_filename', return_value=DUMMY_FILENAME)
     def test_non_xhr_access_control_allow_origin_header(self, filename_patch):

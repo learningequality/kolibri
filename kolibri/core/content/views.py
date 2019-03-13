@@ -84,7 +84,7 @@ def _add_content_security_policy_header(request, response):
     # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
     # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
     host = get_host(request)
-    response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
+    response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: " + host
 
 
 def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
