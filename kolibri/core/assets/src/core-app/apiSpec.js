@@ -65,6 +65,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
@@ -218,5 +219,6 @@ export default {
     CatchErrors,
     UserType,
     shuffled,
+    bytesForHumans,
   },
 };
