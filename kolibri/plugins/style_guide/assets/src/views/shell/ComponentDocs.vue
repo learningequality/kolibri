@@ -6,72 +6,87 @@
 
     <p><code>{{ importString }}</code></p>
 
-    <p v-if="api.props.length">
-      Props:
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Default</th>
-          <th>Description</th>
-        </tr>
-        <tr v-for="(prop, i) in api.props" :key="i">
-          <td><code>{{ prop.name }}</code></td>
-          <td><code>{{ parsePropType(prop.value.type) }}</code></td>
-          <td><code>{{ parsePropRequired(prop.value.required) }}</code></td>
-          <td>
-            <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
-              {{ parsePropDefault(prop.value.type, prop.value.default) }}
-            </code>
-            <template v-else>–</template>
-          </td>
-          <td>{{ prop.description || '–' }}</td>
-        </tr>
-      </table>
-    </p>
+    <Show v-if="api.props.length">
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th>Props</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th class="stretch">Description</th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr v-for="(prop, i) in api.props" :key="i">
+            <td><code>{{ prop.name }}</code></td>
+            <td><code>{{ parsePropType(prop.value.type) }}</code></td>
+            <td>
+              <code v-if="parsePropRequired(prop.value.required) === 'true'">true</code>
+              <template v-else>—</template>
+            </td>
+            <td>
+              <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
+                {{ parsePropDefault(prop.value.type, prop.value.default) }}
+              </code>
+              <template v-else>—</template>
+            </td>
+            <td>{{ prop.description || '—' }}</td>
+          </tr>
+        </tbody>
+      </CoreTable>
+    </Show>
 
-    <p v-if="api.events.length">
-      Events:
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-        <tr v-for="(event, i) in api.events" :key="i">
-          <td>{{ event.name }}</td>
-          <td>{{ event.description || '–' }}</td>
-        </tr>
-      </table>
-    </p>
+    <Show v-if="api.events.length">
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th>Events</th>
+            <th class="stretch">Description</th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr v-for="(event, i) in api.events" :key="i">
+            <td><code>{{ event.name }}</code></td>
+            <td>{{ event.description || '—' }}</td>
+          </tr>
+        </tbody>
+      </CoreTable>
+    </Show>
 
-    <p v-if="api.slots.length">
-      Slots:
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-        <tr v-for="(slot, i) in api.slots" :key="i">
-          <td>{{ slot.name }}</td>
-          <td>{{ slot.description || '–' }}</td>
-        </tr>
-      </table>
-    </p>
+    <Show v-if="api.slots.length">
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th>Slots</th>
+            <th class="stretch">Description</th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr v-for="(slot, i) in api.slots" :key="i">
+            <td><code>{{ slot.name }}</code></td>
+            <td>{{ slot.description || '—' }}</td>
+          </tr>
+        </tbody>
+      </CoreTable>
+    </Show>
 
-    <p v-if="api.methods.length">
-      Methods:
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-        <tr v-for="(method, i) in api.methods" :key="i">
-          <td><code>{{ method.name }}</code></td>
-          <td>{{ method.description || '–' }}</td>
-        </tr>
-      </table>
-    </p>
+    <Show v-if="api.methods.length">
+      <CoreTable>
+        <thead slot="thead">
+          <tr>
+            <th>Methods</th>
+            <th class="stretch">Description</th>
+          </tr>
+        </thead>
+        <tbody slot="tbody">
+          <tr v-for="(method, i) in api.methods" :key="i">
+            <td><code>{{ method.name }}</code></td>
+            <td>{{ method.description || '—' }}</td>
+          </tr>
+        </tbody>
+      </CoreTable>
+    </Show>
 
   </div>
 
@@ -83,11 +98,17 @@
   import escodegen from 'escodegen';
   import PascalCase from 'pascal-case';
   import logger from 'kolibri.lib.logging';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import Show from './Show';
 
   const logging = logger.getLogger(__filename);
 
   export default {
     name: 'ComponentDocs',
+    components: {
+      CoreTable,
+      Show,
+    },
     props: {
       api: {
         type: Object,
@@ -160,23 +181,12 @@
 
 <style lang="scss" scoped>
 
-  @import '../../styles/style-guide';
-
-  table,
-  th,
-  td {
-    border-collapse: collapse;
-    border: 1px solid darkgray;
-  }
-
-  th,
-  td {
-    padding: 0.5em;
-  }
-
   th {
-    text-align: left;
-    background: #e0e0e0;
+    min-width: 100px;
+  }
+
+  .stretch {
+    width: 100%;
   }
 
 </style>

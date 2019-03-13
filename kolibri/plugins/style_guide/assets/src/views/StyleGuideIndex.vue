@@ -39,21 +39,8 @@
 
 <style lang="scss">
 
-  // NOT SCOPED
-
-  // Reset some of the styles inherited from the main Kolibri theme.
-  // TODO: Remove that inheritance and have a clean slate style-wise.
-  html,
-  body {
-    height: auto;
-  }
-
-  html {
-    overflow: initial;
-  }
-
+  // NOT SCOPED  - match Prism font family
   code {
-    // match Prism
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     font-size: smaller;
     white-space: nowrap;
