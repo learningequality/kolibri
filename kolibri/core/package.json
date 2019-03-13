@@ -13,7 +13,6 @@
     "css-element-queries": "1.0.1",
     "d3-color": "^1.2.3",
     "date-fns": "^1.28.2",
-    "filesize": "^3.3.0 ",
     "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^2.0.1",
     "intl": "^1.2.4",

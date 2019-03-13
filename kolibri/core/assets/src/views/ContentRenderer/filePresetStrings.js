@@ -1,8 +1,9 @@
-import filesize from 'filesize';
 import findKey from 'lodash/findKey';
 import { createTranslator } from 'kolibri.utils.i18n';
+import bytesForHumans from 'kolibri.utils.bytesForHumans'
 
-// Strings are the _READABLE strings in le_utils.constants.format_presets
+// Strings are the _READABLE strings in le_utils.constants.format_presets,
+// with ' ({fileSize})' appended
 const filePresetStrings = {
   highResolutionVideo: 'High Resolution ({fileSize})',
   lowResolutionVideo: 'Low Resolution ({fileSize})',
@@ -29,7 +30,7 @@ export function getFilePresetString(file) {
   const { preset, file_size } = file;
   const trKey = findKey(filePresetStrings, x => x.startsWith(preset));
   if (trKey) {
-    return filePresetTranslator.$tr(trKey, { fileSize: filesize(file_size) });
+    return filePresetTranslator.$tr(trKey, { fileSize: bytesForHumans(file_size) });
   }
   return '';
 }
