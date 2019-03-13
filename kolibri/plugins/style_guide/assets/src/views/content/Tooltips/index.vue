@@ -11,7 +11,9 @@
     <ComponentDocs :api="KTooltipApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
   </PageTemplate>
 
@@ -20,16 +22,17 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
 
-  import example from 'raw-loader!./example.html';
-  import KTooltipApi from '!vue-doc!kolibri.coreVue.components.KTooltip';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-tooltip', KTooltip);
+  import KTooltipApi from '!vue-doc!kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'Tooltips',
@@ -37,10 +40,11 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       KTooltipApi,
-      example,
+      exampleCode,
     }),
   };
 

@@ -2,10 +2,12 @@
 
   <PageTemplate title="Modals" :completed="false">
 
-    <h3><code>{{ kModalApi.name }}</code> API</h3>
-    <ComponentDocs :api="kModalApi" />
+    <h3><code>{{ KModalApi.name }}</code> API</h3>
+    <ComponentDocs :api="KModalApi" />
     <h3>Code Example</h3>
-    <VueExample :code="kModalExample" />
+    <VueExample :code="ExampleCode">
+      <Example />
+    </VueExample>
 
     <h3>Guidelines</h3>
 
@@ -169,17 +171,14 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KButton from 'kolibri.coreVue.components.KButton';
   import PageTemplate from '../../shell/PageTemplate';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
-  import kModalExample from 'raw-loader!./example.html';
-  import kModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
-
-  FullVue.component('k-modal', KModal);
-  FullVue.component('k-button', KButton);
+  import Example from './Example.vue';
+  import ExampleCode from '!!raw-loader!./Example.vue';
+  import KModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
 
   export default {
     name: 'Modals',
@@ -187,11 +186,12 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data() {
       return {
-        kModalExample,
-        kModalApi,
+        ExampleCode,
+        KModalApi,
       };
     },
   };

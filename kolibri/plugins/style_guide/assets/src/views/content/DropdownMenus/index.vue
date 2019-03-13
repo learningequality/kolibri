@@ -6,7 +6,9 @@
     <ComponentDocs :api="kDropdownMenuApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
     <h2>Guidelines</h2>
 
@@ -17,16 +19,17 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
 
-  import example from 'raw-loader!./example.html';
-  import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.KDropdownMenu';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-dropdown-menu', KDropdownMenu);
+  import kDropdownMenuApi from '!vue-doc!kolibri.coreVue.components.KDropdownMenu';
 
   export default {
     name: 'DropdownMenus',
@@ -34,10 +37,11 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       kDropdownMenuApi,
-      example,
+      exampleCode,
     }),
   };
 
