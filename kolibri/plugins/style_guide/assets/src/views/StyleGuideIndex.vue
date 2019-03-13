@@ -1,9 +1,9 @@
 <template>
 
-  <div>
+  <CoreBase fullScreen>
     <SideNav />
     <router-view class="content" />
-  </div>
+  </CoreBase>
 
 </template>
 
@@ -12,6 +12,7 @@
 
   import FullVue from 'vue/dist/vue.common';
   import VueRouter from 'vue-router';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import SideNav from './shell/SideNav';
 
   // To illustrate how user-facing text should always be translated, we will
@@ -25,6 +26,7 @@
     name: 'StyleGuideIndex',
     components: {
       SideNav,
+      CoreBase,
     },
   };
 

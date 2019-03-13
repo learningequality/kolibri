@@ -1,23 +1,23 @@
 import sortBy from 'lodash/sortBy';
 import flatten from 'lodash/flatten';
 
-import Home from '../content/Home';
+import Home from './views/content/Home';
 
-import InclusivePage from '../content/Inclusive';
-import WritingPage from '../content/Writing';
+import InclusivePage from './views/content/Inclusive';
+import WritingPage from './views/content/Writing';
 
-import ButtonsPage from '../content/Buttons';
-import BreadcrumbsPage from '../content/Breadcrumbs';
-import NavbarPage from '../content/Navbar';
-import CheckboxesPage from '../content/Checkboxes';
-import RadioButtonsPage from '../content/RadioButtons';
-import TextFieldsPage from '../content/TextFields';
-import FiltersPage from '../content/Filters';
-import DropdownMenusPage from '../content/DropdownMenus';
-import LoadersPage from '../content/Loaders';
-import ModalsPage from '../content/Modals';
-import GridsPage from '../content/Grids';
-import TooltipsPage from '../content/Tooltips';
+import ButtonsPage from './views/content/Buttons';
+import BreadcrumbsPage from './views/content/Breadcrumbs';
+import NavbarPage from './views/content/Navbar';
+import CheckboxesPage from './views/content/Checkboxes';
+import RadioButtonsPage from './views/content/RadioButtons';
+import TextFieldsPage from './views/content/TextFields';
+import FiltersPage from './views/content/Filters';
+import DropdownMenusPage from './views/content/DropdownMenus';
+import LoadersPage from './views/content/Loaders';
+import ModalsPage from './views/content/Modals';
+import GridsPage from './views/content/Grids';
+import TooltipsPage from './views/content/Tooltips';
 
 function sortSectionItems(items) {
   return sortBy(items, [item => item.itemName]);

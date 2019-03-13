@@ -1,34 +1,29 @@
 import Vue from 'kolibri.lib.vue';
-import router from 'kolibri.coreVue.router';
 import Vuep from 'vuep';
+import router from 'kolibri.coreVue.router';
+import store from 'kolibri.coreVue.vuex.store';
 import RootVue from './views/StyleGuideIndex';
-import { navMenuRoutes } from './views/shell/nav-menu';
-import KolibriModule from 'kolibri_module';
+import { navMenuRoutes } from './routes';
+import pluginModule from './modules/pluginModule';
+import KolibriApp from 'kolibri_app';
 
 Vue.use(Vuep, { lineNumbers: false });
 
-class StyleGuideModule extends KolibriModule {
+class StyleGuideModule extends KolibriApp {
+  get routes() {
+    return navMenuRoutes;
+  }
+  get RootVue() {
+    return RootVue;
+  }
+  get pluginModule() {
+    return pluginModule;
+  }
   ready() {
-    document.title = 'Kolibri Style Guide';
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      name: 'StyleGuideRoot',
-      render: createElement => createElement(RootVue),
-      router: router.init(navMenuRoutes, {
-        // Enable the anchor scrolling behavior (which requires the vue-router
-        // to use the HTML5 History API).
-        mode: 'history',
-        scrollBehavior(to, from, savedPosition) {
-          if (to.hash) {
-            return { selector: to.hash };
-          } else if (savedPosition) {
-            return savedPosition;
-          }
-
-          return { x: 0, y: 0 };
-        },
-      }),
+    router.afterEach(() => {
+      store.dispatch('notLoading');
     });
+    return super.ready();
   }
 }
 

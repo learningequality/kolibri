@@ -26,7 +26,7 @@
 
 <script>
 
-  import { navMenu } from './nav-menu.js';
+  import { navMenu } from '../../routes.js';
 
   export default {
     name: 'SideNav',
