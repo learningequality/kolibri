@@ -13,8 +13,7 @@ class StyleGuide(KolibriPluginBase):
         return urls
 
     def url_slug(self):
-        return "^style_guide"
-
+        return "^style_guide/"
 
 class StyleGuideAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "style_guide_module"
