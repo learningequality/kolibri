@@ -35,7 +35,9 @@
     <ComponentDocs :api="kCheckboxApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
   </PageTemplate>
 
@@ -44,17 +46,18 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import Show from '../../shell/Show';
 
-  import example from 'raw-loader!./example.html';
-  import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.KCheckbox';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-checkbox', KCheckbox);
+  import kCheckboxApi from '!vue-doc!kolibri.coreVue.components.KCheckbox';
 
   export default {
     name: 'Checkboxes',
@@ -64,10 +67,11 @@
       VueExample,
       KCheckbox,
       Show,
+      Example,
     },
     data: () => ({
       kCheckboxApi,
-      example,
+      exampleCode,
     }),
   };
 

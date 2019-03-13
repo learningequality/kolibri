@@ -6,7 +6,9 @@
     <ComponentDocs :api="kTextboxApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
     <h2>Guidelines</h2>
     <h3>Labels</h3>
@@ -129,16 +131,17 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
 
-  import example from 'raw-loader!./example.html';
-  import kTextboxApi from '!vue-doc!kolibri.coreVue.components.KTextbox';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-textbox', KTextbox);
+  import kTextboxApi from '!vue-doc!kolibri.coreVue.components.KTextbox';
 
   export default {
     name: 'TextFields',
@@ -146,10 +149,11 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       kTextboxApi,
-      example,
+      exampleCode,
     }),
   };
 

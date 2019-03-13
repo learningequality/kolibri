@@ -22,7 +22,9 @@
     <ComponentDocs :api="kBreadcrumbsApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
   </PageTemplate>
 
@@ -31,17 +33,18 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import Show from '../../shell/Show';
 
-  import example from 'raw-loader!./example.html';
-  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-breadcrumbs', KBreadcrumbs);
+  import kBreadcrumbsApi from '!vue-doc!kolibri.coreVue.components.KBreadcrumbs';
 
   export default {
     name: 'Breadcrumbs',
@@ -51,10 +54,11 @@
       VueExample,
       KBreadcrumbs,
       Show,
+      Example,
     },
     data: () => ({
       kBreadcrumbsApi,
-      example,
+      exampleCode,
     }),
     computed: {
       breadcrumbs() {

@@ -97,16 +97,18 @@
     </ul>
 
     <h3>KButton</h3>
-    <ComponentDocs :api="kButtonApi" />
+    <ComponentDocs :api="KButtonApi" />
 
     <h3>KRouterLink</h3>
-    <ComponentDocs :api="kRouterLinkApi" />
+    <ComponentDocs :api="KRouterLinkApi" />
 
     <h3>KExternalLink</h3>
-    <ComponentDocs :api="kExternalLinkApi" />
+    <ComponentDocs :api="KExternalLinkApi" />
 
-    <h2>Interactive code example</h2>
-    <VueExample :code="example" />
+    <h2>Code example</h2>
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
     <h2>Known exceptions</h2>
     <ul>
@@ -124,23 +126,20 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import Show from '../../shell/Show';
 
-  import example from 'raw-loader!./example.html';
-  import kButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';
-  import kRouterLinkApi from '!vue-doc!kolibri.coreVue.components.KRouterLink';
-  import kExternalLinkApi from '!vue-doc!kolibri.coreVue.components.KExternalLink';
+  /* eslint-disable import/no-duplicates */
+  import exampleCode from '!!raw-loader!./Example.vue';
+  import Example from './Example';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-button', KButton);
-  FullVue.component('k-router-link', KRouterLink);
-  FullVue.component('k-external-link', KExternalLink);
+  import KButtonApi from '!vue-doc!kolibri.coreVue.components.KButton';
+  import KRouterLinkApi from '!vue-doc!kolibri.coreVue.components.KRouterLink';
+  import KExternalLinkApi from '!vue-doc!kolibri.coreVue.components.KExternalLink';
 
   export default {
     name: 'Buttons',
@@ -150,13 +149,14 @@
       VueExample,
       Show,
       KButton,
+      Example,
     },
     data() {
       return {
-        kButtonApi,
-        kRouterLinkApi,
-        kExternalLinkApi,
-        example,
+        KButtonApi,
+        KRouterLinkApi,
+        KExternalLinkApi,
+        exampleCode,
       };
     },
   };

@@ -50,7 +50,9 @@
     <ComponentDocs :api="kNavbarLinkApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode" alwaysStack>
+      <Example />
+    </VueExample>
 
   </PageTemplate>
 
@@ -59,19 +61,19 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
   import Show from '../../shell/Show';
-  import example from 'raw-loader!./example.html';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
+
   import kNavbarApi from '!vue-doc!kolibri.coreVue.components.KNavbar';
   import kNavbarLinkApi from '!vue-doc!kolibri.coreVue.components.KNavbarLink';
-
-  FullVue.component('k-navbar', KNavbar);
-  FullVue.component('k-navbar-link', KNavbarLink);
 
   export default {
     name: 'Navbar',
@@ -82,11 +84,12 @@
       KNavbarLink,
       KNavbar,
       Show,
+      Example,
     },
     data: () => ({
       kNavbarApi,
       kNavbarLinkApi,
-      example,
+      exampleCode,
     }),
     computed: {
       a() {

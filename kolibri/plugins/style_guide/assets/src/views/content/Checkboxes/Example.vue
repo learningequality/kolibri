@@ -1,40 +1,43 @@
 <template>
 
   <div>
-    <k-checkbox
+    <KCheckbox
       label="Unchecked"
-    >
-    </k-checkbox>
-    <k-checkbox
+    />
+    <KCheckbox
       label="Indeterminate"
       :indeterminate="true"
-    >
-    </k-checkbox>
-    <k-checkbox
+    />
+    <KCheckbox
       label="Checked"
       :checked="true"
-    >
-    </k-checkbox>
-    <k-checkbox
+    />
+    <KCheckbox
       label="Disabled Unchecked"
       :disabled="true"
-    >
-    </k-checkbox>
-    <k-checkbox
+    />
+    <KCheckbox
       label="Disabled Indeterminate"
       :indeterminate="true"
       :disabled="true"
-    >
-    </k-checkbox>
-    <k-checkbox
+    />
+    <KCheckbox
       label="Disabled Checked"
       :checked="true"
       :disabled="true"
-    >
-    </k-checkbox>
+    />
   </div>
 
 </template>
 
 
-<script></script>
+<script>
+
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+
+  export default {
+    name: 'Example',
+    components: { KCheckbox },
+  };
+
+</script>

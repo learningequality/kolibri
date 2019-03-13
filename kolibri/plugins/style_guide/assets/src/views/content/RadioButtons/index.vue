@@ -6,7 +6,9 @@
     <ComponentDocs :api="kRadioButtonApi" />
 
     <h2>Code Example</h2>
-    <VueExample :code="example" />
+    <VueExample :code="exampleCode">
+      <Example />
+    </VueExample>
 
     <h2>Guidelines</h2>
     <h3>Usage</h3>
@@ -35,16 +37,17 @@
 
 <script>
 
-  import FullVue from 'vue/dist/vue.common';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
 
-  import example from 'raw-loader!./example.html';
-  import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.KRadioButton';
+  /* eslint-disable import/no-duplicates */
+  import Example from './Example.vue';
+  import exampleCode from '!!raw-loader!./Example.vue';
+  /* eslint-enable import/no-duplicates */
 
-  FullVue.component('k-radio-button', KRadioButton);
+  import kRadioButtonApi from '!vue-doc!kolibri.coreVue.components.KRadioButton';
 
   export default {
     name: 'RadioButtons',
@@ -52,10 +55,11 @@
       PageTemplate,
       ComponentDocs,
       VueExample,
+      Example,
     },
     data: () => ({
       kRadioButtonApi,
-      example,
+      exampleCode,
     }),
   };
 
