@@ -21,11 +21,9 @@
 
 html {
   box-sizing: border-box;
-  // https://davidwalsh.name/html5-boilerplate
-  font-size: 100%;
-  // from normalize v5
-  line-height: 1.3;
-  text-size-adjust: 100%;
+  font-size: 100%; // https://davidwalsh.name/html5-boilerplate
+  line-height: 1.4;
+  text-size-adjust: 100%; // from normalize v5
 }
 
 html,
