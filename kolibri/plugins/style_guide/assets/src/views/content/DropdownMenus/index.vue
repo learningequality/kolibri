@@ -2,7 +2,7 @@
 
   <PageTemplate title="Dropdown Menus" :completed="false">
 
-    <h2><code>{{ kDropdownMenuApi.name }}</code> API</h2>
+
     <ComponentDocs :api="kDropdownMenuApi" />
 
     <h2>Code Example</h2>

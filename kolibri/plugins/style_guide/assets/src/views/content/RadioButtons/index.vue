@@ -2,7 +2,7 @@
 
   <PageTemplate title="Radio Buttons" :completed="false">
 
-    <h2><code>{{ kRadioButtonApi.name }}</code> API</h2>
+    
     <ComponentDocs :api="kRadioButtonApi" />
 
     <h2>Code Example</h2>

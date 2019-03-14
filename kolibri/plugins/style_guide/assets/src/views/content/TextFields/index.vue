@@ -2,7 +2,7 @@
 
   <PageTemplate title="Text Fields" :completed="false">
 
-    <h2><code>{{ kTextboxApi.name }}</code> API</h2>
+
     <ComponentDocs :api="kTextboxApi" />
 
     <h2>Code Example</h2>

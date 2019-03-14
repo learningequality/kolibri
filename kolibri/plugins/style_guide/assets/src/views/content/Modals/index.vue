@@ -2,7 +2,7 @@
 
   <PageTemplate title="Modals" :completed="false">
 
-    <h3><code>{{ KModalApi.name }}</code> API</h3>
+    
     <ComponentDocs :api="KModalApi" />
     <h3>Code Example</h3>
     <VueExample :code="ExampleCode">

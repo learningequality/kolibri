@@ -31,7 +31,7 @@
       <li>Should not be nested</li>
     </ul>
 
-    <h2>API</h2>
+    
     <ComponentDocs :api="kCheckboxApi" />
 
     <h2>Code Example</h2>

@@ -2,7 +2,7 @@
 
   <PageTemplate title="Loaders" :completed="false">
 
-    <h3><code>{{ KCircularLoaderApi.name }}</code> API</h3>
+    
     <ComponentDocs :api="KCircularLoaderApi" />
     <h3>Code Example</h3>
     <VueExample :code="KCircularLoaderExampleCode">
@@ -10,7 +10,7 @@
     </VueExample>
 
 
-    <h3><code>{{ KLinearLoaderApi.name }}</code> API</h3>
+    
     <ComponentDocs :api="KLinearLoaderApi" />
     <h3>Code Example</h3>
     <VueExample :code="KLinearLoaderExampleCode">
