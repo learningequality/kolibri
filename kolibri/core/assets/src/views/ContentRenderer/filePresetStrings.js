@@ -1,6 +1,6 @@
 import findKey from 'lodash/findKey';
 import { createTranslator } from 'kolibri.utils.i18n';
-import bytesForHumans from 'kolibri.utils.bytesForHumans'
+import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
 // Strings are the _READABLE strings in le_utils.constants.format_presets,
 // with ' ({fileSize})' appended
