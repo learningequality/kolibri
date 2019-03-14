@@ -49,6 +49,8 @@
 <style lang="scss" scoped>
 
   .hr-line {
+    margin-top: 16px;
+    margin-bottom: 16px;
     border-top: 1px solid #dedede;
   }
 

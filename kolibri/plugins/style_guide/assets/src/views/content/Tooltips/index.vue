@@ -7,7 +7,7 @@
 
     <h2>Usage guidelines</h2>
 
-    <h2>API</h2>
+
     <ComponentDocs :api="KTooltipApi" />
 
     <h2>Code Example</h2>

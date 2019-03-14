@@ -2,10 +2,10 @@
 
   <PageTemplate title="Grid" :completed="false">
 
-    <h2><code>{{ kGridApi.name }}</code> API</h2>
+    
     <ComponentDocs :api="kGridApi" />
 
-    <h2><code>{{ kGridItemApi.name }}</code> API</h2>
+    
     <ComponentDocs :api="kGridItemApi" />
 
     <h2>Code Example</h2>

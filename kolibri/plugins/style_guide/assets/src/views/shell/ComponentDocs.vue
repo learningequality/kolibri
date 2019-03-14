@@ -2,11 +2,11 @@
 
   <div>
 
-    <p v-if="api.description">{{ api.description }}</p>
+    <h3>Description</h3>
+    <p v-if="api.description"> {{ api.description }}</p>
 
-    <p><code>{{ importString }}</code></p>
-
-    <Show v-if="api.props.length">
+    <template v-if="api.props.length">
+      <h3>Props</h3>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -35,9 +35,10 @@
           </tr>
         </tbody>
       </CoreTable>
-    </Show>
+    </template>
 
-    <Show v-if="api.events.length">
+    <template v-if="api.events.length" hideTop>
+      <h3>Events</h3>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -52,9 +53,10 @@
           </tr>
         </tbody>
       </CoreTable>
-    </Show>
+    </template>
 
-    <Show v-if="api.slots.length">
+    <template v-if="api.slots.length" hideTop>
+      <h3>Slots</h3>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -69,9 +71,10 @@
           </tr>
         </tbody>
       </CoreTable>
-    </Show>
+    </template>
 
-    <Show v-if="api.methods.length">
+    <template v-if="api.methods.length" hideTop>
+      <h3>Methods</h3>
       <CoreTable>
         <thead slot="thead">
           <tr>
@@ -86,7 +89,7 @@
           </tr>
         </tbody>
       </CoreTable>
-    </Show>
+    </template>
 
   </div>
 
@@ -99,7 +102,6 @@
   import PascalCase from 'pascal-case';
   import logger from 'kolibri.lib.logging';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import Show from './Show';
 
   const logging = logger.getLogger(__filename);
 
@@ -107,7 +109,6 @@
     name: 'ComponentDocs',
     components: {
       CoreTable,
-      Show,
     },
     props: {
       api: {

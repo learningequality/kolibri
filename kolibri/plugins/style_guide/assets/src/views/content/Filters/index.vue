@@ -2,7 +2,7 @@
 
   <PageTemplate title="Filters" :completed="false">
 
-    <h3><code>{{ KFilterTextboxApi.name }}</code> API</h3>
+
     <ComponentDocs :api="KFilterTextboxApi" />
 
     <h3>Code Example</h3>
@@ -11,7 +11,7 @@
     </VueExample>
 
 
-    <h3><code>{{ KSelectApi.name }}</code> API</h3>
+
     <ComponentDocs :api="KSelectApi" />
 
     <h3>Code Example</h3>

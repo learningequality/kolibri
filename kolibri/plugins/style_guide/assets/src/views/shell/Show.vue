@@ -1,6 +1,6 @@
 <template>
 
-  <div class="show-wrapper">
+  <div>
     <slot></slot>
   </div>
 
@@ -9,21 +9,22 @@
 
 <script>
 
+  import HorizontalRule from './KHorizontalRule';
+
   export default {
     name: 'Show',
+    components: {
+      HorizontalRule,
+    },
+    props: {
+      hideTop: {
+        type: Boolean,
+        default: false,
+      },
+    },
   };
 
 </script>
 
 
-<style lang="scss" scoped>
-
-  .show-wrapper {
-    padding: 8px;
-    margin-right: -8px;
-    margin-bottom: 16px;
-    margin-left: -8px;
-    border: 1px solid #eeeeee;
-  }
-
-</style>
+<style lang="scss" scoped></style>
