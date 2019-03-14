@@ -189,23 +189,25 @@ class AllowCoach(BasePermissions):
 
     def _user_is_coach(self, user, obj=None):
 
+        # Check if the current user is a coach
+
         from ..models import Classroom
 
-        # if obj:
-        #     if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
-        #         return False
-        #
-        # classrooms = Classroom.objects.filter(dataset=user.dataset)
-        #
-        # is_coach = 0
-        #
-        # for classroom in classrooms:
-        #     if user.has_role_for_collection(role_kinds.COACH, classroom):
-        #                 is_coach += 1
-        #
-        # return is_coach > 0
+        if obj:
+            if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
+                return False
 
-        return True
+        classrooms = Classroom.objects.filter(dataset=user.dataset)
+
+        is_coach = 0
+
+        for classroom in classrooms:
+            if user.has_role_for_collection(role_kinds.COACH, classroom):
+                        is_coach += 1
+
+        return is_coach > 0
+
+
 
 
 

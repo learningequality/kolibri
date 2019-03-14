@@ -48,21 +48,6 @@
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
       />
-
-      <fieldset v-if="coachIsSelected" class="coach-selector">
-        <KRadioButton
-          v-model="classCoach"
-          :label="$tr('classCoachLabel')"
-          :description="$tr('classCoachDescription')"
-          :value="true"
-        />
-        <KRadioButton
-          v-model="classCoach"
-          :label="$tr('facilityCoachLabel')"
-          :description="$tr('facilityCoachDescription')"
-          :value="false"
-        />
-      </fieldset>
     </section>
   </KModal>
 
@@ -76,7 +61,6 @@
   import { FacilityUsernameResource } from 'kolibri.resources';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import {
@@ -96,13 +80,6 @@
       userType: 'User type',
       saveUserButtonLabel: 'Save',
       learner: 'Learner',
-      coach: 'Coach',
-      admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
-      classCoachLabel: 'Class coach',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
-      facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
@@ -111,7 +88,6 @@
       required: 'This field is required',
     },
     components: {
-      KRadioButton,
       KModal,
       KTextbox,
     },
@@ -153,17 +129,8 @@
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
       newUserRole() {
-        if (this.coachIsSelected) {
-          if (this.classCoach) {
-            return UserKinds.ASSIGNABLE_COACH;
-          }
-          return UserKinds.COACH;
-        }
         // Admin or Learner
         return this.kind.value;
-      },
-      coachIsSelected() {
-        return this.kind.value === UserKinds.COACH;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {

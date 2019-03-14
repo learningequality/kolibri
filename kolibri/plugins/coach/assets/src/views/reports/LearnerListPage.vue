@@ -23,6 +23,7 @@
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
+          v-if="className"
           :text="$tr('newUserButtonLabel')"
           :primary="true"
           @click="displayModal(Modals.COACH_CREATE_USER)"
@@ -121,6 +122,7 @@
     metaInfo() {
       return {
         title: this.documentTitle,
+        className: this.className,
       };
     },
     components: {
