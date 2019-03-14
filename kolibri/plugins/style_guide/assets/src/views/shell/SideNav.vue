@@ -1,23 +1,26 @@
 <template>
 
   <nav class="sidenav">
-    <router-link :to="'/'" class="sidenav-heading">
+    <h1>
       Kolibri Style Guide
+    </h1>
+    <router-link :to="'/'" exact>
+      Home
     </router-link>
 
-    <div>
-      <template v-for="section in navMenu">
-        <div :key="`${section.sectionName}-heading`" class="section-heading">
-          {{ section.sectionName }}
-        </div>
-        <ul :key="`${section.sectionName}-ul`">
-          <li v-for="sectionItem in section.sectionItems" :key="sectionItem.itemName">
-            <router-link :to="sectionItem.itemRoute" class="link">
-              {{ sectionItem.itemName }}
-            </router-link>
-          </li>
-        </ul>
-      </template>
+    <div v-for="(section, i) in navMenu" :key="i" class="section">
+      <KHorizontalRule :parentMargin="16" class="hr" />
+
+      <div class="section-heading">
+        {{ section.sectionName }}
+      </div>
+      <ul>
+        <li v-for="(sectionItem, j) in section.sectionItems" :key="j">
+          <router-link :to="sectionItem.itemRoute">
+            {{ sectionItem.itemName }}
+          </router-link>
+        </li>
+      </ul>
     </div>
   </nav>
 
@@ -27,9 +30,13 @@
 <script>
 
   import { navMenu } from '../../routes.js';
+  import KHorizontalRule from './KHorizontalRule';
 
   export default {
     name: 'SideNav',
+    components: {
+      KHorizontalRule,
+    },
     data() {
       return {
         navMenu,
@@ -42,32 +49,31 @@
 
 <style lang="scss" scoped>
 
-  @import '../../styles/style-guide';
+  @import '~kolibri.styles.definitions';
 
-  .sidenav {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: $sidenav-width;
-    overflow-y: auto;
-    background: #f7f7f7;
-    border-right: 1px solid #e0e0e0;
+  h1 {
+    margin-bottom: 32px;
+    font-weight: normal;
   }
 
-  .sidenav-heading {
-    display: block;
-    padding: 32px 24px;
-    font-size: 1.25em;
-    text-decoration: none;
+  .sidenav {
+    @extend %dropshadow-4dp;
+
+    padding-right: 16px;
+    padding-left: 16px;
+    background: white;
+    border-right: 1px solid #dedede;
+  }
+
+  .hr {
+    margin-top: 16px;
+    margin-bottom: 16px;
   }
 
   .section-heading {
-    margin-top: 24px;
-    margin-right: 24px;
-    margin-bottom: 12px;
-    margin-left: 24px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: smaller;
+    color: #777777;
   }
 
   ul {
@@ -76,14 +82,24 @@
     list-style-type: none;
   }
 
-  .link {
+  a {
     display: block;
-    padding: 12px 24px;
+    padding: 8px;
+    margin-right: -8px;
+    margin-bottom: 2px;
+    margin-left: -8px;
+    color: #3a3a3a;
     text-decoration: none;
+    border-radius: 4px;
+    outline-offset: 3px;
+
+    &:hover {
+      color: #3a3a3a;
+      background-color: #efefef;
+    }
 
     &.router-link-active {
-      font-weight: bold;
-      background-color: #e0e0e0;
+      background-color: #dedede;
     }
   }
 
