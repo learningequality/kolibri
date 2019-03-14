@@ -182,11 +182,12 @@
 <style lang="scss" scoped>
 
   th {
-    min-width: 100px;
+    min-width: 50px;
   }
 
   .stretch {
     width: 100%;
+    min-width: 150px;
   }
 
 </style>
