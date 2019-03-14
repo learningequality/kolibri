@@ -1,5 +1,11 @@
 import { events } from './hashiBase';
 
+const values = require('object.values');
+
+if (!Object.values) {
+  values.shim();
+}
+
 export default class BaseShim {
   constructor(mediator) {
     this.__mediator = mediator;
