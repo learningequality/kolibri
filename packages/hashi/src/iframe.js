@@ -1,5 +1,7 @@
 import Hashi from './iframeClient';
 
+require('./compat');
+
 const initialize = () => {
   const hashi = new Hashi();
   if (process.env.NODE_ENV !== 'production') {
