@@ -1,20 +1,22 @@
 <template>
 
-  <div @click="hidden = !hidden">
-    <UiIconButton type="primary" size="large">
-      <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
-      <mat-svg v-else name="expand_more" category="navigation" />
-    </UiIconButton>
-    <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
-    <ContentCardGroupGrid
-      v-if="child.children.length && !hidden"
-      :contents="child.children"
-      :genContentLink="genContentLink"
-    />
+  <div>
+    <div class="collapsible-header" @click="hidden = !hidden">
+      <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
+      <UiIconButton type="secondary" size="large" style="float: right; margin: 8px" disabled>
+        <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
+        <mat-svg v-else name="expand_more" category="navigation" />
+      </UiIconButton>
+      <ContentCardGroupGrid
+        v-if="child.children.length"
+        :contents="child.children"
+        :genContentLink="genContentLink"
+        :class="{ 'hidden-grid': hidden}"
+      />
+    </div>
   </div>
 
 </template>
-
 
 <script>
 
@@ -54,3 +56,17 @@
   };
 
 </script>
+
+<style>
+  .collapsible-header {
+    border-radius: 8px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .hidden-grid {
+    display: none;
+  }
+</style>

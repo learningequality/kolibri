@@ -13,7 +13,6 @@
       dir="auto"
       class="page-description"
     />
-    <hr>
     <div v-for="child in contents">
       <ExpandableContentCardGroupGrid :child="child" />
     </div>
