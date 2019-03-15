@@ -14,7 +14,6 @@
       :link="genContentLink(content.id, content.kind)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
-      :prerequisitesDone="content.prerequisitesDone"
       @openCopiesModal="openCopiesModal"
     />
     <CopiesModal

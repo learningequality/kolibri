@@ -2,8 +2,8 @@ import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { showSearch } from '../modules/search/handlers';
 import {
-  showKnowledgeMap,
   showTopicsTopic,
+  showTopicsChannel,
   showTopicsContent,
 } from '../modules/topicsTree/handlers';
 import {
@@ -60,10 +60,10 @@ export default [
     },
   },
   {
-    name: PageNames.KNOWLEDGE_MAP,
-    path: '/topics/:id',
+    name: PageNames.TOPICS_CHANNEL,
+    path: '/topics/:channel_id',
     handler: toRoute => {
-      showKnowledgeMap(store, toRoute.params.id);
+      showTopicsChannel(store, toRoute.params.channel_id);
     },
   },
   {

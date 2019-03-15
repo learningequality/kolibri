@@ -50,7 +50,6 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
-  import KnowledgeMap from './KnowledgeMap';
 
   // Bottom toolbar is 111px high on mobile, 113px normally.
   // We reserve the smaller number so there is no gap on either screen size.
@@ -61,7 +60,6 @@
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
-    [PageNames.KNOWLEDGE_MAP]: KnowledgeMap,
     [PageNames.RECOMMENDED]: RecommendedPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.SEARCH]: SearchPage,

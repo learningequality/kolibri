@@ -5,7 +5,6 @@ export const PageNames = {
   TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',
   TOPICS_CONTENT: 'TOPICS_CONTENT',
-  KNOWLEDGE_MAP: 'KNOWLEDGE_MAP',
   RECOMMENDED: 'RECOMMENDED',
   RECOMMENDED_POPULAR: 'RECOMMENDED_POPULAR',
   RECOMMENDED_RESUME: 'RECOMMENDED_RESUME',
@@ -19,7 +18,7 @@ export const PageNames = {
 
 // switch between modes
 export const PageModes = {
-  TOPICS: 'topic',
+  TOPICS: 'TOPICS',
   RECOMMENDED: 'RECOMMENDED',
   SEARCH: 'SEARCH',
   EXAM: 'EXAM',
@@ -56,5 +55,4 @@ export const pageNameToModuleMap = {
   [PageNames.TOPICS_CONTENT]: 'topicsTree',
   [PageNames.TOPICS_TOPIC]: 'topicsTree',
   [PageNames.RECOMMENDED_CONTENT]: 'topicsTree',
-  [PageNames.KNOWLEDGE_MAP]: 'topicsTree',
 };

@@ -18,7 +18,23 @@
   export default {
     name: 'PageHeader',
     components: { ProgressIcon },
-    props: { title: { type: String }, progress: { type: Number } },
+    props: { title: { type: String } },
+    computed: {
+      ...mapState({
+        progress: state => {
+          if (state.topicsTree.content) {
+            if (
+              state.core.logging.mastery.totalattempts > 0 &&
+              state.core.logging.summary.progress === 0
+            ) {
+              return 0.1;
+            }
+            return state.core.logging.summary.progress;
+          }
+          return null;
+        },
+      }),
+    },
   };
 
 </script>

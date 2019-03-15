@@ -10,7 +10,6 @@ function defaultState() {
     topic: {},
     // used in RECOMMENDED_CONTENT
     recommended: [],
-    progress: null,
   };
 }
 
@@ -25,7 +24,6 @@ export default {
       state.isRoot = payload.isRoot || null;
       state.topic = payload.topic || {};
       state.recommended = payload.recommended || [];
-      state.progress = payload.progress || null;
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
