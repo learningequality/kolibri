@@ -10,4 +10,3 @@ kolibri.plugins.user
 kolibri_exercise_perseus_plugin
 kolibri.plugins.style_guide
 kolibri.plugins.document_epub_render
-kolibri.plugins.edulution
