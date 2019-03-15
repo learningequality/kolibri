@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import csv
 import os
 import time
+from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import caches
@@ -144,7 +145,7 @@ class MetricsMiddleware(MiddlewareMixin):
             if float(duration) > MetricsMiddleware.slowest_request_time:
                 MetricsMiddleware.slowest_request_time = float(duration)
                 max_time = True
-            timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
+            timestamp = datetime.now().strftime('%Y/%m/%d %H:%M:%S.%f')
             collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))
             with open(self.requests_profiling_file, mode='a') as profile_file:
                 profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
