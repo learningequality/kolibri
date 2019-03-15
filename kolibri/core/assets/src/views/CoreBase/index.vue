@@ -379,7 +379,10 @@
         // Setting this will not affect the page layout,
         // but this will then get properly stored in the
         // browser history.
-        window.pageYOffset = this.scrollPosition;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = this.scrollPosition;
+        } catch (e) {} // eslint-disable-line no-empty
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -389,7 +392,10 @@
       },
       setScroll(scrollValue) {
         this.$el.scrollTop = scrollValue;
-        window.pageYOffset = scrollValue;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = scrollValue;
+        } catch (e) {} // eslint-disable-line no-empty
       },
     },
   };
