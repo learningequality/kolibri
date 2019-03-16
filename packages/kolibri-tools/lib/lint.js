@@ -10,7 +10,7 @@ const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
 const defaultStylelintConfig = require('../.stylelintrc.js');
 const prettierOptions = require('../.prettier.js');
-const esLintConfig = require('../.eslintrc.js');
+const defaultEsLintConfig = require('../.eslintrc.js');
 const htmlHintConfig = require('../.htmlhintrc.js');
 const logger = require('./logging');
 
@@ -18,6 +18,13 @@ require('./htmlhint_custom');
 
 const logging = logger.getLogger('Kolibri linter');
 
+
+let esLintConfig;
+try {
+  esLintConfig = require(process.cwd()+'/.eslintrc.js');
+} catch(e) {
+  esLintConfig = defaultEsLintConfig;
+}
 const esLinter = new ESLintCLIEngine({
   baseConfig: esLintConfig,
   fix: true,
