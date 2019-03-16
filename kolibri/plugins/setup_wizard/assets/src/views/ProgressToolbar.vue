@@ -24,7 +24,7 @@
 
 <script>
 
-  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
