@@ -8,23 +8,33 @@ const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
-const defaultStylelintConfig = require('../.stylelintrc.js');
-const prettierOptions = require('../.prettier.js');
-const defaultEsLintConfig = require('../.eslintrc.js');
-const htmlHintConfig = require('../.htmlhintrc.js');
-const logger = require('./logging');
+
 
 require('./htmlhint_custom');
 
-const logging = logger.getLogger('Kolibri linter');
-
+// check for host project's linting configs, otherwise use defaults
+let hostProjectDir = process.cwd()
 
 let esLintConfig;
-try {
-  esLintConfig = require(process.cwd()+'/.eslintrc.js');
-} catch(e) {
-  esLintConfig = defaultEsLintConfig;
-}
+try { esLintConfig = require(`${hostProjectDir}/.eslintrc.js`); }
+catch(e) { esLintConfig = require('../.eslintrc.js'); }
+
+let stylelintConfig;
+try { stylelintConfig = require(`${hostProjectDir}/.stylelintrc.js`); }
+catch(e) { stylelintConfig = require('../.stylelintrc.js'); }
+
+let htmlHintConfig;
+try { htmlHintConfig = require(`${hostProjectDir}/.htmlhintrc.js`); }
+catch(e) { htmlHintConfig = require('../.htmlhintrc.js'); }
+
+let prettierConfig;
+try { prettierConfig = require(`${hostProjectDir}/.prettier.js`); }
+catch(e) { prettierConfig = require('../.prettier.js'); }
+
+const logger = require('./logging');
+
+const logging = logger.getLogger('Kolibri linter');
+
 const esLinter = new ESLintCLIEngine({
   baseConfig: esLintConfig,
   fix: true,
@@ -34,13 +44,6 @@ const esLinter = new ESLintCLIEngine({
 // Create them here so that we can reuse, rather than creating many many objects.
 const styleLangs = ['scss', 'css', 'less'];
 const styleLinters = {};
-
-let stylelintConfig
-try {
-  stylelintConfig = require(process.cwd()+'/.stylelintrc.js');
-} catch(e) {
-  stylelintConfig = defaultStylelintConfig;
-}
 styleLangs.forEach(lang => {
   styleLinters[lang] = stylelint.createLinter({
     config: stylelintConfig,
@@ -105,7 +108,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           {
             filepath: file,
           },
-          prettierOptions,
+          prettierConfig,
           {
             parser,
           }
