@@ -1,3 +1,21 @@
+kolibri-server (0.2.2-0ubuntu1) xenial; urgency=medium
+
+  * Updated CSP header to match Kolibri changes
+
+ -- José L. Redrejo Rodríguez <jredrejo@jredrejo@debian.org>  Mon, 18 Mar 2019 18:36:52 +0100
+
+kolibri-server (0.2.1-0ubuntu1) bionic; urgency=medium
+
+  * Changed caching in nginx to avoid cors problems
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 12 Mar 2019 21:25:49 +0100
+
+kolibri-server (0.2.0-1ubuntu2) xenial; urgency=medium
+
+  * debian/kolibri-server.service: remove nginx requires
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 12 Mar 2019 14:56:12 +0100
+
 kolibri-server (0.2.0-0ubuntu1) xenial; urgency=low
 
   * debian/control: updated dependency to kolibri 0.12.1

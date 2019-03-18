@@ -5,7 +5,7 @@
 Description=A high performance web server setup for Kolibri
 After=kolibri.service nginx.service
 Wants=network-online.target
-Requires=kolibri.service nginx.service
+Requires=kolibri.service
 
 [Service]
 Type=forking
