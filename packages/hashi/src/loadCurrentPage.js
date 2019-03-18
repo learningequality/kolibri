@@ -41,7 +41,16 @@ export function setContent(contents) {
 
   const runList = [].map.call($scripts, function($script) {
     return function(callback) {
-      replaceScript($script, callback);
+      const cb = () => {
+        delete window.onerror;
+        callback();
+      };
+      window.onerror = cb;
+      try {
+        replaceScript($script, cb);
+      } catch (e) {
+        cb();
+      }
     };
   });
 

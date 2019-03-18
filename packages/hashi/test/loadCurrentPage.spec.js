@@ -224,4 +224,43 @@ describe('setContent function', () => {
       return Promise.all([promise1, promise2, promise3]);
     });
   });
+  it('should execute all script elements in order even if they error', () => {
+    const mock1 = jest.fn();
+    const mock2 = jest.fn();
+    const mock3 = jest.fn();
+    const promise1 = new Promise(resolve => {
+      window.resolve1 = resolve;
+    }).then(() => {
+      expect(mock1).not.toHaveBeenCalled();
+      expect(mock2).not.toHaveBeenCalled();
+      expect(mock3).not.toHaveBeenCalled();
+      mock1();
+    });
+    const promise2 = new Promise(resolve => {
+      window.resolve2 = resolve;
+    }).then(() => {
+      expect(mock1).toHaveBeenCalled();
+      expect(mock2).not.toHaveBeenCalled();
+      expect(mock3).not.toHaveBeenCalled();
+      mock2();
+    });
+    const promise3 = new Promise(resolve => {
+      window.resolve3 = resolve;
+    }).then(() => {
+      expect(mock2).toHaveBeenCalled();
+      expect(mock3).not.toHaveBeenCalled();
+    });
+    setContent(
+      `<html>
+      <body>
+      <script>fail!</script>
+      <script>window.resolve1()</script>
+      <script src=""></script>
+      <script>window.resolve2()</script>
+      <script src(unknown)></script>
+      <script>window.resolve3()</script>
+      </body></html>`
+    );
+    return Promise.all([promise1, promise2, promise3]);
+  });
 });
