@@ -263,4 +263,14 @@ describe('setContent function', () => {
     );
     return Promise.all([promise1, promise2, promise3]);
   });
+  it('should trigger onload methods', () => {
+    window.mock1 = jest.fn();
+    setContent(
+      `<html>
+      <body onload="window.mock1()">
+      </div>
+      </body></html>`
+    );
+    expect(window.mock1).toHaveBeenCalled();
+  });
 });

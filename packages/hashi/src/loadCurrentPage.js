@@ -14,14 +14,23 @@ export function seq(arr, index) {
     if (index < arr.length) {
       seq(arr, index);
     } else {
-      // If finished trigger all the DOM Content Loaded event
+      // If finished trigger the DOM Content Loaded event and the load event
+      // Normally DOMContentLoaded would be triggered before the load event
+      // but we have already waited for the DOM to be inserted here, and
+      // then executed all the scripts, so we have a slightly less efficient
+      // rendering path, but we can be sure that both are appropriate to
+      // trigger at this point.
       const DOMContentLoadedEvent = document.createEvent('Event');
       DOMContentLoadedEvent.initEvent('DOMContentLoaded', true, true);
+      const loadEvent = document.createEvent('Event');
+      loadEvent.initEvent('load', true, true);
       document.dispatchEvent(DOMContentLoadedEvent);
-      const $body = document.querySelector('body');
-      if ($body && $body.onload) {
-        $body.onload();
-      }
+      document.dispatchEvent(loadEvent);
+      window.dispatchEvent(loadEvent);
+      const elements = document.querySelectorAll(':not(script)');
+      Array.prototype.forEach.call(elements, element => {
+        element.dispatchEvent(loadEvent);
+      });
     }
   }
 
@@ -29,6 +38,8 @@ export function seq(arr, index) {
     const fn = arr[index];
 
     fn(callback);
+  } else {
+    callback();
   }
 }
 
