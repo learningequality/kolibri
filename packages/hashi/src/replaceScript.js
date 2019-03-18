@@ -25,6 +25,13 @@ export const runScriptTypes = [
 export default function replaceScript($script, callback) {
   const s = document.createElement('script');
   s.type = 'text/javascript';
+  [].forEach.call($script.attributes, attribute => {
+    // Set src later when everything else
+    // has been set.
+    if (attribute.name !== 'src') {
+      s.setAttribute(attribute.name, attribute.value);
+    }
+  });
   if ($script.src) {
     if (!$script.async) {
       const cb = () => {
