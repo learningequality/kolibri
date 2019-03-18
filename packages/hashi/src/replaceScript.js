@@ -35,15 +35,14 @@ export default function replaceScript($script, callback) {
 
   const parentNode = $script.parentNode;
 
-  // Remove the element so that we don't clutter the DOM
-  // with duplicates.
-  parentNode.removeChild($script);
-
   const typeAttr = $script.getAttribute('type');
 
   // only run script tags without the type attribute
   // or with a javascript mime attribute value
   if (!typeAttr || runScriptTypes.indexOf(typeAttr) !== -1) {
+    // Remove the element so that we don't clutter the DOM
+    // with duplicates.
+    parentNode.removeChild($script);
     // re-insert the script tag so it executes.
     parentNode.appendChild(s);
   }
