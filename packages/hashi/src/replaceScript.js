@@ -26,8 +26,18 @@ export default function replaceScript($script, callback) {
   const s = document.createElement('script');
   s.type = 'text/javascript';
   if ($script.src) {
-    s.onload = callback;
-    s.onerror = callback;
+    if (!$script.async) {
+      const cb = () => {
+        // Clean up onload and onerror handlers
+        // after they have been triggered to avoid
+        // these being called again.
+        delete s.onload;
+        delete s.onerror;
+        callback();
+      };
+      s.onload = cb;
+      s.onerror = cb;
+    }
     s.src = $script.src;
   } else {
     s.innerHTML = $script.innerHTML;
@@ -48,7 +58,7 @@ export default function replaceScript($script, callback) {
   }
 
   // run the callback immediately for inline scripts
-  if (!$script.src) {
+  if (!$script.src || $script.async) {
     callback();
   }
 }
