@@ -50,7 +50,10 @@ export function setContent(contents) {
   // This will create insertion operations for all script tags
   const $scripts = document.querySelectorAll('script');
 
-  const runList = [].map.call($scripts, function($script) {
+  const $nonDeferredScripts = [].filter.call($scripts, script => !script.defer);
+  const $deferredScripts = [].filter.call($scripts, script => script.defer);
+
+  const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
     return function(callback) {
       const cb = () => {
         delete window.onerror;
