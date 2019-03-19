@@ -54,7 +54,7 @@
     </div>
 
     <p v-else slot="main">
-      {{ noItemIdString }}
+      {{ $tr('noItemId') }}
     </p>
   </MultiPaneLayout>
 
@@ -63,7 +63,6 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
@@ -71,10 +70,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import ExamPage from '../../../../../plugins/learn/assets/src/views/ExamPage';
   import PageStatus from './PageStatus';
-
-  const ExamPageStrings = crossComponentTranslator(ExamPage);
 
   export default {
     name: 'ExamReport',
@@ -85,6 +81,7 @@
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
       question: 'Question { questionNumber, number }',
       showCorrectAnswerLabel: 'Show correct answer',
+      noItemId: 'This question has an error, please move on to the next question',
     },
     components: {
       ContentRenderer,
@@ -162,7 +159,6 @@
     data() {
       return {
         showCorrectAnswer: false,
-        noItemIdString: ExamPageStrings.$tr('noItemId'),
       };
     },
     computed: {
