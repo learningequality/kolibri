@@ -3,7 +3,9 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
 // Strings are the _READABLE strings in le_utils.constants.format_presets,
-// with ' ({fileSize})' appended
+// with ' ({fileSize})' appended.
+// NOTE: Strings for 'Exercise Image', 'Exercise Graphie', and 'Channel Thumbnail'
+// are excluded, as they are not downloadable in Kolibri.
 const filePresetStrings = {
   highResolutionVideo: 'High Resolution ({fileSize})',
   lowResolutionVideo: 'Low Resolution ({fileSize})',
@@ -14,9 +16,6 @@ const filePresetStrings = {
   audio: 'Audio ({fileSize})',
   document: 'Document ({fileSize})',
   exercise: 'Exercise ({fileSize})',
-  exerciseImage: 'Exercise Image ({fileSize})',
-  exerciseGraphie: 'Exercise Graphie ({fileSize})',
-  channelThumbnail: 'Channel Thumbnail ({fileSize})',
   html5Zip: 'HTML5 Zip ({fileSize})',
   html5Thumbnail: 'HTML5 Thumbnail ({fileSize})',
 };
