@@ -14,22 +14,13 @@
     />
 
     <div v-if="parentTopic" class="topic-link">
-      <mat-svg
-        ref="folderIcon"
-        class="folder-svg"
-        category="file"
-        name="folder"
-      />
-      <KTooltip
-        reference="folderIcon"
-        :refs="$refs"
-      >
-        {{ $tr('topicLocationTooltip') }}
-      </KTooltip>
-      <KRouterLink
-        :text="parentTopic.title"
-        :to="$router.getRoute('TOPICS_TOPIC', { id: parentTopic.id })"
-      />
+      <KLabeledIcon :tooltipText="$tr('topicLocationTooltip')">
+        <KIcon slot="icon" topic />
+        <KRouterLink
+          :text="parentTopic.title"
+          :to="$router.getRoute('TOPICS_TOPIC', { id: parentTopic.id })"
+        />
+      </KLabeledIcon>
     </div>
 
     <ContentRenderer
@@ -155,7 +146,8 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
@@ -189,8 +181,9 @@
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,
+      KIcon,
+      KLabeledIcon,
       KRouterLink,
-      KTooltip,
     },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer
@@ -356,12 +349,6 @@
 
 
 <style lang="scss" scoped>
-
-  .folder-svg {
-    margin-right: 8px;
-    margin-bottom: -2px;
-    vertical-align: bottom;
-  }
 
   .coach-content-label {
     margin: 8px 0;
