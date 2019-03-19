@@ -24,6 +24,7 @@ from six.moves.urllib.parse import urlunparse
 from .api import cache_forever
 from .utils.paths import get_content_storage_file_path
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.utils.conf import OPTIONS
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
@@ -84,7 +85,7 @@ def _add_content_security_policy_header(request, response):
     # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
     # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
     host = get_host(request)
-    response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: " + host
+    response["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: " + host
 
 
 def calculate_zip_content_etag(request, zipped_filename, embedded_filepath):
@@ -113,6 +114,7 @@ def get_path_or_404(zipped_filename):
         raise Http404('"%(filename)s" is not a valid zip file' % {'filename': zipped_filename})
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class ZipContentView(View):
 
     @xframe_options_exempt
