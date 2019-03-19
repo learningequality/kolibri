@@ -88,9 +88,8 @@ PRETRANSLATE_URL = CROWDIN_API_URL.format(
     cmd="pre-translate",
     # perfect_match=0 - apply TM to all identical strings, regardless of ID
     # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
-    # import_duplicates=1 - not sure? in the UI this is mutually exclusive with apply_untranslated_strings_only
-    # approve_translated=1 - only auto-approve "perfect" matches, i.e. those with the same ID
-    params="&method=tm&approve_translated=1&auto_approve_option=1&json&apply_untranslated_strings_only=1import_duplicates=1&perfect_match=0",
+    # approve_translated=1 - auto-approve
+    params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0",
 )
 UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
     proj=CROWDIN_PROJECT,
@@ -146,6 +145,10 @@ def _format_json_files():
             utils.json_dump_formatted(data, file_path)
 
 
+def _is_string_file(file_name):
+    return file_name.endswith(".json") or file_name.endswith(".po")
+
+
 """
 Rebuild command
 """
@@ -171,7 +174,7 @@ Pre-translate command
 """
 
 
-def command_pretranslate(branch):
+def command_pretranslate(branch, approve_all=False):
     """
     Applies pre-translation to the given branch on Crowdin
     """
@@ -184,8 +187,18 @@ def command_pretranslate(branch):
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.supported_languages()]
     params.extend([("languages[]", code) for code in codes])
 
-    logging.info("Crowdin: pre-translating strings and pre-approving exact matches in '{}'...".format(branch))
-    r = requests.post(PRETRANSLATE_URL, params=params)
+    msg = (
+        "Crowdin: pre-translating and pre-approving untranslated matches in '{}'..."
+        if approve_all
+        else "Crowdin: pre-translating untranslated matches in '{}'..."
+    )
+    msg += "\n\tNote that this operation can take a long time and may time out."
+    msg += "\n\tYou should see the results on Crowdin eventually..."
+    logging.info(msg.format(branch))
+
+    r = requests.post(
+        PRETRANSLATE_URL.format(approve_option=0 if approve_all else 1), params=params
+    )
     r.raise_for_status()
     logging.info("Crowdin: succeeded!")
 
@@ -204,32 +217,15 @@ def _translation_upload_ref(file_name, lang_object):
     return ("files[{0}]".format(file_name), file_pointer)
 
 
-def command_upload_translation(branch, lang_code, file_name):
-    # make sure it's not a source
-    if lang_code == "en":
-        logging.error("'en' is a source, not a translation")
-        sys.exit(1)
+def _upload_translation(branch, lang_object):
 
-    # check branch
     if _no_crowdin_branch(branch, _get_crowdin_details()):
-        logging.error("Branch '{}' not found.".format(lang_code))
-        sys.exit(1)
-
-    # find language
-    try:
-        lang_object = next(
-            lang
-            for lang in utils.supported_languages()
-            if lang[utils.KEY_INTL_CODE] == lang_code
-        )
-    except StopIteration:
-        logging.error("Code '{}' not found in supported languages.".format(lang_code))
-        logging.error("Make sure to use an Intl code, not crowdin.")
+        logging.error("Branch '{}' not found.".format(branch))
         sys.exit(1)
 
     logging.info(
-        "Crowdin: uploading current translation for '{}' to '{}'...".format(
-            lang_code, branch
+        "Crowdin: uploading translation files for '{}' to '{}'...".format(
+            lang_object[utils.KEY_CROWDIN_CODE], branch
         )
     )
 
@@ -238,16 +234,14 @@ def command_upload_translation(branch, lang_code, file_name):
     )
 
     file_names = []
-    if file_name:
-        file_names.append(file_name)
-    else:
-        for name in os.listdir(utils.local_locale_path(lang_object)):
-            if name.endswith(".json"):
-                file_names.append(name)
+    for name in os.listdir(utils.local_locale_path(lang_object)):
+        if _is_string_file(name):
+            file_names.append(name)
+    for name in os.listdir(utils.local_perseus_locale_path(lang_object)):
+        if _is_string_file(name):
+            file_names.append(name)
 
     for chunk in _chunks(file_names):
-        logging.info("\t{}".format(", ".join(chunk)))
-
         references = [_translation_upload_ref(f, lang_object) for f in chunk]
         r = requests.post(url, files=references)
         r.raise_for_status()
@@ -255,6 +249,14 @@ def command_upload_translation(branch, lang_code, file_name):
             ref[1].close()
 
     logging.info("Crowdin: upload succeeded!")
+
+
+def command_upload_translations(branch):
+    supported_languages = utils.supported_languages(
+        include_in_context=False, include_english=False
+    )
+    for lang_object in supported_languages:
+        _upload_translation(branch, lang_object)
 
 
 """
@@ -307,10 +309,6 @@ Upload command
 """
 
 
-def _is_source(file_name):
-    return file_name.endswith(".json") or file_name.endswith(".po")
-
-
 def _source_upload_ref(file_name):
     if file_name == PERSEUS_FILE:  # hack for perseus, assumes the same file name
         file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
@@ -352,7 +350,7 @@ def command_upload_sources(branch):
     source_files = set(
         file_name
         for file_name in os.listdir(utils.SOURCE_PATH)
-        if _is_source(file_name)
+        if _is_string_file(file_name)
     )
 
     # hack for perseus
@@ -455,22 +453,14 @@ def command_stats(branch):
     avg_untranslated_strings = round(total_untranslated_strings / len(strings_table))
     avg_unapproved_strings = round(total_unapproved_strings / len(strings_table))
     strings_table.append(
-        (
-            "Average - all languages",
-            avg_untranslated_strings,
-            avg_unapproved_strings,
-        )
+        ("Average - all languages", avg_untranslated_strings, avg_unapproved_strings)
     )
     total_untranslated_words = sum([row[1] for row in words_table])
     total_unapproved_words = sum([row[2] for row in words_table])
     avg_untranslated_words = round(total_untranslated_words / len(words_table))
     avg_unapproved_words = round(total_unapproved_words / len(words_table))
     words_table.append(
-        (
-            "Average - all languages",
-            avg_untranslated_words,
-            avg_unapproved_words,
-        )
+        ("Average - all languages", avg_untranslated_words, avg_unapproved_words)
     )
     summary_table_headers = ["", "Untranslated", "Needs approval"]
     summary_table = [
@@ -509,7 +499,14 @@ def main():
     )
     parser_upload.add_argument("branch", help="Branch name", type=str)
     parser_pretranslate = subparsers.add_parser(
-        "pre-translate", help="Apply translation memory on Crowdin"
+        "pretranslate", help="Apply translation memory on Crowdin"
+    )
+    parser_pretranslate.add_argument(
+        "--approve-all",
+        dest="approve",
+        action="store_true",
+        default=False,
+        help="Automatically approve all string matches on Crowdin",
     )
     parser_pretranslate.add_argument("branch", help="Branch name", type=str)
     parser_rebuild = subparsers.add_parser(
@@ -520,18 +517,10 @@ def main():
         "stats", help="Stats for the translations on Crowdin"
     )
     parser_stats.add_argument("branch", help="Branch name", type=str)
-    parser_upload_translation = subparsers.add_parser(
-        "upload-translation", help="Upload a translation from a backup file"
+    parser_upload_translations = subparsers.add_parser(
+        "upload-translations", help="Upload a translation from a backup file"
     )
-    parser_upload_translation.add_argument(
-        "--branch", help="Branch name", type=str, required=True
-    )
-    parser_upload_translation.add_argument(
-        "--language", help="Intl language code (not Crowdin)", type=str, required=True
-    )
-    parser_upload_translation.add_argument(
-        "--file", help="File name (not full path)", type=str
-    )
+    parser_upload_translations.add_argument("branch", help="Branch name", type=str)
     args = parser.parse_args()
 
     if args.command == "download":
@@ -540,12 +529,12 @@ def main():
         command_upload_sources(args.branch)
     elif args.command == "rebuild":
         command_rebuild(args.branch)
-    elif args.command == "pre-translate":
-        command_pretranslate(args.branch)
+    elif args.command == "pretranslate":
+        command_pretranslate(args.branch, args.approve)
     elif args.command == "stats":
         command_stats(args.branch)
-    elif args.command == "upload-translation":
-        command_upload_translation(args.branch, args.language, args.file)
+    elif args.command == "upload-translations":
+        command_upload_translations(args.branch)
     else:
         logging.warning("Unknown command\n")
         parser.print_help(sys.stderr)
