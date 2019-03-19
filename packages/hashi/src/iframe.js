@@ -13,7 +13,10 @@ const initialize = () => {
   }
 };
 
-if (window.name === nameSpace) {
+// JSDOM does not proxy the iframe name attribute through to the contained
+// window like a regular browser does, so we have to add this special case
+// just for tests.
+if (window.name === nameSpace || window.name === 'nodejs') {
   // We are in the main hashi window, initialize hashi before doing
   // anything else
   initialize();
