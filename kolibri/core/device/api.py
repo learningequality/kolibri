@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
+from django.utils.translation import check_for_language
+from django.http.response import HttpResponseBadRequest
 from morango.models import InstanceIDModel
 from rest_framework import mixins
 from rest_framework import status
@@ -9,6 +11,7 @@ from rest_framework.response import Response
 
 import kolibri
 from .models import DevicePermissions
+from .models import DeviceSettings
 from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
@@ -99,3 +102,32 @@ class DeviceInfoView(views.APIView):
         info['installer'] = installation_type()
 
         return Response(info)
+
+
+class DeviceLanguageSettingViewset(views.APIView):
+
+    permission_classes = (UserHasAnyDevicePermissions, )
+
+    def get(self, request):
+        settings = DeviceSettings.objects.get()
+        return Response({
+            'language_id': settings.language_id
+        })
+
+    def patch(self, request):
+        settings = DeviceSettings.objects.get()
+
+        try:
+            request_lang = request.data.get('language_id', '')
+        except AttributeError:
+            return HttpResponseBadRequest('Value must be a JSON object with "language_id" field: {}'.format(request.data))
+
+        if request_lang == '':
+            return HttpResponseBadRequest('"language_id" is required')
+
+        if request_lang is None or check_for_language(request_lang):
+            settings.language_id = request_lang
+            settings.save()
+            return self.get(request)
+        else:
+            return HttpResponseBadRequest('Unknown language: {}'.format(request_lang))
