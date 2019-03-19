@@ -21,6 +21,7 @@
       :style="{ backgroundColor: $coreBgCanvas }"
       sandbox="allow-scripts"
       frameBorder="0"
+      :name="name"
       :src="rooturl"
     >
     </iframe>
@@ -37,6 +38,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
+  import { nameSpace } from 'hashi/src/hashiBase';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -57,6 +59,9 @@
       };
     },
     computed: {
+      name() {
+        return nameSpace;
+      },
       rooturl() {
         return this.defaultFile.storage_url;
       },
