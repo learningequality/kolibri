@@ -17,10 +17,7 @@ exports[`app bar component drop down user menu should show the language modal li
       <!---->
     </div>
     <div class="ui-toolbar__body">
-      <div>
-        <div class="app-bar-title-icon"></div>
-        test
-      </div>
+      <div class="ui-toolbar__title">test</div>
     </div>
     <div class="ui-toolbar__right">
       <div> <button type="submit" class="ui-button user-menu-button ui-button--type-primary ui-button--color-clear ui-button--icon-position-left ui-button--size-normal" arialabel="User menu">
