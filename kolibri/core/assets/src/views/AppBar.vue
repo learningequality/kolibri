@@ -21,11 +21,6 @@
         />
       </UiIconButton>
 
-      <div>
-        <div class="app-bar-title-icon"></div>
-        {{ title }}
-      </div>
-
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
 
