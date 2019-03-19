@@ -25,6 +25,7 @@
             type="secondary"
             color="white"
             size="large"
+            class="side-nav-header-icon"
             @click="toggleNav"
           >
             <mat-svg
@@ -286,6 +287,10 @@
     z-index: 17;
     font-size: 14px;
     text-transform: uppercase;
+  }
+
+  .side-nav-header-icon {
+    margin-left: 5px; /* align with a toolbar icon below */
   }
 
   .side-nav-header-close {
