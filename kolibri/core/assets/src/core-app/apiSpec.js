@@ -103,6 +103,7 @@ import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
+import UiToolbar from '../views/KeenUiToolbar.vue';
 import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import themeMixin from '../mixins/theme';
@@ -177,6 +178,7 @@ export default {
       CoreLogo,
       UiAlert,
       UiIconButton,
+      UiToolbar,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,

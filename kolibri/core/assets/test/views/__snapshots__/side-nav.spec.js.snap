@@ -3,7 +3,7 @@
 exports[`side nav component should be hidden if navShown is false 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px; color: rgb(58, 58, 58); background-color: rgb(255, 255, 255); display: none;" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" tabindex="0" class="keen-ui-icon-button keen-ui-icon-button--type-secondary keen-ui-icon-button--color-white keen-ui-icon-button--size-large KeenUiIconButton-noKey-0_1e7m9ar">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" tabindex="0" class="keen-ui-icon-button side-nav-header-icon keen-ui-icon-button--type-secondary keen-ui-icon-button--color-white keen-ui-icon-button--size-large KeenUiIconButton-noKey-0_1e7m9ar">
         <div class="keen-ui-icon-button-icon" style="color: rgb(153, 97, 137);">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
@@ -50,7 +50,7 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
 exports[`side nav component should show nothing if no components are added and user is not logged in 1`] = `
 <div class="side-nav-wrapper" style="position: relative;">
   <div class="side-nav" style="width: 100px; color: rgb(58, 58, 58); background-color: rgb(255, 255, 255);" name="side-nav">
-    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" tabindex="0" class="keen-ui-icon-button keen-ui-icon-button--type-secondary keen-ui-icon-button--color-white keen-ui-icon-button--size-large KeenUiIconButton-noKey-0_1e7m9ar">
+    <div class="side-nav-header" style="height: 20px; width: 100px; padding-top: 8px; background-color: rgb(58, 58, 58);"><button aria-label="Close navigation" type="button" tabindex="0" class="keen-ui-icon-button side-nav-header-icon keen-ui-icon-button--type-secondary keen-ui-icon-button--color-white keen-ui-icon-button--size-large KeenUiIconButton-noKey-0_1e7m9ar">
         <div class="keen-ui-icon-button-icon" style="color: rgb(153, 97, 137);">
           <mat-svg name="close" category="navigation" class="side-nav-header-close"></mat-svg>
         </div>
