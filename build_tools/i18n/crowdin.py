@@ -133,9 +133,9 @@ def _format_json_files():
     re-print all json files to ensure consistent diffs with ordered keys
     """
     locale_paths = []
-    for lang_info in utils.supported_languages(include_in_context=True):
-        locale_paths.append(utils.local_locale_path(lang_info))
-        locale_paths.append(utils.local_perseus_locale_path(lang_info))
+    for lang_object in utils.supported_languages(include_in_context=True):
+        locale_paths.append(utils.local_locale_path(lang_object))
+        locale_paths.append(utils.local_perseus_locale_path(lang_object))
     for locale_path in locale_paths:
         for file_name in os.listdir(locale_path):
             if not file_name.endswith(".json"):
@@ -279,18 +279,18 @@ def command_download(branch):
     _wipe_translations(utils.LOCALE_PATH)
     _wipe_translations(utils.PERSEUS_LOCALE_PATH)
 
-    for lang in utils.supported_languages(include_in_context=True):
-        code = lang[utils.KEY_CROWDIN_CODE]
+    for lang_object in utils.supported_languages(include_in_context=True):
+        code = lang_object[utils.KEY_CROWDIN_CODE]
         url = DOWNLOAD_URL.format(language=code, branch=branch)
         r = requests.get(url)
         r.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_path(lang)
+        target = utils.local_locale_path(lang_object)
         logging.info("\tExtracting {} to {}".format(code, target))
         z.extractall(target)
 
         # hack for perseus
-        perseus_target = utils.local_perseus_locale_path(lang)
+        perseus_target = utils.local_perseus_locale_path(lang_object)
         if not os.path.exists(perseus_target):
             os.makedirs(perseus_target)
         shutil.move(
@@ -338,7 +338,7 @@ def _modify(url, file_names):
             ref[1].close()
 
 
-def command_upload(branch):
+def command_upload_sources(branch):
     """
     Uploads the English translation source files to the given branch on Crowdin
     """
@@ -505,7 +505,7 @@ def main():
     )
     parser_download.add_argument("branch", help="Branch name", type=str)
     parser_upload = subparsers.add_parser(
-        "upload", help="Upload English sources to Crowdin"
+        "upload-sources", help="Upload English sources to Crowdin"
     )
     parser_upload.add_argument("branch", help="Branch name", type=str)
     parser_pretranslate = subparsers.add_parser(
@@ -536,8 +536,8 @@ def main():
 
     if args.command == "download":
         command_download(args.branch)
-    elif args.command == "upload":
-        command_upload(args.branch)
+    elif args.command == "upload-sources":
+        command_upload_sources(args.branch)
     elif args.command == "rebuild":
         command_rebuild(args.branch)
     elif args.command == "pre-translate":

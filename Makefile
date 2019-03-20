@@ -179,7 +179,7 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 i18n-upload: i18n-extract
-	python build_tools/i18n/crowdin.py upload ${branch}
+	python build_tools/i18n/crowdin.py upload-sources ${branch}
 	python build_tools/i18n/crowdin.py pre-translate ${branch}
 	python build_tools/i18n/crowdin.py stats ${branch}
 
