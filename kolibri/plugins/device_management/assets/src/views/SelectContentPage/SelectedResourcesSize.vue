@@ -46,7 +46,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import bytesForHumans from '../ManageContentPage/bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
 

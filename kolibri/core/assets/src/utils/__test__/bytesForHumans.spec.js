@@ -1,4 +1,4 @@
-import bytesForHumans from '../src/views/ManageContentPage/bytesForHumans';
+import bytesForHumans from '../bytesForHumans';
 
 const ONE_KB = 10 ** 3;
 const ONE_MB = 10 ** 6;

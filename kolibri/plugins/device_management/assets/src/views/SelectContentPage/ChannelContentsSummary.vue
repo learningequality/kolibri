@@ -51,7 +51,7 @@
 <script>
 
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from '../ManageContentPage/bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   export default {
     name: 'ChannelContentsSummary',

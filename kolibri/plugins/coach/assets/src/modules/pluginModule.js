@@ -107,7 +107,7 @@ export default {
         // otherwise refresh but don't block
         return store
           .dispatch('classSummary/loadClassSummary', classId)
-          .catch(error => this.store.dispatch('handleApiError', error));
+          .catch(error => store.dispatch('handleApiError', error));
       }
     },
   },

@@ -82,7 +82,7 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from './bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';

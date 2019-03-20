@@ -1,4 +1,4 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from './i18n';
 
 const translator = createTranslator('BytesForHumansStrings', {
   fileSizeInBytes: '{n, number, integer} B',
