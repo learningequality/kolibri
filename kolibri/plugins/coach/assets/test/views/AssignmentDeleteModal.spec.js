@@ -18,7 +18,7 @@ function makeWrapper(options) {
 }
 
 describe('AssignmentDeleteModal', () => {
-  it('clicking delete causes a "delete" event to be emitted', () => {
+  it('clicking delete causes a "submit" event to be emitted', () => {
     const { wrapper, els } = makeWrapper({
       propsData: { ...defaultProps },
       store,

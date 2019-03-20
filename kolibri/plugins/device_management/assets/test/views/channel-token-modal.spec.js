@@ -25,11 +25,11 @@ describe('channelTokenModal component', () => {
     wrapper = makeWrapper();
   });
 
-  it('pressing "cancel" emits a close modal event', () => {
+  it('pressing "cancel" emits a "cancel" event', () => {
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
     return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.emitted().closemodal.length).toEqual(1);
+      expect(wrapper.emitted().cancel.length).toEqual(1);
     });
   });
 
@@ -72,7 +72,7 @@ describe('channelTokenModal component', () => {
         });
     });
 
-    it('emits a "channel found" event  if token lookup is successful', () => {
+    it('emits a "submit" event if token lookup is successful', () => {
       const tokenPayload = { id: 'toka-toka-token' };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
@@ -83,7 +83,7 @@ describe('channelTokenModal component', () => {
         })
         .then(() => {
           expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emitted().channelfound).toEqual([[tokenPayload]]);
+          expect(wrapper.emitted().submit).toEqual([[tokenPayload]]);
         });
     });
 
