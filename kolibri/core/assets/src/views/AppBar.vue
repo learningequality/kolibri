@@ -12,6 +12,7 @@
       <UiIconButton
         slot="icon"
         type="secondary"
+        :aria-label="$tr('openNav')"
         @click="$emit('toggleSideNav')"
       >
         <mat-svg
@@ -123,6 +124,7 @@
     },
     mixins: [navComponentsMixin, themeMixin],
     $trs: {
+      openNav: 'Open sidebar navigation',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',

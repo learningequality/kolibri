@@ -9,6 +9,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        tabindex="-1"
         @click="handleClickPrevious"
       >
         <mat-svg
@@ -31,6 +32,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        tabindex="-1"
         :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
