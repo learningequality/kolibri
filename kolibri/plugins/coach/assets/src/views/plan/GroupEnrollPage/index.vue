@@ -113,7 +113,6 @@
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
   import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
   import GroupsPage from '../GroupsPage';
-  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
 
   const groupsPageStrings = crossComponentTranslator(GroupsPage);
 
@@ -218,14 +217,13 @@
       ...mapActions('groups', ['addUsersToGroup']),
       ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
-        const value = this.selectedUsers.length;
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
             this.createSnackbar({
-              text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
+              text: this.coachStrings.$tr('updatedNotification'),
               autoDismiss: true,
             });
           });
