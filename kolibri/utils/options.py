@@ -5,6 +5,29 @@ from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from validate import Validator
+try:
+    import kolibri.core.analytics.pskolibri as psutil
+except NotImplementedError:
+    # This module can't work on this OS
+    psutil = None
+
+
+def calculate_thread_pool():
+    """
+    Returns the default value for CherryPY thread_pool
+    It is calculated based on the best values obtained in
+    several partners installations.
+    The value must be between 10 (default CherryPy value) and 200.
+    Servers with more memory can deal with more threads.
+    Calculations are done for servers with more than 2 Gb of RAM
+    """
+    pool = 10
+    if psutil:
+        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        if total_memory > 2:
+            pool = int(45 * total_memory - 80)  # 10 for 2 Gb,100 for 4 Gb
+            pool = 200 if pool > 200 else pool
+    return pool
 
 
 option_spec = {
@@ -44,7 +67,7 @@ option_spec = {
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
-            "default": 10,
+            "default": calculate_thread_pool(),
             "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
