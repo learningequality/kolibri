@@ -1,5 +1,6 @@
 import logging.config
 import os
+import sys
 
 from configobj import ConfigObj
 from configobj import flatten_errors
@@ -27,6 +28,8 @@ def calculate_thread_pool():
         if total_memory > 2:
             pool = int(45 * total_memory - 80)  # 10 for 2 Gb,100 for 4 Gb
             pool = 200 if pool > 200 else pool
+    elif sys.platform.startswith("darwin"):  # Considering MacOS has at least 4 Gb of RAM
+        pool = 100
     return pool
 
 
