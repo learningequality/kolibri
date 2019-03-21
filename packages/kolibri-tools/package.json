@@ -72,7 +72,6 @@
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
-    "vue-template-compiler": "^2.6.8",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
@@ -83,12 +82,16 @@
     "webpack-merge": "^4.1.0",
     "webpack-rtl-plugin": "^1.7.0"
   },
+  "peerDependencies": {
+    "vue-template-compiler": "^2.x"
+  },
   "engines": {
     "node": "10.x",
     "npm": ">= 3"
   },
   "devDependencies": {
-    "readline-sync": "^1.4.9"
+    "readline-sync": "^1.4.9",
+    "vue-template-compiler": "=2.6.8"
   },
   "optionalDependencies": {
     "kolibri": "0.12.0-beta.3.2"
