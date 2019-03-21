@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "ထိုအမည်နှင့်အုပ်စုရှိနှင့်ပြီးသားဖြစ်ပါသည်",
   "UserIndex.userProfileTitle": "မိမိစာမျက်နှာ",
   "UserIndex.userSignInTitle": "ဝင်ရောက်မည်",
-  "UserIndex.userSignUpTitle": "မှတ်ပုံတင်မည်",
   "UserPageSnackbars.dismiss": "ရုပ်သိမ်းပါ",
   "UserPageSnackbars.signedOut": "အသုံးပြု့ခြင်းမရှိသည့်အတွက်သင်၏အကောင့်မှအလိုအလျှောက်ထွက်သွားပြီ။",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "လျှုိ့ ၀ှက်အမှတ် ကိုပြောင်းလဲ ပြီးပါပြီ။"

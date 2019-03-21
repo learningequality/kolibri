@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "اس نام سے ایک اکاؤنٹ پہلے ہی موجود ہے ۔",
   "UserIndex.userProfileTitle": "پروفائل",
   "UserIndex.userSignInTitle": "سائن ان کریں",
-  "UserIndex.userSignUpTitle": "سائن اپ",
   "UserPageSnackbars.dismiss": "رخصت کریں",
   "UserPageSnackbars.signedOut": "غیر فعال ہونے کی وجہ سے آپ خود بخود سائن آؤٹ ہوگئے تھے",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "پاس ورڈ تبدیل کر دیا گیا"
