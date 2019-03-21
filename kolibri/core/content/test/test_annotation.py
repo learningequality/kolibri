@@ -18,6 +18,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import fix_multiple_trees_with_id_one
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
+from kolibri.core.content.utils.annotation import mark_local_files_as_unavailable
 from kolibri.core.content.utils.annotation import recurse_availability_up_tree
 from kolibri.core.content.utils.annotation import set_leaf_node_availability_from_local_file_availability
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
@@ -262,12 +263,12 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
 
 @patch('kolibri.core.content.utils.sqlalchemybridge.get_engine', new=get_engine)
-class LocalFileByChecksum(TransactionTestCase):
+class LocalFileAvailableByChecksum(TransactionTestCase):
 
     fixtures = ['content_test.json']
 
     def setUp(self):
-        super(LocalFileByChecksum, self).setUp()
+        super(LocalFileAvailableByChecksum, self).setUp()
         LocalFile.objects.all().update(available=False)
 
     def test_set_one_file(self):
@@ -286,7 +287,35 @@ class LocalFileByChecksum(TransactionTestCase):
 
     def tearDown(self):
         call_command('flush', interactive=False)
-        super(LocalFileByChecksum, self).tearDown()
+        super(LocalFileAvailableByChecksum, self).tearDown()
+
+
+@patch('kolibri.core.content.utils.sqlalchemybridge.get_engine', new=get_engine)
+class LocalFileUnAvailableByChecksum(TransactionTestCase):
+
+    fixtures = ['content_test.json']
+
+    def setUp(self):
+        super(LocalFileUnAvailableByChecksum, self).setUp()
+        LocalFile.objects.all().update(available=True)
+
+    def test_set_one_file(self):
+        file_id = '6bdfea4a01830fdd4a585181c0b8068c'
+        mark_local_files_as_unavailable([file_id])
+        self.assertEqual(LocalFile.objects.filter(available=False).count(), 1)
+        self.assertFalse(LocalFile.objects.get(id=file_id).available)
+
+    def test_set_two_files(self):
+        file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
+        file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
+        mark_local_files_as_unavailable([file_id_1, file_id_2])
+        self.assertEqual(LocalFile.objects.filter(available=False).count(), 2)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).available)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).available)
+
+    def tearDown(self):
+        call_command('flush', interactive=False)
+        super(LocalFileUnAvailableByChecksum, self).tearDown()
 
 
 mock_content_file = tempfile.mkstemp()
@@ -324,6 +353,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     @patch('kolibri.core.content.utils.annotation.get_content_storage_file_path', return_value='')
     def test_set_one_file_not_exist(self, path_mock):
+        LocalFile.objects.filter(id=self.file_id_1).update(available=True)
         set_local_file_availability_from_disk(checksums=[self.file_id_1])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_1).available)
@@ -337,6 +367,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     @patch('kolibri.core.content.utils.annotation.get_content_storage_file_path', side_effect=[mock_content_file[1], ''])
     def test_set_two_files_one_exists(self, path_mock):
+        LocalFile.objects.filter(id=self.file_id_2).update(available=True)
         set_local_file_availability_from_disk(checksums=[self.file_id_1, self.file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertTrue(LocalFile.objects.get(id=self.file_id_1).available)
@@ -344,6 +375,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     @patch('kolibri.core.content.utils.annotation.get_content_storage_file_path', return_value='')
     def test_set_two_files_none_exist(self, path_mock):
+        LocalFile.objects.filter(id__in=[self.file_id_1, self.file_id_2]).update(available=True)
         set_local_file_availability_from_disk(checksums=[self.file_id_1, self.file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_1).available)
@@ -351,11 +383,13 @@ class LocalFileByDisk(TransactionTestCase):
 
     @patch('kolibri.core.content.utils.annotation.get_content_storage_file_path', return_value='')
     def test_set_all_files_none_exist(self, path_mock):
+        LocalFile.objects.update(available=True)
         set_local_file_availability_from_disk()
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
 
     @patch('kolibri.core.content.utils.annotation.get_content_storage_file_path', return_value=mock_content_file[1])
     def test_set_all_files_all_exist(self, path_mock):
+        LocalFile.objects.update(available=False)
         set_local_file_availability_from_disk()
         self.assertEqual(LocalFile.objects.exclude(available=True).count(), 0)
 

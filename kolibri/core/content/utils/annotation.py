@@ -126,27 +126,37 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
     bridge.end()
 
 
+def mark_local_files_as_unavailable(checksums):
+    mark_local_files_availability(checksums, False)
+
+
 def mark_local_files_as_available(checksums):
     """
     Shortcut method to update database if we are sure that the files are available.
     Can be used after successful downloads to flag availability without having to do expensive disk reads.
     """
-    bridge = Bridge(app_name=CONTENT_APP_NAME)
+    mark_local_files_availability(checksums, True)
 
-    LocalFileClass = bridge.get_class(LocalFile)
 
-    logger.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
+def mark_local_files_availability(checksums, availability):
+    if checksums:
+        bridge = Bridge(app_name=CONTENT_APP_NAME)
 
-    for i in range(0, len(checksums), CHUNKSIZE):
-        bridge.session.bulk_update_mappings(LocalFileClass, ({
-            'id': checksum,
-            'available': True
-        } for checksum in checksums[i:i + CHUNKSIZE]))
-        bridge.session.flush()
+        LocalFileClass = bridge.get_class(LocalFile)
 
-    bridge.session.commit()
+        logger.info('Setting availability to {availability} of {number} LocalFile objects based on passed in checksums'.format(
+            number=len(checksums), availability=availability))
 
-    bridge.end()
+        for i in range(0, len(checksums), CHUNKSIZE):
+            bridge.session.bulk_update_mappings(LocalFileClass, ({
+                'id': checksum,
+                'available': availability
+            } for checksum in checksums[i:i + CHUNKSIZE]))
+            bridge.session.flush()
+
+        bridge.session.commit()
+
+        bridge.end()
 
 
 def set_local_file_availability_from_disk(checksums=None):
@@ -164,18 +174,25 @@ def set_local_file_availability_from_disk(checksums=None):
         logger.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
-    checksums_to_update = []
+    checksums_to_set_available = []
+    checksums_to_set_unavailable = []
     for file in files:
         try:
-            # Only update if the file exists, *and* the localfile is set as unavailable.
-            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available:
-                checksums_to_update.append(file.id)
+            # Update if the file exists, *and* the localfile is set as unavailable.
+            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))):
+                if not file.available:
+                    checksums_to_set_available.append(file.id)
+            # Update if the file does not exist, *and* the localfile is set as available.
+            else:
+                if file.available:
+                    checksums_to_set_unavailable.append(file.id)
         except InvalidStorageFilenameError:
             continue
 
     bridge.end()
 
-    mark_local_files_as_available(checksums_to_update)
+    mark_local_files_as_available(checksums_to_set_available)
+    mark_local_files_as_unavailable(checksums_to_set_unavailable)
 
 
 def recurse_availability_up_tree(channel_id):
