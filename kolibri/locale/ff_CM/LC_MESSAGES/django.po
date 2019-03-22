@@ -1,20 +1,16 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: kolibri\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-02-21 19:57\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
-"Language-Team: Fulfulde Mbororoore\n"
-"Language: ff_fuv\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: fv\n"
-"X-Crowdin-File: /release-v0.12.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"Project-Id-Version: kolibri\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Fulfulde Mbororoore\n"
+"Language: ff_fuv\n"
+"PO-Revision-Date: 2019-03-21 08:16\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,19 +24,19 @@ msgstr "Suudu janngirde"
 msgid "Learner group"
 msgstr "Kawtal fukaraaɓe"
 
-#: kolibri/core/content/api.py:132
+#: kolibri/core/content/api.py:130
 msgid "Content"
 msgstr "Ko woni nder"
 
-#: kolibri/core/content/api.py:728
+#: kolibri/core/content/api.py:702
 msgid "The requested channel does not exist on the content server"
 msgstr "Wuro janngugo ngo ngiɗɗa walaa nder senndirɗum jannginillum"
 
-#: kolibri/core/content/models.py:278
+#: kolibri/core/content/models.py:283
 msgid "Unknown format"
 msgstr "Kompiita anndaaɗum"
 
-#: kolibri/core/device/serializers.py:50
+#: kolibri/core/device/serializers.py:53
 msgid "Language is not supported by Kolibri"
 msgstr "Ɗemngal nga'al tawaaka nder Kolibri"
 
@@ -79,4 +75,3 @@ msgstr "Koo a haɓda hesɗitingo labangal ngal kuutinirta jooni."
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Tawaayi ɗereeji kuwaaɗi. Hakkilaayi Kolibri e woodi fitina"
-

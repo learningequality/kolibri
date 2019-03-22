@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "Akaunti lenye jina hilo la mtumiaji tayari linatumika",
   "UserIndex.userProfileTitle": "Wasifu",
   "UserIndex.userSignInTitle": "Jiandikishe",
-  "UserIndex.userSignUpTitle": "Jiandikishe",
   "UserPageSnackbars.dismiss": "Ondoa",
   "UserPageSnackbars.signedOut": "Uliondolewa moja kwa moja kwa sababu ya kutotumia",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Nywila imebadilishwa"

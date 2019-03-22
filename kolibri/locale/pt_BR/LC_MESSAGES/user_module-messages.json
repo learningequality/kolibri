@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "Já existe uma conta para esse usuário",
   "UserIndex.userProfileTitle": "Perfil",
   "UserIndex.userSignInTitle": "Iniciar sessão",
-  "UserIndex.userSignUpTitle": "Inscrever-se",
   "UserPageSnackbars.dismiss": "Descartar",
   "UserPageSnackbars.signedOut": "Devido à inatividade, sua sessão foi automaticamente encerrada",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Senha alterada"
