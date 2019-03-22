@@ -127,7 +127,7 @@
 
   .inner-link {
     display: block;
-    overflow-x: hidden;
+    overflow: hidden;
     text-overflow: ellipsis;
   }
 
