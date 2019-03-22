@@ -97,7 +97,7 @@ export function createExamAndRoute(store, classId) {
     collection: classId,
     title: store.state.title,
     seed: store.state.seed,
-    question_count: store.state.numberOfQuestions,
+    question_count: store.state.selectedQuestions.length,
     question_sources: store.state.selectedQuestions,
     assignments: [{ collection: classId }],
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
