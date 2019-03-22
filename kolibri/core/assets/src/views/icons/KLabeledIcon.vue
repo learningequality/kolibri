@@ -4,7 +4,7 @@
     <div class="icon">
       <slot name="icon"></slot>
     </div>
-    <div class="label">
+    <div class="label" dir="auto">
       <slot></slot>
     </div>
   </span>
@@ -42,6 +42,7 @@
 
   .icon {
     position: absolute;
+    left: 0;
   }
 
   .label {

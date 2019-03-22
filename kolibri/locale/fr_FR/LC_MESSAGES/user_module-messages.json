@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "Un compte avec ce nom d'utilisateur existe déjà",
   "UserIndex.userProfileTitle": "Profil",
   "UserIndex.userSignInTitle": "Se connecter",
-  "UserIndex.userSignUpTitle": "S'inscrire",
   "UserPageSnackbars.dismiss": "Rejeter",
   "UserPageSnackbars.signedOut": "Vous avez été automatiquement déconnecté pour cause d’inactivité",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Mot de passe modifié"
