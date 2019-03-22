@@ -1,22 +1,28 @@
 <template>
 
   <div>
-
-    <PageHeader :title="topic.title" :progress="progress" style="font-size: 32px" />
-
-    <TextTruncator
-      v-if="topic.description"
-      :text="topic.description"
-      :maxHeight="90"
-      :showTooltip="false"
-      :showViewMore="true"
-      dir="auto"
-      class="page-description"
-    />
-    <div v-for="child in contents">
-      <ExpandableContentCardGroupGrid :child="child" />
+    <div style="padding-left: 16px; margin: 32px 0 8px 0">
+      <h1 class="page-header">
+        {{ topic.title }}
+        <ProgressIcon :progress="progress" />
+      </h1>
+      <TextTruncator
+        v-if="topic.description"
+        :text="topic.description"
+        :maxHeight="90"
+        :showTooltip="false"
+        :showViewMore="true"
+        dir="auto"
+        class="page-description"
+      />
     </div>
-
+    <ExpandableContentCardGroupGrid v-for="child in contents" v-if="contents[0].children.length" :child="child" />
+    <ContentCardGroupGrid
+      v-if="!contents[0].children.length"
+      :contents="contents"
+      :genContentLink="genContentLink"
+      style="padding-left: 16px; padding-top: 16px"
+    />
   </div>
 
 </template>
@@ -27,6 +33,7 @@
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -45,6 +52,7 @@
       PageHeader,
       ContentCardGroupGrid,
       TextTruncator,
+      ProgressIcon,
     },
     metaInfo() {
       let title;
@@ -94,6 +102,11 @@
 
 
 <style lang="scss" scoped>
+
+  .page-header {
+    margin: 0;
+    font-size: 40px;
+  }
 
   .page-description {
     margin-top: 1em;

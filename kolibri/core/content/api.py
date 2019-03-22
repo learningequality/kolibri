@@ -428,40 +428,6 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
         return obj
 
     @detail_route(methods=['get'])
-    def knowledge_map(self, request, pk=None, **kwargs):
-        def get_progress(node):
-            serializer = ContentNodeProgressViewset.serializer_class(node)
-            serializer.context['request'] = request
-            return serializer.data['progress_fraction']
-
-        def get_progress_by_id(id):
-            nodes = models.ContentNode.objects.filter(id=id)
-            return 0.0 if len(nodes) == 0 else get_progress(nodes[0])
-
-        def prerequisites_done(node):
-            prerequisites = node.has_prerequisite.all()
-            for prerequisite in prerequisites:
-                if get_progress(prerequisite) < 1.0:
-                    return False
-            return True
-
-        def get_children(parent_id, grand=False):
-            children = models.ContentNode.objects.filter(parent=parent_id)
-            serialized = self.serializer_class(children, many=True).data
-            for c, s in zip(children, serialized):
-                s['progress' if grand else 'progress_fraction'] = get_progress(c)
-                if grand:
-                    s['prerequisitesDone'] = prerequisites_done(c)
-            return serialized
-
-        children = get_children(pk)
-        for child in children:
-            grand_children = get_children(child['id'], grand=True)
-            child['children'] = grand_children
-        return Response({'results': children, 'progress': get_progress_by_id(pk)})
-
-
-    @detail_route(methods=['get'])
     def ancestors(self, request, **kwargs):
         cache_key = 'contentnode_slim_ancestors_{pk}'.format(pk=kwargs.get('pk'))
 

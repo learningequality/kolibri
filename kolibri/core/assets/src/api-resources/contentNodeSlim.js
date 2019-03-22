@@ -24,7 +24,4 @@ export default new Resource({
   fetchNextSteps(getParams) {
     return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
   },
-  fetchKnowdledgeMap(id) {
-    return this.fetchDetailCollection('knowledge_map', id);
-  },
 });

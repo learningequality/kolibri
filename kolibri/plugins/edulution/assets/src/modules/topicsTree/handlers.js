@@ -8,6 +8,7 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
+import { KnowledgeMapResource } from '../../apiResources';
 
 export function showTopicsChannel(store, id) {
   return store.dispatch('loading').then(() => {
@@ -114,7 +115,7 @@ export function showKnowledgeMap(store, id) {
     store.commit('SET_PAGE_NAME', PageNames.KNOWLEDGE_MAP);
     const promises = [
       ContentNodeResource.fetchModel({ id }), // the topic
-      ContentNodeSlimResource.fetchKnowdledgeMap(id), // the topic's children
+      KnowledgeMapResource.fetchKnowdledgeMap(id), // the topic's children
       ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
       store.dispatch('setChannelInfo'),
     ];

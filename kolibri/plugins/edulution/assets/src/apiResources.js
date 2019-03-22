@@ -10,7 +10,7 @@ import { Resource } from 'kolibri.lib.apiResource';
  */
 export const LearnerClassroomResource = new Resource({
   name: 'learnerclassroom',
-  namespace: 'learnplugin',
+  namespace: 'edulutionplugin',
 });
 
 /**
@@ -18,5 +18,14 @@ export const LearnerClassroomResource = new Resource({
  */
 export const LearnerLessonResource = new Resource({
   name: 'learnerlesson',
-  namespace: 'learnplugin',
+  namespace: 'edulutionplugin',
+});
+
+export const KnowledgeMapResource = new Resource({
+  name: 'knowledgemap',
+  namespace: 'edulutionplugin',
+
+  fetchKnowdledgeMap(id) {
+    return this.fetchModel({ id });
+  },
 });

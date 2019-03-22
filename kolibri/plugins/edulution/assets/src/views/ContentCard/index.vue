@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile, 'prerequisites-not-done': !prerequisitesDone }">
+  <router-link :to="link" class="card" :class="{ 'mobile-card': isMobile, 'prerequisites-not-done': pendingPrerequisites.length}">
     <CardThumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
@@ -114,9 +114,9 @@
         type: Number,
         required: false,
       },
-      prerequisitesDone: {
-        type: Boolean,
-        default: true,
+      pendingPrerequisites: {
+        type: Array,
+        default: [],
       },
     },
     computed: {
