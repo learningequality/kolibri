@@ -467,7 +467,7 @@
         }
 
         if (snackbarString) {
-          this.createSnackbar(snackbarString, { item: contentNode.title });
+          this.createSnackbar(this.$tr(snackbarString, { item: contentNode.title }));
         }
       },
       handleMoreResults() {
