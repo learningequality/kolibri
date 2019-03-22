@@ -212,9 +212,9 @@
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
-  import CeateExamPage from './index';
+  import CreateExamPage from './index';
 
-  const createExamPageStrings = crossComponentTranslator(CeateExamPage);
+  const createExamPageStrings = crossComponentTranslator(CreateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
@@ -263,6 +263,7 @@
         'loadingNewQuestions',
         'selectedQuestions',
         'selectedExercises',
+        'availableQuestions',
       ]),
       annotatedQuestions() {
         const counts = {};

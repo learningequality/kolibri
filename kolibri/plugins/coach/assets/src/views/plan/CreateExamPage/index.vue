@@ -43,8 +43,8 @@
             type="number"
             :min="1"
             :max="maxQs"
-            :invalidText="$tr('numQuestionsBetween')"
-            :invalid="numQuestionsInvalid"
+            :invalid="Boolean(showError && numQuestIsInvalidText)"
+            :invalidText="numQuestIsInvalidText"
             :label="$tr('numQuestions')"
             class="number-field"
             @blur="numQuestionsBlurred = true"
@@ -252,7 +252,7 @@
       },
       numQuestions: {
         get() {
-          return this.$store.state.examCreation.numberOfQuestions;
+          return this.numberOfQuestions;
         },
         set(value) {
           // If it is cleared out, then set vuex state to null so it can be caught during
@@ -347,11 +347,23 @@
         }
         return this.ancestors[this.ancestors.length - 1].description;
       },
-      numQuestionsInvalid() {
-        return (
-          this.numQuestionsBlurred &&
-          (this.numQuestions === null || this.numQuestions < 0 || this.numQuestions > this.maxQs)
-        );
+      numQuestIsInvalidText() {
+        if (this.numQuestions === '') {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions < 1 || this.numQuestions > 50) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (!Number.isInteger(this.numQuestions)) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions > this.availableQuestions) {
+          return this.$tr('numQuestionsExceed', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: this.availableQuestions,
+          });
+        }
+        return null;
       },
     },
     watch: {
