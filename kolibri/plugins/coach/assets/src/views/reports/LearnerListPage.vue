@@ -23,6 +23,7 @@
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
+          v-if="className"
           :text="$tr('newUserButtonLabel')"
           :primary="true"
           @click="displayModal(Modals.COACH_CREATE_USER)"
@@ -84,7 +85,11 @@
 
     <p v-if="!standardDataTable.length">{{ $tr('noLearners') }}</p>
 
-    <CoachUserCreateModal v-if="modalShown===Modals.COACH_CREATE_USER" />
+    <CoachUserCreateModal
+      v-if="modalShown===Modals.COACH_CREATE_USER"
+      :classId="thisClassId"
+      :className="thisClassName"
+    />
 
   </div>
 
@@ -117,6 +122,7 @@
     metaInfo() {
       return {
         title: this.documentTitle,
+        className: this.className,
       };
     },
     components: {
@@ -154,7 +160,7 @@
       documentTitleForLearners: 'Learners',
     },
     computed: {
-      ...mapState(['classId', 'pageName', 'reportRefreshInterval']),
+      ...mapState(['classId', 'className', 'pageName', 'reportRefreshInterval']),
       ...mapGetters('reports', ['standardDataTable', 'exerciseCount', 'contentCount']),
       ...mapState('reports', ['channelId', 'contentScopeSummary', 'contentScopeId', 'userScope']),
       ...mapGetters(['currentUserId', 'isSuperuser', 'isCoach']),
@@ -172,6 +178,12 @@
       },
       isExercisePage() {
         return this.contentScopeSummary.kind === ContentNodeKinds.EXERCISE;
+      },
+      thisClassName() {
+        return this.className;
+      },
+      thisClassId() {
+        return this.classId;
       },
       isRootLearnerPage() {
         return this.pageName === PageNames.LEARNER_LIST;

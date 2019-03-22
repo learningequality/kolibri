@@ -180,3 +180,52 @@ class IsAdminForOwnFacility(BasePermissions):
             return queryset.filter(dataset=user.dataset)
         else:
             return queryset.none()
+
+
+class AllowCoach(BasePermissions):
+
+    def __init__(self, field_name=".", read_only=False):
+        self.read_only = read_only
+
+    def _user_is_coach(self, user, obj=None):
+
+        # Check if the current user is a coach
+
+        from ..models import Classroom
+
+        if obj:
+            if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
+                return False
+
+        classrooms = Classroom.objects.filter(dataset=user.dataset)
+
+        is_coach = 0
+
+        for classroom in classrooms:
+            if user.has_role_for_collection(role_kinds.COACH, classroom):
+                        is_coach += 1
+
+        return is_coach > 0
+
+
+
+
+
+    def user_can_create_object(self, user, obj):
+        return (not self.read_only) and self._user_is_coach(user, obj)
+
+    def user_can_read_object(self, user, obj):
+        return self._user_is_coach(user, obj)
+
+    def user_can_update_object(self, user, obj):
+        return (not self.read_only) and self._user_is_coach(user, obj)
+
+    def user_can_delete_object(self, user, obj):
+        return (not self.read_only) and self._user_is_coach(user, obj)
+
+    def readable_by_user_filter(self, user, queryset):
+        if self._user_is_coach(user):
+            return queryset.filter(dataset=user.dataset)
+        else:
+            return queryset.none()
+

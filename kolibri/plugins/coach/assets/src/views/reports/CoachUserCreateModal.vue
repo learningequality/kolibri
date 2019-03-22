@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('createNewUserHeader')"
+    :title="$tr('createNewUserHeader',{thisClassName})"
     :submitText="$tr('saveUserButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
@@ -48,21 +48,6 @@
         :invalidText="confirmedPasswordIsInvalidText"
         @blur="confirmedPasswordBlurred = true"
       />
-
-      <fieldset v-if="coachIsSelected" class="coach-selector">
-        <KRadioButton
-          v-model="classCoach"
-          :label="$tr('classCoachLabel')"
-          :description="$tr('classCoachDescription')"
-          :value="true"
-        />
-        <KRadioButton
-          v-model="classCoach"
-          :label="$tr('facilityCoachLabel')"
-          :description="$tr('facilityCoachDescription')"
-          :value="false"
-        />
-      </fieldset>
     </section>
   </KModal>
 
@@ -73,16 +58,20 @@
 
   import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { FacilityUsernameResource } from 'kolibri.resources';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import {
+    filterAndSortUsers,
+    userMatchesFilter,
+  } from '../../../../../device_management/assets/src/userSearchUtils';
 
   export default {
     name: 'CoachUserCreateModal',
     $trs: {
-      createNewUserHeader: 'Create new learner',
+      createNewUserHeader: 'Create new learner in {thisClassName}',
       cancel: 'Cancel',
       name: 'Full name',
       username: 'Username',
@@ -91,13 +80,6 @@
       userType: 'User type',
       saveUserButtonLabel: 'Save',
       learner: 'Learner',
-      coach: 'Coach',
-      admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
-      classCoachLabel: 'Class coach',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
-      facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
@@ -106,12 +88,23 @@
       required: 'This field is required',
     },
     components: {
-      KRadioButton,
       KModal,
       KTextbox,
     },
+    props: {
+      classId: {
+        type: String,
+        required: true,
+      },
+      className: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
+        thisClassName: this.className,
+        thisClassId: this.classId,
         fullName: '',
         username: '',
         password: '',
@@ -128,23 +121,16 @@
         passwordBlurred: false,
         confirmedPasswordBlurred: false,
         formSubmitted: false,
+        newUser: [],
+        usernames: [],
       };
     },
     computed: {
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
       newUserRole() {
-        if (this.coachIsSelected) {
-          if (this.classCoach) {
-            return UserKinds.ASSIGNABLE_COACH;
-          }
-          return UserKinds.COACH;
-        }
         // Admin or Learner
         return this.kind.value;
-      },
-      coachIsSelected() {
-        return this.kind.value === UserKinds.COACH;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
@@ -158,8 +144,8 @@
         return Boolean(this.nameIsInvalidText);
       },
       usernameAlreadyExists() {
-        return this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === this.username.toLowerCase()
+        return this.usernames.find(
+          username => username.toLowerCase() === this.username.toLowerCase()
         );
       },
       usernameIsInvalidText() {
@@ -213,9 +199,13 @@
         );
       },
     },
+    beforeMount() {
+      this.setSuggestions();
+    },
     methods: {
       ...mapActions('userManagement', ['createUser', 'displayModal']),
       ...mapActions(['handleApiError']),
+      ...mapActions('classAssignMembers', ['enrollLearnersInClass']),
       createNewUser() {
         this.usernameAlreadyExistsOnServer = false;
         this.formSubmitted = true;
@@ -231,7 +221,9 @@
             password: this.password,
           }).then(
             () => {
+              this.enrollLearnersInClass({ classId: this.thisClassId, users: this.getUsers() });
               this.close();
+              location.reload();
             },
             error => {
               const usernameAlreadyExistsError = CatchErrors(error, [
@@ -248,6 +240,26 @@
         } else {
           this.focusOnInvalidField();
         }
+      },
+      setSuggestions() {
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.currentFacilityId,
+          },
+        })
+          .then(users => {
+            this.usernames = users.map(user => user.username);
+          })
+          .catch(() => {
+            this.usernames = [];
+          });
+      },
+      getUsers() {
+        this.newUser.push(
+          filterAndSortUsers(this.facilityUsers, user => userMatchesFilter(user, this.username))[0]
+            .id
+        );
+        return this.newUser;
       },
       focusOnInvalidField() {
         if (this.nameIsInvalid) {
