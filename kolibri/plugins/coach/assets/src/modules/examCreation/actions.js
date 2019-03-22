@@ -37,7 +37,7 @@ export function updateAvailableQuestions(store) {
   // Only bother checking this if there is any doubt that we have sufficient
   // questions available. If we have selected more exercises than we allow questions
   // then we are sure to have this.
-  if (selectedExercises.length > 0) {
+  if (Object.keys(selectedExercises).length > 0) {
     if (MAX_QUESTIONS > Object.keys(selectedExercises).length) {
       return ContentNodeResource.fetchNodeAssessments(Object.keys(selectedExercises)).then(resp => {
         store.commit('SET_AVAILABLE_QUESTIONS', resp.entity);
