@@ -37,36 +37,42 @@
           />
         </KGridItem>
         <KGridItem sizes="100, 100, 50" percentage>
-          <KTextbox
-            ref="questionsInput"
-            v-model.trim.number="numQuestions"
-            type="number"
-            :min="1"
-            :max="maxQs"
-            :invalid="Boolean(showError && numQuestIsInvalidText)"
-            :invalidText="numQuestIsInvalidText"
-            :label="$tr('numQuestions')"
-            class="number-field"
-            @blur="numQuestionsBlurred = true"
-          />
-          <UiIconButton
-            type="flat"
-            aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === 1"
-            @click="numQuestions -= 1"
-          >
-            <mat-svg name="remove" category="content" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
-            aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === maxQs"
-            @click="numQuestions += 1"
-          >
-            <mat-svg name="add" category="content" />
-          </UiIconButton>
+          <KGrid>
+            <KGridItem sizes="100, 100, 75" percentage>
+              <KTextbox
+                ref="questionsInput"
+                v-model.trim.number="numQuestions"
+                type="number"
+                :min="1"
+                :max="maxQs"
+                :invalid="Boolean(showError && numQuestIsInvalidText)"
+                :invalidText="numQuestIsInvalidText"
+                :label="$tr('numQuestions')"
+                class="number-field"
+                @blur="numQuestionsBlurred = true"
+              />
+            </KGridItem>
+            <KGridItem sizes="100, 100, 25" percentage>
+              <UiIconButton
+                type="flat"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="numQuestions === 1"
+                @click="numQuestions -= 1"
+              >
+                <mat-svg name="remove" category="content" />
+              </UiIconButton>
+              <UiIconButton
+                type="flat"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="numQuestions === maxQs"
+                @click="numQuestions += 1"
+              >
+                <mat-svg name="add" category="content" />
+              </UiIconButton>
+            </KGridItem>
+          </KGrid>
         </KGridItem>
       </KGrid>
 
@@ -571,6 +577,7 @@
 
   .number-field {
     display: inline-block;
+    width: 100%;
     margin-right: 8px;
   }
 
