@@ -430,55 +430,44 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
+        let snackbarString;
         if (isChecked) {
           this.showError = false;
           this.addToSelectedExercises(this.addableExercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: this.topicTitle }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else {
           this.removeFromSelectedExercises(this.allExercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: this.topicTitle }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
         }
+        this.createSnackbar(this.$tr(snackbarString, { item: this.topicTitle }));
       },
       toggleSelected({ checked, contentId }) {
         let exercises;
+        let snackbarString;
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else if (checked && !isTopic) {
           this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
+        }
+
+        if (snackbarString) {
+          this.createSnackbar(this.$tr(snackbarString, { item: contentNode.title }));
         }
       },
       handleMoreResults() {

@@ -209,10 +209,7 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
-            this.createSnackbar({
-              text: this.$tr('permissionChangeConfirmation'),
-              autoDismiss: true,
-            });
+            this.createSnackbar(this.$tr('permissionChangeConfirmation'));
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;
           })

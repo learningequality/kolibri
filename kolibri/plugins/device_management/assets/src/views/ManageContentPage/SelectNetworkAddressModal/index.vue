@@ -58,17 +58,11 @@
         this.stage = Stages.SELECT_ADDRESS;
       },
       handleAddedAddress() {
-        this.createSnackbar({
-          text: this.$tr('addAddressSnackbarText'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('addAddressSnackbarText'));
         this.goToSelectAddress();
       },
       handleRemovedAddress() {
-        this.createSnackbar({
-          text: this.$tr('removeAddressSnackbarText'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('removeAddressSnackbarText'));
       },
       handleSelectAddressSubmit(address) {
         if (this.isImportingMore) {

@@ -156,10 +156,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar({
-              text: groupMgmtStrings.$tr('removedLearnersNotice', { value: 1 }),
-              autoDismiss: true,
-            });
+            this.createSnackbar(groupMgmtStrings.$tr('removedLearnersNotice', { value: 1 }));
             this.userForRemoval = null;
           });
         }
