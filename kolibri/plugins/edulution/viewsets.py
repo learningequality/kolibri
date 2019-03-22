@@ -71,7 +71,7 @@ class KnowledgeMapViewset(ReadOnlyModelViewSet):
             return map(lambda n: {'title': n.title, 'content_id': n.content_id, 'progress': get_progress(n)}, nodes)
 
         def get_children(parent_id, grand=False):
-            children = ContentNode.objects.filter(parent=parent_id)
+            children = ContentNode.objects.filter(parent=parent_id, available=True)
             serialized = ContentNodeSlimSerializer(children, many=True).data
             for c, s in zip(children, serialized):
                 s['progress' if grand else 'progress_fraction'] = get_progress(c)

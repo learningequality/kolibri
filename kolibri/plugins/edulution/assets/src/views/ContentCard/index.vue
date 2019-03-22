@@ -116,7 +116,9 @@
       },
       pendingPrerequisites: {
         type: Array,
-        default: [],
+        default() {
+          return [];
+        },
       },
     },
     computed: {

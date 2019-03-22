@@ -31,9 +31,9 @@
         channelRootId: state => (state.channel || {}).root_id,
         channelTitle: state => (state.channel || {}).title,
         topicTitle: state => (state.topic || {}).title,
-        topicCrumbs: state => (state.topic || {}).breadcrumbs || [],
+        topicId: state => (state.topic || {}).id,
         contentTitle: state => (state.content || {}).title,
-        contentCrumbs: state => (state.content || {}).breadcrumbs || [],
+        crumbs: state => (state.content || {}).breadcrumbs || (state.topic || {}).breadcrumbs || [],
       }),
       inLearn() {
         return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
@@ -51,19 +51,25 @@
         ];
       },
       middleTopicBreadcrumbs() {
-        let crumbs = [];
-        // Link to top-level Channel
-        if (this.pageName === PageNames.TOPICS_CONTENT || this.topicCrumbs.length != 0) {
-          crumbs.push({
-            text: this.channelTitle,
+        function crumb(text, id) {
+          return {
+            text: text,
             link: {
               name: PageNames.KNOWLEDGE_MAP,
               params: {
-                id: this.channelRootId,
+                id: id,
               },
             },
-          });
+          };
         }
+
+        let crumbs = [];
+        if (this.topicId !== this.channelRootId) {
+          crumbs.push(crumb(this.channelTitle, this.channelRootId));
+        }
+        this.crumbs.forEach(c => {
+          crumbs.push(crumb(c.title, c.id));
+        });
         return crumbs;
       },
       lastTopicBreadcrumb() {
