@@ -22,14 +22,19 @@ def calculate_thread_pool():
     Servers with more memory can deal with more threads.
     Calculations are done for servers with more than 2 Gb of RAM
     """
-    pool = 10
+    MIN_POOL = 50
+    MAX_POOL = 100
+    pool = MIN_POOL
     if psutil:
+        MIN_MEM = 2
+        MAX_MEM = 4
         total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
-        if total_memory > 2:
-            pool = int(45 * total_memory - 80)  # 10 for 2 Gb,100 for 4 Gb
-            pool = 200 if pool > 200 else pool
+        if MIN_MEM < total_memory < MAX_MEM:
+            pool = MIN_POOL + int((MAX_POOL - MIN_POOL) * float(total_memory - MIN_MEM) / (MAX_MEM - MIN_MEM))
+        elif total_memory >= MAX_MEM:
+            pool = MAX_POOL
     elif sys.platform.startswith("darwin"):  # Considering MacOS has at least 4 Gb of RAM
-        pool = 100
+        pool = MAX_POOL
     return pool
 
 
