@@ -76,10 +76,25 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Lesson.objects.all()
 
 
+class ClassroomNotificationsPermissions(permissions.BasePermission):
+    """
+    Allow only users with admin/coach permissions on a collection.
+    """
+
+    def has_permission(self, request, view):
+        collection_id = view.kwargs.get('collection_id')
+
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+        except (Collection.DoesNotExist, ValueError):
+            return False
+
+
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
-    permission_classes = (KolibriReportPermissions,)
+    permission_classes = (ClassroomNotificationsPermissions,)
     serializer_class = LearnerNotificationSerializer
     pagination_class = OptionalPageNumberPagination
     pagination_class.page_size = 10
