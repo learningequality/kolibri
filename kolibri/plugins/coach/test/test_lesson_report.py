@@ -26,6 +26,7 @@ class LessonReportTestCase(APITestCase):
         provision_device()
         self.facility = Facility.objects.create(name='My Facility')
         self.classroom = Classroom.objects.create(name='My Classroom', parent=self.facility)
+        self.another_classroom = Classroom.objects.create(name='My Another Classroom', parent=self.facility)
 
         self.facility_admin = helpers.create_facility_admin(
             username="facility_admin",
@@ -38,6 +39,24 @@ class LessonReportTestCase(APITestCase):
             facility=self.facility,
             classroom=self.classroom,
             is_facility_coach=True
+        )
+        self.facility_coach = helpers.create_coach(
+            username="facility_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            is_facility_coach=True
+        )
+        self.classroom_coach = helpers.create_coach(
+            username="classroom_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=self.classroom
+        )
+        self.another_classroom_coach = helpers.create_coach(
+            username="another_classroom_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            classroom=self.another_classroom
         )
         self.classroom_learner = helpers.create_learner(
             username="classroom_learner",
@@ -87,10 +106,69 @@ class LessonReportTestCase(APITestCase):
         self.lessonreport_basename = 'kolibri:coach:lessonreport'
         # Need ContentSummaryLog
 
-    def test_learner_cannot_access(self):
+    def test_anon_user_cannot_access_list(self):
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-list'))
+
+        self.assertEqual(get_response.status_code, 403)
+
+    def test_learner_cannot_access_list(self):
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-list'))
+
+        self.assertEqual(get_response.status_code, 403)
+
+    def test_classroom_coach_cannot_access_list(self):
+        self.client.login(username=self.classroom_coach.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-list'))
+
+        self.assertEqual(get_response.status_code, 403)
+
+    def test_facility_coach_can_access_list(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-list'))
+
+        self.assertEqual(get_response.status_code, 200)
+
+    def test_facility_admin_can_access_list(self):
+        self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-list'))
+
+        self.assertEqual(get_response.status_code, 200)
+
+    def test_anon_user_cannot_access_detail(self):
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
+        self.assertEqual(get_response.status_code, 403)
+
+    def test_learner_cannot_access_detail(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
         get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
         self.assertEqual(get_response.status_code, 403)
+
+    def test_another_classroom_coach_cannot_access_detail(self):
+        self.client.login(username=self.another_classroom_coach.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
+        self.assertEqual(get_response.status_code, 403)
+
+    def test_classroom_coach_can_access_detail(self):
+        self.client.login(username=self.classroom_coach.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
+        self.assertEqual(get_response.status_code, 200)
+
+    def test_facility_coach_can_access_detail(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
+        self.assertEqual(get_response.status_code, 200)
+
+    def test_facility_admin_can_access_detail(self):
+        self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
+        get_response = self.client.get(reverse(self.lessonreport_basename + '-detail', kwargs={'pk': self.lesson.id}))
+
+        self.assertEqual(get_response.status_code, 200)
 
     def test_no_progress_logged(self):
         self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
