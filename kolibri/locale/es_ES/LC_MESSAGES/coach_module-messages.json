@@ -316,7 +316,7 @@
   "GroupEnrollPage.userTableLabel": "Lista de usuarios",
   "GroupMembersPage.enrollButton": "Inscribir estudiantes",
   "GroupMembersPage.fullName": "Nombre completo",
-  "GroupMembersPage.groupDoesNotExist": "",
+  "GroupMembersPage.groupDoesNotExist": "Este grupo no existe",
   "GroupMembersPage.groupsHeader": "Grupos",
   "GroupMembersPage.noLearnersInGroup": "No hay estudiantes en este grupo",
   "GroupMembersPage.removeButton": "Eliminar",
