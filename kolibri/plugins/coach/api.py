@@ -70,8 +70,29 @@ class KolibriReportPermissions(permissions.BasePermission):
             return False
 
 
+class LessonReportPermissions(permissions.BasePermission):
+    """
+    List - check if requester has coach/admin permissions on whole facility.
+    Detail - check if requester has permissions on the Classroom.
+    """
+
+    def has_permission(self, request, view):
+        report_pk = view.kwargs.get('pk', None)
+        if report_pk is None:
+            collection_id = request.user.facility_id
+        else:
+            collection_id = Lesson.objects.get(pk=report_pk).collection.id
+
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+        except (Collection.DoesNotExist, ValueError):
+            return False
+
+
 class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, KolibriReportPermissions,)
+    permission_classes = (permissions.IsAuthenticated, LessonReportPermissions,)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()
 
@@ -85,6 +106,7 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
         collection_id = view.kwargs.get('collection_id')
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+
         try:
             return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
         except (Collection.DoesNotExist, ValueError):
