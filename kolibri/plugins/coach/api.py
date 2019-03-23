@@ -38,38 +38,6 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class KolibriReportPermissions(permissions.BasePermission):
-
-    # check if requesting user has permission for collection or user
-    def has_permission(self, request, view):
-        if isinstance(view, LessonReportViewset):
-            report_pk = view.kwargs.get('pk', None)
-            if report_pk is None:
-                # If requesting list view, check if requester has coach/admin permissions on whole facility
-                collection_kind = 'facility'
-                collection_or_user_pk = request.user.facility_id
-            else:
-                # If requesting detail view, only check if requester has permissions on the Classroom
-                collection_kind = 'classroom'
-                collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
-
-        else:
-            if isinstance(view, ClassroomNotificationsViewset):
-                collection_kind = 'classroom'
-            else:
-                collection_kind = view.kwargs.get('collection_kind', 'user')
-            collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
-
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        try:
-            if 'user' == collection_kind:
-                return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
-            else:
-                return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
-        except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
-            return False
-
-
 class LessonReportPermissions(permissions.BasePermission):
     """
     List - check if requester has coach/admin permissions on whole facility.
