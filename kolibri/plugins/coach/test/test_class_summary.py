@@ -8,9 +8,9 @@ from django.core.urlresolvers import reverse
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 
+from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons import models
@@ -27,15 +27,18 @@ class ClassSummaryTestCase(APITestCase):
         provision_device()
         self.facility = Facility.objects.create(name="MyFac")
         self.classroom = Classroom.objects.create(name='classrom', parent=self.facility)
-        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
+
+        self.facility_admin = helpers.create_facility_admin(
+            username="facility_admin",
+            password=DUMMY_PASSWORD,
+            facility=self.facility
+        )
+
         self.lesson = models.Lesson.objects.create(
             title="title",
             is_active=True,
             collection=self.classroom,
-            created_by=self.admin
+            created_by=self.facility_admin
         )
 
     def test_non_existent_nodes_dont_show_up_in_lessons(self):
@@ -47,7 +50,7 @@ class ClassSummaryTestCase(APITestCase):
         self.lesson.resources = [real_data, switched_data, fake_data]
         self.lesson.save()
 
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:coach:classsummary-detail", kwargs={'pk': self.classroom.id}))
         node_ids = response.data['lessons'][0]['node_ids']
         self.assertIn(real_data['contentnode_id'], node_ids)
