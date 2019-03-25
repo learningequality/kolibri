@@ -59,6 +59,15 @@ kolibri-source (0.12.0~b4-0ubuntu1) trusty; urgency=medium
 
  -- Benjamin Bach <benjamin@learningequality.org>  Sun, 10 Feb 2019 19:32:25 +0100
 
+
+kolibri-source (0.11.1-0ubuntu4) trusty; urgency=medium
+
+  * Fix for KOLIBRI_HOME wrongly set if run in certain sudo environments #62
+  * Spanish translation of debian installation process #59
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 14 Feb 2019 21:04:19 +0100
+
+
 kolibri-source (0.11.1-0ubuntu3) trusty; urgency=medium
 
   * Fixes primary user group on existing system service owners
