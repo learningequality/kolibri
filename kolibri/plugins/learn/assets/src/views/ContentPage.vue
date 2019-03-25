@@ -13,16 +13,6 @@
       :isTopic="isTopic"
     />
 
-    <div v-if="parentTopic" class="topic-link">
-      <KLabeledIcon :tooltipText="$tr('topicLocationTooltip')">
-        <KIcon slot="icon" topic />
-        <KRouterLink
-          :text="parentTopic.title"
-          :to="$router.getRoute('TOPICS_TOPIC', { id: parentTopic.id })"
-        />
-      </KLabeledIcon>
-    </div>
-
     <ContentRenderer
       v-if="!content.assessment"
       :id="content.id"
@@ -145,9 +135,6 @@
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
@@ -181,9 +168,6 @@
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,
-      KIcon,
-      KLabeledIcon,
-      KRouterLink,
     },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer

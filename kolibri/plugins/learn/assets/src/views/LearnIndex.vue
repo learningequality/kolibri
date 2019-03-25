@@ -26,6 +26,8 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import lastItem from 'lodash/last';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
@@ -46,6 +48,8 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
+
+  const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
 
   // Bottom toolbar is 111px high on mobile, 113px normally.
   // We reserve the smaller number so there is no gap on either screen size.
@@ -85,6 +89,7 @@
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
+        currentLesson: 'currentLesson',
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
@@ -100,7 +105,7 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           return {
-            appBarTitle: this.lessonContent.title || '',
+            appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: false,
@@ -123,6 +128,7 @@
 
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
+          let appBarTitle;
           const { searchTerm, last } = this.$route.query;
           if (searchTerm) {
             immersivePageRoute = this.$router.getRoute(
@@ -135,14 +141,22 @@
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
+            const trString = {
+              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
+              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
+              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
+              [PageNames.RECOMMENDED]: 'recommended',
+            }[last];
+            appBarTitle = RecommendedSubpageStrings.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute('TOPICS_TOPIC', {
               id: this.topicsTreeContent.parent,
             });
+            appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
           }
           return {
-            appBarTitle: this.topicsTreeContent.title,
+            appBarTitle,
             immersivePage: true,
             immersivePageRoute,
             immersivePagePrimary: false,
