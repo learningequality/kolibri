@@ -161,3 +161,20 @@ class LearnerClassroomTestCase(APITestCase):
         self.client.login(username='learner', password='password')
         get_response = self.client.get(reverse(self.basename + '-detail', kwargs={'pk': self.own_classroom.id}))
         self.assertEqual(len(get_response.data['assignments']['lessons']), 1)
+
+    def test_learner_only_sees_lessons_for_own_classroom(self):
+        classroom = Classroom.objects.create(name="Other Classroom", parent=self.facility)
+        lesson = Lesson.objects.create(
+            title='Lesson',
+            collection=classroom,
+            created_by=self.coach_user,
+            is_active=True,
+        )
+        LessonAssignment.objects.create(
+            lesson=lesson,
+            collection=classroom,
+            assigned_by=self.coach_user,
+        )
+        self.client.login(username='learner', password='password')
+        get_response = self.client.get(reverse(self.basename + '-list'))
+        self.assertEqual(len(get_response.data[0]['assignments']['lessons']), 0)
