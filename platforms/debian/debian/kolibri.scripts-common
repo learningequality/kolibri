@@ -264,6 +264,14 @@ kolibri_configure()
         fi
         addgroup --system "$new_group_name"
         usermod -g "$KOLIBRI_USER" "$new_group_name"
+
+        # If a ~/.kolibri already existed, then set group ownership
+        DEFAULT_KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
+        if [ -e "$DEFAULT_KOLIBRI_HOME" ]
+        then
+            echo "Changing group ownership on $DEFAULT_KOLIBRI_HOME"
+            chgrp --recursive "$new_group_name" "$DEFAULT_KOLIBRI_HOME"
+        fi
     fi
 
     # After the user has been successfully created, save it in the configuration
