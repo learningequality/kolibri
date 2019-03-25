@@ -150,7 +150,7 @@
             appBarTitle = RecommendedSubpageStrings.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
-            immersivePageRoute = this.$router.getRoute('TOPICS_TOPIC', {
+            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
               id: this.topicsTreeContent.parent,
             });
             appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
