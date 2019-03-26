@@ -10,7 +10,8 @@ RUN apt-get update -y && \
       sudo \
       software-properties-common \
       ttf-mscorefonts-installer \
-      wine-stable
+      wine-stable \
+      wine32
 
 RUN git lfs install
 
