@@ -9,6 +9,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import Collection
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -207,11 +209,23 @@ def data(Serializer, queryset):
     return Serializer(queryset, many=True).data
 
 
-class ClassSummaryViewSet(viewsets.ViewSet):
+class ClassSummaryPermissions(permissions.BasePermission):
+    """
+    Allow only users with admin/coach permissions on the classroom.
+    """
 
-    # TODO use more granular permissions. Not sure if KolibriReportPermissions will
-    # work as is, though.
-    permission_classes = (permissions.IsAuthenticated,)
+    def has_permission(self, request, view):
+        classroom_id = view.kwargs.get('pk')
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=classroom_id))
+        except (Collection.DoesNotExist, ValueError):
+            return False
+
+
+class ClassSummaryViewSet(viewsets.ViewSet):
+    permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions,)
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)

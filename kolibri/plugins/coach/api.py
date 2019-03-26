@@ -38,48 +38,53 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class KolibriReportPermissions(permissions.BasePermission):
+class LessonReportPermissions(permissions.BasePermission):
+    """
+    List - check if requester has coach/admin permissions on whole facility.
+    Detail - check if requester has permissions on the Classroom.
+    """
 
-    # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        if isinstance(view, LessonReportViewset):
-            report_pk = view.kwargs.get('pk', None)
-            if report_pk is None:
-                # If requesting list view, check if requester has coach/admin permissions on whole facility
-                collection_kind = 'facility'
-                collection_or_user_pk = request.user.facility_id
-            else:
-                # If requesting detail view, only check if requester has permissions on the Classroom
-                collection_kind = 'classroom'
-                collection_or_user_pk = Lesson.objects.get(pk=report_pk).collection.id
-
+        report_pk = view.kwargs.get('pk', None)
+        if report_pk is None:
+            collection_id = request.user.facility_id
         else:
-            if isinstance(view, ClassroomNotificationsViewset):
-                collection_kind = 'classroom'
-            else:
-                collection_kind = view.kwargs.get('collection_kind', 'user')
-            collection_or_user_pk = view.kwargs.get('collection_id', view.kwargs.get('pk'))
+            collection_id = Lesson.objects.get(pk=report_pk).collection.id
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+
         try:
-            if 'user' == collection_kind:
-                return request.user.has_role_for(allowed_roles, FacilityUser.objects.get(pk=collection_or_user_pk))
-            else:
-                return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_or_user_pk))
-        except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+        except (Collection.DoesNotExist, ValueError):
             return False
 
 
 class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, KolibriReportPermissions,)
+    permission_classes = (permissions.IsAuthenticated, LessonReportPermissions,)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()
+
+
+class ClassroomNotificationsPermissions(permissions.BasePermission):
+    """
+    Allow only users with admin/coach permissions on a collection.
+    """
+
+    def has_permission(self, request, view):
+        collection_id = view.kwargs.get('collection_id')
+
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+
+        try:
+            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+        except (Collection.DoesNotExist, ValueError):
+            return False
 
 
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
 
-    permission_classes = (KolibriReportPermissions,)
+    permission_classes = (ClassroomNotificationsPermissions,)
     serializer_class = LearnerNotificationSerializer
     pagination_class = OptionalPageNumberPagination
     pagination_class.page_size = 10
