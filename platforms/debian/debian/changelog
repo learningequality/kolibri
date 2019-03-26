@@ -1,6 +1,6 @@
 kolibri-source (0.12.2-0ubuntu1) trusty; urgency=medium
 
-  * debian/rules: remove unneeded files from sentry sdk
+  * debian/patches/sentry_removal.diff: remove unneeded files from sentry sdk
   * New upstream release
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 25 Mar 2019 17:05:06 +0100
@@ -89,7 +89,7 @@ kolibri-source (0.11.1-0ubuntu1) trusty; urgency=medium
 
 kolibri-source (0.11.0-0ubuntu1) trusty; urgency=medium
 
-  * New upstream release 
+  * New upstream release
 
  --  Lingyi Wang <lingyi@learningequality.org>  Tue, 06 Nov 2018 22:39:29 +0000
 
