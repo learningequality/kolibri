@@ -111,7 +111,8 @@ class LearnerClassroomSerializer(ModelSerializer):
         )
         filtered_lessons = Lesson.objects.filter(
             lesson_assignments__in=lesson_assignments,
-            is_active=True
+            is_active=True,
+            collection=instance,
         ).distinct()
 
         exam_assignments = HierarchyRelationsFilter(ExamAssignment.objects.all()) \
