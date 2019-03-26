@@ -82,10 +82,28 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansGujarati.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+A81-A83,U+A85-A8D,U+A8F-A91,U+A93-AA8,U+AAA-AB0,U+AB2-AB3,U+AB5-AB9,U+ABC-AC5,U+AC7-AC9,U+ACB-ACD,U+AD0,U+AE0-AE3,U+AE6-AF1,U+A830-A839;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansGujarati.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+A81-A83,U+A85-A8D,U+A8F-A91,U+A93-AA8,U+AAA-AB0,U+AB2-AB3,U+AB5-AB9,U+ABC-AC5,U+AC7-AC9,U+ACB-ACD,U+AD0,U+AE0-AE3,U+AE6-AF1,U+A830-A839;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansDevanagari.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
-  unicode-range: U+900-950,U+953-963,U+966-97F,U+1CD0-1CF6,U+1CF8-1CF9,U+A830-A839,U+A8E0-A8FD;
+  unicode-range: U+900-950,U+953-963,U+966-97F,U+1CD0-1CF6,U+1CF8-1CF9,U+A8E0-A8FD;
   font-display: swap;
 }
 
@@ -94,7 +112,7 @@
   src: url('noto-full.NotoSansDevanagari.700.woff') format('woff');
   font-style: normal;
   font-weight: bold;
-  unicode-range: U+900-950,U+953-963,U+966-97F,U+1CD0-1CF6,U+1CF8-1CF9,U+A830-A839,U+A8E0-A8FD;
+  unicode-range: U+900-950,U+953-963,U+966-97F,U+1CD0-1CF6,U+1CF8-1CF9,U+A8E0-A8FD;
   font-display: swap;
 }
 
@@ -221,24 +239,6 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+10A0-10C5,U+10C7,U+10CD,U+10D0-10FF,U+2D00-2D25,U+2D27,U+2D2D;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGujarati.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+A81-A83,U+A85-A8D,U+A8F-A91,U+A93-AA8,U+AAA-AB0,U+AB2-AB3,U+AB5-AB9,U+ABC-AC5,U+AC7-AC9,U+ACB-ACD,U+AD0,U+AE0-AE3,U+AE6-AF1;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGujarati.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+A81-A83,U+A85-A8D,U+A8F-A91,U+A93-AA8,U+AAA-AB0,U+AB2-AB3,U+AB5-AB9,U+ABC-AC5,U+AC7-AC9,U+ACB-ACD,U+AD0,U+AE0-AE3,U+AE6-AF1;
   font-display: swap;
 }
 
