@@ -58,13 +58,11 @@
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
         this.addToSelectedExercises([content]);
-        const text = indexStrings.$tr('added', { item: this.currentContentNode.title });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('added', { item: this.currentContentNode.title }));
       },
       handleRemoveResource(content) {
         this.removeFromSelectedExercises([content]);
-        const text = indexStrings.$tr('removed', { item: this.currentContentNode.title });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('removed', { item: this.currentContentNode.title }));
       },
     },
   };

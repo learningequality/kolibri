@@ -149,17 +149,11 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar({
-          text: this.coachStrings.$tr('createdNotification'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(groupMgmtStrings.$tr('groupCreatedNotice'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar({
-          text: this.coachStrings.$tr('deletedNotification'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(groupMgmtStrings.$tr('groupDeletedNotice'));
         this.displayModal(false);
       },
     },

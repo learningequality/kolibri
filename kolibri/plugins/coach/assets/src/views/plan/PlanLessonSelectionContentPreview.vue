@@ -59,13 +59,11 @@
       handleAddResource(content) {
         this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
         this.addToResourceCache({ node: content });
-        const text = indexStrings.$tr('resourcesAddedSnackbarText', { count: 1 });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('resourcesAddedSnackbarText', { count: 1 }));
       },
       handleRemoveResource(content) {
         this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
-        const text = indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 }));
       },
     },
   };

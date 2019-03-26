@@ -399,17 +399,17 @@ We strive for 100% code coverage in Kolibri. When you open a Pull Request, code 
 
 Then, open the generated ./htmlcov/index.html file in your browser.
 
-Kolibri comes with a Javascript test suite based on ``mocha``. To run all tests:
+Kolibri comes with a Javascript test suite based on ``jest``. To run all tests:
 
 .. code-block:: bash
 
-  yarn test
+  yarn test-jest
 
-This includes tests of the bundling functions that are used in creating front end assets. To do continuous unit testing for code, and jshint running:
+This includes tests of the bundling functions that are used in creating front end assets. To do continuous unit testing for Javascript code:
 
 .. code-block:: bash
 
-  yarn run test-karma:watch
+  yarn run test
 
 To run specific tests only, you can add the filepath of the file. To further filter either by TestClass name or test method name, you can add `-k` followed by a string to filter classes or methods by. For example, to only run a test named ``test_admin_can_delete_membership`` in kolibri/auth/test/test_permissions.py:
 

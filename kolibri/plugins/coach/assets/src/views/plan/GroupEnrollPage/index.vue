@@ -222,10 +222,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar({
-              text: this.coachStrings.$tr('updatedNotification'),
-              autoDismiss: true,
-            });
+            this.createSnackbar(groupMgmtStrings.$tr('addedLearnersNotice', { value }));
           });
         });
       },

@@ -164,10 +164,10 @@
 
         this.autoSave(this.lessonId, this.workingResources);
 
-        this.createSnackbar({
+        this.$store.commit('CORE_CREATE_SNACKBAR', {
           text: this.removalMessage,
-          duration: removalSnackbarTime,
           autoDismiss: true,
+          duration: removalSnackbarTime,
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
@@ -197,18 +197,12 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
-        this.createSnackbar({
-          text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
       },
       handleDrag({ newArray }) {
         this.setWorkingResources(newArray);
         this.autoSave(this.lessonId, newArray);
-        this.createSnackbar({
-          text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
       },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {

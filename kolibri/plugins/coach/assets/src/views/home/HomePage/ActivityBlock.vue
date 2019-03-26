@@ -67,7 +67,12 @@
           eventType: notification.event,
           objectType: notification.object,
           resourceType: notification.resource.type,
-          targetPage: notificationLink(notification),
+          targetPage: {
+            ...notificationLink(notification),
+            query: {
+              last: 'homepage',
+            },
+          },
           contentContext: notification.assignment.name,
           learnerContext,
         };

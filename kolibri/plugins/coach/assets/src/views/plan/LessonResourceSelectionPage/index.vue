@@ -239,9 +239,7 @@
         const isSamePage = samePageCheckGenerator(this.$store);
         setTimeout(() => {
           if (isSamePage()) {
-            this.createSnackbar({
-              text: this.$tr('saveBeforeExitSnackbarText'),
-            });
+            this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
           }
         }, 500);
 
@@ -284,13 +282,10 @@
         } else {
           text = this.$tr('resourcesRemovedSnackbarText', { count: -difference });
         }
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(text);
       },
       showResourcesChangedError() {
-        this.createSnackbar({
-          text: this.$tr('resourcesChangedErrorSnackbarText'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('resourcesChangedErrorSnackbarText'));
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {

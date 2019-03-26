@@ -3,7 +3,7 @@
   <div class="mh">
     <KeenUiTextbox
       ref="textbox"
-      v-model.trim="currentText"
+      v-model="currentText"
       class="textbox"
       :label="label"
       :disabled="disabled"

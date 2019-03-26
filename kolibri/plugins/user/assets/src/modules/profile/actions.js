@@ -67,14 +67,9 @@ export function updateUserProfilePassword(store, password) {
     () => {
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_PASSWORD_MODAL', false);
-      store.commit(
-        'CORE_CREATE_SNACKBAR',
-        {
-          text: snackbarTranslator.$tr('passwordChangeSuccessMessage'),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
+      store.dispatch('createSnackbar', snackbarTranslator.$tr('passwordChangeSuccessMessage'), {
+        root: true,
+      });
     },
     () => {
       store.commit('SET_PROFILE_BUSY', false);
