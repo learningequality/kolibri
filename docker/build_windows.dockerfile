@@ -8,14 +8,11 @@ RUN apt-get update -y && \
       git \
       git-lfs \
       sudo \
-      software-properties-common
-
-RUN git lfs install
-
-RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      software-properties-common \
       ttf-mscorefonts-installer \
       wine-stable
+
+RUN git lfs install
 
 VOLUME /kolibridist/
 
