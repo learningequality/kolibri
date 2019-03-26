@@ -1,0 +1,6 @@
+
+# These are the requirements to create an Integration testing Spreadsheet
+
+oauth2client
+PyOpenSSL
+gspread==3.1.0

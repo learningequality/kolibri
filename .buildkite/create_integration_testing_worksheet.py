@@ -35,9 +35,9 @@ if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
     SHEET_PARENT_CONTAINER_ID = "10bMsasxKvpi_9U1NU9rq7YBnFBiCkYrc"
 
 if SHEET_TAG == "" or SHEET_TAG is None:
-    buildkite_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    if buildkite_branch != "" or buildkite_branch is not None:
-        SHEET_TAG = buildkite_branch
+    buildkite_base_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    if buildkite_base_branch != "" or buildkite_base_branch is not None:
+        SHEET_TAG = buildkite_base_branch
     else:
         SHEET_TAG = "develop"
 
