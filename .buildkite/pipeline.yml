@@ -40,14 +40,14 @@ steps:
     agents:
       queue: "windows-sign"
 
-  - block: "Create integration testing worksheet?"
-  - label: Create integration testing
-    command: .buildkite/build_worksheet.sh
-
   - wait
 
   - label: Upload new artifacts
     command: .buildkite/setup_and_upload_artifact.sh
+
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
 
   - block: "Build release APK?"
   - label: "Build Release APK"

@@ -233,6 +233,9 @@ docker-windows: writeversion
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
 
+docker-build-sheet: writeversion
+	docker image build -t "learningequality/build-testing-sheet" -f docker/build_testing_sheet.dockerfile .
+
 docker-build-base: writeversion
 	docker image build . \
 		-f docker/base.dockerfile \
