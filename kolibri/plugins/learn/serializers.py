@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.db.models import Sum
+from django.db.models.query import F
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
@@ -106,17 +107,18 @@ class LearnerClassroomSerializer(ModelSerializer):
         lesson_assignments = HierarchyRelationsFilter(LessonAssignment.objects.all()) \
             .filter_by_hierarchy(
                 target_user=current_user,
-                ancestor_collection=instance
+                ancestor_collection=F('collection')
         )
         filtered_lessons = Lesson.objects.filter(
             lesson_assignments__in=lesson_assignments,
-            is_active=True
+            is_active=True,
+            collection=instance,
         ).distinct()
 
         exam_assignments = HierarchyRelationsFilter(ExamAssignment.objects.all()) \
             .filter_by_hierarchy(
                 target_user=current_user,
-                ancestor_collection=instance
+                ancestor_collection=F('collection')
         )
 
         filtered_exams = Exam.objects.filter(
