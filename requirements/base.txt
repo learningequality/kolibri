@@ -21,7 +21,7 @@ metafone==0.5
 le-utils==0.1.13
 kolibri_exercise_perseus_plugin==1.1.0a2
 jsonfield==2.0.2
-morango==0.3.3
+morango==0.4.0
 requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
