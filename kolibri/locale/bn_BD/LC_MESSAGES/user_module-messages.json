@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "এই ব্যবহারকারী নামে একটি অ্যাকাউন্ট ইতিমধ্যেই বিদ্যমান",
   "UserIndex.userProfileTitle": "প্রোফাইল",
   "UserIndex.userSignInTitle": "সাইন ইন করুন",
-  "UserIndex.userSignUpTitle": "সাইন-আপ করুন",
   "UserPageSnackbars.dismiss": "বাতিল করুন",
   "UserPageSnackbars.signedOut": "অনেকক্ষণ ব্যবহার না করায় স্বয়ংক্রিয়ভাবে বের হয়ে গেছে",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "পাসওয়ার্ড পরিবর্তন করা হয়েছে"
