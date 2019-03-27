@@ -9,6 +9,32 @@ List of the most important changes for each release.
 Added
 ~~~~~
 
+- Dynamic selection for CherryPy thread count based on available server memory
+
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+- Alignment of coach report icons when viewed in right-to-left languages corrected
+- Fixes to loading of some HTML5 apps
+- Lessons are now correctly scoped to their classes for learners
+
+
+Internationalization and localization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added Gujarati
+- Fixed missing translations in coach group management
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.2>`__ of changes on Github
+
+
+0.12.1
+------
+
+Added
+~~~~~
+
 - Initial support for uwsgi serving mode.
 
 
