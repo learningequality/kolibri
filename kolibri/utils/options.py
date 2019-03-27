@@ -15,22 +15,26 @@ except NotImplementedError:
 
 def calculate_thread_pool():
     """
-    Returns the default value for CherryPY thread_pool
-    It is calculated based on the best values obtained in
-    several partners installations.
-    The value must be between 10 (default CherryPy value) and 200.
-    Servers with more memory can deal with more threads.
-    Calculations are done for servers with more than 2 Gb of RAM
+    Returns the default value for CherryPY thread_pool:
+    - calculated based on the best values obtained in several partners installations
+    - value must be between 10 (default CherryPy value) and 200
+    - servers with more memory can deal with more threads
+    - calculations are done for servers with more than 2 Gb of RAM
     """
-    pool = 10
+    MIN_POOL = 50
+    MAX_POOL = 150
     if psutil:
+        MIN_MEM = 2
+        MAX_MEM = 6
         total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
-        if total_memory > 2:
-            pool = int(45 * total_memory - 80)  # 10 for 2 Gb,100 for 4 Gb
-            pool = 200 if pool > 200 else pool
+        # if it's in the range, scale thread count linearly with available memory
+        if MIN_MEM < total_memory < MAX_MEM:
+            return MIN_POOL + int((MAX_POOL - MIN_POOL) * float(total_memory - MIN_MEM) / (MAX_MEM - MIN_MEM))
+        # otherwise return either the min or max amount
+        return MAX_POOL if total_memory >= MAX_MEM else MIN_POOL
     elif sys.platform.startswith("darwin"):  # Considering MacOS has at least 4 Gb of RAM
-        pool = 100
-    return pool
+        return MAX_POOL
+    return MIN_POOL
 
 
 option_spec = {
