@@ -3,7 +3,7 @@ Release Notes
 
 List of the most important changes for each release.
 
-0.12.1
+0.12.2
 ------
 
 Added
