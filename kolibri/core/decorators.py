@@ -327,13 +327,18 @@ def cache_no_user_data(view_func):
     """
     Set appropriate Vary on headers on a view that specify there is
     no user specific data being rendered in the view.
+    In order to ensure that the correct Vary headers are set,
+    the session is deleted from the request, as otherwise Vary cookies
+    will always be set by the Django session middleware.
+    This should not be used on any view that bootstraps user specific
+    data into it - this will remove the headers that will make this vary
+    on a per user basis.
     """
     def inner_func(*args, **kwargs):
         request = args[0]
         del request.session
         response = view_func(*args, **kwargs)
-        headers = ['accept-encoding', 'accept', 'user-agent']
         patch_response_headers(response, cache_timeout=300)
-        response['Vary'] = ', '.join(headers)
+        response['Vary'] = 'accept-encoding, accept, user-agent'
         return response
     return inner_func
