@@ -39,8 +39,10 @@ export default function replaceScript($script, callback) {
         // Clean up onload and onerror handlers
         // after they have been triggered to avoid
         // these being called again.
-        delete s.onload;
-        delete s.onerror;
+        try {
+          delete s.onload;
+          delete s.onerror;
+        } catch (e) {} // eslint-disable-line no-empty
         callback();
       };
       s.onload = cb;

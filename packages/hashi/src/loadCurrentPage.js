@@ -56,7 +56,9 @@ export function setContent(contents) {
   const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
     return function(callback) {
       const cb = () => {
-        delete window.onerror;
+        try {
+          delete window.onerror;
+        } catch (e) {} // eslint-disable-line no-empty
         callback();
       };
       window.onerror = cb;
