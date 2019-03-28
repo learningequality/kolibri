@@ -157,6 +157,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
     components: {
       CoachContentLabel,
@@ -223,6 +224,12 @@
       },
       recommendedText() {
         return this.$tr('recommended');
+      },
+      parentTopic() {
+        const { breadcrumbs = [] } = this.content;
+        if (breadcrumbs.length > 0) {
+          return breadcrumbs[breadcrumbs.length - 1];
+        }
       },
       progress() {
         if (this.isUserLoggedIn) {
