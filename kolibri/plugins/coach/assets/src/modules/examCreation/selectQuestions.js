@@ -49,7 +49,8 @@ export default function selectQuestions(
   // fill up the output list
   const output = [];
   let i = 0;
-  while (output.length < numQuestions) {
+  let questionsRemaining = true;
+  while (output.length < numQuestions && questionsRemaining) {
     // check if we've used up all questions in one exercise
     if (get(shuffledQuestionIdArrays, i).length) {
       // if not, add it to the list
@@ -58,6 +59,10 @@ export default function selectQuestions(
         question_id: get(shuffledQuestionIdArrays, i).pop(),
         title: get(exerciseTitles, i),
       });
+    } else if (
+      shuffledQuestionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) === 0
+    ) {
+      questionsRemaining = false;
     }
     // cycle through questions
     i = (i + 1) % exerciseIds.length;

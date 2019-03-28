@@ -374,12 +374,6 @@
         };
       },
     },
-    $trs: {
-      back: 'Class home',
-      classActivity: 'Class activity',
-      noActivity: 'No activity in your class',
-      viewMore: 'View more',
-    },
   };
 
 </script>

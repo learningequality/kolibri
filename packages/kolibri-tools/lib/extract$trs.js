@@ -345,7 +345,8 @@ extract$trs.prototype.writeOutput = function(messageExport) {
   // Write out the data to JSON.
   fs.writeFileSync(
     path.join(this.messageDir, this.messagesName + '-messages.json'),
-    JSON.stringify(messageExport)
+    // pretty print and sort keys
+    JSON.stringify(messageExport, Object.keys(messageExport).sort(), 2)
   );
 };
 

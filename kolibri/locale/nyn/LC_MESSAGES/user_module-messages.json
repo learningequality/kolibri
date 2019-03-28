@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "Pali kale akaunti yokhala ndi dzina limeneli",
   "UserIndex.userProfileTitle": "Pulofailo",
   "UserIndex.userSignInTitle": "Lowani",
-  "UserIndex.userSignUpTitle": "Lembetsani",
   "UserPageSnackbars.dismiss": "Zikaneni",
   "UserPageSnackbars.signedOut": "Munachotsedwapo chifukwa munakhala musakugwiritsa ntchito kwa nthawi yaitali",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Pasiwedi yasinthidwa"

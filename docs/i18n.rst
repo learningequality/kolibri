@@ -144,12 +144,14 @@ To do this, you'll need to install the Perseus Plugin in development mode (using
 See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ for more information on setup and publication.
 
 
-Exporting and uploading
-~~~~~~~~~~~~~~~~~~~~~~~
+Extracting and uploading
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases.
 
 Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`__.
+
+.. note:: You must have the Perseus plugin installed for development as described above, or not all strings will be extracted.
 
 This command will extract front- and backend strings and upload them to Crowdin:
 

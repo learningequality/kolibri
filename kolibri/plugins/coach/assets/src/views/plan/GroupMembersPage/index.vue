@@ -35,7 +35,7 @@
             :size="50"
             percentage
           >
-            {{ $tr('numberOfLearners', { count: currentGroup.users.length }) }}
+            {{ coachStrings.$tr('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
           <KGridItem :size="50" percentage alignment="right">
             <KRouterLink
@@ -109,7 +109,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
   import ReportsGroupHeader from '../../reports/ReportsGroupHeader';
-  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   const ReportsGroupHeaderStrings = crossComponentTranslator(ReportsGroupHeader);
@@ -156,7 +155,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(groupMgmtStrings.$tr('removedLearnersNotice', { value: 1 }));
+            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
             this.userForRemoval = null;
           });
         }
@@ -170,7 +169,6 @@
       removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
-      numberOfLearners: '{ count, number } {count, plural, one {learner} other {learners}}',
     },
   };
 

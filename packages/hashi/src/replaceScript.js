@@ -25,9 +25,26 @@ export const runScriptTypes = [
 export default function replaceScript($script, callback) {
   const s = document.createElement('script');
   s.type = 'text/javascript';
+  [].forEach.call($script.attributes, attribute => {
+    // Set src later when everything else
+    // has been set.
+    if (attribute.name !== 'src') {
+      s.setAttribute(attribute.name, attribute.value);
+    }
+  });
   if ($script.src) {
-    s.onload = callback;
-    s.onerror = callback;
+    if (!$script.async) {
+      const cb = () => {
+        // Clean up onload and onerror handlers
+        // after they have been triggered to avoid
+        // these being called again.
+        delete s.onload;
+        delete s.onerror;
+        callback();
+      };
+      s.onload = cb;
+      s.onerror = cb;
+    }
     s.src = $script.src;
   } else {
     s.innerHTML = $script.innerHTML;
@@ -35,21 +52,20 @@ export default function replaceScript($script, callback) {
 
   const parentNode = $script.parentNode;
 
-  // Remove the element so that we don't clutter the DOM
-  // with duplicates.
-  parentNode.removeChild($script);
-
   const typeAttr = $script.getAttribute('type');
 
   // only run script tags without the type attribute
   // or with a javascript mime attribute value
   if (!typeAttr || runScriptTypes.indexOf(typeAttr) !== -1) {
+    // Remove the element so that we don't clutter the DOM
+    // with duplicates.
+    parentNode.removeChild($script);
     // re-insert the script tag so it executes.
     parentNode.appendChild(s);
   }
 
   // run the callback immediately for inline scripts
-  if (!$script.src) {
+  if (!$script.src || $script.async) {
     callback();
   }
 }
