@@ -19,11 +19,16 @@ class Command(BaseCommand):
     reviewing the availability of all the existing files, to recover
     content that's not visible in Kolibri.
     """
+
     help = "Scan content and databases in Kolibri folder and updates the database to show if available"
 
     def handle(self, *args, **options):
-        storage_channel_ids = get_channel_ids_for_content_database_dir(get_content_database_dir_path())
-        database_channel_ids = list(ChannelMetadata.objects.all().values_list('id', flat=True))
+        storage_channel_ids = get_channel_ids_for_content_database_dir(
+            get_content_database_dir_path()
+        )
+        database_channel_ids = list(
+            ChannelMetadata.objects.all().values_list("id", flat=True)
+        )
         all_channel_ids = set(storage_channel_ids + database_channel_ids)
         for channel_id in all_channel_ids:
             if channel_id not in database_channel_ids:
@@ -31,6 +36,10 @@ class Command(BaseCommand):
                     import_channel_from_local_db(channel_id)
                     annotate_content(channel_id)
                 except (InvalidSchemaVersionError, FutureSchemaError):
-                    logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
+                    logger.warning(
+                        "Tried to import channel {channel_id}, but database file was incompatible".format(
+                            channel_id=channel_id
+                        )
+                    )
             else:
                 annotate_content(channel_id)

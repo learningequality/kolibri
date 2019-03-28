@@ -196,14 +196,20 @@ def mark_local_files_availability(checksums, availability):
 
         LocalFileClass = bridge.get_class(LocalFile)
 
-        logger.info('Setting availability to {availability} of {number} LocalFile objects based on passed in checksums'.format(
-            number=len(checksums), availability=availability))
+        logger.info(
+            "Setting availability to {availability} of {number} LocalFile objects based on passed in checksums".format(
+                number=len(checksums), availability=availability
+            )
+        )
 
         for i in range(0, len(checksums), CHUNKSIZE):
-            bridge.session.bulk_update_mappings(LocalFileClass, ({
-                'id': checksum,
-                'available': availability
-            } for checksum in checksums[i:i + CHUNKSIZE]))
+            bridge.session.bulk_update_mappings(
+                LocalFileClass,
+                (
+                    {"id": checksum, "available": availability}
+                    for checksum in checksums[i : i + CHUNKSIZE]
+                ),
+            )
             bridge.session.flush()
 
         bridge.session.commit()
@@ -249,7 +255,9 @@ def set_local_file_availability_from_disk(checksums=None):
     for file in files:
         try:
             # Update if the file exists, *and* the localfile is set as unavailable.
-            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))):
+            if os.path.exists(
+                get_content_storage_file_path(get_content_file_name(file))
+            ):
                 if not file.available:
                     checksums_to_set_available.append(file.id)
             # Update if the file does not exist, *and* the localfile is set as available.

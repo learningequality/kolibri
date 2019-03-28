@@ -317,7 +317,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
         super(AnnotationTreeRecursion, self).tearDown()
 
 
-@patch('kolibri.core.content.utils.sqlalchemybridge.get_engine', new=get_engine)
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileAvailableByChecksum(TransactionTestCase):
 
     fixtures = ["content_test.json"]
@@ -341,35 +341,35 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
         self.assertTrue(LocalFile.objects.get(id=file_id_2).available)
 
     def tearDown(self):
-        call_command('flush', interactive=False)
+        call_command("flush", interactive=False)
         super(LocalFileAvailableByChecksum, self).tearDown()
 
 
-@patch('kolibri.core.content.utils.sqlalchemybridge.get_engine', new=get_engine)
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileUnAvailableByChecksum(TransactionTestCase):
 
-    fixtures = ['content_test.json']
+    fixtures = ["content_test.json"]
 
     def setUp(self):
         super(LocalFileUnAvailableByChecksum, self).setUp()
         LocalFile.objects.all().update(available=True)
 
     def test_set_one_file(self):
-        file_id = '6bdfea4a01830fdd4a585181c0b8068c'
+        file_id = "6bdfea4a01830fdd4a585181c0b8068c"
         mark_local_files_as_unavailable([file_id])
         self.assertEqual(LocalFile.objects.filter(available=False).count(), 1)
         self.assertFalse(LocalFile.objects.get(id=file_id).available)
 
     def test_set_two_files(self):
-        file_id_1 = '6bdfea4a01830fdd4a585181c0b8068c'
-        file_id_2 = 'e00699f859624e0f875ac6fe1e13d648'
+        file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+        file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
         mark_local_files_as_unavailable([file_id_1, file_id_2])
         self.assertEqual(LocalFile.objects.filter(available=False).count(), 2)
         self.assertFalse(LocalFile.objects.get(id=file_id_1).available)
         self.assertFalse(LocalFile.objects.get(id=file_id_2).available)
 
     def tearDown(self):
-        call_command('flush', interactive=False)
+        call_command("flush", interactive=False)
         super(LocalFileUnAvailableByChecksum, self).tearDown()
 
 
@@ -443,7 +443,9 @@ class LocalFileByDisk(TransactionTestCase):
     )
     def test_set_two_files_one_exists(self, path_mock):
         LocalFile.objects.filter(id=self.file_id_2).update(available=True)
-        set_local_file_availability_from_disk(checksums=[self.file_id_1, self.file_id_2])
+        set_local_file_availability_from_disk(
+            checksums=[self.file_id_1, self.file_id_2]
+        )
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertTrue(LocalFile.objects.get(id=self.file_id_1).available)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_2).available)
@@ -453,8 +455,12 @@ class LocalFileByDisk(TransactionTestCase):
         return_value="",
     )
     def test_set_two_files_none_exist(self, path_mock):
-        LocalFile.objects.filter(id__in=[self.file_id_1, self.file_id_2]).update(available=True)
-        set_local_file_availability_from_disk(checksums=[self.file_id_1, self.file_id_2])
+        LocalFile.objects.filter(id__in=[self.file_id_1, self.file_id_2]).update(
+            available=True
+        )
+        set_local_file_availability_from_disk(
+            checksums=[self.file_id_1, self.file_id_2]
+        )
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_1).available)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_2).available)
