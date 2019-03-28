@@ -84,7 +84,6 @@ LOCALE_PATHS += [
 
 MIDDLEWARE = [
     "kolibri.core.device.middleware.IgnoreGUIMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
