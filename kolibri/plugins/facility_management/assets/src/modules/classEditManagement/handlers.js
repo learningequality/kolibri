@@ -12,7 +12,7 @@ export function showClassEditPage(store, classId) {
   const facilityId = store.getters.currentFacilityId;
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
-    ClassroomResource.fetchModel({ id: classId }),
+    ClassroomResource.fetchModel({ id: classId, force: true }),
     ClassroomResource.fetchCollection({ getParams: { parent: facilityId }, force: true }),
   ];
 
