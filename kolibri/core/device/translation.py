@@ -7,6 +7,8 @@ import re
 
 from django.conf import settings
 from django.core.cache import cache
+from django.urls import resolve
+from django.urls import Resolver404
 from django.urls.resolvers import RegexURLResolver
 from django.utils.translation import get_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
@@ -49,6 +51,15 @@ def get_language_from_request(request):  # noqa complexity-16
     If the user requests a sublanguage where we have a main language, we send
     out the main language.
     """
+
+    try:
+        # If this is not a view that needs to be translated, return None, and be done with it!
+        if not getattr(resolve(request.path_info).func, 'translated', False):
+            return None, False
+    except Resolver404:
+        # If this is an unrecognized URL, it may be redirectable to a language prefixed
+        # URL, so let the language code setting carry on from here.
+        pass
 
     supported_lang_codes = get_languages()
 
@@ -101,6 +112,8 @@ def i18n_patterns(urls, prefix=None):
     """
     if not settings.USE_I18N:
         return list(urls)
+    for url in urls:
+        setattr(url.callback, 'translated', True)
     return [LocaleRegexURLResolver(list(urls), prefix=prefix)]
 
 
