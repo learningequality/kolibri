@@ -20,10 +20,10 @@ from kolibri.utils.time_utils import local_now
 
 def format_line(parameter, value, indented=False):
     if indented:
-        info = '  * {:30}'.format('{}:'.format(parameter))
+        info = "  * {:30}".format("{}:".format(parameter))
     else:
-        info = '* {:32}'.format('{}:'.format(parameter))
-    return '{info}{value}'.format(info=info, value=value)
+        info = "* {:32}".format("{}:".format(parameter))
+    return "{info}{value}".format(info=info, value=value)
 
 
 class Command(BaseCommand):
@@ -70,6 +70,7 @@ class Command(BaseCommand):
     * Server time:                   (server_time)
     * Server timezone:               (server_timezone)
     """
+
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
     def handle(self, *args, **options):
@@ -83,53 +84,73 @@ class Command(BaseCommand):
             sys.exit("Profile command executed while Kolibri server was not running")
         get_requests_info()
         self.messages = []
-        self.add_header('Sessions')
-        session_parameters = ('Active sessions (guests incl)', 'Active users in (10 min)', 'Active users in (1 min)')
+        self.add_header("Sessions")
+        session_parameters = (
+            "Active sessions (guests incl)",
+            "Active users in (10 min)",
+            "Active users in (1 min)",
+        )
         session_info = get_db_info()
         self.add_section(session_parameters, session_info)
 
-        self.add_header('CPU')
+        self.add_header("CPU")
         kolibri_cpu, kolibri_mem = get_kolibri_use()
         used_cpu, used_memory, total_memory, total_processes = get_machine_info()
-        cpu_parameters = ('Total processes', 'Used CPU', 'Kolibri CPU usage')
-        cpu_values = (total_processes, '{} %'.format(used_cpu), '{} %'.format(kolibri_cpu))
+        cpu_parameters = ("Total processes", "Used CPU", "Kolibri CPU usage")
+        cpu_values = (
+            total_processes,
+            "{} %".format(used_cpu),
+            "{} %".format(kolibri_cpu),
+        )
         self.add_section(cpu_parameters, cpu_values)
 
-        self.add_header('Memory')
-        memory_parameters = ('Used memory', 'Total memory', 'Kolibri memory usage')
-        memory_values = ('{} Mb'.format(used_memory), '{} Mb'.format(total_memory), '{} Mb'.format(kolibri_mem))
+        self.add_header("Memory")
+        memory_parameters = ("Used memory", "Total memory", "Kolibri memory usage")
+        memory_values = (
+            "{} Mb".format(used_memory),
+            "{} Mb".format(total_memory),
+            "{} Mb".format(kolibri_mem),
+        )
         self.add_section(memory_parameters, memory_values)
 
-        self.add_header('Channels')
+        self.add_header("Channels")
         channels_stats = get_channels_usage_info()
-        self.messages.append(format_line('Total Channels', str(len(channels_stats))))
+        self.messages.append(format_line("Total Channels", str(len(channels_stats))))
         for channel in channels_stats:
-            self.messages.append('\033[95m* {}\033[0m'.format(channel.name))
-            self.messages.append(format_line('Accesses', channel.accesses, True))
-            self.messages.append(format_line('Time spent', channel.time_spent, True))
+            self.messages.append("\033[95m* {}\033[0m".format(channel.name))
+            self.messages.append(format_line("Accesses", channel.accesses, True))
+            self.messages.append(format_line("Time spent", channel.time_spent, True))
 
-        self.add_header('Requests timing')
+        self.add_header("Requests timing")
         requests_stats = get_requests_info()
-        requests_parameters = ('Homepage', 'Recommended channels', 'Channels')
+        requests_parameters = ("Homepage", "Recommended channels", "Channels")
         self.add_section(requests_parameters, requests_stats)
 
-        self.add_header('Device info')
+        self.add_header("Device info")
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-        self.messages.append(format_line('Version', kolibri.__version__))
-        self.messages.append(format_line('OS', instance_model.platform))
-        self.messages.append(format_line('Installer', installation_type(get_kolibri_process_cmd())))
-        self.messages.append(format_line('Database', settings.DATABASES['default']['NAME']))
-        self.messages.append(format_line('Device name', instance_model.hostname))
-        self.messages.append(format_line('Free disk space', '{} Mb'.format(get_free_space() / pow(2, 20))))
-        self.messages.append(format_line('Server time', local_now()))
-        self.messages.append(format_line('Server timezone', settings.TIME_ZONE))
+        self.messages.append(format_line("Version", kolibri.__version__))
+        self.messages.append(format_line("OS", instance_model.platform))
+        self.messages.append(
+            format_line("Installer", installation_type(get_kolibri_process_cmd()))
+        )
+        self.messages.append(
+            format_line("Database", settings.DATABASES["default"]["NAME"])
+        )
+        self.messages.append(format_line("Device name", instance_model.hostname))
+        self.messages.append(
+            format_line(
+                "Free disk space", "{} Mb".format(get_free_space() / pow(2, 20))
+            )
+        )
+        self.messages.append(format_line("Server time", local_now()))
+        self.messages.append(format_line("Server timezone", settings.TIME_ZONE))
 
-        self.messages.append('')
-        print('\n'.join(self.messages))
+        self.messages.append("")
+        print("\n".join(self.messages))
 
     def add_header(self, header):
-        self.messages.append('')
-        self.messages.append('\033[1m{}\033[0m'.format(header))
+        self.messages.append("")
+        self.messages.append("\033[1m{}\033[0m".format(header))
 
     def add_section(self, params, values):
         for index, param in enumerate(params):

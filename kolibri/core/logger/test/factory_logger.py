@@ -7,7 +7,6 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 
 
 class ContentSessionLogFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.ContentSessionLog
 
@@ -16,7 +15,6 @@ class ContentSessionLogFactory(factory.DjangoModelFactory):
 
 
 class ContentSummaryLogFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.ContentSummaryLog
 
@@ -25,7 +23,6 @@ class ContentSummaryLogFactory(factory.DjangoModelFactory):
 
 
 class UserSessionLogFactory(factory.DjangoModelFactory):
-
     class Meta:
         model = models.UserSessionLog
 

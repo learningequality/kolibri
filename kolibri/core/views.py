@@ -29,29 +29,32 @@ def set_language(request):
     redirect to the page in the request (the 'next' parameter) without changing
     any state.
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         response = HttpResponse(status=204)
         lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
         if lang_code and check_for_language(lang_code):
-            if hasattr(request, 'session'):
+            if hasattr(request, "session"):
                 request.session[LANGUAGE_SESSION_KEY] = lang_code
             # Always set cookie
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
-                                max_age=settings.LANGUAGE_COOKIE_AGE,
-                                path=settings.LANGUAGE_COOKIE_PATH,
-                                domain=settings.LANGUAGE_COOKIE_DOMAIN)
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME,
+                lang_code,
+                max_age=settings.LANGUAGE_COOKIE_AGE,
+                path=settings.LANGUAGE_COOKIE_PATH,
+                domain=settings.LANGUAGE_COOKIE_DOMAIN,
+            )
         else:
-            if hasattr(request, 'session'):
-                request.session.pop(LANGUAGE_SESSION_KEY, '')
+            if hasattr(request, "session"):
+                request.session.pop(LANGUAGE_SESSION_KEY, "")
             response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
         return response
     else:
-        return HttpResponseRedirect(reverse('kolibri:core:redirect_user'))
+        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse('kolibri:core:redirect_user'))
+    return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def get_urls_by_role(role):
@@ -61,14 +64,26 @@ def get_urls_by_role(role):
 
 
 def get_url_by_role(role, first_login):
-    obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
-                if hook.role == role and hook.first_login == first_login), None)
+    obj = next(
+        (
+            hook
+            for hook in RoleBasedRedirectHook().registered_hooks
+            if hook.role == role and hook.first_login == first_login
+        ),
+        None,
+    )
 
     if obj is None and first_login:
         # If it is the first_login, do a fallback to find the non-first login behaviour when it is
         # not available
-        obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
-                    if hook.role == role and hook.first_login is False), None)
+        obj = next(
+            (
+                hook
+                for hook in RoleBasedRedirectHook().registered_hooks
+                if hook.role == role and hook.first_login is False
+            ),
+            None,
+        )
 
     if obj:
         return obj.url
@@ -92,9 +107,8 @@ def is_provisioned():
     return device_is_provisioned
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
+@method_decorator(signin_redirect_exempt, name="dispatch")
 class RootURLRedirectView(View):
-
     def get(self, request):
         """
         Redirects user based on the highest role they have for which a redirect is defined.
@@ -111,7 +125,11 @@ class RootURLRedirectView(View):
             url = None
             if request.user.is_superuser:
                 url = url or get_url_by_role(user_kinds.SUPERUSER, first_login)
-            roles = set(Role.objects.filter(user_id=request.user.id).values_list('kind', flat=True).distinct())
+            roles = set(
+                Role.objects.filter(user_id=request.user.id)
+                .values_list("kind", flat=True)
+                .distinct()
+            )
             if user_kinds.ADMIN in roles:
                 url = url or get_url_by_role(user_kinds.ADMIN, first_login)
             if user_kinds.COACH in roles:
@@ -121,4 +139,8 @@ class RootURLRedirectView(View):
             url = get_url_by_role(user_kinds.ANONYMOUS, first_login)
         if url:
             return HttpResponseRedirect(url)
-        raise Http404(_("No appropriate redirect pages found. It is likely that Kolibri is badly configured"))
+        raise Http404(
+            _(
+                "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+            )
+        )

@@ -20,15 +20,10 @@ class ExamProgressSerializer(ModelSerializer):
     Annotates an Exam with progress information based on logs generated
     by the requesting User
     """
+
     class Meta:
         model = Exam
-        fields = (
-            'active',
-            'id',
-            'progress',
-            'question_count',
-            'title',
-        )
+        fields = ("active", "id", "progress", "question_count", "title")
 
     progress = SerializerMethodField()
 
@@ -36,19 +31,21 @@ class ExamProgressSerializer(ModelSerializer):
     # from Exam Model instead of ExamAssignment
     def get_progress(self, instance):
         try:
-            examlogs = instance.examlogs.get(user=self.context['user'])
+            examlogs = instance.examlogs.get(user=self.context["user"])
             return {
-                'score': examlogs.attemptlogs.aggregate(Sum('correct')).get('correct__sum'),
-                'answer_count': examlogs.attemptlogs.count(),
-                'closed': examlogs.closed,
-                'started': True,
+                "score": examlogs.attemptlogs.aggregate(Sum("correct")).get(
+                    "correct__sum"
+                ),
+                "answer_count": examlogs.attemptlogs.count(),
+                "closed": examlogs.closed,
+                "started": True,
             }
         except ExamLog.DoesNotExist:
             return {
-                'score': None,
-                'answer_count': None,
-                'closed': None,
-                'started': False,
+                "score": None,
+                "answer_count": None,
+                "closed": None,
+                "started": False,
             }
 
 
@@ -57,31 +54,26 @@ class LessonProgressSerializer(ModelSerializer):
     Annotates a Lesson with progress information based on logs generated
     by the requesting User
     """
+
     progress = SerializerMethodField()
-    resources = JSONField(default='[]')
+    resources = JSONField(default="[]")
 
     class Meta:
         model = Lesson
-        fields = (
-            'description',
-            'id',
-            'is_active',
-            'title',
-            'progress',
-            'resources',
-        )
+        fields = ("description", "id", "is_active", "title", "progress", "resources")
 
     def get_progress(self, instance):
-        content_ids = [resource['content_id'] for resource in instance.resources]
-        resource_progress = ContentSummaryLog.objects \
-            .filter(
-                user=self.context['user'],
-                content_id__in=content_ids
-            ) \
-            .aggregate(Sum('progress')).get('progress__sum')
+        content_ids = [resource["content_id"] for resource in instance.resources]
+        resource_progress = (
+            ContentSummaryLog.objects.filter(
+                user=self.context["user"], content_id__in=content_ids
+            )
+            .aggregate(Sum("progress"))
+            .get("progress__sum")
+        )
         return {
-            'resource_progress': resource_progress,
-            'total_resources': len(instance.resources),
+            "resource_progress": resource_progress,
+            "total_resources": len(instance.resources),
         }
 
 
@@ -90,24 +82,20 @@ class LearnerClassroomSerializer(ModelSerializer):
 
     class Meta:
         model = Classroom
-        fields = (
-            'id',
-            'name',
-            'assignments',
-        )
+        fields = ("id", "name", "assignments")
 
     def get_assignments(self, instance):
         """
         Returns all Exams and Lessons (and progress) assigned to the requesting User
         """
-        current_user = self.context['request'].user
+        current_user = self.context["request"].user
 
         # Return only active Lessons that are assigned to the requesting user's groups
         # TODO move this to a permission_class on Lesson
-        lesson_assignments = HierarchyRelationsFilter(LessonAssignment.objects.all()) \
-            .filter_by_hierarchy(
-                target_user=current_user,
-                ancestor_collection=F('collection')
+        lesson_assignments = HierarchyRelationsFilter(
+            LessonAssignment.objects.all()
+        ).filter_by_hierarchy(
+            target_user=current_user, ancestor_collection=F("collection")
         )
         filtered_lessons = Lesson.objects.filter(
             lesson_assignments__in=lesson_assignments,
@@ -115,26 +103,23 @@ class LearnerClassroomSerializer(ModelSerializer):
             collection=instance,
         ).distinct()
 
-        exam_assignments = HierarchyRelationsFilter(ExamAssignment.objects.all()) \
-            .filter_by_hierarchy(
-                target_user=current_user,
-                ancestor_collection=F('collection')
+        exam_assignments = HierarchyRelationsFilter(
+            ExamAssignment.objects.all()
+        ).filter_by_hierarchy(
+            target_user=current_user, ancestor_collection=F("collection")
         )
 
-        filtered_exams = Exam.objects.filter(
-            assignments__in=exam_assignments,
-            collection=instance,
-        ).filter(Q(active=True) | Q(examlogs__user=current_user)).distinct()
+        filtered_exams = (
+            Exam.objects.filter(assignments__in=exam_assignments, collection=instance)
+            .filter(Q(active=True) | Q(examlogs__user=current_user))
+            .distinct()
+        )
 
         return {
-            'lessons': LessonProgressSerializer(
-                filtered_lessons,
-                many=True,
-                context={'user': current_user},
+            "lessons": LessonProgressSerializer(
+                filtered_lessons, many=True, context={"user": current_user}
             ).data,
-            'exams': ExamProgressSerializer(
-                filtered_exams,
-                many=True,
-                context={'user': current_user},
+            "exams": ExamProgressSerializer(
+                filtered_exams, many=True, context={"user": current_user}
             ).data,
         }

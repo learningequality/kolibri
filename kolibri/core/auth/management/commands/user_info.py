@@ -18,13 +18,19 @@ class Command(BaseCommand):
     help = "To allow administrators to comply with GDPR requests, this command dumps all associated data for a user to several files."
 
     def add_arguments(self, parser):
-        parser.add_argument('username', action='store', type=str, help='Username of user for data dump')
+        parser.add_argument(
+            "username", action="store", type=str, help="Username of user for data dump"
+        )
 
     def handle(self, *args, **options):
         try:
-            user = FacilityUser.objects.get(username=options['username'])
+            user = FacilityUser.objects.get(username=options["username"])
         except FacilityUser.DoesNotExist:
-            raise CommandError('User with username `{username}` does not exist.'.format(username=options['username']))
+            raise CommandError(
+                "User with username `{username}` does not exist.".format(
+                    username=options["username"]
+                )
+            )
 
         # create username directory to hold associated files
         cwd = os.getcwd()
@@ -33,11 +39,11 @@ class Command(BaseCommand):
             os.makedirs(directory_location)
 
         # write basic user data to file
-        file_name = '{user}.txt'.format(user=user.username)
+        file_name = "{user}.txt".format(user=user.username)
         file_location = os.path.join(directory_location, file_name)
         data = FacilityUserSerializer(user).data
-        logger.info('Writing user data to {file}...'.format(file=file_location))
-        with open(file_location, 'w') as outfile:
+        logger.info("Writing user data to {file}...".format(file=file_location))
+        with open(file_location, "w") as outfile:
             json.dump(data, outfile, sort_keys=True, indent=4)
 
         # get related managers for user model
@@ -53,15 +59,17 @@ class Command(BaseCommand):
         for manager in managers:
             # currently accounts for one-to-one field on DevicePermissions
             if isinstance(manager, Model):
-                file_name = '{model}.txt'.format(model=manager.__class__.__name__.lower())
+                file_name = "{model}.txt".format(
+                    model=manager.__class__.__name__.lower()
+                )
                 models = [manager]
             else:
-                file_name = '{model}.txt'.format(model=manager.model.__name__.lower())
+                file_name = "{model}.txt".format(model=manager.model.__name__.lower())
                 models = manager.all()
             file_location = os.path.join(directory_location, file_name)
             # only create file if models exist
             if models:
                 data = serializers.serialize("json", models, indent=4)
-                logger.info('Writing data to {file}...'.format(file=file_location))
-                with open(file_location, 'w') as outfile:
+                logger.info("Writing data to {file}...".format(file=file_location))
+                with open(file_location, "w") as outfile:
                     outfile.write(data)

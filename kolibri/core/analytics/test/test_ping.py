@@ -22,11 +22,8 @@ def load_zipped_json(data):
 
 
 def mocked_requests_post_wrapper(json_data, status_code):
-
     def mocked_requests_post(*args, **kwargs):
-
         class MockResponse(Response):
-
             def __init__(self):
                 self.json_data = json_data
                 self.status_code = status_code
@@ -43,8 +40,9 @@ def mocked_requests_post_wrapper(json_data, status_code):
 
 
 class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
-
-    @mock.patch('requests.post', side_effect=mocked_requests_post_wrapper({"id": 17}, 200))
+    @mock.patch(
+        "requests.post", side_effect=mocked_requests_post_wrapper({"id": 17}, 200)
+    )
     def test_ping_succeeds(self, post_mock):
         call_command("ping", once=True)
         assert len(post_mock.call_args_list) == 2
@@ -52,7 +50,7 @@ class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
         assert post_mock.call_args_list[1][0][0].endswith("/statistics")
         assert load_zipped_json(post_mock.call_args_list[1][1]["data"])["pi"] == 17
 
-    @mock.patch('requests.post', side_effect=mocked_requests_post_wrapper({}, 400))
+    @mock.patch("requests.post", side_effect=mocked_requests_post_wrapper({}, 400))
     def test_ping_fails(self, post_mock):
         call_command("ping", once=True)
         assert len(post_mock.call_args_list) == 1

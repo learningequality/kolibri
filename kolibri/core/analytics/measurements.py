@@ -31,20 +31,30 @@ def get_db_info():
 
     """
     # Users information
-    active_sessions = 'unknown'
+    active_sessions = "unknown"
     active_users = active_users_minute = None
     try:
         connection.ensure_connection()
         # Sessions active in the last 10 minutes (includes guest accesses):
-        active_sessions = str(Session.objects.filter(expire_date__gte=timezone.now()).count())
+        active_sessions = str(
+            Session.objects.filter(expire_date__gte=timezone.now()).count()
+        )
         last_ten_minutes = timezone.now() - timedelta(minutes=10)
         last_minute = timezone.now() - timedelta(minutes=1)
         # Active logged users:
-        active_users = str(UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_ten_minutes).count())
+        active_users = str(
+            UserSessionLog.objects.filter(
+                last_interaction_timestamp__gte=last_ten_minutes
+            ).count()
+        )
         # Logged users with activity in the last minute:
-        active_users_minute = str(UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_minute).count())
+        active_users_minute = str(
+            UserSessionLog.objects.filter(
+                last_interaction_timestamp__gte=last_minute
+            ).count()
+        )
     except OperationalError:
-        print('Database unavailable, impossible to retrieve users and sessions info')
+        print("Database unavailable, impossible to retrieve users and sessions info")
 
     return (active_sessions, active_users, active_users_minute)
 
@@ -56,24 +66,36 @@ def get_channels_usage_info():
     :returns: List containing namedtuples, with each channel: id, name, accesses and time spent
     """
     channels_info = []
-    ChannelsInfo = namedtuple('ChannelsInfo', 'id name accesses time_spent')
+    ChannelsInfo = namedtuple("ChannelsInfo", "id name accesses time_spent")
 
     try:
         connection.ensure_connection()
-        channels = ChannelMetadata.objects.values('id', 'name')
-        channel_stats = ContentSessionLog.objects.values('channel_id').annotate(time_spent=Sum('time_spent'),
-                                                                                total=Count('channel_id'))
+        channels = ChannelMetadata.objects.values("id", "name")
+        channel_stats = ContentSessionLog.objects.values("channel_id").annotate(
+            time_spent=Sum("time_spent"), total=Count("channel_id")
+        )
         for channel in channels:
-            stats = channel_stats.filter(channel_id=channel['id'])
+            stats = channel_stats.filter(channel_id=channel["id"])
             if stats:
-                channels_info.append(ChannelsInfo(id=channel['id'], name=channel['name'],
-                                                  accesses=str(stats[0]['total']),
-                                                  time_spent='{:.2f} s'.format(stats[0]['time_spent'])))
+                channels_info.append(
+                    ChannelsInfo(
+                        id=channel["id"],
+                        name=channel["name"],
+                        accesses=str(stats[0]["total"]),
+                        time_spent="{:.2f} s".format(stats[0]["time_spent"]),
+                    )
+                )
             else:
-                channels_info.append(ChannelsInfo(id=channel['id'], name=channel['name'],
-                                                  accesses='0', time_spent='0.00 s'))
+                channels_info.append(
+                    ChannelsInfo(
+                        id=channel["id"],
+                        name=channel["name"],
+                        accesses="0",
+                        time_spent="0.00 s",
+                    )
+                )
     except OperationalError:
-        print('Database unavailable, impossible to retrieve channels usage info')
+        print("Database unavailable, impossible to retrieve channels usage info")
     return channels_info
 
 
@@ -85,18 +107,29 @@ def get_requests_info():
               - Kolibri recommended channels
               - Kolibri channels list
     """
+
     def format_url(url, base_url):
-        formatted = '{base_url}{url}&contentCacheKey={cache}'.format(base_url=base_url, url=url, cache=time.time())
+        formatted = "{base_url}{url}&contentCacheKey={cache}".format(
+            base_url=base_url, url=url, cache=time.time()
+        )
         return formatted
 
     _, port = get_kolibri_process_info()
     if port:
-        base_url = 'http://localhost:{}'.format(port)
-        homepage_time = '{:.2f} s'.format(requests.get(base_url).elapsed.total_seconds())
-        recommended_url = format_url('/api/content/contentnode_slim/popular/?by_role=true', base_url)
-        recommended_time = '{:.2f} s'.format(requests.get(recommended_url).elapsed.total_seconds())
-        channels_url = format_url('/api/content/channel/?available=true', base_url)
-        channels_time = '{:.2f} s'.format(requests.get(channels_url).elapsed.total_seconds())
+        base_url = "http://localhost:{}".format(port)
+        homepage_time = "{:.2f} s".format(
+            requests.get(base_url).elapsed.total_seconds()
+        )
+        recommended_url = format_url(
+            "/api/content/contentnode_slim/popular/?by_role=true", base_url
+        )
+        recommended_time = "{:.2f} s".format(
+            requests.get(recommended_url).elapsed.total_seconds()
+        )
+        channels_url = format_url("/api/content/channel/?available=true", base_url)
+        channels_time = "{:.2f} s".format(
+            requests.get(channels_url).elapsed.total_seconds()
+        )
     else:
         homepage_time = recommended_time = channels_time = None
 
@@ -127,7 +160,7 @@ def get_kolibri_process_info():
     kolibri_pid = None
     kolibri_port = None
     try:
-        with open(PID_FILE, 'r') as f:
+        with open(PID_FILE, "r") as f:
             kolibri_pid = int(f.readline())
             kolibri_port = int(f.readline())
     except IOError:
@@ -160,7 +193,7 @@ def get_kolibri_use(development=False):
     """
     if not SUPPORTED_OS:
         return (None, None)
-    kolibri_mem = kolibri_cpu = 'None'
+    kolibri_mem = kolibri_cpu = "None"
     kolibri_pid, _ = get_kolibri_process_info()
 
     if kolibri_pid:

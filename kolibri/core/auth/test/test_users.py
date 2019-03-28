@@ -7,6 +7,7 @@ from django.test import TestCase
 from ..models import Facility
 from ..models import FacilityUser
 from .helpers import create_superuser
+
 # from django.db.utils import IntegrityError
 
 
@@ -14,6 +15,7 @@ class UserSanityTestCase(TestCase):
     """
     Sanity checks basic functionality of user models.
     """
+
     def setUp(self):
         self.facility = Facility.objects.create()
         self.user = FacilityUser.objects.create(

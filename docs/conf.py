@@ -20,11 +20,13 @@ parent = os.path.dirname(cwd)
 sys.path.insert(0, os.path.abspath(parent))
 
 
-builddir = os.path.join(cwd, '_build')
+builddir = os.path.join(cwd, "_build")
 
 # When we start loading stuff from kolibri, we're gonna need this
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
-os.environ["KOLIBRI_HOME"] = os.path.join(builddir, 'kolibri_home')
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+)
+os.environ["KOLIBRI_HOME"] = os.path.join(builddir, "kolibri_home")
 
 # This is necessary because the directory needs to exist for Kolibri to run when
 # not invoked through CLI.
@@ -43,6 +45,7 @@ from django.db.models.fields import files  # noqa
 
 files.FileDescriptor.__get__ = lambda *args: None
 
+
 # Auto list fields from django models - from https://djangosnippets.org/snippets/2533/#c5977
 def process_docstring(app, what, name, obj, options, lines):
     # This causes import errors if left outside the function
@@ -55,7 +58,7 @@ def process_docstring(app, what, name, obj, options, lines):
 
         for field in fields:
             # Skip ManyToOneRel and ManyToManyRel fields which have no 'verbose_name' or 'help_text'
-            if not hasattr(field, 'verbose_name'):
+            if not hasattr(field, "verbose_name"):
                 continue
 
             # Decode and strip any html out of the field's help text
@@ -68,18 +71,21 @@ def process_docstring(app, what, name, obj, options, lines):
             if help_text:
                 # Add the model field to the end of the docstring as a param
                 # using the help text as the description
-                lines.append(u':param %s: %s' % (field.attname, help_text))
+                lines.append(u":param %s: %s" % (field.attname, help_text))
             else:
                 # Add the model field to the end of the docstring as a param
                 # using the verbose name as the description
-                lines.append(u':param %s: %s' % (field.attname, verbose_name))
+                lines.append(u":param %s: %s" % (field.attname, verbose_name))
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
                 to = field.rel.to
-                lines.append(u':type %s: %s to :class:`~%s`' % (field.attname, type(field).__name__, to))
+                lines.append(
+                    u":type %s: %s to :class:`~%s`"
+                    % (field.attname, type(field).__name__, to)
+                )
             else:
-                lines.append(u':type %s: %s' % (field.attname, type(field).__name__))
+                lines.append(u":type %s: %s" % (field.attname, type(field).__name__))
 
     return lines
 
@@ -88,25 +94,25 @@ def process_docstring(app, what, name, obj, options, lines):
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
 
 linkcheck_ignore = [
-    'https://groups.google.com/a/learningequality.org/forum/#!forum/dev',
+    "https://groups.google.com/a/learningequality.org/forum/#!forum/dev"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = ['.rst', '.md']
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'Kolibri Developer Docs'
-copyright = u'{year:d}, Learning Equality'.format(year=datetime.now().year)
+project = u"Kolibri Developer Docs"
+copyright = u"{year:d}, Learning Equality".format(year=datetime.now().year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -119,24 +125,25 @@ release = kolibri.__version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+html_theme = "default"
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = ['.', sphinx_rtd_theme.get_html_theme_path()]
+
+    html_theme = "sphinx_rtd_theme"
+    html_theme_path = [".", sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -155,7 +162,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = 'logo.png'
+html_logo = "logo.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -165,7 +172,7 @@ html_logo = 'logo.png'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Wide, responsive tables not supported until this is merged
 # https://github.com/rtfd/sphinx_rtd_theme/pull/432
@@ -178,20 +185,21 @@ html_static_path = ['_static']
 #     ],
 # }
 
+
 # Approach 2 for custom stylesheet:
 # adapted from: http://rackerlabs.github.io/docs-rackspace/tools/rtd-tables.html
 # and https://github.com/altair-viz/altair/pull/418/files
 # https://github.com/rtfd/sphinx_rtd_theme/issues/117
 def setup(app):
     # Register the docstring processor with sphinx
-    app.connect('autodoc-process-docstring', process_docstring)
+    app.connect("autodoc-process-docstring", process_docstring)
     # Add our custom CSS overrides
-    app.add_stylesheet('theme_overrides.css')
+    app.add_stylesheet("theme_overrides.css")
 
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = "%b %d, %Y"
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -207,7 +215,7 @@ html_show_sphinx = False
 html_show_copyright = False
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'kolibri-dev'
+htmlhelp_basename = "kolibri-dev"
 
 
 # -- I18N ----------------------------------------------------------------------
@@ -216,6 +224,4 @@ htmlhelp_basename = 'kolibri-dev'
 # for a list of supported languages.
 # language = None
 
-locale_dirs = [
-    os.path.join(os.getcwd(), "locale", "docs"),
-]
+locale_dirs = [os.path.join(os.getcwd(), "locale", "docs")]

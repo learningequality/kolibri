@@ -24,7 +24,8 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             can_be_created_by=None,
             can_be_read_by=(ADMIN, COACH),
             can_be_updated_by=(ADMIN,),
-            can_be_deleted_by=None)
+            can_be_deleted_by=None,
+        )
 
     def user_can_create_object(self, user, obj):
         """
@@ -36,7 +37,9 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             return False
         else:
             # we allow a Collection to be created if the user has permissions to update the parent Collection
-            return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
+            return super(
+                CollectionSpecificRoleBasedPermissions, self
+            ).user_can_update_object(user, obj.parent)
 
     def user_can_delete_object(self, user, obj):
         """
@@ -47,7 +50,9 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             return False
         else:
             # for non-Facility Collections, defer to the roles to determine delete permissions
-            return super(CollectionSpecificRoleBasedPermissions, self).user_can_update_object(user, obj.parent)
+            return super(
+                CollectionSpecificRoleBasedPermissions, self
+            ).user_can_update_object(user, obj.parent)
 
 
 class AnonUserCanReadFacilities(DenyAll):
@@ -133,7 +138,9 @@ class AllCanReadFacilityDataset(BasePermissions):
 class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def _user_is_coach_for_classroom(self, user, obj):
         # make sure the target object is a group and user is a coach for the group's classroom
-        return obj.kind == LEARNERGROUP and user.has_role_for_collection(COACH, obj.parent)
+        return obj.kind == LEARNERGROUP and user.has_role_for_collection(
+            COACH, obj.parent
+        )
 
     def user_can_create_object(self, user, obj):
         return self._user_is_coach_for_classroom(user, obj)
@@ -152,7 +159,6 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
 
 
 class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
-
     def _user_is_coach_for_group(self, user, group):
         # make sure the target object is a group and user is a coach for the group
         return group.kind == LEARNERGROUP and user.has_role_for_collection(COACH, group)

@@ -20,16 +20,13 @@ class DevicePermissionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DevicePermissions
-        fields = (
-            'user', 'is_superuser', 'can_manage_content',
-        )
+        fields = ("user", "is_superuser", "can_manage_content")
 
 
 class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
-
     class Meta:
         model = FacilityUser
-        fields = ('id', 'username', 'full_name', 'password', )
+        fields = ("id", "username", "full_name", "password")
 
     def validate(self, attrs):
         return attrs
@@ -43,7 +40,7 @@ class DeviceProvisionSerializer(serializers.Serializer):
     settings = serializers.JSONField()
 
     class Meta:
-        fields = ('facility', 'dataset', 'superuser', 'language_id', 'settings',)
+        fields = ("facility", "dataset", "superuser", "language_id", "settings")
 
     def validate_language_id(self, language_id):
         """
@@ -63,24 +60,26 @@ class DeviceProvisionSerializer(serializers.Serializer):
         superuser - the required fields for a facilityuser who will be set as the super user for this device
         """
         with transaction.atomic():
-            facility = Facility.objects.create(**validated_data.pop('facility'))
-            preset = validated_data.pop('preset')
+            facility = Facility.objects.create(**validated_data.pop("facility"))
+            preset = validated_data.pop("preset")
             dataset_data = mappings[preset]
             for key, value in dataset_data.items():
                 setattr(facility.dataset, key, value)
             # overwrite the settings in dataset_data with validated_data.settings
-            custom_settings = validated_data.pop('settings')
+            custom_settings = validated_data.pop("settings")
             for key, value in custom_settings.items():
                 setattr(facility.dataset, key, value)
             facility.dataset.save()
-            superuser_data = validated_data.pop('superuser')
-            superuser_data['facility'] = facility
-            superuser = FacilityUserSerializer(data=superuser_data).create(superuser_data)
+            superuser_data = validated_data.pop("superuser")
+            superuser_data["facility"] = facility
+            superuser = FacilityUserSerializer(data=superuser_data).create(
+                superuser_data
+            )
             superuser.set_password(superuser_data["password"])
             superuser.save()
             facility.add_role(superuser, ADMIN)
             DevicePermissions.objects.create(user=superuser, is_superuser=True)
-            language_id = validated_data.pop('language_id')
+            language_id = validated_data.pop("language_id")
             device_settings, created = DeviceSettings.objects.get_or_create()
             device_settings.is_provisioned = True
             device_settings.language_id = language_id

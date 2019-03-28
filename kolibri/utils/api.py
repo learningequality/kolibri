@@ -9,6 +9,8 @@ from rest_framework.schemas.generators import SchemaGenerator
 
 
 class Enumerator(EndpointEnumerator):
+    # fmt: off
+    # HACK - turning off auto-formatting because the method is too complex. Should be refactored!
     def get_api_endpoints(self, patterns=None, prefix='', namespace=""):  # noqa max-complexity=12
         """
         Return a list of all available API endpoints with basename by inspecting the URL conf.
@@ -16,7 +18,7 @@ class Enumerator(EndpointEnumerator):
         if patterns is None:
             patterns = self.patterns
 
-        find_endpoint = re.compile('([^\/\^\?\]\+\)\(\.]+)(?:(?=\/\([^\)]+\)\/\$)|(?=\/\$))')
+        find_endpoint = re.compile(r'([^\/\^\?\]\+\)\(\.]+)(?:(?=\/\([^\)]+\)\/\$)|(?=\/\$))')
 
         api_endpoints = []
 
@@ -65,6 +67,7 @@ class Enumerator(EndpointEnumerator):
         api_endpoints = sorted(api_endpoints, key=endpoint_ordering)
 
         return api_endpoints
+    # fmt: on
 
 
 class Generator(SchemaGenerator):

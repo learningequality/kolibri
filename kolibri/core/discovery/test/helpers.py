@@ -1,7 +1,13 @@
 import mock
 import requests
 
-info = {"application": "kolibri", "device_name": "skynet", "instance_id": "a" * 32, "operating_system": "windows", "kolibri_version": "0.11.0"}
+info = {
+    "application": "kolibri",
+    "device_name": "skynet",
+    "instance_id": "a" * 32,
+    "operating_system": "windows",
+    "kolibri_version": "0.11.0",
+}
 
 
 def mock_request(session, url, *args, **kwargs):

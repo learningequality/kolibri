@@ -32,39 +32,39 @@ psapi.EnumProcesses.argtypes = (
     wintypes.LPDWORD,
 )  # _Out_ pBytesReturned
 
-svmem = namedtuple('svmem', ['total', 'used'])
-scputimes = namedtuple('scputimes', ['user', 'system', 'idle'])
+svmem = namedtuple("svmem", ["total", "used"])
+scputimes = namedtuple("scputimes", ["user", "system", "idle"])
 pmem = namedtuple(
-    'pmem',
+    "pmem",
     [
-        'rss',
-        'vms',
-        'num_page_faults',
-        'peak_wset',
-        'wset',
-        'peak_paged_pool',
-        'paged_pool',
-        'peak_nonpaged_pool',
-        'nonpaged_pool',
-        'pagefile',
-        'peak_pagefile',
+        "rss",
+        "vms",
+        "num_page_faults",
+        "peak_wset",
+        "wset",
+        "peak_paged_pool",
+        "paged_pool",
+        "peak_nonpaged_pool",
+        "nonpaged_pool",
+        "pagefile",
+        "peak_pagefile",
     ],
 )
 
 
 class SYSTEM_INFO(ctypes.Structure):
     _fields_ = (
-        ('wProcessorArchitecture', wintypes.WORD),
-        ('wReserved', wintypes.WORD),
-        ('dwPageSize', wintypes.DWORD),
-        ('lpMinimumApplicationAddress', wintypes.LPVOID),
-        ('lpMaximumApplicationAddress', wintypes.LPVOID),
-        ('dwActiveProcessorMask', wintypes.LPVOID),
-        ('dwNumberOfProcessors', wintypes.DWORD),
-        ('dwProcessorType', wintypes.DWORD),
-        ('dwAllocationGranularity', wintypes.DWORD),
-        ('wProcessorLevel', wintypes.WORD),
-        ('wProcessorRevision', wintypes.WORD),
+        ("wProcessorArchitecture", wintypes.WORD),
+        ("wReserved", wintypes.WORD),
+        ("dwPageSize", wintypes.DWORD),
+        ("lpMinimumApplicationAddress", wintypes.LPVOID),
+        ("lpMaximumApplicationAddress", wintypes.LPVOID),
+        ("dwActiveProcessorMask", wintypes.LPVOID),
+        ("dwNumberOfProcessors", wintypes.DWORD),
+        ("dwProcessorType", wintypes.DWORD),
+        ("dwAllocationGranularity", wintypes.DWORD),
+        ("wProcessorLevel", wintypes.WORD),
+        ("wProcessorRevision", wintypes.WORD),
     )
 
 
@@ -93,17 +93,17 @@ class FILETIME(ctypes.Structure):
 
 class PROCESS_MEMORY_COUNTERS_EX(ctypes.Structure):
     _fields_ = [
-        ('cb', wintypes.DWORD),
-        ('PageFaultCount', wintypes.DWORD),
-        ('PeakWorkingSetSize', ctypes.c_size_t),
-        ('WorkingSetSize', ctypes.c_size_t),
-        ('QuotaPeakPagedPoolUsage', ctypes.c_size_t),
-        ('QuotaPagedPoolUsage', ctypes.c_size_t),
-        ('QuotaPeakNonPagedPoolUsage', ctypes.c_size_t),
-        ('QuotaNonPagedPoolUsage', ctypes.c_size_t),
-        ('PagefileUsage', ctypes.c_size_t),
-        ('PeakPagefileUsage', ctypes.c_size_t),
-        ('PrivateUsage', ctypes.c_size_t),
+        ("cb", wintypes.DWORD),
+        ("PageFaultCount", wintypes.DWORD),
+        ("PeakWorkingSetSize", ctypes.c_size_t),
+        ("WorkingSetSize", ctypes.c_size_t),
+        ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+        ("QuotaPagedPoolUsage", ctypes.c_size_t),
+        ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+        ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+        ("PagefileUsage", ctypes.c_size_t),
+        ("PeakPagefileUsage", ctypes.c_size_t),
+        ("PrivateUsage", ctypes.c_size_t),
     ]
 
 
@@ -118,7 +118,9 @@ HI_T = 429.4967296
 def cpu_times():
     """Return system CPU times as a named tuple."""
     idle_time, kernel_time, user_time = FILETIME(), FILETIME(), FILETIME()
-    kernel32.GetSystemTimes(ctypes.byref(idle_time), ctypes.byref(kernel_time), ctypes.byref(user_time))
+    kernel32.GetSystemTimes(
+        ctypes.byref(idle_time), ctypes.byref(kernel_time), ctypes.byref(user_time)
+    )
 
     idle = HI_T * idle_time.dwHighDateTime + LO_T * idle_time.dwLowDateTime
     user = HI_T * user_time.dwHighDateTime + LO_T * user_time.dwLowDateTime
@@ -217,7 +219,7 @@ class Process(object):
         try:
             # pass as the startupinfo keyword argument:
             out, err = subprocess.Popen(
-                'wmic path win32_process get Processid,Commandline',
+                "wmic path win32_process get Processid,Commandline",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE,
@@ -225,7 +227,7 @@ class Process(object):
         except subprocess.CalledProcessError:
             pass
         elements = out.split()
-        b_pid = str(self.pid).encode('ascii')
+        b_pid = str(self.pid).encode("ascii")
         found = False
         for pos, element in enumerate(elements):
             if element == b_pid:
@@ -233,7 +235,7 @@ class Process(object):
                 break
         if not found:
             raise NoSuchProcess()
-        return elements[pos - 1].decode('utf-8', 'slashescape')
+        return elements[pos - 1].decode("utf-8", "slashescape")
 
     @wrap_exceptions
     def create_time(self):
@@ -287,7 +289,9 @@ class Process(object):
     def _get_raw_meminfo(self):
         hProcess = handle_from_pid(self.pid)
         counters = PROCESS_MEMORY_COUNTERS_EX()
-        ret = psapi.GetProcessMemoryInfo(hProcess, ctypes.byref(counters), ctypes.sizeof(counters))
+        ret = psapi.GetProcessMemoryInfo(
+            hProcess, ctypes.byref(counters), ctypes.sizeof(counters)
+        )
         if not ret:
             raise NoSuchProcess()
         kernel32.CloseHandle(hProcess)

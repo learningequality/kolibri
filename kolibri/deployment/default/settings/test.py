@@ -1,12 +1,14 @@
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import tempfile
 
 # If KOLIBRI_HOME isn't defined in the test env, it's okay to just set a
 # temp directory for testing.
-if 'KOLIBRI_HOME' not in os.environ:
-    os.environ['KOLIBRI_HOME'] = tempfile.mkdtemp()
+if "KOLIBRI_HOME" not in os.environ:
+    os.environ["KOLIBRI_HOME"] = tempfile.mkdtemp()
 
 
 from .base import *  # noqa isort:skip @UnusedWildImport

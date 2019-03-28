@@ -45,23 +45,23 @@ from .views import set_language
 from kolibri.core.content.utils import paths
 from kolibri.plugins.registry import get_urls as plugin_urls
 
-app_name = 'kolibri'
+app_name = "kolibri"
 
 core_urlpatterns = [
-    url(r'^$', RootURLRedirectView.as_view()),
-    url(r'^i18n/setlang/$', set_language, name='set_language'),
-    url(r'^redirectuser/$', RootURLRedirectView.as_view(), name="redirect_user"),
-    url(r'^guestaccess/$', GuestRedirectView.as_view(), name="guest"),
-    url(r'^logout/$', logout_view, name='logout'),
-    url(r'^api/', include('kolibri.core.api_urls')),
-    url(r'', include('kolibri.core.content.urls')),
+    url(r"^$", RootURLRedirectView.as_view()),
+    url(r"^i18n/setlang/$", set_language, name="set_language"),
+    url(r"^redirectuser/$", RootURLRedirectView.as_view(), name="redirect_user"),
+    url(r"^guestaccess/$", GuestRedirectView.as_view(), name="guest"),
+    url(r"^logout/$", logout_view, name="logout"),
+    url(r"^api/", include("kolibri.core.api_urls")),
+    url(r"", include("kolibri.core.content.urls")),
 ]
 
 
-urlpatterns = [
-    url(r'', include(core_urlpatterns, namespace='core')),
-]
+urlpatterns = [url(r"", include(core_urlpatterns, namespace="core"))]
 
 urlpatterns += plugin_urls()
 
-urlpatterns += static(paths.get_content_url("/"), document_root=paths.get_content_dir_path())
+urlpatterns += static(
+    paths.get_content_url("/"), document_root=paths.get_content_dir_path()
+)

@@ -38,14 +38,30 @@ class Command(BaseCommand):
     help = "Pings a central server to check for updates/messages and track stats."
 
     def add_arguments(self, parser):
-        parser.add_argument('--interval', action='store', dest='interval',
-                            help='Number of minutes to wait after a successful ping before the next ping.')
-        parser.add_argument('--checkrate', action='store', dest='checkrate',
-                            help='Number of minutes to wait between failed ping attempts.')
-        parser.add_argument('--server', action='store', dest='server',
-                            help='Base URL of the server to connect to.')
-        parser.add_argument('--once', action='store_true', dest='once',
-                            help='Only try to ping once, then exit')
+        parser.add_argument(
+            "--interval",
+            action="store",
+            dest="interval",
+            help="Number of minutes to wait after a successful ping before the next ping.",
+        )
+        parser.add_argument(
+            "--checkrate",
+            action="store",
+            dest="checkrate",
+            help="Number of minutes to wait between failed ping attempts.",
+        )
+        parser.add_argument(
+            "--server",
+            action="store",
+            dest="server",
+            help="Base URL of the server to connect to.",
+        )
+        parser.add_argument(
+            "--once",
+            action="store_true",
+            dest="once",
+            help="Only try to ping once, then exit",
+        )
 
     def handle(self, *args, **options):
 
@@ -65,7 +81,9 @@ class Command(BaseCommand):
                     create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
                     if "id" in data:
                         stat_data = self.perform_statistics(server, data["id"])
-                        create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+                        create_and_update_notifications(
+                            stat_data, nutrition_endpoints.STATISTICS
+                        )
                     connection.close()
                 if once:
                     break
@@ -73,11 +91,21 @@ class Command(BaseCommand):
                 time.sleep(interval * 60)
                 continue
             except ConnectionError:
-                logger.warn("Ping failed (could not connect). Trying again in {} minutes.".format(checkrate))
+                logger.warn(
+                    "Ping failed (could not connect). Trying again in {} minutes.".format(
+                        checkrate
+                    )
+                )
             except Timeout:
-                logger.warn("Ping failed (connection timed out). Trying again in {} minutes.".format(checkrate))
+                logger.warn(
+                    "Ping failed (connection timed out). Trying again in {} minutes.".format(
+                        checkrate
+                    )
+                )
             except RequestException as e:
-                logger.warn("Ping failed ({})! Trying again in {} minutes.".format(e, checkrate))
+                logger.warn(
+                    "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
+                )
             if once:
                 break
             time.sleep(checkrate * 60)
@@ -126,14 +154,12 @@ class Command(BaseCommand):
 
         url = urljoin(server, "/api/v1/statistics")
 
-        channels = [extract_channel_statistics(c) for c in ChannelMetadata.objects.all()]
+        channels = [
+            extract_channel_statistics(c) for c in ChannelMetadata.objects.all()
+        ]
         facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
 
-        data = {
-            "pi": pingback_id,
-            "c": channels,
-            "f": facilities,
-        }
+        data = {"pi": pingback_id, "c": channels, "f": facilities}
 
         logger.debug("Statistics data: {}".format(data))
 

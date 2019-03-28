@@ -40,15 +40,26 @@ def update_channel_metadata():
     Additionally, fix any potential issues that might be in the current content database from bugs
     in a previous version.
     """
-    from .channel_import import import_channel_from_local_db, InvalidSchemaVersionError, FutureSchemaError
-    channel_ids = get_channel_ids_for_content_database_dir(get_content_database_dir_path())
+    from .channel_import import (
+        import_channel_from_local_db,
+        InvalidSchemaVersionError,
+        FutureSchemaError,
+    )
+
+    channel_ids = get_channel_ids_for_content_database_dir(
+        get_content_database_dir_path()
+    )
     for channel_id in channel_ids:
         if not ChannelMetadata.objects.filter(id=channel_id).exists():
             try:
                 import_channel_from_local_db(channel_id)
                 annotate_content(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
-                logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
+                logger.warning(
+                    "Tried to import channel {channel_id}, but database file was incompatible".format(
+                        channel_id=channel_id
+                    )
+                )
     fix_multiple_trees_with_id_one()
     connection.close()
 
@@ -57,34 +68,61 @@ def fix_multiple_trees_with_id_one():
     # Do a check for improperly imported ContentNode trees
     # These trees have been naively imported, and so there are multiple trees
     # with tree_ids set to 1. Just check the root nodes to reduce the query size.
-    tree_id_one_channel_ids = ContentNode.objects.filter(parent=None, tree_id=1).values_list('channel_id', flat=True)
+    tree_id_one_channel_ids = ContentNode.objects.filter(
+        parent=None, tree_id=1
+    ).values_list("channel_id", flat=True)
     if len(tree_id_one_channel_ids) > 1:
         logger.warning("Improperly imported channels discovered")
         # There is more than one channel with a tree_id of 1
         # Find which channel has the most content nodes, and then delete and reimport the rest.
         channel_sizes = {}
         for channel_id in tree_id_one_channel_ids:
-            channel_sizes[channel_id] = ContentNode.objects.filter(channel_id=channel_id).count()
+            channel_sizes[channel_id] = ContentNode.objects.filter(
+                channel_id=channel_id
+            ).count()
         # Get sorted list of ids by increasing number of nodes
         sorted_channel_ids = sorted(channel_sizes, key=channel_sizes.get)
         # Loop through all but the largest channel, delete and reimport
         count = 0
         from .channel_import import import_channel_from_local_db
+
         for channel_id in sorted_channel_ids[:-1]:
             # Double check that we have a content db to import from before deleting any metadata
             if os.path.exists(get_content_database_file_path(channel_id)):
-                logger.warning("Deleting and reimporting channel metadata for {channel_id}".format(channel_id=channel_id))
-                ChannelMetadata.objects.get(id=channel_id).delete_content_tree_and_files()
+                logger.warning(
+                    "Deleting and reimporting channel metadata for {channel_id}".format(
+                        channel_id=channel_id
+                    )
+                )
+                ChannelMetadata.objects.get(
+                    id=channel_id
+                ).delete_content_tree_and_files()
                 import_channel_from_local_db(channel_id)
-                logger.info("Successfully reimported channel metadata for {channel_id}".format(channel_id=channel_id))
+                logger.info(
+                    "Successfully reimported channel metadata for {channel_id}".format(
+                        channel_id=channel_id
+                    )
+                )
                 count += 1
             else:
-                logger.warning("Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(channel_id=channel_id))
+                logger.warning(
+                    "Attempted to reimport channel metadata for channel {channel_id} but no content database found".format(
+                        channel_id=channel_id
+                    )
+                )
         if count:
-            logger.info("Successfully reimported channel metadata for {count} channels".format(count=count))
+            logger.info(
+                "Successfully reimported channel metadata for {count} channels".format(
+                    count=count
+                )
+            )
         failed_count = len(sorted_channel_ids) - 1 - count
         if failed_count:
-            logger.warning("Failed to reimport channel metadata for {count} channels".format(count=failed_count))
+            logger.warning(
+                "Failed to reimport channel metadata for {count} channels".format(
+                    count=failed_count
+                )
+            )
 
 
 def set_leaf_node_availability_from_local_file_availability(channel_id):
@@ -96,32 +134,46 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
 
     connection = bridge.get_connection()
 
-    file_statement = select([LocalFileTable.c.available]).where(
-        FileTable.c.local_file_id == LocalFileTable.c.id,
-    ).limit(1)
-
-    logger.info('Setting availability of File objects based on LocalFile availability')
-
-    connection.execute(FileTable.update().values(available=file_statement).execution_options(autocommit=True))
-
-    contentnode_statement = select([FileTable.c.contentnode_id]
-    ).where(
-        and_(
-            FileTable.c.available == True,  # noqa
-            FileTable.c.supplementary == False
-        )
-    ).where(
-        ContentNodeTable.c.id == FileTable.c.contentnode_id,
+    file_statement = (
+        select([LocalFileTable.c.available])
+        .where(FileTable.c.local_file_id == LocalFileTable.c.id)
+        .limit(1)
     )
 
-    logger.info('Setting availability of non-topic ContentNode objects based on File availability')
+    logger.info("Setting availability of File objects based on LocalFile availability")
 
-    connection.execute(ContentNodeTable.update().where(
-        and_(
-            ContentNodeTable.c.kind != content_kinds.TOPIC,
-            ContentNodeTable.c.channel_id == channel_id,
+    connection.execute(
+        FileTable.update()
+        .values(available=file_statement)
+        .execution_options(autocommit=True)
+    )
+
+    contentnode_statement = (
+        select([FileTable.c.contentnode_id])
+        .where(
+            and_(
+                FileTable.c.available == True,  # noqa
+                FileTable.c.supplementary == False,
+            )
         )
-    ).values(available=exists(contentnode_statement)).execution_options(autocommit=True))
+        .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
+    )
+
+    logger.info(
+        "Setting availability of non-topic ContentNode objects based on File availability"
+    )
+
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.kind != content_kinds.TOPIC,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .values(available=exists(contentnode_statement))
+        .execution_options(autocommit=True)
+    )
 
     bridge.end()
 
@@ -135,13 +187,20 @@ def mark_local_files_as_available(checksums):
 
     LocalFileClass = bridge.get_class(LocalFile)
 
-    logger.info('Setting availability of {number} LocalFile objects based on passed in checksums'.format(number=len(checksums)))
+    logger.info(
+        "Setting availability of {number} LocalFile objects based on passed in checksums".format(
+            number=len(checksums)
+        )
+    )
 
     for i in range(0, len(checksums), CHUNKSIZE):
-        bridge.session.bulk_update_mappings(LocalFileClass, ({
-            'id': checksum,
-            'available': True
-        } for checksum in checksums[i:i + CHUNKSIZE]))
+        bridge.session.bulk_update_mappings(
+            LocalFileClass,
+            (
+                {"id": checksum, "available": True}
+                for checksum in checksums[i : i + CHUNKSIZE]
+            ),
+        )
         bridge.session.flush()
 
     bridge.session.commit()
@@ -155,20 +214,43 @@ def set_local_file_availability_from_disk(checksums=None):
     LocalFileClass = bridge.get_class(LocalFile)
 
     if checksums is None:
-        logger.info('Setting availability of LocalFile objects based on disk availability')
-        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).all()
+        logger.info(
+            "Setting availability of LocalFile objects based on disk availability"
+        )
+        files = bridge.session.query(
+            LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension
+        ).all()
     elif type(checksums) == list:
-        logger.info('Setting availability of {number} LocalFile objects based on disk availability'.format(number=len(checksums)))
-        files = bridge.session.query(LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension).filter(LocalFileClass.id.in_(checksums)).all()
+        logger.info(
+            "Setting availability of {number} LocalFile objects based on disk availability".format(
+                number=len(checksums)
+            )
+        )
+        files = (
+            bridge.session.query(
+                LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension
+            )
+            .filter(LocalFileClass.id.in_(checksums))
+            .all()
+        )
     else:
-        logger.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
+        logger.info(
+            "Setting availability of LocalFile object with checksum {checksum} based on disk availability".format(
+                checksum=checksums
+            )
+        )
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
     checksums_to_update = []
     for file in files:
         try:
             # Only update if the file exists, *and* the localfile is set as unavailable.
-            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available:
+            if (
+                os.path.exists(
+                    get_content_storage_file_path(get_content_file_name(file))
+                )
+                and not file.available
+            ):
                 checksums_to_update.append(file.id)
         except InvalidStorageFilenameError:
             continue
@@ -189,7 +271,11 @@ def recurse_availability_up_tree(channel_id):
 
     node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
-    logger.info('Setting availability of ContentNode objects with children for {levels} levels'.format(levels=node_depth))
+    logger.info(
+        "Setting availability of ContentNode objects with children for {levels} levels".format(
+            levels=node_depth
+        )
+    )
 
     child = ContentNodeTable.alias()
 
@@ -203,22 +289,32 @@ def recurse_availability_up_tree(channel_id):
         available_nodes = select([child.c.available]).where(
             and_(
                 child.c.available == True,  # noqa
-                ContentNodeTable.c.id == child.c.parent_id
+                ContentNodeTable.c.id == child.c.parent_id,
             )
         )
 
-        logger.info('Setting availability of ContentNode objects with children for level {level}'.format(level=level))
+        logger.info(
+            "Setting availability of ContentNode objects with children for level {level}".format(
+                level=level
+            )
+        )
         # Only modify topic availability here
-        connection.execute(ContentNodeTable.update().where(
-            and_(
-                ContentNodeTable.c.level == level - 1,
-                ContentNodeTable.c.channel_id == channel_id,
-                ContentNodeTable.c.kind == content_kinds.TOPIC)).values(available=exists(available_nodes)))
+        connection.execute(
+            ContentNodeTable.update()
+            .where(
+                and_(
+                    ContentNodeTable.c.level == level - 1,
+                    ContentNodeTable.c.channel_id == channel_id,
+                    ContentNodeTable.c.kind == content_kinds.TOPIC,
+                )
+            )
+            .values(available=exists(available_nodes))
+        )
 
     # commit the transaction
     trans.commit()
 
-    elapsed = (datetime.datetime.now() - start)
+    elapsed = datetime.datetime.now() - start
     logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
@@ -235,7 +331,11 @@ def topic_coach_content_annotation(channel_id):
 
     node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
-    logger.info('Setting totals of coach content ContentNode objects with children for {levels} levels'.format(levels=node_depth))
+    logger.info(
+        "Setting totals of coach content ContentNode objects with children for {levels} levels".format(
+            levels=node_depth
+        )
+    )
 
     child = ContentNodeTable.alias()
 
@@ -249,7 +349,7 @@ def topic_coach_content_annotation(channel_id):
         available_nodes = select([child.c.available]).where(
             and_(
                 child.c.available == True,  # noqa
-                ContentNodeTable.c.id == child.c.parent_id
+                ContentNodeTable.c.id == child.c.parent_id,
             )
         )
 
@@ -257,38 +357,51 @@ def topic_coach_content_annotation(channel_id):
         # of a content node, whereby if they all have coach_content flagged on them, it will be true,
         # but otherwise false.
         # Everything after the select statement should be identical to the available_nodes expression above.
-        if bridge.engine.name == 'sqlite':
+        if bridge.engine.name == "sqlite":
             coach_content_nodes = select([func.min(child.c.coach_content)]).where(
                 and_(
                     child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id
+                    ContentNodeTable.c.id == child.c.parent_id,
                 )
             )
-        elif bridge.engine.name == 'postgresql':
+        elif bridge.engine.name == "postgresql":
             coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
                 and_(
                     child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id
+                    ContentNodeTable.c.id == child.c.parent_id,
                 )
             )
 
-        logger.info('Setting totals of coach content ContentNode objects with children for level {level}'.format(level=level))
+        logger.info(
+            "Setting totals of coach content ContentNode objects with children for level {level}".format(
+                level=level
+            )
+        )
 
         # Update all ContentNodes
-        connection.execute(ContentNodeTable.update().where(
-            and_(
-                # In this level
-                ContentNodeTable.c.level == level - 1,
-                # In this channel
-                ContentNodeTable.c.channel_id == channel_id,
-                # That are topics, and that have children that are flagged as available, with the coach content expression above
-                ContentNodeTable.c.kind == content_kinds.TOPIC)).where(exists(available_nodes)).values(coach_content=coach_content_nodes))
+        connection.execute(
+            ContentNodeTable.update()
+            .where(
+                and_(
+                    # In this level
+                    ContentNodeTable.c.level == level - 1,
+                    # In this channel
+                    ContentNodeTable.c.channel_id == channel_id,
+                    # That are topics, and that have children that are flagged as available, with the coach content expression above
+                    ContentNodeTable.c.kind == content_kinds.TOPIC,
+                )
+            )
+            .where(exists(available_nodes))
+            .values(coach_content=coach_content_nodes)
+        )
 
     # commit the transaction
     trans.commit()
 
-    elapsed = (datetime.datetime.now() - start)
-    logger.debug("Topic coach content annotation took {} seconds".format(elapsed.seconds))
+    elapsed = datetime.datetime.now() - start
+    logger.debug(
+        "Topic coach content annotation took {} seconds".format(elapsed.seconds)
+    )
 
     bridge.end()
 
@@ -320,24 +433,33 @@ def calculate_channel_fields(channel_id):
 
 def calculate_published_size(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
-    channel.published_size = _total_file_size(_files_for_nodes(content_nodes).filter(available=True))
+    channel.published_size = _total_file_size(
+        _files_for_nodes(content_nodes).filter(available=True)
+    )
     channel.save()
 
 
 def calculate_total_resource_count(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
-    channel.total_resource_count = content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).dedupe_by_content_id().count()
+    channel.total_resource_count = (
+        content_nodes.filter(available=True)
+        .exclude(kind=content_kinds.TOPIC)
+        .dedupe_by_content_id()
+        .count()
+    )
     channel.save()
 
 
 def calculate_included_languages(channel):
-    content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True).exclude(lang=None)
-    languages = content_nodes.order_by('lang').values_list('lang', flat=True).distinct()
+    content_nodes = ContentNode.objects.filter(
+        channel_id=channel.id, available=True
+    ).exclude(lang=None)
+    languages = content_nodes.order_by("lang").values_list("lang", flat=True).distinct()
     channel.included_languages.add(*list(languages))
 
 
 def calculate_next_order(channel):
-    latest_order = ChannelMetadata.objects.latest('order').order
+    latest_order = ChannelMetadata.objects.latest("order").order
     if latest_order is None:
         channel.order = 1
     else:
