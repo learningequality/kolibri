@@ -214,7 +214,7 @@
   }
 
   .mobile-card.card {
-    width: 100%;
+    width: calc(100% - 16px);
     height: $thumb-height-mobile;
   }
 

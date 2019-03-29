@@ -8,7 +8,7 @@
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
     </div>
-    <div :class="{ 'hidden-grid': hidden}">
+    <div :class="{'hidden-grid': hidden}">
       <ContentCardGroupGrid
         v-if="child.children.length"
         :contents="child.children"
@@ -59,23 +59,27 @@
 
 </script>
 
-<style>
+<style lang="scss">
+
+  @import '~kolibri.styles.definitions';
+
   .collapsible-grid {
+    margin-bottom: 8px;
     overflow: auto;
     border-radius: 8px;
-    margin-bottom: 8px;
-    /*box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);*/
-    border: solid 1px lightgray;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0 1px 5px 0 rgba(0, 0, 0, 0.12);
   }
 
   .clickable-header {
     padding-left: 16px;
-    background: rgba(153, 97, 137, 0.5);
-    border-radius: 7px;
+    color: white;
+    background-color: $core-action-normal;
+    border-radius: 8px;
   }
 
   .expanded-header {
-    border-radius: 7px 7px 0 0;
+    border-radius: 8px 8px 0 0;
   }
 
   .hidden-grid {
