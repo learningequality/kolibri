@@ -19,6 +19,12 @@ from kolibri.core.content.utils import paths
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
 
+try:
+    import kolibri.utils.pskolibri as psutil
+except NotImplementedError:
+    # This module can't work on this OS
+    psutil = None
+
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
@@ -188,6 +194,33 @@ def stop(pid=None, force=False):
     os.unlink(PID_FILE)
 
 
+def calculate_cache_size():
+    """
+    Returns the default value for CherryPY memory cache:
+    - value between 50MB and 250MB
+    """
+    MIN_CACHE = 50000000
+    MAX_CACHE = 250000000
+    if psutil:
+        MIN_MEM = 1
+        MAX_MEM = 4
+        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        # if it's in the range, scale thread count linearly with available memory
+        if MIN_MEM < total_memory < MAX_MEM:
+            return MIN_CACHE + int(
+                (MAX_CACHE - MIN_CACHE)
+                * float(total_memory - MIN_MEM)
+                / (MAX_MEM - MIN_MEM)
+            )
+        # otherwise return either the min or max amount
+        return MAX_CACHE if total_memory >= MAX_MEM else MIN_CACHE
+    elif sys.platform.startswith(
+        "darwin"
+    ):  # Considering MacOS has at least 4 Gb of RAM
+        return MAX_CACHE
+    return MIN_CACHE
+
+
 def run_server(port):
 
     # Mount the application
@@ -202,7 +235,7 @@ def run_server(port):
             "tools.expires.secs": 31536000,
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
-            "tools.caching.maxsize": 50000000,
+            "tools.caching.maxsize": calculate_cache_size(),
         }
     )
 
