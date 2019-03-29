@@ -42,6 +42,7 @@ from .views import GuestRedirectView
 from .views import logout_view
 from .views import RootURLRedirectView
 from .views import set_language
+from .views import UnsupportedBrowserView
 from kolibri.core.content.utils import paths
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.registry import get_urls as plugin_urls
@@ -53,6 +54,7 @@ lang_prefixed_patterns = [
     url(r"^i18n/setlang/$", set_language, name="set_language"),
     url(r"^redirectuser/$", RootURLRedirectView.as_view(), name="redirect_user"),
     url(r"^guestaccess/$", GuestRedirectView.as_view(), name="guest"),
+    url(r"^unsupported/$", UnsupportedBrowserView.as_view(), name="unsupported"),
 ]
 
 core_urlpatterns = [

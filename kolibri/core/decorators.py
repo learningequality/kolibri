@@ -339,6 +339,6 @@ def cache_no_user_data(view_func):
         del request.session
         response = view_func(*args, **kwargs)
         patch_response_headers(response, cache_timeout=300)
-        response['Vary'] = 'accept-encoding, accept, user-agent'
+        response['Vary'] = 'accept-encoding, accept'
         return response
     return inner_func

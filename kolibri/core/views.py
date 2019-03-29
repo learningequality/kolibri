@@ -10,11 +10,13 @@ from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
+from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.device.utils import device_provisioned
@@ -139,3 +141,8 @@ class RootURLRedirectView(View):
                 "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
             )
         )
+
+
+@method_decorator(cache_no_user_data, name="dispatch")
+class UnsupportedBrowserView(TemplateView):
+    template_name = "kolibri/unsupported_browser.html"

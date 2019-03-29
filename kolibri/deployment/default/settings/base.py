@@ -83,7 +83,6 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
-    "kolibri.core.device.middleware.IgnoreGUIMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -124,7 +123,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "kolibri.core.context_processors.custom_context_processor.supported_browser",
                 "kolibri.core.context_processors.custom_context_processor.developer_mode",
             ]
         },
