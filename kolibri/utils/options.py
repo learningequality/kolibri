@@ -8,7 +8,7 @@ from configobj import get_extra_values
 from validate import Validator
 
 try:
-    import kolibri.core.analytics.pskolibri as psutil
+    import kolibri.utils.pskolibri as psutil
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None

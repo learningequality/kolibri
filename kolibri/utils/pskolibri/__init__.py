@@ -49,11 +49,11 @@ import os
 import sys
 import time
 
-from kolibri.core.analytics.pskolibri.common import LINUX
-from kolibri.core.analytics.pskolibri.common import memoize_when_activated
-from kolibri.core.analytics.pskolibri.common import NoSuchProcess
-from kolibri.core.analytics.pskolibri.common import PY3
-from kolibri.core.analytics.pskolibri.common import WINDOWS
+from kolibri.utils.pskolibri.common import LINUX
+from kolibri.utils.pskolibri.common import memoize_when_activated
+from kolibri.utils.pskolibri.common import NoSuchProcess
+from kolibri.utils.pskolibri.common import PY3
+from kolibri.utils.pskolibri.common import WINDOWS
 
 
 _TOTAL_PHYMEM = None
@@ -64,16 +64,16 @@ if LINUX:
     # via sys.modules.
     PROCFS_PATH = "/proc"
 
-    from kolibri.core.analytics.pskolibri import _pslinux as _psplatform
+    from kolibri.utils.pskolibri import _pslinux as _psplatform
 
 elif WINDOWS:
-    from kolibri.core.analytics.pskolibri import _pswindows as _psplatform
+    from kolibri.utils.pskolibri import _pswindows as _psplatform
 
 else:  # pragma: no cover
     raise NotImplementedError("platform %s is not supported" % sys.platform)
 
 # elif MACOS:
-#     from kolibri.core.analytics.pskolibri import _psosx as _psplatform
+#     from kolibri.utils.pskolibri import _psosx as _psplatform
 
 
 def _cpu_times_deltas(t1, t2):

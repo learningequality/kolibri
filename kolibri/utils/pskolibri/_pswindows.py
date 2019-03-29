@@ -10,9 +10,9 @@ from collections import namedtuple
 from ctypes import windll
 from ctypes import wintypes
 
-from kolibri.core.analytics.pskolibri.common import AccessDenied
-from kolibri.core.analytics.pskolibri.common import NoSuchProcess
-from kolibri.core.analytics.pskolibri.common import pcputimes
+from kolibri.utils.pskolibri.common import AccessDenied
+from kolibri.utils.pskolibri.common import NoSuchProcess
+from kolibri.utils.pskolibri.common import pcputimes
 
 
 def check_zero(result, func, args):
