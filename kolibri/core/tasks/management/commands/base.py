@@ -5,18 +5,11 @@ from django.core.management.base import BaseCommand
 from iceqube.exceptions import UserCancelledError
 
 Progress = namedtuple(
-    'Progress',
-    [
-        'progress_fraction',
-        'message',
-        'extra_data',
-        'level',
-    ]
+    "Progress", ["progress_fraction", "message", "extra_data", "level"]
 )
 
 
-class ProgressTracker():
-
+class ProgressTracker:
     def __init__(self, total=100, level=0, update_callback=None):
 
         # set default values
@@ -41,7 +34,9 @@ class ProgressTracker():
     def get_progress(self):
 
         return Progress(
-            progress_fraction=0 if self.total == 0 else self.progress / float(self.total),
+            progress_fraction=0
+            if self.total == 0
+            else self.progress / float(self.total),
             message=self.message,
             extra_data=self.extra_data,
             level=self.level,
@@ -81,7 +76,7 @@ class AsyncCommand(BaseCommand):
             # and iceqube/bbq. It now expects the current progress,
             # the total progress, and then derives the
             # percentage progress manually.
-            self.update_progress(progress_list[0].progress_fraction, 1.)
+            self.update_progress(progress_list[0].progress_fraction, 1.0)
 
     def handle(self, *args, **options):
         self.update_progress = options.pop("update_progress", None)
@@ -90,7 +85,9 @@ class AsyncCommand(BaseCommand):
 
     def start_progress(self, total=100):
         level = len(self.progresstrackers)
-        tracker = ProgressTracker(total=total, level=level, update_callback=self._update_all_progress)
+        tracker = ProgressTracker(
+            total=total, level=level, update_callback=self._update_all_progress
+        )
         self.progresstrackers.append(tracker)
         return tracker
 

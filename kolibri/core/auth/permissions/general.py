@@ -89,7 +89,9 @@ class IsOwn(BasePermissions):
         self.field_name = field_name
 
     def _user_can_write_object(self, user, obj):
-        return (not self.read_only) and (user.id == lookup_field_with_fks(self.field_name, obj))
+        return (not self.read_only) and (
+            user.id == lookup_field_with_fks(self.field_name, obj)
+        )
 
     def user_can_create_object(self, user, obj):
         return self._user_can_write_object(user, obj)

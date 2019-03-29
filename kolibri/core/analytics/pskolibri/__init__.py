@@ -57,7 +57,7 @@ from kolibri.core.analytics.pskolibri.common import WINDOWS
 
 
 _TOTAL_PHYMEM = None
-_timer = getattr(time, 'monotonic', time.time)
+_timer = getattr(time, "monotonic", time.time)
 
 if LINUX:
     # This is public API and it will be retrieved from _pslinux.py
@@ -70,7 +70,7 @@ elif WINDOWS:
     from kolibri.core.analytics.pskolibri import _pswindows as _psplatform
 
 else:  # pragma: no cover
-    raise NotImplementedError('platform %s is not supported' % sys.platform)
+    raise NotImplementedError("platform %s is not supported" % sys.platform)
 
 # elif MACOS:
 #     from kolibri.core.analytics.pskolibri import _psosx as _psplatform
@@ -222,9 +222,9 @@ class Process(object):
             pid = os.getpid()
         else:
             if not PY3 and not isinstance(pid, (int, long)):  # noqa F821
-                raise TypeError('pid must be an integer (got %r)' % pid)
+                raise TypeError("pid must be an integer (got %r)" % pid)
             if pid < 0:
-                raise ValueError('pid must be a positive integer (got %s)' % pid)
+                raise ValueError("pid must be a positive integer (got %s)" % pid)
         self._pid = pid
         self._create_time = None
         # used for caching on Windows only (on POSIX ppid may change)

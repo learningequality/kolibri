@@ -9,7 +9,7 @@ from django.utils.six import string_types
 
 date_time_format = "%Y-%m-%d %H:%M:%S.%f"
 tz_format = "({tz})"
-tz_regex = re.compile("\(([^\)]+)\)")
+tz_regex = re.compile(r"\(([^\)]+)\)")
 db_storage_string = "{date_time_string}{tz_string}"
 
 
@@ -18,7 +18,7 @@ def parse_timezonestamp(value):
         tz = pytz.timezone(tz_regex.search(value).groups()[0])
     else:
         tz = timezone.get_current_timezone()
-    utc_value = tz_regex.sub('', value)
+    utc_value = tz_regex.sub("", value)
     value = typecast_timestamp(utc_value)
     if value.tzinfo is None:
         # Naive datetime, make aware
@@ -27,7 +27,7 @@ def parse_timezonestamp(value):
 
 
 def create_timezonestamp(value):
-    if value.tzinfo and hasattr(value.tzinfo, 'zone'):
+    if value.tzinfo and hasattr(value.tzinfo, "zone"):
         # We have a pytz timezone, we can work with this
         tz = value.tzinfo.zone
     elif value.tzinfo:
@@ -42,7 +42,9 @@ def create_timezonestamp(value):
         value = timezone.make_aware(value, timezone.get_current_timezone())
     date_time_string = value.astimezone(pytz.utc).strftime(date_time_format)
     tz_string = tz_format.format(tz=tz)
-    value = db_storage_string.format(date_time_string=date_time_string, tz_string=tz_string)
+    value = db_storage_string.format(
+        date_time_string=date_time_string, tz_string=tz_string
+    )
     return value
 
 

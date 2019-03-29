@@ -17,12 +17,14 @@ def module_exists(module_path):
     """
     if sys.version_info >= (3, 4):
         from importlib.util import find_spec
+
         try:
             return find_spec(module_path) is not None
         except ImportError:
             return False
     elif sys.version_info < (3,):
         from imp import find_module
+
         try:
             if "." in module_path:
                 __import__(module_path)
@@ -53,7 +55,7 @@ class VersionCompat(object):
     @property
     def base_version(self):
         # if it's a real Version object...
-        if hasattr(self.tpl_or_version, 'base_version'):
+        if hasattr(self.tpl_or_version, "base_version"):
             return self.tpl_or_version.base_version
 
         # Otherwise assume we have the old tuple with strings.

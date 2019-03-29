@@ -14,7 +14,9 @@ class I18NTests(TestCase):
     def _get_inactive_language_code(self):
         """Return language code for a language which is not activated."""
         current_language = get_language()
-        return [code for code, name in settings.LANGUAGES if not code == current_language][0]
+        return [
+            code for code, name in settings.LANGUAGES if not code == current_language
+        ][0]
 
     def test_setlang(self):
         """
@@ -23,7 +25,7 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
-        response = self.client.post(reverse('kolibri:core:set_language'), post_data)
+        response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
@@ -34,11 +36,11 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
-        response = self.client.post(reverse('kolibri:core:set_language'), post_data)
+        response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         post_data = dict(language=None)
-        response = self.client.post(reverse('kolibri:core:set_language'), post_data)
+        response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 204)
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
@@ -48,8 +50,8 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
-        response = self.client.get(reverse('kolibri:core:set_language'), data=post_data)
-        self.assertEqual(response.url, reverse('kolibri:core:redirect_user'))
+        response = self.client.get(reverse("kolibri:core:set_language"), data=post_data)
+        self.assertEqual(response.url, reverse("kolibri:core:redirect_user"))
 
     def test_setlang_for_ajax(self):
         """
@@ -57,7 +59,11 @@ class I18NTests(TestCase):
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
-        response = self.client.post(reverse('kolibri:core:set_language'), post_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(
+            reverse("kolibri:core:set_language"),
+            post_data,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
@@ -65,34 +71,38 @@ class I18NTests(TestCase):
         # we force saving language to a cookie rather than a session
         # by excluding session middleware and those which do require it
         test_settings = {
-            'MIDDLEWARE': ['django.middleware.common.CommonMiddleware'],
-            'LANGUAGE_COOKIE_NAME': 'mylanguage',
-            'LANGUAGE_COOKIE_AGE': 3600 * 7 * 2,
-            'LANGUAGE_COOKIE_DOMAIN': '.example.com',
-            'LANGUAGE_COOKIE_PATH': '/test/',
+            "MIDDLEWARE": ["django.middleware.common.CommonMiddleware"],
+            "LANGUAGE_COOKIE_NAME": "mylanguage",
+            "LANGUAGE_COOKIE_AGE": 3600 * 7 * 2,
+            "LANGUAGE_COOKIE_DOMAIN": ".example.com",
+            "LANGUAGE_COOKIE_PATH": "/test/",
         }
         with self.settings(**test_settings):
-            post_data = dict(language='pl')
-            response = self.client.post(reverse('kolibri:core:set_language'), data=post_data)
-            language_cookie = response.cookies.get('mylanguage')
-            self.assertEqual(language_cookie.value, 'pl')
-            self.assertEqual(language_cookie['domain'], '.example.com')
-            self.assertEqual(language_cookie['path'], '/test/')
-            self.assertEqual(language_cookie['max-age'], 3600 * 7 * 2)
+            post_data = dict(language="pl")
+            response = self.client.post(
+                reverse("kolibri:core:set_language"), data=post_data
+            )
+            language_cookie = response.cookies.get("mylanguage")
+            self.assertEqual(language_cookie.value, "pl")
+            self.assertEqual(language_cookie["domain"], ".example.com")
+            self.assertEqual(language_cookie["path"], "/test/")
+            self.assertEqual(language_cookie["max-age"], 3600 * 7 * 2)
 
     def test_setlang_cookie_null(self):
         # we force saving language to a cookie rather than a session
         # by excluding session middleware and those which do require it
         test_settings = {
-            'MIDDLEWARE': ['django.middleware.common.CommonMiddleware'],
-            'LANGUAGE_COOKIE_NAME': 'mylanguage',
-            'LANGUAGE_COOKIE_AGE': 3600 * 7 * 2,
-            'LANGUAGE_COOKIE_DOMAIN': '.example.com',
-            'LANGUAGE_COOKIE_PATH': '/test/',
+            "MIDDLEWARE": ["django.middleware.common.CommonMiddleware"],
+            "LANGUAGE_COOKIE_NAME": "mylanguage",
+            "LANGUAGE_COOKIE_AGE": 3600 * 7 * 2,
+            "LANGUAGE_COOKIE_DOMAIN": ".example.com",
+            "LANGUAGE_COOKIE_PATH": "/test/",
         }
         with self.settings(**test_settings):
             post_data = dict(language=None)
-            response = self.client.post(reverse('kolibri:core:set_language'), data=post_data)
-            language_cookie = response.cookies.get('mylanguage')
+            response = self.client.post(
+                reverse("kolibri:core:set_language"), data=post_data
+            )
+            language_cookie = response.cookies.get("mylanguage")
             self.assertTrue(language_cookie)
-            self.assertEqual(language_cookie.value, '')
+            self.assertEqual(language_cookie.value, "")

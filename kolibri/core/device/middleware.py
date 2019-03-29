@@ -6,7 +6,6 @@ from .translation import get_language_from_request
 
 
 class KolibriLocaleMiddleware(LocaleMiddleware):
-
     def process_request(self, request):
         language = get_language_from_request(request)
         translation.activate(language)
@@ -31,5 +30,5 @@ class IgnoreGUIMiddleware(object):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if request.META.get("HTTP_USER_AGENT", None) == "Kolibri session":
-            return HttpResponse('')
+            return HttpResponse("")
         return None

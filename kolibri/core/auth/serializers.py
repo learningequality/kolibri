@@ -20,7 +20,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ('id', 'kind', 'collection', 'user', 'collection_parent',)
+        fields = ("id", "kind", "collection", "user", "collection_parent")
 
     def get_collection_parent(self, instance):
         if instance.collection.parent is not None:
@@ -34,13 +34,21 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FacilityUser
-        extra_kwargs = {'password': {'write_only': True}}
-        fields = ('id', 'username', 'full_name', 'password', 'facility', 'roles', 'is_superuser')
+        extra_kwargs = {"password": {"write_only": True}}
+        fields = (
+            "id",
+            "username",
+            "full_name",
+            "password",
+            "facility",
+            "roles",
+            "is_superuser",
+        )
 
     def validate(self, attrs):
-        username = attrs.get('username')
+        username = attrs.get("username")
         # first condition is for creating object, second is for updating
-        facility = attrs.get('facility') or getattr(self.instance, 'facility')
+        facility = attrs.get("facility") or getattr(self.instance, "facility")
         # if obj doesn't exist, return data
         try:
             obj = FacilityUser.objects.get(username__iexact=username, facility=facility)
@@ -50,30 +58,40 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         if self.instance and obj.id == self.instance.id:
             return attrs
         else:
-            raise serializers.ValidationError('An account with that username already exists.', code=error_constants.USERNAME_ALREADY_EXISTS)
+            raise serializers.ValidationError(
+                "An account with that username already exists.",
+                code=error_constants.USERNAME_ALREADY_EXISTS,
+            )
 
 
 class FacilityUsernameSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = FacilityUser
-        fields = ('username', )
+        fields = ("username",)
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Membership
-        fields = ('id', 'collection', 'user')
+        fields = ("id", "collection", "user")
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = FacilityDataset
-        fields = ('id', 'learner_can_edit_username', 'learner_can_edit_name', 'learner_can_edit_password',
-                  'learner_can_sign_up', 'learner_can_delete_account', 'learner_can_login_with_no_password',
-                  'show_download_button_in_learn', 'description', 'location', 'allow_guest_access')
+        fields = (
+            "id",
+            "learner_can_edit_username",
+            "learner_can_edit_name",
+            "learner_can_edit_password",
+            "learner_can_sign_up",
+            "learner_can_delete_account",
+            "learner_can_login_with_no_password",
+            "show_download_button_in_learn",
+            "description",
+            "location",
+            "allow_guest_access",
+        )
 
 
 class FacilitySerializer(serializers.ModelSerializer):
@@ -82,18 +100,17 @@ class FacilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Facility
-        extra_kwargs = {'id': {'read_only': True}, 'dataset': {'read_only': True}}
-        fields = ('id', 'name', 'dataset', 'default')
+        extra_kwargs = {"id": {"read_only": True}, "dataset": {"read_only": True}}
+        fields = ("id", "name", "dataset", "default")
 
     def get_default(self, instance):
         return instance == Facility.get_default_facility()
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Facility
-        fields = ('dataset', 'name')
+        fields = ("dataset", "name")
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -108,18 +125,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        fields = (
-            'id',
-            'name',
-            'parent',
-            'learner_count',
-            'coaches',
-        )
+        fields = ("id", "name", "parent", "learner_count", "coaches")
 
         validators = [
             UniqueTogetherValidator(
-                queryset=Classroom.objects.all(),
-                fields=('parent', 'name')
+                queryset=Classroom.objects.all(), fields=("parent", "name")
             )
         ]
 
@@ -129,15 +139,14 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
     user_ids = serializers.SerializerMethodField()
 
     def get_user_ids(self, group):
-        return [str(user_id['id']) for user_id in group.get_members().values('id')]
+        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
 
     class Meta:
         model = LearnerGroup
-        fields = ('id', 'name', 'parent', 'user_ids')
+        fields = ("id", "name", "parent", "user_ids")
 
         validators = [
             UniqueTogetherValidator(
-                queryset=LearnerGroup.objects.all(),
-                fields=('parent', 'name')
+                queryset=LearnerGroup.objects.all(), fields=("parent", "name")
             )
         ]

@@ -9,12 +9,13 @@ def test_cryptography_path():
     """
     try:
         import cryptography
+
         # If this is 'n' and we can import cryptography, there is a problem
-        assert os.environ.get('TOX_ENV') != 'nocext'
-        if os.environ.get('TOX_ENV') == 'cext':
+        assert os.environ.get("TOX_ENV") != "nocext"
+        if os.environ.get("TOX_ENV") == "cext":
             assert "dist/cext" in cryptography.__file__
     except ImportError:
         # This variable is defined in .travis.yml and the intention is to fail
         # loudly when were unsuccessful when importing cryptography
-        if os.environ.get('TOX_ENV') == 'cext':
+        if os.environ.get("TOX_ENV") == "cext":
             raise AssertionError("Expected c extesions")

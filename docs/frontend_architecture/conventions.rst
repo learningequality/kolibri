@@ -8,7 +8,7 @@ Linting and auto formatting
 
 Many of our conventions are enforced through various linters including `ESLint <https://eslint.org/>`__, `ESLint Vue plugin <https://github.com/vuejs/eslint-plugin-vue>`__, `stylelint <https://stylelint.io/>`__, and `HTMLHint <https://htmlhint.io/>`__. The enforced rules are located in the ``.eslintrc.js``, ``.stylelintrc.js``, and ``.htmlhintrc`` files located at the root of the project. Many of these rules are auto fixed during the Webpack dev server.
 
-We also use `Prettier <https://prettier.io/>`__ to auto format ``.vue``, ``.js``, and ``.scss`` files.
+We use `Prettier <https://prettier.io/>`__ to auto-format ``.vue``, ``.js``, and ``.scss`` files. We use `Black <https://github.com/ambv/black>`__ to auto-format ``.py`` files.
 
 The linting and auto formating is incorporated into the dev server and pre commit hooks, so make sure you've set up `pre-commit` as described in :doc:`/getting_started`.
 

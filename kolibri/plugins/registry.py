@@ -67,6 +67,7 @@ def initialize(apps=None):
 
     if not apps:
         from django.conf import settings
+
         apps = settings.INSTALLED_APPS
 
     if not __initialized:
@@ -78,7 +79,7 @@ def initialize(apps=None):
                 # Handle AppConfig INSTALLED_APPS string
                 if ".apps." in app:
                     # remove .apps.Config line in string
-                    import_string = app.split('.apps.')[0]
+                    import_string = app.split(".apps.")[0]
                 else:
                     import_string = app
 
@@ -87,12 +88,22 @@ def initialize(apps=None):
 
                 logger.debug("Loaded kolibri plugin: {}".format(app))
                 # Load a list of all class types in module
-                all_classes = [cls for cls in plugin_module.__dict__.values() if isinstance(cls, type)]
+                all_classes = [
+                    cls
+                    for cls in plugin_module.__dict__.values()
+                    if isinstance(cls, type)
+                ]
                 # Filter the list to only match the ones that belong to the module
                 # and not the ones that have been imported
-                plugin_package = plugin_module.__package__ if plugin_module.__package__ else \
-                    plugin_module.__name__.rpartition('.')[0]
-                all_classes = filter(lambda x: plugin_package + ".kolibri_plugin" == x.__module__, all_classes)
+                plugin_package = (
+                    plugin_module.__package__
+                    if plugin_module.__package__
+                    else plugin_module.__name__.rpartition(".")[0]
+                )
+                all_classes = filter(
+                    lambda x: plugin_package + ".kolibri_plugin" == x.__module__,
+                    all_classes,
+                )
                 plugin_classes = []
                 for Klass in all_classes:
                     if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
@@ -118,10 +129,7 @@ def get_urls():
             urlpatterns.append(
                 url(
                     plugin_instance.url_slug(),
-                    include(
-                        url_module,
-                        namespace=plugin_instance.url_namespace()
-                    )
+                    include(url_module, namespace=plugin_instance.url_namespace()),
                 )
             )
 

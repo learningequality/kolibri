@@ -22,7 +22,7 @@ def test_active_kolibri():
 
     with patch(
         "kolibri.utils.server.get_status",
-        return_value=(12345, "http://127.0.0.1", 1234)
+        return_value=(12345, "http://127.0.0.1", 1234),
     ) as gs:
         with pytest.raises(SystemExit):
             call_command("dbbackup")
@@ -39,8 +39,7 @@ def test_inactive_kolibri():
     dest_folder = tempfile.mkdtemp()
 
     with patch(
-        "kolibri.utils.server.get_status",
-        side_effect=mock_status_not_running
+        "kolibri.utils.server.get_status", side_effect=mock_status_not_running
     ) as gs:
         # Since there's no backups available during a test, this should fail!
         assert not os.listdir(dest_folder)

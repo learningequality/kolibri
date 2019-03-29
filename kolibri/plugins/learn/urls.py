@@ -5,6 +5,6 @@ from .api_urls import urlpatterns
 from .views import LearnView
 
 urlpatterns = [
-    url('^api/', include(urlpatterns)),
-    url('^$', LearnView.as_view(), name='learn'),
+    url("^api/", include(urlpatterns)),
+    url("^$", LearnView.as_view(), name="learn"),
 ]

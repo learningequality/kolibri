@@ -13,22 +13,31 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Vacuum Kolibri's SQLite database to optimize it and reduce the .wal file size"
+    help = (
+        "Vacuum Kolibri's SQLite database to optimize it and reduce the .wal file size"
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--database', action='store', dest='database', default=DEFAULT_DB_ALIAS,
+            "--database",
+            action="store",
+            dest="database",
+            default=DEFAULT_DB_ALIAS,
             help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
         parser.add_argument(
-            '--scheduled', action='store', dest='scheduled', default=False, type=bool,
-            help='Flag to specify whether to run the process continuosly (currently set every day at 3AM). If False, no repetition will happen',
+            "--scheduled",
+            action="store",
+            dest="scheduled",
+            default=False,
+            type=bool,
+            help="Flag to specify whether to run the process continuosly (currently set every day at 3AM). If False, no repetition will happen",
         )
 
     def handle(self, *args, **options):
-        database = options['database']
+        database = options["database"]
         connection = connections[database]
-        scheduled = options['scheduled']
+        scheduled = options["scheduled"]
         if connection.vendor == "sqlite":
             while True:
                 with vacuum_db_lock:
@@ -43,10 +52,16 @@ class Command(BaseCommand):
                     diff = calculated_time - current_dt
                     interval = diff.seconds / 60  # minutes
                 else:  # calculate how many minutes until 3AM the next day
-                    calculated_time = current_dt.combine(current_dt.date(), _3AM) + datetime.timedelta(days=1)
+                    calculated_time = current_dt.combine(
+                        current_dt.date(), _3AM
+                    ) + datetime.timedelta(days=1)
                     diff = calculated_time - current_dt
                     interval = diff.seconds / 60  # minutes
-                logger.info("Next Vacuum at 3AM local server time (in {} minutes).".format(interval))
+                logger.info(
+                    "Next Vacuum at 3AM local server time (in {} minutes).".format(
+                        interval
+                    )
+                )
                 time.sleep(interval * 60)
 
     def perform_vacuum(self, database):
@@ -55,7 +70,7 @@ class Command(BaseCommand):
             connections.close_all()
             connection = connections[database]
             cursor = connection.cursor()
-            cursor.execute('vacuum;')
+            cursor.execute("vacuum;")
             connection.close()
         except Exception as e:
             logger.error(e)
@@ -63,7 +78,8 @@ class Command(BaseCommand):
                 "Vacuum of database {db_name} couldn't be executed. Possible reasons:\n"
                 "  * There is an open transaction in the db.\n"
                 "  * There are one or more active SQL statements.\n"
-                "The full error: {error_msg}").format(db_name=connections[database].settings_dict['NAME'], error_msg=e)
+                "The full error: {error_msg}"
+            ).format(db_name=connections[database].settings_dict["NAME"], error_msg=e)
             logger.error(new_msg)
         else:
             logger.info("Sqlite database Vacuum finished.")

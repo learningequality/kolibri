@@ -33,15 +33,16 @@ def version_file_restore(func):
     This decorator is used for testing functions that trigger during upgrades
     without mocking more than necessary.
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         version_file = cli.version_file()
         version_file_existed = os.path.isfile(version_file)
         orig_version = kolibri.__version__
-        kwargs['orig_version'] = orig_version
+        kwargs["orig_version"] = orig_version
 
         if version_file_existed:
-            kwargs['version_file'] = version_file
+            kwargs["version_file"] = version_file
 
         func(*args, **kwargs)
 
@@ -56,9 +57,7 @@ def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
     Monkeypatching for logging.Logger._log to scoop up log messages if we wanna
     test something specific was logged.
     """
-    LOG_LOGGER.append(
-        (LEVEL, msg)
-    )
+    LOG_LOGGER.append((LEVEL, msg))
     # Call the original function
     logger_instance.__log(LEVEL, msg, args, **kwargs)
 
@@ -68,13 +67,14 @@ def activate_log_logger(monkeypatch):
     Activates logging everything to ``LOG_LOGGER`` with the monkeypatch pattern
     of py.test (test accepts a ``monkeypatch`` argument)
     """
-    monkeypatch.setattr(logging.Logger, '__log', logging.Logger._log, raising=False)
-    monkeypatch.setattr(logging.Logger, '_log', log_logger)
+    monkeypatch.setattr(logging.Logger, "__log", logging.Logger._log, raising=False)
+    monkeypatch.setattr(logging.Logger, "_log", log_logger)
 
 
 @pytest.fixture
 def conf():
     from kolibri.utils import conf
+
     old_config = copy.deepcopy(conf.config)
     yield conf
     conf.update(old_config)
@@ -159,21 +159,22 @@ def test_kolibri_listen_port_env(monkeypatch):
     Checks that the correct fallback port is used from the environment.
     """
 
-    with patch('kolibri.core.content.utils.annotation.update_channel_metadata'):
+    with patch("kolibri.core.content.utils.annotation.update_channel_metadata"):
         from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):
             assert port == test_port
 
         activate_log_logger(monkeypatch)
-        monkeypatch.setattr(server, 'start', start_mock)
+        monkeypatch.setattr(server, "start", start_mock)
 
         test_port = 1234
 
-        os.environ['KOLIBRI_HTTP_PORT'] = str(test_port)
+        os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 
         # force a reload of conf.OPTIONS so the environment variable will be read in
         from kolibri.utils import conf
+
         conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
         server.start = start_mock
@@ -195,7 +196,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         # Ensure that if a server is reported to be 'starting up', it doesn't
         # get killed while doing that.
-        monkeypatch.setattr(server, 'get_status', status_starting_up)
+        monkeypatch.setattr(server, "get_status", status_starting_up)
         with pytest.raises(SystemExit) as excinfo:
             cli.stop()
             assert excinfo.code == server.STATUS_STARTING_UP
@@ -204,11 +205,10 @@ def test_kolibri_listen_port_env(monkeypatch):
 
 @pytest.mark.django_db
 @version_file_restore
-@patch('kolibri.utils.cli.update')
-@patch('kolibri.utils.cli.plugin')
-@patch('kolibri.core.deviceadmin.utils.dbbackup')
-def test_first_run(
-        dbbackup, plugin, update, version_file=None, orig_version=None):
+@patch("kolibri.utils.cli.update")
+@patch("kolibri.utils.cli.plugin")
+@patch("kolibri.core.deviceadmin.utils.dbbackup")
+def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=None):
     """
     Tests that the first_run() function performs as expected
     """
@@ -222,12 +222,13 @@ def test_first_run(
 
     # Check that it got called for each default plugin
     from kolibri.core.settings import DEFAULT_PLUGINS
+
     assert plugin.call_count == len(DEFAULT_PLUGINS)
 
 
 @pytest.mark.django_db
 @version_file_restore
-@patch('kolibri.utils.cli.update')
+@patch("kolibri.utils.cli.update")
 def test_update(update, version_file=None, orig_version=None):
     """
     Tests that update() function performs as expected
@@ -243,16 +244,16 @@ def test_should_back_up():
     """
     Tests our db backup logic: skip for dev versions, and backup on change
     """
-    assert cli.should_back_up('0.10.0', '0.10.1')
-    assert not cli.should_back_up('0.10.0', '0.10.0')
-    assert not cli.should_back_up('0.10.0-dev0', '0.10.0')
-    assert not cli.should_back_up('0.10.0', '0.10.0-dev0')
-    assert not cli.should_back_up('0.10.0-dev0', '0.10.0-dev0')
+    assert cli.should_back_up("0.10.0", "0.10.1")
+    assert not cli.should_back_up("0.10.0", "0.10.0")
+    assert not cli.should_back_up("0.10.0-dev0", "0.10.0")
+    assert not cli.should_back_up("0.10.0", "0.10.0-dev0")
+    assert not cli.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
 
 @pytest.mark.django_db
-@patch('kolibri.utils.cli.update')
-@patch('kolibri.core.deviceadmin.utils.dbbackup')
+@patch("kolibri.utils.cli.update")
+@patch("kolibri.core.deviceadmin.utils.dbbackup")
 def test_update_no_version_change(dbbackup, update, orig_version=None):
     """
     Tests that when the version doesn't change, we are not doing things we
@@ -275,21 +276,21 @@ def test_cli_usage():
 
 def test_cli_parsing():
     test_patterns = (
-        (['start'], {'start': True}, []),
-        (['stop'], {'stop': True}, []),
-        (['shell'], {'shell': True}, []),
-        (['manage', 'shell'], {'manage': True, 'COMMAND': 'shell'}, []),
-        (['manage', 'help'], {'manage': True, 'COMMAND': 'help'}, []),
-        (['manage', 'blah'], {'manage': True, 'COMMAND': 'blah'}, []),
+        (["start"], {"start": True}, []),
+        (["stop"], {"stop": True}, []),
+        (["shell"], {"shell": True}, []),
+        (["manage", "shell"], {"manage": True, "COMMAND": "shell"}, []),
+        (["manage", "help"], {"manage": True, "COMMAND": "help"}, []),
+        (["manage", "blah"], {"manage": True, "COMMAND": "blah"}, []),
         (
-            ['manage', 'blah', '--debug', '--', '--django-arg'],
-            {'manage': True, 'COMMAND': 'blah', '--debug': True},
-            ['--django-arg']
+            ["manage", "blah", "--debug", "--", "--django-arg"],
+            {"manage": True, "COMMAND": "blah", "--debug": True},
+            ["--django-arg"],
         ),
         (
-            ['manage', 'blah', '--django-arg'],
-            {'manage': True, 'COMMAND': 'blah'},
-            ['--django-arg']
+            ["manage", "blah", "--django-arg"],
+            {"manage": True, "COMMAND": "blah"},
+            ["--django-arg"],
         ),
     )
 
