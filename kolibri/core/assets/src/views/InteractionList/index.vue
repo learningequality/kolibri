@@ -1,14 +1,8 @@
 <template>
 
   <div class="interaction-list">
-    <!--TODO-->
-    <template v-if="interactions.length">
-      <p>{{ $tr('currAnswer', {ordinal: selectedInteractionIndex + 1 }) }}</p>
-    </template>
 
-    <p v-else>{{ $tr('noInteractions') }}</p>
     <div class="attempt-container">
-
       <InteractionItem
         v-for="(interaction, index) in interactions"
         :key="index"
@@ -16,8 +10,12 @@
         :interaction="interaction"
         @click.native="setCurrentInteractionIndex(index)"
       />
-
     </div>
+
+    <p>
+      {{ interactionsMessage }}
+    </p>
+
   </div>
 
 </template>
@@ -33,7 +31,7 @@
     components: { InteractionItem },
     mixins: [responsiveElement],
     $trs: {
-      currAnswer: '{ordinal, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} answer',
+      currAnswer: 'Attempt {value, number, integer}',
       noInteractions: 'No attempts made on this question',
     },
     props: {
@@ -44,6 +42,18 @@
       selectedInteractionIndex: {
         type: Number,
         required: true,
+      },
+    },
+    computed: {
+      interactionsMessage() {
+        const numAttempts = this.interactions.length;
+        if (numAttempts === 0) {
+          return this.$tr('noInteractions');
+        }
+        if (numAttempts > 1) {
+          return this.$tr('currAnswer', { value: this.selectedInteractionIndex + 1 });
+        }
+        return '';
       },
     },
     methods: {
@@ -60,8 +70,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .header {
     padding-top: 10px;
@@ -82,16 +90,6 @@
   .pagination-right {
     position: absolute;
     right: 0;
-  }
-
-  .enable {
-    cursor: pointer;
-    fill: $core-text-default;
-  }
-
-  .disable {
-    pointer-events: none;
-    fill: $core-text-disabled;
   }
 
 </style>

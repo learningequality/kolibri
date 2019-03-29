@@ -1,4 +1,4 @@
-Feature: Super admin grant and revoke the device permissions
+Feature: Super admin grants and revokes the device permissions
     Super admin needs to be able to grant and revoke the device permissions to other users to import content channels on the device
 
   Background:

@@ -365,6 +365,15 @@ class LocalFileByDisk(TransactionTestCase):
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
         self.assertEqual(LocalFile.objects.exclude(available=True).count(), 3)
 
+    def test_set_bad_filenames(self):
+        local_files = list(LocalFile.objects.all())
+        LocalFile.objects.all().delete()
+        for i, lf in enumerate(local_files):
+            lf.id = 'bananas' + str(i)
+            lf.save()
+        set_local_file_availability_from_disk()
+        self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
+
     def tearDown(self):
         call_command('flush', interactive=False)
         super(LocalFileByDisk, self).tearDown()

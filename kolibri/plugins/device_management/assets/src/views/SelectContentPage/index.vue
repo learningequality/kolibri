@@ -86,8 +86,10 @@
           :spaceOnDrive="availableSpace"
           @clickconfirm="startContentTransfer()"
         />
-        <hr>
-        <ContentTreeViewer />
+        <ContentTreeViewer
+          class="block-item"
+          :class="{ small : windowIsSmall }"
+        />
       </template>
     </template>
   </div>
@@ -103,6 +105,7 @@
   import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskStatuses, TaskTypes } from '../../constants';
   import { manageContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -128,6 +131,7 @@
       TaskProgress,
       UiAlert,
     },
+    mixins: [responsiveWindow],
     data() {
       return {
         showUpdateProgressBar: false,
@@ -163,7 +167,10 @@
         return !isEmpty(this.currentTopicNode);
       },
       metadataDownloadTask() {
-        return find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT });
+        return (
+          find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
+          find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
+        );
       },
       contentDownloadTask() {
         return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
@@ -282,8 +289,30 @@
 
 <style lang="scss" scoped>
 
+  .notifications {
+    margin-top: 8px;
+  }
+
   .updates {
     text-align: right;
+  }
+
+  .block-item {
+    padding-top: 16px;
+    padding-right: 24px;
+    padding-bottom: 16px;
+    padding-left: 24px;
+    margin-top: 24px;
+    margin-right: -24px;
+    margin-left: -24px;
+    border-top: 1px solid #dedede;
+  }
+
+  .small .block-item {
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-right: -16px;
+    margin-left: -16px;
   }
 
 </style>

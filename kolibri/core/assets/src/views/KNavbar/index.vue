@@ -3,6 +3,7 @@
   <div
     class="wrapper"
     :class="wrapperClass"
+    :style="{ backgroundColor: $coreActionNormal }"
   >
     <nav>
       <button
@@ -30,6 +31,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
         <mat-svg
@@ -47,6 +49,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import throttle from 'lodash/throttle';
 
@@ -55,7 +58,7 @@
    */
   export default {
     name: 'KNavbar',
-    mixins: [responsiveElement],
+    mixins: [responsiveElement, themeMixin],
     data() {
       return {
         enoughSpace: true,
@@ -69,6 +72,11 @@
         if (!this.enoughSpace) {
           return ['wrapper-narrow'];
         }
+      },
+      scrollButton() {
+        return {
+          ':hover': this.$coreOutlineAnyModality,
+        };
       },
     },
     mounted() {
@@ -110,11 +118,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .wrapper {
     padding-left: 16px;
-    background-color: $core-action-normal;
   }
 
   .wrapper-narrow {
@@ -135,9 +140,6 @@
     width: 36px;
     height: 36px;
     vertical-align: middle;
-    &:focus {
-      outline: $core-outline;
-    }
   }
 
   .scroll-button-icon {

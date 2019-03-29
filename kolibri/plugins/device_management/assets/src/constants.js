@@ -19,6 +19,7 @@ export const TaskTypes = {
   REMOTECHANNELIMPORT: 'REMOTECHANNELIMPORT',
   REMOTECONTENTIMPORT: 'REMOTECONTENTIMPORT',
   REMOTE_IMPORT: 'REMOTECONTENTIMPORT',
+  LOCALCHANNELIMPORT: 'DISKCHANNELIMPORT',
   LOCAL_IMPORT: 'DISKCONTENTIMPORT',
   LOCAL_EXPORT: 'DISKEXPORT',
   DELETE_CHANNEL: 'DELETECHANNEL',
@@ -39,6 +40,12 @@ export const TransferTypes = {
   LOCALIMPORT: 'localimport',
   PEERIMPORT: 'peerimport',
   REMOTEIMPORT: 'remoteimport',
+};
+
+// maps to possible network applications that we import/export content from
+export const ApplicationTypes = {
+  KOLIBRI: 'kolibri',
+  STUDIO: 'studio',
 };
 
 export const ContentWizardErrors = {

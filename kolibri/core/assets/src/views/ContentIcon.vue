@@ -57,6 +57,12 @@
         :class="[colorClass]"
       />
       <mat-svg
+        v-if="is(ContentNodeKinds.ACTIVITY)"
+        category="device"
+        name="access_time"
+        :class="[colorClass]"
+      />
+      <mat-svg
         v-if="is(USER)"
         category="social"
         name="person"
@@ -98,7 +104,7 @@
       audio: 'Audio',
       document: 'Document',
       html5: 'App',
-      exam: 'Exam',
+      exam: 'Quiz',
       lesson: 'Lesson',
       user: 'User',
     },

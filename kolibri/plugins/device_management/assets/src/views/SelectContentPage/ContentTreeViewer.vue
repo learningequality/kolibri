@@ -27,7 +27,7 @@
             <th></th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <ContentNodeRow
             v-for="node in showableAnnotatedChildNodes"
             :key="node.id"
@@ -39,7 +39,7 @@
             @clicktopic="updateCurrentTopicNode(node)"
             @changeselection="toggleSelection(node)"
           />
-        </tbody>
+        </transition-group>
       </CoreTable>
     </div>
 
@@ -221,6 +221,8 @@
 <style lang="scss" scoped>
 
   .select-all {
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
     white-space: nowrap;
     .k-checkbox-container {
       margin-right: -70px;

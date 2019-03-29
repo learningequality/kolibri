@@ -1,0 +1,82 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-01-29 04:11\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Burmese\n"
+"Language: my_MM\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Language: my\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
+
+#: kolibri/core/auth/constants/collection_kinds.py:14
+msgid "Facility"
+msgstr "ဌာန"
+
+#: kolibri/core/auth/constants/collection_kinds.py:15
+msgid "Classroom"
+msgstr "စာသင်ခန်း"
+
+#: kolibri/core/auth/constants/collection_kinds.py:16
+msgid "Learner group"
+msgstr "သင်ယူသူအုပ်စု"
+
+#: kolibri/core/content/api.py:132
+msgid "Content"
+msgstr "မာတိကာ"
+
+#: kolibri/core/content/api.py:728
+msgid "The requested channel does not exist on the content server"
+msgstr "တောင်းဆိုသော ချယ်နယ်သည် မာတိကာဆာဗာတွင် မရှိပါ"
+
+#: kolibri/core/content/models.py:278
+msgid "Unknown format"
+msgstr "Format အမြိုးအစားမသိပါ၊"
+
+#: kolibri/core/device/serializers.py:50
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri မှ မထောက်ပံ့ထားသော ဘာသာစကား"
+
+#: kolibri/core/tasks/api.py:32
+msgid "There was a network error."
+msgstr "ကွန်ရက်အမှားအယွင်း ရှိပါသည်"
+
+#: kolibri/core/tasks/api.py:34
+msgid "There was a disk access error."
+msgstr "Disk  အသုံးပြုမှု ချို့ယွင်းချက်ရှိခဲ့သည်"
+
+#: kolibri/core/tasks/api.py:36
+msgid "There was an unknown error."
+msgstr "၎င်းတွင် မသိရှိသော ချို့ယွင်းချက် များရှိခဲ့သည်"
+
+#: kolibri/core/templates/kolibri/base.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+msgid "Unsupported browser"
+msgstr "အထောက်အပံ့ မပေးသော browser ဖြစ် နေသည်"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+msgid "Sorry, your browser version is not supported."
+msgstr "ဆောရီးပါ သင်၏ browser ဗားရှင်းအတွက် မထောက်ပံ့ထားပါ "
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Kolibri အသုံးပြုရန် Firefox သို့မဟုတ် Chrome ကိုသုံးရန် အကြံပေးလိုသည်"
+
+#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+msgid "You can also try updating your current browser."
+msgstr "သင်၏ ယခု browser ကို အသစ်မွမ်းမံရန်လည်းကြိုးစားနိုင်ပါသည်"
+
+#: kolibri/core/views.py:131
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "သင့်တော်သော ချိတ်ဆက်ပေးမည့်စာမျက်နှာကိုမတွေ့ပါ။ Kolibri ကိုမှားယွင်းစွာ ပြင်ဆင်ထားသလိုဖြစ်နေသည်"
+

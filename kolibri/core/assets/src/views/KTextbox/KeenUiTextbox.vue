@@ -2,7 +2,7 @@
 
   <!--
    This component was forked from the Keen library in order to handle
-   internationalization of the max length validation.
+   dynamic styling of the drop down text color.
 
    The formatting has been changed to match our linters. We may eventually
    want to simply consolidate it with our component and remove any unused
@@ -12,7 +12,7 @@
   <div class="ui-textbox" :class="classes">
     <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <UiIcon :icon="icon" />
+        <UiIcon :icon="icon" :style="isActive ? { color: $coreActionNormal } : {}" />
       </slot>
     </div>
 
@@ -22,6 +22,7 @@
           v-if="label || $slots.default"
           class="ui-textbox-label-text"
           :class="labelClasses"
+          :style="isActive ? { color: $coreActionNormal } : {}"
         >
           <slot>{{ label }}</slot>
         </div>
@@ -43,6 +44,7 @@
           :readonly="readonly"
           :required="required"
           :step="stepValue"
+          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
 
           :type="type"
           :value="value"
@@ -72,6 +74,7 @@
 
           :required="required"
           :rows="rows"
+          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
@@ -103,6 +106,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon.vue';
 
   import autosize from 'autosize';
@@ -110,7 +114,6 @@
 
   export default {
     name: 'KeenUiTextbox',
-
     components: {
       UiIcon,
     },
@@ -118,6 +121,7 @@
     directives: {
       autofocus,
     },
+    mixins: [themeMixin],
 
     props: {
       name: String,
@@ -354,7 +358,7 @@
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
 
@@ -375,17 +379,13 @@
         border-bottom-color: $ui-input-border-color--hover;
       }
     }
+    &:focus {
+    }
 
     &.is-active:not(.is-disabled) {
       .ui-textbox-input,
       .ui-textbox-textarea {
-        border-bottom-color: $ui-input-border-color--active;
         border-bottom-width: $ui-input-border-width--active;
-      }
-
-      .ui-textbox-label-text,
-      .ui-textbox-icon-wrapper .ui-icon {
-        color: $ui-input-label-color--active;
       }
     }
 
@@ -486,7 +486,9 @@
   }
 
   .ui-textbox-input,
-  .ui-textbox-textarea {
+  .ui-textbox-textarea,
+  .ui-textbox-input:focus,
+  .ui-textbox-textarea:focus {
     display: block;
     width: 100%;
     padding: 0;

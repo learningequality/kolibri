@@ -4,8 +4,8 @@ import CatchErrors from 'kolibri.utils.CatchErrors';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 
 export function signUpNewUser(store, signUpCreds) {
-  store.commit('SET_SIGN_UP_BUSY', true);
   store.commit('RESET_STATE');
+  store.commit('SET_SIGN_UP_BUSY', true);
   return SignUpResource.saveModel({ data: signUpCreds })
     .then(() => {
       redirectBrowser();
@@ -20,7 +20,7 @@ export function signUpNewUser(store, signUpCreds) {
         store.commit('SET_SIGN_UP_ERRORS', errors);
       } else {
         // No errors we recognize, flag there are unrecognized errors
-        store.commit('SET_UNRECOGNIZED_ERROR');
+        store.dispatch('handleApiError', error, { root: true });
       }
       store.commit('SET_SIGN_UP_BUSY', false);
     });

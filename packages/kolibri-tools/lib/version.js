@@ -107,6 +107,10 @@ function setDependencyVersion(dependencyName, packageFile, version = null) {
     pkg.devDependencies[dependencyName] = version;
   }
 
+  if (pkg.optionalDependencies && pkg.optionalDependencies[dependencyName]) {
+    pkg.optionalDependencies[dependencyName] = version;
+  }
+
   fs.writeFileSync(packageFile, JSON.stringify(pkg, undefined, 2), { encoding: 'utf-8' });
 
   return version;

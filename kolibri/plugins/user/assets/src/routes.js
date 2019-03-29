@@ -11,13 +11,9 @@ export default [
     path: '/',
     handler: () => {
       if (store.getters.isUserLoggedIn) {
-        router.getInstance().replace({
-          name: PageNames.PROFILE,
-        });
+        router.replace({ name: PageNames.PROFILE });
       } else {
-        router.getInstance().replace({
-          name: PageNames.SIGN_IN,
-        });
+        router.replace({ name: PageNames.SIGN_IN });
       }
     },
   },
@@ -26,9 +22,7 @@ export default [
     path: '/signin',
     handler: () => {
       if (store.getters.isUserLoggedIn) {
-        router.getInstance().replace({
-          name: PageNames.PROFILE,
-        });
+        router.replace({ name: PageNames.PROFILE });
       } else {
         showSignInPage(store);
       }
@@ -39,9 +33,7 @@ export default [
     path: '/create_account',
     handler: () => {
       if (store.getters.isUserLoggedIn) {
-        router.getInstance().replace({
-          name: PageNames.PROFILE,
-        });
+        router.replace({ name: PageNames.PROFILE });
         return Promise.resolve();
       } else {
         return showSignUpPage(store);
@@ -53,9 +45,7 @@ export default [
     path: '/profile',
     handler: () => {
       if (!store.getters.isUserLoggedIn) {
-        router.getInstance().replace({
-          name: PageNames.SIGN_IN,
-        });
+        router.replace({ name: PageNames.SIGN_IN });
       } else {
         showProfilePage(store);
       }

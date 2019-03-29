@@ -15,7 +15,7 @@ const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const extract$trs = require('./extract_$trs');
 const logging = require('./logging');
@@ -23,37 +23,6 @@ const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
-
-const production = process.env.NODE_ENV === 'production';
-
-const cssInsertionLoader = production ? MiniCssExtractPlugin.loader : 'style-loader';
-
-const base_dir = path.join(__dirname, '..');
-
-const postCSSLoader = {
-  loader: 'postcss-loader',
-  options: {
-    config: { path: path.resolve(__dirname, '../postcss.config.js') },
-    sourceMap: !production,
-  },
-};
-
-const cssLoader = {
-  loader: 'css-loader',
-  options: { minimize: production, sourceMap: !production },
-};
-
-// for scss blocks
-const sassLoaders = [
-  cssInsertionLoader,
-  cssLoader,
-  postCSSLoader,
-  {
-    loader: 'sass-loader',
-    // prepends these variable override values to every parsed vue SASS block
-    options: { data: '@import "~kolibri.styles.keenVars";' },
-  },
-];
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
@@ -63,9 +32,11 @@ const sassLoaders = [
  * @param {string} data.name - The name that the plugin is referred to by.
  * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data
+ * @param {string} mode - The webpack mode to set for the configuration
+ * @param {boolean} hot - Activate hot module reloading
  * @returns {Object} bundle - An object defining the webpack config.
  */
-module.exports = data => {
+module.exports = (data, { mode = 'development', hot = false } = {}) => {
   if (
     typeof data.src_file === 'undefined' ||
     typeof data.name === 'undefined' ||
@@ -78,6 +49,37 @@ module.exports = data => {
     logging.error(data.name + ' plugin is misconfigured, missing parameter(s)');
     return;
   }
+
+  const production = mode === 'production';
+
+  const cssInsertionLoader = hot ? 'style-loader' : MiniCssExtractPlugin.loader;
+
+  const base_dir = path.join(__dirname, '..');
+
+  const postCSSLoader = {
+    loader: 'postcss-loader',
+    options: {
+      config: { path: path.resolve(__dirname, '../postcss.config.js') },
+      sourceMap: !production,
+    },
+  };
+
+  const cssLoader = {
+    loader: 'css-loader',
+    options: { minimize: production, sourceMap: !production },
+  };
+
+  // for scss blocks
+  const sassLoaders = [
+    cssInsertionLoader,
+    cssLoader,
+    postCSSLoader,
+    {
+      loader: 'sass-loader',
+      // prepends these variable override values to every parsed vue SASS block
+      options: { data: '@import "~kolibri.styles.keenVars";' },
+    },
+  ];
 
   let local_config = {};
 
@@ -108,6 +110,7 @@ module.exports = data => {
     },
     externals,
     name: data.name,
+    mode,
     module: {
       rules: [
         // Preprocessing rules
@@ -165,12 +168,23 @@ module.exports = data => {
     },
     optimization: {
       minimizer: [
-        new UglifyJsPlugin({
+        new TerserPlugin({
           cache: true,
           parallel: true,
-          sourceMap: false,
+          sourceMap: true,
+          terserOptions: {
+            mangle: false,
+            safari10: true,
+            output: {
+              comments: false,
+            },
+          },
         }),
-        new OptimizeCSSAssetsPlugin({}),
+        new OptimizeCSSAssetsPlugin({
+          cssProcessorPluginOptions: {
+            preset: ['default', { reduceIdents: false, zindex: false }],
+          },
+        }),
       ],
     },
     output: {
@@ -211,11 +225,7 @@ module.exports = data => {
         chunkFilename: '[name]' + data.version + '[id].css',
       }),
       new WebpackRTLPlugin({
-        minify: {
-          zindex: false,
-          // prevent renaming keyframes
-          reduceIdents: false,
-        },
+        minify: false,
       }),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.

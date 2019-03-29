@@ -116,8 +116,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   table {
     margin-top: 16px;
   }

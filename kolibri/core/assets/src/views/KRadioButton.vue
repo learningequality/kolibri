@@ -1,7 +1,10 @@
 <template>
 
   <!-- HTML makes clicking label apply to input by default -->
-  <label :class="['k-radio-button', {disabled}]">
+  <label
+    :class="['k-radio-button', {disabled}]"
+    :style="{ color: disabled ? $coreTextDisabled : '' }"
+  >
     <!-- v-model listens for @input event by default -->
     <!-- @input has compatibility issues for input of type radio -->
     <!-- Here, manually listen for @change (no compatibility issues) -->
@@ -23,20 +26,23 @@
       v-if="isChecked"
       category="toggle"
       name="radio_button_checked"
-      :class="['checked', {disabled, active}]"
+      class="checked"
+      :style="[{ fill: $coreActionNormal }, disabledStyle, activeStyle ]"
     />
     <mat-svg
       v-else
       category="toggle"
       name="radio_button_unchecked"
-      :class="['unchecked', {disabled, active}]"
+      class="unchecked"
+      :style="[{ fill: $coreTextAnnotation }, disabledStyle, activeStyle ]"
     />
 
     <span class="text" dir="auto">
       {{ label }}
       <span
         v-if="description"
-        :class="['description', {disabled}]"
+        class="description"
+        :style="[{ color: disabled ? '' : $coreTextAnnotation }, disabledStyle ]"
       >
         {{ description }}
       </span>
@@ -50,11 +56,14 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   /**
    * Used to display all options
    */
   export default {
     name: 'KRadioButton',
+    mixins: [themeMixin],
     model: {
       prop: 'currentValue',
     },
@@ -112,6 +121,13 @@
       id() {
         return `${this._uid}`;
       },
+      activeStyle() {
+        // setting opacity to 0 hides input's default outline
+        return this.active ? this.$coreOutline : {};
+      },
+      disabledStyle() {
+        return this.disabled ? { fill: this.$coreGrey300 } : {};
+      },
     },
 
     methods: {
@@ -136,8 +152,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $radio-height: 24px;
 
   .k-radio-button {
@@ -145,9 +159,6 @@
     display: block;
     margin-top: 8px;
     margin-bottom: 8px;
-    &.disabled {
-      color: $core-text-disabled;
-    }
     &:not(.disabled) {
       cursor: pointer;
     }
@@ -174,19 +185,6 @@
     // lay our custom radio buttons on top of the actual element
     width: $radio-height;
     height: $radio-height;
-    &.active {
-      // setting opacity to 0 hides input's default outline
-      outline: $core-outline;
-    }
-    &.disabled {
-      fill: $core-grey-300;
-    }
-  }
-  .checked {
-    fill: $core-action-normal;
-  }
-  .unchecked {
-    fill: $core-text-annotation;
   }
 
   .text,
@@ -202,9 +200,6 @@
     width: 100%;
     font-size: 12px;
     line-height: normal;
-    &:not(.disabled) {
-      color: $core-text-annotation;
-    }
   }
 
 </style>

@@ -3,6 +3,7 @@
   <div class="k-filter">
     <UiIcon
       class="k-filter-icon"
+      :style="{ color: $coreTextAnnotation }"
       :ariaLabel="$tr('filter')"
     >
       <mat-svg name="search" category="action" />
@@ -11,7 +12,11 @@
     <input
       v-model.trim="model"
       type="search"
-      class="k-filter-input"
+      :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
+      :style="{
+        color: $coreTextDefault,
+        border: `1px solid ${$coreGrey300}`,
+      }"
       :placeholder="placeholder"
       :aria-label="placeholder"
       :autofocus="autofocus"
@@ -22,6 +27,7 @@
       size="small"
       class="k-filter-clear-button"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
+      :style="{ color: $coreTextDefault }"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
     >
@@ -34,8 +40,9 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   /**
    * Used to filter items via text input
    */
@@ -49,6 +56,7 @@
       UiIcon,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: {
       /**
        * v-model
@@ -83,6 +91,13 @@
           this.$emit('input', val);
         },
       },
+      kFilterPlaceHolderStyle() {
+        return {
+          '::placeholder': {
+            color: this.$coreTextAnnotation,
+          },
+        };
+      },
     },
   };
 
@@ -90,8 +105,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .k-filter {
     position: relative;
@@ -107,7 +120,6 @@
     margin-right: 8px;
     margin-left: 8px;
     font-size: 24px;
-    color: $core-text-annotation;
   }
 
   .k-filter-input {
@@ -119,14 +131,8 @@
     padding-left: 40px;
     margin: 0;
     font-size: 14px;
-    color: $core-text-default;
     background-color: white;
-    border: 1px solid $core-grey-300;
     border-radius: 2px;
-
-    &::placeholder {
-      color: $core-text-annotation;
-    }
   }
 
   .k-filter-clear-button {
@@ -137,7 +143,6 @@
     height: 24px;
     margin-right: 8px;
     margin-left: 8px;
-    color: $core-text-default;
     visibility: hidden;
   }
 

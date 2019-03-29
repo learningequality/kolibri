@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header">
+      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
         {{ $tr('channelHeader') }}
       </div>
 
@@ -93,6 +93,7 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
@@ -127,7 +128,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},
@@ -141,6 +142,7 @@
         'inLocalImportMode',
         'inRemoteImportMode',
         'inExportMode',
+        'isStudioApplication',
       ]),
       ...mapState('manageContent/wizard', [
         'availableChannels',
@@ -183,7 +185,7 @@
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.inRemoteImportMode;
+        return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       allLanguagesOption() {
         return {
@@ -285,12 +287,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-    color: $core-text-annotation;
   }
 
   .top-matter {

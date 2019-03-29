@@ -16,7 +16,7 @@
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="modalSizeStyles"
+        :style="[ modalSizeStyles, { background: $coreBgLight } ]"
       >
 
         <!-- Modal Title -->
@@ -44,7 +44,10 @@
           <div
             ref="content"
             class="content"
-            :style="contentSectionMaxHeight"
+            :style="[ contentSectionMaxHeight, scrollShadow ? {
+              borderTop: `1px solid ${$coreGrey}`,
+              borderBottom: `1px solid ${$coreGrey}`,
+            } : {} ]"
             :class="{ 'scroll-shadow': scrollShadow }"
           >
             <slot></slot>
@@ -89,6 +92,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -101,7 +105,7 @@
     components: {
       KButton,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     $trs: {
       // error alerts
       errorAlert: 'Error in { title }',
@@ -296,14 +300,14 @@
 
   // TODO: margins for stacked buttons.
   .modal {
+    @extend %dropshadow-16dp;
+
     position: absolute;
     top: 50%;
     left: 50%;
     margin: 0 auto;
     overflow-y: auto;
-    background: $core-bg-light;
     border-radius: $radius;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
     transform: translate(-50%, -50%);
 
     &:focus {
@@ -339,8 +343,6 @@
     background-repeat: no-repeat;
     background-attachment: local, local, scroll, scroll;
     background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
-    border-top: 1px solid $core-grey;
-    border-bottom: 1px solid $core-grey;
   }
 
   .actions {

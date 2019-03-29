@@ -25,15 +25,13 @@ function genPublicPath(address, port, basePath) {
 
 const CONFIG = {
   address: 'localhost',
-  port: 3000,
   host: '0.0.0.0',
   basePath: 'js-dist',
 };
 
 function webpackConfig(pluginData, hot) {
-  const pluginBundle = webpackBaseConfig(pluginData);
-  pluginBundle.devtool = '#cheap-module-source-map';
-  pluginBundle.mode = 'development';
+  const pluginBundle = webpackBaseConfig(pluginData, { hot });
+  pluginBundle.devtool = 'cheap-module-source-map';
   pluginBundle.plugins = pluginBundle.plugins.concat([
     new webpack.DefinePlugin({
       'process.env': {
@@ -52,7 +50,7 @@ function webpackConfig(pluginData, hot) {
 }
 
 function buildWebpack(data, index, startCallback, doneCallback, options) {
-  const port = (options.port || CONFIG.port) + index;
+  const port = options.port + index;
   const publicPath = genPublicPath(CONFIG.address, port, CONFIG.basePath);
   const hot = options.hot;
 
@@ -99,7 +97,13 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
 
   compiler.hooks.compile.tap('Process', startCallback);
   compiler.hooks.done.tap('Process', doneCallback);
-  server.use('/__open-in-editor', openInEditor());
+
+  // Only register the launch editor middleware for port 3000, which
+  // is where Django redirects the request from vue-devtools
+  if (port === 3000) {
+    server.use('/__open-in-editor', openInEditor());
+  }
+
   server.listen(port, CONFIG.host, () => {
     logger.info(`webpack dev server listening on port ${port}`);
   });

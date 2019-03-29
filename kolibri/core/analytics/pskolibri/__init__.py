@@ -133,12 +133,6 @@ except Exception:
     # Don't want to crash at import time.
     _last_cpu_times = None
 
-try:
-    _last_per_cpu_times = cpu_times(percpu=True)
-except Exception:
-    # Don't want to crash at import time.
-    _last_per_cpu_times = None
-
 
 def cpu_count():
     """Return the number of logical CPUs in the system (same as
@@ -161,7 +155,6 @@ def cpu_percent():
     utilization as a percentage.
     """
     global _last_cpu_times
-    global _last_per_cpu_times
 
     def calculate(t1, t2):
         times_delta = _cpu_times_deltas(t1, t2)
@@ -228,7 +221,7 @@ class Process(object):
         if pid is None:
             pid = os.getpid()
         else:
-            if not PY3 and not isinstance(pid, (int, long)):
+            if not PY3 and not isinstance(pid, (int, long)):  # noqa F821
                 raise TypeError('pid must be an integer (got %r)' % pid)
             if pid < 0:
                 raise ValueError('pid must be a positive integer (got %s)' % pid)

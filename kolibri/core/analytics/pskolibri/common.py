@@ -7,10 +7,13 @@ import os
 import sys
 from collections import namedtuple
 
+from kolibri.utils.android import on_android
+
+
 PY3 = sys.version_info[0] == 3
 POSIX = os.name == "posix"
 WINDOWS = os.name == "nt"
-LINUX = sys.platform.startswith("linux")
+LINUX = sys.platform.startswith("linux") and not on_android()
 MACOS = sys.platform.startswith("darwin")
 
 if PY3:

@@ -5,29 +5,33 @@
     <CoreTable>
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col"></th>
           <th>{{ $tr('fullName') }}</th>
           <th>{{ $tr('username') }}</th>
           <th></th>
         </tr>
       </thead>
 
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr v-for="user in visibleUsers" :key="user.id">
-          <td class="core-table-icon-col">
-            <PermissionsIcon
-              v-if="Boolean(getPermissionType(user.id))"
-              :permissionType="getPermissionType(user.id)"
-            />
-          </td>
-          <td class="core-table-main-col" dir="auto">
-            {{ user.full_name }}
-            <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
+          <td>
+            <KLabeledIcon>
+              <PermissionsIcon
+                v-if="Boolean(getPermissionType(user.id))"
+                slot="icon"
+                :permissionType="getPermissionType(user.id)"
+              />
+              <span dir="auto" class="maxwidth">
+                {{ user.full_name }}
+                <span v-if="isCurrentUser(user.username)"> ({{ $tr('you') }})</span>
+              </span>
+            </KLabeledIcon>
           </td>
           <td>
-            {{ user.username }}
+            <span dir="auto" class="maxwidth">
+              {{ user.username }}
+            </span>
           </td>
-          <td>
+          <td class="btn-col">
             <KButton
               appearance="flat-button"
               :text="permissionsButtonText(user.username)"
@@ -35,7 +39,7 @@
             />
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p v-if="!visibleUsers.length">
@@ -52,6 +56,7 @@
   import { mapState } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -62,6 +67,7 @@
       KButton,
       PermissionsIcon,
       CoreTable,
+      KLabeledIcon,
     },
     props: {
       searchFilter: {
@@ -119,4 +125,18 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .maxwidth {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-col {
+    padding: 0;
+  }
+
+</style>

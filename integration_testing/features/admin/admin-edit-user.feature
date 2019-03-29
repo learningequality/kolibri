@@ -2,11 +2,11 @@ Feature: Admin edit users
   Admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
-    Given I am signed in to Kolibri as admin user
+    Given I am signed in to Kolibri as facility admin user
       And I am on *Facility > Users* page
 
-  Scenario: Admins cannot edit the user account details of a Super admin
-    When I find a Super admin in the Users list
+  Scenario: Admins cannot edit the user account details of a super admin
+    When I find a super admin in the users list
     Then I see that the *Options* dropdown button is disabled for them
 
   Scenario: Edit user's full name
@@ -39,7 +39,17 @@ Feature: Admin edit users
       And I click the *Save* button
     Then the modal closes
       And I see the user with edited type (label or no label depending on the change)
-# TODO: add options for the 2 coach types
+
+  Scenario: Change class coach user to facility coach user
+    Given there is class coach <username> in the facility
+    When I click on *Options* button for the user <username>
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
+      And I see the *Class coach* radio button active under the *User type*
+    When I click and make the *Facility coach* radio button active
+      And I click the *Save* button
+    Then the modal closes
+      And I see the user <username> with the *Facility coach* label
 
   Scenario: Change own user type
     Given I am not a Super admin
@@ -73,3 +83,7 @@ Feature: Admin edit users
     When I scroll to my name in the user list
       And I click on the *Options* dropdown button
     Then I see that the *Delete* action is disabled
+
+Examples:
+| full_name | username | password |
+| Neela R.  | ccoach   | ccoach   |

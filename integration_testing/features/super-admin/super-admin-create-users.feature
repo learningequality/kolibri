@@ -1,4 +1,4 @@
-Feature: Super admin create users
+Feature: Super admin creates users
     Super admin needs to be able to create user accounts for each role in the facility
 
   Background:

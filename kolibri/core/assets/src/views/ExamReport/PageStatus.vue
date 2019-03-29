@@ -1,14 +1,13 @@
 <template>
 
-  <KGrid class="page-status">
+  <KGrid class="page-status" :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
-      <div class="user-name-container">
-        <mat-svg
-          class="svg-item"
-          category="action"
-          name="face"
-        />
-        <h1 class="user-name">{{ $tr('title', {name: userName}) }}</h1>
+      <div>
+        <h1 class="title">{{ userName }}</h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" quiz />
+          {{ $tr('title', { name: contentName }) }}
+        </KLabeledIcon>
       </div>
       <div class="questions">
         {{ $tr('overallScore', {score: score}) }}
@@ -37,15 +36,19 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
 
   export default {
     name: 'PageStatus',
     $trs: {
-      title: '{name} - Exam performance',
+      title: '{name} - Quiz performance',
       overallScore: 'Overall score: { score, number, percent }',
       questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
       completed: 'Completed',
@@ -57,7 +60,10 @@
       KGridItem,
       ProgressIcon,
       ElapsedTime,
+      KIcon,
+      KLabeledIcon,
     },
+    mixins: [themeMixin],
     props: {
       userName: {
         type: String,
@@ -72,6 +78,10 @@
         default: false,
       },
       completionTimestamp: { type: Date },
+      contentName: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       questionsCorrect() {
@@ -84,6 +94,9 @@
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
       },
+      kind() {
+        return ContentNodeKinds.EXAM;
+      },
     },
   };
 
@@ -92,20 +105,18 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .page-status {
     padding: 8px;
-    background-color: $core-bg-light;
-  }
-
-  .user-name-container {
-    display: block;
   }
 
   .svg-icon {
     margin-right: 8px;
     font-size: 1.3em;
+  }
+
+  .icon {
+    position: relative;
+    top: -2px;
   }
 
   .questions {
@@ -118,10 +129,8 @@
     vertical-align: middle;
   }
 
-  .user-name {
-    display: inline-block;
+  .title {
     margin: 0;
-    vertical-align: middle;
   }
 
 </style>

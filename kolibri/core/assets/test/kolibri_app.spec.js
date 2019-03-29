@@ -12,7 +12,9 @@ jest.mock(
 );
 
 jest.mock('kolibri.heartbeat', () => ({
-  start() {},
+  startPolling() {
+    return Promise.resolve();
+  },
 }));
 
 class TestApp extends KolibriApp {
@@ -56,7 +58,14 @@ describe('KolibriApp', function() {
   it('it should register the plugin vuex components', async function() {
     const app = new TestApp();
     app.store.hotUpdate({
-      modules: { core: { actions: { getCurrentSession: jest.fn().mockResolvedValue() } } },
+      modules: {
+        core: {
+          actions: {
+            getCurrentSession: jest.fn().mockResolvedValue(),
+            getNotifications: jest.fn().mockResolvedValue(),
+          },
+        },
+      },
     });
     await app.ready();
     app.store.dispatch('incrementTwice');

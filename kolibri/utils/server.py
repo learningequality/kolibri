@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import threading
+import time
 from subprocess import CalledProcessError
 from subprocess import check_output
 
@@ -16,6 +17,7 @@ from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
+from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +66,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def start(port=8080):
+def start(port=8080, run_cherrypy=True):
     """
     Starts the server.
 
@@ -97,7 +99,41 @@ def start(port=8080):
 
     atexit.register(rm_pid_file)
 
-    run_server(port=port)
+    if run_cherrypy:
+        run_server(port=port)
+    else:
+        block()
+
+
+def block():
+    # Modified from:
+    # https://github.com/cherrypy/cherrypy/blob/e5de08887ddb960b337e1f335c819c0b2873d850/cherrypy/process/wspbus.py#L326
+    unlock_after_vacuum()
+    try:
+        while True:
+            time.sleep(100000)
+    except Exception as e:
+        logger.error('Block interrupted! %s' % e)
+    # Waiting for ALL child threads to finish is necessary on OS X.
+    # See https://github.com/cherrypy/cherrypy/issues/581.
+    # It's also good to let them all shut down before allowing
+    # the main thread to call atexit handlers.
+    # See https://github.com/cherrypy/cherrypy/issues/751.
+    logger.debug('Waiting for child threads to terminate...')
+    for t in threading.enumerate():
+        # Validate the we're not trying to join the MainThread
+        # that will cause a deadlock and the case exist when
+        # implemented as a windows service and in any other case
+        # that another thread executes cherrypy.engine.exit()
+        if (
+                t != threading.currentThread()
+                and not isinstance(t, threading._MainThread)
+                # Note that any dummy (external) threads are
+                # always daemonic.
+                and not t.daemon
+        ):
+            logger.debug('Waiting for thread %s.' % t.getName())
+            t.join()
 
 
 class PingbackThread(threading.Thread):
@@ -127,7 +163,7 @@ class VacuumThread(threading.Thread):
 
 def stop(pid=None, force=False):
     """
-    Stops the kalite server, either from PID or through a management command
+    Stops the kolibri server, either from PID or through a management command
 
     :param args: List of options to parse to the django management command
     :raises: NotRunning
@@ -160,13 +196,30 @@ def run_server(port):
 
     cherrypy.config.update({
         "environment": "production",
-        "tools.gzip.on": True,
-        "tools.gzip.mime_types": ["text/*", "application/javascript"],
+        "tools.expires.on": True,
+        "tools.expires.secs": 31536000,
     })
 
-    serve_static_dir(settings.STATIC_ROOT, settings.STATIC_URL)
-    serve_static_dir(paths.get_content_dir_path(),
-                     paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
+    # Mount static files
+    static_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=settings.STATIC_ROOT)
+    cherrypy.tree.mount(static_files_handler, settings.STATIC_URL, config={
+        "/": {
+            "tools.gzip.on": True,
+            "tools.gzip.mime_types": ["text/*", "application/javascript"],
+            "tools.caching.on": True,
+            "tools.caching.maxobj_size": 2000000,
+            "tools.caching.maxsize": 50000000,
+        }
+    })
+
+    # Mount content files
+    content_files_handler = cherrypy.tools.staticdir.handler(
+        section="/",
+        dir=paths.get_content_dir_path())
+    cherrypy.tree.mount(content_files_handler,
+                        paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']))
 
     # Unsubscribe the default server
     cherrypy.server.unsubscribe()
@@ -186,17 +239,19 @@ def run_server(port):
     server.subscribe()
 
     # Start the server engine (Option 1 *and* 2)
+    unlock_after_vacuum()  # don't start the server until vacuum finishes
     cherrypy.engine.start()
     cherrypy.engine.block()
 
 
-def serve_static_dir(root, url):
-
-    static_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=os.path.split(root)[1],
-        root=os.path.abspath(os.path.split(root)[0]))
-    cherrypy.tree.mount(static_handler, url)
+def unlock_after_vacuum():
+    while vacuum_db_lock.locked():
+        time.sleep(0.5)
+    if os.path.exists(STARTUP_LOCK):
+        try:
+            os.remove(STARTUP_LOCK)
+        except OSError:
+            pass  # lock file was deleted by other process
 
 
 def _read_pid_file(filename):
@@ -240,7 +295,7 @@ def get_status():  # noqa: max-complexity=16
     """
     Tries to get the PID of a running server.
 
-    The behavior is also quite redundant given that `kalite start` should
+    The behavior is also quite redundant given that `kolibri start` should
     always create a PID file, and if its been started directly with the
     runserver command, then its up to the developer to know what's happening.
 
@@ -250,24 +305,25 @@ def get_status():  # noqa: max-complexity=16
     :raises: NotRunning
     """
 
-    # There is no PID file (created by server daemon)
+    # Check if the system is still starting (clear sessions and vacuum not finished yet):
+    if os.path.isfile(STARTUP_LOCK):
+        try:
+            pid, port = _read_pid_file(STARTUP_LOCK)
+            # Does the PID in there still exist?
+            if pid_exists(pid):
+                raise NotRunning(STATUS_STARTING_UP)
+            # It's dead so assuming the startup went badly
+            else:
+                raise NotRunning(STATUS_FAILED_TO_START)
+        # Couldn't parse to int or empty PID file
+        except (TypeError, ValueError):
+            raise NotRunning(STATUS_STOPPED)
+
     if not os.path.isfile(PID_FILE):
-        # Is there a startup lock?
-        if os.path.isfile(STARTUP_LOCK):
-            try:
-                pid, port = _read_pid_file(STARTUP_LOCK)
-                # Does the PID in there still exist?
-                if pid_exists(pid):
-                    raise NotRunning(STATUS_STARTING_UP)
-                # It's dead so assuming the startup went badly
-                else:
-                    raise NotRunning(STATUS_FAILED_TO_START)
-            # Couldn't parse to int or empty PID file
-            except (TypeError, ValueError):
-                raise NotRunning(STATUS_STOPPED)
+        # There is no PID file (created by server daemon)
         raise NotRunning(STATUS_STOPPED)  # Stopped
 
-    # PID file exists, check if it is running
+    # PID file exists and startup has finished, check if it is running
     try:
         pid, port = _read_pid_file(PID_FILE)
     except (ValueError, OSError):
@@ -281,30 +337,41 @@ def get_status():  # noqa: max-complexity=16
 
     listen_port = port
 
-    try:
-        # Timeout is 3 seconds, we don't want the status command to be slow
-        # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
-        # be configurable
-        # TODO: HTTP might not be the protocol if server has SSL
-        response = requests.get(
-            "http://{}:{}".format("127.0.0.1", listen_port), timeout=3)
-    except (requests.exceptions.ReadTimeout,
-            requests.exceptions.ConnectionError):
-        raise NotRunning(STATUS_NOT_RESPONDING)
-    except (requests.exceptions.RequestException):
-        if os.path.isfile(STARTUP_LOCK):
-            raise NotRunning(STATUS_STARTING_UP)  # Starting up
-        raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+    check_url = "http://{}:{}".format("127.0.0.1", listen_port)
 
-    if response.status_code == 404:
-        raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
+    if conf.OPTIONS["Server"]["CHERRYPY_START"]:
 
-    if response.status_code != 200:
-        # Probably a mis-configured kolibri
-        raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
+        try:
+            # Timeout is 3 seconds, we don't want the status command to be slow
+            # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
+            # be configurable
+            # TODO: HTTP might not be the protocol if server has SSL
+            response = requests.get(check_url, timeout=3)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            raise NotRunning(STATUS_NOT_RESPONDING)
+        except (requests.exceptions.RequestException):
+            if os.path.isfile(STARTUP_LOCK):
+                raise NotRunning(STATUS_STARTING_UP)  # Starting up
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+
+        if response.status_code == 404:
+            raise NotRunning(STATUS_UNKNOWN_INSTANCE)  # Unknown HTTP server
+
+        if response.status_code != 200:
+            # Probably a mis-configured kolibri
+            raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
+
+    else:
+        try:
+            requests.get(check_url, timeout=3)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            raise NotRunning(STATUS_NOT_RESPONDING)
+        except (requests.exceptions.RequestException):
+            return pid, '', ''
 
     return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
-
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
     # is dumb because kolibri could be running in a worker pool with different
@@ -326,9 +393,10 @@ def get_urls(listen_port=None):
         else:
             __, __, port = get_status()
         urls = []
-        interfaces = ifcfg.interfaces()
-        for interface in filter(lambda i: i['inet'], interfaces.values()):
-            urls.append("http://{}:{}/".format(interface['inet'], port))
+        if port:
+            interfaces = ifcfg.interfaces()
+            for interface in filter(lambda i: i['inet'], interfaces.values()):
+                urls.append("http://{}:{}/".format(interface['inet'], port))
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
@@ -343,22 +411,44 @@ def installation_type(cmd_line=None):  # noqa:C901
     if cmd_line is None:
         cmd_line = sys.argv
     install_type = 'Unknown'
-    if len(cmd_line) > 1:
+
+    def is_debian_package():
+        # find out if this is from the debian package
+        install_type = 'dpkg'
+        try:
+            check_output(['apt-cache', 'show', 'kolibri'])
+            apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+            if apt_repo:
+                install_type = 'apt'
+        except CalledProcessError:  # kolibri package not installed!
+            install_type = 'whl'
+        return install_type
+
+    def is_kolibri_server():
+        # running under uwsgi, finding out if we are using kolibri-server
+        install_type = ''
+        try:
+            package_info = check_output(['apt-cache', 'show', 'kolibri-server']).decode('utf-8').split('\n')
+            version = [output for output in package_info if 'Version' in output]
+            install_type = 'kolibri-server {}'.format(version[0])
+        except CalledProcessError:  # kolibri-server package not installed!
+            install_type = 'uwsgi'
+        return install_type
+
+    if len(cmd_line) > 1 or 'uwsgi' in cmd_line:
         launcher = cmd_line[0]
         if launcher.endswith('.pex'):
             install_type = 'pex'
         elif 'runserver' in cmd_line:
             install_type = 'devserver'
         elif launcher == '/usr/bin/kolibri':
-            # find out if this is from the debian package
-            install_type = 'dpkg'
-            try:
-                check_output(['apt-cache', 'show', 'kolibri'])
-                apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
-                if apt_repo:
-                    install_type = 'apt'
-            except CalledProcessError:  # kolibri package not installed!
-                install_type = 'whl'
+            install_type = is_debian_package()
+        elif launcher == 'uwsgi':
+            package = is_debian_package()
+            if package != 'whl':
+                kolibri_server = is_kolibri_server()
+                install_type = 'kolibri({kolibri_type}) with {kolibri_server}'.format(kolibri_type=package,
+                                                                                      kolibri_server=kolibri_server)
         elif '\\Scripts\\kolibri' in launcher:
             paths = sys.path
             for path in paths:
@@ -367,5 +457,11 @@ def installation_type(cmd_line=None):  # noqa:C901
                     break
         elif 'start' in cmd_line:
             install_type = 'whl'
+    if on_android():
+        from jnius import autoclass
+        context = autoclass('org.kivy.android.PythonActivity')
+        version_name = context.getPackageManager().getPackageInfo(
+            context.getPackageName(), 0).versionName
+        install_type = 'apk - {}'.format(version_name)
 
     return install_type

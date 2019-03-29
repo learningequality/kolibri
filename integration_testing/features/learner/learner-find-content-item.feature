@@ -1,4 +1,4 @@
-Feature: Learner find content item
+Feature: Learner finds content item
   Learner needs to be able to search and find content items using the search bar
 
   Background:
@@ -8,8 +8,15 @@ Feature: Learner find content item
 
   Scenario: Find a specific content item using the search bar
     When I enter the <search_term> in the search field
-     And I press the Enter key or click the search icon button
+     And I press the ENTER key or click the search icon button
     Then I see the *Results for '<search_term>'* page
+
+  Scenario: Clear the previous search
+    Given that I've writen something in the search field
+      When I use the TAB key to focus the *Clear* button 
+        And I press ENTER
+          Or I click/tap the *Clear* button directly
+      Then I see the search field is empty
 
   Scenario: Filter search results
     When I open the *Type* filter and select a type

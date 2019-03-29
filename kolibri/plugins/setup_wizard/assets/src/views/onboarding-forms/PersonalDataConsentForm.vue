@@ -62,7 +62,11 @@
         this.$nextTick().then(() => {
           const { modalButton } = this.$refs;
           if (modalButton.$refs.button) {
-            modalButton.$refs.button.focus();
+            // HACK to prevent the modal from opening from an keyup.enter event from
+            // previous form, we have to delay focusing the "More information" button.
+            setTimeout(() => {
+              modalButton.$refs.button.focus();
+            }, 200);
           }
         });
       },

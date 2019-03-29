@@ -1,0 +1,55 @@
+steps:
+  - label: Build Python packages
+    command:
+     - make docker-clean
+     - mkdir -p dist
+     - .buildkite/build_whl.sh
+
+  - wait
+
+    # Android build only requires whl file
+  - label: Build Android APK
+    env:
+      KOLIBRI_ANDROID_BUILD_MODE: dev
+    command: &android_build
+      - .buildkite/build_apk.sh
+
+  - label: Build Windows installer
+    command: .buildkite/build_windows_installer.sh
+
+  - wait
+
+  - label: Build Debian Packages
+    command: .buildkite/build_debian_pkgs.sh
+
+  - wait
+
+  - label: Upload artifacts
+    command: .buildkite/setup_and_upload_artifact.sh
+
+  - label: Sign Windows installer
+    command: .buildkite/sign_windows_installer.bat
+    agents:
+      queue: "windows-sign"
+
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
+
+  - wait
+
+  - label: Cleaning up
+    command: make docker-clean
+
+  - block: "Build release APK?"
+  - label: "Build Release APK"
+    env:
+      KOLIBRI_ANDROID_BUILD_MODE: release
+    command: *android_build
+
+  - block: "Test .debs?"
+  - label: Test on Trusty, Xenial, Bionic
+    command:
+     - mkdir -p dist
+     - buildkite-agent artifact download 'dist/*.deb' dist/
+     - make docker-deb-test

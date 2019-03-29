@@ -1,4 +1,4 @@
-Feature: Super admin delete classes
+Feature: Super admin deletes classes
     Super admin needs to be able to delete classes from the facility
 
   Background:

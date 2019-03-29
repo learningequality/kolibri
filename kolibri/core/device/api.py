@@ -21,7 +21,7 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
 from kolibri.utils.system import get_free_space
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 
 class DevicePermissionsViewSet(viewsets.ModelViewSet):

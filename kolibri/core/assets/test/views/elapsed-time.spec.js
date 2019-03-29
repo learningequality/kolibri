@@ -1,10 +1,22 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import ElapsedTime from '../../src/views/ElapsedTime';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  return shallowMount(ElapsedTime, options);
+  const getters = {
+    $coreGrey300: () => 'gray',
+  };
+  const store = new Vuex.Store({ getters });
+  return mount(ElapsedTime, {
+    ...options,
+    store,
+    localVue,
+  });
 }
 
 // prettier-ignore
@@ -13,11 +25,24 @@ function getTimeText(wrapper) {
 }
 
 describe('elapsed time component', () => {
-  it('should show display a "–" if no date is passed in', () => {
+  it('should show display a "—" if no date is passed in', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const timeText = getTimeText(wrapper);
-    expect(timeText).toEqual('–');
+    expect(timeText).toEqual('—');
   });
+  it('should ceiling the time at now if the time is bigger than now', () => {
+    const date20SecondsInTheFuture = new Date(DUMMY_CURRENT_DATE);
+    date20SecondsInTheFuture.setSeconds(date20SecondsInTheFuture.getSeconds() + 20);
+    const wrapper = makeWrapper({
+      propsData: {
+        date: date20SecondsInTheFuture,
+      },
+    });
+    wrapper.vm.now = DUMMY_CURRENT_DATE;
+    const timeText = getTimeText(wrapper);
+    expect(/now/.test(timeText)).toEqual(true);
+  });
+
   it('should use seconds if the date passed in 1 second ago', () => {
     const date1SecondAgo = new Date(DUMMY_CURRENT_DATE);
     date1SecondAgo.setSeconds(date1SecondAgo.getSeconds() - 1);

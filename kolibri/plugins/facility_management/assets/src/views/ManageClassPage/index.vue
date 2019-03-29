@@ -11,6 +11,7 @@
         <KButton
           :text="$tr('addNew')"
           :primary="true"
+          class="move-down"
           @click="displayModal(Modals.CREATE_CLASS)"
         />
       </KGridItem>
@@ -20,32 +21,36 @@
       <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
       <thead slot="thead">
         <tr>
-          <th class="core-table-icon-col"></th>
-          <th class="core-table-main-col">{{ $tr('className') }}</th>
+          <th>{{ $tr('className') }}</th>
           <th>{{ $tr('coachesColumnHeader') }}</th>
           <th>{{ $tr('learnersColumnHeader') }}</th>
-          <th>{{ $tr('actions') }}</th>
+          <th>
+            <span class="visuallyhidden">
+              {{ $tr('actions') }}
+            </span>
+          </th>
         </tr>
       </thead>
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr
           v-for="classroom in sortedClassrooms"
           :key="classroom.id"
         >
-          <td class="core-table-icon-col">
-            <UiIcon>
-              <mat-svg name="business" category="communication" />
-            </UiIcon>
-          </td>
-          <td class="core-table-main-col">
-            <KRouterLink
-              :text="classroom.name"
-              :to="classEditLink(classroom.id)"
-            />
+          <td>
+            <KLabeledIcon>
+              <KIcon slot="icon" classroom />
+              <KRouterLink
+                :text="classroom.name"
+                :to="classEditLink(classroom.id)"
+              />
+            </KLabeledIcon>
           </td>
           <td>
             <span :ref="`coachNames${classroom.id}`">
-              {{ formattedCoachNames(classroom) }}
+              <template v-if="coachNames(classroom).length">
+                {{ formattedCoachNames(classroom) }}
+              </template>
+              <KEmptyPlaceholder v-else />
             </span>
             <KTooltip
               v-if="formattedCoachNamesTooltip(classroom)"
@@ -59,7 +64,7 @@
           <td>
             {{ classroom.learner_count }}
           </td>
-          <td>
+          <td class="core-table-button-col">
             <KButton
               appearance="flat-button"
               :text="$tr('deleteClass')"
@@ -67,7 +72,7 @@
             />
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
@@ -91,13 +96,15 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import UiIcon from 'keen-ui/src/UiIcon';
   import orderBy from 'lodash/orderBy';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
+  import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -124,8 +131,10 @@
       KRouterLink,
       KGrid,
       KGridItem,
-      UiIcon,
+      KLabeledIcon,
+      KIcon,
       KTooltip,
+      KEmptyPlaceholder,
     },
     data: () => ({ currentClassDelete: null }),
     computed: {
@@ -147,9 +156,6 @@
       },
       formattedCoachNames(classroom) {
         const coach_names = this.coachNames(classroom);
-        if (coach_names.length === 0) {
-          return '–';
-        }
         if (coach_names.length === 1) {
           return coach_names[0];
         }
@@ -197,4 +203,11 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .move-down {
+    position: relative;
+    margin-top: 24px;
+  }
+
+</style>

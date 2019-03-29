@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import KTooltipExample from './KTooltipExample';
 
 const DEFAULT_PROPS = {
@@ -13,6 +14,7 @@ function makeWrapper(kTooltipProps = DEFAULT_PROPS, slot = 'Sample tooltip conte
     slots: {
       default: slot,
     },
+    store,
   });
 }
 describe('KTooltip component', () => {

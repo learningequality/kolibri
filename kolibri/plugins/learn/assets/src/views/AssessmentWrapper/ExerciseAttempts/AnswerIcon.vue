@@ -7,22 +7,26 @@
         category="action"
         name="check_circle"
         class="correct"
+        :style="{ fill: $coreStatusCorrect }"
       />
       <mat-svg
         v-else-if="answer === 'wrong'"
         category="navigation"
         name="close"
+        :style="svgFill"
       />
       <mat-svg
         v-else-if="answer === 'hint'"
         category="action"
         name="lightbulb_outline"
+        :style="svgFill"
       />
       <mat-svg
         v-else-if="answer === 'rectified'"
         category="image"
         name="lens"
         class="rectified"
+        :style="svgFill"
       />
     </div>
     <KTooltip
@@ -39,6 +43,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
@@ -46,6 +51,7 @@
     components: {
       KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       answer: {
         type: String,
@@ -68,6 +74,11 @@
             return this.$tr('incorrectFirstTry');
         }
       },
+      svgFill() {
+        return {
+          fill: this.$coreTextAnnotation,
+        };
+      },
     },
     $trs: {
       correct: 'Correct',
@@ -86,12 +97,7 @@
 
   svg {
     height: 30px;
-    fill: $core-text-annotation;
     transition: transform $core-time ease-in;
-  }
-
-  .correct {
-    fill: $core-status-correct;
   }
 
   .rectified {

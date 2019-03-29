@@ -4,6 +4,8 @@ import logger from 'kolibri.lib.logging';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 
+export { licenseTranslations } from './licenseTranslations';
+
 const logging = logger.getLogger(__filename);
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
@@ -155,6 +157,15 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
+/**
+ * Returns a Translator instance that can grab strings from another component.
+ * Use sparingly, e.g. to bypass string freeze. Try to remove post-string-freeze.
+ * @param {Component} Component - An imported component.
+ */
+export function crossComponentTranslator(Component) {
+  return new Translator(Component.name, Component.$trs);
+}
+
 function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
@@ -253,11 +264,11 @@ export function i18nSetup(skipPolyfill = false) {
       resolve();
     } else {
       Promise.all([
-        new Promise(resolve => {
+        new Promise(res => {
           require.ensure(
             ['intl'],
             require => {
-              resolve(() => require('intl'));
+              res(() => require('intl'));
             },
             'intl'
           );

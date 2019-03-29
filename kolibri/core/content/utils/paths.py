@@ -5,11 +5,12 @@ from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.utils import conf
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
-VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\.[0-9a-z]+")
+VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
 POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip"])
@@ -70,7 +71,8 @@ def get_content_storage_dir_path(datafolder=None):
 
 
 def get_content_storage_file_path(filename, datafolder=None):
-    assert VALID_STORAGE_FILENAME.match(filename), "'{}' is not a valid content storage filename".format(filename)
+    if not VALID_STORAGE_FILENAME.match(filename):
+        raise InvalidStorageFilenameError("'{}' is not a valid content storage filename".format(filename))
     return os.path.join(
         get_content_storage_dir_path(datafolder),
         filename[0],

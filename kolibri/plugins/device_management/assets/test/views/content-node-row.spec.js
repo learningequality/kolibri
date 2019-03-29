@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
 import { makeNode } from '../utils/data';
 
@@ -14,6 +15,7 @@ const defaultProps = {
 function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
     propsData: { ...defaultProps, ...props },
+    store,
   });
 }
 
@@ -22,7 +24,7 @@ function getElements(wrapper) {
   return {
     titleText: () => wrapper.find('.title').text().trim(),
     messageText: () => wrapper.find('.message').text().trim(),
-    goToTopicButton: () => wrapper.find('button[name="select-node"]'),
+    goToTopicButton: () => wrapper.find('a[name="select-node"]'),
     checkbox: () => wrapper.find('input[type="checkbox"]'),
     KCheckbox: () => wrapper.find({ name: 'KCheckbox' }),
   };

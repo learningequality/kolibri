@@ -1,15 +1,11 @@
-from django.db.models.query import F
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from rest_framework import pagination
 from rest_framework import viewsets
-from rest_framework.response import Response
 
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
 
@@ -79,22 +75,3 @@ class ExamAssignmentViewset(viewsets.ModelViewSet):
         if hasattr(self, 'action') and self.action == 'create':
             return serializers.ExamAssignmentCreationSerializer
         return serializers.ExamAssignmentRetrieveSerializer
-
-
-class UserExamViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.UserExamSerializer
-    pagination_class = OptionalPageNumberPagination
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
-
-    def get_queryset(self):
-        return models.ExamAssignment.objects.all()
-
-    def retrieve(self, request, pk=None, **kwargs):
-        exam = get_object_or_404(models.Exam.objects.all(), id=pk)
-        assignment = HierarchyRelationsFilter(exam.assignments.get_queryset()).filter_by_hierarchy(
-            target_user=request.user,
-            ancestor_collection=F('collection'),
-        ).first()
-        serializer = serializers.UserExamSerializer(assignment, context={'request': request})
-        return Response(serializer.data)

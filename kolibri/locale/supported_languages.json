@@ -49,6 +49,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "fv",
+    "intl_code": "ff-cm",
+    "language_name": "Fulfulde Mbororoore",
+    "english_name": "Fulfulde (Cameroon)",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "hi",
     "intl_code": "hi-in",
     "language_name": "हिंदी (भारत)",
@@ -61,6 +68,13 @@
     "language_name": "मराठी",
     "english_name": "Marathi",
     "default_font": "NotoSansDevanagari"
+  },
+  {
+    "crowdin_code": "my",
+    "intl_code": "my",
+    "language_name": "ဗမာစာ",
+    "english_name": "Burmese",
+    "default_font": "NotoSansMyanmar"
   },
   {
     "crowdin_code": "ny",

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'kolibri.core.auth.apps.KolibriAuthConfig',
     'kolibri.core.content',
     'kolibri.core.logger',
+    'kolibri.core.notifications.apps.KolibriNotificationsConfig',
     'kolibri.core.tasks.apps.KolibriTasksConfig',
     'kolibri.core.deviceadmin',
     'kolibri.core.webpack',
@@ -93,7 +94,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'kolibri.core.auth.middleware.CustomAuthenticationMiddleware',
     'kolibri.core.middleware.signin_page.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -129,7 +129,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'kolibri.core.context_processors.custom_context_processor.return_session',
                 'kolibri.core.context_processors.custom_context_processor.supported_browser',
                 'kolibri.core.context_processors.custom_context_processor.developer_mode',
             ],
@@ -151,8 +150,17 @@ if conf.OPTIONS['Database']["DATABASE_ENGINE"] == "sqlite":
             'OPTIONS': {
                 'timeout': 100,
             }
+        },
+        'notifications_db': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(conf.KOLIBRI_HOME, 'notifications.sqlite3'),
+            'OPTIONS': {
+                'timeout': 100,
+            }
         }
     }
+    DATABASE_ROUTERS = ('kolibri.core.notifications.models.NotificationsRouter', )
+
 elif conf.OPTIONS['Database']['DATABASE_ENGINE'] == "postgres":
     DATABASES = {
         'default': {
@@ -182,6 +190,12 @@ LANGUAGES = [
 # Some languages are not supported out-of-the-box by Django
 # Here, we use the language code in Intl.js
 EXTRA_LANG_INFO = {
+    'ff-cm': {
+        'bidi': False,
+        'code': 'ff-cm',
+        'name': 'Fulfulde (Cameroon)',
+        'name_local': 'Fulfulde Mbororoore',
+    },
     'fr-ht': {
         'bidi': False,
         'code': 'fr-ht',
@@ -366,8 +380,6 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 # Configuration for Django JS Reverse
 # https://github.com/ierror/django-js-reverse#options
 
-JS_REVERSE_JS_VAR_NAME = 'kolibriUrls'
-
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', ]
 
 ENABLE_DATA_BOOTSTRAPPING = True
@@ -388,3 +400,16 @@ SESSION_COOKIE_NAME = "kolibri"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 600
+
+
+if conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN']:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=conf.OPTIONS['Debug']['SENTRY_BACKEND_DSN'],
+        integrations=[DjangoIntegration()],
+        release=kolibri.__version__,
+    )
+
+    print("Sentry backend error logging is enabled")

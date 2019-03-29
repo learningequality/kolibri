@@ -2,12 +2,17 @@ import base64
 import datetime
 import hashlib
 import json
+import re
 
+import semver
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
 
+from .models import PingbackNotification
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import LocalFile
@@ -34,7 +39,7 @@ facility_settings = [
 
 
 def dump_zipped_json(data):
-    jsondata = json.dumps(data)
+    jsondata = json.dumps(data, sort_keys=True, cls=DjangoJSONEncoder)
     try:
         # perform the import in here as zlib isn't available on some platforms
         import zlib
@@ -42,6 +47,52 @@ def dump_zipped_json(data):
     except:  # noqa
         pass
     return jsondata
+
+
+#  Copied from https://github.com/learningequality/nutritionfacts/commit/b33e19400ae639cbcf2b2e9b312d37493eb1e566#diff-5b7513e7bc7d64d348fd8d3f2222b573
+#  TODO: move to le-utils package
+def version_matches_range(version, version_range):
+
+    # if no version range is provided, assume we don't have opinions about the version
+    if not version_range or version_range == '*':
+        return True
+
+    # support having multiple comma-delimited version criteria
+    if "," in version_range:
+        return all([version_matches_range(version, vrange) for vrange in version_range.split(",")])
+
+    # extract and normalize version strings
+    operator, range_version = re.match(r"([<>=!]*)(\d.*)", version_range).groups()
+    range_version = normalize_version_to_semver(range_version)
+    version = normalize_version_to_semver(version)
+
+    # check whether the version is in the range
+    return semver.match(version, operator + range_version)
+
+
+def normalize_version_to_semver(version):
+
+    _, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
+
+    # extract the numeric semver component and the stuff that comes after
+    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", version).groups()
+
+    # clean up the different variations of the post-numeric component to ease checking
+    after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
+
+    # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
+    after_pieces = re.match(r"([a-z])(\d+)", after)
+    if after_pieces:
+        after = ".".join([piece for piece in after_pieces.groups() if piece])
+
+    # position final releases between alphas, betas, and further dev
+    if not dev:
+        after = (after + ".c").strip(".")
+
+    # make sure dev versions are sorted nicely relative to one another
+    dev = (dev or "").replace("+", ".").replace("-", ".")
+
+    return "{}-{}{}".format(numeric, after, dev).strip("-")
 
 
 def extract_facility_statistics(facility):
@@ -64,9 +115,13 @@ def extract_facility_statistics(facility):
                     .filter(start_timestamp__gt=datetime.datetime(2016, 1, 1))
                     .aggregate(first=Min("start_timestamp"), last=Max("end_timestamp")))
 
+    # extract the first and last times we've seen logs, ignoring any that are None
+    first_times = [d["first"] for d in [usersess_agg, contsess_agg] if d["first"]]
+    last_times = [d["last"] for d in [usersess_agg, contsess_agg] if d["last"]]
+
     # since newly provisioned devices won't have logs, we don't know whether we have an available datetime object
-    first_interaction_timestamp = getattr(min(usersess_agg["first"], contsess_agg["first"]), 'strftime', None)
-    last_interaction_timestamp = getattr(max(usersess_agg["last"], contsess_agg["last"]), 'strftime', None)
+    first_interaction_timestamp = getattr(min(first_times), 'strftime', None) if first_times else None
+    last_interaction_timestamp = getattr(max(last_times), 'strftime', None) if last_times else None
 
     sesslogs_by_kind = contsessions.order_by("kind").values("kind").annotate(count=Count("kind"))
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}
@@ -166,3 +221,21 @@ def extract_channel_statistics(channel):
         # sess_anon_time
         "sat": int((contsessions_anon.aggregate(total_time=Sum("time_spent"))["total_time"] or 0) / 60),
     }
+
+
+@transaction.atomic
+def create_and_update_notifications(data, source):
+    messages = [obj for obj in data.get('messages', []) if obj.get('msg_id')]
+    excluded_ids = [obj.get('msg_id') for obj in messages]
+    PingbackNotification.objects.filter(source=source).exclude(id__in=excluded_ids).update(active=False)
+    for msg in messages:
+        new_msg = {
+            'id': msg['msg_id'],
+            'version_range': msg.get('version_range'),
+            'link_url': msg.get('link_url'),
+            'i18n': msg.get('i18n'),
+            'timestamp': msg.get('timestamp'),
+            'source': source,
+            'active': True,
+        }
+        PingbackNotification.objects.update_or_create(id=new_msg['id'], defaults=new_msg)

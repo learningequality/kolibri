@@ -37,6 +37,11 @@ option_spec = {
         },
     },
     "Server": {
+        "CHERRYPY_START": {
+            "type": "boolean",
+            "default": True,
+            "envvars": ("KOLIBRI_CHERRYPY_START",),
+        },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": 10,
@@ -92,6 +97,16 @@ option_spec = {
             "default": "/",
             "envvars": ("KOLIBRI_URL_PATH_PREFIX", ),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
+        },
+    },
+    "Debug": {
+        "SENTRY_BACKEND_DSN": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_BACKEND_DSN", ),
+        },
+        "SENTRY_FRONTEND_DSN": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN", ),
         },
     },
 }

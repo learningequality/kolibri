@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "Soma maelezo yote",
+  "DemoServerIndex.demoServerA2": "Pakua na weka toleo la hivi karibuni",
+  "DemoServerIndex.demoServerHeader": "Karibu kwenye tovuti ya majaribio ya Kolibri!",
+  "DemoServerIndex.demoServerL1": "Mwanafunzi (username: '{user}', nenosiri: '{pass}') au ingia kama mgeni",
+  "DemoServerIndex.demoServerL2": "Kocha (username: '{user}', nenosiri: '{pass}')",
+  "DemoServerIndex.demoServerL3": "Msimamizi (username: '{user}', nenosiri: '{pass}')",
+  "DemoServerIndex.demoServerP1": "Unakaribishwa kuchunguza kwa kutumia aina yoyote ya watumiaji watatu:",
+  "DemoServerIndex.demoServerP2": "Tovuti hii ya jaribio ya mtandaoni inajumuisha miundo na vifaa vyake vya kazi za toleo la hivi karibuni, lakini inashikilia sampuli ya maudhui ambayo yanapatikana na kutumika kwenye Kolibri nje ya mtandao. Tovuti hii inatumika kwa maonyesho na data yoyote ya mtumiaji hapa inaweza kufutwa mara kwa mara.",
+  "DemoServerIndex.demoServerP3": "Ili kujifunza zaidi kuhusu matumizi ya Kolibri nje ya mtandao na kuelewa vizuri programu:"
+}

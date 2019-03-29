@@ -13,7 +13,6 @@
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
           :disabled="isFirstSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_back" category="navigation" />
@@ -53,7 +52,6 @@
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
           :disabled="isLastSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_forward" category="navigation" />
@@ -72,7 +70,7 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import ContentCard from './ContentCard';
 
   if (!ContentCard.mixins) {
@@ -305,13 +303,13 @@
 
   .content-carousel-next-control-button,
   .content-carousel-previous-control-button {
+    @extend %dropshadow-1dp;
     // center align within hitbox
     position: absolute;
     top: 50%;
     left: 50%;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     &:active {
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
+      @extend %dropshadow-8dp;
     }
   }
 

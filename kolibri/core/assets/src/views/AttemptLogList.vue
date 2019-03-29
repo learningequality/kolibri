@@ -1,44 +1,52 @@
 <template>
 
-  <div class="attempt-log-list">
+  <div :style="{ backgroundColor: $coreBgLight }">
     <h3 class="header">{{ $tr('header') }}</h3>
 
-    <ul class="history-list">
+    <ul ref="attemptList" class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
         <li
           :key="index"
           class="clickable attempt-item"
-          :class="{selected: isSelected(index)}"
+          :style="{
+            borderBottom: `2px solid ${$coreTextDisabled}`,
+            backgroundColor: isSelected(index) ? $coreTextDisabled : '',
+          }"
           @click="setSelectedAttemptLog(index)"
         >
           <div class="title">
             <mat-svg
               v-if="attemptLog.noattempt"
-              class="item svg-item svg-noattempt"
+              class="item svg-item"
+              :style=" { fill: $coreTextAnnotation }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="attemptLog.correct"
-              class="item svg-item svg-correct"
+              class="item svg-item"
+              :style="{ fill: $coreStatusCorrect }"
               category="action"
               name="check_circle"
             />
             <mat-svg
               v-else-if="attemptLog.error"
-              class="svg-item svg-error"
+              class="svg-item"
+              :style=" { fill: $coreTextAnnotation }"
               category="alert"
               name="error_outline"
             />
             <mat-svg
               v-else-if="!attemptLog.correct"
-              class="item svg-item svg-wrong"
+              class="item svg-item"
+              :style="{ fill: $coreStatusWrong }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="attemptLog.hinted"
-              class="item svg-item svg-hint"
+              class="item svg-item"
+              :style=" { fill: $coreTextAnnotation }"
               category="action"
               name="lightbulb_outline"
             />
@@ -48,7 +56,7 @@
           </div>
           <CoachContentLabel
             class="coach-content-label"
-            :value="attemptLog.num_coach_contents"
+            :value="attemptLog.num_coach_contents || 0"
             :isTopic="false"
           />
         </li>
@@ -61,6 +69,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
@@ -68,6 +77,7 @@
     components: {
       CoachContentLabel,
     },
+    mixins: [themeMixin],
     $trs: {
       header: 'Answer history',
       today: 'Today',
@@ -83,15 +93,28 @@
       selectedQuestionNumber: {
         type: Number,
         required: true,
-        default: 1,
       },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.scrollToSelectedAttemptLog(this.selectedQuestionNumber);
+      });
     },
     methods: {
       setSelectedAttemptLog(questionNumber) {
         this.$emit('select', questionNumber);
+        this.scrollToSelectedAttemptLog(questionNumber);
       },
       isSelected(questionNumber) {
         return Number(this.selectedQuestionNumber) === questionNumber;
+      },
+      scrollToSelectedAttemptLog(questionNumber) {
+        const selectedElement = this.$refs.attemptList.children[questionNumber];
+        if (selectedElement) {
+          const parent = this.$el.parentElement;
+          parent.scrollTop =
+            selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
+        }
       },
     },
   };
@@ -100,12 +123,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  .attempt-log-list {
-    background-color: $core-bg-light;
-  }
 
   .title {
     display: inline-block;
@@ -143,38 +160,16 @@
     vertical-align: middle;
   }
 
-  .svg-hint,
-  .svg-error {
-    fill: $core-text-annotation;
-  }
-
-  .svg-wrong {
-    fill: $core-status-wrong;
-  }
-
-  .svg-correct {
-    fill: $core-status-correct;
-  }
-
-  .svg-noattempt {
-    fill: $core-text-annotation;
-  }
-
   .attempt-item {
     display: block;
     min-width: 120px;
     padding-left: 20px;
     clear: both;
-    border-bottom: 2px solid $core-text-disabled;
   }
 
   .clickable {
     display: block;
     cursor: pointer;
-  }
-
-  .selected {
-    background-color: $core-text-disabled;
   }
 
 </style>
