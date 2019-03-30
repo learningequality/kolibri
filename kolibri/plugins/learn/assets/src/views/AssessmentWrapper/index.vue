@@ -98,7 +98,9 @@ oriented data synchronization.
                 :numSpaces="attemptsWindowN"
                 :log="recentAttempts"
               />
-              <p class="current-status">{{ currentStatus }}</p>
+              <p class="current-status">
+                {{ currentStatus }}
+              </p>
             </div>
           </div>
         </div>

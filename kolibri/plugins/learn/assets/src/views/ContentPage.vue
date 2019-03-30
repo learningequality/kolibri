@@ -79,10 +79,14 @@
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <template v-if="translatedLicense">
-              <p class="license-details-name">{{ licenseName }}</p>
+              <p class="license-details-name">
+                {{ licenseName }}
+              </p>
               <p>{{ licenseDescription }}</p>
             </template>
-            <p v-else>{{ content.license_description }}</p>
+            <p v-else>
+              {{ content.license_description }}
+            </p>
           </div>
         </template>
       </p>

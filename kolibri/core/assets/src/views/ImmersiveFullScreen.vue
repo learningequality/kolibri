@@ -19,7 +19,9 @@
         <p
           class="back"
           :style="{ color: $coreBgLight }"
-        >{{ backPageText }}</p>
+        >
+          {{ backPageText }}
+        </p>
       </router-link>
     </div>
     <div class="wrapper">

@@ -30,11 +30,17 @@
 
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-        <template slot="value"><LessonActive :active="lesson.active" /></template>
+        <template slot="key">
+          {{ coachStrings.$tr('statusLabel') }}
+        </template>
+        <template slot="value">
+          <LessonActive :active="lesson.active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('recipientsLabel') }}
+        </template>
         <template slot="value">
           <Recipients :groupNames="getGroupNames(lesson.groups)" />
         </template>

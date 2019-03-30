@@ -56,7 +56,7 @@
             :class="{ 'is-placeholder': !hasDisplayText }"
           >
             {{ hasDisplayText ? displayText : (
-            hasFloatingLabel && isLabelInline) ? null : placeholder }}
+              hasFloatingLabel && isLabelInline) ? null : placeholder }}
           </div>
 
           <UiIcon class="ui-select-dropdown-button">
@@ -146,7 +146,9 @@
               </KeenUiSelectOption>
 
               <div v-show="hasNoResults" class="ui-select-no-results">
-                <slot name="no-results">No results found</slot>
+                <slot name="no-results">
+                  No results found
+                </slot>
               </div>
             </ul>
           </div>
@@ -155,11 +157,15 @@
 
       <div v-if="hasFeedback" class="ui-select-feedback">
         <div v-if="showError" class="ui-select-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-select-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
       </div>
     </div>

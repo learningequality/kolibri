@@ -1,7 +1,9 @@
 <template>
 
   <!-- no extra whitespace inside link -->
-  <router-link :class="buttonClasses" :to="to" dir="auto">{{ text }}</router-link>
+  <router-link :class="buttonClasses" :to="to" dir="auto">
+    {{ text }}
+  </router-link>
 
 </template>
 

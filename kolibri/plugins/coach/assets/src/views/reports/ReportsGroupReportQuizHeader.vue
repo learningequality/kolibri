@@ -17,11 +17,15 @@
 
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('statusLabel') }}
+        </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('avgScoreLabel') }}
+        </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH

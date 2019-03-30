@@ -33,7 +33,9 @@
 
         <div
           class="ui-select-option-image-text"
-        >{{ option[keys.label] }}</div>
+        >
+          {{ option[keys.label] }}
+        </div>
       </div>
     </slot>
   </li>

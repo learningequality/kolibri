@@ -14,7 +14,9 @@
       </div>
       <div v-if="currentLesson.description!==''">
         <h3>{{ $tr('teacherNote') }}</h3>
-        <p dir="auto">{{ currentLesson.description }}</p>
+        <p dir="auto">
+          {{ currentLesson.description }}
+        </p>
       </div>
     </section>
 

@@ -76,7 +76,9 @@
           @click="getNewQuestionSet"
         />
       </div>
-      <h2 class="header-margin">{{ $tr('questionOrder') }}</h2>
+      <h2 class="header-margin">
+        {{ $tr('questionOrder') }}
+      </h2>
       <div>
         <KRadioButton
           v-model="fixedOrder"
@@ -91,7 +93,9 @@
           :value="true"
         />
       </div>
-      <h2 class="header-margin">{{ $tr('questions') }}</h2>
+      <h2 class="header-margin">
+        {{ $tr('questions') }}
+      </h2>
       <KGrid v-if="!loadingNewQuestions">
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
           <KDragContainer
@@ -149,7 +153,9 @@
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
-          <h3 class="question-title">{{ currentQuestion.title }}</h3>
+          <h3 class="question-title">
+            {{ currentQuestion.title }}
+          </h3>
           <ContentRenderer
             v-if="content && questionId"
             :id="content.id"

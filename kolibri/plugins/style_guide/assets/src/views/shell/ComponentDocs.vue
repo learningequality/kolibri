@@ -2,7 +2,9 @@
 
   <div>
 
-    <p v-if="api.description">{{ api.description }}</p>
+    <p v-if="api.description">
+      {{ api.description }}
+    </p>
 
     <p><code>{{ importString }}</code></p>
 
@@ -24,7 +26,9 @@
             <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
               {{ parsePropDefault(prop.value.type, prop.value.default) }}
             </code>
-            <template v-else>–</template>
+            <template v-else>
+              –
+            </template>
           </td>
           <td>{{ prop.description || '–' }}</td>
         </tr>

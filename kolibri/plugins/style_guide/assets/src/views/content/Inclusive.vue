@@ -82,7 +82,7 @@
       ensure compatibility with screen readers. However, it's also critical to test
       all new functionality. See this
       <a href="https://github.com/learningequality/kolibri/wiki/Accessibility-Resources-(Tools)">
-      comprehensive list of A11y testing tools</a>.
+        comprehensive list of A11y testing tools</a>.
     </p>
 
     <p>
@@ -118,7 +118,7 @@
       that they can be mapped to messages in other languages using the
       <a href="https://formatjs.io/guides/message-syntax/">ICU message syntax</a>.
       See our <a href="https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html">
-      developer docs</a> for more information.
+        developer docs</a> for more information.
     </p>
 
     <p>
@@ -138,7 +138,7 @@
 
     <p>
       A <a href="https://material.io/guidelines/usability/bidirectionality.html#bidirectionality-rtl-mirroring-guidelines">
-      subset of icons</a> need to be flipped in RTL languages.
+        subset of icons</a> need to be flipped in RTL languages.
     </p>
 
   </PageTemplate>

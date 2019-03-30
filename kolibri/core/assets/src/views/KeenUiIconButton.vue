@@ -62,7 +62,9 @@
       :openOn="openTooltipOn"
 
       :position="tooltipPosition"
-    >{{ tooltip }}</UiTooltip>
+    >
+      {{ tooltip }}
+    </UiTooltip>
   </button>
 
 </template>

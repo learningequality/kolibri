@@ -29,8 +29,12 @@
        -->
       <HeaderTable v-if="avgTime">
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('avgTimeSpentLabel') }}</template>
-          <template slot="value"><TimeDuration :seconds="avgTime" /></template>
+          <template slot="key">
+            {{ coachStrings.$tr('avgTimeSpentLabel') }}
+          </template>
+          <template slot="value">
+            <TimeDuration :seconds="avgTime" />
+          </template>
         </HeaderTableRow>
       </HeaderTable>
 

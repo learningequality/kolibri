@@ -14,7 +14,9 @@
         :text="linkText || linkUrl"
       />
     </p>
-    <p v-if="!isSuperuser">{{ $tr('adminMessage') }}</p>
+    <p v-if="!isSuperuser">
+      {{ $tr('adminMessage') }}
+    </p>
     <p>
       <KCheckbox
         :label="$tr('hideNotificationLabel')"

@@ -1,7 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $coreBgLight }">
-    <h3 class="header">{{ coachStrings.$tr('learnersLabel') }}</h3>
+    <h3 class="header">
+      {{ coachStrings.$tr('learnersLabel') }}
+    </h3>
 
     <ul ref="learnerList" class="history-list">
       <template v-for="(learner, index) in learners">

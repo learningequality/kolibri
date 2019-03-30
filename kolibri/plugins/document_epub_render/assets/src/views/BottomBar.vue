@@ -2,7 +2,9 @@
 
   <div class="bottom-bar" :style="{ backgroundColor: $coreGrey200 }">
     <div class="bottom-bar-heading">
-      <h3 v-if="heading">{{ heading }}</h3>
+      <h3 v-if="heading">
+        {{ heading }}
+      </h3>
     </div>
     <transition mode="in-out">
       <div v-if="locationsAreReady">

@@ -29,8 +29,12 @@
 
       <HeaderTable>
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('avgTimeSpentLabel') }}</template>
-          <template slot="value"><TimeDuration :seconds="360" /></template>
+          <template slot="key">
+            {{ coachStrings.$tr('avgTimeSpentLabel') }}
+          </template>
+          <template slot="value">
+            <TimeDuration :seconds="360" />
+          </template>
         </HeaderTableRow>
       </HeaderTable>
 

@@ -21,7 +21,9 @@
           class="ui-snackbar-action-button"
           :style="{ color: $coreBgLight }"
           @click.stop="onActionClick"
-        >{{ action }}</button>
+        >
+          {{ action }}
+        </button>
       </div>
     </div>
   </transition>

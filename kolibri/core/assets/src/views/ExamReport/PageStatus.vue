@@ -3,7 +3,9 @@
   <KGrid class="page-status" :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
       <div>
-        <h1 class="title">{{ userName }}</h1>
+        <h1 class="title">
+          {{ userName }}
+        </h1>
         <KLabeledIcon>
           <KIcon slot="icon" quiz />
           {{ $tr('title', { name: contentName }) }}
