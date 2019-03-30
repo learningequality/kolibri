@@ -230,6 +230,8 @@
         if (breadcrumbs.length > 0) {
           return breadcrumbs[breadcrumbs.length - 1];
         }
+
+        return undefined;
       },
       progress() {
         if (this.isUserLoggedIn) {

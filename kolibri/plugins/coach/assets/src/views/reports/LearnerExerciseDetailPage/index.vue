@@ -46,6 +46,8 @@
             return this.$tr('documentTitleForRecentLearnerItems');
           case PageNames.TOPIC_LEARNER_ITEM_DETAILS:
             return this.$tr('documentTitleForLearnerTopic');
+          default:
+            return '';
         }
       },
       backPageLink() {

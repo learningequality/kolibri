@@ -85,6 +85,8 @@
         } else if (this.pageName === PageNames.TOPICS_TOPIC) {
           return { text: this.topicTitle };
         }
+
+        return {};
       },
       topicsBreadcrumbs() {
         return [

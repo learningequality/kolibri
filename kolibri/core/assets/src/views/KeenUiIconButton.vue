@@ -174,6 +174,8 @@
             fill: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
     },
 

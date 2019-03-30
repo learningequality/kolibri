@@ -430,6 +430,8 @@
             color: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
       activeBorderStyle() {
         if (this.isActive) {
@@ -437,6 +439,8 @@
             borderBottomColor: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
     },
 

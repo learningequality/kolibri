@@ -91,6 +91,8 @@
         if (this.filter.value === 'inactiveQuizzes') {
           return CoachExamsPageStrings.$tr('noInactiveExams');
         }
+
+        return '';
       },
       filterOptions() {
         return [

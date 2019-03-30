@@ -104,6 +104,8 @@
             color: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
     },
   };

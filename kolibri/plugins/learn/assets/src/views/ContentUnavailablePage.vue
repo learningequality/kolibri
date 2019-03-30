@@ -33,6 +33,8 @@
         if (deviceContentUrl && this.canManageContent) {
           return `${deviceContentUrl()}#/content`;
         }
+
+        return '';
       },
     },
     $trs: {

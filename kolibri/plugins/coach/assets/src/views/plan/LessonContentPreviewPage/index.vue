@@ -167,6 +167,8 @@
           const md = new markdownIt('zero', { breaks: true });
           return md.render(this.content.description);
         }
+
+        return undefined;
       },
       content() {
         return this.currentContentNode;

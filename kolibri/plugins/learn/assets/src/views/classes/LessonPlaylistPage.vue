@@ -78,6 +78,8 @@
           }
           return total / this.contentNodes.length;
         }
+
+        return undefined;
       },
     },
     methods: {

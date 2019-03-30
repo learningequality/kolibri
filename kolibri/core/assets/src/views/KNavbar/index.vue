@@ -72,6 +72,8 @@
         if (!this.enoughSpace) {
           return ['wrapper-narrow'];
         }
+
+        return [];
       },
       scrollButton() {
         return {
