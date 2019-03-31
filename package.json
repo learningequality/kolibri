@@ -27,7 +27,6 @@
     "lint-all:fix": "yarn run lint-all -w",
     "lint:fix": "yarn run lint -w",
     "lint:watch": "yarn lint-all -w -m",
-    "generate-locale-data": "node ./build_tools/i18n/intl_code_gen.js",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build",
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",

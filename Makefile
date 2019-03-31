@@ -194,7 +194,7 @@ i18n-pretranslate-approve-all:
 i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
-	yarn run generate-locale-data
+	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
 
 i18n-download-source-fonts:
