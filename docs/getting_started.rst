@@ -63,14 +63,10 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.4+ (required)
-* Python 2.7+ (optional)
+* Python 3.4+ or Python 2.7+
 * `pip <https://pypi.python.org/pypi/pip>`__
 
 Managing Python installations can be quite tricky. We *highly* recommend using package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
-
-.. note::
-  It is possible to develop on Kolibri using only Python 2.7+, but you will encounter issues with our pre-commit hooks which require Python 3
 
 .. warning::
   Never modify your system's built-in version of Python
@@ -360,12 +356,12 @@ You can initialize the server using:
 Development workflows
 ---------------------
 
-Linting
-~~~~~~~
+Linting and auto-formatting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Javascript linting is always run when you run the dev server. In addition, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to monitor for linting errors in the webpack build process, while the build will complete in watch mode, it will issue warnings to the terminal.
+Linting and code auto-formatting provided by Prettier and Black are run in the background automatically when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
 
-Linting should also be checked by the pre-commit hooks installed earlier.
+Linting should also be checked by the pre-commit hooks installed earlier and, if those are bypassed or not triggered, our Travis CI builds will fail for unlinted code.
 
 
 Automated testing
