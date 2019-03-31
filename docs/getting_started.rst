@@ -361,19 +361,22 @@ Linting and auto-formatting
 
 Linting and code auto-formatting provided by Prettier and Black are run in the background automatically when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
 
-Linting should also be checked by the pre-commit hooks installed earlier and, if those are bypassed or not triggered, our Travis CI builds will fail for unlinted code.
+Linting and auto-formatting should also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
 
-You can manually run linting and auto-fixing on the front-end using
-
-.. code-block:: bash
-
-  yarn run lint-frontend
-
-and on the backend using
+You can manually run the auto-formatters using:
 
 .. code-block:: bash
 
-  yarn run lint-backend
+  yarn run fmt-frontend
+  yarn run fmt-backend
+
+Or to check the formatting without writing changes, run:
+
+.. code-block:: bash
+
+  yarn run fmt-frontend:check
+  yarn run fmt-backend:check
+
 
 
 Automated testing
