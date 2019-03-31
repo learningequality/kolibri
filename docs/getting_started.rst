@@ -363,6 +363,18 @@ Linting and code auto-formatting provided by Prettier and Black are run in the b
 
 Linting should also be checked by the pre-commit hooks installed earlier and, if those are bypassed or not triggered, our Travis CI builds will fail for unlinted code.
 
+You can manually run linting and auto-fixing on the front-end using
+
+.. code-block:: bash
+
+  yarn run lint-frontend
+
+and on the backend using
+
+.. code-block:: bash
+
+  yarn run lint-backend
+
 
 Automated testing
 ~~~~~~~~~~~~~~~~~
