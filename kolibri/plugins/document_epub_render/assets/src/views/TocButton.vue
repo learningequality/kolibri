@@ -2,7 +2,6 @@
 
   <UiIconButton
     type="secondary"
-    :disableRipple="true"
     :ariaLabel="$tr('toggleTocSideBar')"
     data-test="toc button"
     @click="$emit('click')"
@@ -18,7 +17,7 @@
 
 <script>
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'TocButton',

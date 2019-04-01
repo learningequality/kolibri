@@ -3,12 +3,12 @@
   <div>
     <div v-if="isUserLoggedIn ">
       <h2>{{ $tr('allClassesHeader') }}</h2>
-
+      <p v-if="!classrooms.length">{{ $tr('noClasses') }}</p>
       <div class="classrooms">
         <ContentCard
-          class="content-card"
           v-for="c in classrooms"
           :key="c.id"
+          class="content-card"
           :link="classAssignmentsLink(c.id)"
           :showContentIcon="false"
           :title="c.name"
@@ -17,7 +17,7 @@
         />
       </div>
     </div>
-    <AuthMessage authorizedRole="learner" v-else />
+    <AuthMessage v-else authorizedRole="learner" />
   </div>
 
 </template>
@@ -57,6 +57,7 @@
     $trs: {
       allClassesHeader: 'Classes',
       documentTitle: 'All classes',
+      noClasses: 'You are not enrolled in any classes',
     },
   };
 

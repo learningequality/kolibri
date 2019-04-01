@@ -115,29 +115,32 @@ export default {
     return {
       windowWidth: undefined,
       windowHeight: undefined,
+
+      /*
+        Implementing these as data controlled by watchers to work around
+        optimization issue: https://github.com/vuejs/vue/issues/8540
+
+        If that issue ever gets addressed, we should make them computed props.
+      */
+      windowBreakpoint: undefined,
+      windowGutter: 16,
+      windowIsShort: false,
     };
   },
-  computed: {
-    windowBreakpoint() {
-      const SCROLL_BAR = 16;
-      if (this.windowWidth < 480) {
-        return 0;
-      } else if (this.windowWidth < 600) {
-        return 1;
-      } else if (this.windowWidth < 840) {
-        return 2;
-      } else if (this.windowWidth < 960 - SCROLL_BAR) {
-        return 3;
-      } else if (this.windowWidth < 1280 - SCROLL_BAR) {
-        return 4;
-      } else if (this.windowWidth < 1440 - SCROLL_BAR) {
-        return 5;
-      } else if (this.windowWidth < 1600 - SCROLL_BAR) {
-        return 6;
-      } else {
-        return 7;
-      }
+  watch: {
+    windowWidth() {
+      this._updateBreakpoint();
+      this._updateGutter();
     },
+    windowHeight() {
+      this._updateGutter();
+      this.windowIsShort = this.windowHeight < 600;
+    },
+  },
+  computed: {
+    /*
+      CAUTION: do not reference windowWidth or windowHeight in computed props.
+    */
     windowIsLarge() {
       return this.windowBreakpoint > 2;
     },
@@ -157,21 +160,41 @@ export default {
       // windowIsLarge
       return 12;
     },
-    windowGutter() {
-      if (this.windowIsSmall) {
-        return 16;
-      }
-      // 16px when the smallest width of the device is < 600
-      if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
-        return 16;
-      }
-      return 24;
-    },
   },
   methods: {
     _updateWindow(metrics) {
       this.windowWidth = metrics.width;
       this.windowHeight = metrics.height;
+    },
+    _updateBreakpoint() {
+      const SCROLL_BAR = 16;
+      if (this.windowWidth < 480) {
+        this.windowBreakpoint = 0;
+      } else if (this.windowWidth < 600) {
+        this.windowBreakpoint = 1;
+      } else if (this.windowWidth < 840) {
+        this.windowBreakpoint = 2;
+      } else if (this.windowWidth < 960 - SCROLL_BAR) {
+        this.windowBreakpoint = 3;
+      } else if (this.windowWidth < 1280 - SCROLL_BAR) {
+        this.windowBreakpoint = 4;
+      } else if (this.windowWidth < 1440 - SCROLL_BAR) {
+        this.windowBreakpoint = 5;
+      } else if (this.windowWidth < 1600 - SCROLL_BAR) {
+        this.windowBreakpoint = 6;
+      } else {
+        this.windowBreakpoint = 7;
+      }
+    },
+    _updateGutter() {
+      if (this.windowIsSmall) {
+        this.windowGutter = 16;
+      } else if (this.windowBreakpoint < 4 && Math.min(this.windowWidth, this.windowHeight) < 600) {
+        // 16px when the smallest dimension of the window is < 600
+        this.windowGutter = 16;
+      } else {
+        this.windowGutter = 24;
+      }
     },
   },
   mounted() {

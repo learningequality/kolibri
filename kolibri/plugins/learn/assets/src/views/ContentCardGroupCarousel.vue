@@ -5,15 +5,14 @@
     <div :style="contentControlsContainerStyles">
 
       <div
+        v-show="!isFirstSet"
         class="content-carousel-previous-control"
         @click="previousSet"
-        v-show="!isFirstSet"
       >
         <UiIconButton
           class="content-carousel-previous-control-button"
           :style="buttonTransforms"
           :disabled="isFirstSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_back" category="navigation" />
@@ -28,12 +27,13 @@
         @enter="slide"
       >
 
+        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <ContentCard
-          class="content-carousel-card"
           v-for="(content, index) in contents"
           v-if="isInThisSet(index)"
-          :style="positionCalc(index)"
           :key="content.id"
+          class="content-carousel-card"
+          :style="positionCalc(index)"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
@@ -44,15 +44,14 @@
       </transition-group>
 
       <div
+        v-show="!isLastSet"
         class="content-carousel-next-control"
         @click="nextSet"
-        v-show="!isLastSet"
       >
         <UiIconButton
           class="content-carousel-next-control-button"
           :style="buttonTransforms"
           :disabled="isLastSet"
-          :disableRipple="true"
           size="large"
         >
           <mat-svg name="arrow_forward" category="navigation" />
@@ -71,7 +70,7 @@
 
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import ContentCard from './ContentCard';
 
   if (!ContentCard.mixins) {
@@ -81,6 +80,7 @@
 
   const contentCardWidth = 210;
   const gutterWidth = 20;
+  const horizontalShadowOffset = 12;
 
   export default {
     name: 'ContentCardGroupCarousel',
@@ -142,14 +142,18 @@
         return this.contentSetEnd >= this.contents.length - 1;
       },
       contentSetStyles() {
-        const cards = this.contentSetSize * contentCardWidth;
+        const cards = this.contentSetSize * contentCardWidth + horizontalShadowOffset;
         const gutters = (this.contentSetSize - 1) * gutterWidth;
         const maxCardShadowOffset = 14; // determined by css styles on cards
+        const topShadowOffset = 10;
         return {
           'min-width': `${contentCardWidth}px`,
+          'overflow-x': 'hidden',
           width: `${cards + gutters + maxCardShadowOffset}px`,
-          height: `${contentCardWidth + maxCardShadowOffset}px`,
+          // Bottom shadow is a little bit bigger, so add a few pixels more
+          height: `${contentCardWidth + maxCardShadowOffset + topShadowOffset + 3}px`,
           position: 'relative',
+          'padding-top': `${topShadowOffset}px`,
         };
       },
       contentControlsContainerStyles() {
@@ -209,7 +213,7 @@
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * gutterWidth;
         const cardOffset = indexInSet * contentCardWidth;
-        return { [this.animationAttr]: `${cardOffset + gutterOffset}px` };
+        return { [this.animationAttr]: `${cardOffset + gutterOffset + horizontalShadowOffset}px` };
       },
       setStartPosition(el) {
         if (this.interacted) {
@@ -267,55 +271,54 @@
     @include clearfix();
 
     position: relative;
-    padding: ($control-hit-width / 2);
-    margin: -($control-hit-width / 2);
-    overflow: hidden;
+    margin-top: 1em;
+  }
 
-    &-control-container {
-      position: relative;
-      overflow: visible;
-    }
+  .content-carousel-control-container {
+    position: relative;
+    overflow: visible;
+  }
 
-    &-card {
-      position: absolute;
-      left: 0;
-      transition: left 0.4s ease, box-shadow $core-time ease;
-    }
+  .content-carousel-card {
+    position: absolute;
+    left: 0;
+    transition: left 0.4s ease, box-shadow $core-time ease;
+  }
 
-    &-next-control,
-    &-previous-control {
-      position: absolute;
-      top: $card-height / 2;
-      z-index: 2; // material
-      width: $control-hit-width;
-      height: $control-hit-height;
-      text-align: center;
-      vertical-align: middle;
-      transform: translateY(-($control-hit-height / 2));
-      // styles that apply to both control buttons
-      &:active {
-        z-index: 8; // material
-      }
+  .content-carousel-next-control,
+  .content-carousel-previous-control {
+    position: absolute;
+    top: $card-height / 2;
+    z-index: 2; // material
+    width: $control-hit-width;
+    height: $control-hit-height;
+    text-align: center;
+    vertical-align: middle;
+    transform: translateY(-($control-hit-height / 2));
+    // styles that apply to both control buttons
+    &:active {
+      z-index: 8; // material
+    }
+  }
 
-      &-button {
-        // center align within hitbox
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-        &:active {
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); // material
-        }
-      }
+  .content-carousel-next-control-button,
+  .content-carousel-previous-control-button {
+    @extend %dropshadow-1dp;
+    // center align within hitbox
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    &:active {
+      @extend %dropshadow-8dp;
     }
+  }
 
-    // position-specific styles for each control button
-    &-next-control {
-      right: -($control-hit-width / 2);
-    }
-    &-previous-control {
-      left: -($control-hit-width / 2);
-    }
+  // position-specific styles for each control button
+  .content-carousel-next-control {
+    right: -($control-hit-width / 2) - 25;
+  }
+  .content-carousel-previous-control {
+    left: -($control-hit-width / 2);
   }
 
 </style>

@@ -1,0 +1,48 @@
+/*
+ * This defines the translation settings for our webpack build.
+ * Anything defined here is only applied during frontend message extraction.
+ */
+const os = require('os');
+const webpack = require('webpack');
+const logger = require('./logging');
+const webpackBaseConfig = require('./webpack.config.base');
+
+function webpackConfig(pluginData) {
+  const pluginBundle = webpackBaseConfig(pluginData);
+
+  pluginBundle.output.path = os.tmpdir();
+  return pluginBundle;
+}
+
+const buildLogging = logger.getLogger('Kolibri Frontend Message Extraction');
+
+function buildWebpack(data, index, startCallback, doneCallback) {
+  const bundle = webpackConfig(data);
+  const compiler = webpack(bundle, (err, stats) => {
+    if (stats.hasErrors()) {
+      buildLogging.error(`There was a build error for ${bundle.name}`);
+      buildLogging.log(stats.toString('errors-only'));
+      process.exit(1);
+    }
+  });
+  compiler.hooks.compile.tap('Process', startCallback);
+  compiler.hooks.done.tap('Process', doneCallback);
+  return compiler;
+}
+
+if (require.main === module) {
+  const data = JSON.parse(process.env.data);
+  const index = JSON.parse(process.env.index);
+  buildWebpack(
+    data,
+    index,
+    () => {
+      process.send('compile');
+    },
+    () => {
+      process.send('done');
+    }
+  );
+}
+
+module.exports = buildWebpack;

@@ -18,12 +18,12 @@ from .dummydata import windows_data
 
 
 def _get_mocked_popen(cmd_resp):
-
     class MockedPopen(object):
-
         def __init__(self, cmd, *args, **kwargs):
             if cmd not in cmd_resp:
-                raise Exception("subprocess.Popen called for an unmocked command '{}'!".format(cmd))
+                raise Exception(
+                    "subprocess.Popen called for an unmocked command '{}'!".format(cmd)
+                )
             self.response = cmd_resp[cmd]
 
         def communicate(self):  # to handle subprocess.Popen().communicate()
@@ -36,7 +36,6 @@ def _get_mocked_popen(cmd_resp):
 
 
 def _get_mocked_disk_usage(disk_sizes):
-
     def mock_disk_usage(path):
 
         if path not in disk_sizes:
@@ -58,7 +57,6 @@ def _get_mocked_disk_usage(disk_sizes):
 
 
 class patch_popen(object):
-
     def __init__(self, cmd_resp):
         self.mocked_popen = _get_mocked_popen(cmd_resp)
 
@@ -68,7 +66,6 @@ class patch_popen(object):
 
 
 class patch_disk_usage(object):
-
     def __init__(self, disk_sizes):
         self.mocked_disk_usage = _get_mocked_disk_usage(disk_sizes)
 
@@ -80,9 +77,7 @@ class patch_disk_usage(object):
 
 
 def patch_os_access(readable, writable):
-
     def wrapper(f):
-
         def check_os_access(path, flag):
 
             if flag == os.R_OK:
@@ -91,7 +86,9 @@ def patch_os_access(readable, writable):
                 lookup = writable
 
             if path not in lookup:
-                raise Exception("os.access() called for an unmocked path '{}'!".format(path))
+                raise Exception(
+                    "os.access() called for an unmocked path '{}'!".format(path)
+                )
 
             return lookup[path]
 
@@ -101,18 +98,20 @@ def patch_os_access(readable, writable):
 
 
 def patch_os_path_exists_for_kolibri_folder(folder_lookup):
-
     def wrapper(f):
-
         def check_os_path_exists(path):
 
             if not path.endswith(EXPORT_FOLDER_NAME):
-                raise Exception("Checking os.path.exists only mocked for kolibri data folder paths.")
+                raise Exception(
+                    "Checking os.path.exists only mocked for kolibri data folder paths."
+                )
 
             base_path = os.path.realpath(os.path.join(path, ".."))
 
             if base_path not in folder_lookup:
-                raise Exception("os.path.exists() called for an unmocked path '{}'!".format(path))
+                raise Exception(
+                    "os.path.exists() called for an unmocked path '{}'!".format(path)
+                )
 
             return folder_lookup[base_path]
 
@@ -134,18 +133,23 @@ class WindowsFilesystemTestCase(TestCase):
     @patch_os_path_exists_for_kolibri_folder(windows_data.has_kolibri_data_folder)
     @patch("sys.platform", "win32")
     @patch("os.path", ntpath)
-    @patch("kolibri.core.discovery.utils.filesystem.windows._wmic_output", mocked_wmic_output)
+    @patch(
+        "kolibri.core.discovery.utils.filesystem.windows._wmic_output",
+        mocked_wmic_output,
+    )
     def setUp(self):
         self.drives = enumerate_mounted_disk_partitions()
         self.c_drive = self.drives["3bd36621a8f83b8693a9443bca0f6249"]
         self.d_drive = self.drives["3f6139dd093efa3c0f1494d26aaefe6a"]
 
     def test_drive_list_members(self):
-        self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(["C:\\", "D:\\"]))
+        self.assertSetEqual(
+            set(drive.path for drive in self.drives.values()), set(["C:\\", "D:\\"])
+        )
 
     def test_drive_writability(self):
         self.assertTrue(self.c_drive.writable)
-        self.assertFalse(self.d_drive.writable)
+        self.assertTrue(self.d_drive.writable)
 
     def test_drive_data_folders(self):
         self.assertEqual(self.c_drive.datafolder, "C:\\" + EXPORT_FOLDER_NAME)
@@ -158,8 +162,8 @@ class WindowsFilesystemTestCase(TestCase):
         self.assertEqual(self.d_drive.totalspace, 58388480)
 
     def test_drive_names(self):
-        self.assertEqual(self.c_drive.name, 'Local Fixed Disk')
-        self.assertEqual(self.d_drive.name, 'VBOXADDITIONS_4.')
+        self.assertEqual(self.c_drive.name, "Local Fixed Disk")
+        self.assertEqual(self.d_drive.name, "VBOXADDITIONS_4.")
 
 
 class LinuxFilesystemTestCase(TestCase):
@@ -180,7 +184,10 @@ class LinuxFilesystemTestCase(TestCase):
         self.disk_drive = self.drives["c84ca86ee4163913ceedccbc892338ac"]
 
     def test_drive_list_members(self):
-        self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(['/media/user/F571-7814', '/', '/media/user/disk']))
+        self.assertSetEqual(
+            set(drive.path for drive in self.drives.values()),
+            set(["/media/user/F571-7814", "/", "/media/user/disk"]),
+        )
 
     def test_drive_writability(self):
         self.assertTrue(self.root_drive.writable)
@@ -189,8 +196,12 @@ class LinuxFilesystemTestCase(TestCase):
 
     def test_drive_data_folders(self):
         self.assertEqual(self.root_drive.datafolder, "/" + EXPORT_FOLDER_NAME)
-        self.assertEqual(self.f571_drive.datafolder, "/media/user/F571-7814/" + EXPORT_FOLDER_NAME)
-        self.assertEqual(self.disk_drive.datafolder, "/media/user/disk/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(
+            self.f571_drive.datafolder, "/media/user/F571-7814/" + EXPORT_FOLDER_NAME
+        )
+        self.assertEqual(
+            self.disk_drive.datafolder, "/media/user/disk/" + EXPORT_FOLDER_NAME
+        )
 
     def test_drive_space(self):
         self.assertEqual(self.f571_drive.freespace, 772001792)
@@ -218,7 +229,10 @@ class OSXFilesystemTestCase(TestCase):
         self.root_drive = self.drives["b933f0b9c3b63a90fbd78bfcece4c87a"]
 
     def test_drive_list_members(self):
-        self.assertSetEqual(set(drive.path for drive in self.drives.values()), set(['/Volumes/HP v125w', '/']))
+        self.assertSetEqual(
+            set(drive.path for drive in self.drives.values()),
+            set(["/Volumes/HP v125w", "/"]),
+        )
 
     def test_drive_writability(self):
         self.assertFalse(self.root_drive.writable)
@@ -226,7 +240,9 @@ class OSXFilesystemTestCase(TestCase):
 
     def test_drive_data_folders(self):
         self.assertEqual(self.root_drive.datafolder, "/" + EXPORT_FOLDER_NAME)
-        self.assertEqual(self.hp_drive.datafolder, "/Volumes/HP v125w/" + EXPORT_FOLDER_NAME)
+        self.assertEqual(
+            self.hp_drive.datafolder, "/Volumes/HP v125w/" + EXPORT_FOLDER_NAME
+        )
 
     def test_drive_space(self):
         self.assertEqual(self.hp_drive.freespace, 1234)
@@ -235,5 +251,5 @@ class OSXFilesystemTestCase(TestCase):
         self.assertEqual(self.root_drive.totalspace, 1000)
 
     def test_drive_names(self):
-        self.assertEqual(self.hp_drive.name, 'Untitled 1')
-        self.assertEqual(self.root_drive.name, 'Macintosh HD')
+        self.assertEqual(self.hp_drive.name, "Untitled 1")
+        self.assertEqual(self.root_drive.name, "Macintosh HD")

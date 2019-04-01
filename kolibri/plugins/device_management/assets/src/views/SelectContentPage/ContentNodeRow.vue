@@ -3,7 +3,6 @@
   <tr>
     <td class="core-table-checkbox-col">
       <KCheckbox
-        class="checkbox display-cell"
         :label="node.title"
         :showLabel="false"
         :checked="checked"
@@ -13,30 +12,32 @@
       />
     </td>
 
-    <td class="title display-cell core-table-main-col">
-      <ContentIcon
-        class="icon"
-        :kind="node.kind"
-      />
-      <KButton
-        v-if="showButton"
-        :text="node.title"
-        appearance="basic-link"
-        @click="$emit('clicktopic', node)"
-        name="select-node"
-      />
-      <span v-else>
-        {{ node.title }}
-      </span>
-      <CoachContentLabel
-        class="coach-content-label"
-        :value="node.num_coach_contents"
-        :isTopic="isTopic"
-      />
+    <td class="title">
+      <KLabeledIcon>
+        <ContentIcon
+          slot="icon"
+          :kind="node.kind"
+        />
+        <KButton
+          v-if="showButton"
+          :text="node.title"
+          appearance="basic-link"
+          name="select-node"
+          @click="$emit('clicktopic', node)"
+        />
+        <span v-else>
+          {{ node.title }}
+        </span>
+        <CoachContentLabel
+          class="coach-content-label"
+          :value="node.num_coach_contents"
+          :isTopic="isTopic"
+        />
+      </KLabeledIcon>
 
     </td>
 
-    <td class="message display-cell">
+    <td class="message">
       {{ message }}
     </td>
   </tr>
@@ -50,6 +51,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -59,6 +61,7 @@
       ContentIcon,
       KButton,
       KCheckbox,
+      KLabeledIcon,
     },
     props: {
       node: {
@@ -104,16 +107,6 @@
     display: inline-block;
     margin-left: 16px;
     vertical-align: bottom;
-  }
-
-  .display-cell {
-    display: table-cell;
-    vertical-align: inherit;
-  }
-
-  .icon {
-    margin-right: 4px;
-    margin-left: 8px;
   }
 
   .title {

@@ -9,7 +9,8 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.utils.time_utils import local_now
 
 
 class Lesson(AbstractFacilityDataModel):
@@ -19,7 +20,7 @@ class Lesson(AbstractFacilityDataModel):
     """
 
     permissions = RoleBasedPermissions(
-        target_field='collection',
+        target_field="collection",
         can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
@@ -27,7 +28,7 @@ class Lesson(AbstractFacilityDataModel):
     )
 
     title = models.CharField(max_length=50)
-    description = models.CharField(default='', blank=True, max_length=200)
+    description = models.CharField(default="", blank=True, max_length=200)
     """
     Like Exams, we store an array of objects with the following form:
     {
@@ -41,9 +42,13 @@ class Lesson(AbstractFacilityDataModel):
     is_active = models.BooleanField(default=False)
 
     # The Classroom-type Collection for which the Lesson is created
-    collection = models.ForeignKey(Collection, related_name='lessons', blank=False, null=False)
+    collection = models.ForeignKey(
+        Collection, related_name="lessons", blank=False, null=False
+    )
 
-    created_by = models.ForeignKey(FacilityUser, related_name='lessons_created', blank=False, null=False)
+    created_by = models.ForeignKey(
+        FacilityUser, related_name="lessons_created", blank=False, null=False
+    )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
     def get_all_learners(self):
@@ -57,16 +62,20 @@ class Lesson(AbstractFacilityDataModel):
         return learners
 
     def __str__(self):
-        return 'Lesson {} for Classroom {}'.format(
-            self.title,
-            self.collection.name,
-        )
+        return "Lesson {} for Classroom {}".format(self.title, self.collection.name)
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        We delete all notifications objects whose lesson is this lesson id.
+        """
+        LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
+        super(Lesson, self).delete(using, keep_parents)
 
     # Morango fields
-    morango_model_name = 'lesson'
+    morango_model_name = "lesson"
 
     def infer_dataset(self, *args, **kwargs):
-        return self.created_by.dataset
+        return self.created_by.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
@@ -77,34 +86,39 @@ class LessonAssignment(AbstractFacilityDataModel):
     Links LearnerGroup- or Classroom-type Collections to a Lesson
     """
 
-    permissions = (
-        RoleBasedPermissions(
-            target_field="collection",
-            can_be_created_by=(),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_deleted_by=(),
-        )
+    permissions = RoleBasedPermissions(
+        target_field="collection",
+        can_be_created_by=(),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_deleted_by=(),
     )
 
-    lesson = models.ForeignKey(Lesson, related_name='lesson_assignments', blank=False, null=False)
-    collection = models.ForeignKey(Collection, related_name='assigned_lessons', blank=False, null=False)
-    assigned_by = models.ForeignKey(FacilityUser, related_name='assigned_lessons', blank=False, null=False)
+    lesson = models.ForeignKey(
+        Lesson, related_name="lesson_assignments", blank=False, null=False
+    )
+    collection = models.ForeignKey(
+        Collection, related_name="assigned_lessons", blank=False, null=False
+    )
+    assigned_by = models.ForeignKey(
+        FacilityUser, related_name="assigned_lessons", blank=False, null=False
+    )
 
     def __str__(self):
-        return 'Lesson Assignment {} for Collection {}'.format(
-            self.lesson.title,
-            self.collection.name,
+        return "Lesson Assignment {} for Collection {}".format(
+            self.lesson.title, self.collection.name
         )
 
     # Morango fields
-    morango_model_name = 'lessonassignment'
+    morango_model_name = "lessonassignment"
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset
+        return self.assigned_by.dataset_id
 
     def calculate_source_id(self):
-        return "{lesson_id}:{collection_id}".format(lesson_id=self.lesson_id, collection_id=self.collection_id)
+        return "{lesson_id}:{collection_id}".format(
+            lesson_id=self.lesson_id, collection_id=self.collection_id
+        )
 
     def calculate_partition(self):
         return self.dataset_id

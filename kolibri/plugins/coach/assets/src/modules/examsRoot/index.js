@@ -1,3 +1,5 @@
+import { examState } from '../examShared/exams';
+
 function defaultState() {
   return {
     busy: false,
@@ -15,6 +17,9 @@ export default {
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
+    },
+    ADD_EXAM(state, newExam) {
+      state.exams.push({ ...examState(newExam) });
     },
   },
 };

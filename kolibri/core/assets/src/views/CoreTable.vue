@@ -1,35 +1,94 @@
-<template>
-
-  <div class="core-table-container">
-    <table class="core-table">
-      <slot></slot>
-      <slot name="thead"></slot>
-      <slot name="tbody"></slot>
-    </table>
-  </div>
-
-</template>
-
-
 <script>
+
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'CoreTable',
+    mixins: [themeMixin],
+    props: {
+      selectable: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
+      emptyMessage: {
+        type: String,
+        required: false,
+      },
+    },
+    computed: {
+      tHeadStyle() {
+        return {
+          borderBottom: `solid 1px ${this.$coreGrey}`,
+          fontSize: '12px',
+          color: this.$coreTextAnnotation,
+        };
+      },
+      tbodyTrStyle() {
+        const selectable = {
+          cursor: 'pointer',
+          ':hover': {
+            backgroundColor: this.$coreGrey,
+          },
+        };
+        return Object.assign(
+          {
+            ':not(:last-child)': {
+              borderBottom: `solid 1px ${this.$coreGrey}`,
+            },
+          },
+          this.selectable ? selectable : {}
+        );
+      },
+    },
+    render(createElement) {
+      let tableHasRows = true;
+      this.$slots.thead.forEach(thead => {
+        thead.data.style = Object.assign(thead.data.style || {}, this.tHeadStyle);
+      });
+
+      this.$slots.tbody.forEach(tbody => {
+        // Need to check componentOptions if wrapped in <transition-group>, or just children
+        // if in regular <tbody>
+        if (tbody.componentOptions && tbody.componentOptions.children) {
+          tableHasRows = tbody.componentOptions.children.length > 0;
+        }
+
+        if (tbody.children) {
+          tableHasRows = tbody.children.length > 0;
+          tbody.children.forEach(child => {
+            if (!child.data) {
+              child.data = {};
+            }
+            if (!child.data.class) {
+              child.data.class = [];
+            } else if (child.data.class && !Array.isArray(child.data.class)) {
+              child.data.class = [child.data.class];
+            }
+            child.data.class.push(this.$computedClass(this.tbodyTrStyle));
+          });
+        }
+      });
+
+      // Insert an empty message as a <p> at the end if it is provided and the
+      // table has no rows.
+      const showEmptyMessage = this.emptyMessage && !tableHasRows;
+
+      return createElement('div', { class: 'core-table-container' }, [
+        createElement('table', { class: 'core-table' }, [
+          ...(this.$slots.default || []),
+          this.$slots.thead,
+          this.$slots.tbody,
+        ]),
+        showEmptyMessage && createElement('p', this.emptyMessage),
+      ]);
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  // SPECIAL CLASSES
-  // core-table-icon-col - Icon Column
-  // core-table-main-col - Main Column
-  // core-table-checkbox-col - Checkbox column
-  // core-table-rows-selectable - Rows are selectable
-  // core-table-row-selected - Row is selected
 
   .core-table-container {
     overflow-x: auto;
@@ -41,18 +100,8 @@
     font-size: 14px;
   }
 
-  /deep/ thead {
-    border-bottom: solid 1px $core-grey;
-    tr {
-      font-size: 12px;
-      color: $core-text-annotation;
-    }
-  }
-
-  /deep/ tbody {
-    tr:not(:last-child) {
-      border-bottom: solid 1px $core-grey;
-    }
+  /deep/ thead th {
+    vertical-align: bottom;
   }
 
   /deep/ tr {
@@ -61,49 +110,35 @@
 
   /deep/ th,
   /deep/ td {
-    padding: 12px 16px 12px 0;
+    padding: 12px 8px;
+    line-height: 1.5em;
+    vertical-align: top;
   }
 
-  /deep/ th:not(.core-table-icon-col):not(.core-table-checkbox-col),
-  /deep/ td:not(.core-table-icon-col):not(.core-table-checkbox-col) {
-    min-width: 120px;
+  /deep/ td {
+    max-width: 300px;
+    overflow-x: auto;
   }
 
-  /deep/ .core-table-icon-col,
+  /deep/ tr:not(:last-child) {
+    border-bottom: 1px solid rgb(223, 223, 223);
+  }
+
   /deep/ .core-table-checkbox-col {
     width: 40px;
-  }
-
-  /deep/ .core-table-main-col {
-    font-weight: bold;
-  }
-
-  /deep/ .core-table-icon-col {
-    .ui-icon {
-      display: inline-block;
-      height: 24px;
-      font-size: 24px;
-      vertical-align: inherit;
-    }
-  }
-
-  /deep/ .core-table-checkbox-col {
     .k-checkbox-container {
       margin: 0 0 0 2px;
+      line-height: 1em;
     }
   }
 
-  /deep/ .core-table-rows-selectable {
-    tr {
-      cursor: pointer;
-      &:hover {
-        background-color: $core-grey;
-      }
-    }
-  }
+  /deep/ .core-table-button-col {
+    padding: 4px;
+    text-align: right;
 
-  /deep/ .core-table-row-selected {
-    background-color: $core-bg-canvas;
+    button {
+      margin: 0;
+    }
   }
 
 </style>

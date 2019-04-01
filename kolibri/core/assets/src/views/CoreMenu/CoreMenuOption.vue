@@ -6,6 +6,7 @@
       class="ui-menu-option"
       role="menuitem"
       :class="classes"
+      :style="optionStyle"
       :tabindex="(isDivider || disabled) ? null : '0'"
       @click="conditionalEmit"
       @keydown.enter="conditionalEmit"
@@ -30,6 +31,7 @@
           <div
             v-if="secondaryText"
             class="ui-menu-option-secondary-text"
+            :style="{ color: disabled ? $coreTextAnnotation : '' }"
           >
             {{ secondaryText }}
           </div>
@@ -43,6 +45,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
 
   export default {
@@ -50,6 +53,7 @@
     components: {
       UiIcon,
     },
+    mixins: [themeMixin],
     props: {
       type: String,
       label: String,
@@ -74,6 +78,34 @@
 
       active() {
         return window.location.pathname.startsWith(this.link);
+      },
+      optionStyle() {
+        let color = '';
+        if (!this.isDivider) {
+          if (this.active) {
+            color = this.$coreAccentColor;
+          } else if (this.disabled) {
+            color = this.$coreTextAnnotation;
+          } else {
+            color = this.$coreTextDefault;
+          }
+        }
+        const bg = {
+          backgroundColor: this.$coreGrey200,
+        };
+        return Object.assign(
+          {
+            color,
+          },
+          this.disabled
+            ? {}
+            : {
+                ':hover': bg,
+              },
+          {
+            ":focus body[modality='keyboard']": bg,
+          }
+        );
       },
     },
     methods: {
@@ -113,23 +145,12 @@
       min-height: rem-calc(40px);
       font-size: $ui-dropdown-item-font-size;
       font-weight: normal;
-      color: $primary-text-color;
       cursor: pointer;
       outline: none;
 
-      &:hover:not(.is-disabled),
-      body[modality='keyboard'] &:focus {
-        background-color: #eeeeee; // rgba(black, 0.1);
-      }
-
       &.is-disabled {
-        color: $secondary-text-color;
         cursor: default;
         opacity: 0.5;
-
-        .ui-menu-option-secondary-text {
-          color: $secondary-text-color;
-        }
       }
     }
   }
@@ -144,7 +165,6 @@
   .ui-menu-option-icon {
     margin-right: rem-calc(16px);
     font-size: rem-calc(18px);
-    color: $secondary-text-color;
   }
 
   .ui-menu-option-text {
@@ -158,7 +178,6 @@
     flex-shrink: 0;
     margin-left: rem-calc(4px);
     font-size: rem-calc(13px);
-    color: $hint-text-color;
   }
 
   .ui-menu-option-text-lp {

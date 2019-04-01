@@ -7,13 +7,13 @@
           v-if="taskHasFailed"
           category="alert"
           name="error"
-          class="error"
+          :style="{ fill: $coreTextError }"
         />
         <mat-svg
           v-else-if="taskHasCompleted"
           category="action"
           name="check_circle"
-          class="complete"
+          :style="{ fill: $coreStatusCorrect }"
         />
         <KCircularLoader
           v-else
@@ -43,8 +43,8 @@
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="true"
-        @click="endTask()"
         :disabled="uiBlocked"
+        @click="endTask()"
       />
     </div>
 
@@ -56,6 +56,7 @@
 <script>
 
   import { mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -73,6 +74,7 @@
       KCircularLoader,
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       type: RequiredString,
       status: RequiredString,
@@ -182,19 +184,11 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .progress-icon {
     width: 5%;
     text-align: center;
     .inprogress {
       display: inline-block;
-    }
-    .complete {
-      fill: $core-status-correct;
-    }
-    .error {
-      fill: $core-text-error;
     }
   }
 
@@ -203,7 +197,7 @@
     width: 100%;
     height: 5em;
     padding-right: 1em;
-    padding-left: 1em;
+    margin-left: -6px;
     vertical-align: middle;
   }
 
@@ -213,13 +207,13 @@
 
   .progress-bar {
     width: 50%;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
+    padding-left: 8px;
     font-size: 0.75em;
   }
 
   .progress-messages {
-    padding-right: 1em;
-    padding-left: 1em;
+    padding-left: 16px;
   }
 
   .percentage {

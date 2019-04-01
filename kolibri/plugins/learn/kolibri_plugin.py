@@ -13,6 +13,7 @@ from kolibri.plugins.base import KolibriPluginBase
 class LearnPlugin(KolibriPluginBase):
     def url_module(self):
         from . import urls
+
         return urls
 
     def url_slug(self):
@@ -24,7 +25,7 @@ class LearnRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(LearnPlugin, 'learn')
+        return self.plugin_url(LearnPlugin, "learn")
 
 
 class LearnNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):

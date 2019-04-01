@@ -10,9 +10,9 @@
       </p>
     </div>
     <ContentCard
-      class="content-card"
       v-for="lesson in lessons"
       :key="lesson.id"
+      class="content-card"
       :link="lessonPlaylistLink(lesson.id)"
       :showContentIcon="false"
       :title="lesson.title"
@@ -51,9 +51,9 @@
     },
     methods: {
       getLessonProgress(lesson) {
-        const { resources_completed, total_resources } = lesson.progress;
+        const { resource_progress, total_resources } = lesson.progress;
         if (total_resources === 0) return undefined;
-        return resources_completed / total_resources;
+        return resource_progress / total_resources;
       },
       lessonPlaylistLink,
     },

@@ -13,6 +13,7 @@ from kolibri.plugins.base import KolibriPluginBase
 class Coach(KolibriPluginBase):
     def url_module(self):
         from . import urls
+
         return urls
 
     def url_slug(self):
@@ -24,7 +25,7 @@ class CoachRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(Coach, 'coach')
+        return self.plugin_url(Coach, "coach")
 
 
 class CoachNavItem(NavigationHook, webpack_hooks.WebpackBundleHook):

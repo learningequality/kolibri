@@ -2,12 +2,15 @@
 
   <div>
 
-    <PageHeader :title="topic.title" />
+    <PageHeader
+      :title="topic.title"
+      :progress="calculateProgress"
+    />
 
     <TextTruncator
       v-if="topic.description"
       :text="topic.description"
-      :maxHeight="50"
+      :maxHeight="90"
       :showTooltip="false"
       :showViewMore="true"
       dir="auto"
@@ -32,7 +35,6 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
-  import ContentCard from './ContentCard';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
@@ -45,7 +47,6 @@
     },
     components: {
       PageHeader,
-      ContentCard,
       ContentCardGroupGrid,
       TextTruncator,
     },
@@ -70,6 +71,16 @@
       },
       channelTitle() {
         return this.channel.title;
+      },
+      calculateProgress() {
+        // calculate progress across all topics
+        const contentsLength = this.contents.length;
+        if (contentsLength !== 0) {
+          const computedSum =
+            this.contents.map(content => content.progress).reduce((acc, val) => acc + val) /
+            contentsLength;
+          return computedSum !== 0 ? computedSum : undefined;
+        }
       },
     },
     methods: {

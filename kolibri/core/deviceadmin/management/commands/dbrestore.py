@@ -30,36 +30,39 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'dump_file',
-            nargs='?',
+            "dump_file",
+            nargs="?",
             type=str,
-            help="Specifies the exact dump file to restore from"
+            help="Specifies the exact dump file to restore from",
         )
         parser.add_argument(
-            '--latest', '-l',
-            action='store_true',
-            dest='latest',
+            "--latest",
+            "-l",
+            action="store_true",
+            dest="latest",
             help=(
                 "Automatically detect and restore from latest backup matching "
                 "the major and minor version (X.Y) of current installation."
-            )
+            ),
         )
 
     def handle(self, *args, **options):
 
         try:
             server.get_status()
-            self.stderr.write(self.style.ERROR(
-                "Cannot restore while Kolibri is running, please run:\n"
-                "\n"
-                "    kolibri stop\n"
-            ))
+            self.stderr.write(
+                self.style.ERROR(
+                    "Cannot restore while Kolibri is running, please run:\n"
+                    "\n"
+                    "    kolibri stop\n"
+                )
+            )
             raise SystemExit()
         except server.NotRunning:
             # Great, it's not running!
             pass
 
-        latest = options['latest']
+        latest = options["latest"]
         use_backup = options.get("dump_file", None)
 
         if latest == bool(use_backup):
@@ -88,6 +91,6 @@ class Command(BaseCommand):
 
         dbrestore(use_backup)
 
-        self.stdout.write(self.style.SUCCESS(
-            "Restored database from: {path}".format(path=use_backup)
-        ))
+        self.stdout.write(
+            self.style.SUCCESS("Restored database from: {path}".format(path=use_backup))
+        )

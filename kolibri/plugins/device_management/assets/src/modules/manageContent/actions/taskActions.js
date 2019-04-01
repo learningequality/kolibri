@@ -2,9 +2,9 @@ import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
+import { TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
-
 export function cancelTask(store, taskId) {
   return TaskResource.cancelTask(taskId).then(function onSuccess() {
     updateTasks(store, []);
@@ -12,7 +12,8 @@ export function cancelTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  store.commit('SET_TASK_LIST', tasks);
+  const contentTasks = tasks.filter(task => Object.values(TaskTypes).includes(task.type));
+  store.commit('SET_TASK_LIST', contentTasks);
 }
 
 function triggerTask(store, taskPromise) {

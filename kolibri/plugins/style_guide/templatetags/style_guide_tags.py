@@ -23,7 +23,7 @@ def style_guide_assets():
     by any concrete hook that subclasses UserSyncHook.
     :return: HTML of script tags to insert into style_guide/style_guide.html
     """
-    return webpack_asset_render(hooks.StyleGuideSyncHook, async=False)
+    return webpack_asset_render(hooks.StyleGuideSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -33,4 +33,4 @@ def style_guide_async_assets():
     by any concrete hook that subclasses StyleGuideSyncHook.
     :return: HTML of script tags to insert into style_guide/style_guide.html
     """
-    return webpack_asset_render(hooks.StyleGuideAsyncHook, async=True)
+    return webpack_asset_render(hooks.StyleGuideAsyncHook, is_async=True)

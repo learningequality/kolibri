@@ -6,8 +6,14 @@
     :backPageText="$tr('backToExamList')"
   >
     <MultiPaneLayout ref="multiPaneLayout">
-      <div class="exam-status-container" slot="header">
-        <mat-svg class="exam-icon" slot="content-icon" category="action" name="assignment_late" />
+      <div slot="header" class="exam-status-container" :style="{ backgroundColor: $coreBgLight }">
+        <mat-svg
+          slot="content-icon"
+          class="exam-icon"
+          :style="{ fill: $coreTextDefault }"
+          category="action"
+          name="assignment_late"
+        />
         <h1 class="exam-title">{{ exam.title }}</h1>
         <div class="exam-status">
           <p class="questions-answered">
@@ -18,7 +24,7 @@
               )
             }}
           </p>
-          <KButton @click="toggleModal" :text="$tr('submitExam')" :primary="true" />
+          <KButton :text="$tr('submitExam')" :primary="true" @click="toggleModal" />
         </div>
         <div :style="{ clear: 'both' }"></div>
       </div>
@@ -31,12 +37,12 @@
 
       <div
         slot="main"
-        class="question-container"
+        :style="{ background: $coreBgLight }"
       >
         <ContentRenderer
-          ref="contentRenderer"
-          v-if="itemId"
+          v-if="content && itemId"
           :id="content.id"
+          ref="contentRenderer"
           :kind="content.kind"
           :files="content.files"
           :contentId="content.content_id"
@@ -54,16 +60,16 @@
         </UiAlert>
       </div>
 
-      <div class="question-navbutton-container" slot="footer">
+      <div slot="footer" class="question-navbutton-container">
         <KButton
           :disabled="questionNumber===0"
-          @click="goToQuestion(questionNumber - 1)"
           :text="$tr('previousQuestion')"
+          @click="goToQuestion(questionNumber - 1)"
         />
         <KButton
           :disabled="questionNumber===exam.question_count-1"
-          @click="goToQuestion(questionNumber + 1)"
           :text="$tr('nextQuestion')"
+          @click="goToQuestion(questionNumber + 1)"
         />
       </div>
     </MultiPaneLayout>
@@ -89,6 +95,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
@@ -105,8 +112,8 @@
   export default {
     name: 'ExamPage',
     $trs: {
-      submitExam: 'Submit exam',
-      backToExamList: 'Back to exam list',
+      submitExam: 'Submit quiz',
+      backToExamList: 'Back to quiz list',
       questionsAnswered:
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous question',
@@ -131,6 +138,7 @@
       UiAlert,
       MultiPaneLayout,
     },
+    mixins: [themeMixin],
     data() {
       return {
         submitModalOpen: false,
@@ -161,6 +169,15 @@
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
         return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+      },
+    },
+    watch: {
+      itemId(newVal, oldVal) {
+        // HACK: manually dismiss the perseus renderer message when moving
+        // to a different item (fixes #3853)
+        if (newVal !== oldVal) {
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+        }
       },
     },
     methods: {
@@ -209,7 +226,8 @@
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        this.saveAnswer(true).then(() => {
+        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+        promise.then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
             params: {
@@ -221,6 +239,15 @@
         });
       },
       toggleModal() {
+        // Flush any existing save event to ensure
+        // that the subit modal contains the latest state
+        if (!this.submitModalOpen) {
+          const promise =
+            this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+          return promise.then(() => {
+            this.submitModalOpen = !this.submitModalOpen;
+          });
+        }
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
@@ -238,11 +265,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .exam-status-container {
     padding: 16px;
-    background: $core-bg-light;
   }
 
   .exam-status {
@@ -259,7 +283,6 @@
     position: relative;
     top: 4px;
     margin-right: 5px;
-    fill: $core-text-default;
   }
 
   .exam-title {
@@ -270,10 +293,6 @@
     position: relative;
     display: inline-block;
     margin-top: 0;
-  }
-
-  .question-container {
-    background: $core-bg-light;
   }
 
   .question-navbutton-container {

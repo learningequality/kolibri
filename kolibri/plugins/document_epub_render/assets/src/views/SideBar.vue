@@ -1,6 +1,6 @@
 <template>
 
-  <div class="side-bar">
+  <div class="side-bar" :style="{ backgroundColor: $coreBgCanvas }">
     <slot></slot>
   </div>
 
@@ -9,8 +9,11 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   export default {
     name: 'SideBar',
+    mixins: [themeMixin],
   };
 
 </script>
@@ -18,7 +21,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .side-bar {
@@ -27,7 +29,6 @@
     padding: 16px;
     overflow-y: auto;
     word-wrap: break-word;
-    background-color: $core-bg-canvas;
     box-shadow: $epub-box-shadow;
   }
 

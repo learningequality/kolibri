@@ -1,6 +1,6 @@
 <template>
 
-  <core-fullscreen
+  <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
     :style="epubRendererStyle"
@@ -13,6 +13,7 @@
 
     <div
       v-show="loaded"
+      :dir="dir"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
@@ -105,9 +106,10 @@
           :style="navigationButtonContainerStyle"
         >
           <PreviousButton
-            @goToPreviousPage="goToPreviousPage"
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
+            @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
@@ -123,6 +125,7 @@
           <NextButton
             :color="navigationButtonColor"
             :style="navigationButtonsStyle"
+            :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -137,7 +140,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
-  </core-fullscreen>
+  </CoreFullscreen>
 
 </template>
 
@@ -146,7 +149,6 @@
 
   import Epub from 'epubjs/src/epub';
   import defaultManager from 'epubjs/src/managers/default';
-  import iFrameView from 'epubjs/src/managers/views/iframe';
   import { EVENTS } from 'epubjs/src/utils/constants';
 
   import Mark from 'mark.js';
@@ -157,11 +159,14 @@
   import FocusLock from 'vue-focus-lock';
 
   import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
+  import { getContentLangDir } from 'kolibri.utils.i18n';
 
+  import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
   import TopBar from './TopBar';
@@ -212,7 +217,7 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [responsiveWindow, responsiveElement, contentRendererMixin],
+    mixins: [responsiveWindow, responsiveElement, contentRendererMixin, themeMixin],
     data: () => ({
       book: null,
       rendition: null,
@@ -255,7 +260,7 @@
           color: `${this.textColor}!important`,
         };
         const alignmentStyle = {
-          'text-align': 'left!important',
+          'text-align': `${this.isRtl ? 'right' : 'left'}!important`,
         };
         const fontSizeStyle = this.fontSize ? { 'font-size': `${this.fontSize}!important` } : {};
 
@@ -286,7 +291,10 @@
       },
       epubRendererStyle() {
         const ratio = this.windowIsSmall ? 11 / 8.5 : 8.5 / 11;
-        return { height: `${this.elementWidth * ratio}px` };
+        return {
+          height: `${this.elementWidth * ratio}px`,
+          backgroundColor: this.$coreBgLight,
+        };
       },
       navigationButtonColor() {
         return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
@@ -342,6 +350,12 @@
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
+      dir() {
+        return getContentLangDir(this.lang);
+      },
+      isRtl() {
+        return this.dir === 'rtl';
+      },
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -396,6 +410,10 @@
         }
       },
     },
+    created() {
+      // Try to load the appropriate directional CSS for the particular content
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.dir);
+    },
     beforeMount() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
@@ -406,7 +424,7 @@
       this.fontSize = savedFontSize;
     },
     mounted() {
-      this.book.ready.then(() => {
+      Promise.all([this.cssPromise, this.book.ready]).then(() => {
         if (this.book.navigation) {
           this.toc = this.book.navigation.toc;
         }
@@ -687,14 +705,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .epub-renderer {
     position: relative;
     height: 500px;
     font-size: smaller;
-    background-color: $core-bg-light;
   }
 
   .top-bar {
@@ -772,6 +788,7 @@
   }
 
   .column {
+    position: relative;
     display: inline-block;
     height: 100%;
     overflow: hidden;

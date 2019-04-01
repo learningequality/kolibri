@@ -32,7 +32,8 @@ def is_valid_hostname(hostname):
 def is_valid_ipv4_address(ip):
     """Validates IPv4 addresses.
     """
-    pattern = re.compile(r"""
+    pattern = re.compile(
+        r"""
         ^
         (?:
           # Dotted variants:
@@ -65,7 +66,9 @@ def is_valid_ipv4_address(ip):
           4[01]\d{8}|[1-3]\d{0,9}|[4-9]\d{0,8}
         )
         $
-    """, re.VERBOSE | re.IGNORECASE)
+    """,
+        re.VERBOSE | re.IGNORECASE,
+    )
     return pattern.match(ip) is not None
 
 
@@ -73,7 +76,8 @@ def is_valid_ipv4_address(ip):
 def is_valid_ipv6_address(ip):
     """Validates IPv6 addresses.
     """
-    pattern = re.compile(r"""
+    pattern = re.compile(
+        r"""
         ^
         \s*                         # Leading whitespace
         (?!.*::.*::)                # Only a single wildcard allowed
@@ -98,14 +102,16 @@ def is_valid_ipv6_address(ip):
         )
         \s*                         # Trailing whitespace
         $
-    """, re.VERBOSE | re.IGNORECASE | re.DOTALL)
+    """,
+        re.VERBOSE | re.IGNORECASE | re.DOTALL,
+    )
     return pattern.match(ip) is not None
 
 
 def parse_address_into_components(address):
 
     # if it looks to be an IPv6 address, make sure it is surrounded by square brackets
-    if address.count(":") > 2 and re.match("^[a-f0-9\:]+$", address):
+    if address.count(":") > 2 and re.match(r"^[a-f0-9\:]+$", address):
         address = "[{}]".format(address)
 
     # ensure that there's a scheme on the address
@@ -154,15 +160,19 @@ def get_normalized_url_variations(address):
             if p_port:
                 ports = (p_port,) + ports
             for port in ports:
-                if (scheme == "http" and port == 80) or (scheme == "https" and port == 443):
+                if (scheme == "http" and port == 80) or (
+                    scheme == "https" and port == 443
+                ):
                     port_component = ""
                 else:
                     port_component = ":{port}".format(port=port)
-                urls.append("{scheme}://{hostname}{port}{path}".format(
-                    scheme=scheme,
-                    hostname=p_hostname,
-                    port=port_component,
-                    path=path
-                ))
+                urls.append(
+                    "{scheme}://{hostname}{port}{path}".format(
+                        scheme=scheme,
+                        hostname=p_hostname,
+                        port=port_component,
+                        path=path,
+                    )
+                )
 
     return urls

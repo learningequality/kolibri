@@ -1,51 +1,20 @@
 <template>
 
   <CoreBase
-    :appBarTitle="appBarTitle"
-    :bottomMargin="bottomSpaceReserved"
-    :immersivePage="isImmersivePage"
-    :immersivePageIcon="immersivePageIcon"
-    :immersivePagePrimary="immersivePageIsPrimary"
-    :immersivePageRoute="immersiveToolbarRoute"
+    :marginBottom="bottomSpaceReserved"
+    :showSubNav="topNavIsVisible"
+    v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="!isWithinSearchPage" />
     </template>
 
-    <div v-if="tabLinksAreVisible" class="k-navbar-links">
-      <KNavbar>
-        <KNavbarLink
-          name="classes-link"
-          v-if="isUserLoggedIn && userHasMemberships"
-          type="icon-and-title"
-          :title="$tr('classes')"
-          :link="allClassesLink"
-        >
-          <mat-svg name="business" category="communication" />
-        </KNavbarLink>
-        <KNavbarLink
-          type="icon-and-title"
-          :title="$tr('channels')"
-          :link="channelsLink"
-        >
-          <mat-svg name="apps" category="navigation" />
-        </KNavbarLink>
-        <KNavbarLink
-          type="icon-and-title"
-          :title="$tr('recommended')"
-          :link="recommendedLink"
-        >
-          <mat-svg name="forum" category="communication" />
-        </KNavbarLink>
-      </KNavbar>
-    </div>
+    <LearnTopNav slot="sub-nav" />
 
-    <div v-if="pointsAreVisible" class="points-wrapper">
-      <a class="points-link" :href="userProfileLink"><TotalPoints /></a>
-    </div>
+    <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
-      <Breadcrumbs />
+      <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" />
     </div>
 
@@ -57,12 +26,10 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
+  import lastItem from 'lodash/last';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import KNavbar from 'kolibri.coreVue.components.KNavbar';
-  import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import urls from 'kolibri.urls';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -80,6 +47,9 @@
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
+  import LearnTopNav from './LearnTopNav';
+
+  const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
 
   // Bottom toolbar is 111px high on mobile, 113px normally.
   // We reserve the smaller number so there is no gap on either screen size.
@@ -101,26 +71,17 @@
     [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
-  const immersivePages = [
-    ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    ClassesPageNames.EXAM_REPORT_VIEWER,
-  ];
-
   export default {
     name: 'LearnIndex',
     $trs: {
       learnTitle: 'Learn',
-      recommended: 'Recommended',
-      channels: 'Channels',
-      classes: 'Classes',
       examReportTitle: '{examTitle} report',
     },
     components: {
       ActionBarSearchBox,
       Breadcrumbs,
       CoreBase,
-      KNavbar,
-      KNavbarLink,
+      LearnTopNav,
       TotalPoints,
     },
     mixins: [responsiveWindow],
@@ -128,98 +89,95 @@
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
+        currentLesson: 'currentLesson',
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
       }),
       ...mapState('examReportViewer', ['exam']),
-      ...mapState({
-        memberships: state => state.memberships,
-        pageName: state => state.pageName,
-      }),
-      topLevelPageName() {
-        return TopLevelPageNames.LEARN;
-      },
-      userHasMemberships() {
-        return this.memberships.length > 0;
-      },
+      ...mapState(['pageName']),
       currentPage() {
         if (RecommendedPages.includes(this.pageName)) {
           return RecommendedSubpage;
         }
         return pageNameToComponentMap[this.pageName] || null;
       },
-      appBarTitle() {
+      immersivePageProps() {
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return this.lessonContent.title || '';
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
+          return {
+            appBarTitle: this.currentLesson.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
+        if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
           if (this.exam) {
-            return this.$tr('examReportTitle', {
-              examTitle: this.exam.title,
-            });
+            return {
+              appBarTitle: this.$tr('examReportTitle', {
+                examTitle: this.exam.title,
+              }),
+              immersivePage: true,
+              immersivePageRoute: this.$router.getRoute(ClassesPageNames.EXAM_REPORT_VIEWER),
+              immersivePagePrimary: false,
+              immersivePageIcon: 'arrow_back',
+            };
           }
         }
-        return this.$tr('learnTitle');
-      },
-      isImmersivePage() {
-        return immersivePages.includes(this.pageName);
-      },
-      immersiveToolbarRoute() {
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          let immersivePageRoute = {};
+          let appBarTitle;
+          const { searchTerm, last } = this.$route.query;
+          if (searchTerm) {
+            immersivePageRoute = this.$router.getRoute(
+              PageNames.SEARCH,
+              {},
+              {
+                searchTerm: searchTerm,
+              }
+            );
+          } else if (last) {
+            // 'last' should only be route names for Recommended Page and its subpages
+            immersivePageRoute = this.$router.getRoute(last);
+            const trString = {
+              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
+              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
+              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
+              [PageNames.RECOMMENDED]: 'recommended',
+            }[last];
+            appBarTitle = RecommendedSubpageStrings.$tr(trString);
+          } else if (this.topicsTreeContent.parent) {
+            // Need to guard for parent being non-empty to avoid console errors
+            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+              id: this.topicsTreeContent.parent,
+            });
+            appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+          }
           return {
-            name: ClassesPageNames.LESSON_PLAYLIST,
+            appBarTitle,
+            immersivePage: true,
+            immersivePageRoute,
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
           };
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
-          return {
-            name: ClassesPageNames.CLASS_ASSIGNMENTS,
-          };
         }
-      },
-      immersivePageIsPrimary() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
-        ) {
-          return false;
-        }
-        return true;
-      },
-      immersivePageIcon() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
-        ) {
-          return 'arrow_back';
-        }
-        return null;
+
+        return {
+          appBarTitle: this.$tr('learnTitle'),
+          immersivePage: false,
+        };
       },
       isWithinSearchPage() {
         return this.pageName === PageNames.SEARCH;
       },
-      tabLinksAreVisible() {
+      topNavIsVisible() {
         return (
           this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
           this.pageName !== PageNames.SEARCH &&
-          !this.isImmersivePage
+          !this.immersivePageProps.immersivePage
         );
-      },
-      pointsAreVisible() {
-        return !this.windowIsSmall && this.pageName !== PageNames.SEARCH && !this.isImmersivePage;
-      },
-      recommendedLink() {
-        return {
-          name: PageNames.RECOMMENDED,
-        };
-      },
-      channelsLink() {
-        return {
-          name: PageNames.TOPICS_ROOT,
-        };
-      },
-      allClassesLink() {
-        return {
-          name: ClassesPageNames.ALL_CLASSES,
-        };
       },
       bottomSpaceReserved() {
         let content;
@@ -235,12 +193,6 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
-      userProfileLink() {
-        const profileLink = urls['kolibri:user:user'];
-        if (profileLink) {
-          return profileLink();
-        }
-      },
     },
   };
 
@@ -250,22 +202,9 @@
 <style lang="scss" scoped>
 
   @import './learn';
-  @import '~kolibri.styles.definitions';
 
   .content {
     margin: auto;
-  }
-
-  .points-link {
-    position: relative;
-    display: inline-block;
-    color: $core-status-correct;
-    text-decoration: none;
-  }
-
-  .points-wrapper {
-    float: right;
-    margin-top: -70px;
   }
 
 </style>

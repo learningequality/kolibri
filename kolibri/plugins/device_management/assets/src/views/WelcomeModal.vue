@@ -21,7 +21,6 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
-  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'WelcomeModal',
@@ -33,7 +32,9 @@
         'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
-    components: { KModal, KButton },
+    components: {
+      KModal,
+    },
     methods: {
       emitCloseModal() {
         this.$emit('closeModal');
@@ -47,14 +48,12 @@
 
 <style lang="scss" scoped>
 
-  .welcome-modal {
-    &-description {
-      margin-top: 16px;
-    }
-    &-dismiss-button {
-      margin-top: 24px;
-      margin-bottom: 16px;
-    }
+  .welcome-modal-description {
+    margin-top: 16px;
+  }
+  .welcome-modal-dismiss-button {
+    margin-top: 24px;
+    margin-bottom: 16px;
   }
 
 </style>

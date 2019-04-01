@@ -1,12 +1,12 @@
-Feature: Super Admin delete users
-    Super Admin needs to be able to delete users from the facility
+Feature: Super admin deletes users
+    Super admin needs to be able to delete users from the facility
 
   Background:
-    Given I am signed in to Kolibri super admin
+    Given I am signed in to Kolibri Super admin
       And I am on *Facility > Users* page
 
   Scenario: Delete user
-    When I click on *Manage* button for the user I want to edit
+    When I click on *Options* button for the user I want to edit
       And I select *Delete* option
     Then I see *Delete user * modal
     When I click the *Delete* button
@@ -17,5 +17,5 @@ Feature: Super Admin delete users
     Then I see the *No users match the filter* result
 
   Scenario: Try (and fail) to delete your own account
-    When I click on *Manage* button for my own account
+    When I click on *Options* button for my own account
     Then I see that the *Delete* option is not active

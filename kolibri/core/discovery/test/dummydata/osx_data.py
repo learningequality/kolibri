@@ -109,24 +109,21 @@ map auto_home on /home (autofs, automounted, nobrowse)
 
    Whole:                    No
    Internal:                 Yes
-    """
+    """,
 }
 
 disk_sizes = {
-    "/Volumes/HP v125w": {'free': 1234, 'total': 45678, 'used': 45678 - 1234},
-    "/": {'free': 0, 'total': 1000, 'used': 1000},
+    "/Volumes/HP v125w": {"free": 1234, "total": 45678, "used": 45678 - 1234},
+    "/": {"free": 0, "total": 1000, "used": 1000},
 }
 
-os_access_read = {
-    "/": True,
-    "/Volumes/HP v125w": True,
-    "/Volumes/NO NAME": False,
-}
+os_access_read = {"/": True, "/Volumes/HP v125w": True, "/Volumes/NO NAME": False}
 
 os_access_write = {
     "/": False,
-    "/Volumes/HP v125w": True,
+    "/Volumes/HP v125w": False,
     "/Volumes/NO NAME": False,
+    "/Volumes/HP v125w/KOLIBRI_DATA": True,
 }
 
 has_kolibri_data_folder = {

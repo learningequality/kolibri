@@ -1,11 +1,11 @@
-Feature: Superuser change profile information
-	Superuser needs to be able to change their own profile information
+Feature: Super admin changes their own profile information
+	Super admin needs to be able to change their own profile information
 
   Background:
-    Given I am signed in to Kolibri as superuser
+    Given I am signed in to Kolibri as Super admin
       And I am on the *User > Profile* page
 
-  Scenario: Superuser changes username and full name
+  Scenario: Super admin changes username and full name
   	 When I change my full name
   	  And I change my username
   	  And if my changes are valid (I did not leave the fields empty)
@@ -14,7 +14,7 @@ Feature: Superuser change profile information
       And I see the new full name and username on the profile page
       And I see the new username in the user menu
 
-  Scenario: Superuser changes password
+  Scenario: Super admin changes password
      When I click the “Change password” link
      Then I see the “Change password” modal
      When I enter the new password

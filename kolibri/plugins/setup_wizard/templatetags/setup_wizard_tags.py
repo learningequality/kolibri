@@ -32,7 +32,7 @@ def setup_wizard_assets():
 
     :return: HTML of script tags to insert into setup_wizard/setup_wizard.html
     """
-    return webpack_asset_render(hooks.SetupWizardSyncHook, async=False)
+    return webpack_asset_render(hooks.SetupWizardSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -43,4 +43,4 @@ def setup_wizard_async_assets():
 
     :return: HTML of script tags to insert into setup_wizard/setup_wizard.html
     """
-    return webpack_asset_render(hooks.SetupWizardAsyncHook, async=True)
+    return webpack_asset_render(hooks.SetupWizardAsyncHook, is_async=True)

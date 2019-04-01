@@ -1,19 +1,26 @@
 <template>
 
   <div class="wrapper">
-    <div class="visuallyhidden" id="progress-bar-label">{{ $tr('label') }}</div>
+    <div id="progress-bar-label" class="visuallyhidden">{{ $tr('label') }}</div>
     <div
       class="progress-bar-wrapper"
+      :style="{ backgroundColor: $coreGrey }"
       role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="percent"
       aria-valuemin="0"
       aria-valuemax="100"
     >
-      <div class="progress-bar-complete" :style="{ width: percent + '%', backgroundColor: color}">
+      <div
+        class="progress-bar-complete"
+        :style="{
+          width: percent + '%',
+          backgroundColor: color || $coreActionNormal
+        }"
+      >
       </div>
     </div>
-    <div class="progress-bar-text" v-if="showPercentage">{{ $tr('pct', [progress]) }}</div>
+    <div v-if="showPercentage" class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
   </div>
 
 </template>
@@ -21,12 +28,15 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   export default {
     name: 'ProgressBar',
     $trs: {
       label: 'Progress',
       pct: '{0, number, percent}',
     },
+    mixins: [themeMixin],
     props: {
       progress: {
         type: Number,
@@ -71,14 +81,12 @@
     height: 1.2em;
     margin-right: 5px;
     overflow: hidden;
-    background-color: $core-grey;
     border-radius: 15px;
   }
 
   .progress-bar-complete {
     width: 0;
     height: 100%;
-    background-color: $core-action-normal;
     transition: width $core-time ease;
   }
 

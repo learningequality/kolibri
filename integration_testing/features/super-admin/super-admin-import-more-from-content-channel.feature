@@ -1,16 +1,16 @@
-Feature: Super Admin import more content
+Feature: Super admin imports more content
     Admin needs to be able to import additional resources from the content channels previously already imported on the device
 
   Background:
     Given there is partially imported content from the <channel> channel on the device
-      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
-      And I am on the *Device > Content* page
+      And I am signed in to Kolibri as Super admin, or a user with device permissions to import content
+      And I am on the *Device > Channels* page
 
   Scenario: Import more content into channel from Kolibri Studio
     Given the device has Internet connection available
-    When I click *Actions* button for the <channel> channel
+    When I click *Options* button for the <channel> channel
       And I select *Import more* options
-    Then I see *Import from* modal
+    Then I see *Select a source* modal
     When I select *Kolibri Studio* 
       And I click *Continue*
     Then I see the *Loading channels* message
@@ -22,10 +22,10 @@ Feature: Super Admin import more content
     When I check the previously not imported <topic> topic checkbox
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
-      And I see the values for *Resources selected* increase
-      And I see the value for *Your remaining space* decreases (if the size of selected resources is close to 1GB)
+      And I see the values for *Content selected* increase
+      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
-    Then I see *Device > Content* page again
+    Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 
     When the import process concludes
     Then I see the progress bar at 100%
@@ -39,9 +39,9 @@ Feature: Super Admin import more content
 
   Scenario: Import more content into channel from local drive
     Given there is a <drive> local drive attached to the device with more content from <channel> channel then previously imported
-    When I click *Actions* button for the <channel> channel
+    When I click *Options* button for the <channel> channel
       And I select *Import more* option
-    Then I see *Import from* modal
+    Then I see *Select a source* modal
     When I select *Attached drive or memory card* 
       And I click *Continue*
     Then I see Kolibri searching for local drives
@@ -56,10 +56,10 @@ Feature: Super Admin import more content
     When I check the previously not imported <topic> topic checkbox
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
-      And I see the values for *Resources selected* increase
-      And I see the value for *Your remaining space* decreases (if the size of selected resources is close to 1GB)
+      And I see the values for *Content selected* increase
+      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
-    Then I see *Device > Content* page again
+    Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 
     When the import process concludes
     Then I see the progress bar at 100%

@@ -1,13 +1,11 @@
-from django import http
 from django.conf import settings
 from django.contrib.auth import logout
 from django.core.urlresolvers import reverse
-from django.core.urlresolvers import translate_url
 from django.http import Http404
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.utils.http import is_safe_url
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
@@ -26,39 +24,37 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 @signin_redirect_exempt
 def set_language(request):
     """
-    Redirect to a given url while setting the chosen language in the
-    session or cookie. The url and the language code need to be
-    specified in the request parameters.
     Since this view changes how the user will see the rest of the site, it must
     only be accessed as a POST request. If called as a GET request, it will
     redirect to the page in the request (the 'next' parameter) without changing
     any state.
     """
-    next = request.POST.get('next', request.GET.get('next'))
-    if not is_safe_url(url=next, host=request.get_host()):
-        next = request.META.get('HTTP_REFERER')
-        if not is_safe_url(url=next, host=request.get_host()):
-            next = reverse('kolibri:core:redirect_user')
-    response = http.HttpResponseRedirect(next)
-    if request.method == 'POST':
+    if request.method == "POST":
+        response = HttpResponse(status=204)
         lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
         if lang_code and check_for_language(lang_code):
-            next_trans = translate_url(next, lang_code)
-            if next_trans != next:
-                response = http.HttpResponseRedirect(next_trans)
-            if hasattr(request, 'session'):
+            if hasattr(request, "session"):
                 request.session[LANGUAGE_SESSION_KEY] = lang_code
             # Always set cookie
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
-                                max_age=settings.LANGUAGE_COOKIE_AGE,
-                                path=settings.LANGUAGE_COOKIE_PATH,
-                                domain=settings.LANGUAGE_COOKIE_DOMAIN)
-    return response
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME,
+                lang_code,
+                max_age=settings.LANGUAGE_COOKIE_AGE,
+                path=settings.LANGUAGE_COOKIE_PATH,
+                domain=settings.LANGUAGE_COOKIE_DOMAIN,
+            )
+        else:
+            if hasattr(request, "session"):
+                request.session.pop(LANGUAGE_SESSION_KEY, "")
+            response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
+        return response
+    else:
+        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def logout_view(request):
     logout(request)
-    return http.HttpResponseRedirect(reverse('kolibri:core:redirect_user'))
+    return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def get_urls_by_role(role):
@@ -68,14 +64,26 @@ def get_urls_by_role(role):
 
 
 def get_url_by_role(role, first_login):
-    obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
-                if hook.role == role and hook.first_login == first_login), None)
+    obj = next(
+        (
+            hook
+            for hook in RoleBasedRedirectHook().registered_hooks
+            if hook.role == role and hook.first_login == first_login
+        ),
+        None,
+    )
 
     if obj is None and first_login:
         # If it is the first_login, do a fallback to find the non-first login behaviour when it is
         # not available
-        obj = next((hook for hook in RoleBasedRedirectHook().registered_hooks
-                    if hook.role == role and hook.first_login is False), None)
+        obj = next(
+            (
+                hook
+                for hook in RoleBasedRedirectHook().registered_hooks
+                if hook.role == role and hook.first_login is False
+            ),
+            None,
+        )
 
     if obj:
         return obj.url
@@ -99,9 +107,8 @@ def is_provisioned():
     return device_is_provisioned
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
+@method_decorator(signin_redirect_exempt, name="dispatch")
 class RootURLRedirectView(View):
-
     def get(self, request):
         """
         Redirects user based on the highest role they have for which a redirect is defined.
@@ -118,7 +125,11 @@ class RootURLRedirectView(View):
             url = None
             if request.user.is_superuser:
                 url = url or get_url_by_role(user_kinds.SUPERUSER, first_login)
-            roles = set(Role.objects.filter(user_id=request.user.id).values_list('kind', flat=True).distinct())
+            roles = set(
+                Role.objects.filter(user_id=request.user.id)
+                .values_list("kind", flat=True)
+                .distinct()
+            )
             if user_kinds.ADMIN in roles:
                 url = url or get_url_by_role(user_kinds.ADMIN, first_login)
             if user_kinds.COACH in roles:
@@ -128,4 +139,8 @@ class RootURLRedirectView(View):
             url = get_url_by_role(user_kinds.ANONYMOUS, first_login)
         if url:
             return HttpResponseRedirect(url)
-        raise Http404(_("No appropriate redirect pages found. It is likely that Kolibri is badly configured"))
+        raise Http404(
+            _(
+                "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+            )
+        )

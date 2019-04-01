@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 
 def get_user_response(prompt, valid_answers=None):
     answer = None
-    while not answer or (valid_answers is not None and answer.lower() not in valid_answers):
+    while not answer or (
+        valid_answers is not None and answer.lower() not in valid_answers
+    ):
         answer = six.moves.input(prompt)
     return answer.lower()
 
@@ -27,23 +29,34 @@ languages = dict(settings.LANGUAGES)
 
 def create_facility(facility_name=None, preset=None, interactive=False):
     if facility_name is None and interactive:
-        answer = get_user_response("Do you wish to create a facility? [yn] ", ["y", "n"])
+        answer = get_user_response(
+            "Do you wish to create a facility? [yn] ", ["y", "n"]
+        )
         if answer == "y":
-            facility_name = get_user_response("What do you wish to name your facility? ")
+            facility_name = get_user_response(
+                "What do you wish to name your facility? "
+            )
 
     if facility_name:
         facility, created = Facility.objects.get_or_create(name=facility_name)
 
         if not created:
-            logger.warn("Facility with name {name} already exists, not modifying preset.".format(name=facility_name))
+            logger.warn(
+                "Facility with name {name} already exists, not modifying preset.".format(
+                    name=facility_name
+                )
+            )
             return facility
 
         logger.info("Facility with name {name} created.".format(name=facility_name))
 
         if preset is None and interactive:
             preset = get_user_response(
-                "Which preset do you wish to use? [{presets}]: ".format(presets=",".join(presets.keys())),
-                valid_answers=presets)
+                "Which preset do you wish to use? [{presets}]: ".format(
+                    presets=",".join(presets.keys())
+                ),
+                valid_answers=presets,
+            )
 
         # Only set preset data if we have created the facility, otherwise leave previous data intact
         if preset:
@@ -55,7 +68,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
     else:
         facility = Facility.get_default_facility() or Facility.objects.first()
         if not facility:
-            raise CommandError('No facility exists')
+            raise CommandError("No facility exists")
     return facility
 
 
@@ -70,15 +83,27 @@ def create_superuser(username=None, password=None, interactive=False):
             confirm = get_user_response("Confirm password for the super user: ")
 
     if username and password:
-        FacilityUser.objects.create_superuser(username, password)
-        logger.info("Superuser created with username {username}.".format(username=username))
+        if not FacilityUser.objects.filter(username__icontains=username).exists():
+            FacilityUser.objects.create_superuser(username, password)
+            logger.info(
+                "Superuser created with username {username}.".format(username=username)
+            )
+        else:
+            logger.warn(
+                "An account with username {username} already exists, not creating user account.".format(
+                    username=username
+                )
+            )
 
 
 def create_device_settings(language_id=None, facility=None, interactive=False):
     if language_id is None and interactive:
         language_id = get_user_response(
-            "Enter a default language code [{langs}]: ".format(langs=",".join(languages.keys())),
-            valid_answers=languages)
+            "Enter a default language code [{langs}]: ".format(
+                langs=",".join(languages.keys())
+            ),
+            valid_answers=languages,
+        )
     device_settings, created = DeviceSettings.objects.get_or_create()
     device_settings.is_provisioned = True
     device_settings.language_id = language_id or device_settings.language_id
@@ -90,32 +115,60 @@ class Command(BaseCommand):
     help = "Provision a device for use"
 
     def add_arguments(self, parser):
-        parser.add_argument('--facility', action='store', type=str, help='Facility name to create')
-        parser.add_argument('--superusername', action='store', type=str, help='Superuser username to create')
-        parser.add_argument('--superuserpassword', action='store', type=str, help='Superuser password to create')
-        parser.add_argument('--preset', action='store', type=str, help='Facility preset to use', choices=presets)
-        parser.add_argument('--language_id', action='store', type=str, help='Language id for default language', choices=languages)
         parser.add_argument(
-            '--noinput', '--no-input', action='store_false', dest='interactive', default=True,
-            help='Tells Django to NOT prompt the user for input of any kind.',
+            "--facility", action="store", type=str, help="Facility name to create"
+        )
+        parser.add_argument(
+            "--superusername",
+            action="store",
+            type=str,
+            help="Superuser username to create",
+        )
+        parser.add_argument(
+            "--superuserpassword",
+            action="store",
+            type=str,
+            help="Superuser password to create",
+        )
+        parser.add_argument(
+            "--preset",
+            action="store",
+            type=str,
+            help="Facility preset to use",
+            choices=presets,
+        )
+        parser.add_argument(
+            "--language_id",
+            action="store",
+            type=str,
+            help="Language id for default language",
+            choices=languages,
+        )
+        parser.add_argument(
+            "--noinput",
+            "--no-input",
+            action="store_false",
+            dest="interactive",
+            default=True,
+            help="Tells Django to NOT prompt the user for input of any kind.",
         )
 
     def handle(self, *args, **options):
         with transaction.atomic():
             facility = create_facility(
-                facility_name=options['facility'],
-                preset=options['preset'],
-                interactive=options['interactive'],
+                facility_name=options["facility"],
+                preset=options["preset"],
+                interactive=options["interactive"],
             )
 
             create_device_settings(
-                language_id=options['language_id'],
+                language_id=options["language_id"],
                 facility=facility,
-                interactive=options['interactive'],
+                interactive=options["interactive"],
             )
 
             create_superuser(
-                username=options['superusername'],
-                password=options['superuserpassword'],
-                interactive=options['interactive'],
+                username=options["superusername"],
+                password=options["superuserpassword"],
+                interactive=options["interactive"],
             )

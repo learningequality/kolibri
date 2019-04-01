@@ -37,6 +37,7 @@ if not (os.path.exists(PERSEUS_LOCALE_PATH)):
     sys.exit(1)
 
 
+# Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"
 KEY_LANG_NAME = "language_name"
@@ -48,7 +49,25 @@ IN_CTXT_LANG = {
     KEY_INTL_CODE: "ach-ug",
     KEY_LANG_NAME: "In context translation",
     KEY_ENG_NAME: "In context translation",
+    KEY_DEFAULT_FONT: "NotoSans",
 }
+
+
+def to_locale(language):
+    """
+    Turns a language name (en-us) into a locale name (en_US).
+    Logic is derived from Django so be careful about changing it.
+    """
+    p = language.find("-")
+    if p >= 0:
+        if len(language[p + 1 :]) > 2:
+            return "{}_{}".format(
+                language[:p].lower(),
+                language[p + 1].upper() + language[p + 2 :].lower(),
+            )
+        return "{}_{}".format(language[:p].lower(), language[p + 1 :].upper())
+    else:
+        return language.lower()
 
 
 def memoize(func):
@@ -79,9 +98,31 @@ def supported_languages(include_in_context=False, include_english=False):
 
 @memoize
 def local_locale_path(lang_object):
-    return os.path.join(LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(
+        LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+    )
 
 
 @memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(PERSEUS_LOCALE_PATH, lang_object[KEY_INTL_CODE], "LC_MESSAGES")
+    return os.path.join(
+        PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+    )
+
+
+def json_dump_formatted(data, file_path):
+    """
+    dump json in a way that plays nicely with source control and our precommit hooks:
+    - prevents trailing whitespace
+    - sorted keys
+    - make sure it's utf-8
+    """
+    with io.open(file_path, mode="w", encoding="utf-8") as file_object:
+        json.dump(
+            data,
+            file_object,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
+            ensure_ascii=False,
+        )

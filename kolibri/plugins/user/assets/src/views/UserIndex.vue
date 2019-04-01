@@ -1,17 +1,14 @@
 <template>
 
-  <div>
-    <!-- v-if applied to component and not core-base because it sets doc title -->
-    <CoreBase
-      :navBarNeeded="navBarNeeded"
-      :appBarTitle="appBarTitle"
-    >
-      <component :is="currentPage" v-if="navBarNeeded" />
-    </CoreBase>
-    <div v-if="!navBarNeeded" class="full-page">
-      <component :is="currentPage" />
-    </div>
-  </div>
+  <CoreBase
+    :immersivePage="pageName === PageNames.SIGN_UP"
+    immersivePagePrimary
+    :immersivePageRoute="{ name: PageNames.SIGN_IN }"
+    :appBarTitle="appBarTitle"
+    :fullScreen="pageName === PageNames.SIGN_IN"
+  >
+    <component :is="currentPage" />
+  </CoreBase>
 
 </template>
 
@@ -20,10 +17,13 @@
 
   import { mapState } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../constants';
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
+
+  const translator = crossComponentTranslator(SignUpPage);
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,
@@ -35,17 +35,16 @@
     name: 'UserIndex',
     components: {
       CoreBase,
-      SignInPage,
-      SignUpPage,
-      ProfilePage,
     },
     computed: {
       ...mapState(['pageName']),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
+        } else if (this.pageName === PageNames.SIGN_UP) {
+          return translator.$tr('createAccount');
         }
-        return '';
+        return this.$tr('userSignInTitle');
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
@@ -53,25 +52,17 @@
       navBarNeeded() {
         return this.pageName !== PageNames.SIGN_IN && this.pageName !== PageNames.SIGN_UP;
       },
+      PageNames() {
+        return PageNames;
+      },
     },
     $trs: {
       userProfileTitle: 'Profile',
+      userSignInTitle: 'Sign in',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  .full-page {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: $core-bg-canvas;
-  }
-
-</style>
+<style lang="scss" scoped></style>

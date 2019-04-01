@@ -11,17 +11,10 @@
           :delay="false"
         />
         <component
-          class="content-renderer-component"
-          v-else
           :is="currentViewClass"
-          @startTracking="startTracking"
-          @stopTracking="stopTracking"
-          @updateProgress="updateProgress"
-          @updateContentState="updateContentState"
-          @answerGiven="answerGiven"
-          @hintTaken="hintTaken"
-          @itemError="itemError"
-          @interaction="interaction"
+          v-else
+          ref="contentView"
+          class="content-renderer-component"
           :files="availableFiles"
           :defaultFile="defaultFile"
           :itemId="itemId"
@@ -33,7 +26,14 @@
           :interactive="interactive"
           :lang="lang"
           :showCorrectAnswer="showCorrectAnswer"
-          ref="contentView"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="itemError"
+          @interaction="interaction"
         />
       </transition>
     </template>
@@ -198,31 +198,31 @@
       },
       answerGiven(...args) {
         this.$emit('answerGiven', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       hintTaken(...args) {
         this.$emit('hintTaken', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       itemError(...args) {
         this.$emit('itemError', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       interaction(...args) {
         this.$emit('interaction', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       updateContentState(...args) {
         this.$emit('updateContentState', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       startTracking(...args) {
         this.$emit('startTracking', ...args);
-        heartbeat.setActive();
+        heartbeat.setUserActive();
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
@@ -237,7 +237,7 @@
         } else if (!this.$refs.contentView.checkAnswer) {
           logging.warn('This content renderer has not implemented the checkAnswer method');
         }
-        heartbeat.setActive();
+        heartbeat.setUserActive();
         return null;
       },
     },
@@ -248,9 +248,10 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .content-renderer-component {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-      0 2px 1px -1px rgba(0, 0, 0, 0.12);
+    @extend %dropshadow-1dp;
   }
 
 </style>

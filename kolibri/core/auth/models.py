@@ -29,6 +29,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import UserManager
 from django.core import validators
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -68,7 +69,7 @@ from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -95,8 +96,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     """
 
     permissions = (
-        AllCanReadFacilityDataset() |
-        FacilityAdminCanEditForOwnFacilityDataset()
+        AllCanReadFacilityDataset() | FacilityAdminCanEditForOwnFacilityDataset()
     )
 
     # Morango syncing settings
@@ -105,7 +105,11 @@ class FacilityDataset(FacilityDataSyncableModel):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
 
-    preset = models.CharField(max_length=50, choices=facility_presets.choices, default=facility_presets.default)
+    preset = models.CharField(
+        max_length=50,
+        choices=facility_presets.choices,
+        default=facility_presets.default,
+    )
 
     # Facility specific configuration settings
     learner_can_edit_username = models.BooleanField(default=True)
@@ -120,14 +124,18 @@ class FacilityDataset(FacilityDataSyncableModel):
     def __str__(self):
         facilities = self.collection_set.filter(kind=collection_kinds.FACILITY)
         if facilities:
-            return "FacilityDataset for {}".format(Facility.objects.get(id=facilities[0].id))
+            return "FacilityDataset for {}".format(
+                Facility.objects.get(id=facilities[0].id)
+            )
         else:
             return "FacilityDataset (no associated Facility)"
 
     def calculate_source_id(self):
         # if we don't already have a source ID, get one by generating a new root certificate, and using its ID
         if not self._morango_source_id:
-            self._morango_source_id = Certificate.generate_root_certificate(FULL_FACILITY).id
+            self._morango_source_id = Certificate.generate_root_certificate(
+                FULL_FACILITY
+            ).id
         return self._morango_source_id
 
     @staticmethod
@@ -145,7 +153,9 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     def get_owned_certificates(self):
         # return all certificates associated with this facility dataset for which we have the private key
-        return Certificate.objects.filter(tree_id=self.get_root_certificate().tree_id).exclude(_private_key=None)
+        return Certificate.objects.filter(
+            tree_id=self.get_root_certificate().tree_id
+        ).exclude(_private_key=None)
 
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
@@ -159,6 +169,23 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     class Meta:
         abstract = True
 
+    def cached_related_dataset_lookup(self, related_obj_name):
+        """
+        Attempt to get the dataset_id either from the cache or the actual related obj instance.
+
+        :param related_obj_name: string representing the name of the related object on this model
+        :return: the dataset_id associated with the related obj
+        """
+        field = self._meta.get_field(related_obj_name)
+        key = "{id}_{db_table}_dataset".format(
+            id=getattr(self, field.attname), db_table=field.related_model._meta.db_table
+        )
+        dataset_id = cache.get(key)
+        if dataset_id is None:
+            dataset_id = getattr(self, related_obj_name).dataset_id
+            cache.set(key, dataset_id, 60 * 10)
+        return dataset_id
+
     def calculate_source_id(self):
         # by default, we'll use randomly generated source IDs; this can be overridden as desired
         return None
@@ -169,7 +196,9 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
 
     def full_clean(self, *args, **kwargs):
-        kwargs["exclude"] = kwargs.get("exclude", []) + getattr(self, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", [])
+        kwargs["exclude"] = kwargs.get("exclude", []) + getattr(
+            self, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", []
+        )
         super(AbstractFacilityDataModel, self).full_clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -189,24 +218,30 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         inconsistencies, make sure it matches the inferred dataset, otherwise raise a ``KolibriValidationError``.
         If we have no dataset and it can't be inferred, we raise a ``KolibriValidationError`` exception as well.
         """
-        inferred_dataset = self.infer_dataset(*args, **kwargs)
+        inferred_dataset_id = self.infer_dataset(*args, **kwargs)
         if self.dataset_id:
             # make sure currently stored dataset matches inferred dataset, if any
-            if inferred_dataset and inferred_dataset != self.dataset:
-                raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
+            if inferred_dataset_id and inferred_dataset_id != self.dataset_id:
+                raise KolibriValidationError(
+                    "This model is not associated with the correct FacilityDataset."
+                )
         else:
             # use the inferred dataset, if there is one, otherwise throw an error
-            if inferred_dataset:
-                self.dataset = inferred_dataset
+            if inferred_dataset_id:
+                self.dataset_id = inferred_dataset_id
             else:
-                raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
+                raise KolibriValidationError(
+                    "FacilityDataset ('dataset') not provided, and could not be inferred."
+                )
 
     def infer_dataset(self, *args, **kwargs):
         """
         This method is used by `ensure_dataset` to "infer" which dataset should be associated with this instance.
         It should be overridden in any subclass of ``AbstractFacilityDataModel``, to define a model-specific inference.
         """
-        raise NotImplementedError("Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method.")
+        raise NotImplementedError(
+            "Subclasses of AbstractFacilityDataModel must override the `infer_dataset` method."
+        )
 
 
 class KolibriAbstractBaseUser(AbstractBaseUser):
@@ -224,19 +259,19 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     USERNAME_FIELD = "username"
 
     username = models.CharField(
-        'username',
+        "username",
         max_length=30,
-        help_text='Required. 30 characters or fewer. Letters and digits only',
+        help_text="Required. 30 characters or fewer. Letters and digits only",
         validators=[
             validators.RegexValidator(
                 r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
-                'Enter a valid username. This value can contain only letters, numbers, and underscores.',
+                "Enter a valid username. This value can contain only letters, numbers, and underscores.",
                 inverse_match=True,
-            ),
+            )
         ],
     )
-    full_name = models.CharField('full name', max_length=120, blank=True)
-    date_joined = DateTimeTzField('date joined', default=local_now, editable=False)
+    full_name = models.CharField("full name", max_length=120, blank=True)
+    date_joined = DateTimeTzField("date joined", default=local_now, editable=False)
 
     is_staff = False
     is_superuser = False
@@ -245,7 +280,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
     can_manage_content = False
 
     def get_short_name(self):
-        return self.full_name.split(' ', 1)[0]
+        return self.full_name.split(" ", 1)[0]
 
     def is_member_of(self, coll):
         """
@@ -255,7 +290,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user is a member of the specified ``Collection``, otherwise False.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method."
+        )
 
     def get_roles_for_user(self, user):
         """
@@ -265,7 +302,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: The kinds of roles this user has with respect to the target user.
         :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method."
+        )
 
     def get_roles_for_collection(self, coll):
         """
@@ -275,7 +314,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: The kinds of roles this user has with respect to the specified ``Collection``.
         :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method."
+        )
 
     def has_role_for_user(self, kinds, user):
         """
@@ -287,7 +328,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user has the specified role kind with respect to the target user, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method."
+        )
 
     def has_role_for_collection(self, kinds, coll):
         """
@@ -299,7 +342,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user has the specified role kind with respect to the target ``Collection``, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method."
+        )
 
     def can_create_instance(self, obj):
         """
@@ -314,7 +359,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user should have permission to create the object, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_create_instance` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `can_create_instance` method."
+        )
 
     def can_create(self, Model, data):
         """
@@ -329,11 +376,18 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         """
         try:
             instance = Model(**data)
-            instance.clean_fields(exclude=getattr(Model, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", None))
+            instance.clean_fields(
+                exclude=getattr(Model, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", None)
+            )
             instance.clean()
         except TypeError as e:
-            logger.error("TypeError while validating model before checking permissions: {}".format(e.args))
-            return False  # if the data provided does not fit the Model, don't continue checking
+            logger.error(
+                "TypeError while validating model before checking permissions: {}".format(
+                    e.args
+                )
+            )
+            # if the data provided does not fit the Model, don't continue checking
+            return False
         except ValidationError as e:
             logger.error(e)
             return False  # if the data does not validate, don't continue checking
@@ -350,7 +404,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user should have permission to read the object, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_read` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `can_read` method."
+        )
 
     def can_update(self, obj):
         """
@@ -362,7 +418,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user should have permission to update the object, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_update` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `can_update` method."
+        )
 
     def can_delete(self, obj):
         """
@@ -374,7 +432,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: ``True`` if this user should have permission to delete the object, otherwise ``False``.
         :rtype: bool
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
+        )
 
     def get_roles_for(self, obj):
         """
@@ -385,7 +445,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         elif isinstance(obj, Collection):
             return self.get_roles_for_collection(obj)
         else:
-            raise ValueError("The `obj` argument to `get_roles_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
+            raise ValueError(
+                "The `obj` argument to `get_roles_for` must be either an instance of KolibriAbstractBaseUser or Collection."
+            )
 
     def has_role_for(self, kinds, obj):
         """
@@ -396,7 +458,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         elif isinstance(obj, Collection):
             return self.has_role_for_collection(kinds, obj)
         else:
-            raise ValueError("The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection.")
+            raise ValueError(
+                "The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection."
+            )
 
     def filter_readable(self, queryset):
         """
@@ -405,7 +469,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :param queryset: A ``QuerySet`` instance that the filtering should be applied to.
         :return: Filtered ``QuerySet`` including only elements that are readable by this user.
         """
-        raise NotImplementedError("Subclasses of KolibriAbstractBaseUser must override the `can_delete` method.")
+        raise NotImplementedError(
+            "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
+        )
 
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
@@ -462,23 +528,26 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     def filter_readable(self, queryset):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(queryset.model):
-            return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+            return queryset.model.permissions.readable_by_user_filter(
+                self, queryset
+            ).distinct()
         else:
             return queryset.none()
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
-
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
         """
         if not username:
-            raise ValueError('The given username must be set')
-        if 'facility' not in extra_fields:
-            extra_fields['facility'] = Facility.get_default_facility()
-        if self.filter(username__iexact=username, facility=extra_fields['facility']).exists():
-            raise ValidationError('An account with that username already exists')
+            raise ValueError("The given username must be set")
+        if "facility" not in extra_fields:
+            extra_fields["facility"] = Facility.get_default_facility()
+        if self.filter(
+            username__iexact=username, facility=extra_fields["facility"]
+        ).exists():
+            raise ValidationError("An account with that username already exists")
         user = self.model(username=username, password=password, **extra_fields)
         user.full_clean()
         user.set_password(password)
@@ -494,10 +563,12 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         facility = Facility.get_default_facility()
 
         if self.filter(username__iexact=username, facility=facility).exists():
-            raise ValidationError('An account with that username already exists')
+            raise ValidationError("An account with that username already exists")
 
         # create the new account in that facility
-        superuser = FacilityUser(username=username, password=password, facility=facility)
+        superuser = FacilityUser(
+            username=username, password=password, facility=facility
+        )
         superuser.full_clean()
         superuser.set_password(password)
         superuser.save()
@@ -519,17 +590,19 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     # Morango syncing settings
     morango_model_name = "facilityuser"
 
-    permissions = (
-        IsSelf() |  # FacilityUser can be read and written by itself
-        IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
-        RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
-            target_field=".",
-            can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(role_kinds.ADMIN,),
-            can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
-        )
+    # FacilityUser can be read and written by itself
+    own = IsSelf()
+    # FacilityUser can be read and written by a facility admin
+    admin = IsAdminForOwnFacility()
+    # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
+    role = RoleBasedPermissions(
+        target_field=".",
+        can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(role_kinds.ADMIN,),
+        can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
     )
+    permissions = own | admin | role
 
     objects = FacilityUserModelManager()
 
@@ -538,18 +611,24 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     is_facility_user = True
 
     def calculate_partition(self):
-        return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
+        return "{dataset_id}:user-ro:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER
+        )
 
     def infer_dataset(self, *args, **kwargs):
-        return self.facility.dataset
+        return self.cached_related_dataset_lookup("facility")
 
     def get_permission(self, permission):
         try:
-            return getattr(self.devicepermissions, 'is_superuser') or getattr(self.devicepermissions, permission)
+            return getattr(self.devicepermissions, "is_superuser") or getattr(
+                self.devicepermissions, permission
+            )
         except ObjectDoesNotExist:
             return False
 
-    def has_morango_certificate_scope_permission(self, scope_definition_id, scope_params):
+    def has_morango_certificate_scope_permission(
+        self, scope_definition_id, scope_params
+    ):
         if self.is_superuser:
             # superusers of a device always have permission to sync
             return True
@@ -571,11 +650,11 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     @property
     def can_manage_content(self):
-        return self.get_permission('can_manage_content')
+        return self.get_permission("can_manage_content")
 
     @property
     def is_superuser(self):
-        return self.get_permission('is_superuser')
+        return self.get_permission("is_superuser")
 
     @property
     def is_staff(self):
@@ -586,66 +665,94 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return False
         if coll.kind == collection_kinds.FACILITY:
             return True  # FacilityUser is always a member of her own facility
-        return HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
-            target_user=F("id"),
-            ancestor_collection=coll.id,
-        ).filter(id=self.id).exists()
+        return (
+            HierarchyRelationsFilter(FacilityUser.objects.all())
+            .filter_by_hierarchy(target_user=F("id"), ancestor_collection=coll.id)
+            .filter(id=self.id)
+            .exists()
+        )
 
     def get_roles_for_user(self, user):
         if self.is_superuser:
-            return set([role_kinds.ADMIN])  # a superuser has admin role for all users on the device
+            # a superuser has admin role for all users on the device
+            return set([role_kinds.ADMIN])
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return set([])
-        role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            ancestor_collection=F("collection"),
-            source_user=F("user"),
-            target_user=user,
-        ).filter(user=self)
-        return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
+        role_instances = (
+            HierarchyRelationsFilter(Role)
+            .filter_by_hierarchy(
+                ancestor_collection=F("collection"),
+                source_user=F("user"),
+                target_user=user,
+            )
+            .filter(user=self)
+        )
+        return set(
+            [instance["kind"] for instance in role_instances.values("kind").distinct()]
+        )
 
     def get_roles_for_collection(self, coll):
         if self.is_superuser:
-            return set([role_kinds.ADMIN])  # a superuser has admin role for all collections on the device
+            # a superuser has admin role for all collections on the device
+            return set([role_kinds.ADMIN])
         if self.dataset_id != coll.dataset_id:
             return set([])
-        role_instances = HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            ancestor_collection=F("collection"),
-            source_user=F("user"),
-            descendant_collection=coll,
-        ).filter(user=self)
-        return set([instance["kind"] for instance in role_instances.values("kind").distinct()])
+        role_instances = (
+            HierarchyRelationsFilter(Role)
+            .filter_by_hierarchy(
+                ancestor_collection=F("collection"),
+                source_user=F("user"),
+                descendant_collection=coll,
+            )
+            .filter(user=self)
+        )
+        return set(
+            [instance["kind"] for instance in role_instances.values("kind").distinct()]
+        )
 
     def has_role_for_user(self, kinds, user):
         if self.is_superuser:
             if isinstance(kinds, six.string_types):
                 kinds = [kinds]
-            return role_kinds.ADMIN in kinds  # a superuser has admin role for all users on the device
+            # a superuser has admin role for all users on the device
+            return role_kinds.ADMIN in kinds
         if not kinds:
             return False
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return False
-        return HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            ancestor_collection=F("collection"),
-            source_user=F("user"),
-            role_kind=kinds,
-            target_user=user,
-        ).filter(user=self).exists()
+        return (
+            HierarchyRelationsFilter(Role)
+            .filter_by_hierarchy(
+                ancestor_collection=F("collection"),
+                source_user=F("user"),
+                role_kind=kinds,
+                target_user=user,
+            )
+            .filter(user=self)
+            .exists()
+        )
 
     def has_role_for_collection(self, kinds, coll):
         if self.is_superuser:
             if isinstance(kinds, six.string_types):
                 kinds = [kinds]
-            return role_kinds.ADMIN in kinds  # a superuser has admin role for all collections on the device
+            # a superuser has admin role for all collections on the device
+            return role_kinds.ADMIN in kinds
         if not kinds:
             return False
         if self.dataset_id != coll.dataset_id:
             return False
-        return HierarchyRelationsFilter(Role).filter_by_hierarchy(
-            ancestor_collection=F("collection"),
-            source_user=F("user"),
-            role_kind=kinds,
-            descendant_collection=coll,
-        ).filter(user=self).exists()
+        return (
+            HierarchyRelationsFilter(Role)
+            .filter_by_hierarchy(
+                ancestor_collection=F("collection"),
+                source_user=F("user"),
+                role_kind=kinds,
+                descendant_collection=coll,
+            )
+            .filter(user=self)
+            .exists()
+        )
 
     def can_create_instance(self, obj):
         if self.is_superuser:
@@ -694,12 +801,16 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if self.is_superuser:
             return queryset
         if _has_permissions_class(queryset.model):
-            return queryset.model.permissions.readable_by_user_filter(self, queryset).distinct()
+            return queryset.model.permissions.readable_by_user_filter(
+                self, queryset
+            ).distinct()
         else:
             return queryset.none()
 
     def __str__(self):
-        return '"{user}"@"{facility}"'.format(user=self.full_name or self.username, facility=self.facility)
+        return '"{user}"@"{facility}"'.format(
+            user=self.full_name or self.username, facility=self.facility
+        )
 
     def has_perm(self, perm, obj=None):
         # ensure the superuser has full access to the Django admin
@@ -733,16 +844,18 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True) |
-        CollectionSpecificRoleBasedPermissions() |
-        AnonUserCanReadFacilities() |
-        CoachesCanManageGroupsForTheirClasses()
+        IsFromSameFacility(read_only=True)
+        | CollectionSpecificRoleBasedPermissions()
+        | AnonUserCanReadFacilities()
+        | CoachesCanManageGroupsForTheirClasses()
     )
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
     name = models.CharField(max_length=100)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey(
+        "self", null=True, blank=True, related_name="children", db_index=True
+    )
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
     def __init__(self, *args, **kwargs):
@@ -770,10 +883,11 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
     def get_members(self):
         if self.kind == collection_kinds.FACILITY:
-            return FacilityUser.objects.filter(dataset=self.dataset)  # FacilityUser is always a member of her own facility
+            return FacilityUser.objects.filter(
+                dataset=self.dataset
+            )  # FacilityUser is always a member of her own facility
         return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
-            target_user=F("id"),
-            ancestor_collection=self,
+            target_user=F("id"), ancestor_collection=self
         )
 
     def get_coaches(self):
@@ -781,9 +895,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         Returns users who have the coach role for this immediate collection.
         """
         return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
-            source_user=F("id"),
-            ancestor_collection=self,
-            role_kind=role_kinds.COACH,
+            source_user=F("id"), ancestor_collection=self, role_kind=role_kinds.COACH
         )
 
     def add_role(self, user, role_kind):
@@ -798,14 +910,18 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # ensure the specified role kind is valid
         if role_kind not in (kind[0] for kind in role_kinds.choices):
-            raise InvalidRoleKind("'{role_kind}' is not a valid role kind.".format(role_kind=role_kind))
+            raise InvalidRoleKind(
+                "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+            )
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
             raise UserIsNotFacilityUser("You can only add roles for FacilityUsers.")
 
         # create the necessary role, if it doesn't already exist
-        role, created = Role.objects.get_or_create(user=user, collection=self, kind=role_kind)
+        role, created = Role.objects.get_or_create(
+            user=user, collection=self, kind=role_kind
+        )
 
         return role
 
@@ -819,7 +935,9 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # ensure the specified role kind is valid
         if role_kind not in (kind[0] for kind in role_kinds.choices):
-            raise InvalidRoleKind("'{role_kind}' is not a valid role kind.".format(role_kind=role_kind))
+            raise InvalidRoleKind(
+                "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
+            )
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
@@ -827,15 +945,20 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # make sure the user has the role to begin with
         if not user.has_role_for_collection(role_kind, self):
-            raise UserDoesNotHaveRoleError("User does not have this role for this collection.")
+            raise UserDoesNotHaveRoleError(
+                "User does not have this role for this collection."
+            )
 
         # delete the appropriate role, if it exists
-        results = Role.objects.filter(user=user, collection=self, kind=role_kind).delete()
+        results = Role.objects.filter(
+            user=user, collection=self, kind=role_kind
+        ).delete()
 
         # if no Roles were deleted, the user's role must have been indirect (via the collection hierarchy)
         if results[0] == 0:
             raise UserHasRoleOnlyIndirectlyThroughHierarchyError(
-                "Role cannot be removed, as user has it only indirectly, through the collection hierarchy.")
+                "Role cannot be removed, as user has it only indirectly, through the collection hierarchy."
+            )
 
     def add_member(self, user):
         """
@@ -848,10 +971,14 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
-            raise UserIsNotFacilityUser("You can only add memberships for FacilityUsers.")
+            raise UserIsNotFacilityUser(
+                "You can only add memberships for FacilityUsers."
+            )
 
         # create the necessary membership, if it doesn't already exist
-        membership, created = Membership.objects.get_or_create(user=user, collection=self)
+        membership, created = Membership.objects.get_or_create(
+            user=user, collection=self
+        )
 
         return membership
 
@@ -865,10 +992,14 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
         # ensure the provided user is a FacilityUser
         if not isinstance(user, FacilityUser):
-            raise UserIsNotFacilityUser("You can only remove memberships for FacilityUsers.")
+            raise UserIsNotFacilityUser(
+                "You can only remove memberships for FacilityUsers."
+            )
 
         if not user.is_member_of(self):
-            raise UserIsNotMemberError("The user is not a member of the collection, and cannot be removed.")
+            raise UserIsNotMemberError(
+                "The user is not a member of the collection, and cannot be removed."
+            )
 
         # delete the appropriate membership, if it exists
         results = Membership.objects.filter(user=user, collection=self).delete()
@@ -876,15 +1007,17 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         # if no Memberships were deleted, the user's membership must have been indirect (via the collection hierarchy)
         if results[0] == 0:
             raise UserIsMemberOnlyIndirectlyThroughHierarchyError(
-                "Membership cannot be removed, as user is a member only indirectly, through the collection hierarchy.")
+                "Membership cannot be removed, as user is a member only indirectly, through the collection hierarchy."
+            )
 
     def infer_dataset(self, *args, **kwargs):
         if self.parent:
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
-            return self.parent.get_root().dataset
+            return self.parent.get_root().dataset_id
         else:
-            return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
+            # the root node (i.e. Facility) must be explicitly tied to a dataset
+            return None
 
     def __str__(self):
         return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
@@ -902,19 +1035,23 @@ class Membership(AbstractFacilityDataModel):
     # Morango syncing settings
     morango_model_name = "membership"
 
-    permissions = (
-        IsOwn(read_only=True) |  # users can read their own Memberships
-        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
-            target_field="user",
-            can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=(role_kinds.ADMIN,),
-        ) |
-        CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
+    # users can read their own Memberships
+    own = IsOwn(read_only=True)
+    # Memberships can be read and written by admins, and read by coaches, for the member user
+    role = RoleBasedPermissions(
+        target_field="user",
+        can_be_created_by=(role_kinds.ADMIN,),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
+        can_be_deleted_by=(role_kinds.ADMIN,),
     )
+    # Membership can be written by coaches under the coaches' group
+    membership = CoachesCanManageMembershipsForTheirGroups()
+    permissions = own | role | membership
 
-    user = models.ForeignKey('FacilityUser', related_name='memberships', blank=False, null=False)
+    user = models.ForeignKey(
+        "FacilityUser", related_name="memberships", blank=False, null=False
+    )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
@@ -923,20 +1060,28 @@ class Membership(AbstractFacilityDataModel):
         unique_together = (("user", "collection"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:user-ro:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return "{dataset_id}:user-ro:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.user_id
+        )
 
     def calculate_source_id(self):
-        return '{collection_id}'.format(collection_id=self.collection_id)
+        return "{collection_id}".format(collection_id=self.collection_id)
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
-            raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
-        return user_dataset
+        user_dataset_id = self.cached_related_dataset_lookup("user")
+        collection_dataset_id = self.cached_related_dataset_lookup("collection")
+        # user_dataset_id = self.user.dataset_id
+        # collection_dataset_id = self.collection.dataset_id
+        if user_dataset_id != collection_dataset_id:
+            raise KolibriValidationError(
+                "Collection and user for a Membership object must be in same dataset."
+            )
+        return user_dataset_id
 
     def __str__(self):
-        return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
+        return "{user}'s membership in {collection}".format(
+            user=self.user, collection=self.collection
+        )
 
 
 @python_2_unicode_compatible
@@ -950,19 +1095,21 @@ class Role(AbstractFacilityDataModel):
 
     # Morango syncing settings
     morango_model_name = "role"
-
-    permissions = (
-        IsOwn(read_only=True) |  # users can read their own Roles
-        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
-            target_field="collection",
-            can_be_created_by=(role_kinds.ADMIN,),
-            can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
-            can_be_updated_by=(),  # Role objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=(role_kinds.ADMIN,),
-        )
+    # users can read their own Roles
+    own = IsOwn(read_only=True)
+    # Memberships can be read and written by admins, and read by coaches, for the role collection
+    role = RoleBasedPermissions(
+        target_field="collection",
+        can_be_created_by=(role_kinds.ADMIN,),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(),  # Role objects shouldn't be updated; they should be deleted and recreated as needed
+        can_be_deleted_by=(role_kinds.ADMIN,),
     )
+    permissions = own | role
 
-    user = models.ForeignKey('FacilityUser', related_name="roles", blank=False, null=False)
+    user = models.ForeignKey(
+        "FacilityUser", related_name="roles", blank=False, null=False
+    )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
     collection = TreeForeignKey("Collection")
@@ -972,25 +1119,37 @@ class Role(AbstractFacilityDataModel):
         unique_together = (("user", "collection", "kind"),)
 
     def calculate_partition(self):
-        return '{dataset_id}:user-ro:{user_id}'.format(dataset_id=self.dataset_id, user_id=self.user_id)
+        return "{dataset_id}:user-ro:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.user_id
+        )
 
     def calculate_source_id(self):
-        return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
+        return "{collection_id}:{kind}".format(
+            collection_id=self.collection_id, kind=self.kind
+        )
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
-            raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
-        return user_dataset
+        user_dataset_id = self.cached_related_dataset_lookup("user")
+        collection_dataset_id = self.cached_related_dataset_lookup("collection")
+        if user_dataset_id != collection_dataset_id:
+            raise KolibriValidationError(
+                "The collection and user for a Role object must be in the same dataset."
+            )
+        return user_dataset_id
 
     def __str__(self):
-        return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
+        return "{user}'s {kind} role for {collection}".format(
+            user=self.user, kind=self.kind, collection=self.collection
+        )
 
 
 class CollectionProxyManager(MorangoMPTTTreeManager):
     def get_queryset(self):
-        return super(CollectionProxyManager, self).get_queryset().filter(kind=self.model._KIND)
+        return (
+            super(CollectionProxyManager, self)
+            .get_queryset()
+            .filter(kind=self.model._KIND)
+        )
 
 
 @python_2_unicode_compatible
@@ -1011,6 +1170,7 @@ class Facility(Collection):
     @classmethod
     def get_default_facility(cls):
         from kolibri.core.device.models import DeviceSettings
+
         try:
             device_settings = DeviceSettings.objects.get()
             default_facility = device_settings.default_facility
@@ -1029,7 +1189,9 @@ class Facility(Collection):
 
     def save(self, *args, **kwargs):
         if self.parent:
-            raise IntegrityError("Facility must be the root of a collection tree, and cannot have a parent.")
+            raise IntegrityError(
+                "Facility must be the root of a collection tree, and cannot have a parent."
+            )
         super(Facility, self).save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):
@@ -1042,7 +1204,7 @@ class Facility(Collection):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
             self.dataset = FacilityDataset.objects.create()
-        return self.dataset
+        return self.dataset_id
 
     def get_classrooms(self):
         """
@@ -1088,7 +1250,9 @@ class Classroom(Collection):
 
     def save(self, *args, **kwargs):
         if not self.parent:
-            raise IntegrityError("Classroom cannot be the root of a collection tree, and must have a parent.")
+            raise IntegrityError(
+                "Classroom cannot be the root of a collection tree, and must have a parent."
+            )
         super(Classroom, self).save(*args, **kwargs)
 
     def get_facility(self):
@@ -1143,7 +1307,9 @@ class LearnerGroup(Collection):
 
     def save(self, *args, **kwargs):
         if not self.parent:
-            raise IntegrityError("LearnerGroup cannot be the root of a collection tree, and must have a parent.")
+            raise IntegrityError(
+                "LearnerGroup cannot be the root of a collection tree, and must have a parent."
+            )
         super(LearnerGroup, self).save(*args, **kwargs)
 
     def get_classroom(self):

@@ -1,13 +1,13 @@
 <template>
 
-  <div class="answer-history">
+  <div :style="{ backgroundColor: $coreBgLight }">
     <ul class="history-list">
       <template v-for="(question, index) in questions">
         <li
-          @click="$emit('goToQuestion', index)"
-          :class="isSelected(index)"
-          class="clickable"
           :key="index"
+          :style="{ backgroundColor: questionNumber === index ? $coreGrey : '' }"
+          class="clickable"
+          @click="$emit('goToQuestion', index)"
         >
           <svg class="item svg-item">
             <circle
@@ -31,12 +31,14 @@
 <script>
 
   import { mapState } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'AnswerHistory',
     $trs: {
       question: 'Question { num }',
     },
+    mixins: [themeMixin],
     props: {
       questionNumber: {
         type: Number,
@@ -59,14 +61,8 @@
       questionText(num) {
         return this.$tr('question', { num });
       },
-      isSelected(index) {
-        if (this.questionNumber === index) {
-          return 'selected';
-        }
-        return null;
-      },
       isAnswered(question) {
-        return ((this.attemptLogs[question.contentId] || {})[question.itemId] || {}).answer;
+        return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
     },
   };
@@ -75,12 +71,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  .answer-history {
-    background-color: $core-bg-light;
-  }
 
   .history-list {
     max-height: inherit;
@@ -109,10 +99,6 @@
 
   .clickable {
     cursor: pointer;
-  }
-
-  .selected {
-    background-color: $core-grey;
   }
 
 </style>

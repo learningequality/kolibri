@@ -1,13 +1,13 @@
-Feature: Super Admin create users
-    Super Admin needs to be able to grant the device permissions to other users to import content channels on the device
+Feature: Super admin grants and revokes the device permissions
+    Super admin needs to be able to grant and revoke the device permissions to other users to import content channels on the device
 
   Background:
-    Given I am signed in to Kolibri as super admin
+    Given I am signed in to Kolibri as Super admin
       And I am on *Device > Permissions* page
 
   Scenario: Grant import content device permissions
     When I click on *Edit permissions* button for <username> user
-    Then I see <username> permissions page
+    Then I see <full_name> user permissions page
     When I check the *Can import and export content channels* checkbox
     Then I see the *See changes* button is active
     When I click *Save changes* button

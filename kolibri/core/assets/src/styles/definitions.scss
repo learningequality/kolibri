@@ -8,11 +8,10 @@
   To reference these values (and those defined in the theme), add the following
   line to your comonent's scss block:
 
-    @require '~kolibri.styles.definitions'
+    @import '~kolibri.styles.definitions';
 */
 
-// Also include values defined in the theme. These can be overridden.
-@import '~kolibri.styles.theme';
+@import './materialDesignElevations';
 
 $radius: 4px;
 $core-time: 0.25s;
@@ -31,31 +30,38 @@ $login-overlay: #201a21;
   }
 }
 
-$core-outline: $core-action-light 2px solid;
+/*
+  Mixins for font-family to ensure that the full fonts are not referenced until they've
+  been loaded using the FontFaceObserver in i18n.js.
+
+  Even though partials are loaded immediately, we need the 'partial-fonts-loaded' class
+  for CSS specificity purposes.
+*/
+@mixin font-family-noto {
+  .partial-fonts-loaded & {
+    font-family: 'noto-subset', 'noto-common', sans-serif;
+  }
+  .full-fonts-loaded & {
+    // Continue to include the common and subset font subsets since they may contain
+    // glyphs not available in the language's default font.
+    font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
+  }
+}
+
+// Matches the Keen-UI/UiToolbar box-shadow property
+%ui-toolbar-box-shadow {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}
 
 /*
-  Mixins for font-family to ensure that the full fonts are not
-  referenced until they've been loaded.
+  Use of this mixin can help prompt the browser to use the GPU for certain DOM elements.
+  This can help with certain CSS animations and other transitions.
 
-  Even though partials are loaded immediately, need partial-fonts-loaded for specificity.
+  For details, see https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/
 */
-@mixin font-family-ui {
-  .partial-fonts-loaded & {
-    font-family: 'noto-ui-subset', sans-serif;
-  }
-  .full-fonts-loaded & {
-    // Continue to include the subset when possible since it contains glyphs from other
-    // languages, for the language switcher
-    font-family: 'noto-ui-subset', 'noto-ui-full', sans-serif;
-  }
+%enable-gpu-acceleration {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 10000px;
 }
 
-@mixin font-family-content {
-  .partial-fonts-loaded & {
-    // Use the UI font initially because there's no 'content' subset
-    font-family: 'noto-ui-subset', sans-serif;
-  }
-  .full-fonts-loaded & {
-    font-family: 'noto-content-full', sans-serif;
-  }
-}

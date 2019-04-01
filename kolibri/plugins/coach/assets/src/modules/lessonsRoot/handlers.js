@@ -12,12 +12,11 @@ export function showLessonsRootPage(store, classId) {
       // Fetch learner groups for the New Lesson Modal
       LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
       store.dispatch('lessonsRoot/refreshClassLessons', classId),
-      store.dispatch('setClassState', classId),
     ];
     return Promise.all(loadRequirements).then(
       ([learnerGroups]) => {
         store.commit('lessonsRoot/SET_LEARNER_GROUPS', learnerGroups);
-        store.commit('SET_PAGE_NAME', LessonsPageNames.ROOT);
+        store.commit('SET_PAGE_NAME', LessonsPageNames.PLAN_LESSONS_ROOT);
         store.dispatch('notLoading');
       },
       error => {

@@ -2,7 +2,11 @@
 
   <div>
 
-    <PageHeader :title="content.title" dir="auto" />
+    <PageHeader
+      :title="content.title"
+      :progress="progress"
+      dir="auto"
+    />
     <CoachContentLabel
       class="coach-content-label"
       :value="content.coach_content ? 1 : 0"
@@ -11,42 +15,48 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
+      :lang="content.lang"
       :files="content.files"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateProgress"
+      @updateContentState="updateContentState"
     />
 
     <AssessmentWrapper
       v-else
-      class="content-renderer"
-      @sessionInitialized="setWasIncomplete"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @updateContentState="updateContentState"
       :id="content.id"
+      class="content-renderer"
       :kind="content.kind"
       :files="content.files"
+      :lang="content.lang"
+      :randomize="content.randomize"
+      :masteryModel="content.masteryModel"
+      :assessmentIds="content.assessmentIds"
       :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
+      @sessionInitialized="setWasIncomplete"
+      @startTracking="startTracking"
+      @stopTracking="stopTracking"
+      @updateProgress="updateExerciseProgress"
+      @updateContentState="updateContentState"
     />
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
-    <p v-html="description" dir="auto"></p>
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <p dir="auto" v-html="description"></p>
 
 
     <section class="metadata">
@@ -54,7 +64,6 @@
       <p v-if="content.author">
         {{ $tr('author', {author: content.author}) }}
       </p>
-
       <p v-if="content.license_name">
         {{ $tr('license', {license: content.license_name}) }}
 
@@ -68,9 +77,13 @@
             <mat-svg v-if="licenceDescriptionIsVisible" name="expand_less" category="navigation" />
             <mat-svg v-else name="expand_more" category="navigation" />
           </UiIconButton>
-          <p v-if="licenceDescriptionIsVisible" dir="auto">
-            {{ content.license_description }}
-          </p>
+          <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
+            <template v-if="translatedLicense">
+              <p class="license-details-name">{{ licenseName }}</p>
+              <p>{{ licenseDescription }}</p>
+            </template>
+            <p v-else>{{ content.license_description }}</p>
+          </div>
         </template>
       </p>
 
@@ -123,8 +136,9 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import markdownIt from 'markdown-it';
+  import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
@@ -143,6 +157,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
     components: {
       CoachContentLabel,
@@ -182,6 +197,7 @@
         channelId: state => state.content.channel_id,
       }),
       ...mapState({
+        masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
         sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
@@ -209,8 +225,18 @@
       recommendedText() {
         return this.$tr('recommended');
       },
+      parentTopic() {
+        const { breadcrumbs = [] } = this.content;
+        if (breadcrumbs.length > 0) {
+          return breadcrumbs[breadcrumbs.length - 1];
+        }
+      },
       progress() {
         if (this.isUserLoggedIn) {
+          // if there no attempts for this exercise, there is no progress
+          if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
+            return undefined;
+          }
           return this.summaryProgress;
         }
         return this.sessionProgress;
@@ -235,6 +261,27 @@
               : PageNames.TOPICS_CONTENT,
           params: { id: this.content.next_content.id },
         };
+      },
+      translatedLicense() {
+        if (
+          licenseTranslations[currentLanguage] &&
+          licenseTranslations[currentLanguage][this.content.license_name]
+        ) {
+          return licenseTranslations[currentLanguage][this.content.license_name];
+        }
+        return null;
+      },
+      licenseName() {
+        if (this.translatedLicense) {
+          return this.translatedLicense.name;
+        }
+        return this.content.license_name;
+      },
+      licenseDescription() {
+        if (this.translatedLicense) {
+          return this.translatedLicense.description;
+        }
+        return this.content.license_description;
       },
     },
     beforeDestroy() {
@@ -262,6 +309,10 @@
         this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
           updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
         );
+        this.$emit('updateProgress', progressPercent);
+      },
+      updateExerciseProgress(progressPercent) {
+        this.$emit('updateProgress', progressPercent);
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
@@ -297,6 +348,15 @@
 
   .download-button {
     display: block;
+  }
+
+  .license-details {
+    margin-bottom: 24px;
+    margin-left: 16px;
+  }
+
+  .license-details-name {
+    font-weight: bold;
   }
 
 </style>

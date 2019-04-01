@@ -19,7 +19,7 @@
               <KCheckbox
                 :label="$tr('selectAll')"
                 :checked="nodeIsChecked(annotatedTopicNode)"
-                :disabled="disableAll || annotatedTopicNode.disabled"
+                :disabled="disableSelectAll"
                 @change="toggleSelectAll"
               />
             </th>
@@ -27,20 +27,19 @@
             <th></th>
           </tr>
         </thead>
-        <tbody slot="tbody">
+        <transition-group slot="tbody" tag="tbody" name="list">
           <ContentNodeRow
-            v-for="node in annotatedChildNodes"
-            v-if="showNode(node)"
+            v-for="node in showableAnnotatedChildNodes"
+            :key="node.id"
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
             :indeterminate="nodeIsIndeterminate(node)"
-            :key="node.id"
             :message="node.message"
             :node="node"
             @clicktopic="updateCurrentTopicNode(node)"
             @changeselection="toggleSelection(node)"
           />
-        </tbody>
+        </transition-group>
       </CoreTable>
     </div>
 
@@ -61,6 +60,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
@@ -102,6 +102,24 @@
         // Guard against when state is reset going back to manage content page
         return this.currentTopicNode.children || [];
       },
+      noSelectableNodes() {
+        // If importing from an external drive, disable select-all if every child node is
+        // 1) a leaf node and 2) already on the server or not available on the drive
+        // TODO check to see if this logic is valid for PEER_IMPORT as well.
+        if (this.transferType === TransferTypes.LOCALIMPORT) {
+          return every(this.annotatedChildNodes, node => {
+            return (
+              node.kind !== ContentNodeKinds.TOPIC &&
+              (!node.available || node.on_device_resources > 0)
+            );
+          });
+        } else {
+          return false;
+        }
+      },
+      disableSelectAll() {
+        return this.disableAll || this.annotatedTopicNode.disabled || this.noSelectableNodes;
+      },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
           ...node,
@@ -118,6 +136,9 @@
         return this.childNodesWithPath.map(n =>
           annotateNode(n, this.nodesForTransfer, !this.inExportMode)
         );
+      },
+      showableAnnotatedChildNodes() {
+        return this.annotatedChildNodes.filter(this.showNode);
       },
       annotatedTopicNode() {
         // For the purposes of annotating the parent topic node, we need to add
@@ -200,6 +221,8 @@
 <style lang="scss" scoped>
 
   .select-all {
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
     white-space: nowrap;
     .k-checkbox-container {
       margin-right: -70px;

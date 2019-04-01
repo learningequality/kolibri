@@ -8,14 +8,14 @@
   >
     <KRadioButton
       ref="yesRadio"
-      :label="yesOptionLabel"
       v-model="setting"
+      :label="yesOptionLabel"
       :value="true"
     />
     <KRadioButton
       ref="noRadio"
-      :label="noOptionLabel"
       v-model="setting"
+      :label="noOptionLabel"
       :value="false"
     >
       <CoreInfoIcon
@@ -23,7 +23,6 @@
         class="info-icon"
         :iconAriaLabel="noOptionLabel"
         :tooltipText="noOptionTooltip"
-        tooltipPosition="bottom right"
       />
     </KRadioButton>
 

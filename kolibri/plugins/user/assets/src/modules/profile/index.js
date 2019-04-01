@@ -4,7 +4,7 @@ function defaultState() {
   return {
     busy: false,
     success: false,
-    errors: false,
+    errors: [],
     errorCode: null,
     errorMessage: '',
     passwordState: {

@@ -32,9 +32,7 @@ html,
 body {
   height: 100%;
   overflow-y: auto; // fixes #3318
-  color: $core-text-default;
   letter-spacing: 0.01em;
-  background-color: $core-bg-canvas;
 }
 
 body,
@@ -42,7 +40,7 @@ button,
 input,
 select,
 textarea {
-  @include font-family-ui;
+  @include font-family-noto;
 }
 
 h1 {
@@ -58,10 +56,6 @@ h4,
 h5,
 h6 {
   font-size: 1em;
-}
-
-:focus {
-  outline: $core-outline;
 }
 
 // https://davidwalsh.name/html5-boilerplate
@@ -103,16 +97,15 @@ hr {
   height: 1px;
   padding: 0;
   margin: 1em 0;
+  background-color: silver;
   border: 0;
-  border-top: 1px solid $core-text-disabled;
 }
 
 .rtl-icon {
   transform: scaleX(-1);
 }
 
-// TODO: move these inside scoped styles in own wrapper components
-.ui-icon-button,
+// TODO: move this inside scoped styles in forked UiIcon component
 .ui-icon {
   svg {
     vertical-align: middle;

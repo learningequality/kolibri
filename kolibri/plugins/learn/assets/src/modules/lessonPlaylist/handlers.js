@@ -17,16 +17,19 @@ export function showLessonPlaylist(store, { lessonId }) {
         }
         store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
         store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);
-        return ContentNodeSlimResource.fetchCollection({
-          getParams: {
-            ids: lesson.resources.map(resource => resource.contentnode_id),
-            include_fields,
-          },
-        });
+        if (lesson.resources.length) {
+          return ContentNodeSlimResource.fetchCollection({
+            getParams: {
+              ids: lesson.resources.map(resource => resource.contentnode_id),
+              include_fields,
+            },
+          });
+        }
+        return Promise.resolve([]);
       })
       .then(contentNodes => {
         const sortedContentNodes = contentNodes.sort((a, b) => {
-          const lesson = store.state.pageState.currentLesson;
+          const lesson = store.state.lessonPlaylist.currentLesson;
           const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
           const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
           return aKey - bKey;

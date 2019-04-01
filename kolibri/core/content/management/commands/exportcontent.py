@@ -4,13 +4,13 @@ import os
 from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
-
     def add_arguments(self, parser):
         node_ids_help_text = """
         Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
@@ -21,7 +21,8 @@ class Command(AsyncCommand):
         kolibri manage importcontent network <channel id> --node_ids <id1>,<id2>, [<ids>,...]
         """
         parser.add_argument(
-            "--node_ids", "-n",
+            "--node_ids",
+            "-n",
             # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(","),
             default=[],
@@ -44,7 +45,7 @@ class Command(AsyncCommand):
             default=[],
             required=False,
             dest="exclude_node_ids",
-            help=exclude_node_ids_help_text
+            help=exclude_node_ids_help_text,
         )
 
         parser.add_argument("channel_id", type=str)
@@ -55,14 +56,19 @@ class Command(AsyncCommand):
         data_dir = os.path.realpath(options["destination"])
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
-        logger.info("Exporting content for channel id {} to {}".format(channel_id, data_dir))
+        logger.info(
+            "Exporting content for channel id {} to {}".format(channel_id, data_dir)
+        )
 
         files, total_bytes_to_transfer = import_export_content.get_files_to_transfer(
-            channel_id, node_ids, exclude_node_ids, True)
+            channel_id, node_ids, exclude_node_ids, True
+        )
 
         exported_files = []
 
-        with self.start_progress(total=total_bytes_to_transfer) as overall_progress_update:
+        with self.start_progress(
+            total=total_bytes_to_transfer
+        ) as overall_progress_update:
 
             for f in files:
 
@@ -71,8 +77,15 @@ class Command(AsyncCommand):
 
                 filename = f.get_filename()
 
-                srcpath = paths.get_content_storage_file_path(filename)
-                dest = paths.get_content_storage_file_path(filename, datafolder=data_dir)
+                try:
+                    srcpath = paths.get_content_storage_file_path(filename)
+                    dest = paths.get_content_storage_file_path(
+                        filename, datafolder=data_dir
+                    )
+                except InvalidStorageFilenameError:
+                    # If any files have an invalid storage file name, don't export them.
+                    overall_progress_update(f.file_size)
+                    continue
 
                 # if the file already exists, add its size to our overall progress, and skip
                 if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
@@ -83,7 +96,9 @@ class Command(AsyncCommand):
 
                 with copy:
 
-                    with self.start_progress(total=copy.total_size) as file_cp_progress_update:
+                    with self.start_progress(
+                        total=copy.total_size
+                    ) as file_cp_progress_update:
 
                         for chunk in copy:
                             if self.is_cancelled():

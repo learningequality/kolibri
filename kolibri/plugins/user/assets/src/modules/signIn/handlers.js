@@ -9,9 +9,11 @@ const snackbarTranslator = createTranslator('UserPageSnackbars', {
 });
 
 export function showSignInPage(store) {
+  store.commit('SET_PAGE_NAME', PageNames.SIGN_IN);
   if (Lockr.get(SIGNED_OUT_DUE_TO_INACTIVITY)) {
     store.commit('CORE_CREATE_SNACKBAR', {
       text: snackbarTranslator.$tr('signedOut'),
+      autoDismiss: false,
       actionText: snackbarTranslator.$tr('dismiss'),
       actionCallback: () => store.commit('CORE_CLEAR_SNACKBAR'),
     });

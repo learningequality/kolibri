@@ -1,13 +1,20 @@
 <template>
 
-  <div v-if="isUserLoggedIn" class="points" ref="points">
-    <PointsIcon class="icon" :active="true" />
-    <div class="description">
-      <div class="description-value">{{ $formatNumber(totalPoints) }}</div>
+  <div v-if="isUserLoggedIn">
+    <div ref="icon" class="points" :style="{ color: $coreTextAnnotation }">
+      <PointsIcon class="icon" :active="true" />
+      <div class="description">
+        <div class="description-value">
+          {{ $formatNumber(totalPoints) }}
+        </div>
+      </div>
     </div>
-    <UiTooltip trigger="points" :position="'bottom right'" :openOn="'hover focus'">
+    <KTooltip
+      reference="icon"
+      :refs="$refs"
+    >
       {{ $tr('pointsTooltip', { points: totalPoints }) }}
-    </UiTooltip>
+    </KTooltip>
   </div>
 
 </template>
@@ -15,26 +22,25 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'TotalPoints',
     $trs: { pointsTooltip: 'You earned { points, number } points' },
     components: {
       PointsIcon,
-      UiTooltip,
+      KTooltip,
     },
+    mixins: [themeMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
     watch: { currentUserId: 'fetchPoints' },
     created() {
-      this.fetchPoints();
-    },
-    methods: {
-      ...mapActions(['fetchPoints']),
+      this.$store.dispatch('fetchPoints');
     },
   };
 
@@ -43,28 +49,21 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .points {
-    font-size: small;
-    font-weight: bold;
+    padding: 8px 0;
   }
 
   .icon {
     position: relative;
     top: 2px;
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .description {
     display: inline-block;
-    margin-left: 8px;
-  }
-
-  .description-value {
-    font-size: x-large;
+    margin-left: 16px;
   }
 
 </style>

@@ -15,7 +15,9 @@ def get_client():
     global _client
     if not _client:
         # not initialized, initialize it
-        _client = SimpleClient(app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH)
+        _client = SimpleClient(
+            app="kolibri", storage_path=settings.QUEUE_JOB_STORAGE_PATH
+        )
         atexit.register(_client.shutdown)
 
     return _client

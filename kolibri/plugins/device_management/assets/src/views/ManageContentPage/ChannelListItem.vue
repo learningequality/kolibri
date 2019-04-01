@@ -1,14 +1,14 @@
 <template>
 
   <component
-    class="channel-list-item"
-    :style="verticalPadding"
     :is="componentTemplate"
+    class="channel-list-item"
+    :style="[verticalPadding, { borderTop: `1px solid ${$coreGrey}` } ]"
   >
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
         <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon">
+        <div v-else class="default-icon" :style="{ backgroundColor: $coreGrey }">
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>
@@ -17,11 +17,11 @@
     <template slot="header">
       <div>
         <h2 class="title" dir="auto">{{ channel.name }}</h2>
-        <UiIcon class="icon" v-if="isPrivateChannel">
+        <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version">
+      <div class="version" :style="{ color: $coreTextAnnotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
@@ -32,7 +32,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            class="on-device-icon"
+            :style="{ fill: $coreStatusCorrect }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
@@ -76,12 +76,13 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from './bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';
@@ -103,11 +104,9 @@
       CoachContentLabel,
       KDropdownMenu,
       KRouterLink,
-      ChannelListItemLarge,
-      ChannelListItemSmall,
       UiIcon,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     props: {
       channel: {
         type: Object,
@@ -207,6 +206,7 @@
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',
+      channelNotAvailable: 'This channel is no longer available',
     },
   };
 
@@ -215,19 +215,12 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .channel-list-item {
-    border-top: 1px solid $core-grey;
-  }
-
   .title {
     display: inline;
   }
 
   .version {
     font-size: 0.85em;
-    color: $core-text-annotation;
   }
 
   .thumbnail {
@@ -236,16 +229,11 @@
 
   .default-icon {
     text-align: center;
-    background-color: $core-grey;
     svg {
       width: 30%;
       height: 30%;
       margin: 20px;
     }
-  }
-
-  .on-device-icon {
-    fill: $core-status-correct;
   }
 
   .on-device-text {

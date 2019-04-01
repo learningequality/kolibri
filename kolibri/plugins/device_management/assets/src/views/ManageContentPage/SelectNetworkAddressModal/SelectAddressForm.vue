@@ -5,18 +5,10 @@
     :submitText="$tr('submitButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
     size="medium"
-    @submit="handleSubmit"
     :submitDisabled="submitDisabled"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <KButton
-      class="new-address-button"
-      :text="$tr('newAddressButtonLabel')"
-      @click="$emit('click_add_address')"
-      appearance="basic-link"
-      v-show="!newAddressButtonDisabled"
-    />
-
     <UiAlert
       v-if="uiAlertProps"
       v-show="showUiAlerts"
@@ -32,22 +24,30 @@
       />
     </UiAlert>
 
+    <KButton
+      v-show="!newAddressButtonDisabled"
+      class="new-address-button"
+      :text="$tr('newAddressButtonLabel')"
+      appearance="basic-link"
+      @click="$emit('click_add_address')"
+    />
+
     <template v-for="(a, idx) in addresses">
       <div :key="`div-${idx}`">
         <KRadioButton
-          class="radio-button"
-          v-model="selectedAddressId"
           :key="idx"
+          v-model="selectedAddressId"
+          class="radio-button"
           :value="a.id"
           :label="a.device_name"
           :description="a.base_url"
           :disabled="!a.available || !a.hasContent"
         />
         <KButton
-          @click="removeAddress(a.id)"
           :key="`forget-${idx}`"
           :text="$tr('forgetAddressButtonLabel')"
           appearance="basic-link"
+          @click="removeAddress(a.id)"
         />
       </div>
     </template>
@@ -200,8 +200,8 @@
       fetchingFailedText: 'There was a problem getting the available addresses',
       forgetAddressButtonLabel: 'Forget',
       header: 'Select network address',
-      newAddressButtonLabel: 'New address',
-      noAddressText: 'You have not entered any addresses',
+      newAddressButtonLabel: 'Add new address',
+      noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       submitButtonLabel: 'Continue',
     },

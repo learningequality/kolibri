@@ -6,8 +6,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
-from .annotation import recurse_availability_up_tree
-from .annotation import set_leaf_node_availability_from_local_file_availability
+from .annotation import update_content_metadata
 from .channels import read_channel_metadata_from_db_file
 from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
@@ -26,24 +25,18 @@ from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.models import VERSION_2
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
 CONTENT_APP_NAME = KolibriContentConfig.label
 
-merge_models = [
-    ContentTag,
-    LocalFile,
-    Language,
-]
+merge_models = [ContentTag, LocalFile, Language]
 
-models_not_to_overwrite = [
-    LocalFile,
-]
+models_not_to_overwrite = [LocalFile]
 
 models_to_exclude = [
-    apps.get_model(CONTENT_APP_NAME, 'ChannelMetadata_included_languages')
+    apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages")
 ]
 
 
@@ -55,7 +48,11 @@ def column_not_auto_integer_pk(column):
     """
     A check for whether a column is an auto incrementing integer used for a primary key.
     """
-    return not (column.autoincrement == 'auto' and column.primary_key and column.type.python_type is int)
+    return not (
+        column.autoincrement == "auto"
+        and column.primary_key
+        and column.type.python_type is int
+    )
 
 
 def convert_to_sqlite_value(python_value):
@@ -94,21 +91,13 @@ class ChannelImport(object):
 
     schema_mapping = {
         ContentNode: {
-            'per_row': {
-                'tree_id': 'available_tree_id',
-                'available': 'default_to_not_available',
-            },
+            "per_row": {
+                "tree_id": "available_tree_id",
+                "available": "default_to_not_available",
+            }
         },
-        LocalFile: {
-            'per_row': {
-                'available': 'default_to_not_available',
-            },
-        },
-        File: {
-            'per_row': {
-                'available': 'default_to_not_available',
-            },
-        },
+        LocalFile: {"per_row": {"available": "default_to_not_available"}},
+        File: {"per_row": {"available": "default_to_not_available"}},
     }
 
     def __init__(self, channel_id, channel_version=None, cancel_check=None):
@@ -143,8 +132,14 @@ class ChannelImport(object):
 
     def get_all_destination_tree_ids(self):
         ContentNodeRecord = self.destination.get_class(ContentNode)
-        return sorted(map(lambda x: x[0], self.destination.session.query(
-            ContentNodeRecord.tree_id).distinct().all()))
+        return sorted(
+            map(
+                lambda x: x[0],
+                self.destination.session.query(ContentNodeRecord.tree_id)
+                .distinct()
+                .all(),
+            )
+        )
 
     def find_unique_tree_id(self):
         tree_ids = self.get_all_destination_tree_ids()
@@ -176,6 +171,7 @@ class ChannelImport(object):
             # the first or the last half of the list, therefore, we just take the max of the list plus 1
             # Because the list is already sorted, we can just take the last value
             return ids[-1] + 1
+
         return find_hole_in_list(tree_ids)
 
     def generate_row_mapper(self, mappings=None):
@@ -209,10 +205,13 @@ class ChannelImport(object):
                         return mapping
                 else:
                     # If neither of these true, we specified a column mapping that is invalid
-                    raise AttributeError('Column mapping specified but no valid column name or method found')
+                    raise AttributeError(
+                        "Column mapping specified but no valid column name or method found"
+                    )
             else:
                 # Otherwise, we can just get the value directly from the record
                 return self.base_row_mapper(record, column)
+
         # Return the mapper function for repeated use
         return mapper
 
@@ -235,9 +234,11 @@ class ChannelImport(object):
             # If it is a method of the import class return that method for later use
             return getattr(self, table_map)
         # If we got here, there is an invalid table mapping
-        raise AttributeError('Table mapping specified but no valid method found')
+        raise AttributeError("Table mapping specified but no valid method found")
 
-    def raw_attached_sqlite_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
+    def raw_attached_sqlite_table_import(
+        self, model, row_mapper, table_mapper, unflushed_rows
+    ):
 
         self.check_cancelled()
 
@@ -252,17 +253,31 @@ class ChannelImport(object):
                 if hasattr(self, mapper):
                     mapattr = getattr(self, mapper)
                     if callable(mapattr):
-                        raise Exception("Can't use SQLITE table import method with callable column mappers")
+                        raise Exception(
+                            "Can't use SQLITE table import method with callable column mappers"
+                        )
                     else:
                         field_constants[field] = mapattr
                 else:
-                    raise Exception("Can't use SQLITE table import method with mapping attribute '{}'".format(mapper))
+                    raise Exception(
+                        "Can't use SQLITE table import method with mapping attribute '{}'".format(
+                            mapper
+                        )
+                    )
 
         # make sure to ignore any auto-incrementing fields so they're regenerated in the destination table
-        fields_to_ignore = set([colname for colname, colobj in dest_table.columns.items() if not column_not_auto_integer_pk(colobj)])
+        fields_to_ignore = set(
+            [
+                colname
+                for colname, colobj in dest_table.columns.items()
+                if not column_not_auto_integer_pk(colobj)
+            ]
+        )
 
         # enumerate the columns we're going to be writing into, excluding any we're meant to ignore
-        dest_columns = [col.name for col in dest_table.c if col.name not in fields_to_ignore]
+        dest_columns = [
+            col.name for col in dest_table.c if col.name not in fields_to_ignore
+        ]
 
         # build a list of values (constants or source table column references) to be inserted
         source_vals = []
@@ -312,28 +327,40 @@ class ChannelImport(object):
         # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
         # to these ids.
         # By filtering them here, the database should autoset an incremented id.
-        columns = [column_name for column_name, column_obj in dest_table.columns.items() if column_not_auto_integer_pk(column_obj)]
+        columns = [
+            column_name
+            for column_name, column_obj in dest_table.columns.items()
+            if column_not_auto_integer_pk(column_obj)
+        ]
         data_to_insert = []
         merge = model in merge_models
         do_not_overwrite = model in models_not_to_overwrite
         for record in table_mapper(SourceRecord):
             self.check_cancelled()
             data = {
-                str(column): row_mapper(record, column) for column in columns if row_mapper(record, column) is not None
+                str(column): row_mapper(record, column)
+                for column in columns
+                if row_mapper(record, column) is not None
             }
             if merge:
-                self.merge_record(data, model, DestinationRecord, do_not_overwrite=do_not_overwrite)
+                self.merge_record(
+                    data, model, DestinationRecord, do_not_overwrite=do_not_overwrite
+                )
             else:
                 data_to_insert.append(data)
             unflushed_rows += 1
             if unflushed_rows == 10000:
                 if not merge:
-                    self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
+                    self.destination.session.bulk_insert_mappings(
+                        DestinationRecord, data_to_insert
+                    )
                     data_to_insert = []
                 self.destination.session.flush()
                 unflushed_rows = 0
         if not merge and data_to_insert:
-            self.destination.session.bulk_insert_mappings(DestinationRecord, data_to_insert)
+            self.destination.session.bulk_insert_mappings(
+                DestinationRecord, data_to_insert
+            )
         return unflushed_rows
 
     def can_use_sqlite_attach_method(self, model, row_mapper, table_mapper):
@@ -345,7 +372,9 @@ class ChannelImport(object):
         schema_map = self.schema_mapping.get(model)
         if schema_map:
             # Check that the only thing in the schema map is row mappings
-            can_use_attach = can_use_attach and len(set(schema_map.keys()) - set(["per_row"])) == 0
+            can_use_attach = (
+                can_use_attach and len(set(schema_map.keys()) - set(["per_row"])) == 0
+            )
             # Check that all the row mappings defined for this table are things we can handle
             for row_mapping in set(schema_map.get("per_row", {}).values()):
                 if hasattr(self, row_mapping):
@@ -369,9 +398,13 @@ class ChannelImport(object):
         self.current_model_being_imported = model
 
         if self.can_use_sqlite_attach_method(model, row_mapper, table_mapper):
-            result = self.raw_attached_sqlite_table_import(model, row_mapper, table_mapper, unflushed_rows)
+            result = self.raw_attached_sqlite_table_import(
+                model, row_mapper, table_mapper, unflushed_rows
+            )
         else:
-            result = self.orm_table_import(model, row_mapper, table_mapper, unflushed_rows)
+            result = self.orm_table_import(
+                model, row_mapper, table_mapper, unflushed_rows
+            )
 
         self.current_model_being_imported = None
 
@@ -382,7 +415,9 @@ class ChannelImport(object):
         # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
         # as not available in SQLite, only MySQL as far as I can tell:
         # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-        RowEntry = self.destination.session.query(DestinationRecord).get(data[model._meta.pk.name])
+        RowEntry = self.destination.session.query(DestinationRecord).get(
+            data[model._meta.pk.name]
+        )
         if RowEntry:
             # record already exists, so if we don't want to overwrite, abort here
             if do_not_overwrite:
@@ -403,15 +438,29 @@ class ChannelImport(object):
 
             if existing_channel.version < self.channel_version:
                 # We have an older version of this channel, so let's clean out the old stuff first
-                logger.info(('Older version {channel_version} of channel {channel_id} already exists in database; removing old entries ' +
-                             'so we can upgrade to version {new_channel_version}').format(
-                    channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+                logger.info(
+                    (
+                        "Older version {channel_version} of channel {channel_id} already exists in database; removing old entries "
+                        + "so we can upgrade to version {new_channel_version}"
+                    ).format(
+                        channel_version=existing_channel.version,
+                        channel_id=self.channel_id,
+                        new_channel_version=self.channel_version,
+                    )
+                )
                 self.delete_old_channel_data(existing_channel.root.tree_id)
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
-                logger.warn(('Version {channel_version} of channel {channel_id} already exists in database; cancelling import of ' +
-                             'version {new_channel_version}').format(
-                    channel_version=existing_channel.version, channel_id=self.channel_id, new_channel_version=self.channel_version))
+                logger.warn(
+                    (
+                        "Version {channel_version} of channel {channel_id} already exists in database; cancelling import of "
+                        + "version {new_channel_version}"
+                    ).format(
+                        channel_version=existing_channel.version,
+                        channel_id=self.channel_id,
+                        new_channel_version=self.channel_version,
+                    )
+                )
                 return False
 
         return True
@@ -419,8 +468,8 @@ class ChannelImport(object):
     def _can_use_optimized_pre_deletion(self, model):
         # check whether we can skip fully deleting this model, if we'll be using REPLACE on it anyway
         mapping = self.schema_mapping.get(model, {})
-        row_mapper = self.generate_row_mapper(mapping.get('per_row'))
-        table_mapper = self.generate_table_mapper(mapping.get('per_table'))
+        row_mapper = self.generate_row_mapper(mapping.get("per_row"))
+        table_mapper = self.generate_table_mapper(mapping.get("per_table"))
         return self.can_use_sqlite_attach_method(model, row_mapper, table_mapper)
 
     def delete_old_channel_data(self, old_tree_id):
@@ -437,7 +486,11 @@ class ChannelImport(object):
         delete_contentnode_template = "DELETE FROM {table} WHERE tree_id = '{tree_id}'"
 
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
-        models_to_delete = [model for model in self.content_models if model is not ContentNode and model not in merge_models] + [ContentNode]
+        models_to_delete = [
+            model
+            for model in self.content_models
+            if model is not ContentNode and model not in merge_models
+        ] + [ContentNode]
 
         for model in models_to_delete:
 
@@ -447,7 +500,11 @@ class ChannelImport(object):
                 fields = ["id"]
             else:
                 template = delete_related_template
-                fields = [f.column for f in model._meta.fields if isinstance(f, ForeignKey) and f.target_field.model is ContentNode]
+                fields = [
+                    f.column
+                    for f in model._meta.fields
+                    if isinstance(f, ForeignKey) and f.target_field.model is ContentNode
+                ]
 
             # if the external database is attached and there are no incompatible schema mappings for a table,
             # we can skip deleting records that will be REPLACED during import, which helps efficiency
@@ -462,7 +519,7 @@ class ChannelImport(object):
                     table=model._meta.db_table,
                     fk_field=field,
                     tree_id=old_tree_id,
-                    cn_table=ContentNode._meta.db_table
+                    cn_table=ContentNode._meta.db_table,
                 )
 
                 # check that the import operation hasn't since been cancelled
@@ -477,13 +534,17 @@ class ChannelImport(object):
         else:
             check = bool(self.cancel_check)
         if check:
-            raise ImportCancelError('Channel import was cancelled')
+            raise ImportCancelError("Channel import was cancelled")
 
     def try_attaching_sqlite_database(self):
         # attach the external content database to our primary database so we can directly transfer records en masse
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(text("ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)))
+                self.destination.session.execute(
+                    text(
+                        "ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)
+                    )
+                )
                 self._sqlite_db_attached = True
             except OperationalError:
                 # silently ignore if we were unable to attach the database; we'll just fall back to other methods
@@ -493,7 +554,9 @@ class ChannelImport(object):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(text("DETACH 'sourcedb'".format(path=self.source_db_path)))
+                self.destination.session.execute(
+                    text("DETACH 'sourcedb'".format(path=self.source_db_path))
+                )
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
                 pass
@@ -508,10 +571,12 @@ class ChannelImport(object):
             if self.check_and_delete_existing_channel():
                 for model in self.content_models:
                     mapping = self.schema_mapping.get(model, {})
-                    row_mapper = self.generate_row_mapper(mapping.get('per_row'))
-                    table_mapper = self.generate_table_mapper(mapping.get('per_table'))
-                    logger.info('Importing {model} data'.format(model=model.__name__))
-                    unflushed_rows = self.table_import(model, row_mapper, table_mapper, unflushed_rows)
+                    row_mapper = self.generate_row_mapper(mapping.get("per_row"))
+                    table_mapper = self.generate_table_mapper(mapping.get("per_table"))
+                    logger.info("Importing {model} data".format(model=model.__name__))
+                    unflushed_rows = self.table_import(
+                        model, row_mapper, table_mapper, unflushed_rows
+                    )
             self.destination.session.commit()
             self.try_detaching_sqlite_database()
 
@@ -538,26 +603,26 @@ class NoVersionChannelImport(ChannelImport):
         # The top level keys of the schema_mapping are the Content Django Models that are to be imported
         ContentNode: {
             # For each model's mappings, can defined both 'per_row' and 'per_table' mappings.
-            'per_row': {
+            "per_row": {
                 # The key of the 'per_row' mapping object is the table column that we are populating
                 # In the case of Django ForeignKey fields, this will be the field name plus _id
                 # The value is a string that refers either to a table column on the source data
                 # or a method on this import class that will be passed the row data and should return
                 # the mapped value.
-                'channel_id': 'infer_channel_id_from_source',
-                'tree_id': 'available_tree_id',
-                'available': 'get_none',
-                'license_name': 'get_license_name',
-                'license_description': 'get_license_description',
-            },
+                "channel_id": "infer_channel_id_from_source",
+                "tree_id": "available_tree_id",
+                "available": "get_none",
+                "license_name": "get_license_name",
+                "license_description": "get_license_description",
+            }
         },
         File: {
-            'per_row': {
+            "per_row": {
                 # If we didn't want to encode the Django _id convention here, we could reference the field
                 # attname in order to set it.
-                File._meta.get_field('local_file').attname: 'checksum',
-                'available': 'get_none',
-            },
+                File._meta.get_field("local_file").attname: "checksum",
+                "available": "get_none",
+            }
         },
         LocalFile: {
             # Because LocalFile does not exist on old content databases, we have to override the table that
@@ -565,19 +630,21 @@ class NoVersionChannelImport(ChannelImport):
             # and instead reads from the File model table
             # It then uses per_row mappers to get the require model fields from the File model to populate our
             # new LocalFiles.
-            'per_table': 'generate_local_file_from_file',
-            'per_row': {
-                'id': 'checksum',
-                'extension': 'extension',
-                'file_size': 'file_size',
-                'available': 'get_none',
+            "per_table": "generate_local_file_from_file",
+            "per_row": {
+                "id": "checksum",
+                "extension": "extension",
+                "file_size": "file_size",
+                "available": "get_none",
             },
         },
         ChannelMetadata: {
-            'per_row': {
-                ChannelMetadata._meta.get_field('min_schema_version').attname: 'set_version_to_no_version',
-                'root_id': 'root_pk',
-            },
+            "per_row": {
+                ChannelMetadata._meta.get_field(
+                    "min_schema_version"
+                ).attname: "set_version_to_no_version",
+                "root_id": "root_pk",
+            }
         },
     }
 
@@ -645,9 +712,15 @@ class InvalidSchemaVersionError(Exception):
 
 
 def initialize_import_manager(channel_id, cancel_check=None):
-    channel_metadata = read_channel_metadata_from_db_file(get_content_database_file_path(channel_id))
+    channel_metadata = read_channel_metadata_from_db_file(
+        get_content_database_file_path(channel_id)
+    )
     # For old versions of content databases, we can only infer the schema version
-    min_version = getattr(channel_metadata, 'min_schema_version', getattr(channel_metadata, 'inferred_schema_version'))
+    min_version = getattr(
+        channel_metadata,
+        "min_schema_version",
+        getattr(channel_metadata, "inferred_schema_version"),
+    )
 
     try:
         ImportClass = mappings.get(min_version)
@@ -655,19 +728,27 @@ def initialize_import_manager(channel_id, cancel_check=None):
         try:
             version_number = int(min_version)
             if version_number > int(CONTENT_SCHEMA_VERSION):
-                raise FutureSchemaError('Tried to import schema version, {version}, which is not supported by this version of Kolibri.'.format(
-                    version=min_version,
-                ))
+                raise FutureSchemaError(
+                    "Tried to import schema version, {version}, which is not supported by this version of Kolibri.".format(
+                        version=min_version
+                    )
+                )
             elif version_number < int(CONTENT_SCHEMA_VERSION):
                 # If it's a valid integer, but there is no schema for it, then we have stopped supporting this version
-                raise InvalidSchemaVersionError('Tried to import unsupported schema version {version}'.format(
-                    version=min_version,
-                ))
+                raise InvalidSchemaVersionError(
+                    "Tried to import unsupported schema version {version}".format(
+                        version=min_version
+                    )
+                )
         except ValueError:
-            raise InvalidSchemaVersionError('Tried to import invalid schema version {version}'.format(
-                version=min_version,
-            ))
-    return ImportClass(channel_id, channel_version=channel_metadata.version, cancel_check=cancel_check)
+            raise InvalidSchemaVersionError(
+                "Tried to import invalid schema version {version}".format(
+                    version=min_version
+                )
+            )
+    return ImportClass(
+        channel_id, channel_version=channel_metadata.version, cancel_check=cancel_check
+    )
 
 
 def import_channel_from_local_db(channel_id, cancel_check=None):
@@ -677,8 +758,7 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
 
     import_manager.end()
 
-    set_leaf_node_availability_from_local_file_availability(channel_id)
-    recurse_availability_up_tree(channel_id)
+    update_content_metadata(channel_id)
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
@@ -687,9 +767,6 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     except ContentNode.DoesNotExist:
         node_id = channel.root_id
         ContentNode.objects.create(
-            id=node_id,
-            title=channel.name,
-            content_id=node_id,
-            channel_id=channel_id,
+            id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
     channel.save()

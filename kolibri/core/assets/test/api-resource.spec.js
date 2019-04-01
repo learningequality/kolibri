@@ -1,4 +1,5 @@
 import * as Resources from '../src/api-resource';
+
 jest.mock('kolibri.urls');
 
 describe('Resource', function() {
@@ -143,6 +144,12 @@ describe('Resource', function() {
     it('should add the collection to the cache', function() {
       resource.createCollection({});
       expect(Object.keys(resource.collections)).toHaveLength(1);
+    });
+  });
+  describe('__cacheKey method', function() {
+    it('should return integer to string instance', function() {
+      const expected_string = '{"id":"1"}';
+      expect(resource.__cacheKey({ ['id']: 1 })).toEqual(expected_string);
     });
   });
 });
@@ -1138,10 +1145,10 @@ describe('Model', function() {
             done();
           });
         });
-        it('should call set twice', function(done) {
+        it('should call set once', function(done) {
           model.synced = false;
           model.save(payload).then(() => {
-            expect(setSpy).toHaveBeenCalledTimes(2);
+            expect(setSpy).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1230,6 +1237,14 @@ describe('Model', function() {
           model.synced = false;
           model.save().catch(() => {
             expect(model.promises).toEqual([]);
+            done();
+          });
+        });
+        it('should not set data on the model', function(done) {
+          model.synced = false;
+          model.attributes.test = 'notatest';
+          model.save({ test: 'test' }).catch(() => {
+            expect(model.attributes.test).toEqual('notatest');
             done();
           });
         });

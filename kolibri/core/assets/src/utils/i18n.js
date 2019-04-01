@@ -1,10 +1,10 @@
-import find from 'lodash/find';
 import FontFaceObserver from 'fontfaceobserver';
 import vue from 'kolibri.lib.vue';
-import logger from '../logging';
-import supportedLanguages from '../../../../locale/supported_languages.json';
+import logger from 'kolibri.lib.logging';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
+
+export { licenseTranslations } from './licenseTranslations';
 
 const logging = logger.getLogger(__filename);
 
@@ -157,6 +157,18 @@ export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
 }
 
+/**
+ * Returns a Translator instance that can grab strings from another component.
+ * WARNINGS:
+ *  - Cannot be used across plugin boundaries
+ *  - Use sparingly, e.g. to bypass string freeze
+ *  - Try to remove post-string-freeze
+ * @param {Component} Component - An imported component.
+ */
+export function crossComponentTranslator(Component) {
+  return new Translator(Component.name, Component.$trs);
+}
+
 function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
@@ -166,12 +178,7 @@ function _setUpVueIntl() {
    **/
   const VueIntl = require('vue-intl');
   vue.use(VueIntl, { defaultLocale });
-  vue.prototype.isRtl = global.languageDir === 'rtl';
-  languageDirection = global.languageDir || languageDirection;
-
-  if (global.languages) {
-    Object.assign(availableLanguages, global.languages);
-  }
+  vue.prototype.isRtl = languageDirection === 'rtl';
 
   vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
@@ -194,35 +201,34 @@ function _loadDefaultFonts() {
    *
    * This prevents the text from being invisible while the fonts are loading ("FOIT")
    * and instead falls back on system fonts while they're loading ("FOUT").
+   *
+   * We need to do this even for 'modern' browsers, because not all browsers implement
+   * fall-back behaviors of the font stacks correctly. See:
+   *
+   *    https://bugs.chromium.org/p/chromium/issues/detail?id=897539
    */
 
   // We use the <html> element to store the CSS 'loaded' class
   const htmlEl = document.documentElement;
   const FULL_FONTS = 'full-fonts-loaded';
   const PARTIAL_FONTS = 'partial-fonts-loaded';
-  htmlEl.classList.add(PARTIAL_FONTS);
 
-  // If this is a modern browser, go ahead and immediately reference the full fonts.
-  // Then, continue pre-emptively loading the full default language fonts below.
-  if (global.useModernFontLoading) {
-    htmlEl.classList.remove(PARTIAL_FONTS);
+  // Skip partial font usage and observer for Edge browser as a workaround for
+  //   https://github.com/learningequality/kolibri/issues/4515
+  // TODO: figure out exactly why this was happening and remove this logic.
+  if (/Edge/.test(global.navigator.userAgent)) {
     htmlEl.classList.add(FULL_FONTS);
+    return;
   }
 
-  const language = find(supportedLanguages, lang => lang.intl_code == currentLanguage);
+  htmlEl.classList.add(PARTIAL_FONTS);
 
-  const uiNormal = new FontFaceObserver('noto-ui-full', { weight: 400 });
-  const uiBold = new FontFaceObserver('noto-ui-full', { weight: 700 });
-  const contentNormal = new FontFaceObserver('noto-content-full', { weight: 400 });
-  const contentBold = new FontFaceObserver('noto-content-full', { weight: 700 });
+  const uiNormal = new FontFaceObserver('noto-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-full', { weight: 700 });
 
-  // passing 'language_name' to 'load' for its glyphs, not its value per se
-  Promise.all([
-    uiNormal.load(language.language_name, 20000),
-    uiBold.load(language.language_name, 20000),
-    contentNormal.load(language.language_name, 20000),
-    contentBold.load(language.language_name, 20000),
-  ])
+  // passing the language name to 'load' for its glyphs, not its value per se
+  const string = availableLanguages[currentLanguage].lang_name;
+  Promise.all([uiNormal.load(string, 20000), uiBold.load(string, 20000)])
     .then(function() {
       htmlEl.classList.remove(PARTIAL_FONTS);
       htmlEl.classList.add(FULL_FONTS);
@@ -243,6 +249,12 @@ export function i18nSetup(skipPolyfill = false) {
     currentLanguage = global.languageCode;
   }
 
+  if (global.languages) {
+    Object.assign(availableLanguages, global.languages);
+  }
+
+  languageDirection = global.languageDir || languageDirection;
+
   // Set up typography
   setLanguageDensity(currentLanguage);
   _loadDefaultFonts();
@@ -255,11 +267,11 @@ export function i18nSetup(skipPolyfill = false) {
       resolve();
     } else {
       Promise.all([
-        new Promise(resolve => {
+        new Promise(res => {
           require.ensure(
             ['intl'],
             require => {
-              resolve(() => require('intl'));
+              res(() => require('intl'));
             },
             'intl'
           );

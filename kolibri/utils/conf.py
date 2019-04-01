@@ -29,7 +29,7 @@ from .options import read_options_file
 logger = logging.getLogger(__name__)
 
 # use default OS encoding
-with open(os.path.join(os.path.dirname(__file__), 'KOLIBRI_CORE_JS_NAME')) as f:
+with open(os.path.join(os.path.dirname(__file__), "KOLIBRI_CORE_JS_NAME")) as f:
     KOLIBRI_CORE_JS_NAME = f.read().strip()
 
 #: Absolute path of the main user data directory.
@@ -42,7 +42,9 @@ KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
 if not os.path.exists(KOLIBRI_HOME):
     parent = os.path.dirname(KOLIBRI_HOME)
     if not os.path.exists(parent):
-        raise RuntimeError("The parent of your KOLIBRI_HOME does not exist: {}".format(parent))
+        raise RuntimeError(
+            "The parent of your KOLIBRI_HOME does not exist: {}".format(parent)
+        )
     os.mkdir(KOLIBRI_HOME)
 
 #: Set defaults before updating the dict
@@ -54,6 +56,7 @@ try:
     # except that the style_guide plugin is not enabled in production builds.
     # Caveat: this list may have been changed at build time to specify a different list of plugins.
     from .build_config.default_plugins import plugins
+
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
@@ -72,14 +75,14 @@ except ImportError:
     ]
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-config['INSTALLED_APPS'] = DEFAULT_PLUGINS
+config["INSTALLED_APPS"] = DEFAULT_PLUGINS
 
 #: Well-known plugin names that are automatically searched for and enabled on
 #: first-run.
-config['AUTO_SEARCH_PLUGINS'] = []
+config["AUTO_SEARCH_PLUGINS"] = []
 
 #: If a config file does not exist, we assume it's the first run
-config['FIRST_RUN'] = True
+config["FIRST_RUN"] = True
 
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
@@ -93,9 +96,9 @@ def update(new_values):
 
 def save(first_run=False):
     """Saves the current state of the configuration"""
-    config['FIRST_RUN'] = first_run
+    config["FIRST_RUN"] = first_run
     # use default OS encoding
-    with open(conf_file, 'w') as kolibri_conf_file:
+    with open(conf_file, "w") as kolibri_conf_file:
         json.dump(config, kolibri_conf_file, indent=2, sort_keys=True)
 
 
@@ -105,7 +108,7 @@ if not os.path.isfile(conf_file):
 else:
     # Open up the config file and overwrite defaults
     # use default OS encoding
-    with open(conf_file, 'r') as kolibri_conf_file:
+    with open(conf_file, "r") as kolibri_conf_file:
         config.update(json.load(kolibri_conf_file))
 
 
@@ -119,9 +122,9 @@ def autoremove_unavailable_plugins():
     global config
     changed = False
     # Iterate over a copy of the list so that it is not modified during the loop
-    for module_path in config['INSTALLED_APPS'][:]:
+    for module_path in config["INSTALLED_APPS"][:]:
         if not module_exists(module_path):
-            config['INSTALLED_APPS'].remove(module_path)
+            config["INSTALLED_APPS"].remove(module_path)
             logger.error(
                 (
                     "Plugin {mod} not found and disabled. To re-enable it, run:\n"
@@ -144,8 +147,8 @@ def enable_default_plugins():
     global config
     changed = False
     for module_path in DEFAULT_PLUGINS:
-        if module_path not in config['INSTALLED_APPS']:
-            config['INSTALLED_APPS'].append(module_path)
+        if module_path not in config["INSTALLED_APPS"]:
+            config["INSTALLED_APPS"].append(module_path)
             logger.warning(
                 (
                     "Default plugin {mod} not found in configuration. To re-disable it, run:\n"

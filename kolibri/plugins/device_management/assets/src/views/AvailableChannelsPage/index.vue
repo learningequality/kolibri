@@ -20,19 +20,19 @@
       </KGridItem>
       <KGridItem sizes="4, 3, 3" alignments="left, left, right">
         <KSelect
+          v-model="languageFilter"
           class="align-left"
           :options="languageFilterOptions"
-          v-model="languageFilter"
           :label="$tr('languageFilterLabel')"
           :inline="true"
         />
       </KGridItem>
       <KGridItem sizes="4, 5, 5">
         <KFilterTextbox
+          v-model="titleFilter"
           :class="{ 'search-box-offset': !windowIsSmall }"
           :placeholder="$tr('titleFilterPlaceholder')"
           class="seach-box"
-          v-model="titleFilter"
         />
       </KGridItem>
     </KGrid>
@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header">
+      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
         {{ $tr('channelHeader') }}
       </div>
 
@@ -72,11 +72,11 @@
         <ChannelListItem
           v-for="channel in availableChannels"
           v-show="channelIsVisible(channel)"
-          :channel="channel"
           :key="channel.id"
+          :channel="channel"
           :onDevice="channelIsOnDevice(channel)"
-          @clickselect="goToSelectContentPageForChannel(channel)"
           :mode="inExportMode ? 'EXPORT' : 'IMPORT'"
+          @clickselect="goToSelectContentPageForChannel(channel)"
         />
       </div>
     </div>
@@ -93,9 +93,9 @@
 <script>
 
   import { mapState, mapMutations, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
@@ -121,7 +121,6 @@
       ChannelListItem,
       ChannelTokenModal,
       ContentWizardUiAlert,
-      ImmersiveFullScreen,
       KButton,
       KFilterTextbox,
       KGrid,
@@ -129,7 +128,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},
@@ -143,6 +142,7 @@
         'inLocalImportMode',
         'inRemoteImportMode',
         'inExportMode',
+        'isStudioApplication',
       ]),
       ...mapState('manageContent/wizard', [
         'availableChannels',
@@ -185,7 +185,7 @@
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && this.inRemoteImportMode;
+        return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       allLanguagesOption() {
         return {
@@ -197,20 +197,20 @@
     watch: {
       // HACK doing it here to avoid moving $trs out of the component
       transferType(val) {
-        this.setToolbarTitle(this.toolbarTitle(val));
+        this.setAppBarTitle(this.toolbarTitle(val));
       },
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
       if (this.status) {
-        this.setToolbarTitle(this.$tr('pageLoadError'));
+        this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
-        this.setToolbarTitle(this.toolbarTitle(this.transferType));
+        this.setAppBarTitle(this.toolbarTitle(this.transferType));
       }
     },
     methods: {
-      ...mapMutations('manageContent', {
-        setToolbarTitle: 'SET_TOOLBAR_TITLE',
+      ...mapMutations('coreBase', {
+        setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {
@@ -287,12 +287,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-    color: $core-text-annotation;
   }
 
   .top-matter {

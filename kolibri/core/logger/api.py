@@ -38,9 +38,15 @@ from kolibri.core.exams.models import Exam
 
 
 class BaseLogFilter(FilterSet):
-    facility = ModelChoiceFilter(method="filter_facility", queryset=Facility.objects.all())
-    classroom = ModelChoiceFilter(method="filter_classroom", queryset=Classroom.objects.all())
-    learner_group = ModelChoiceFilter(method="filter_learner_group", queryset=LearnerGroup.objects.all())
+    facility = ModelChoiceFilter(
+        method="filter_facility", queryset=Facility.objects.all()
+    )
+    classroom = ModelChoiceFilter(
+        method="filter_classroom", queryset=Classroom.objects.all()
+    )
+    learner_group = ModelChoiceFilter(
+        method="filter_learner_group", queryset=LearnerGroup.objects.all()
+    )
 
     # Only a superuser can filter by facilities
     def filter_facility(self, queryset, name, value):
@@ -48,20 +54,18 @@ class BaseLogFilter(FilterSet):
 
     def filter_classroom(self, queryset, name, value):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=value,
-            target_user=F("user"),
+            ancestor_collection=value, target_user=F("user")
         )
 
     def filter_learner_group(self, queryset, name, value):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=value,
-            target_user=F("user"),
+            ancestor_collection=value, target_user=F("user")
         )
 
 
 class LoggerViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         model = self.queryset.model
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         try:
@@ -73,18 +77,22 @@ class LoggerViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
         default_response = dict(request.data)
         # First look if the computed fields to be updated are listed:
-        updating_fields = getattr(serializer.root, 'update_fields', None)
+        updating_fields = getattr(serializer.root, "update_fields", None)
         # If not, fetch all the fields that are computed methods:
         if updating_fields is None:
-            updating_fields = [field for field in serializer.fields if getattr(serializer.fields[field], 'method_name', None)]
+            updating_fields = [
+                field
+                for field in serializer.fields
+                if getattr(serializer.fields[field], "method_name", None)
+            ]
         for field in updating_fields:
-            method_name = getattr(serializer.fields[field], 'method_name', None)
+            method_name = getattr(serializer.fields[field], "method_name", None)
             if method_name:
                 method = getattr(serializer.root, method_name)
                 default_response[field] = method(instance)
@@ -92,10 +100,9 @@ class LoggerViewSet(viewsets.ModelViewSet):
 
 
 class ContentSessionLogFilter(BaseLogFilter):
-
     class Meta:
         model = ContentSessionLog
-        fields = ['user_id', 'content_id']
+        fields = ["user_id", "content_id"]
 
 
 class ContentSessionLogViewSet(LoggerViewSet):
@@ -108,10 +115,9 @@ class ContentSessionLogViewSet(LoggerViewSet):
 
 
 class ContentSummaryLogFilter(BaseLogFilter):
-
     class Meta:
         model = ContentSummaryLog
-        fields = ['user_id', 'content_id']
+        fields = ["user_id", "content_id"]
 
 
 class ContentSummaryLogViewSet(LoggerViewSet):
@@ -131,10 +137,9 @@ class TotalContentProgressViewSet(viewsets.ModelViewSet):
 
 
 class UserSessionLogFilter(BaseLogFilter):
-
     class Meta:
         model = UserSessionLog
-        fields = ['user_id']
+        fields = ["user_id"]
 
 
 class UserSessionLogViewSet(LoggerViewSet):
@@ -147,10 +152,9 @@ class UserSessionLogViewSet(LoggerViewSet):
 
 
 class MasteryFilter(FilterSet):
-
     class Meta:
         model = MasteryLog
-        fields = ['summarylog']
+        fields = ["summarylog"]
 
 
 class MasteryLogViewSet(LoggerViewSet):
@@ -162,7 +166,7 @@ class MasteryLogViewSet(LoggerViewSet):
     filter_class = MasteryFilter
 
 
-class AttemptFilter(FilterSet):
+class AttemptFilter(BaseLogFilter):
     content = CharFilter(method="filter_content")
 
     def filter_content(self, queryset, name, value):
@@ -170,23 +174,28 @@ class AttemptFilter(FilterSet):
 
     class Meta:
         model = AttemptLog
-        fields = ['masterylog', 'complete', 'user', 'content']
+        fields = ["masterylog", "complete", "user", "content", "item"]
 
 
 class AttemptLogViewSet(LoggerViewSet):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+    )
     queryset = AttemptLog.objects.all()
     serializer_class = AttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = AttemptFilter
-    ordering_fields = ('end_timestamp',)
-    ordering = ('end_timestamp',)
+    ordering_fields = ("end_timestamp",)
+    ordering = ("end_timestamp",)
 
 
-class ExamAttemptFilter(FilterSet):
+class ExamAttemptFilter(BaseLogFilter):
     exam = ModelChoiceFilter(method="filter_exam", queryset=Exam.objects.all())
     user = ModelChoiceFilter(method="filter_user", queryset=FacilityUser.objects.all())
+    content = CharFilter(field_name="content_id")
 
     def filter_exam(self, queryset, name, value):
         return queryset.filter(examlog__exam=value)
@@ -196,12 +205,16 @@ class ExamAttemptFilter(FilterSet):
 
     class Meta:
         model = ExamAttemptLog
-        fields = ['examlog', 'exam', 'user']
+        fields = ["examlog", "exam", "user", "content", "item"]
 
 
 class ExamAttemptLogViewSet(LoggerViewSet):
-    permission_classes = (ExamActivePermissions, KolibriAuthPermissions, )
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend, filters.OrderingFilter)
+    permission_classes = (ExamActivePermissions, KolibriAuthPermissions)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+    )
     queryset = ExamAttemptLog.objects.all()
     serializer_class = ExamAttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
@@ -210,17 +223,18 @@ class ExamAttemptLogViewSet(LoggerViewSet):
 
 class ExamLogFilter(BaseLogFilter):
 
-    collection = ModelChoiceFilter(method="filter_collection", queryset=Collection.objects.all())
+    collection = ModelChoiceFilter(
+        method="filter_collection", queryset=Collection.objects.all()
+    )
 
     def filter_collection(self, queryset, name, collection):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            target_user=F('user'),
-            ancestor_collection=collection,
+            target_user=F("user"), ancestor_collection=collection
         )
 
     class Meta:
         model = ExamLog
-        fields = ['user', 'exam']
+        fields = ["user", "exam"]
 
 
 class ExamLogViewSet(viewsets.ModelViewSet):

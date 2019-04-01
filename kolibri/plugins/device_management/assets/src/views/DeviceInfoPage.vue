@@ -10,9 +10,9 @@
           </th>
           <td>
             <a
-              dir="auto"
               v-for="(url, index) in deviceInfo.urls"
               :key="index"
+              dir="auto"
               :href="url"
               target="_blank"
               class="link"
@@ -36,13 +36,13 @@
       <div>
         <KButton
           :text="buttonText"
-          @click="advancedShown = !advancedShown"
           appearance="basic-link"
+          @click="advancedShown = !advancedShown"
         />
       </div>
       <TechnicalTextBlock
-        dir="auto"
         v-if="advancedShown"
+        dir="auto"
         :text="infoText"
         class="bottom-section"
       />
@@ -115,8 +115,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   table {
     margin-top: 16px;

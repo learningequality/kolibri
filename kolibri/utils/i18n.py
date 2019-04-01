@@ -4,16 +4,18 @@ import io
 import json
 import os
 
+import kolibri
+
 EXTERNAL_PLUGINS_PREFIX = "kolibri_"
 
 
 def is_external_plugin(appname):
-    '''
+    """
     Returns true when the given app is an external plugin.
 
     Implementation note: does a simple check on the name to see if it's
-    prefixed with "kolibri\_". If so, we think it's a plugin.
-    '''
+    prefixed with "kolibri_". If so, we think it's a plugin.
+    """
 
     return appname.startswith(EXTERNAL_PLUGINS_PREFIX)
 
@@ -33,20 +35,13 @@ def get_installed_app_locale_path(appname):
         return module_locale_path
 
 
-def get_supported_languages(kolibri_module_path):
-    """
-    Returns a list of tuples like:
-
-        [ ('bn-bd', 'বাংলা'), ('en', 'English'), ...]
-
-    Language codes must correspond to lowercase versions of those used in the
-    Intl pollyfill. See:
-
-        node_modules/intl/locale-data
-
-    """
-    file_path = os.path.join(kolibri_module_path, "locale", "supported_languages.json")
+def _get_supported_language_info():
+    file_path = os.path.join(
+        os.path.dirname(kolibri.__file__), "locale", "supported_languages.json"
+    )
     with io.open(file_path, encoding="utf-8") as f:
-        languages = json.load(f)
+        return json.load(f)
 
-    return [(lang["intl_code"], lang["language_name"]) for lang in languages]
+
+# Kolibri format
+KOLIBRI_SUPPORTED_LANGUAGES = _get_supported_language_info()

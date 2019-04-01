@@ -1,0 +1,13 @@
+{
+  "name": "kolibri",
+  "version": "0.12.0-beta.3.2",
+  "description": "The Kolibri core API",
+  "repository": "github.com/learningequality/kolibri",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {},
+  "devDependencies": {
+    "kolibri-tools": "0.12.0-beta.3.2"
+  }
+}

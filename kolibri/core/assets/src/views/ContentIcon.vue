@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <UiIcon ref="type-icon">
+    <UiIcon ref="icon">
       <mat-svg
         v-if="is(ContentNodeKinds.CHANNEL)"
         category="navigation"
@@ -57,6 +57,12 @@
         :class="[colorClass]"
       />
       <mat-svg
+        v-if="is(ContentNodeKinds.ACTIVITY)"
+        category="device"
+        name="access_time"
+        :class="[colorClass]"
+      />
+      <mat-svg
         v-if="is(USER)"
         category="social"
         name="person"
@@ -69,13 +75,13 @@
         :class="[colorClass]"
       />
     </UiIcon>
-    <UiTooltip
+    <KTooltip
       v-if="tooltipText && showTooltip"
-      trigger="type-icon"
-      position="top middle"
+      reference="icon"
+      :refs="$refs"
     >
       {{ tooltipText }}
-    </UiTooltip>
+    </KTooltip>
   </span>
 
 </template>
@@ -86,7 +92,7 @@
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'ContentIcon',
@@ -98,13 +104,13 @@
       audio: 'Audio',
       document: 'Document',
       html5: 'App',
-      exam: 'Exam',
+      exam: 'Quiz',
       lesson: 'Lesson',
       user: 'User',
     },
     components: {
       UiIcon,
-      UiTooltip,
+      KTooltip,
     },
     props: {
       kind: {

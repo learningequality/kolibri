@@ -67,7 +67,7 @@ export class Model {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
-            resolve(this.attributes);
+            resolve(this.data);
           } else {
             this.synced = false;
             // Do a fetch on the URL.
@@ -121,14 +121,15 @@ export class Model {
                 payload[key] = attrs[key];
               }
             });
-            this.set(payload);
           } else {
-            this.set(attrs);
-            payload = this.attributes;
+            payload = {
+              ...this.attributes,
+              ...attrs,
+            };
           }
           if (!Object.keys(payload).length) {
             // Nothing to save, so just resolve the promise now.
-            resolve(this.attributes);
+            resolve(this.data);
           } else {
             this.synced = false;
             let url;
@@ -618,7 +619,9 @@ export class Resource {
         {},
         ...Object.keys(allParams)
           .sort()
-          .map(paramKey => ({ [paramKey]: allParams[paramKey] }))
+          .map(paramKey => ({
+            [paramKey]: paramKey === this.idKey ? String(allParams[paramKey]) : allParams[paramKey],
+          }))
       )
     );
   }
@@ -727,21 +730,22 @@ export class Resource {
     }
     // Add to the model cache using the default key if id is defined.
     const cache = this.__modelCache(endpointName);
+    let cacheKey;
     if (model.id) {
-      const cacheKey = this.__cacheKey({ [this.idKey]: model.id }, model.getParams);
+      cacheKey = this.__cacheKey({ [this.idKey]: model.id }, model.getParams);
       if (!cache[cacheKey]) {
         cache[cacheKey] = model;
       } else {
         cache[cacheKey].set(model.attributes);
       }
-      return cache[cacheKey];
+    } else {
+      // Otherwise use a hash of the models attributes to create a temporary cache key
+      cacheKey = this.__cacheKey(model.attributes);
+      cache[cacheKey] = model;
+      // invalidate collection cache because this new model may be included in a collection
+      this.collections = {};
     }
-    // Otherwise use a hash of the models attributes to create a temporary cache key
-    const cacheKey = this.__cacheKey(model.attributes);
-    cache[cacheKey] = model;
-    // invalidate collection cache because this new model may be included in a collection
-    this.collections = {};
-    return model;
+    return cache[cacheKey];
   }
 
   /**
@@ -836,7 +840,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[detailName]) {
         logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[detailName].method === 'get') {
+      } else if (this.__schema[detailName].method !== 'get') {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
@@ -853,7 +857,7 @@ export class Resource {
    * @param  {Object} getParams  Any getParams needed while fetching
    * @return {Promise}           Promise that resolves on fetch with an array of objects
    */
-  fetchDetailCollection(detailName, id, getParams = {}) {
+  fetchDetailCollection(detailName, id, getParams = {}, force = false) {
     if (!id) {
       throw TypeError('An id must be specified');
     }
@@ -863,11 +867,11 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[detailName]) {
         logging.error(`${detailName} detail endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[detailName].method === 'get') {
+      } else if (this.__schema[detailName].method !== 'get') {
         logging.error(`${detailName} detail endpoint does not accept get requests.`);
       }
     }
-    return this.getCollection(getParams, detailName, id).fetch();
+    return this.getCollection(getParams, detailName, id).fetch(force);
   }
 
   /**
@@ -885,7 +889,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[listName]) {
         logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[listName].method === 'get') {
+      } else if (this.__schema[listName].method !== 'get') {
         logging.error(`${listName} list endpoint does not accept get requests.`);
       }
     }
@@ -909,7 +913,7 @@ export class Resource {
     if (process.env.NODE_ENV !== 'production') {
       if (!this.__schema[listName]) {
         logging.error(`${listName} list endpoint does not exist on ${this.name}.`);
-      } else if (!this.__schema[listName].method === method.toLowerCase()) {
+      } else if (this.__schema[listName].method !== method.toLowerCase()) {
         logging.error(
           `${listName} list endpoint does not accept ${method.toLowerCase()} requests.`
         );

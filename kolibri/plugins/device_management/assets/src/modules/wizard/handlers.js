@@ -4,14 +4,14 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
-import ChannelResource from '../../apiResources/deviceChannel';
 import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
-import { getAvailableSpaceOnDrive, loadChannelMetaData } from './actions/selectContentActions';
+import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';
 import {
   getAvailableChannelsOnPeerServer,
   getTransferredChannelOnPeerServer,
 } from './apiPeerImport';
+import { getChannelWithContentSizes } from './apiChannelMetadata';
 
 const translator = createTranslator('WizardHandlerTexts', {
   loadingChannelToolbar: 'Loading channel…',
@@ -165,7 +165,7 @@ export function showSelectContentPage(store, params) {
   store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('manageContent/SET_TOOLBAR_TITLE', translator.$tr('loadingChannelToolbar'));
+  store.commit('coreBase/SET_APP_BAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -174,18 +174,7 @@ export function showSelectContentPage(store, params) {
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
-  const installedChannelPromise = ChannelResource.fetchModel({
-    id: params.channel_id,
-    getParams: {
-      include_fields: [
-        'total_resources',
-        'total_file_size',
-        'on_device_resources',
-        'on_device_file_size',
-      ],
-    },
-    force: true,
-  })
+  const installedChannelPromise = getChannelWithContentSizes(params.channel_id)
     .then(channel => {
       if (store.state.manageContent.channelList.length === 0) {
         store.commit('manageContent/SET_CHANNEL_LIST', [channel]);
@@ -197,14 +186,13 @@ export function showSelectContentPage(store, params) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
     availableSpacePromise = selectedDrivePromise.then(drive => getAvailableSpaceOnDrive(drive));
     transferredChannelPromise = new Promise((resolve, reject) => {
-      getInstalledChannelsPromise(store).then(channels => {
-        const match = find(channels, { id: channel_id });
-        if (match) {
-          resolve({ ...match });
-        } else {
+      getChannelWithContentSizes(params.channel_id)
+        .then(channel => {
+          resolve({ ...channel });
+        })
+        .catch(() => {
           reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_SERVER });
-        }
-      });
+        });
     });
   }
 
@@ -263,10 +251,10 @@ export function showSelectContentPage(store, params) {
       store.commit('CORE_SET_PAGE_LOADING', false);
 
       const isSamePage = samePageCheckGenerator(store);
-      return loadChannelMetaData(store).then(() => {
+      return loadChannelMetadata(store).then(() => {
         if (isSamePage()) {
           return updateTreeViewTopic(store, {
-            id: store.state.manageContent.wizard.transferredChannel.id,
+            id: store.state.manageContent.wizard.transferredChannel.root,
             title: transferredChannel.name,
           }).then(() => {});
         }
@@ -298,13 +286,17 @@ export function updateTreeViewTopic(store, topic) {
   return ContentNodeGranularResource.fetchModel({
     id: topic.id,
     getParams: fetchArgs,
+    force: true,
   })
     .then(contents => {
       store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', contents);
       store.dispatch('manageContent/wizard/updatePathBreadcrumbs', topic);
     })
     .catch(() => {
-      store.commit('manageContent/wizard/SET_WIZARD_STATUS', 'TREEVIEW_LOADING_ERROR');
+      store.commit(
+        'manageContent/wizard/SET_WIZARD_STATUS',
+        ContentWizardErrors.TREEVIEW_LOADING_ERROR
+      );
     })
     .then(() => {
       store.commit('CORE_SET_PAGE_LOADING', false);

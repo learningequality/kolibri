@@ -1,18 +1,24 @@
-Feature: Super admin removes all device permissions from another super admin
+Feature: Super admin removes all device permissions from another Super admin
 
   Background:
-    Given I am signed in to Kolibri as a super admin
+    Given I am signed in to Kolibri as a Super admin
       And I am on the *Device > Permissions* page
-      And I have clicked *Edit Permissions* on another super admin
+      And there is a <username> super admin user on the device
 
-  Scenario: Super admin can see what will happen if they want to remove super admin permissions
-    When I deselect the *Make super admin* checkbox
-    Then I see that checkboxes under *Device permissions* also become unchecked
-      And I see that those checkboxes under *Device permissions* also become active
-      And I see the *Save changes* button becomes active
+  Scenario: Super admin can revoke super admin permissions to another user
+    When I click on *Edit permissions* button for <username> user
+      And I uncheck the *Make super admin* checkbox
+    Then I see checkbox under *Device permissions* is also unchecked and active
+      And I see the *Save changes* button is active
     When I click *Save changes*
-    Then I remain on this page
-      And I see a confirmation snackbar appear
-      And I see that *User type* changes to their previous facility role
-      And I see that all checkboxes are unchecked
-      And I see that *Save changes* button becomes disabled
+    Then I see the confirmation snackbar *Changes saved*
+      And I see *User type* has changed to the previous role they had in the facility
+      And I see all checkboxes are unchecked
+      And I see *Save changes* button is disabled
+
+Examples:
+| full_name | username |
+| Pinco P.  | coach    |
+| Neela R.  | ccoach   |
+| John C.   | learner  |
+| Carrie W. | admin2   |

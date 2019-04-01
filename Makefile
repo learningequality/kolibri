@@ -1,5 +1,5 @@
-# Specifies the targets that should ALWAYS have their recipies run
-.PHONY: help clean clean-pyc clean-build clean-assets writeversion lint test test-all coverage docs release i18n-crowdin-upload i18n-crowdin-download
+# List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
 
 help:
 	@echo "Usage:"
@@ -36,12 +36,16 @@ help:
 	@echo "--------------------"
 	@echo ""
 	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
-	@echo "i18n-crowdin-upload branch=<crowdin-branch>: upload strings to Crowdin"
-	@echo "i18n-crowdin-download branch=<crowdin-branch>: download strings from Crowdin and compile"
-	@echo "i18n-crowdin-stats branch=<crowdin-branch>: output information about translation status"
+	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
+	@echo "i18n-pretranslate branch=<crowdin-branch>: pretranslate on Crowdin"
+	@echo "i18n-pretranslate-approve branch=<crowdin-branch>: pretranslate and pre-approve on Crowdin"
+	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
+	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
+	@echo "i18n-regenerate-fonts: regenerate font files"
+	@echo "i18n-update branch=<crowdin-branch>: i18n-download + i18n-regenerate-fonts"
+	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
-	@echo "i18n-generate-fonts: Generates custom fonts and CSS based on current languages and app strings"
 
 
 clean: clean-build clean-pyc clean-assets
@@ -176,26 +180,36 @@ i18n-django-compilemessages:
 	# finds only the .po files nested there.
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
-i18n-crowdin-upload: i18n-extract
-	python build_tools/i18n/crowdin.py upload ${branch}
-	python build_tools/i18n/crowdin.py pre-translate ${branch}
-	python build_tools/i18n/crowdin.py stats ${branch}
+i18n-upload: i18n-extract
+	python build_tools/i18n/crowdin.py upload-sources ${branch}
+	python build_tools/i18n/crowdin.py upload-translations ${branch}
 
-i18n-crowdin-download:
+i18n-pretranslate:
+	python build_tools/i18n/crowdin.py pretranslate ${branch}
+
+i18n-pretranslate-approve-all:
+	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
+
+i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
+	yarn run generate-locale-data
 	$(MAKE) i18n-django-compilemessages
 
-i18n-crowdin-stats:
+i18n-download-source-fonts:
+	python build_tools/i18n/fonts.py download-source-fonts
+
+i18n-regenerate-fonts:
+	python build_tools/i18n/fonts.py generate-full-fonts
+	python build_tools/i18n/fonts.py generate-subset-fonts
+
+i18n-update: i18n-download i18n-regenerate-fonts
+
+i18n-stats:
 	python build_tools/i18n/crowdin.py stats ${branch}
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
-
-i18n-generate-fonts:
-	python build_tools/i18n/fonts.py generate-full-fonts
-	python build_tools/i18n/fonts.py generate-subset-fonts
-	python build_tools/i18n/fonts.py generate-css
 
 docker-clean:
 	docker container prune -f

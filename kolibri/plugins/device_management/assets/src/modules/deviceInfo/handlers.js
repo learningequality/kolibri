@@ -2,7 +2,7 @@ import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import bytesForHumans from '../../views/ManageContentPage/bytesForHumans';
+import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
 /* Function to fetch device info from the backend
  * and resolve validated data

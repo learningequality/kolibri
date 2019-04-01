@@ -4,25 +4,21 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 
-from .permissions import UserCanManageDevicePermissions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
-device_permissions_fields = [
-    'is_superuser',
-    'can_manage_content',
-]
+device_permissions_fields = ["is_superuser", "can_manage_content"]
 
 
 class DevicePermissions(models.Model):
     """
     This class stores metadata about device permissions for FacilityUsers.
     """
-    permissions = UserCanManageDevicePermissions()
+
     user = models.OneToOneField(
         FacilityUser,
         on_delete=models.CASCADE,
-        related_name='devicepermissions',
+        related_name="devicepermissions",
         blank=False,
         null=False,
         primary_key=True,
@@ -35,16 +31,26 @@ class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
     """
+
     is_provisioned = models.BooleanField(default=False)
-    language_id = models.CharField(max_length=15, default=settings.LANGUAGE_CODE)
-    default_facility = models.ForeignKey(Facility, on_delete=models.SET_NULL, blank=True, null=True)
+    language_id = models.CharField(
+        max_length=15, default=settings.LANGUAGE_CODE, blank=True, null=True
+    )
+    default_facility = models.ForeignKey(
+        Facility, on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        # Import here to prevent circular dependency.
+        from kolibri.core.device.translation import DEVICE_LANGUAGE_CACHE_KEY
+
+        # Delete any cache of the device language setting just in case.
+        cache.delete(DEVICE_LANGUAGE_CACHE_KEY)
         super(DeviceSettings, self).save(*args, **kwargs)
 
 
-CONTENT_CACHE_KEY_CACHE_KEY = 'content_cache_key'
+CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
 
 
 class ContentCacheKey(models.Model):

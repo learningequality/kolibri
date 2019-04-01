@@ -27,8 +27,11 @@ class Command(BaseCommand):
     help = "Uploads the local database to a central server for backup and reporting"
 
     def add_arguments(self, parser):
-        parser.add_argument('project', action='store',
-                            help='Name of the project (single word) with which this data should be associated.')
+        parser.add_argument(
+            "project",
+            action="store",
+            help="Name of the project (single word) with which this data should be associated.",
+        )
 
     def handle(self, *args, **options):
 
@@ -36,16 +39,26 @@ class Command(BaseCommand):
 
         buff = io.BytesIO()
 
-        zip_archive = zipfile.ZipFile(buff, mode='w', compression=zipfile.ZIP_DEFLATED)
+        zip_archive = zipfile.ZipFile(buff, mode="w", compression=zipfile.ZIP_DEFLATED)
 
         zip_archive.write(DB_PATH, "db.sqlite3")
 
         zip_archive.close()
 
-        encoder = MultipartEncoder({
-            "project": options['project'],
-            "file": ("db.sqlite3.zip", buff, "application/octet-stream")
-        })
+        encoder = MultipartEncoder(
+            {
+                "project": options["project"],
+                "file": ("db.sqlite3.zip", buff, "application/octet-stream"),
+            }
+        )
         monitor = MultipartEncoderMonitor(encoder, create_callback(encoder))
-        r = requests.post(CENTRAL_SERVER_DB_UPLOAD_URL, data=monitor, headers={"Content-Type": monitor.content_type})
-        print("\nUpload finished! (Returned status {0} {1})".format(r.status_code, r.reason))
+        r = requests.post(
+            CENTRAL_SERVER_DB_UPLOAD_URL,
+            data=monitor,
+            headers={"Content-Type": monitor.content_type},
+        )
+        print(
+            "\nUpload finished! (Returned status {0} {1})".format(
+                r.status_code, r.reason
+            )
+        )

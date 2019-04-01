@@ -1,5 +1,5 @@
-Feature: Super Admin find users
-    Super Admin needs to be able to search for and find users 
+Feature: Super admin searches for users
+    Super admin needs to be able to search for and find users 
 
   Background:
     Given I am signed in to Kolibri as super admin

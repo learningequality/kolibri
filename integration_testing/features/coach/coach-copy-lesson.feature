@@ -1,9 +1,9 @@
-Feature: Coach copy lesson
+Feature: Coach copies lesson
   Coaches need to be able to copy lessons to the same or a different class, and assign it to different groups or an entire class
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on *Coach > Lessons* page
+      And I am on *Coach > Plan > Lessons* page
       And I see the <lesson> lesson
 
   Scenario: Copy lesson to the same class and assign to the entire class
@@ -11,7 +11,7 @@ Feature: Coach copy lesson
     Then I see the <lesson> page
     When I click *Options* button
       And I select *Copy lesson* option
-    Then I see the *Copy lesson* modal
+    Then I see the *Copy lesson to* modal
       And I see *'<class>' (current class)* is selected
     When I click *Continue* button
     Then the modal content changes and asks to select recipients
@@ -21,7 +21,7 @@ Feature: Coach copy lesson
 			And the snackbar confirmation appears
     When I click on *Lessons*
     Then I see the *Copy of '<lesson>'* in the list of lessons on *Coach > Lessons* page
-      And I see *Entire class* value for it under the *Recipients* column header
+      And I see *Entire class* value for it under the *Visible to* column header
 
   Scenario: Copy lesson to a different class and assign it to just one group
     Given there is a class <class2> that has a group <group>
@@ -29,7 +29,7 @@ Feature: Coach copy lesson
     Then I see the <lesson> page
     When I click *Options* button
       And I select *Copy lesson* option
-    Then I see the *Copy lesson* modal
+    Then I see the *Copy lesson to* modal
       And I see *'<class>' (current class)* is selected
     When I select class <class2>
       And I click *Continue* button
@@ -39,12 +39,12 @@ Feature: Coach copy lesson
       And I click *Copy* button
     Then the modal closes
       And the snackbar confirmation appears
-    When open the sidebar
+    When I open the sidebar
       And I click on *Coach*
       And I click class <class2>
       And I click on *Lessons* tab
     Then I see the *Copy of '<lesson>'* in the list of lessons on *Coach > Lessons* page
-      And I see *1 group* value for it under the *Recipients* column header
+      And I see *1 group* value for it under the *Visible to* column header
 
 Examples:
 | lesson       | class    | class2    | group     |

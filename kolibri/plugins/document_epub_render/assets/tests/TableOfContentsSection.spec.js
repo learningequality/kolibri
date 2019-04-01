@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import TableOfContentsSection from '../src/views/TableOfContentsSection';
 
 const section = {
@@ -34,6 +35,7 @@ function createWrapper({ section, depth, currentSection } = {}) {
       depth,
       currentSection,
     },
+    store,
   });
 }
 
@@ -46,20 +48,21 @@ describe('Table of Contents Section', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('should handle section with so sub items', () => {
+  it('should handle section with no sub items', () => {
     const wrapper = createWrapper({
       section,
       depth: 0,
     });
 
-    expect(wrapper.findAll({ name: 'TableOfContentsSection' }).length).toBe(0);
+    expect(wrapper.find('ul.toc-list').exists()).toBe(false);
   });
+
   it('should handle section with sub items', () => {
     const wrapper = createWrapper({
       section: sectionWithSubItems,
       depth: 0,
     });
-    expect(wrapper.findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
+    expect(wrapper.find('ul.toc-list').findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
   });
 
   it('should display href if label is empty', () => {

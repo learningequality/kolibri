@@ -2,10 +2,10 @@
 
   <KGrid>
     <KGridItem sizes="100, 75, 75" percentage>
-      <h3 class="choose-message" v-if="isInImportMode">
+      <h3 v-if="isInImportMode" class="choose-message">
         {{ $tr('chooseContentToImport') }}
       </h3>
-      <h3 class="choose-message" v-else>
+      <h3 v-else class="choose-message">
         {{ $tr('chooseContentToExport') }}
       </h3>
       <p class="available-space">
@@ -21,8 +21,8 @@
         :text="buttonText"
         :primary="true"
         :disabled="buttonIsDisabled"
-        @click="$emit('clickconfirm')"
         :style="{ top: buttonOffset }"
+        @click="$emit('clickconfirm')"
       />
     </KGridItem>
     <KGridItem size="100" percentage>
@@ -46,7 +46,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import bytesForHumans from '../ManageContentPage/bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
 

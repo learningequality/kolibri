@@ -7,7 +7,6 @@ function defaultState() {
     channelList: [],
     channelListLoading: false,
     taskList: [],
-    toolbarTitle: '',
   };
 }
 
@@ -29,9 +28,6 @@ export default {
     },
     SET_TASK_LIST(state, taskList) {
       state.taskList = [...taskList];
-    },
-    SET_TOOLBAR_TITLE(state, toolbarTitle) {
-      state.toolbarTitle = toolbarTitle;
     },
   },
   getters: {

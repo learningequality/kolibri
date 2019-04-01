@@ -1,18 +1,22 @@
 <template>
 
-  <li>
+  <li class="list-item">
     <router-link
       class="tab"
-      :class="{ 'tab-has-icon-and-title': type === 'icon-and-title' }"
+      :class="$computedClass(tabStyles)"
       :to="link"
     >
-      <div v-if="type === 'icon' || type === 'icon-and-title'" class="tab-icon">
-        <UiIcon :ariaLabel="title" class="icon">
+      <div class="tab-icon dimmable">
+        <UiIcon
+          class="icon"
+          tabindex="-1"
+        >
           <!--The icon svg-->
           <slot></slot>
         </UiIcon>
       </div>
-      <div v-if="type === 'title' || type === 'icon-and-title'" class="tab-title">
+
+      <div class="tab-title dimmable" tabindex="-1">
         {{ title }}
       </div>
     </router-link>
@@ -23,6 +27,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -32,17 +37,8 @@
   export default {
     name: 'KNavbarLink',
     components: { UiIcon },
+    mixins: [themeMixin],
     props: {
-      /**
-       * The type of tab. title, icon, or icon-and-title
-       */
-      type: {
-        type: String,
-        validator(type) {
-          return ['title', 'icon', 'icon-and-title'].includes(type);
-        },
-        required: true,
-      },
       /**
        * The text
        */
@@ -59,6 +55,20 @@
         validator: validateLinkObject,
       },
     },
+    computed: {
+      tabStyles() {
+        return {
+          color: this.$coreBgCanvas,
+          ':hover': {
+            'background-color': this.$coreActionDark,
+          },
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '-6px',
+          },
+        };
+      },
+    },
   };
 
 </script>
@@ -66,6 +76,60 @@
 
 <style lang="scss" scoped>
 
-  @import './items';
+  @import '~kolibri.styles.definitions';
+
+  .list-item {
+    display: inline-block;
+    text-align: center;
+  }
+
+  .tab {
+    display: inline-block;
+    min-width: 72px;
+    max-width: 264px;
+    padding: 0 18px;
+    padding-bottom: 3px;
+    margin: 0;
+    font-size: 14px;
+    text-decoration: none;
+    border: 0;
+    border-radius: 0;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+    transition: background-color $core-time ease;
+    .dimmable {
+      opacity: 0.6;
+    }
+  }
+
+  .router-link-active,
+  .tab-selected {
+    padding-bottom: 2px;
+    color: white;
+    border-bottom-color: white;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    .dimmable {
+      opacity: 1;
+    }
+  }
+
+  .icon {
+    font-size: 24px;
+  }
+
+  .tab-icon {
+    display: inline-block;
+    padding: 10px 0;
+    margin-right: 4px;
+  }
+
+  .tab-title {
+    display: inline-block;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
 
 </style>

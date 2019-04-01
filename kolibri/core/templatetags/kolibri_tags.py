@@ -8,32 +8,37 @@ from __future__ import unicode_literals
 
 import copy
 import json
+import logging
 import re
 
 import user_agents
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.core.serializers.json import DjangoJSONEncoder
+from django.core.urlresolvers import get_resolver
+from django.core.urlresolvers import get_script_prefix
 from django.core.urlresolvers import resolve
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils.html import mark_safe
-from django.utils.timezone import now
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
-from django_js_reverse.js_reverse_settings import JS_GLOBAL_OBJECT_NAME
-from django_js_reverse.js_reverse_settings import JS_VAR_NAME
-from django_js_reverse.templatetags.js_reverse import js_reverse_inline
+from django_js_reverse.core import prepare_url_list
+from django_js_reverse.rjsmin import jsmin
 from rest_framework.renderers import JSONRenderer
 from six import iteritems
 
+import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
+from kolibri.utils import i18n
 
 register = template.Library()
+
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag()
@@ -43,7 +48,7 @@ def kolibri_content_cache_key():
       var contentCacheKey = '{cache_key}';
     </script>
     """.format(
-        cache_key=ContentCacheKey.get_cache_key(),
+        cache_key=ContentCacheKey.get_cache_key()
     )
     return mark_safe(js)
 
@@ -67,10 +72,10 @@ def _supports_modern_fonts(request):
     Based on https://caniuse.com/#feat=font-unicode-range
     """
 
-    if 'HTTP_USER_AGENT' not in request.META:
+    if "HTTP_USER_AGENT" not in request.META:
         return False
 
-    browser = user_agents.parse(request.META['HTTP_USER_AGENT']).browser
+    browser = user_agents.parse(request.META["HTTP_USER_AGENT"]).browser
 
     if browser.family == "Edge":  # Edge only needs unicode-range, not font-display
         return browser.version[0] >= 17
@@ -98,29 +103,40 @@ def kolibri_language_globals(context):
       var languages = JSON.parse('{languages}');
       var useModernFontLoading = {use_modern};
     </script>
-    {master_css_file}
-    <link type="text/css" href="{lang_css_file}" rel="stylesheet"/>
+    <link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>
+    <link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>
+    <link type="text/css" href="{full_css_file}?v={version}" rel="stylesheet"/>
     """
 
     language_code = get_language()
     lang_dir = "rtl" if get_language_bidi() else "ltr"
-    languages = {
-        code: {
+
+    languages = {}
+    for code, language_name in settings.LANGUAGES:
+        lang_info = next(
+            (
+                lang
+                for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+                if lang["intl_code"] == code
+            ),
+            None,
+        )
+        languages[code] = {
             # Format to match the schema of the content Language model
             "id": code,
-            "lang_name": name,
+            "lang_name": language_name,
+            "english_name": lang_info["english_name"]
+            if lang_info
+            else get_language_info(code)["name"],
             "lang_direction": get_language_info(code)["bidi"],
         }
-        for code, name in settings.LANGUAGES
-    }
-    is_modern = _supports_modern_fonts(context['request'])
-    master_file = '<link type="text/css" href="{}" rel="stylesheet"/>'.format(
-        static('assets/fonts/all-fonts.css')
-    )
-    lang_file = static(
-        'assets/fonts/fonts.{code}.{browser_type}.css'.format(
-            code=language_code,
-            browser_type='modern' if is_modern else 'basic'
+
+    common_file = static("assets/fonts/noto-common.css")
+    subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
+    is_modern = _supports_modern_fonts(context["request"])
+    full_file = static(
+        "assets/fonts/noto-full.{}.{}.css".format(
+            language_code, ("modern" if is_modern else "basic")
         )
     )
 
@@ -130,8 +146,12 @@ def kolibri_language_globals(context):
             lang_dir=lang_dir,
             languages=json.dumps(languages),
             use_modern="true" if is_modern else "false",
-            master_css_file=master_file if is_modern else "",
-            lang_css_file=lang_file,
+            common_css_file=common_file,
+            subset_css_file=subset_file,
+            full_css_file=full_file,
+            # Temporary cache busting strategy.
+            # Would be better to use ManifestStaticFilesStorage
+            version=kolibri.__version__,
         )
     )
 
@@ -147,48 +167,76 @@ def kolibri_navigation_actions():
 
 @register.simple_tag(takes_context=True)
 def kolibri_set_urls(context):
-    js_global_object_name = getattr(settings, 'JS_REVERSE_JS_GLOBAL_OBJECT_NAME', JS_GLOBAL_OBJECT_NAME)
-    js_var_name = getattr(settings, 'JS_REVERSE_JS_VAR_NAME', JS_VAR_NAME)
-    js = (js_reverse_inline(context) +
-          "Object.assign({0}.urls, {1}.{2})".format(conf.KOLIBRI_CORE_JS_NAME,
-                                                    js_global_object_name,
-                                                    js_var_name))
+    # Modified from:
+    # https://github.com/ierror/django-js-reverse/blob/master/django_js_reverse/core.py#L101
+    js_global_object_name = "window"
+    js_var_name = "kolibriUrls"
+    script_prefix = get_script_prefix()
+
+    if "request" in context:
+        default_urlresolver = get_resolver(getattr(context["request"], "urlconf", None))
+    else:
+        default_urlresolver = get_resolver(None)
+
+    js = render_to_string(
+        "django_js_reverse/urls_js.tpl",
+        {
+            "urls": sorted(list(prepare_url_list(default_urlresolver))),
+            "url_prefix": script_prefix,
+            "js_var_name": js_var_name,
+            "js_global_object_name": js_global_object_name,
+        },
+    )
+
+    js = jsmin(js)
+
+    js = (
+        """<script type="text/javascript">"""
+        + js
+        + """
+        {global_object}.staticUrl = '{static_url}';
+        </script>
+        """.format(
+            global_object=js_global_object_name, static_url=settings.STATIC_URL
+        )
+    )
     return mark_safe(js)
-
-
-@register.simple_tag()
-def kolibri_set_server_time():
-    html = ("<script type='text/javascript'>"
-            "{0}.utils.serverClock.setServerTime({1});"
-            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
-                               json.dumps(now(), cls=DjangoJSONEncoder)))
-    return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
-    html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
-            "model.synced = true;"
-            "</script>".format(
-                conf.KOLIBRI_CORE_JS_NAME,
-                api_resource,
-                json.dumps(JSONRenderer().render(response.data).decode('utf-8'))))
+    response, kwargs = _kolibri_bootstrap_helper(
+        context, base_name, api_resource, "detail", **kwargs
+    )
+    html = (
+        "<script type='text/javascript'>"
+        "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
+        "model.synced = true;"
+        "</script>".format(
+            conf.KOLIBRI_CORE_JS_NAME,
+            api_resource,
+            json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
+        )
+    )
     return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
-    html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
-            "collection.synced = true;"
-            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
-                               api_resource,
-                               json.dumps(kwargs),
-                               json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
-                               ))
+    response, kwargs = _kolibri_bootstrap_helper(
+        context, base_name, api_resource, "list", **kwargs
+    )
+    html = (
+        "<script type='text/javascript'>"
+        "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
+        "collection.synced = true;"
+        "</script>".format(
+            conf.KOLIBRI_CORE_JS_NAME,
+            api_resource,
+            json.dumps(kwargs),
+            json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
+        )
+    )
     return mark_safe(html)
 
 
@@ -200,20 +248,36 @@ def _replace_dict_values(check, replace, dict):
 
 def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs):
     reversal = dict()
-    kwargs_check = 'kwargs_'
+    kwargs_check = "kwargs_"
     # remove prepended string and matching items from kwargs
     for key in list(kwargs.keys()):
         if kwargs_check in key:
             item = kwargs.pop(key)
-            key = re.sub(kwargs_check, '', key)
+            key = re.sub(kwargs_check, "", key)
             reversal[key] = item
-    view, view_args, view_kwargs = resolve(reverse('kolibri:core:{0}-{1}'.format(base_name, route), kwargs=reversal))
+    view, view_args, view_kwargs = resolve(
+        reverse("kolibri:core:{0}-{1}".format(base_name, route), kwargs=reversal)
+    )
     # switch out None temporarily because invalid filtering and caching can occur
-    _replace_dict_values(None, str(''), kwargs)
-    request = copy.copy(context['request'])
+    _replace_dict_values(None, str(""), kwargs)
+    request = copy.copy(context["request"])
     request.GET = request.GET.copy()
     for key in kwargs:
         request.GET[key] = kwargs[key]
     response = view(request, **view_kwargs)
-    _replace_dict_values(str(''), None, kwargs)
+    _replace_dict_values(str(""), None, kwargs)
     return response, kwargs
+
+
+@register.simple_tag()
+def kolibri_sentry_error_reporting():
+
+    if not conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]:
+        return ""
+
+    template = """
+      <script>
+        var sentryDSN = '{}';
+      </script>
+    """
+    return mark_safe(template.format(conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]))

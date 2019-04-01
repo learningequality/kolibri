@@ -9,9 +9,9 @@ Feature: Admin create classes
   Scenario: Delete class
     When I click on *Delete class* button for the class <class>
     Then I see *Delete class* modal
-    When I click *Delete class* button
+    When I click *Delete* button
     Then the modal closes
-    # no confirmation that the class has been deleted
+    # no confirmation that the class has been deleted (snackbar?)
       And I don't see the deleted class on the *Classes* page anymore
 
 Examples:

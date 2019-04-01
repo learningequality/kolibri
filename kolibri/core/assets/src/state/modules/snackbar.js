@@ -21,6 +21,8 @@ export default {
       state.options = {};
       // set new options
       state.isVisible = true;
+      // options include text, autoDismiss, duration, actionText, actionCallback,
+      // hideCallback
       state.options = snackbarOptions;
     },
     CORE_CLEAR_SNACKBAR(state) {

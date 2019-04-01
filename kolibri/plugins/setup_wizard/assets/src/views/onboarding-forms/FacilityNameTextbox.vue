@@ -2,14 +2,13 @@
 
   <div>
     <KTextbox
-      :autofocus="true"
+      ref="facilityName"
       v-model="facilityName"
-      @blur="validateFacilityName"
       :invalid="facilityNameIsInvalid"
       :invalidText="facilityNameErrorMessage"
-      ref="facilityName"
       :label="$tr('facilityNameFieldLabel')"
       :maxlength="50"
+      @blur="validateFacilityName"
     />
   </div>
 

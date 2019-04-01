@@ -1,36 +1,39 @@
 <template>
 
-  <div class="info-icon-container">
+  <span class="pos-rel">
     <UiIcon
-      ref="info-icon"
+      ref="icon"
       class="info-icon"
+      :style="{ color: $coreAccentColor }"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
     </UiIcon>
-    <UiTooltip
-      trigger="info-icon"
-      class="info-icon-tooltip"
-      :position="tooltipPosition"
+    <KTooltip
+      reference="icon"
+      :refs="$refs"
+      :placement="tooltipPlacement"
     >
       {{ tooltipText }}
-    </UiTooltip>
-  </div>
+    </KTooltip>
+  </span>
 
 </template>
 
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import UiTooltip from 'keen-ui/src/UiTooltip';
+  import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'CoreInfoIcon',
     components: {
       UiIcon,
-      UiTooltip,
+      KTooltip,
     },
+    mixins: [themeMixin],
     props: {
       iconAriaLabel: {
         type: String,
@@ -40,9 +43,9 @@
         type: String,
         required: true,
       },
-      tooltipPosition: {
+      tooltipPlacement: {
         type: String,
-        required: true,
+        required: false,
       },
     },
   };
@@ -52,17 +55,15 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .info-icon-container {
-    display: inline-block;
-  }
-
   .info-icon {
+    display: inline-block;
     font-size: 1.2em;
-    color: $core-accent-color;
     vertical-align: top;
     cursor: pointer;
+  }
+
+  .pos-rel {
+    position: relative;
   }
 
 </style>

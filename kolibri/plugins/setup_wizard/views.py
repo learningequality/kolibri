@@ -11,11 +11,11 @@ from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.device.utils import device_provisioned
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
+@method_decorator(signin_redirect_exempt, name="dispatch")
 class SetupWizardView(TemplateView):
     template_name = "setup_wizard/setup_wizard.html"
 
     def dispatch(self, *args, **kwargs):
         if device_provisioned():
-            return redirect(reverse('kolibri:core:redirect_user'))
+            return redirect(reverse("kolibri:core:redirect_user"))
         return super(SetupWizardView, self).dispatch(*args, **kwargs)

@@ -6,8 +6,6 @@ Kolibri
   :target: https://pypi.python.org/pypi/kolibri/
 .. image:: https://travis-ci.org/learningequality/kolibri.svg?branch=develop
   :target: https://travis-ci.org/learningequality/kolibri
-.. image:: http://codecov.io/github/learningequality/kolibri/coverage.svg?branch=develop
-  :target: http://codecov.io/github/learningequality/kolibri?branch=develop
 .. image:: https://img.shields.io/badge/docs-user-ff69b4.svg
   :target: http://kolibri.readthedocs.org/en/latest/
 .. image:: https://img.shields.io/badge/docs-developer-69ffb4.svg
@@ -48,4 +46,4 @@ An initial version of Kolibri is `now available for download! <https://learninge
 How can I contribute?
 ---------------------
 
-Thanks for your interest! Please see the `contributing section <http://kolibri-dev.readthedocs.io/en/develop/start/contributing/index.html>`__ of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`__.
+Thanks for your interest! Please see the 'contributing' section of our `online developer documentation <http://kolibri-dev.readthedocs.io/>`__.

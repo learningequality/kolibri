@@ -3,8 +3,10 @@
   <div>
     <UiIconButton
       type="secondary"
-      @click="showLanguageModal = true"
       class="globe"
+      aria-hidden="true"
+      tabindex="-1"
+      @click="showLanguageModal = true"
     >
       <mat-svg
         name="language"
@@ -12,16 +14,17 @@
       />
     </UiIconButton>
 
-    <span class="selected">
-      {{ selectedLanguage }}
+    <span class="selected" :title="selectedLanguage.english_name">
+      {{ selectedLanguage.lang_name }}
     </span>
     <KButton
       v-for="language in buttonLanguages"
-      @click="switchLanguage(language.id)"
       :key="language.id"
       :text="language.lang_name"
+      :title="language.english_name"
       class="lang"
       appearance="basic-link"
+      @click="switchLanguage(language.id)"
     />
     <KButton
       :text="$tr('showMoreLanguagesSelector')"
@@ -32,8 +35,8 @@
     />
     <LanguageSwitcherModal
       v-if="showLanguageModal"
-      @close="showLanguageModal = false"
       class="ta-l"
+      @close="showLanguageModal = false"
     />
   </div>
 
@@ -45,7 +48,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import KButton from 'kolibri.coreVue.components.KButton';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
@@ -67,7 +70,7 @@
     },
     computed: {
       selectedLanguage() {
-        return availableLanguages[currentLanguage].lang_name;
+        return availableLanguages[currentLanguage];
       },
       numVisibleLanguages() {
         if (this.windowBreakpoint <= 2) {
@@ -92,7 +95,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import './language-names';
 
   .globe {
     position: relative;
@@ -105,6 +108,8 @@
   }
 
   .lang {
+    @include font-family-language-names;
+
     margin-right: 8px;
     margin-left: 8px;
   }

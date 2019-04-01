@@ -24,69 +24,17 @@
   {% endif %}
 </head>
 <body>
-{% csrf_token %}
 {% if supported_browser %}
 <rootvue>
-  <style>
-    .container{
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-
-    .rel{
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .flapping-kolibri {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 125px;
-      height: 125px;
-      background: url("{% static 'assets/loading-spinner.gif' %}") no-repeat center;
-      background-size: contain;
-      transform: translate(-50%, -50%);
-      animation: fadeIn;
-      animation-duration: 1s;
-      animation-delay: 1s;
-      animation-fill-mode: both;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0
-      }
-      to {
-        opacity: 1
-      }
-    }
-  </style>
-
-  <div class="container">
-    <div class="rel">
-      <div class="flapping-kolibri"></div>
-    </div>
-  </div>
-
+  {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
+{% kolibri_sentry_error_reporting %}
 {% kolibri_language_globals %}
 {% kolibri_content_cache_key %}
+{% kolibri_set_urls %}
 {% webpack_asset 'default_frontend' %}
-{% kolibri_set_server_time %}
 {% kolibri_navigation_actions %}
-<script type="text/javascript">
-  {% cache 5000 js_urls %}
-    {% kolibri_set_urls %}
-  {% endcache %}
-</script>
-<!-- Bootstrapping the currently logged in user's session object into the page. -->
-{% kolibri_bootstrap_model 'session' 'SessionResource' kwargs_pk='current'%}
 {% webpack_base_assets %}
 {% webpack_base_async_assets %}
 {% content_renderer_assets %}

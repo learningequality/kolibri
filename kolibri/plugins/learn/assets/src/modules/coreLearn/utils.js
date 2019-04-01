@@ -16,11 +16,12 @@ export function normalizeContentNode(node, ancestors = []) {
   };
 }
 
-export function contentState(data, next_content = [], ancestors = []) {
+export function contentState(node, next_content = [], ancestors = []) {
+  if (!node) return null;
   return {
     next_content,
-    ...normalizeContentNode(data, ancestors),
-    ...assessmentMetaDataState(data),
+    ...normalizeContentNode(node, ancestors),
+    ...assessmentMetaDataState(node),
   };
 }
 

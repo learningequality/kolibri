@@ -3,9 +3,9 @@
   <div class="content-grid">
     <ContentCard
       v-for="content in contents"
+      :key="content.id"
       class="grid-item"
       :isMobile="windowIsSmall"
-      :key="content.id"
       :title="content.title"
       :thumbnail="content.thumbnail"
       :kind="content.kind"
@@ -73,8 +73,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   $gutters: 16px;
 

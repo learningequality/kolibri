@@ -18,7 +18,6 @@ from .fields import DateTimeTzField as DjangoDateTimeTzField
 
 
 class DateTimeTzField(DateTimeField):
-
     def to_internal_value(self, data):
         data = super(DateTimeTzField, self).to_internal_value(data)
         tz = timezone.get_current_timezone()
@@ -27,9 +26,7 @@ class DateTimeTzField(DateTimeField):
         return data.astimezone(tz)
 
 
-serializer_field_mapping = {
-    DjangoDateTimeTzField: DateTimeTzField,
-}
+serializer_field_mapping = {DjangoDateTimeTzField: DateTimeTzField}
 
 serializer_field_mapping.update(ModelSerializer.serializer_field_mapping)
 
@@ -66,24 +63,27 @@ class KolibriModelSerializer(ModelSerializer):
         Dict of native values <- Dict of primitive datatypes.
         """
         if not isinstance(data, Mapping):
-            message = self.error_messages['invalid'].format(
+            message = self.error_messages["invalid"].format(
                 datatype=type(data).__name__
             )
-            raise ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            }, code='invalid')
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: [message]}, code="invalid"
+            )
 
         ret = OrderedDict()
         errors = OrderedDict()
-        fields = [self.fields[field_name] for field_name in data
-                  if field_name in self.fields
-                  if not self.fields[field_name].read_only]
+        fields = [
+            self.fields[field_name]
+            for field_name in data
+            if field_name in self.fields
+            if not self.fields[field_name].read_only
+        ]
 
         for field in fields:
             # fields that are computed methods don't need validation:
             if field.read_only:
                 continue
-            validate_method = getattr(self, 'validate_' + field.field_name, None)
+            validate_method = getattr(self, "validate_" + field.field_name, None)
             try:
                 validated_value = field.run_validation(data[field.field_name])
                 if validate_method is not None:

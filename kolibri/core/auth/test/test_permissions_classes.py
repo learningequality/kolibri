@@ -16,54 +16,80 @@ from .helpers import create_superuser
 
 
 class BasePermissionsThrowExceptionsTestCase(TestCase):
-
     def setUp(self):
         self.facility = Facility.objects.create()
         self.object = object()  # shouldn't matter what the object is, for these tests
-        self.facility_user = FacilityUser.objects.create(username="qqq", facility=self.facility)
+        self.facility_user = FacilityUser.objects.create(
+            username="qqq", facility=self.facility
+        )
         self.superuser = create_superuser(self.facility)
         self.anon_user = KolibriAnonymousUser()
         self.permissions = BasePermissions()
 
     def test_user_cannot_create(self):
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_create_object(self.facility_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_create_object(self.facility_user, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_create_object(self.superuser, self.object))
+            self.assertFalse(
+                self.permissions.user_can_create_object(self.superuser, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_create_object(self.anon_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_create_object(self.anon_user, self.object)
+            )
 
     def test_user_cannot_read(self):
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_read_object(self.facility_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_read_object(self.facility_user, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_read_object(self.superuser, self.object))
+            self.assertFalse(
+                self.permissions.user_can_read_object(self.superuser, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_read_object(self.anon_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_read_object(self.anon_user, self.object)
+            )
 
     def test_user_cannot_update(self):
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_update_object(self.facility_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_update_object(self.facility_user, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_update_object(self.superuser, self.object))
+            self.assertFalse(
+                self.permissions.user_can_update_object(self.superuser, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_update_object(self.anon_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_update_object(self.anon_user, self.object)
+            )
 
     def test_user_cannot_delete(self):
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_delete_object(self.facility_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_delete_object(self.facility_user, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_delete_object(self.superuser, self.object))
+            self.assertFalse(
+                self.permissions.user_can_delete_object(self.superuser, self.object)
+            )
         with self.assertRaises(NotImplementedError):
-            self.assertFalse(self.permissions.user_can_delete_object(self.anon_user, self.object))
+            self.assertFalse(
+                self.permissions.user_can_delete_object(self.anon_user, self.object)
+            )
 
 
 class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
-
     def setUp(self):
         self.facility = Facility.objects.create()
         self.obj = object()
-        self.user = FacilityUser.objects.create(username='dummyuser', facility=self.facility)
+        self.user = FacilityUser.objects.create(
+            username="dummyuser", facility=self.facility
+        )
         self.queryset = FacilityUser.objects.all()
 
     def assertAllowAll(self, perms, test_filtering=True):
@@ -72,7 +98,10 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
         self.assertTrue(perms.user_can_update_object(self.user, self.obj))
         self.assertTrue(perms.user_can_delete_object(self.user, self.obj))
         if test_filtering:
-            self.assertSetEqual(set(self.queryset), set(perms.readable_by_user_filter(self.user, self.queryset)))
+            self.assertSetEqual(
+                set(self.queryset),
+                set(perms.readable_by_user_filter(self.user, self.queryset)),
+            )
 
     def assertDenyAll(self, perms, test_filtering=True):
         self.assertFalse(perms.user_can_create_object(self.user, self.obj))
@@ -80,7 +109,9 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
         self.assertFalse(perms.user_can_update_object(self.user, self.obj))
         self.assertFalse(perms.user_can_delete_object(self.user, self.obj))
         if test_filtering:
-            self.assertEqual(len(perms.readable_by_user_filter(self.user, self.queryset)), 0)
+            self.assertEqual(
+                len(perms.readable_by_user_filter(self.user, self.queryset)), 0
+            )
 
     def test_allow_or_allow(self):
         self.assertAllowAll(AllowAll() | AllowAll())
@@ -122,7 +153,6 @@ class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
 
 
 class KolibriAuthPermissionsTestCase(TestCase):
-
     def test_bad_request_method(self):
         request = Mock(method="BADWOLF")
         view = Mock()

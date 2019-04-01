@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid class="attempt-summary">
+  <KGrid :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
       <div class="summary-item">
         <div class="icon">
@@ -28,7 +28,7 @@
       </div>
 
       <div
-        :class="{'in-progress': !isCompleted}"
+        :style="{ color: !isCompleted ? $coreGrey : '' }"
         class="summary-item"
       >
         <div class="icon">
@@ -54,8 +54,8 @@
           <strong>{{ statusText }}</strong>
         </div>
         <div
-          class="update-time"
           v-if="isCompleted || isCompleted !== null"
+          class="update-time"
         >
           <ElapsedTime :date="updateTime" />
         </div>
@@ -68,6 +68,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
@@ -90,6 +91,7 @@
       KGrid,
       KGridItem,
     },
+    mixins: [themeMixin],
     props: {
       userName: {
         type: String,
@@ -180,12 +182,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
-  .attempt-summary {
-    background-color: $core-bg-light;
-  }
-
   .user-name {
     font-size: 24px;
     font-weight: bold;
@@ -197,10 +193,6 @@
 
   .svg-icon {
     font-size: 1.3em;
-  }
-
-  .in-progress {
-    color: $core-grey;
   }
 
   .svg-item {

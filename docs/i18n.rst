@@ -1,0 +1,289 @@
+
+.. _i18n:
+
+Internationalization
+====================
+
+As a platform intended for use around the world, Kolibri has a strong mandate for translation and internationalization. As such, it has been designed with technologies to enable this built in.
+
+
+Writing localized strings
+-------------------------
+
+For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
+
+For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`__, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`__. Strings are collected during the build process, and bundled into exported JSON files.
+
+Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the frontend are based off the current Django language for the HTTP request.
+
+
+.vue files
+~~~~~~~~~~
+
+Within Kolibri .vue components, messages are defined in the ``<script>`` section as attributes of the component definition:
+
+.. code-block:: javascript
+
+  export default {
+    name: 'componentName',
+    $trs: {
+      msgId1: 'Message text 1',
+      msgId2: 'Message text 2',
+    },
+  };
+
+
+The component names and message IDs should all be camelCase.
+
+User visible strings can be used anywhere in the .vue file using ``$tr('msgId')`` (in the template) or ``this.$tr('msgId')`` (in the script).
+
+
+An example Vue component would then look like this
+
+.. code-block:: html
+
+  <template>
+    <div>
+      <!-- puts 'Hello world' in paragraph -->
+      <p>{{ $tr('helloWorld') }}</p>
+    </div>
+  </template>
+
+
+  <script>
+
+    export default {
+      name: 'someComponent',
+      mounted() {
+        // prints 'Hello world' to console
+        console.log((this.$trs('helloWorld'));
+      },
+      $trs: {
+        helloWorld: 'Hello world',
+      },
+    };
+
+  </script>
+
+
+.js files
+~~~~~~~~~
+
+In order to translate strings in Javascript source files, the namespace and messages are defined like this:
+
+.. code-block:: javascript
+
+  import { createTranslator } from 'kolibri.utils.i18n';
+  const name = 'someModule';
+  const messages = {
+    helloWorld: 'Hello world',
+  };
+  const translator = createTranslator(name, messages);
+
+Then messages are available from the ``$tr`` method on the translator object:
+
+.. code-block:: javascript
+
+  console.log(translator.$tr('helloWorld'));
+
+ICU message syntax
+~~~~~~~~~~~~~~~~~~
+
+All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`__. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`__.
+
+This syntax can be used to do things like inject variables, pluralize words, and localize numbers.
+
+Dynamic values are passed into translation strings as named arguments in an object. For example:
+
+.. code-block:: javascript
+
+  export default {
+    name: 'anothetComponent',
+    mounted() {
+      // outputs 'Henry read 2 stories'
+      console.log(this.$tr('msg', {name: 'Henry', count: 2}));
+    },
+    $trs: {
+      msg: '{name} read {count} {count, plural, one {story} other {stories}}',
+    },
+  };
+
+
+
+.. _crowdin:
+
+Crowdin workflow
+----------------
+
+We use the Crowdin platform to enable third parties to translate the strings in our application.
+
+Note that you have to specify branch names for most commands.
+
+.. note:: These notes are only for the Kolibri application. For translation of user documentation, please see the `kolibri-docs repository <https://github.com/learningequality/kolibri-docs/>`__.
+
+
+Prerequisites
+~~~~~~~~~~~~~
+
+First, you'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
+
+.. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
+
+Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
+
+
+.. _i18n-perseus:
+
+Updating the Perseus plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `perseus exercise plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__ has its own translated files that also need to be updated.
+
+To do this, you'll need to install the Perseus Plugin in development mode (using ``pip install -e``). This will allow the scripts to properly upload sources and download translations from and to the Perseus plugin, which may then need to be released.
+
+See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ for more information on setup and publication.
+
+
+Extracting and uploading
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases.
+
+Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`__.
+
+.. note:: You must have the Perseus plugin installed for development as described above, or not all strings will be extracted.
+
+This command will extract front- and backend strings and upload them to Crowdin:
+
+.. code-block:: bash
+
+  make i18n-upload branch=[release-branch-name]
+
+The branch name will typically look something like: ``release-v0.8.x``
+
+After uploading, this will also apply 'pre-translation' (which can take some time). This copies over translations for strings that have the same text but different IDs.
+
+
+Displaying stats
+~~~~~~~~~~~~~~~~
+
+Every release, we need to let translators for each language know how much work they will have to do. In order to see how many new strings and words are in a particular release, run:
+
+.. code-block:: bash
+
+  make i18n-stats branch=[release-branch-name]
+
+This will give you some output like this:
+
+.. code-block:: text
+
+    Branch: develop-alpha
+
+    New since last release:
+    -------------  ---
+    Total strings   67
+    Total words    402
+    -------------  ---
+
+    Untranslated:
+    Language                        Strings    Words
+    ----------------------------  ---------  -------
+    ** average, all languages **         49      370
+    Arabic                               48      366
+    Bengali                              47      370
+    ...
+    Yoruba                               50      375
+    Zulu                                 49      367
+
+
+This information can be provided to translators; it's also available on the Crowdin website.
+
+
+Updating i18n files
+~~~~~~~~~~~~~~~~~~~
+
+Before fetching and building the internationalization files, you need to download source fonts from Google. In order to do this, run:
+
+.. code-block:: bash
+
+    make i18n-download-source-fonts
+
+Next, we download the latest translations from Crowdin and rebuild a number of dependent files which will be checked in to git. Do this using the command below. **It can take a long time!**
+
+.. code-block:: bash
+
+    make i18n-update branch=[release-branch-name]
+
+This will do a number of things for you:
+
+* Rebuild the crowdin project (note that builds can only happen once every 30 minutes, as per the Crowdin API)
+* Download and update all translations for the currently supported languages
+* Run Django's ``compilemessages`` command
+* Regenerate all font and css files
+* Regenerate Intl JS files
+
+Check in all the updated files to git and submit them in a PR to the release branch.
+
+.. note:: This may also require submitting a separate PR for the Perseus plugin, releasing a new version of it, and referencing the new version in Kolibri's base.txt Pip requirements file.
+
+
+.. _new_language:
+
+Adding a newly supported language
+---------------------------------
+
+In order to add a new supported language to Kolibri, the appropriate language information object must be added to the array in ``kolibri/locale/supported_languages.json``.
+
+.. warning::
+
+  Always test a newly added language thoroughly because there are many things that can go wrong. At a minumum, ensure that you can run the development server, switch to the language, and navigate around the app (including Perseus exercises). Additionally, ensure that the fonts are `rendered with Noto <https://developers.google.com/web/updates/2013/09/DevTools-answers-What-font-is-that>`__.
+
+The language must be described using the following keys, with everything in lower case
+
+.. code-block:: javascript
+
+  {
+    "crowdin_code":   "[Code used to refer to the language on Crowdin]",
+    "intl_code":      "[Lowercase code from Intl.js]",
+    "language_name":  "[Language name in the target language]",
+    "english_name":   "[Language name in English]",
+    "default_font":   "[Name of the primary Noto font]"
+  }
+
+
+* For ``crowdin_code``, see `Crowdin language codes <https://support.crowdin.com/api/language-codes/>`__.
+* For ``intl_code``, see `Supported Intl language codes <https://github.com/andyearnshaw/Intl.js/tree/master/locale-data/jsonp>`__ and make it lowercase.
+* For ``language_name`` and ``english_name``, refer to the `ISO 639 codes <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`__. If necessary, use `this backup reference <http://helpsharepointvision.nevron.com/Culture_Table.html>`__. If the language is a dialect specific to a region, include the name of the region in parentheses after the language name.
+* For the ``default_font``, we use variants of Noto Sans. Search the `Noto database <https://www.google.com/get/noto/>`__ to see which font supports the language you are adding.
+
+If the language doesn't exist in Django, you may get errors when trying to view the language. In this case it needs to be added to ``EXTRA_LANG_INFO`` in ``base.py``. Additionally, for this language to work during development, the django.mo files for the language must be generated and committed to the repo. After running ``make i18n-update`` as described above, add the new file:
+
+.. code-block:: bash
+
+  git add --force kolibri/locale/[lang_code]/LC_MESSAGES/django.mo
+
+The ``--force`` flag will bypass .gitignore
+
+
+Updating font files
+~~~~~~~~~~~~~~~~~~~
+
+We pin our font source files to a particular commit in the `Google Noto Fonts <https://github.com/googlei18n/noto-fonts/>`__ github repo.
+
+Google occasionally adds new font files and updates existing ones based on feedback from the community. They're also in the process of converting older-style fonts to their "Phase III" fonts, which are better for us because they can be merged together.
+
+In order to update the version of the repo that we're using to the latest HEAD, run:
+
+.. code-block:: bash
+
+  python build_tools/i18n/fonts.py update-font-manifest
+
+You can also specify a particular git hash or tag:
+
+.. code-block:: bash
+
+  python build_tools/i18n/fonts.py update-font-manifest [commit hash]
+
+Make sure to test re-generating font files after updating the sources.
+
+.. note:: We attempt to download fonts from the repo. It is possible that the structure of this repo will change over time, and the download script might need to be updated after changing which version of the repo we're pinned to.

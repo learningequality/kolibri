@@ -15,7 +15,6 @@ class DummyRequestObject(object):
 
 
 class AuthMiddlewareTestCase(TestCase):
-
     def test_custom_anonymous_user(self):
         request = DummyRequestObject()
         mw = CustomAuthenticationMiddleware()

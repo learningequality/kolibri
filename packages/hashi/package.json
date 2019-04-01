@@ -1,0 +1,31 @@
+{
+  "name": "hashi",
+  "version": "0.1.0",
+  "description": "A library for integrating HTML5 apps and games with Kolibri.",
+  "main": "src/mainClient.js",
+  "scripts": {
+    "build-base": "webpack --config ./webpack.config.js",
+    "build": "yarn run build-base --mode=production",
+    "dev": "yarn run build-base --mode=development --watch",
+    "compat": "eslint -c ./compat.js ./src/*.js"
+  },
+  "author": "Learning Equality",
+  "license": "MIT",
+  "devDependencies": {
+    "buble": "^0.19.6",
+    "buble-loader": "^0.5.1",
+    "eslint-plugin-compat": "^3.0.0",
+    "express": "^4.16.4",
+    "http-server": "^0.11.1",
+    "jest-environment-hashi-integration": "0.0.1",
+    "jest-environment-jsdom-script": "0.0.1",
+    "webpack": "4.6.0",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "array-includes": "^3.0.3",
+    "object.assign": "^4.1.0",
+    "object.entries": "^1.1.0",
+    "object.values": "^1.1.0"
+  }
+}

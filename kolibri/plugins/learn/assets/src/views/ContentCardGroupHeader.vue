@@ -4,7 +4,7 @@
 
     <div class="card-group-details">
 
-      <h2 v-if="header" class="card-group-details-header">
+      <h2 v-if="header" class="card-group-details-header" :style="{ color: $coreTextDefault }">
         {{ header }}
       </h2>
 
@@ -21,6 +21,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   export default {
@@ -29,6 +30,7 @@
     $trs: {
       viewMoreFromSectionButton: 'View more',
     },
+    mixins: [themeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },
@@ -41,8 +43,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $header-size: 21px;
 
   .card-group-details {
@@ -50,25 +50,24 @@
     margin-top: $header-size;
     margin-bottom: $header-size / 2;
     vertical-align: bottom;
+  }
 
-    &-header,
-    &-view-more {
-      display: inline-block;
-      width: 50%;
-    }
+  .card-group-details-header,
+  .card-group-details-view-more {
+    display: inline-block;
+    width: 50%;
+  }
 
-    &-header {
-      margin: 0;
-      clear: none;
-      font-size: $header-size;
-      color: $core-text-default;
-      text-align: left;
-    }
+  .card-group-details-header {
+    margin: 0;
+    clear: none;
+    font-size: $header-size;
+    text-align: left;
+  }
 
-    &-view-more {
-      text-align: right;
-      text-decoration: underline;
-    }
+  .card-group-details-view-more {
+    text-align: right;
+    text-decoration: underline;
   }
 
 </style>

@@ -3,8 +3,9 @@
   <div>
     <transition mode="out-in">
       <p
-        class="no-channels"
         v-if="noChannelsToShow"
+        class="no-channels"
+        :style="{ color: $coreTextError }"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -16,7 +17,7 @@
       />
 
       <div v-else>
-        <div class="channel-list-header">
+        <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
           {{ $tr('channelHeader') }}
         </div>
 
@@ -47,7 +48,7 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import DeleteChannelModal from './DeleteChannelModal';
   import ChannelListItem from './ChannelListItem';
@@ -58,11 +59,13 @@
       ChannelListItem,
       KLinearLoader,
       DeleteChannelModal,
-      KButton,
     },
-    data: () => ({
-      selectedChannelId: null,
-    }),
+    mixins: [themeMixin],
+    data() {
+      return {
+        selectedChannelId: null,
+      };
+    },
     computed: {
       ...mapState('manageContent', ['channelListLoading']),
       ...mapGetters('manageContent', ['installedChannelsWithResources']),
@@ -107,16 +110,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .channel-list-header {
     padding: 16px 0;
     font-size: 12px;
-    color: $core-text-annotation;
-  }
-
-  .no-channels {
-    color: $core-text-error;
   }
 
 </style>

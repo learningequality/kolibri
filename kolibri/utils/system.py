@@ -22,11 +22,13 @@ import sys
 import six
 
 from .conf import KOLIBRI_HOME
+from kolibri.utils.android import on_android
 
 
 def _posix_pid_exists(pid):
     """Check whether PID exists in the current process table."""
     import errno
+
     if pid < 0:
         return False
     try:
@@ -41,6 +43,7 @@ def _posix_pid_exists(pid):
 def _posix_kill_pid(pid):
     """Kill a PID by sending a posix signal"""
     import signal
+
     try:
         os.kill(pid, signal.SIGTERM)
     # process does not exist
@@ -53,6 +56,7 @@ def _posix_kill_pid(pid):
 
 def _windows_pid_exists(pid):
     import ctypes
+
     kernel32 = ctypes.windll.kernel32
     SYNCHRONIZE = 0x100000
 
@@ -67,22 +71,26 @@ def _windows_pid_exists(pid):
 def _windows_kill_pid(pid):
     """Kill the proces using pywin32 and pid"""
     import ctypes
+
     PROCESS_TERMINATE = 1
-    handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)  # @UndefinedVariable
+    handle = ctypes.windll.kernel32.OpenProcess(
+        PROCESS_TERMINATE, False, pid
+    )  # @UndefinedVariable
     ctypes.windll.kernel32.TerminateProcess(handle, -1)  # @UndefinedVariable
     ctypes.windll.kernel32.CloseHandle(handle)  # @UndefinedVariable
 
 
-buffering = int(six.PY3)        # No unbuffered text I/O on Python 3 (#20815).
+buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).
 
 
-def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
-                         err_log='/dev/null', umask=0o022):
+def _posix_become_daemon(
+    our_home_dir=".", out_log="/dev/null", err_log="/dev/null", umask=0o022
+):
     "Robustly turn into a UNIX daemon, running in our_home_dir."
     # First fork
     try:
         if os.fork() > 0:
-            sys.exit(0)     # kill off parent
+            sys.exit(0)  # kill off parent
     except OSError as e:
         sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
         sys.exit(1)
@@ -97,18 +105,19 @@ def _posix_become_daemon(our_home_dir='.', out_log='/dev/null',
     except OSError as e:
         sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
         os._exit(1)
+    if sys.platform != "darwin":  # This block breaks on OS X
+        # Fix courtesy of https://github.com/serverdensity/python-daemon/blob/master/daemon.py#L94
+        si = open("/dev/null", "r")
+        so = open(out_log, "a+", buffering)
+        se = open(err_log, "a+", buffering)
+        os.dup2(si.fileno(), sys.stdin.fileno())
+        os.dup2(so.fileno(), sys.stdout.fileno())
+        os.dup2(se.fileno(), sys.stderr.fileno())
+        # Set custom file descriptors so that they get proper buffering.
+        sys.stdout, sys.stderr = so, se
 
-    si = open('/dev/null', 'r')
-    so = open(out_log, 'a+', buffering)
-    se = open(err_log, 'a+', buffering)
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-    # Set custom file descriptors so that they get proper buffering.
-    sys.stdout, sys.stderr = so, se
 
-
-def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0o022):
+def _windows_become_daemon(our_home_dir=".", out_log=None, err_log=None, umask=0o022):
     """
     If we're not running under a POSIX system, just simulate the daemon
     mode by doing redirections and directory changing.
@@ -120,11 +129,11 @@ def _windows_become_daemon(our_home_dir='.', out_log=None, err_log=None, umask=0
     old_stdout = sys.stdout
 
     if err_log:
-        sys.stderr = open(err_log, 'a', buffering)
+        sys.stderr = open(err_log, "a", buffering)
     else:
         sys.stderr = _WindowsNullDevice()
     if out_log:
-        sys.stdout = open(out_log, 'a', buffering)
+        sys.stdout = open(out_log, "a", buffering)
     else:
         sys.stdout = _WindowsNullDevice()
 
@@ -144,23 +153,44 @@ class _WindowsNullDevice:
 
 
 def get_free_space(path=KOLIBRI_HOME):
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
         import ctypes
 
         free = ctypes.c_ulonglong(0)
-        check = ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(path), None, None, ctypes.pointer(free))
+        check = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+            ctypes.c_wchar_p(path), None, None, ctypes.pointer(free)
+        )
         if check == 0:
             raise ctypes.winError()
         result = free.value
+    elif on_android():
+        # This is meant for android, which needs to interact with android API to understand free
+        # space. If we're somehow getting here on non-android, we've got a problem.
+        try:
+            from jnius import autoclass
+
+            StatFs = autoclass("android.os.StatFs")
+
+            st = StatFs(KOLIBRI_HOME)
+
+            try:
+                # for api version 18+
+                result = st.getFreeBlocksLong() * st.getBlockSizeLong()
+            except Exception:
+                # for api versions < 18
+                result = st.getFreeBlocks() * st.getBlockSize()
+
+        except Exception as e:
+            raise e
     else:
-        st = os.statvfs(path)
+        st = os.statvfs(os.path.realpath(path))
         result = st.f_bavail * st.f_frsize
 
     return result
 
 
 # Utility functions for pinging or killing PIDs
-if os.name == 'posix':
+if os.name == "posix":
     pid_exists = _posix_pid_exists
     kill_pid = _posix_kill_pid
     become_daemon = _posix_become_daemon

@@ -18,7 +18,7 @@ def check_other_kolibri_running(port):
     try:
         # Check if there are other kolibri instances running
         # If there are, then we need to stop users from starting kolibri again.
-        pid, listen_address, listen_port = get_status()
+        get_status()
         logger.error(
             "There is another Kolibri server running. "
             "Please use `kolibri stop` and try again."
@@ -45,7 +45,7 @@ def check_port_availability(host, port):
 
 
 def check_content_directory_exists_and_writable():
-    content_directory = OPTIONS['Paths']['CONTENT_DIR']
+    content_directory = OPTIONS["Paths"]["CONTENT_DIR"]
 
     # Check if the content directory exists
     if not os.path.exists(content_directory):

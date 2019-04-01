@@ -43,7 +43,7 @@ const routes = [
     path: '/permissions/:userid',
     handler: ({ params, name }) => {
       store.dispatch('preparePage', { name });
-      showUserPermissionsPage(store, params.userid).then(hideLoadingScreen);
+      showUserPermissionsPage(store, params.userid);
     },
   },
   {
@@ -52,6 +52,14 @@ const routes = [
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
       showDeviceInfoPage(store).then(hideLoadingScreen);
+    },
+  },
+  {
+    name: PageNames.DEVICE_SETTINGS_PAGE,
+    path: '/settings',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name });
+      hideLoadingScreen();
     },
   },
   ...wizardTransitionRoutes,

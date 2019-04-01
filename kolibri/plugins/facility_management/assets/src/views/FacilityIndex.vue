@@ -6,15 +6,16 @@
     immersivePageIcon="arrow_back"
     :immersivePageRoute="appBarBackLink"
     :immersivePagePrimary="true"
-    :authorized="isAdmin || isSuperuser"
+    :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
+    :showSubNav="userIsAuthorized && !isEnrollmentPage"
   >
+    <FacilityTopNav slot="sub-nav" />
 
-    <div class="facility-management">
+    <KPageContainer>
       <!-- QUESTION should we explicitly define this in every page? -->
-      <TopNav v-if="!isEnrollmentPage" />
       <component :is="currentPage" />
-    </div>
+    </KPageContainer>
 
   </CoreBase>
 
@@ -24,8 +25,8 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { TopLevelPageNames } from 'kolibri.coreVue.vuex.constants';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -33,7 +34,7 @@
   import DataPage from './DataPage';
   import FacilitiesConfigPage from './FacilityConfigPage';
   import ManageClassPage from './ManageClassPage';
-  import TopNav from './TopNav';
+  import FacilityTopNav from './FacilityTopNav';
   import UserPage from './UserPage';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
@@ -58,7 +59,8 @@
     name: 'FacilityIndex',
     components: {
       CoreBase,
-      TopNav,
+      FacilityTopNav,
+      KPageContainer,
     },
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
@@ -66,9 +68,11 @@
       isEnrollmentPage() {
         return classEnrollmentPages.includes(this.pageName);
       },
-      topLevelPageName: () => TopLevelPageNames.MANAGE,
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
+      },
+      userIsAuthorized() {
+        return this.isAdmin || this.isSuperuser;
       },
       appBarTitle() {
         if (this.isEnrollmentPage) {

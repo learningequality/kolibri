@@ -23,12 +23,12 @@ class DeviceProvisionTestCase(TestCase):
     """
 
     def test_create_facility(self):
-        create_facility(facility_name='test')
-        self.assertTrue(Facility.objects.filter(name='test').exists())
+        create_facility(facility_name="test")
+        self.assertTrue(Facility.objects.filter(name="test").exists())
 
     def test_create_facility_set_preset(self):
         preset = list(presets.keys())[0]
-        facility = create_facility(facility_name='test', preset=preset)
+        facility = create_facility(facility_name="test", preset=preset)
         dataset_data = mappings[preset]
         for key, value in dataset_data.items():
             self.assertEqual(getattr(facility.dataset, key), value)
@@ -42,22 +42,22 @@ class DeviceProvisionTestCase(TestCase):
     def test_create_super_user(self):
         Facility.objects.create(name="Test")
         provision_device()
-        create_superuser(username='test', password='test')
-        self.assertTrue(FacilityUser.objects.get(username='test').is_superuser)
+        create_superuser(username="test", password="test")
+        self.assertTrue(FacilityUser.objects.get(username="test").is_superuser)
 
     def test_create_device_settings_provisioned(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id='en', facility=facility)
+        create_device_settings(language_id="en", facility=facility)
         self.assertTrue(DeviceSettings.objects.get().is_provisioned)
 
     def test_create_device_settings_language(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id='en', facility=facility)
-        self.assertEqual(DeviceSettings.objects.get().language_id, 'en')
+        create_device_settings(language_id="en", facility=facility)
+        self.assertEqual(DeviceSettings.objects.get().language_id, "en")
 
     def test_create_device_settings_default_facility(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id='en', facility=facility)
+        create_device_settings(language_id="en", facility=facility)
         self.assertEqual(DeviceSettings.objects.get().default_facility, facility)
 
 
@@ -69,16 +69,16 @@ class DeviceProvisionCommandTestCase(TestCase):
     def setUp(self):
         self.preset = list(presets.keys())[0]
         call_command(
-            'provisiondevice',
-            facility='test',
-            superusername='testuser',
-            superuserpassword='test',
+            "provisiondevice",
+            facility="test",
+            superusername="testuser",
+            superuserpassword="test",
             preset=self.preset,
-            language_id='en',
+            language_id="en",
         )
 
     def test_create_facility(self):
-        self.assertTrue(Facility.objects.filter(name='test').exists())
+        self.assertTrue(Facility.objects.filter(name="test").exists())
 
     def test_create_facility_set_preset(self):
         default_facility = Facility.get_default_facility()
@@ -87,14 +87,16 @@ class DeviceProvisionCommandTestCase(TestCase):
             self.assertEqual(getattr(default_facility.dataset, key), value)
 
     def test_create_super_user(self):
-        self.assertTrue(FacilityUser.objects.get(username='testuser').is_superuser)
+        self.assertTrue(FacilityUser.objects.get(username="testuser").is_superuser)
 
     def test_create_device_settings_provisioned(self):
         self.assertTrue(DeviceSettings.objects.get().is_provisioned)
 
     def test_create_device_settings_language(self):
-        self.assertEqual(DeviceSettings.objects.get().language_id, 'en')
+        self.assertEqual(DeviceSettings.objects.get().language_id, "en")
 
     def test_create_device_settings_default_facility(self):
         default_facility = Facility.get_default_facility()
-        self.assertEqual(DeviceSettings.objects.get().default_facility, default_facility)
+        self.assertEqual(
+            DeviceSettings.objects.get().default_facility, default_facility
+        )

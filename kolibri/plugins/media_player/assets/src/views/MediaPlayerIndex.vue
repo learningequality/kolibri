@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="wrapper" class="wrapper">
+  <div ref="wrapper" :class="['wrapper', $computedClass(progressStyle)]">
     <div v-show="loading" class="fill-space">
       <KCircularLoader
         class="loader"
@@ -9,8 +9,8 @@
     </div>
     <CoreFullscreen
       v-show="!loading"
-      class="fill-space"
       ref="container"
+      class="fill-space"
     >
       <video
         v-if="isVideo"
@@ -19,19 +19,19 @@
       >
         <template v-for="video in videoSources">
           <source
+            :key="video.storage_url"
             :src="video.storage_url"
             :type="`video/${video.extension}`"
-            :key="video.storage_url"
           >
         </template>
         <template v-for="track in trackSources">
           <track
+            :key="track.storage_url"
             kind="captions"
             :src="track.storage_url"
             :srclang="track.lang.id"
             :label="track.lang.lang_name"
             :default="isDefaultTrack(track.lang.id)"
-            :key="track.storage_url"
           >
         </template>
       </video>
@@ -39,9 +39,9 @@
       <audio v-else ref="player" class="video-js custom-skin">
         <template v-for="audio in audioSources">
           <source
+            :key="audio.storage_url"
             :src="audio.storage_url"
             :type="`audio/${audio.extension}`"
-            :key="audio.storage_url"
           >
         </template>
       </audio>
@@ -57,6 +57,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -100,7 +101,7 @@
     },
     components: { KCircularLoader, CoreFullscreen },
 
-    mixins: [ResponsiveElement, contentRendererMixin],
+    mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
 
     data: () => ({
       dummyTime: 0,
@@ -149,6 +150,16 @@
           return this.extraFields.contentState.savedLocation;
         }
         return 0;
+      },
+      progressStyle() {
+        return {
+          '.vjs-play-progress': {
+            backgroundColor: this.$coreActionNormal,
+            '::before': {
+              color: this.$coreActionNormal,
+            },
+          },
+        };
       },
     },
     created() {
@@ -439,6 +450,7 @@
   @import './videojs-style/video-js.min.css';
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
+  @import '~kolibri.styles.definitions';
 
   .wrapper {
     width: 854px;
@@ -462,8 +474,6 @@
 
   /***** PLAYER OVERRIDES *****/
 
-  @import '~kolibri.styles.definitions';
-
   /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/
@@ -472,7 +482,6 @@
   $video-player-color-2: tint($video-player-color, 7%);
   $video-player-color-3: tint($video-player-color, 15%);
   $video-player-font-color: white;
-  $video-player-accent-color: $core-action-normal;
 
   $video-player-font-size: 12px;
 
@@ -488,7 +497,7 @@
     $button-height-normal: 40px;
     $button-font-size-normal: 24px;
 
-    @include font-family-ui;
+    @include font-family-noto;
 
     font-size: $video-player-font-size;
     color: $video-player-font-color;
@@ -516,12 +525,9 @@
         }
 
         .vjs-play-progress {
-          background-color: $video-player-accent-color;
-
           &::before {
             top: -5px;
             font-size: 18px;
-            color: $video-player-accent-color;
           }
         }
       }
@@ -564,6 +570,7 @@
     /* Replay & Forward Buttons */
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
+      font-family: VideoJS; // override our global noto fonts with more specificity
       &::before {
         font-size: $button-font-size-normal;
         line-height: $button-height-normal;
@@ -615,7 +622,7 @@
     }
 
     .vjs-menu-content {
-      @include font-family-ui;
+      @include font-family-noto;
     }
 
     .vjs-volume-control {

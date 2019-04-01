@@ -16,9 +16,12 @@
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
     <iframe
+      ref="iframe"
       class="iframe"
+      :style="{ backgroundColor: $coreBgCanvas }"
       sandbox="allow-scripts"
       frameBorder="0"
+      :name="name"
       :src="rooturl"
     >
     </iframe>
@@ -29,9 +32,13 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import { now } from 'kolibri.utils.serverClock';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import Hashi from 'hashi';
+  import { nameSpace } from 'hashi/src/hashiBase';
 
   export default {
     name: 'Html5AppRendererIndex',
@@ -39,7 +46,7 @@
       UiIconButton,
       CoreFullscreen,
     },
-    mixins: [contentRendererMixin],
+    mixins: [contentRendererMixin, themeMixin],
     props: {
       defaultFile: {
         type: Object,
@@ -52,22 +59,40 @@
       };
     },
     computed: {
+      name() {
+        return nameSpace;
+      },
       rooturl() {
         return this.defaultFile.storage_url;
       },
     },
     mounted() {
+      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
+      this.hashi.onStateUpdate(data => {
+        this.$emit('updateContentState', data);
+      });
+      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
       this.$emit('startTracking');
-      const self = this;
-      this.timeout = setTimeout(() => {
-        self.$emit('updateProgress', 1);
-      }, 15000);
+      this.startTime = now();
+      this.pollProgress();
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
+    },
+    methods: {
+      recordProgress() {
+        const totalTime = now() - this.startTime;
+        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        this.pollProgress();
+      },
+      pollProgress() {
+        this.timeout = setTimeout(() => {
+          this.recordProgress();
+        }, 15000);
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
@@ -79,8 +104,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .btn {
     position: absolute;
@@ -100,7 +123,6 @@
   .iframe {
     width: 100%;
     height: 100%;
-    background-color: $core-bg-canvas;
   }
 
 </style>

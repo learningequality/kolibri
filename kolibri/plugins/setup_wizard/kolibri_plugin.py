@@ -11,6 +11,7 @@ from kolibri.plugins.base import KolibriPluginBase
 class SetupWizardPlugin(KolibriPluginBase):
     def url_module(self):
         from . import urls
+
         return urls
 
     def url_slug(self):
@@ -29,4 +30,4 @@ class SetupWizardInclusionHook(hooks.SetupWizardSyncHook):
 class SetupWizardHook(SetupHook):
     @property
     def url(self):
-        return self.plugin_url(SetupWizardPlugin, 'setupwizard')
+        return self.plugin_url(SetupWizardPlugin, "setupwizard")

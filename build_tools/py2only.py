@@ -2,9 +2,11 @@ import os
 import shutil
 import sys
 
-dest = 'py2only'
-futures_dirname = 'concurrent'
-DIST_DIR = os.path.realpath('kolibri/dist')
+dest = "py2only"
+futures_dirname = "concurrent"
+DIST_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(os.path.dirname(__file__))), "kolibri", "dist"
+)
 
 
 def hide_py2_modules():
@@ -21,7 +23,7 @@ def hide_py2_modules():
         from future.standard_library import TOP_LEVEL_MODULES
 
         for module in TOP_LEVEL_MODULES:
-            if module == 'test':
+            if module == "test":
                 continue
 
             # Move the directory of submodules of 'future' inside 'py2only'
@@ -34,9 +36,9 @@ def _move_modules_to_py2only(module_name):
     shutil.move(module_src_path, module_dst_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Temporarily add `kolibri/dist` to PYTHONPATH to import future
-    sys.path = sys.path + [os.path.realpath(os.path.join(DIST_DIR))]
+    sys.path.append(DIST_DIR)
 
     try:
         os.makedirs(os.path.join(DIST_DIR, dest))

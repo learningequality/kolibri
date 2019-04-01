@@ -100,7 +100,11 @@ export function makeSelectContentPageStore() {
   Object.assign(store.state.manageContent.wizard, {
     availableChannels: [...allChannels],
     transferType: 'localimport',
-    transferredChannel: { ...allChannels[0] },
+    transferredChannel: {
+      ...allChannels[0],
+      on_device_resources: 2000,
+      on_device_file_size: 95189556, // about 95 MB
+    },
     currentTopicNode: contentNodeGranularPayload(),
   });
   return store;
