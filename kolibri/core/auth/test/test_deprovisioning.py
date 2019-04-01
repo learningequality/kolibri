@@ -10,7 +10,6 @@ from django.test import TestCase
 from mock import patch
 
 from .. import models as auth_models
-from .. import utils
 from ..management.commands import deprovision
 from .helpers import setup_device
 from .test_api import ClassroomFactory
