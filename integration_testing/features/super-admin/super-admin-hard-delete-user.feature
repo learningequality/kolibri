@@ -3,15 +3,21 @@ Feature: Super Admin delete user
 
   Background:
     Given that there exists a user with username <username> I want to delete
-      And I have access to terminal for Kolibri
+      And I have access to Terminal on device
 
-  Scenario: Delete user with username <username>
+  Scenario: Delete user and all their data
     When I type `kolibri manage deleteuser <username>` into the terminal
-      And I hit *Enter*
-    Then I see "Are you sure you wish to permanently delete this user? This will DELETE ALL DATA FOR THIS USER." message
+      And I press *Enter* key
+    Then I see a confirmation message asking if I am sure I would like to delete the user data
     When I type "yes"
-      And I hit *Enter*
-    Then I see "ARE YOU SURE? If you do this, there is no way to recover the user data on this device." message
+      And I pres *Enter* key
+    Then I see a second confirmation message, reiterating that I cannot recover the user data.
     When I type "yes"
-      And I hit *Enter*
-    Then all user data associated with username <username> should be deleted
+      And I press *Enter* key
+    Then I get confirmation message of the user data associated with username <username> as being deleted
+
+Examples:
+| username |
+| coach    |
+| learner  |
+| admin    |

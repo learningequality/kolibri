@@ -30,6 +30,6 @@ class Command(BaseCommand):
         confirm_or_exit("Are you sure you wish to permanently delete this user? This will DELETE ALL DATA FOR THIS USER.")
         confirm_or_exit("ARE YOU SURE? If you do this, there is no way to recover the user data on this device.")
 
-        print("Proceeding with user deletion. Deleting all data for this user.")
+        print("Proceeding with user deletion. Deleting all data for user <{}>".format(options['username']))
         user.delete(hard_delete=True)
         print("Deletion complete. All data for this user has been deleted.")
