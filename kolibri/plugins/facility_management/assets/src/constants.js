@@ -21,17 +21,6 @@ export const Modals = {
   DELETE_USER: 'DELETE_USER',
 };
 
-export const defaultFacilityConfig = {
-  learnerCanEditUsername: true,
-  learnerCanEditName: true,
-  learnerCanEditPassword: true,
-  learnerCanSignUp: true,
-  learnerCanDeleteAccount: true,
-  learnerCanLoginWithNoPassword: false,
-  showDownloadButtonInLearn: false,
-  allowGuestAccess: true,
-};
-
 export const notificationTypes = {
   PAGELOAD_FAILURE: 'PAGELOAD_FAILURE',
   SAVE_FAILURE: 'SAVE_FAILURE',

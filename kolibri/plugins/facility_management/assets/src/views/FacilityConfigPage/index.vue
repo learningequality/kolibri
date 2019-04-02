@@ -66,7 +66,7 @@
 
 <script>
 
-  import { mapState, mapActions, mapMutations } from 'vuex';
+  import { mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -114,29 +114,24 @@
       this.copySettings();
     },
     methods: {
-      ...mapActions('facilityConfig', ['saveFacilityConfig', 'resetFacilityConfig']),
-      ...mapMutations('facilityConfig', {
-        configPageModifySetting: 'CONFIG_PAGE_MODIFY_SETTING',
-        configPageNotify: 'CONFIG_PAGE_NOTIFY',
-      }),
       camelCase,
       toggleSetting(settingName) {
-        this.configPageModifySetting({
+        this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,
           value: !this.settings[settingName],
         });
       },
       dismissNotification() {
-        this.configPageNotify(null);
+        this.$store.commit('facilityConfig/CONFIG_PAGE_NOTIFY', null);
       },
       resetToDefaultSettings() {
         this.showModal = false;
-        this.resetFacilityConfig().then(() => {
+        this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
           this.copySettings();
         });
       },
       saveConfig() {
-        this.saveFacilityConfig().then(() => {
+        this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
           this.copySettings();
         });
       },
