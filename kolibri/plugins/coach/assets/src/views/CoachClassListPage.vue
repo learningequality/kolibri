@@ -87,12 +87,16 @@
         if (this.isFacilityCoach) {
           return this.$tr('noClassesDetailsForFacilityCoach');
         }
+
+        return '';
       },
       createClassUrl() {
         const facilityUrl = urls['kolibri:facilitymanagementplugin:facility_management'];
         if (facilityUrl) {
           return facilityUrl();
         }
+
+        return '';
       },
     },
     $trs: {

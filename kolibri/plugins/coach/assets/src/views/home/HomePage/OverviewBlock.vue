@@ -15,7 +15,9 @@
           <KIcon slot="icon" coach />
           {{ $tr('coach', {count: coachNames.length}) }}
         </KLabeledIcon>
-        <template slot="value"><TruncatedItemList :items="coachNames" /></template>
+        <template slot="value">
+          <TruncatedItemList :items="coachNames" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <KLabeledIcon slot="key">

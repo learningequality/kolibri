@@ -21,7 +21,9 @@
               name="remove"
               category="content"
             />
-            <div class="truncate">{{ $tr('decrease') }}</div>
+            <div class="truncate">
+              {{ $tr('decrease') }}
+            </div>
           </KButton>
         </KGridItem>
         <KGridItem
@@ -38,7 +40,9 @@
               name="add"
               category="content"
             />
-            <div class="truncate">{{ $tr('increase') }}</div>
+            <div class="truncate">
+              {{ $tr('increase') }}
+            </div>
           </KButton>
         </KGridItem>
       </KGrid>

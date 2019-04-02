@@ -27,15 +27,21 @@
 
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('statusLabel') }}
+        </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('recipientsLabel') }}
+        </template>
         <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('avgScoreLabel') }}
+        </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH

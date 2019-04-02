@@ -2,7 +2,9 @@
 
   <div>
 
-    <h1 class="visuallyhidden">{{ $tr('recommended') }}</h1>
+    <h1 class="visuallyhidden">
+      {{ $tr('recommended') }}
+    </h1>
 
     <template v-if="popular.length">
       <ContentCardGroupHeader

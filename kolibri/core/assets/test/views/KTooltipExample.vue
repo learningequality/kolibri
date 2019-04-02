@@ -1,7 +1,9 @@
 <template>
 
   <div>
-    <button ref="tooltipTriggerElement">Click me</button>
+    <button ref="tooltipTriggerElement">
+      Click me
+    </button>
     <KTooltip
       :reference="kTooltipProps.reference"
       :refs="kTooltipProps.refs"

@@ -21,8 +21,12 @@
           @click="downloadSessionLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSessionCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="sessionDateCreated" />
@@ -48,8 +52,12 @@
           @click="downloadSummaryLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSummaryCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSummaryCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="summaryDateCreated" />

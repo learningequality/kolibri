@@ -35,7 +35,9 @@
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
-              <template v-else>{{ tableRow.name }}</template>
+              <template v-else>
+                {{ tableRow.name }}
+              </template>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

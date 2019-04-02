@@ -185,6 +185,8 @@
         if (Object.values(ContentWizardErrors).includes(this.status)) {
           return this.status;
         }
+
+        return undefined;
       },
       channelOnDevice() {
         return this.channelIsInstalled(this.transferredChannel.id) || {};

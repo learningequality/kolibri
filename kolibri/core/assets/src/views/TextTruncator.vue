@@ -1,9 +1,13 @@
 <template>
 
   <div>
-    <div v-if="viewAllText">{{ text }}</div>
+    <div v-if="viewAllText">
+      {{ text }}
+    </div>
     <template v-else>
-      <div ref="shaveEl">{{ text }}</div>
+      <div ref="shaveEl">
+        {{ text }}
+      </div>
       <KTooltip
         reference="shaveEl"
         :refs="$refs"

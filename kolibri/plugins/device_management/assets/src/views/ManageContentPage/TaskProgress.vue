@@ -135,6 +135,8 @@
         if (this.taskIsPreparing) {
           return this.$tr('preparingTask');
         }
+
+        return '';
       },
       taskHasFailed() {
         return this.status === TaskStatuses.FAILED;

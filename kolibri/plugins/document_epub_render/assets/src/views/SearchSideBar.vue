@@ -42,7 +42,9 @@
         v-else-if="searchIsLoading"
         key="loading-true"
       >
-        <p :style="paragraphStyle">{{ $tr('loadingResults') }}</p>
+        <p :style="paragraphStyle">
+          {{ $tr('loadingResults') }}
+        </p>
         <KCircularLoader :delay="false" />
       </div>
 

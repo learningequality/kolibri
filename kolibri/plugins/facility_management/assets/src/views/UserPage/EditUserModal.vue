@@ -231,6 +231,8 @@
         if (devicePageUrl) {
           return `${devicePageUrl()}#/permissions/${this.id}`;
         }
+
+        return '';
       },
       newType() {
         // never got the chance to even change it

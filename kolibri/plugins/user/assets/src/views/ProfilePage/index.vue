@@ -32,7 +32,9 @@
       <p>
         {{ $tr('youCan') }}
         <ul class="permissions-list">
-          <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
+          <li v-if="isSuperuser">
+            {{ $tr('manageDevicePermissions') }}
+          </li>
           <li v-for="(value, key) in userPermissions" :key="key">
             {{ getPermissionString(key) }}
           </li>
