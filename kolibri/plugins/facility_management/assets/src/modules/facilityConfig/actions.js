@@ -1,4 +1,3 @@
-import { convertKeysToSnakeCase } from 'kolibri.coreVue.vuex.mappers';
 import { FacilityDatasetResource } from 'kolibri.resources';
 import { defaultFacilityConfig, notificationTypes } from '../../constants';
 
@@ -8,7 +7,7 @@ export function saveFacilityConfig(store) {
   const resourceRequests = [
     FacilityDatasetResource.saveModel({
       id: facilityDatasetId,
-      data: convertKeysToSnakeCase(settings),
+      data: settings,
     }),
   ];
   return Promise.all(resourceRequests)

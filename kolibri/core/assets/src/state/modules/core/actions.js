@@ -1,6 +1,5 @@
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
-import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -309,7 +308,7 @@ export function getFacilityConfig(store, facilityId) {
     let config = {};
     const facility = facilityConfig[0];
     if (facility) {
-      config = CoreMappers.convertKeysToCamelCase(facility);
+      config = { ...facility };
     }
     store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
