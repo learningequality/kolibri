@@ -2,7 +2,6 @@ import logging
 import sys
 
 from django.db.models.signals import post_delete
-from django.utils.six.moves import input
 from morango.certificates import Certificate
 from morango.models import Buffer
 from morango.models import DatabaseIDModel
@@ -11,6 +10,7 @@ from morango.models import Store
 
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils import confirm_or_exit
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import AttemptLog
@@ -47,15 +47,6 @@ class DisablePostDeleteSignal(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         post_delete.receivers = self.receivers
         self.receivers = None
-
-
-def confirm_or_exit(message):
-    answer = ""
-    while answer not in ["yes", "n", "no"]:
-        answer = input("{} [Type 'yes' or 'no'.] ".format(message)).lower()
-    if answer != "yes":
-        print("Canceled! Exiting without touching the database.")
-        sys.exit(1)
 
 
 class Command(AsyncCommand):
