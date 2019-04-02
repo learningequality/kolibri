@@ -93,6 +93,7 @@
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
+        topicsTreeChannel: 'channel',
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
@@ -153,7 +154,14 @@
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
               id: this.topicsTreeContent.parent,
             });
-            appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+
+            if (this.topicsTreeContent.breadcrumbs.length > 0) {
+              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            } else {
+              // `breadcrumbs` is empty if the direct parent is the channel, so pull
+              // channel info from state.topicsTree.channel
+              appBarTitle = this.topicsTreeChannel.title;
+            }
           }
           return {
             appBarTitle,
