@@ -367,14 +367,14 @@ You can manually run the auto-formatters using:
 
 .. code-block:: bash
 
-  yarn run fmt-frontend
+  yarn run lint-frontend:format
   yarn run fmt-backend
 
 Or to check the formatting without writing changes, run:
 
 .. code-block:: bash
 
-  yarn run fmt-frontend:check
+  yarn run lint-frontend
   yarn run fmt-backend:check
 
 
