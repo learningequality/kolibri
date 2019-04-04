@@ -12,28 +12,25 @@ import kolibri.utils.time_utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('lessons', '0001_initial'),
-    ]
+    dependencies = [("lessons", "0001_initial")]
 
     operations = [
-        migrations.RenameField(
-            model_name='lesson',
-            old_name='name',
-            new_name='title',
-        ),
-        migrations.RemoveField(
-            model_name='lesson',
-            name='is_archived',
-        ),
+        migrations.RenameField(model_name="lesson", old_name="name", new_name="title"),
+        migrations.RemoveField(model_name="lesson", name="is_archived"),
         migrations.AddField(
-            model_name='lesson',
-            name='date_created',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now, editable=False),
+            model_name="lesson",
+            name="date_created",
+            field=kolibri.core.fields.DateTimeTzField(
+                default=kolibri.utils.time_utils.local_now, editable=False
+            ),
         ),
         migrations.AlterField(
-            model_name='lessonassignment',
-            name='lesson',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lesson_assignments', to='lessons.Lesson'),
+            model_name="lessonassignment",
+            name="lesson",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="lesson_assignments",
+                to="lessons.Lesson",
+            ),
         ),
     ]

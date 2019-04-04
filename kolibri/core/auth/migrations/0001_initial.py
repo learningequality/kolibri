@@ -17,153 +17,327 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='DeviceOwner',
+            name="DeviceOwner",
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters and digits only', max_length=30, validators=[django.core.validators.RegexValidator('^\\w+$', 'Enter a valid username. This value may contain only letters and numbers.')], verbose_name='username')),
-                ('full_name', models.CharField(blank=True, max_length=120, verbose_name='full name')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='date joined')),
-                ('id', morango.utils.uuids.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        help_text="Required. 30 characters or fewer. Letters and digits only",
+                        max_length=30,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                "^\\w+$",
+                                "Enter a valid username. This value may contain only letters and numbers.",
+                            )
+                        ],
+                        verbose_name="username",
+                    ),
+                ),
+                (
+                    "full_name",
+                    models.CharField(
+                        blank=True, max_length=120, verbose_name="full name"
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="date joined",
+                    ),
+                ),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='Collection',
+            name="Collection",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('name', models.CharField(max_length=100)),
-                ('kind', models.CharField(choices=[(b'facility', 'Facility'), (b'classroom', 'Classroom'), (b'learnergroup', 'Learner group')], max_length=20)),
-                ('lft', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('rght', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
-                ('level', models.PositiveIntegerField(db_index=True, editable=False)),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[
+                            (b"facility", "Facility"),
+                            (b"classroom", "Classroom"),
+                            (b"learnergroup", "Learner group"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("lft", models.PositiveIntegerField(db_index=True, editable=False)),
+                ("rght", models.PositiveIntegerField(db_index=True, editable=False)),
+                ("tree_id", models.PositiveIntegerField(db_index=True, editable=False)),
+                ("level", models.PositiveIntegerField(db_index=True, editable=False)),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='FacilityDataset',
+            name="FacilityDataset",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('description', models.TextField(blank=True)),
-                ('location', models.CharField(blank=True, max_length=200)),
-                ('learner_can_edit_username', models.BooleanField(default=True)),
-                ('learner_can_edit_name', models.BooleanField(default=True)),
-                ('learner_can_edit_password', models.BooleanField(default=True)),
-                ('learner_can_sign_up', models.BooleanField(default=True)),
-                ('learner_can_delete_account', models.BooleanField(default=True)),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                ("description", models.TextField(blank=True)),
+                ("location", models.CharField(blank=True, max_length=200)),
+                ("learner_can_edit_username", models.BooleanField(default=True)),
+                ("learner_can_edit_name", models.BooleanField(default=True)),
+                ("learner_can_edit_password", models.BooleanField(default=True)),
+                ("learner_can_sign_up", models.BooleanField(default=True)),
+                ("learner_can_delete_account", models.BooleanField(default=True)),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='FacilityUser',
+            name="FacilityUser",
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters and digits only', max_length=30, validators=[django.core.validators.RegexValidator('^\\w+$', 'Enter a valid username. This value may contain only letters and numbers.')], verbose_name='username')),
-                ('full_name', models.CharField(blank=True, max_length=120, verbose_name='full name')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, editable=False, verbose_name='date joined')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        help_text="Required. 30 characters or fewer. Letters and digits only",
+                        max_length=30,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                "^\\w+$",
+                                "Enter a valid username. This value may contain only letters and numbers.",
+                            )
+                        ],
+                        verbose_name="username",
+                    ),
+                ),
+                (
+                    "full_name",
+                    models.CharField(
+                        blank=True, max_length=120, verbose_name="full name"
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        editable=False,
+                        verbose_name="date joined",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityDataset",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Membership',
+            name="Membership",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('collection', mptt.fields.TreeForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.Collection')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser')),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                (
+                    "collection",
+                    mptt.fields.TreeForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.Collection",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityDataset",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityUser",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Role',
+            name="Role",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('kind', models.CharField(choices=[(b'admin', 'Admin'), (b'coach', 'Coach')], max_length=20)),
-                ('collection', mptt.fields.TreeForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.Collection')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roles', to='kolibriauth.FacilityUser')),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[(b"admin", "Admin"), (b"coach", "Coach")],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "collection",
+                    mptt.fields.TreeForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.Collection",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityDataset",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roles",
+                        to="kolibriauth.FacilityUser",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='collection',
-            name='dataset',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset'),
+            model_name="collection",
+            name="dataset",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="kolibriauth.FacilityDataset",
+            ),
         ),
         migrations.AddField(
-            model_name='collection',
-            name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='kolibriauth.Collection'),
+            model_name="collection",
+            name="parent",
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="children",
+                to="kolibriauth.Collection",
+            ),
         ),
         migrations.CreateModel(
-            name='Classroom',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-            },
-            bases=('kolibriauth.collection',),
+            name="Classroom",
+            fields=[],
+            options={"proxy": True},
+            bases=("kolibriauth.collection",),
         ),
         migrations.CreateModel(
-            name='Facility',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-            },
-            bases=('kolibriauth.collection',),
+            name="Facility",
+            fields=[],
+            options={"proxy": True},
+            bases=("kolibriauth.collection",),
         ),
         migrations.CreateModel(
-            name='LearnerGroup',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-            },
-            bases=('kolibriauth.collection',),
+            name="LearnerGroup",
+            fields=[],
+            options={"proxy": True},
+            bases=("kolibriauth.collection",),
         ),
         migrations.AlterUniqueTogether(
-            name='role',
-            unique_together=set([('user', 'collection', 'kind')]),
+            name="role", unique_together=set([("user", "collection", "kind")])
         ),
         migrations.AlterUniqueTogether(
-            name='membership',
-            unique_together=set([('user', 'collection')]),
+            name="membership", unique_together=set([("user", "collection")])
         ),
         migrations.AddField(
-            model_name='facilityuser',
-            name='facility',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.Facility'),
+            model_name="facilityuser",
+            name="facility",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="kolibriauth.Facility"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='facilityuser',
-            unique_together=set([('username', 'facility')]),
+            name="facilityuser", unique_together=set([("username", "facility")])
         ),
     ]

@@ -7,14 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0006_auto_20171128_1703'),
-    ]
+    dependencies = [("content", "0006_auto_20171128_1703")]
 
-    operations = [
-        migrations.AlterModelManagers(
-            name='contentnode',
-            managers=[
-            ],
-        ),
-    ]
+    operations = [migrations.AlterModelManagers(name="contentnode", managers=[])]

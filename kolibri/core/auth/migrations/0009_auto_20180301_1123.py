@@ -10,14 +10,16 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0008_auto_20180222_1244'),
-    ]
+    dependencies = [("kolibriauth", "0008_auto_20180222_1244")]
 
     operations = [
         migrations.AlterField(
-            model_name='membership',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='kolibriauth.FacilityUser'),
-        ),
+            model_name="membership",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="memberships",
+                to="kolibriauth.FacilityUser",
+            ),
+        )
     ]
