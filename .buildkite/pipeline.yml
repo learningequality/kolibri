@@ -27,12 +27,14 @@ steps:
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh
 
+  - block: "Create integration testing worksheet?"
+  - label: Create integration testing
+    command: .buildkite/build_worksheet.sh
+
   - wait
 
   - label: Cleaning up
     command: make docker-clean
-
-  - wait
 
   - block: "Sign Windows installer?"
   - label: Sign Windows installer
@@ -44,10 +46,6 @@ steps:
 
   - label: Upload new artifacts
     command: .buildkite/setup_and_upload_artifact.sh
-
-  - block: "Create integration testing worksheet?"
-  - label: Create integration testing
-    command: .buildkite/build_worksheet.sh
 
   - block: "Build release APK?"
   - label: "Build Release APK"
