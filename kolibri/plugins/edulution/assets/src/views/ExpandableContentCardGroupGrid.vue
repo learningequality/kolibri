@@ -1,7 +1,12 @@
 <template>
 
   <div class="collapsible-grid">
-    <div class="clickable-header" :class="{'expanded-header': !hidden}" @click="hidden = !hidden">
+    <div 
+      class="clickable-header"
+      :style="{ backgroundColor: $coreActionNormal }"
+      :class="{'expanded-header': !hidden}"
+      @click="hidden = !hidden"
+    >
       <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
       <UiIconButton type="secondary" size="large" style="float: right; margin: 8px 8px 0 0" disabled>
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
@@ -22,8 +27,9 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -35,6 +41,7 @@
       ContentCardGroupGrid,
       UiIconButton,
     },
+    mixins: [themeMixin],
     props: { child: Object },
     data() {
       return {
@@ -61,8 +68,6 @@
 
 <style lang="scss">
 
-  @import '~kolibri.styles.definitions';
-
   .collapsible-grid {
     margin-bottom: 8px;
     overflow: auto;
@@ -74,7 +79,6 @@
   .clickable-header {
     padding-left: 16px;
     color: white;
-    background-color: $core-action-normal;
     border-radius: 8px;
   }
 
