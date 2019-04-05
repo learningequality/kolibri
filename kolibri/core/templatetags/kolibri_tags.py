@@ -277,7 +277,13 @@ def kolibri_sentry_error_reporting():
 
     template = """
       <script>
-        var sentryDSN = '{}';
+        var sentryDSN = '{dsn}';
+        var sentryEnv = '{env}';
       </script>
     """
-    return mark_safe(template.format(conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]))
+    return mark_safe(
+        template.format(
+            dsn=conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"],
+            env=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
+        )
+    )

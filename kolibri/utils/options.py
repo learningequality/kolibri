@@ -133,6 +133,10 @@ option_spec = {
             "type": "string",
             "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN",),
         },
+        "SENTRY_ENVIRONMENT": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_ENVIRONMENT",),
+        },
     },
 }
 
