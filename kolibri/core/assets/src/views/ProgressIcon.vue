@@ -23,7 +23,7 @@
       reference="icon"
       :refs="$refs"
     >
-      {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
+      {{ isInProgress ? $tr('inProgress') + ': ' + Math.round(progress * 100) + '%' : $tr('completed') }}
     </KTooltip>
   </span>
 
@@ -58,7 +58,7 @@
     },
     computed: {
       isInProgress() {
-        return this.progress !== null && this.progress >= 0 && this.progress < 1;
+        return this.progress !== null && this.progress > 0 && this.progress < 1;
       },
       isCompleted() {
         return this.progress >= 1;
