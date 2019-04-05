@@ -55,7 +55,7 @@
     },
     $trs: {
       back: 'All classes',
-      description: 'View reports for your learners and class materials',
+      description: 'View reports for your learners and class materials and shit',
     },
   };
 
