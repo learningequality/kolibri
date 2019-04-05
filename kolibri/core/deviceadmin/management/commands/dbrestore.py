@@ -31,8 +31,11 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
-        parser.add_argument("dump_file", nargs="?", type=str, help="Specifies the exact dump file to restore from")
-        parser.add_argument(
+        parser_group = parser.add_mutually_exclusive_group(required=True)
+        parser_group.add_argument(
+            "dump_file", nargs="?", type=str, help="Specifies the exact dump file to restore from"
+        )
+        parser_group.add_argument(
             "--latest",
             "-l",
             action="store_true",
@@ -42,7 +45,7 @@ class Command(BaseCommand):
                 "the major and minor version (X.Y) of current installation."
             ),
         )
-        parser.add_argument(
+        parser_group.add_argument(
             "--select",
             "-s",
             action="store_true",
@@ -105,9 +108,6 @@ class Command(BaseCommand):
         latest = options["latest"]
         select = options["select"]
         use_backup = options.get("dump_file", None)
-
-        if latest == bool(use_backup) == select:
-            raise CommandError("Either specify a backup file or use --latest or --select")
 
         logger.info("Beginning database restore")
 
