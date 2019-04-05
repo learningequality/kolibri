@@ -3,7 +3,7 @@ import ChannelsGrid from '../../src/views/ManageContentPage/ChannelsGrid';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
 function makeWrapper(options) {
-  const { store = {}, props = {} } = options;
+  const { store = store, props = {} } = options;
   return mount(ChannelsGrid, {
     propsData: { ...props },
     store,
@@ -22,7 +22,7 @@ function getElements(wrapper) {
   return {
     channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
-    ProgressBar: () => wrapper.find({ name: 'ui-progress-linear' }),
+    ProgressBar: () => wrapper.find({ name: 'KLinearLoader' }),
     deleteChannelModal: () => wrapper.find({ name: 'KModal' }),
   };
 }
@@ -85,9 +85,11 @@ describe('channelsGrid component', () => {
     ]);
     const wrapper = makeWrapper({ store });
     const { channelListItems } = getElements(wrapper);
-    const items = channelListItems();
-    expect(items.at(0).props().channel.id).toEqual('awesome_channel');
-    expect(items.at(1).props().channel.id).toEqual('beautiful_channel');
+    return wrapper.vm.$nextTick().then(() => {
+      const items = channelListItems();
+      expect(items.at(0).props().channel.id).toBe('awesome_channel');
+      expect(items.at(1).props().channel.id).toBe('beautiful_channel');
+    });
   });
 
   it('a modal appears if channel is selected for deletion', () => {

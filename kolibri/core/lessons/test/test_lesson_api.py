@@ -3,13 +3,16 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .. import models
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+
 
 DUMMY_PASSWORD = "password"
 
@@ -195,8 +198,92 @@ class LessonAPITestCase(APITestCase):
         self.client.login(username=user.username, password="pass")
 
         response = self.client.put(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
             "title": "title",
             "is_active": True,
             "collection": self.facility.id,
         })
         self.assertEqual(response.status_code, 403)
+
+    def test_cannot_create_lesson_same_title_case_insensitive(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
+            "title": "TiTlE",
+            "is_active": True,
+            "collection": self.facility.id,
+            "lesson_assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
+
+    def test_can_update_lesson_same_title(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "title",
+            "is_active": False,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_update_lesson_multiple_same_title(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "title",
+            "is_active": False,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_update_lesson_to_same_title_as_other_lesson(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        models.Lesson.objects.create(
+            title="titular",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+
+        response = self.client.patch(reverse("kolibri:core:lesson-detail", kwargs={'pk': self.lesson.id}), {
+            "id": self.lesson.id,
+            "title": "titular",
+            "is_active": True,
+            "collection": self.facility.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
+
+    def test_cannot_create_lesson_same_title_as_multiple_lessons(self):
+        # Make a second copy of the lesson so that we now have two with the same title
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=self.facility,
+            created_by=self.admin
+        )
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(reverse("kolibri:core:lesson-list"), {
+            "title": self.lesson.title,
+            "is_active": True,
+            "collection": self.facility.id,
+            "lesson_assignments": [{
+                "collection": self.facility.id,
+            }],
+        }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)

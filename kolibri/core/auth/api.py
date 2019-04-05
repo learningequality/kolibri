@@ -14,10 +14,12 @@ from django.db import transaction
 from django.db.models import Q
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -40,7 +42,6 @@ from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUsernameSerializer
 from .serializers import FacilityUserSerializer
-from .serializers import FacilityUserSignupSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
@@ -165,6 +166,7 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
         self.set_password_if_needed(instance, serializer)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     serializer_class = FacilityUsernameSerializer
@@ -231,6 +233,7 @@ class FacilityViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -281,9 +284,10 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ('parent',)
 
 
+@method_decorator(signin_redirect_exempt, name='dispatch')
 class SignUpViewSet(viewsets.ViewSet):
 
-    serializer_class = FacilityUserSignupSerializer
+    serializer_class = FacilityUserSerializer
 
     def extract_request_data(self, request):
         return {
@@ -309,6 +313,7 @@ class SignUpViewSet(viewsets.ViewSet):
 
 
 @method_decorator(signin_redirect_exempt, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class SessionViewSet(viewsets.ViewSet):
 
     def create(self, request):
@@ -344,25 +349,30 @@ class SessionViewSet(viewsets.ViewSet):
         return Response(self.get_session(request))
 
     def get_session(self, request):
-        # Set last activity on session to the current time to prevent session timeout
-        request.session['last_session_request'] = int(time.time())
-        # Default to active, only assume not active when explicitly set.
-        active = True if request.GET.get('active', 'true') == 'true' else False
         user = get_user(request)
+        session_key = 'current'
+        server_time = now()
         if isinstance(user, AnonymousUser):
-            return {'id': 'current',
+            return {'id': session_key,
                     'username': '',
                     'full_name': '',
                     'user_id': None,
                     'facility_id': getattr(Facility.get_default_facility(), 'id', None),
                     'kind': ['anonymous'],
-                    'error': '200'}
+                    'error': '200',
+                    'server_time': server_time}
+        # Set last activity on session to the current time to prevent session timeout
+        # Only do this for logged in users, as anonymous users cannot get logged out!
+        request.session['last_session_request'] = int(time.time())
+        # Default to active, only assume not active when explicitly set.
+        active = True if request.GET.get('active', 'true') == 'true' else False
 
-        session = {'id': 'current',
+        session = {'id': session_key,
                    'username': user.username,
                    'full_name': user.full_name,
                    'user_id': user.id,
-                   'can_manage_content': user.can_manage_content}
+                   'can_manage_content': user.can_manage_content,
+                   'server_time': server_time}
 
         roles = list(Role.objects.filter(user_id=user.id).values_list('kind', flat=True).distinct())
 

@@ -4,7 +4,7 @@
 
     <div class="card-group-details">
 
-      <h2 v-if="header" class="card-group-details-header">
+      <h2 v-if="header" class="card-group-details-header" :style="{ color: $coreTextDefault }">
         {{ header }}
       </h2>
 
@@ -21,6 +21,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   export default {
@@ -29,6 +30,7 @@
     $trs: {
       viewMoreFromSectionButton: 'View more',
     },
+    mixins: [themeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },
@@ -40,8 +42,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   $header-size: 21px;
 
@@ -62,7 +62,6 @@
     margin: 0;
     clear: none;
     font-size: $header-size;
-    color: $core-text-default;
     text-align: left;
   }
 

@@ -6,13 +6,6 @@ This is a core module found in ``kolibri/core/auth``.
 .. toctree::
    :maxdepth: 1
 
+   models
    concepts_and_definitions
    implementation
-
-
-Models
-------
-
-.. automodule:: kolibri.core.auth.models
-    :members:
-    :noindex:

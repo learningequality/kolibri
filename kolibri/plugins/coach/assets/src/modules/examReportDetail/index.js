@@ -15,7 +15,8 @@ function defaultState() {
     questionNumber: 0,
     questions: [],
     title: '',
-    user: {},
+    learnerId: null,
+    pageTitle: '',
   };
 }
 

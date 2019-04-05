@@ -2,7 +2,7 @@
 
   <CoreBase
     :appBarTitle="appBarTitle"
-    :bottomMargin="bottomSpaceReserved"
+    :marginBottom="bottomSpaceReserved"
     :immersivePage="isImmersivePage"
     :immersivePageIcon="immersivePageIcon"
     :immersivePagePrimary="immersivePageIsPrimary"
@@ -183,17 +183,9 @@
 <style lang="scss" scoped>
 
   @import './learn';
-  @import '~kolibri.styles.definitions';
 
   .content {
     margin: auto;
-  }
-
-  .points-link {
-    position: relative;
-    display: inline-block;
-    color: $core-status-correct;
-    text-decoration: none;
   }
 
 </style>

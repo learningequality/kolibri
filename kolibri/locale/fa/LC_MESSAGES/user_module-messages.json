@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "یک حساب کاربری با این نام کاربری از قبل وجود دارد",
   "ProfilePage.usernameNotAlphaNumUnderscore": "نام کاربری فقط می‌تواند شامل حروف و اعداد و زیرین‌خط یا آندِرلاین باشد",
   "ProfilePage.youCan": "شما می‌توانید",
-  "SignInPage.accessAsGuest": "به عنوان مهمان در سایت ادامه دهید",
+  "SignInPage.accessAsGuest": "بدون حساب کاربری به جستجو و کاوش بپردازید",
   "SignInPage.createAccount": "ایجاد یک حساب کاربری",
   "SignInPage.documentTitle": "ورود به سیستم کاربر",
   "SignInPage.enterPassword": "رمز عبور را وارد کنید",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "نام کاربری فقط می‌تواند شامل حروف و اعداد و زیرین‌خط یا آندِرلاین باشد",
   "SignUpPage.usernameAlreadyExistsError": "یک حساب کاربری با این نام کاربری از قبل وجود دارد",
   "UserIndex.userProfileTitle": "پروفایل",
+  "UserIndex.userSignInTitle": "ورود",
+  "UserIndex.userSignUpTitle": "ثبت‌نام",
   "UserPageSnackbars.dismiss": "رَد کردن",
   "UserPageSnackbars.signedOut": "شما به طور خودکار و بدلیل عدم فعالیت از سیستم خارج شدید",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "رمز عبور تغییر کرد"

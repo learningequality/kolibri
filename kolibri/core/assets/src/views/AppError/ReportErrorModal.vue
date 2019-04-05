@@ -102,8 +102,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .error-detail-modal {
     text-align: left;
   }

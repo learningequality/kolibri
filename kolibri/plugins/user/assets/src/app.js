@@ -1,3 +1,4 @@
+import router from 'kolibri.coreVue.router';
 import RootVue from './views/UserIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -18,7 +19,7 @@ class UserModule extends KolibriApp {
   }
   ready() {
     return super.ready().then(() => {
-      this.routerInstance.afterEach((toRoute, fromRoute) => {
+      router.afterEach((toRoute, fromRoute) => {
         this.store.dispatch('resetModuleState', { toRoute, fromRoute });
       });
     });

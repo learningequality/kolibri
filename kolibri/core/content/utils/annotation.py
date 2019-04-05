@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 
+from django.db import connection
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
@@ -14,6 +15,7 @@ from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
 from .sqlalchemybridge import Bridge
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -48,6 +50,7 @@ def update_channel_metadata():
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
     fix_multiple_trees_with_id_one()
+    connection.close()
 
 
 def fix_multiple_trees_with_id_one():
@@ -161,10 +164,14 @@ def set_local_file_availability_from_disk(checksums=None):
         logger.info('Setting availability of LocalFile object with checksum {checksum} based on disk availability'.format(checksum=checksums))
         files = [bridge.session.query(LocalFileClass).get(checksums)]
 
-    checksums_to_update = [
-        # Only update if the file exists, *and* the localfile is set as unavailable.
-        file.id for file in files if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available
-    ]
+    checksums_to_update = []
+    for file in files:
+        try:
+            # Only update if the file exists, *and* the localfile is set as unavailable.
+            if os.path.exists(get_content_storage_file_path(get_content_file_name(file))) and not file.available:
+                checksums_to_update.append(file.id)
+        except InvalidStorageFilenameError:
+            continue
 
     bridge.end()
 
@@ -308,6 +315,7 @@ def calculate_channel_fields(channel_id):
     calculate_published_size(channel)
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
+    calculate_next_order(channel)
 
 
 def calculate_published_size(channel):
@@ -326,3 +334,12 @@ def calculate_included_languages(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id, available=True).exclude(lang=None)
     languages = content_nodes.order_by('lang').values_list('lang', flat=True).distinct()
     channel.included_languages.add(*list(languages))
+
+
+def calculate_next_order(channel):
+    latest_order = ChannelMetadata.objects.latest('order').order
+    if latest_order is None:
+        channel.order = 1
+    else:
+        channel.order = latest_order + 1
+    channel.save()

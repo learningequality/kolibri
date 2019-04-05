@@ -1,6 +1,6 @@
 <template>
 
-  <div class="top-bar">
+  <div class="top-bar" :style="{ backgroundColor: $coreGrey200 }">
     <KGrid>
       <KGridItem
         sizes="25, 25, 25"
@@ -42,7 +42,6 @@
         <UiIconButton
           ref="fullscreenButton"
           type="secondary"
-          :disableRipple="true"
           :ariaLabel="$tr('toggleFullscreen')"
           @click="$emit('fullscreenButtonClicked')"
         >
@@ -67,9 +66,10 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
@@ -87,6 +87,7 @@
       SettingsButton,
       SearchButton,
     },
+    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -115,12 +116,10 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .top-bar {
-    z-index: 4;
-    background-color: $core-grey-200;
+    z-index: 2;
     box-shadow: $epub-box-shadow;
   }
 

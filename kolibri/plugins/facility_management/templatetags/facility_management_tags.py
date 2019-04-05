@@ -33,4 +33,4 @@ def facility_management_assets():
 
     :return: HTML of script tags to insert into the template
     """
-    return webpack_asset_render(FacilityManagementSyncHook, async=False)
+    return webpack_asset_render(FacilityManagementSyncHook, is_async=False)

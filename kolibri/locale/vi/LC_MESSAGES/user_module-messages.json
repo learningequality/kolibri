@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "Tài khoản có tên người dùng này đã tồn tại",
   "ProfilePage.usernameNotAlphaNumUnderscore": "Tên người dùng chỉ có thể chứa chữ cái, số và dấu gạch dưới",
   "ProfilePage.youCan": "Bạn có thể",
-  "SignInPage.accessAsGuest": "Tiếp tục là khách",
+  "SignInPage.accessAsGuest": "Khám phá không cần tài khoản",
   "SignInPage.createAccount": "Tạo tài khoản",
   "SignInPage.documentTitle": "Đăng nhập người dùng",
   "SignInPage.enterPassword": "Nhập mật khẩu",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "Tên người dùng chỉ có thể chứa chữ cái, số và dấu gạch dưới",
   "SignUpPage.usernameAlreadyExistsError": "Tài khoản có tên người dùng này đã tồn tại",
   "UserIndex.userProfileTitle": "Hồ sơ",
+  "UserIndex.userSignInTitle": "Đăng nhập",
+  "UserIndex.userSignUpTitle": "Đăng ký",
   "UserPageSnackbars.dismiss": "Bỏ qua",
   "UserPageSnackbars.signedOut": "Bạn đã được tự động đăng xuất do không hoạt động",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Đã thay đổi mật khẩu"

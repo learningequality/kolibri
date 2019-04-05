@@ -19,7 +19,10 @@
             class="points-icon"
             :active="true"
           />
-          <div class="points-amount">{{ $tr('plusPoints', { maxPoints }) }}</div>
+          <div
+            class="points-amount"
+            :style="{ color: $coreStatusCorrect }"
+          >{{ $tr('plusPoints', { maxPoints }) }}</div>
         </template>
 
         <UiAlert
@@ -51,9 +54,13 @@
         <template slot="content">
           <router-link
             class="rm-link-style"
+            :style="{ color: $coreTextDefault }"
             :to="nextContentLink"
           >
-            <h2 class="next-content-heading">{{ $tr('next') }}</h2>
+            <h2
+              class="next-content-heading"
+              :style="{ color: $coreTextAnnotation }"
+            >{{ $tr('next') }}</h2>
             <KRouterLink
               :text="nextContent.title"
               :to="nextContentLink"
@@ -74,6 +81,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { MaxPointsPerContent, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -94,6 +102,7 @@
       Snackbar,
       UiAlert,
     },
+    mixins: [themeMixin],
     props: {
       nextContent: {
         type: Object,
@@ -164,6 +173,7 @@
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
       signIn: 'Sign in or create an account to save points you earn',
+      askForHelp: 'Having trouble? Try asking someone for help',
     },
   };
 
@@ -171,8 +181,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .points-icon {
     display: inline-block;
@@ -189,7 +197,6 @@
   .points-amount {
     display: inline-block;
     font-weight: bold;
-    color: $core-status-correct;
     vertical-align: middle;
   }
 
@@ -207,7 +214,6 @@
     margin: 0 0 4px;
     font-size: 12px;
     font-weight: normal;
-    color: $core-text-annotation;
   }
 
   .next-content-title {
@@ -240,7 +246,6 @@
 
   .rm-link-style {
     display: block;
-    color: $core-text-default;
     text-decoration: none;
   }
 

@@ -15,7 +15,7 @@ from kolibri.core.analytics.measurements import get_requests_info
 from kolibri.utils.server import installation_type
 from kolibri.utils.server import NotRunning
 from kolibri.utils.system import get_free_space
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 
 def format_line(parameter, value, indented=False):
@@ -78,7 +78,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         try:
-            kolibri_cpu, kolibri_mem = get_kolibri_use()
+            get_kolibri_use()
         except NotRunning:
             sys.exit("Profile command executed while Kolibri server was not running")
         get_requests_info()

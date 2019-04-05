@@ -1,13 +1,17 @@
-import unionBy from 'lodash/unionBy';
+import Vue from 'kolibri.lib.vue';
 import * as actions from './actions';
+
+function getRandomInt() {
+  return Math.floor(Math.random() * 1000);
+}
 
 function defaultState() {
   return {
     title: '',
-    numberOfQuestions: null,
-    seed: null,
+    numberOfQuestions: 10,
+    seed: getRandomInt(), // consistent seed is used for question selection
     contentList: [],
-    selectedExercises: [],
+    selectedExercises: {},
     availableQuestions: 0,
     searchResults: {
       channel_ids: [],
@@ -23,6 +27,9 @@ function defaultState() {
       completionData: null,
       questions: null,
     },
+    selectedQuestions: [],
+    learnersSeeFixedOrder: false,
+    loadingNewQuestions: false,
   };
 }
 
@@ -45,25 +52,40 @@ export default {
     SET_TITLE(state, title) {
       state.title = title;
     },
+    LOADING_NEW_QUESTIONS(state, value) {
+      state.loadingNewQuestions = value;
+    },
     SET_NUMBER_OF_QUESTIONS(state, numberOfQuestions) {
       state.numberOfQuestions = numberOfQuestions;
     },
-    SET_SEED(state, seed) {
-      state.seed = seed;
+    RANDOMIZE_SEED(state) {
+      state.seed = getRandomInt();
+    },
+    SET_FIXED_ORDER(state, value) {
+      state.learnersSeeFixedOrder = value;
+    },
+    SET_SELECTED_QUESTIONS(state, questions) {
+      state.selectedQuestions = questions;
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
     },
     ADD_TO_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = unionBy([...state.selectedExercises, ...exercises], 'id');
-    },
-    REMOVE_FROM_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = state.selectedExercises.filter(
-        resource => exercises.findIndex(exercise => exercise.id === resource.id) === -1
+      state.selectedExercises = Object.assign(
+        {},
+        state.selectedExercises,
+        ...exercises.map(exercise => ({ [exercise.id]: exercise }))
       );
     },
-    SET_SELECTED_EXERCISES(state, exercises) {
-      state.selectedExercises = unionBy(exercises, 'id');
+    REMOVE_FROM_SELECTED_EXERCISES(state, exercises) {
+      exercises.forEach(exercise => {
+        Vue.delete(state.selectedExercises, exercise.id);
+      });
+    },
+    UPDATE_SELECTED_EXERCISES(state, exercises) {
+      exercises.forEach(newExercise => {
+        Vue.set(state.selectedExercises, newExercise.id, newExercise);
+      });
     },
     SET_AVAILABLE_QUESTIONS(state, availableQuestions) {
       state.availableQuestions = availableQuestions;

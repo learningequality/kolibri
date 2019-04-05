@@ -9,26 +9,32 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <KTextbox
-      v-model="address"
-      :label="$tr('addressLabel')"
-      :placeholder="$tr('addressPlaceholder')"
-      :autofocus="true"
-      :invalid="addressIsInvalid"
-      :invalidText="addressInvalidText"
-      :disabled="attemptingToConnect"
-      @blur="addressBlurred = true"
-    />
-    <KTextbox
-      v-model="name"
-      :label="$tr('nameLabel')"
-      :placeholder="$tr('namePlaceholder')"
-      :invalid="nameIsInvalid"
-      :invalidText="$tr('fieldIsRequired')"
-      :maxlength="40"
-      :disabled="attemptingToConnect"
-      @blur="nameBlurred = true"
-    />
+    <p>{{ $tr('addressDesc') }}</p>
+    <div>
+      <KTextbox
+        v-model="address"
+        :label="$tr('addressLabel')"
+        :placeholder="$tr('addressPlaceholder')"
+        :autofocus="true"
+        :invalid="addressIsInvalid"
+        :invalidText="addressInvalidText"
+        :disabled="attemptingToConnect"
+        @blur="addressBlurred = true"
+      />
+    </div>
+    <p>{{ $tr('nameDesc') }}</p>
+    <div>
+      <KTextbox
+        v-model="name"
+        :label="$tr('nameLabel')"
+        :placeholder="$tr('namePlaceholder')"
+        :invalid="nameIsInvalid"
+        :invalidText="$tr('fieldIsRequired')"
+        :maxlength="40"
+        :disabled="attemptingToConnect"
+        @blur="nameBlurred = true"
+      />
+    </div>
 
     <UiAlert
       v-if="attemptingToConnect"
@@ -131,13 +137,16 @@
       },
     },
     $trs: {
+      addressDesc:
+        "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
       addressLabel: 'Full network address',
-      addressPlaceholder: 'e.g. http://123.456.7.89:8080',
+      addressPlaceholder: 'e.g. 192.168.0.100:8080',
       cancelButtonLabel: 'Cancel',
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
       fieldIsRequired: 'This field is required',
+      nameDesc: 'Choose a name for this address so you can remember it later:',
       nameLabel: 'Network name',
       namePlaceholder: 'e.g. House network',
       submitButtonLabel: 'Add',

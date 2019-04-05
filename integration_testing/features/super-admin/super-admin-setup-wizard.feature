@@ -1,4 +1,4 @@
-Feature: Super admin setup wizard
+Feature: Super admin goes through the setup wizard
     Super admin needs to create their own account and perform the initial facility configuration of Kolibri through the setup wizard
 
   Background:
@@ -40,7 +40,7 @@ Feature: Super admin setup wizard
         And click *Continue*
       Then I see the *Step 4 of 7* of the setup wizard
 
-    Scenario: Allow sign-up
+    Scenario: Allow user account creation
       Given that I am on the *Step 4 of 7* of the setup wizard
         And I see *Allow anyone to create their own learner account?*
       When I select/change one of the options
@@ -56,12 +56,12 @@ Feature: Super admin setup wizard
 
     Scenario: Super admin account details
       Given that I am on the *Step 6 of 7* of the setup wizard
-        And I see *Create Super admin account*
+        And I see *Create super admin account*
       When I fill in the full name, username and password fields
         And click *Continue*
       Then I see the *Step 7 of 7* of the setup wizard
 
-    Scenario: Privacy
+    Scenario: Responsibility of the admin regarding privacy
       Given that I am on the *Step 7 of 7* of the setup wizard
         And I see *Responsabilities as an administrator*
       When I click the *View statement* link
@@ -72,6 +72,6 @@ Feature: Super admin setup wizard
       When I click *Finish*
       Then I see the page reload
         And I see the *Welcome to Kolibri* modal
-      When I click *Ok*
+      When I click *OK*
       Then the modal closes
         And I see the *Device > Channels* page

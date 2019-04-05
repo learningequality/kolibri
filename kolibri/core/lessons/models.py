@@ -9,7 +9,8 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.utils.time_utils import local_now
 
 
 class Lesson(AbstractFacilityDataModel):
@@ -62,11 +63,18 @@ class Lesson(AbstractFacilityDataModel):
             self.collection.name,
         )
 
+    def delete(self, using=None, keep_parents=False):
+        """
+        We delete all notifications objects whose lesson is this lesson id.
+        """
+        LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
+        super(Lesson, self).delete(using, keep_parents)
+
     # Morango fields
     morango_model_name = 'lesson'
 
     def infer_dataset(self, *args, **kwargs):
-        return self.created_by.dataset
+        return self.created_by.dataset_id
 
     def calculate_partition(self):
         return self.dataset_id
@@ -101,7 +109,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     morango_model_name = 'lessonassignment'
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset
+        return self.assigned_by.dataset_id
 
     def calculate_source_id(self):
         return "{lesson_id}:{collection_id}".format(lesson_id=self.lesson_id, collection_id=self.collection_id)

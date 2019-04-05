@@ -1,27 +1,59 @@
 <template>
 
-  <UiProgressLinear
-    class="k-linear-loader"
-    :class="{ delay }"
-    :type="progress ? 'determinate' : 'indeterminate'"
-    :progress="progress"
-  />
+  <!--
+  This component was forked from the Keen library in order to handle
+  dynamic styling of the loader background color.
+
+  Logic and styling has been consolidated with the KLinearLoader to simplify
+  and remove unused logic.
+  -->
+  <transition name="ui-progress-linear--transition-fade">
+    <div
+      class="ui-progress-linear"
+      :class="classes"
+      :style="{ backgroundColor: `rgba(${$coreLoading}, 0.4)` }"
+    >
+      <div
+        v-if="type === 'determinate'"
+        class="ui-progress-linear-progress-bar is-determinate"
+
+        role="progressbar"
+        :aria-valuemax="100"
+        :aria-valuemin="0"
+        :aria-valuenow="moderatedProgress"
+
+        :style="{
+          transform: `scaleX(${moderatedProgress / 100})`,
+          backgroundColor: $coreLoading,
+        }"
+      ></div>
+
+      <div
+        v-else
+        class="ui-progress-linear-progress-bar is-indeterminate"
+
+        role="progressbar"
+        :aria-valuemax="100"
+        :aria-valuemin="0"
+
+        :style="{ backgroundColor: $coreLoading }"
+      ></div>
+    </div>
+  </transition>
 
 </template>
 
 
 <script>
 
-  import UiProgressLinear from 'keen-ui/src/UiProgressLinear';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   /**
    * Used to show determinate or indeterminate loading
    */
   export default {
     name: 'KLinearLoader',
-    components: {
-      UiProgressLinear,
-    },
+    mixins: [themeMixin],
     props: {
       /**
        * Whether there should be a delay before the loader displays
@@ -35,18 +67,32 @@
        */
       type: {
         type: String,
-        required: true,
+        default: 'indeterminate',
         validator(val) {
           return val === 'determinate' || val === 'indeterminate';
         },
       },
-      /**
-       * If type is determinate, a number between 0 - 100
-       */
       progress: {
         type: Number,
-        required: false,
         default: 0,
+      },
+    },
+
+    computed: {
+      classes() {
+        return [`ui-progress-linear--type-${this.type}`, this.delay ? 'delay' : ''];
+      },
+
+      moderatedProgress() {
+        if (this.progress < 0) {
+          return 0;
+        }
+
+        if (this.progress > 100) {
+          return 100;
+        }
+
+        return this.progress;
       },
     },
   };
@@ -56,20 +102,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~keen-ui/src/styles/imports';
   @import '~kolibri.styles.definitions';
-
-  .k-linear-loader {
-    animation: fadeIn;
-    animation-fill-mode: backwards;
-    animation-duration: 0s;
-    /deep/ .ui-progress-linear__progress-bar {
-      background-color: $core-loading;
-    }
-  }
-
-  .k-linear-loader.ui-progress-linear {
-    background-color: rgba($core-loading, 0.4);
-  }
 
   .delay {
     animation-delay: 1s;
@@ -82,6 +116,87 @@
     to {
       opacity: 1;
     }
+  }
+
+  $ui-progress-linear-height: rem-calc(4px) !default;
+
+  .ui-progress-linear {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: $ui-progress-linear-height;
+    overflow: hidden;
+    transition-timing-function: ease;
+    transition-duration: 0.3s;
+    transition-property: height, opacity;
+    animation: fadeIn;
+    animation-duration: 0s;
+    animation-fill-mode: backwards;
+  }
+
+  .ui-progress-linear-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: $ui-progress-linear-height;
+    transform-origin: left;
+
+    &.is-determinate {
+      transition: transform 0.2s ease;
+    }
+
+    &.is-indeterminate {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0) scaleX(0);
+      animation: ui-progress-linear-indeterminate 2.1s linear infinite;
+    }
+  }
+
+  // ================================================
+  // Animations
+  // ================================================
+
+  @keyframes ui-progress-linear-indeterminate {
+    // First half: short in, long out
+    0% {
+      transform: translateX(0) scaleX(0);
+    }
+
+    25% {
+      transform: translateX(50%) scaleX(0.6);
+    }
+
+    49% {
+      transform: translateX(110%) scaleX(0);
+    }
+
+    // Second half: long in, short out
+    50% {
+      transform: translateX(0) scaleX(0);
+    }
+
+    75% {
+      transform: translateX(0) scaleX(0.6);
+    }
+
+    100% {
+      transform: translateX(110%) scaleX(0);
+    }
+  }
+
+  // ================================================
+  // Toggle transition
+  // ================================================
+
+  .ui-progress-linear--transition-fade-enter-active,
+  .ui-progress-linear--transition-fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+
+  .ui-progress-linear--transition-fade-enter,
+  .ui-progress-linear--transition-fade-leave-active {
+    opacity: 0;
   }
 
 </style>

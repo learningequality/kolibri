@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
+import store from 'kolibri.coreVue.vuex.store';
 import ContentRenderer from '../src/views/ContentRenderer';
 
 jest.mock('kolibri.lib.logging');
@@ -33,6 +34,7 @@ describe('ContentRenderer Component', () => {
       function testAvailableFiles(files, expected) {
         const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
+          store,
         });
         expect(wrapper.vm.availableFiles.length).toEqual(expected);
       }
@@ -78,6 +80,7 @@ describe('ContentRenderer Component', () => {
       function testDefaultFile(files, expected) {
         const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
+          store,
         });
         expect(wrapper.vm.defaultFile).toEqual(expected);
       }
@@ -95,6 +98,7 @@ describe('ContentRenderer Component', () => {
       function testExtension(files, expected) {
         const wrapper = mount(ContentRenderer, {
           propsData: defaultPropsDataFromFiles(files),
+          store,
         });
         expect(wrapper.vm.extension).toEqual(expected);
       }
@@ -128,6 +132,7 @@ describe('ContentRenderer Component', () => {
             });
             const wrapper = mount(ContentRenderer, {
               propsData: props,
+              store,
             });
             return Vue.nextTick().then(() => {
               expect(wrapper.vm.currentViewClass).toEqual(dummyComponent);
@@ -141,6 +146,7 @@ describe('ContentRenderer Component', () => {
             });
             const wrapper = mount(ContentRenderer, {
               propsData: props,
+              store,
             });
             return Vue.nextTick().then(() => {
               expect(wrapper.vm.initSession).toHaveBeenCalledTimes(1);
@@ -164,6 +170,7 @@ describe('ContentRenderer Component', () => {
             });
             const wrapper = mount(ContentRenderer, {
               propsData: props,
+              store,
             });
             // 'created' hook runs it once. Running it here again for testing.
             // TODO Look into how to do this without calling the method directly
@@ -181,6 +188,7 @@ describe('ContentRenderer Component', () => {
           });
           const wrapper = mount(ContentRenderer, {
             propsData: props,
+            store,
           });
           // 'created' hook runs it once. Running it here again for testing.
           return wrapper.vm.updateRendererComponent().then(component => {

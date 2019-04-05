@@ -1,24 +1,25 @@
 <template>
 
-  <button
+  <component
+    :is="htmlTag"
     ref="button"
     dir="auto"
     :class="buttonClasses"
     :type="type"
     :disabled="disabled"
+    tabindex="0"
     @click="handleClick"
+    @keyup.enter.stop.prevent="handelPressEnter"
   >
     <slot v-if="$slots.default"></slot>
-    <template v-else>
-      {{ text }}
-    </template>
+    <template v-else>{{ text }}</template>
     <mat-svg
       v-if="hasDropdown"
       category="navigation"
       name="arrow_drop_down"
       class="dropdown-arrow"
     />
-  </button>
+  </component>
 
 </template>
 
@@ -26,22 +27,15 @@
 <script>
 
   import { validator } from './appearances.js';
-  import buttonClassesMixin from './buttonClassesMixin.js';
+  import buttonMixin from './buttonMixin.js';
 
   /**
    * The KButton component is used to trigger actions
    */
   export default {
     name: 'KButton',
-    mixins: [buttonClassesMixin],
+    mixins: [buttonMixin],
     props: {
-      /**
-       * Button label text
-       */
-      text: {
-        type: String,
-        required: false,
-      },
       /**
        * Button appearance: 'raised-button', 'flat-button', or 'basic-link'
        */
@@ -49,13 +43,6 @@
         type: String,
         default: 'raised-button',
         validator,
-      },
-      /**
-       * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
-       */
-      primary: {
-        type: Boolean,
-        default: false,
       },
       /**
        * Whether or not button is disabled
@@ -81,12 +68,38 @@
         default: false,
       },
     },
+    computed: {
+      htmlTag() {
+        // Necessary to allow basic links to be rendered as 'inline' instead of
+        // 'inline-block': https://stackoverflow.com/a/27770128
+        if (this.appearance === 'basic-link') {
+          return 'a';
+        }
+        return 'button';
+      },
+    },
     methods: {
       handleClick(event) {
         /**
          * Emitted when the button is triggered
          */
+        this.blurWhenClicked();
         this.$emit('click', event);
+      },
+      handelPressEnter(event) {
+        this.blurWhenClicked();
+        // HACK: for 'a' tags, the 'click' event is not getting fired
+        if (this.htmlTag === 'a') {
+          this.$emit('click', event);
+        }
+      },
+      // To prevent the <a> from maintaining focus when link does not
+      // destroy parent component (e.g. opens a modal), we need to blur it,
+      // because it will be "clicked" again when the user hits the Enter key.
+      blurWhenClicked() {
+        if (this.htmlTag === 'a') {
+          this.$el.blur();
+        }
       },
     },
   };
@@ -99,7 +112,8 @@
   @import './buttons';
 
   .dropdown-arrow {
-    vertical-align: middle;
+    position: relative;
+    top: 6px;
   }
 
 </style>

@@ -3,6 +3,7 @@ import ContentRendererModule from 'content_renderer_module';
 
 class DocumentEPUBModule extends ContentRendererModule {
   get rendererComponent() {
+    EPUBComponent.contentModule = this;
     return EPUBComponent;
   }
 }

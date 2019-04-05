@@ -1,7 +1,7 @@
 <template>
 
   <div v-if="isUserLoggedIn">
-    <div ref="icon" class="points">
+    <div ref="icon" class="points" :style="{ color: $coreTextAnnotation }">
       <PointsIcon class="icon" :active="true" />
       <div class="description">
         <div class="description-value">
@@ -23,6 +23,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -33,6 +34,7 @@
       PointsIcon,
       KTooltip,
     },
+    mixins: [themeMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
@@ -47,11 +49,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .points {
     padding: 8px 0;
-    color: $core-text-annotation;
   }
 
   .icon {

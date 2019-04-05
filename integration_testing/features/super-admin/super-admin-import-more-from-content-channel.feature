@@ -1,4 +1,4 @@
-Feature: Super admin import more content
+Feature: Super admin imports more content
     Admin needs to be able to import additional resources from the content channels previously already imported on the device
 
   Background:

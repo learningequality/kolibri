@@ -24,6 +24,7 @@
     data() {
       return {
         isInFullscreen: false,
+        toggling: false,
       };
     },
     computed: {
@@ -50,20 +51,22 @@
       }
     },
     methods: {
-      enterFullScreen() {
-        if (fullscreenApiIsSupported) {
-          ScreenFull.toggle(this.$refs.fullscreen);
-        }
-        this.isInFullscreen = true;
-      },
-      exitFullscreen() {
-        if (fullscreenApiIsSupported) {
-          ScreenFull.toggle(this.$refs.fullscreen);
-        }
-        this.isInFullscreen = false;
-      },
       toggleFullscreen() {
-        this.isInFullscreen ? this.exitFullscreen() : this.enterFullScreen();
+        if (!this.toggling) {
+          let fullScreenPromise;
+          this.toggling = true;
+          if (fullscreenApiIsSupported) {
+            fullScreenPromise = ScreenFull.toggle(this.$refs.fullscreen);
+          } else {
+            fullScreenPromise = Promise.resolve();
+          }
+          fullScreenPromise.then(() => {
+            this.isInFullscreen = fullscreenApiIsSupported
+              ? ScreenFull.isFullscreen
+              : !this.isInFullscreen;
+            this.toggling = false;
+          });
+        }
       },
     },
   };

@@ -12,6 +12,7 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 import django
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
+from django.db import connections
 from django.db.utils import DatabaseError
 from docopt import docopt
 
@@ -27,6 +28,7 @@ from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+from kolibri.utils import conf  # noqa
 
 
 USAGE = """
@@ -123,6 +125,11 @@ def version_file():
     return os.path.join(KOLIBRI_HOME, '.data_version')
 
 
+def should_back_up(kolibri_version, version_file_contents):
+    change_version = kolibri_version != version_file_contents
+    return change_version and 'dev' not in version_file_contents and 'dev' not in kolibri_version
+
+
 def initialize(debug=False):
     """
     Currently, always called before running commands. This may change in case
@@ -144,8 +151,8 @@ def initialize(debug=False):
 
         version = open(version_file(), "r").read()
         version = version.strip() if version else ""
-        change_version = kolibri.__version__ != version
-        if change_version:
+
+        if should_back_up(kolibri.__version__, version):
             # dbbackup will load settings.INSTALLED_APPS.
             # we need to ensure plugins are correct in conf.config before
             enable_default_plugins()
@@ -164,7 +171,7 @@ def initialize(debug=False):
 
         setup_logging(debug=debug)
 
-        if change_version:
+        if kolibri.__version__ != version:
             logger.info(
                 "Version was {old}, new version: {new}".format(
                     old=version,
@@ -267,6 +274,7 @@ def start(port=None, daemon=True):
     :param: port: Port number (default: 8080)
     :param: daemon: Fork to background process (default: True)
     """
+    run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
 
     # This is temporarily put in place because of
     # https://github.com/learningequality/kolibri/issues/1615
@@ -282,19 +290,22 @@ def start(port=None, daemon=True):
     else:
         logger.info("Running 'kolibri start' as daemon (system service)")
 
-    __, urls = server.get_urls(listen_port=port)
-    if not urls:
-        logger.error(
-            "Could not detect an IP address that Kolibri binds to, but try "
-            "opening up the following addresses:\n")
-        urls = [
-            "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
-        ]
+    if run_cherrypy:
+        __, urls = server.get_urls(listen_port=port)
+        if not urls:
+            logger.error(
+                "Could not detect an IP address that Kolibri binds to, but try "
+                "opening up the following addresses:\n")
+            urls = [
+                "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+            ]
+        else:
+            logger.info("Kolibri running on:\n")
+        for addr in urls:
+            sys.stderr.write("\t{}\n".format(addr))
+        sys.stderr.write("\n")
     else:
-        logger.info("Kolibri running on:\n")
-    for addr in urls:
-        sys.stderr.write("\t{}\n".format(addr))
-    sys.stderr.write("\n")
+        logger.info("Starting Kolibri background services")
 
     # Daemonize at this point, no more user output is needed
     if daemon:
@@ -308,9 +319,14 @@ def start(port=None, daemon=True):
         )
         kwargs['out_log'] = server.DAEMON_LOG
         kwargs['err_log'] = server.DAEMON_LOG
+
+        # close all connections before forking, to avoid SQLite corruption:
+        # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
+        connections.close_all()
+
         become_daemon(**kwargs)
 
-    server.start(port=port)
+    server.start(port=port, run_cherrypy=run_cherrypy)
 
 
 def stop():
@@ -321,7 +337,10 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        logger.info("Kolibri server has successfully been stopped.")
+        if conf.OPTIONS["Server"]["CHERRYPY_START"]:
+            logger.info("Kolibri server has successfully been stopped.")
+        else:
+            logger.info("Kolibri background services have successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
             code=e.status_code,
@@ -369,9 +388,10 @@ def status():
 
     if status_code == server.STATUS_RUNNING:
         sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
-        sys.stderr.write("Kolibri running on:\n\n")
-        for addr in urls:
-            sys.stderr.write("\t{}\n".format(addr))
+        if urls:
+            sys.stderr.write("Kolibri running on:\n\n")
+            for addr in urls:
+                sys.stderr.write("\t{}\n".format(addr))
         return server.STATUS_RUNNING
     else:
         verbose_status = status.codes[status_code]
@@ -436,8 +456,8 @@ def _is_plugin(obj):
     from kolibri.plugins.base import KolibriPluginBase  # NOQA
 
     return (
-        isinstance(obj, type) and obj is not KolibriPluginBase and
-        issubclass(obj, KolibriPluginBase)
+        isinstance(obj, type) and obj is not KolibriPluginBase
+        and issubclass(obj, KolibriPluginBase)
     )
 
 
@@ -603,33 +623,19 @@ def main(args=None):  # noqa: max-complexity=13
 
     if arguments['start']:
         port = _get_port(arguments['--port'])
-        check_other_kolibri_running(port)
+        if OPTIONS["Server"]["CHERRYPY_START"]:
+            check_other_kolibri_running(port)
 
     try:
         initialize(debug=debug)
     except (DatabaseError, SQLite3DatabaseError) as e:
-        from django.conf import settings
         if "malformed" in str(e):
-            recover_cmd = (
-                "    sqlite3 {path} .dump | sqlite3 fixed.db \n"
-                "    cp fixed.db {path}"
-                ""
-            ).format(
-                path=settings.DATABASES['default']['NAME'],
-            )
             logger.error(
-                "\n"
-                "Your database is corrupted. This is a "
-                "known issue that is usually fixed by running this "
-                "command: "
-                "\n\n" +
-                recover_cmd +
-                "\n\n"
-                "Notice that you need the 'sqlite3' command available "
-                "on your system prior to running this."
-                "\n\n"
+                "Your database appears to be corrupted. If you encounter this,"
+                "please immediately back up all files in the .kolibri folder that"
+                "end in .sqlite3, .sqlite3-shm, .sqlite3-wal, or .log and then"
+                "contact Learning Equality. Thank you!"
             )
-            sys.exit(1)
         raise
 
     # Alias
@@ -648,7 +654,10 @@ def main(args=None):  # noqa: max-complexity=13
         return
 
     if arguments['start']:
-
+        try:
+            server._write_pid_file(server.STARTUP_LOCK, port)
+        except (IOError, OSError):
+            logger.warn('Impossible to create file lock to communicate starting process')
         # Check if the content directory exists when Kolibri runs after the first time.
         check_content_directory_exists_and_writable()
 
@@ -659,6 +668,8 @@ def main(args=None):  # noqa: max-complexity=13
         call_command("clearsessions")
 
         daemon = not arguments['--foreground']
+        if sys.platform == 'darwin':
+            daemon = False
         start(port, daemon=daemon)
         return
 

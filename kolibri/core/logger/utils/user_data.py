@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
 from django.db.models.query import F
+from django.utils import timezone
 from le_utils.constants import content_kinds
 
 from kolibri.core.auth.filters import HierarchyRelationsFilter
@@ -17,10 +18,15 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 
 logger = logging.getLogger(__name__)
@@ -229,10 +235,10 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
             assessment_item_ids = random_node.assessmentmetadata.first().assessment_item_ids
             if not assessment_item_ids:
                 continue
-            for i, session_log in enumerate(reversed(session_logs)):
+            for j, session_log in enumerate(reversed(session_logs)):
                 # Always make students get 5 attempts correct in the most recent session
                 # if the exercise is complete
-                complete = (i == 0 and mastery_log.complete)
+                complete = (j == 0 and mastery_log.complete)
                 if complete:
                     n = 5
                 else:
@@ -241,7 +247,7 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                 # How long did they spend on these n questions?
                 timespan = session_log.end_timestamp - session_log.start_timestamp
                 # Index through each individual question
-                for j in range(0, n):
+                for k in range(0, n):
                     if complete:
                         # If this is the session where they completed the exercise, always
                         # make them get it right
@@ -250,11 +256,11 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                         # Otherwise only let students get odd indexed questions right,
                         # ensuring they will always have a mastery breaking sequence
                         # as zero based indexing means their first attempt will always be wrong!
-                        correct = j % 2 == 1
+                        correct = k % 2 == 1
 
-                    start_timestamp = session_log.end_timestamp - (timespan / n) * (j + 1)
+                    start_timestamp = session_log.end_timestamp - (timespan / n) * (k + 1)
 
-                    end_timestamp = session_log.end_timestamp - (timespan / n) * j
+                    end_timestamp = session_log.end_timestamp - (timespan / n) * k
 
                     # If incorrect, must have made at least two attempts at the question
                     question_attempts = 1 if correct else random.randint(2, 5)
@@ -325,7 +331,7 @@ def create_lessons_for_classroom(**options):
 
     classroom = options['classroom']
     channels = options['channels']
-    lessons = options['lessons']
+    num_lessons = options['lessons']
     facility = options['facility']
     now = options['now']
 
@@ -338,14 +344,14 @@ def create_lessons_for_classroom(**options):
     else:
         members = facility.get_members()
         if not members:
-            coach = FacilityUser.objects.create(username='admin', facility=facility)
+            coach = FacilityUser.objects.create(username='coach', facility=facility)
             coach.set_password('password')
             coach.save()
         else:
             coach = random.choice(members)
             facility.add_coach(coach)
 
-    for lesson in range(lessons):
+    for count in range(num_lessons):
 
         channel = random.choice(channels)
         channel_content = ContentNode.objects.filter(channel_id=channel.id)
@@ -354,17 +360,112 @@ def create_lessons_for_classroom(**options):
         lesson_content = []
         for i in range(0, n_content_items):
             # Use this to randomly select a content node to generate the interaction for
-            index = random.randint(0, channel_content.count() - 1)
-            random_node = channel_content[index]
+            random_node = random.choice(channel_content)
             content = {"contentnode_id": random_node.id, "channel_id": channel.id, "content_id": random_node.content_id}
             lesson_content.append(content)
 
-        Lesson.objects.create(
-            title='Lesson {}-{a}'.format(lesson, a=random.choice('ABCDEF')),
+        lesson = Lesson.objects.create(
+            title='Lesson {}-{a}'.format(count, a=random.choice('ABCDEF')),
             resources=lesson_content,
             is_active=True,
             collection=classroom,
             created_by=coach,
             date_created=now
-
         )
+        LessonAssignment.objects.create(
+            lesson=lesson,
+            collection=classroom,
+            assigned_by=coach,
+        )
+
+
+def create_exams_for_classrooms(**options):
+
+    classroom = options['classroom']
+    channels = options['channels']
+    num_exams = options['exams']
+    facility = options['facility']
+    now = options['now']
+
+    if not channels:
+        return
+
+    coaches = facility.get_coaches()
+    if coaches:
+        coach = random.choice(coaches)
+    else:
+        members = facility.get_members()
+        if not members:
+            coach = FacilityUser.objects.create(username='coach', facility=facility)
+            coach.set_password('password')
+            coach.save()
+        else:
+            coach = random.choice(members)
+            facility.add_coach(coach)
+
+    for count in range(num_exams):
+
+        # exam questions can come from different channels
+        exercise_content = ContentNode.objects.filter(kind=content_kinds.EXERCISE)
+        # don't add more than 3 resources per:
+        n_content_items = min(random.randint(0, exercise_content.count() - 1), 3)
+        exam_content = []
+        content_ids = []
+        assessment_ids = []
+        for i in range(0, n_content_items):
+            # Use this to randomly select an exercise content node to generate the interaction for
+            random_node = random.choice(exercise_content)
+            # grab this exercise node's assessment ids
+            assessment_item_ids = random_node.assessmentmetadata.first().assessment_item_ids
+            # randomly select one of the questions in the exercise and store the ids for the exam attempt logs
+            assessment_ids.append(random.choice(assessment_item_ids))
+            content = {"exercise_id": random_node.id, "question_id": assessment_ids[i], "title": random_node.title}
+            exam_content.append(content)
+            # store content ids for when we generate exam attempt logs
+            content_ids.append(random_node.content_id)
+
+        exam = Exam.objects.create(
+            title='Quiz {}-{a}'.format(count, a=random.choice('ABCDEF')),
+            question_count=n_content_items,
+            question_sources=exam_content,
+            active=True,
+            collection=classroom,
+            creator=coach,
+            data_model_version=1,
+        )
+        ExamAssignment.objects.create(
+            exam=exam,
+            collection=classroom,
+            assigned_by=coach
+        )
+        # everyone in the class has to take the exam
+        for user in classroom.get_members():
+            # create exam log per user
+            examlog = ExamLog.objects.create(
+                exam=exam,
+                user=user,
+                completion_timestamp=now,
+            )
+            # create 1 exam attempt log per question in exam
+            for i in range(len(exam_content)):
+                correct = random.choice([0, 1])
+                random_seconds = random.randint(1, 100)
+                seconds = timezone.timedelta(seconds=random_seconds)
+                ExamAttemptLog.objects.create(
+                    item=assessment_ids[i],
+                    start_timestamp=now - seconds,
+                    end_timestamp=now,
+                    completion_timestamp=now,
+                    time_spent=random_seconds,
+                    complete=True,
+                    correct=correct,
+                    # hints not allowed for exams
+                    hinted=False,
+                    # We can't meaningfully generate fake answer data/interaction history for Perseus exercises
+                    # (which are currently our only exercise type) - so don't bother.
+                    answer={},
+                    interaction_history={},
+                    user=user,
+                    examlog=examlog,
+                    content_id=content_ids[i]
+                )

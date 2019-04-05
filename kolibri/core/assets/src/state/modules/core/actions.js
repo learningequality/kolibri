@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce';
+import pick from 'lodash/pick';
 import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
@@ -11,13 +12,17 @@ import {
   ChannelResource,
   AttemptLogResource,
   UserProgressResource,
+  PingbackNotificationResource,
+  PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
-import { now } from 'kolibri.utils.serverClock';
+import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import { redirectBrowser } from 'kolibri.utils.browser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
+import Lockr from 'lockr';
+import { baseSessionState } from '../session';
 import intervalTimer from '../../../timer';
 import {
   MasteryLoggingMap,
@@ -25,6 +30,7 @@ import {
   InteractionTypes,
   LoginErrors,
   ERROR_CONSTANTS,
+  UPDATE_MODAL_DISMISSED,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
 
@@ -98,19 +104,6 @@ function _contentSessionModel(store) {
   };
 }
 
-function _sessionState(data) {
-  return {
-    id: data.id,
-    username: data.username,
-    full_name: data.full_name,
-    user_id: data.user_id,
-    facility_id: data.facility_id,
-    kind: data.kind,
-    error: data.error,
-    can_manage_content: data.can_manage_content,
-  };
-}
-
 function _masteryLogModel(store) {
   const mapping = {};
   const masteryLog = store.getters.logging.mastery;
@@ -152,6 +145,16 @@ function _channelListState(data) {
   }));
 }
 
+function _notificationListState(data) {
+  return data.map(notification => ({
+    id: notification.id,
+    version_range: notification.version_range,
+    timestamp: notification.timestamp,
+    link_url: notification.link_url,
+    i18n: notification.i18n,
+  }));
+}
+
 /**
  * Actions
  *
@@ -164,6 +167,10 @@ export function handleError(store, errorString) {
   store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
+export function clearError(store) {
+  store.commit('CORE_SET_ERROR', null);
+}
+
 export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
@@ -172,6 +179,7 @@ export function handleApiError(store, errorObject) {
     error = errorObject.toString();
   }
   handleError(store, error);
+  throw errorObject;
 }
 
 /**
@@ -190,6 +198,13 @@ export function blockDoubleClicks(store) {
   }
 }
 
+export function setSession(store, { session, clientNow }) {
+  const serverTime = session.server_time;
+  setServerTime(serverTime, clientNow);
+  session = pick(session, Object.keys(baseSessionState));
+  store.commit('CORE_SET_SESSION', session);
+}
+
 /**
  * Signs in user.
  *
@@ -198,9 +213,10 @@ export function blockDoubleClicks(store) {
  */
 export function kolibriLogin(store, sessionPayload) {
   store.commit('CORE_SET_SIGN_IN_BUSY', true);
+  Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
-    .then(session => {
-      store.commit('CORE_SET_SESSION', _sessionState(session));
+    .then(() => {
+      // Redirect on login
       redirectBrowser();
     })
     .catch(error => {
@@ -226,15 +242,36 @@ export function kolibriLogout() {
   redirectBrowser(urls['kolibri:core:logout']());
 }
 
-export function getCurrentSession(store, force = false) {
-  return SessionResource.fetchModel({
-    id: 'current',
-    force,
-  })
-    .then(session => {
-      logging.info('Session set.');
-      store.commit('CORE_SET_SESSION', _sessionState(session));
-      return session;
+const _setPageVisibility = debounce((store, visibility) => {
+  store.commit('CORE_SET_PAGE_VISIBILITY', visibility);
+}, 500);
+
+export function setPageVisibility(store) {
+  _setPageVisibility(store, document.visibilityState === 'visible');
+}
+
+export function getNotifications(store) {
+  if (store.getters.isAdmin || store.getters.isSuperuser) {
+    return PingbackNotificationResource.fetchCollection()
+      .then(notifications => {
+        logging.info('Notifications set.');
+        store.commit('CORE_SET_NOTIFICATIONS', _notificationListState(notifications));
+      })
+      .catch(error => {
+        store.dispatch('handleApiError', error);
+      });
+  }
+  return Promise.resolve();
+}
+
+export function saveDismissedNotification(store, notification_id) {
+  const dismissedNotificationData = {
+    user: store.getters.session.user_id,
+    notification: notification_id,
+  };
+  return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })
+    .then(() => {
+      store.commit('CORE_REMOVE_NOTIFICATION', notification_id);
     })
     .catch(error => {
       store.dispatch('handleApiError', error);
@@ -494,7 +531,11 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
 
   /* Save models if needed */
   if (forceSave || completedContent || progressThresholdMet) {
-    saveLogs(store);
+    if (store.state.pageVisible) {
+      // Only update logs if page is currently visible, prevent background tabs
+      // from generating server load.
+      saveLogs(store);
+    }
   }
   return summaryProgress;
 }
@@ -514,7 +555,7 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
   progressPercent = progressPercent || 0;
-  const sessionProgress = sessionLog.progress + progressPercent;
+  const sessionProgress = Math.min(1, sessionLog.progress + progressPercent);
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;
@@ -525,10 +566,10 @@ export function updateProgress(store, { progressPercent, forceSave = false }) {
 /**
 summary and session log progress update for exercise
 **/
-export function updateExerciseProgress(store, { progressPercent, forceSave = false }) {
+export function updateExerciseProgress(store, { progressPercent }) {
   /* Update the logging state with new progress information */
   progressPercent = progressPercent || 0;
-  return _updateProgress(store, progressPercent, progressPercent, forceSave);
+  return _updateProgress(store, progressPercent, progressPercent, true);
 }
 
 /**

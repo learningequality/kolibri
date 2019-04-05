@@ -98,7 +98,7 @@ HTMLHint.addRule({
           // http://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
           var match = eventData.match(/^(\n*)( *)[^]+?(\n*)$/);
           if (match) {
-            if (match && match[1].length !== 2) {
+            if (match[1].length !== 2) {
               reporter.error(
                 'Top-level content should be surrounded by one empty line.',
                 event.line,
@@ -107,7 +107,7 @@ HTMLHint.addRule({
                 event.raw
               );
             }
-            if (match && match[2].length !== 2) {
+            if (match[2].length !== 2) {
               reporter.error(
                 'Top-level content should be indented two spaces.',
                 event.line,
@@ -116,7 +116,7 @@ HTMLHint.addRule({
                 event.raw
               );
             }
-            if (match && match[3].length !== 2) {
+            if (match[3].length !== 2) {
               var offset = (eventData.match(/\n/g) || []).length;
               reporter.error(
                 'Top-level content should be surrounded by one empty line.',

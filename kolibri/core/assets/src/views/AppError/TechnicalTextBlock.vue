@@ -8,7 +8,10 @@
       class="error-log"
       wrap="soft"
       aria-hidden="true"
-      :style="dynamicHeightStyle"
+      :style="[dynamicHeightStyle, {
+        backgroundColor: $coreBgError,
+        border: $coreGrey300,
+      }]"
     >
     </textarea>
     <!-- invisible text block for copying, visible to screenreaders -->
@@ -30,6 +33,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ClipboardJS from 'clipboard';
 
@@ -43,6 +47,7 @@
     components: {
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       text: {
         type: String,
@@ -112,8 +117,6 @@
     line-height: 18px;
     white-space: pre;
     resize: none;
-    background-color: $core-bg-error;
-    border: $core-grey-300;
     border-radius: $radius;
   }
 

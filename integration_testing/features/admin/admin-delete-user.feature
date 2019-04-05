@@ -1,4 +1,4 @@
-Feature: Admin delete users
+Feature: Admin deletes users
   Admin needs to be able to delete users from the facility
 
   Background:
@@ -7,7 +7,7 @@ Feature: Admin delete users
 
   Scenario: Delete user
     When I click on *Options* button for the user I want to edit
-      And I select *Delete* option
+      And I select the *Delete* option
     Then I see *Delete user * modal
     When I click the *Delete* button
     Then the modal closes

@@ -9,7 +9,7 @@ High level abstraction for prepresenting different content kinds, such as Topic,
 File
 ----
 
-A Django model that is used to store details about the source file, such as what language it supports, how big is the size, which format the file is and where to find the source file.
+Model that stores details about a source file such the language, size, format, and location.
 
 ContentDB diagram
 -----------------
@@ -29,7 +29,7 @@ This model is used to establish a filtering system for all ContentNode objects.
 ChannelMetadata
 ---------------
 
-A Django model in each content database that stores the database readable names, description and author for each channel.
+Model in each content database that stores the database readable names, description and author for each channel.
 
 ChannelMetadataCache
 --------------------

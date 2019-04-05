@@ -1,9 +1,9 @@
 <template>
 
-  <div class="wrapper">
+  <div :style="{ backgroundColor: $coreActionNormal }">
     <UiToolbar
       :title="title"
-      type="colored"
+      type="clear"
       textColor="white"
       class="app-bar"
       :style="{ height: height + 'px' }"
@@ -32,7 +32,7 @@
         <UiButton
           ref="userMenuButton"
           type="primary"
-          color="primary"
+          color="clear"
           class="user-menu-button"
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
@@ -42,7 +42,7 @@
             name="person"
             category="social"
           />
-          <template v-if="isUserLoggedIn">{{ username }}</template>
+          <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
           <mat-svg name="arrow_drop_down" category="navigation" />
         </UiButton>
 
@@ -72,7 +72,7 @@
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
-              @select="showLanguageModal = true"
+              @select="handleChangeLanguage"
             >
               <mat-svg
                 slot="icon"
@@ -85,11 +85,6 @@
 
         </CoreMenu>
 
-        <LanguageSwitcherModal
-          v-if="showLanguageModal"
-          class="override-ui-toolbar"
-          @close="showLanguageModal = false"
-        />
       </div>
     </UiToolbar>
     <div class="subpage-nav">
@@ -103,9 +98,9 @@
 <script>
 
   import { mapGetters, mapState, mapActions } from 'vuex';
-  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -113,7 +108,6 @@
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import navComponentsMixin from '../mixins/nav-components';
-  import LanguageSwitcherModal from './language-switcher/LanguageSwitcherModal';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
 
   export default {
@@ -123,12 +117,11 @@
       UiIconButton,
       CoreMenu,
       UiButton,
-      LanguageSwitcherModal,
       CoreMenuOption,
       LogoutSideNavEntry,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, navComponentsMixin],
+    mixins: [navComponentsMixin, themeMixin],
     $trs: {
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
@@ -146,7 +139,6 @@
     },
     data() {
       return {
-        showLanguageModal: false,
         userMenuDropdownIsOpen: false,
       };
     },
@@ -162,13 +154,13 @@
       },
     },
     created() {
-      window.addEventListener('click', this.handleClick);
+      window.addEventListener('click', this.handleWindowClick);
     },
     beforeDestroy() {
-      window.removeEventListener('click', this.handleClick);
+      window.removeEventListener('click', this.handleWindowClick);
     },
     methods: {
-      handleClick(event) {
+      handleWindowClick(event) {
         if (
           !this.$refs.userMenuDropdown.$el.contains(event.target) &&
           !this.$refs.userMenuButton.$el.contains(event.target) &&
@@ -178,6 +170,10 @@
         }
         return event;
       },
+      handleChangeLanguage() {
+        this.$emit('showLanguageModal');
+        this.userMenuDropdownIsOpen = false;
+      },
       ...mapActions(['kolibriLogout']),
     },
   };
@@ -186,16 +182,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  /deep/ .override-ui-toolbar {
-    color: $core-text-default;
-  }
-
-  .wrapper {
-    background-color: $core-action-normal;
-  }
 
   .app-bar {
     overflow: hidden;
@@ -209,10 +195,17 @@
     }
   }
 
+  .username {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .user-menu-dropdown {
     position: fixed;
     right: 0;
     z-index: 8;
+    background-color: white;
   }
 
   .role {

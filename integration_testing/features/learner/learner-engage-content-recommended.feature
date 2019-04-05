@@ -1,5 +1,5 @@
-Feature: Learner engage recommended content
-  Learner needs to engage with content on Recommended tab
+Feature: Learner engages recommended content
+  Learner needs to engage with content in the Recommended tab
 
   Background:
     Given I am signed in to Kolibri as a learner user

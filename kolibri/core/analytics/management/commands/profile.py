@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
         if not conf.OPTIONS["Server"]["PROFILE"]:
             print("Kolibri has not enabled profiling of its requests."
-                  "To enable it, edit the Kolibri options.ini file and"
+                  "To enable it, edit the Kolibri options.ini file and "
                   "add `PROFILE = true` in the [Server] section")
 
         if os.path.exists(PROFILE_LOCK):

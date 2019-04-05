@@ -7,6 +7,7 @@ import sys
 from importlib import import_module
 
 import factory
+import mock
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from rest_framework import status
@@ -17,6 +18,7 @@ from ..constants import role_kinds
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
+from kolibri.core import error_constants
 
 
 # A weird hack because of http://bugs.python.org/issue17866
@@ -115,6 +117,14 @@ class LearnerGroupAPITestCase(APITestCase):
             self.assertItemsEqual(group.pop('user_ids'), expected[i].pop('user_ids'))
         self.assertItemsEqual(response.data, expected)
 
+    def test_cannot_create_learnergroup_same_name(self):
+        classroom_id = self.classrooms[0].id
+        learner_group_name = models.LearnerGroup.objects.filter(parent_id=classroom_id).first().name
+        response = self.client.post(reverse('kolibri:core:learnergroup-list'), {'parent': classroom_id, 'name': learner_group_name},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
+
 
 class ClassroomAPITestCase(APITestCase):
 
@@ -147,6 +157,13 @@ class ClassroomAPITestCase(APITestCase):
             'coaches': []
         }
         self.assertDictEqual(response.data, expected)
+
+    def test_cannot_create_classroom_same_name(self):
+        classroom_name = self.classrooms[0].name
+        response = self.client.post(reverse('kolibri:core:classroom-list'), {'parent': self.facility.id, 'name': classroom_name},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.UNIQUE)
 
 
 class FacilityAPITestCase(APITestCase):
@@ -242,6 +259,12 @@ class UserCreationTestCase(APITestCase):
         response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_creating_user_same_username_case_insensitive(self):
+        data = {"username": self.superuser.username.upper(), "password": DUMMY_PASSWORD, "facility": self.facility.id}
+        response = self.client.post(reverse('kolibri:core:facilityuser-list'), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.USERNAME_ALREADY_EXISTS)
+
 
 class UserUpdateTestCase(APITestCase):
 
@@ -271,6 +294,18 @@ class UserUpdateTestCase(APITestCase):
         self.client.logout()
         response = self.client.login(username=self.user.username, password=new_password, facility=self.facility)
         self.assertTrue(response)
+
+    def test_updating_user_same_username_case_insensitive(self):
+        response = self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}),
+                                     {'username': self.superuser.username.upper()}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]['id'], error_constants.USERNAME_ALREADY_EXISTS)
+
+    def test_updating_same_user_same_username_case_insensitive(self):
+        response = self.client.patch(reverse('kolibri:core:facilityuser-detail', kwargs={'pk': self.user.pk}),
+                                     {'username': self.user.username.upper()}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(models.FacilityUser.objects.filter(username=self.user.username.upper()).exists())
 
 
 class UserDeleteTestCase(APITestCase):
@@ -358,11 +393,19 @@ class AnonSignUpTestCase(APITestCase):
         self.assertEqual(response.data['username'], 'user')
         self.assertEqual(response.data['full_name'], full_name)
 
-    def test_create_user_with_same_username_fails(self):
-        FacilityUserFactory.create(username='bob')
-        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+    def test_create_user_with_same_username_case_insensitive_fails(self):
+        FacilityUserFactory.create(username='bob', facility=self.facility)
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "BOB", "password": DUMMY_PASSWORD})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(models.FacilityUser.objects.all()), 1)
+
+    def test_create_user_with_same_username_other_facility(self):
+        user = FacilityUserFactory.create(username='bob')
+        other_facility = models.Facility.objects.exclude(id=user.facility.id)[0]
+        with mock.patch('kolibri.core.auth.models.Facility.get_default_facility', return_value=other_facility):
+            response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "bob", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(models.FacilityUser.objects.all()), 2)
 
     def test_create_bad_username_fails(self):
         response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "(***)", "password": DUMMY_PASSWORD})
@@ -373,6 +416,13 @@ class AnonSignUpTestCase(APITestCase):
         session_key = self.client.session.session_key
         self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
         self.assertNotEqual(session_key, self.client.session.session_key)
+
+    def test_sign_up_able_no_guest_access(self):
+        self.facility.dataset.allow_guest_access = False
+        self.facility.dataset.save()
+        response = self.client.post(reverse('kolibri:core:signup-list'), data={"username": "user", "password": DUMMY_PASSWORD})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
 
 
 class FacilityDatasetAPITestCase(APITestCase):
@@ -426,22 +476,31 @@ class MembershipCascadeDeletion(APITestCase):
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
         self.user = FacilityUserFactory.create(facility=self.facility)
+        self.other_user = FacilityUserFactory.create(facility=self.facility)
         self.classroom = ClassroomFactory.create(parent=self.facility)
         self.lg = LearnerGroupFactory.create(parent=self.classroom)
         self.classroom_membership = models.Membership.objects.create(collection=self.classroom, user=self.user)
         models.Membership.objects.create(collection=self.lg, user=self.user)
+        # create other user memberships
+        models.Membership.objects.create(collection=self.classroom, user=self.other_user)
+        models.Membership.objects.create(collection=self.lg, user=self.other_user)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
 
     def test_delete_classroom_membership(self):
         url = reverse('kolibri:core:membership-list') + "?user={}&collection={}".format(self.user.id, self.classroom.id)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
 
     def test_delete_detail(self):
-        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD, facility=self.facility)
         response = self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
         self.assertEqual(response.status_code, 204)
-        self.assertFalse(models.Membership.objects.all().exists())
+        self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
+
+    def test_delete_does_not_affect_other_user_memberships(self):
+        expected_count = models.Membership.objects.filter(user=self.other_user).count()
+        self.client.delete(reverse('kolibri:core:membership-detail', kwargs={'pk': self.classroom_membership.id}))
+        self.assertEqual(models.Membership.objects.filter(user=self.other_user).count(), expected_count)
 
 
 class GroupMembership(APITestCase):
@@ -475,7 +534,7 @@ class GroupMembership(APITestCase):
         models.Membership.objects.create(user=self.user, collection=self.lg12)
         url = reverse('kolibri:core:membership-list')
         response = self.client.post(url, {'user': self.user.id, 'collection': self.lg11.id})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
 
     def test_create_class_membership_group_membership_different_class(self):
         self.classroom2_membership.delete()

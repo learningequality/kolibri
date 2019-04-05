@@ -1,4 +1,4 @@
-Feature: Super admin export usage data
+Feature: Super admin exports usage data
     Super admin needs to be able to export session and summary logs for the facility
 
   Background:
@@ -19,3 +19,4 @@ Feature: Super admin export usage data
     When I enter the name and loaction for the CSV file
       And I click the *Save* button
     Then I see the summary logs file saved on my local drive
+    
