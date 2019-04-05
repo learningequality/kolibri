@@ -1752,7 +1752,7 @@ binaryextensions@2:
 
 "black-fmt@https://github.com/learningequality/black-fmt":
   version "0.0.1"
-  resolved "https://github.com/learningequality/black-fmt#7749f1f3e0d5eac6f0651a951a187cbeb9a006f4"
+  resolved "https://github.com/learningequality/black-fmt#5a8f1076f7ba4097d1824b0e834fb064d489f596"
   dependencies:
     chokidar "^2.1.5"
     commander "^2.19.0"
