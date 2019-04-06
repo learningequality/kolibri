@@ -13,7 +13,7 @@
       <p>
         <BackLink
           :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="$tr('back', { lesson: 'Lesson 1' })"
+          :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
       <h1>
