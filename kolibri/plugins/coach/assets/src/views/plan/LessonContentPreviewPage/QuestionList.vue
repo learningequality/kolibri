@@ -60,13 +60,6 @@
         validator: value => typeof value(0) === 'string',
       },
     },
-    computed: {
-      buttonAndHeaderBorder() {
-        return {
-          borderBottom: `2px solid ${this.$coreTextDisabled}`,
-        };
-      },
-    },
   };
 
 </script>

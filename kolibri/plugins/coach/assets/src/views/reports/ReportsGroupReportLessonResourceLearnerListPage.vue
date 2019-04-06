@@ -98,9 +98,6 @@
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
-      avgTime() {
-        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
-      },
       tally() {
         return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
       },

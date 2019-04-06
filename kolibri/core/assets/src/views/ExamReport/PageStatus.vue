@@ -43,7 +43,6 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
 
@@ -95,9 +94,6 @@
       progress() {
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
-      },
-      kind() {
-        return ContentNodeKinds.EXAM;
       },
     },
   };

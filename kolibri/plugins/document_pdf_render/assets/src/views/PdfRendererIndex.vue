@@ -125,17 +125,11 @@
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
-      pdfURL() {
-        return this.defaultFile.storage_url;
-      },
       targetTime() {
         return this.totalPages * 30;
       },
       documentLoading() {
         return this.progress < 1;
-      },
-      pdfPositionKey() {
-        return `pdfPosition-${this.files[0].id}`;
       },
       itemHeight() {
         return this.firstPageHeight * this.scale + MARGIN;

@@ -67,10 +67,6 @@
       UiAlert,
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       kind: {
         type: String,
         required: true,
@@ -78,14 +74,6 @@
       files: {
         type: Array,
         default: () => [],
-      },
-      contentId: {
-        type: String,
-        default: '',
-      },
-      channelId: {
-        type: String,
-        default: '',
       },
       available: {
         type: Boolean,

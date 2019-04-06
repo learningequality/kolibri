@@ -229,14 +229,6 @@
       recommendedText() {
         return this.$tr('recommended');
       },
-      parentTopic() {
-        const { breadcrumbs = [] } = this.content;
-        if (breadcrumbs.length > 0) {
-          return breadcrumbs[breadcrumbs.length - 1];
-        }
-
-        return undefined;
-      },
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress

@@ -73,9 +73,6 @@
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
-      tally() {
-        return this.getExamStatusTally(this.exam.id, this.recipients);
-      },
     },
     $trs: {
       back: 'All quizzes',

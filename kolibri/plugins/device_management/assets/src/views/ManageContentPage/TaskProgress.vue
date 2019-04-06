@@ -82,7 +82,6 @@
         type: Number,
         required: true,
       },
-      id: RequiredString,
       cancellable: {
         type: Boolean,
         required: true,

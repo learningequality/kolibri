@@ -55,11 +55,6 @@
         default: '',
       },
     },
-    computed: {
-      hasHeader() {
-        return Boolean(this.header);
-      },
-    },
   };
 
 </script>

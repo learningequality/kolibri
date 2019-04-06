@@ -300,13 +300,6 @@
       previewQuizStrings() {
         return previewQuizStrings;
       },
-      draggableOptions() {
-        return {
-          animation: 150,
-          touchStartThreshold: 3,
-          direction: 'vertical',
-        };
-      },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
       },

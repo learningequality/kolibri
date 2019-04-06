@@ -138,7 +138,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { ContentNodeKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
@@ -215,9 +215,6 @@
       },
       manageExamModalStrings() {
         return manageExamModalStrings;
-      },
-      examKind() {
-        return ContentNodeKinds.EXAM;
       },
       sortedExams() {
         return this.exams.slice().reverse();

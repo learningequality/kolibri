@@ -124,9 +124,6 @@
         type: Array,
         required: true,
       },
-      title: {
-        type: String,
-      },
       emptyMessage: {
         type: String,
       },

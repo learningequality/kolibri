@@ -73,9 +73,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      lesson() {
-        return this.lessonMap[this.$route.params.lessonId];
-      },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
