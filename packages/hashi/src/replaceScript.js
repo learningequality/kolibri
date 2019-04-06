@@ -23,49 +23,53 @@ export const runScriptTypes = [
 ];
 
 export default function replaceScript($script, callback) {
-  const s = document.createElement('script');
-  s.type = 'text/javascript';
-  [].forEach.call($script.attributes, attribute => {
-    // Set src later when everything else
-    // has been set.
-    if (attribute.name !== 'src') {
-      s.setAttribute(attribute.name, attribute.value);
-    }
-  });
-  if ($script.src) {
-    if (!$script.async) {
+  if (!$script.loaded) {
+    $script.loaded = true;
+    const s = document.createElement('script');
+    s.type = 'text/javascript';
+    [].forEach.call($script.attributes, attribute => {
+      // Set src later when everything else
+      // has been set.
+      if (attribute.name !== 'src') {
+        s.setAttribute(attribute.name, attribute.value);
+      }
+    });
+    if ($script.src) {
       const cb = () => {
         // Clean up onload and onerror handlers
         // after they have been triggered to avoid
         // these being called again.
-        delete s.onload;
-        delete s.onerror;
+        try {
+          delete s.onload;
+          delete s.onerror;
+        } catch (e) {} // eslint-disable-line no-empty
         callback();
       };
       s.onload = cb;
       s.onerror = cb;
+      s.src = $script.src;
+      s.async = false;
+    } else {
+      s.innerHTML = $script.innerHTML;
     }
-    s.src = $script.src;
-  } else {
-    s.innerHTML = $script.innerHTML;
-  }
 
-  const parentNode = $script.parentNode;
+    const parentNode = $script.parentNode;
 
-  const typeAttr = $script.getAttribute('type');
+    const typeAttr = $script.getAttribute('type');
 
-  // only run script tags without the type attribute
-  // or with a javascript mime attribute value
-  if (!typeAttr || runScriptTypes.indexOf(typeAttr) !== -1) {
-    // Remove the element so that we don't clutter the DOM
-    // with duplicates.
-    parentNode.removeChild($script);
-    // re-insert the script tag so it executes.
-    parentNode.appendChild(s);
-  }
+    // only run script tags without the type attribute
+    // or with a javascript mime attribute value
+    if (!typeAttr || runScriptTypes.indexOf(typeAttr) !== -1) {
+      // Remove the element so that we don't clutter the DOM
+      // with duplicates.
+      parentNode.removeChild($script);
+      // re-insert the script tag so it executes.
+      parentNode.appendChild(s);
+    }
 
-  // run the callback immediately for inline scripts
-  if (!$script.src || $script.async) {
-    callback();
+    // run the callback immediately for inline scripts
+    if (!$script.src) {
+      callback();
+    }
   }
 }
