@@ -97,7 +97,6 @@
       };
     },
     computed: {
-      TaskStatuses: () => TaskStatuses,
       stageText() {
         // Special case for Channel DB downloading, since they never go into RUNNING
         if (this.type === 'UPDATING_CHANNEL') {

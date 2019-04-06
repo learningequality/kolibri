@@ -112,8 +112,6 @@
         panBackwards: false,
         // tracks whether the carousel has been interacted with
         interacted: false,
-        contentCardWidth,
-        gutterWidth,
       };
     },
     computed: {

@@ -90,7 +90,6 @@
         selectedAddressId: '',
         showUiAlerts: false,
         stage: '',
-        Stages,
       };
     },
     computed: {
