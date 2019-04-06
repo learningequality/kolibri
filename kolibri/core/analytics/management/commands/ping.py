@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import time
 from datetime import datetime
 
@@ -24,6 +23,7 @@ from ...utils import extract_facility_statistics
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.server import vacuum_db_lock
 
@@ -127,7 +127,7 @@ class Command(BaseCommand):
         data = {
             "instance_id": instance.id,
             "version": kolibri.__version__,
-            "mode": os.environ.get("KOLIBRI_RUN_MODE", ""),
+            "mode": conf.OPTIONS["Deployment"]["RUN_MODE"],
             "platform": instance.platform,
             "sysversion": instance.sysversion,
             "database_id": instance.database.id,
@@ -141,32 +141,20 @@ class Command(BaseCommand):
         }
 
         logger.debug("Pingback data: {}".format(data))
-
         jsondata = dump_zipped_json(data)
-
         response = requests.post(url, data=jsondata, timeout=60)
-
         response.raise_for_status()
-
         return json.loads(response.content.decode() or "{}")
 
     def perform_statistics(self, server, pingback_id):
-
         url = urljoin(server, "/api/v1/statistics")
-
         channels = [
             extract_channel_statistics(c) for c in ChannelMetadata.objects.all()
         ]
         facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
-
         data = {"pi": pingback_id, "c": channels, "f": facilities}
-
         logger.debug("Statistics data: {}".format(data))
-
         jsondata = dump_zipped_json(data)
-
         response = requests.post(url, data=jsondata, timeout=60)
-
         response.raise_for_status()
-
         return json.loads(response.content.decode() or "{}")
