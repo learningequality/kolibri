@@ -7,6 +7,17 @@
 const remove = require('lodash/remove');
 const utils = require('eslint-plugin-vue/lib/utils');
 
+const GROUP_PROPERTY = 'props';
+const GROUP_DATA = 'data';
+const GROUP_COMPUTED_PROPERTY = 'computed';
+const GROUP_WATCHER = 'watch';
+
+const PROPERTY_LABEL = {
+  [GROUP_PROPERTY]: 'property',
+  [GROUP_DATA]: 'data',
+  [GROUP_COMPUTED_PROPERTY]: 'computed property',
+};
+
 const getReferencesNames = references => {
   if (!references || !references.length) {
     return [];
@@ -27,16 +38,9 @@ const reportUnusedProperties = (context, properties) => {
   }
 
   properties.forEach(property => {
-    let kind = 'property';
-    if (property.groupName === 'data') {
-      kind = 'data';
-    } else if (property.groupName === 'computed') {
-      kind = 'computed property';
-    }
-
     context.report({
       node: property.node,
-      message: `Unused ${kind} found: "${property.name}"`,
+      message: `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`,
     });
   });
 };
@@ -73,10 +77,10 @@ const create = context => {
     },
     utils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
-        utils.iterateProperties(obj, new Set(['props', 'data', 'computed']))
+        utils.iterateProperties(obj, new Set([GROUP_PROPERTY, GROUP_DATA, GROUP_COMPUTED_PROPERTY]))
       );
 
-      const watchers = Array.from(utils.iterateProperties(obj, new Set(['watch'])));
+      const watchers = Array.from(utils.iterateProperties(obj, new Set([GROUP_WATCHER])));
       const watchersNames = watchers.map(watcher => watcher.name);
 
       remove(unusedProperties, property => {
