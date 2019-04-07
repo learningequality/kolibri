@@ -9,7 +9,6 @@
     <template v-else>
       <TaskProgress
         v-if="showUpdateProgressBar"
-        id="updatingchannel"
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
