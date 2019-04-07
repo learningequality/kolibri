@@ -69,7 +69,6 @@
     <DeleteUserModal
       v-if="modalShown===Modals.DELETE_USER"
       :id="selectedUser.id"
-      :name="selectedUser.full_name"
       :username="selectedUser.username"
     />
 
