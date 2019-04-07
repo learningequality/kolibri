@@ -158,11 +158,9 @@
           </h3>
           <ContentRenderer
             v-if="content && questionId"
-            :id="content.id"
             ref="contentRenderer"
             :kind="content.kind"
             :files="content.files"
-            :contentId="content.content_id"
             :available="content.available"
             :extraFields="content.extra_fields"
             :itemId="questionId"

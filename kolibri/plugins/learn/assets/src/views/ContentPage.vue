@@ -15,13 +15,10 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      :id="content.id"
       class="content-renderer"
       :kind="content.kind"
       :lang="content.lang"
       :files="content.files"
-      :contentId="contentId"
-      :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
@@ -42,7 +39,6 @@
       :randomize="content.randomize"
       :masteryModel="content.masteryModel"
       :assessmentIds="content.assessmentIds"
-      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
