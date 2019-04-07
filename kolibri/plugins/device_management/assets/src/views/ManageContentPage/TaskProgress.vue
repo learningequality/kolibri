@@ -97,6 +97,7 @@
       };
     },
     computed: {
+      TaskStatuses: () => TaskStatuses,
       stageText() {
         // Special case for Channel DB downloading, since they never go into RUNNING
         if (this.type === 'UPDATING_CHANNEL') {
@@ -106,7 +107,7 @@
           return this.$tr('downloadingChannelContents');
         }
 
-        if (this.status === TaskStatuses.RUNNING) {
+        if (this.status === this.TaskStatuses.RUNNING) {
           switch (this.type) {
             case TaskTypes.REMOTE_IMPORT:
             case TaskTypes.LOCAL_IMPORT:
@@ -137,13 +138,15 @@
         return '';
       },
       taskHasFailed() {
-        return this.status === TaskStatuses.FAILED;
+        return this.status === this.TaskStatuses.FAILED;
       },
       taskHasCompleted() {
-        return this.status === TaskStatuses.COMPLETED;
+        return this.status === this.TaskStatuses.COMPLETED;
       },
       taskIsPreparing() {
-        return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
+        return (
+          this.status === this.TaskStatuses.QUEUED || this.status === this.TaskStatuses.SCHEDULED
+        );
       },
       formattedPercentage() {
         return this.percentage * 100;
