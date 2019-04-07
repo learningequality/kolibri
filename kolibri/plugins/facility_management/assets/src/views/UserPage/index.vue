@@ -62,7 +62,6 @@
     <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
-      :name="selectedUser.full_name"
       :username="selectedUser.username"
     />
 
