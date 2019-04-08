@@ -1,8 +1,32 @@
+kolibri-server (0.2.4-1ubuntu1) bionic; urgency=medium
+
+  * uwsgi.ini: doubled buffer-size limit to avoid problems with requests with long params
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 08 Apr 2019 18:07:39 +0200
+
+kolibri-server (0.2.3-1ubuntu2) bionic; urgency=medium
+
+  * debian/postrm: fixed typo
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 04 Apr 2019 20:00:10 +0200
+
+kolibri-server (0.2.3-1ubuntu1) bionic; urgency=medium
+
+  * uwsgi.ini: raise memory limits
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 04 Apr 2019 10:33:26 +0200
+
+kolibri-server (0.2.2-1ubuntu1) bionic; urgency=medium
+
+  * Updated target distribution
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 18 Mar 2019 18:43:58 +0100
+
 kolibri-server (0.2.2-0ubuntu1) xenial; urgency=medium
 
   * Updated CSP header to match Kolibri changes
 
- -- José L. Redrejo Rodríguez <jredrejo@jredrejo@debian.org>  Mon, 18 Mar 2019 18:36:52 +0100
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 18 Mar 2019 18:36:52 +0100
 
 kolibri-server (0.2.1-0ubuntu1) bionic; urgency=medium
 
