@@ -48,18 +48,18 @@ describe('facility config page actions', () => {
         facilityDatasetId: 'dataset_2',
         facilityName: 'Nalanda Maths',
         settings: expect.objectContaining({
-          learnerCanEditName: true,
-          learnerCanEditUsername: false,
-          learnerCanEditPassword: true,
-          learnerCanDeleteAccount: true,
-          learnerCanSignUp: true,
+          learner_can_edit_name: true,
+          learner_can_edit_username: false,
+          learner_can_edit_password: true,
+          learner_can_delete_account: true,
+          learner_can_sign_up: true,
         }),
         settingsCopy: expect.objectContaining({
-          learnerCanEditName: true,
-          learnerCanEditUsername: false,
-          learnerCanEditPassword: true,
-          learnerCanDeleteAccount: true,
-          learnerCanSignUp: true,
+          learner_can_edit_name: true,
+          learner_can_edit_username: false,
+          learner_can_edit_password: true,
+          learner_can_delete_account: true,
+          learner_can_sign_up: true,
         }),
       };
 
@@ -107,11 +107,11 @@ describe('facility config page actions', () => {
       store.commit('facilityConfig/SET_STATE', {
         facilityDatasetId: 1000,
         settings: {
-          learnerCanEditName: true,
-          learnerCanEditUsername: false,
-          learnerCanEditPassword: true,
-          learnerCanDeleteAccount: true,
-          learnerCanSignUp: false,
+          learner_can_edit_name: true,
+          learner_can_edit_username: false,
+          learner_can_edit_password: true,
+          learner_can_delete_account: true,
+          learner_can_sign_up: false,
         },
       });
     });
@@ -140,11 +140,11 @@ describe('facility config page actions', () => {
         expect(saveStub).toHaveBeenCalled();
         expect(store.state.facilityConfig.notification).toEqual('SAVE_FAILURE');
         expect(store.state.facilityConfig.settings).toEqual({
-          learnerCanEditName: true,
-          learnerCanEditUsername: false,
-          learnerCanEditPassword: true,
-          learnerCanDeleteAccount: true,
-          learnerCanSignUp: false,
+          learner_can_edit_name: true,
+          learner_can_edit_username: false,
+          learner_can_edit_password: true,
+          learner_can_delete_account: true,
+          learner_can_sign_up: false,
         });
       });
     });
@@ -154,14 +154,14 @@ describe('facility config page actions', () => {
       return store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
         expect(saveStub).toHaveBeenCalled();
         expect(store.state.facilityConfig.settings).toEqual({
-          allowGuestAccess: true,
-          learnerCanEditUsername: true,
-          learnerCanEditName: true,
-          learnerCanEditPassword: true,
-          learnerCanSignUp: true,
-          learnerCanDeleteAccount: true,
-          learnerCanLoginWithNoPassword: false,
-          showDownloadButtonInLearn: false,
+          allow_guest_access: true,
+          learner_can_edit_username: true,
+          learner_can_edit_name: true,
+          learner_can_edit_password: true,
+          learner_can_sign_up: true,
+          learner_can_delete_account: true,
+          learner_can_login_with_no_password: false,
+          show_download_button_in_learn: false,
         });
       });
     });

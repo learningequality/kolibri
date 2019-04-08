@@ -5,7 +5,9 @@
       :icon="statusIcon"
       class="icon"
     />
-    <p class="context icon-spacer">{{ context }}</p>
+    <p class="context icon-spacer">
+      {{ context }}
+    </p>
     <KGrid>
       <KGridItem :sizes="mainColSizes">
         <div class="icon-spacer">

@@ -87,11 +87,15 @@
 
       <div v-if="hasFeedback || maxlength" class="ui-textbox-feedback">
         <div v-if="showError" class="ui-textbox-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-textbox-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
 
         <div v-if="maxlength" class="ui-textbox-counter">

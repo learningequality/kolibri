@@ -129,17 +129,17 @@
 
 <script>
 
-  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import KSelect from 'kolibri.coreVue.components.KSelect';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';
+  /* eslint-disable import/no-duplicates */
   import KFilterTextboxExampleCode from '!!raw-loader!./KFilterTextboxExample';
   import KFilterTextboxExample from './KFilterTextboxExample';
   import KFilterTextboxApi from '!vue-doc!kolibri.coreVue.components.KFilterTextbox';
   import KSelectExampleCode from '!!raw-loader!./KSelectExample';
   import KSelectExample from './KSelectExample';
   import KSelectApi from '!vue-doc!kolibri.coreVue.components.KSelect';
+  /* eslint-enable import/no-duplicates */
 
   export default {
     name: 'Filters',

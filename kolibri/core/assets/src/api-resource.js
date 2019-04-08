@@ -67,7 +67,7 @@ export class Model {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
-            resolve(this.attributes);
+            resolve(this.data);
           } else {
             this.synced = false;
             // Do a fetch on the URL.
@@ -129,7 +129,7 @@ export class Model {
           }
           if (!Object.keys(payload).length) {
             // Nothing to save, so just resolve the promise now.
-            resolve(this.attributes);
+            resolve(this.data);
           } else {
             this.synced = false;
             let url;

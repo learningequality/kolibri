@@ -15,13 +15,10 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      :id="content.id"
       class="content-renderer"
       :kind="content.kind"
       :lang="content.lang"
       :files="content.files"
-      :contentId="contentId"
-      :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
@@ -42,7 +39,6 @@
       :randomize="content.randomize"
       :masteryModel="content.masteryModel"
       :assessmentIds="content.assessmentIds"
-      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
@@ -79,10 +75,14 @@
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <template v-if="translatedLicense">
-              <p class="license-details-name">{{ licenseName }}</p>
+              <p class="license-details-name">
+                {{ licenseName }}
+              </p>
               <p>{{ licenseDescription }}</p>
             </template>
-            <p v-else>{{ content.license_description }}</p>
+            <p v-else>
+              {{ content.license_description }}
+            </p>
           </div>
         </template>
       </p>
@@ -157,6 +157,7 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
     components: {
       CoachContentLabel,

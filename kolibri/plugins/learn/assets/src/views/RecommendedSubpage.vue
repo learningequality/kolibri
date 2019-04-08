@@ -30,7 +30,6 @@
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',
       documentTitleForNextSteps: 'Next Steps',
-      documentTitleForFeatured: 'Featured - { channelTitle }',
     },
     components: {
       ContentCardGroupGrid,
@@ -43,7 +42,7 @@
     },
     computed: {
       ...mapState(['pageName']),
-      ...mapState('recommended/subpage', ['channelTitle', 'recommendations']),
+      ...mapState('recommended/subpage', ['recommendations']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
@@ -52,8 +51,6 @@
             return this.$tr('documentTitleForResume');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('documentTitleForNextSteps');
-          case PageNames.RECOMMENDED_FEATURED:
-            return this.$tr('documentTitleForFeatured', { channelTitle: this.channelTitle });
           default:
             return '';
         }
@@ -74,9 +71,7 @@
         return [
           {
             text: this.$tr('recommended'),
-            link: {
-              name: PageNames.RECOMMENDED,
-            },
+            link: this.$router.getRoute(PageNames.RECOMMENDED),
           },
           {
             text: this.header,
@@ -86,10 +81,9 @@
     },
     methods: {
       genContentLink(id, kind) {
-        return {
-          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
-          params: { id },
-        };
+        const pageName =
+          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+        return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
     },
   };

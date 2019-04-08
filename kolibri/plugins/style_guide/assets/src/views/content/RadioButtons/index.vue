@@ -2,7 +2,7 @@
 
   <PageTemplate title="Radio Buttons" :completed="false">
 
-    
+
     <ComponentDocs :api="kRadioButtonApi" />
 
     <h2>Code Example</h2>
@@ -37,7 +37,6 @@
 
 <script>
 
-  import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';

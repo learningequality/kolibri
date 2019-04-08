@@ -21,8 +21,12 @@
           @click="downloadSessionLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSessionCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="sessionDateCreated" />
@@ -48,8 +52,12 @@
           @click="downloadSummaryLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSummaryCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSummaryCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="summaryDateCreated" />
@@ -92,11 +100,6 @@
       DataPageTaskProgress,
     },
     mixins: [themeMixin],
-    data() {
-      return {
-        lista: urls,
-      };
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -135,9 +138,6 @@
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isAndroidWebView();
-      },
-      generatingCSVFile() {
-        return this.inSummaryCSVCreation || this.inSessionCSVCreation;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;

@@ -2,7 +2,9 @@
 
   <div class="wrapper">
     <div class="handle" :style="{ right: hidden ? '-75px' : '179px' }">
-      <button @click="toggleHidden">Kolibri Colour Picker</button>
+      <button @click="toggleHidden">
+        Kolibri Colour Picker
+      </button>
     </div>
     <div v-if="!hidden" class="popout">
       <div v-if="!currentValue">
@@ -23,8 +25,12 @@
       <div v-else class="selector">
         <h1>{{ themeColours[currentValue] }}</h1>
         <Picker :value="theme[currentValue]" @input="setColourValue" />
-        <KButton @click="resetState">Reset</KButton>
-        <KButton :primary="true" @click="setCurrentValue(null)">Done</KButton>
+        <KButton @click="resetState">
+          Reset
+        </KButton>
+        <KButton :primary="true" @click="setCurrentValue(null)">
+          Done
+        </KButton>
       </div>
     </div>
   </div>

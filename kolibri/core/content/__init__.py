@@ -1,1 +1,1 @@
-default_app_config = 'kolibri.core.content.apps.KolibriContentConfig'
+default_app_config = "kolibri.core.content.apps.KolibriContentConfig"

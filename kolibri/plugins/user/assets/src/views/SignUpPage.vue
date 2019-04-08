@@ -115,7 +115,6 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames } from '../constants';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
@@ -167,9 +166,6 @@
     computed: {
       ...mapGetters(['facilities', 'session']),
       ...mapState('signUp', ['errors', 'busy']),
-      signInPage() {
-        return { name: PageNames.SIGN_IN };
-      },
       facilityList() {
         return this.facilities.map(facility => ({
           label: facility.name,

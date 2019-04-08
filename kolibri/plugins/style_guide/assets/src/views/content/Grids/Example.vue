@@ -1,8 +1,12 @@
 <template>
 
   <KGrid cols="4">
-    <KGridItem size="1" class="border">A</KGridItem>
-    <KGridItem size="1" class="border">B</KGridItem>
+    <KGridItem size="1" class="border">
+      A
+    </KGridItem>
+    <KGridItem size="1" class="border">
+      B
+    </KGridItem>
   </KGrid>
 
 </template>

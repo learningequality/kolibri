@@ -1,20 +1,16 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: kolibri\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-29 04:11\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
-"Language-Team: Burmese\n"
-"Language: my_MM\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: my\n"
-"X-Crowdin-File: /release-v0.12.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"Project-Id-Version: kolibri\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Burmese\n"
+"Language: my_MM\n"
+"PO-Revision-Date: 2019-03-25 17:16\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,19 +24,19 @@ msgstr "စာသင်ခန်း"
 msgid "Learner group"
 msgstr "သင်ယူသူအုပ်စု"
 
-#: kolibri/core/content/api.py:132
+#: kolibri/core/content/api.py:130
 msgid "Content"
 msgstr "မာတိကာ"
 
-#: kolibri/core/content/api.py:728
+#: kolibri/core/content/api.py:702
 msgid "The requested channel does not exist on the content server"
 msgstr "တောင်းဆိုသော ချယ်နယ်သည် မာတိကာဆာဗာတွင် မရှိပါ"
 
-#: kolibri/core/content/models.py:278
+#: kolibri/core/content/models.py:283
 msgid "Unknown format"
 msgstr "Format အမြိုးအစားမသိပါ၊"
 
-#: kolibri/core/device/serializers.py:50
+#: kolibri/core/device/serializers.py:53
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri မှ မထောက်ပံ့ထားသော ဘာသာစကား"
 
@@ -79,4 +75,3 @@ msgstr "သင်၏ ယခု browser ကို အသစ်မွမ်းမ�
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "သင့်တော်သော ချိတ်ဆက်ပေးမည့်စာမျက်နှာကိုမတွေ့ပါ။ Kolibri ကိုမှားယွင်းစွာ ပြင်ဆင်ထားသလိုဖြစ်နေသည်"
-

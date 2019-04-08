@@ -72,6 +72,8 @@
             return this.$tr('hintUsed');
           case 'rectified':
             return this.$tr('incorrectFirstTry');
+          default:
+            return '';
         }
       },
       svgFill() {

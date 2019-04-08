@@ -56,7 +56,7 @@
             :class="{ 'is-placeholder': !hasDisplayText }"
           >
             {{ hasDisplayText ? displayText : (
-            hasFloatingLabel && isLabelInline) ? null : placeholder }}
+              hasFloatingLabel && isLabelInline) ? null : placeholder }}
           </div>
 
           <UiIcon class="ui-select-dropdown-button">
@@ -146,7 +146,9 @@
               </KeenUiSelectOption>
 
               <div v-show="hasNoResults" class="ui-select-no-results">
-                <slot name="no-results">No results found</slot>
+                <slot name="no-results">
+                  No results found
+                </slot>
               </div>
             </ul>
           </div>
@@ -155,11 +157,15 @@
 
       <div v-if="hasFeedback" class="ui-select-feedback">
         <div v-if="showError" class="ui-select-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-select-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
       </div>
     </div>
@@ -383,14 +389,6 @@
         return this.options.findIndex(option => looseEqual(this.highlightedOption, option));
       },
 
-      // Returns the index of the currently selected option, -1 if multi-select
-      selectedIndex() {
-        if (this.multiple) {
-          return -1;
-        }
-        return this.options.findIndex(option => looseEqual(this.value, option));
-      },
-
       // Returns an array containing the options and extra annotations
       annotatedOptions() {
         const options = JSON.parse(JSON.stringify(this.options));
@@ -430,6 +428,8 @@
             color: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
       activeBorderStyle() {
         if (this.isActive) {
@@ -437,6 +437,8 @@
             borderBottomColor: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
     },
 

@@ -6,7 +6,9 @@
 
     <SearchBox :filters="true" />
 
-    <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
+    <p v-if="!searchTerm">
+      {{ $tr('noSearch') }}
+    </p>
 
     <template v-else>
       <h1 v-if="contents.length === 0" class="search-results">
@@ -95,6 +97,9 @@
           name: PageNames.TOPICS_CONTENT,
           params: {
             id: contentId,
+          },
+          query: {
+            searchTerm: this.searchTerm,
           },
         };
       },

@@ -3,7 +3,9 @@
   <div>
 
     <h3>Description</h3>
-    <p v-if="api.description"> {{ api.description }}</p>
+    <p v-if="api.description">
+      {{ api.description }}
+    </p>
 
     <template v-if="api.props.length">
       <h3>Props</h3>
@@ -14,7 +16,9 @@
             <th>Type</th>
             <th>Required</th>
             <th>Default</th>
-            <th class="stretch">Description</th>
+            <th class="stretch">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -23,13 +27,17 @@
             <td><code>{{ parsePropType(prop.value.type) }}</code></td>
             <td>
               <code v-if="parsePropRequired(prop.value.required) === 'true'">true</code>
-              <template v-else>—</template>
+              <template v-else>
+                —
+              </template>
             </td>
             <td>
               <code v-if="parsePropDefault(prop.value.type, prop.value.default)">
                 {{ parsePropDefault(prop.value.type, prop.value.default) }}
               </code>
-              <template v-else>—</template>
+              <template v-else>
+                —
+              </template>
             </td>
             <td>{{ prop.description || '—' }}</td>
           </tr>
@@ -43,7 +51,9 @@
         <thead slot="thead">
           <tr>
             <th>Events</th>
-            <th class="stretch">Description</th>
+            <th class="stretch">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -61,7 +71,9 @@
         <thead slot="thead">
           <tr>
             <th>Slots</th>
-            <th class="stretch">Description</th>
+            <th class="stretch">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -79,7 +91,9 @@
         <thead slot="thead">
           <tr>
             <th>Methods</th>
-            <th class="stretch">Description</th>
+            <th class="stretch">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody slot="tbody">
@@ -99,7 +113,6 @@
 <script>
 
   import escodegen from 'escodegen';
-  import PascalCase from 'pascal-case';
   import logger from 'kolibri.lib.logging';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
 
@@ -125,16 +138,6 @@
           }
           return true;
         },
-      },
-    },
-    computed: {
-      importString() {
-        return `import ${this.componentNamePascalCased} from 'kolibri.coreVue.components.${
-          this.componentNamePascalCased
-        }';`;
-      },
-      componentNamePascalCased() {
-        return PascalCase(this.api.name);
       },
     },
     methods: {

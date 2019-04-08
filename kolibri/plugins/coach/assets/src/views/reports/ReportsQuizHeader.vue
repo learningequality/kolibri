@@ -27,15 +27,21 @@
 
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('statusLabel') }}
+        </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('recipientsLabel') }}
+        </template>
         <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('avgScoreLabel') }}
+        </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
@@ -74,12 +80,14 @@
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
+      /** TODO COACH
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
+      */
       exam() {
         return this.examMap[this.$route.params.quizId];
       },

@@ -51,7 +51,9 @@
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
-            <div class="role">{{ $tr('userTypeLabel') }}</div>
+            <div class="role">
+              {{ $tr('userTypeLabel') }}
+            </div>
             <div>
               <UserTypeDisplay
                 :distinguishCoachTypes="false"

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class KolibriCoreConfig(AppConfig):
-    name = 'kolibri.core'
+    name = "kolibri.core"
 
     def ready(self):
         """
@@ -24,8 +24,11 @@ class KolibriCoreConfig(AppConfig):
         # Log the settings file that we are running Kolibri with.
         # Do this logging here, as this will be after Django has done its processing of
         # Any environment variables or --settings command line arguments.
-        logger.info("Running Kolibri with the following settings: {settings}".format(
-            settings=os.environ["DJANGO_SETTINGS_MODULE"]))
+        logger.info(
+            "Running Kolibri with the following settings: {settings}".format(
+                settings=os.environ["DJANGO_SETTINGS_MODULE"]
+            )
+        )
 
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):

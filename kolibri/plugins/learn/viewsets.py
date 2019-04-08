@@ -16,14 +16,14 @@ class LearnerClassroomViewset(ReadOnlyModelViewSet):
     Returns all Classrooms for which the requesting User is a member,
     along with all associated assignments.
     """
+
     filter_backends = (KolibriAuthPermissionsFilter,)
     permission_classes = (IsAuthenticated,)
     serializer_class = LearnerClassroomSerializer
 
     def get_queryset(self):
         return HierarchyRelationsFilter(Classroom.objects.all()).filter_by_hierarchy(
-            target_user=self.request.user,
-            ancestor_collection=F('id')
+            target_user=self.request.user, ancestor_collection=F("id")
         )
 
 
@@ -32,16 +32,16 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
     Special Viewset for Learners to view Lessons to which they are assigned.
     The core Lesson Viewset is locked down to Admin users only.
     """
+
     serializer_class = LessonSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        assignments = HierarchyRelationsFilter(LessonAssignment.objects.all()) \
-            .filter_by_hierarchy(
-                target_user=self.request.user,
-                ancestor_collection=F('collection')
+        assignments = HierarchyRelationsFilter(
+            LessonAssignment.objects.all()
+        ).filter_by_hierarchy(
+            target_user=self.request.user, ancestor_collection=F("collection")
         )
         return Lesson.objects.filter(
-            lesson_assignments__in=assignments,
-            is_active=True
+            lesson_assignments__in=assignments, is_active=True
         ).distinct()

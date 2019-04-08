@@ -16,7 +16,9 @@
 
     <template slot="header">
       <div>
-        <h2 class="title" dir="auto">{{ channel.name }}</h2>
+        <h2 class="title" dir="auto">
+          {{ channel.name }}
+        </h2>
         <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>

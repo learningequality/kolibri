@@ -81,6 +81,8 @@
             contentsLength;
           return computedSum !== 0 ? computedSum : undefined;
         }
+
+        return undefined;
       },
     },
     methods: {

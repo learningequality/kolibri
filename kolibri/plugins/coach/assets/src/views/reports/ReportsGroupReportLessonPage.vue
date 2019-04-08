@@ -20,8 +20,12 @@
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value"><LessonActive :active="lesson.active" /></template>
+          <template slot="key">
+            {{ coachStrings.$tr('statusLabel') }}
+          </template>
+          <template slot="value">
+            <LessonActive :active="lesson.active" />
+          </template>
         </HeaderTableRow>
         <!-- TODO COACH
         <HeaderTableRow>
@@ -89,6 +93,7 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      /** TODO COACH
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -98,6 +103,7 @@
           },
         ];
       },
+      */
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

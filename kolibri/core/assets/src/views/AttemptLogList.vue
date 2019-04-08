@@ -1,7 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $coreBgLight }">
-    <h3 class="header">{{ $tr('header') }}</h3>
+    <h3 class="header">
+      {{ $tr('header') }}
+    </h3>
 
     <ul ref="attemptList" class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">

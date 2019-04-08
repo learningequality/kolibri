@@ -20,15 +20,18 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         return []
 
     # get a list of all the database files in the directory, and extract IDs
-    db_list = fnmatch.filter(os.listdir(content_database_dir), '*.sqlite3')
-    db_names = [db.split('.sqlite3', 1)[0] for db in db_list]
+    db_list = fnmatch.filter(os.listdir(content_database_dir), "*.sqlite3")
+    db_names = [db.split(".sqlite3", 1)[0] for db in db_list]
 
     # determine which database names are valid, and only use those ones
     valid_db_names = [name for name in db_names if is_valid_uuid(name)]
     invalid_db_names = set(db_names) - set(valid_db_names)
     if invalid_db_names:
-        logger.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
-                       .format(directory=content_database_dir, names=invalid_db_names))
+        logger.warning(
+            "Ignoring databases in content database directory '{directory}' with invalid names: {names}".format(
+                directory=content_database_dir, names=invalid_db_names
+            )
+        )
 
     # empty database files are created if we delete a database file while the server is running and connected to it;
     # here, we delete and exclude such databases to avoid errors when we try to connect to them
@@ -39,8 +42,11 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
             empty_db_files.add(db_name)
             os.remove(filename)
     if empty_db_files:
-        logger.warning("Removing empty databases in content database directory '{directory}' with IDs: {names}"
-                       .format(directory=content_database_dir, names=empty_db_files))
+        logger.warning(
+            "Removing empty databases in content database directory '{directory}' with IDs: {names}".format(
+                directory=content_database_dir, names=empty_db_files
+            )
+        )
     valid_dbs = list(set(valid_db_names) - set(empty_db_files))
 
     return valid_dbs
@@ -71,15 +77,21 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with
     # the latest schema.
-    if not hasattr(source_channel_metadata, 'root_id'):
-        setattr(source_channel_metadata, 'root_id', getattr(source_channel_metadata, 'root_pk'))
+    if not hasattr(source_channel_metadata, "root_id"):
+        setattr(
+            source_channel_metadata,
+            "root_id",
+            getattr(source_channel_metadata, "root_pk"),
+        )
 
     return source_channel_metadata
 
 
 def get_channels_for_data_folder(datafolder):
     channels = []
-    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
+    for path in enumerate_content_database_file_paths(
+        get_content_database_dir_path(datafolder)
+    ):
         channel = read_channel_metadata_from_db_file(path)
         channel_data = {
             "path": path,
@@ -90,9 +102,9 @@ def get_channels_for_data_folder(datafolder):
             "version": channel.version,
             "root": channel.root_id,
             "author": channel.author,
-            "last_updated": getattr(channel, 'last_updated', None),
-            "lang_code": getattr(channel, 'lang_code', None),
-            "lang_name": getattr(channel, 'lang_name', None),
+            "last_updated": getattr(channel, "last_updated", None),
+            "lang_code": getattr(channel, "lang_code", None),
+            "lang_name": getattr(channel, "lang_name", None),
         }
         channels.append(channel_data)
     return channels
@@ -101,5 +113,7 @@ def get_channels_for_data_folder(datafolder):
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
-        drive.metadata["channels"] = get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
+        drive.metadata["channels"] = (
+            get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
+        )
     return drives

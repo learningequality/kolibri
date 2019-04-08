@@ -11,6 +11,7 @@ class License(models.Model):
     """
     Normalize the license of ContentNode model
     """
+
     license_name = models.CharField(max_length=50)
     license_description = models.CharField(max_length=400, null=True, blank=True)
 

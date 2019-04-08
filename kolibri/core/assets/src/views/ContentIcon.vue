@@ -120,7 +120,7 @@
           return validateContentNodeKind(value, [USER]);
         },
       },
-      colorstyle: {
+      colorStyle: {
         type: String,
         default: 'action',
       },

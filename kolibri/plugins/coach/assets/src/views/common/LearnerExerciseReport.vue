@@ -2,7 +2,9 @@
 
   <MultiPaneLayout ref="multiPaneLayout">
     <div slot="header">
-      <h1 class="learner-name">{{ learner.name }}</h1>
+      <h1 class="learner-name">
+        {{ learner.name }}
+      </h1>
       <p class="exercise-detail-section">
         <ContentIcon
           class="exercise-detail-icons"
@@ -18,11 +20,17 @@
       </p>
       <HeaderTable>
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('masteryModelLabel') }}</template>
-          <template slot="value"><MasteryModel /></template>
+          <template slot="key">
+            {{ coachStrings.$tr('masteryModelLabel') }}
+          </template>
+          <template slot="value">
+            <MasteryModel />
+          </template>
         </HeaderTableRow>
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
+          <template slot="key">
+            {{ coachStrings.$tr('statusLabel') }}
+          </template>
           <template slot="value">
             <StatusSimple :status="status" />
           </template>
@@ -50,13 +58,11 @@
         />
         <ContentRenderer
           v-if="currentInteraction"
-          :id="exercise.id"
           :itemId="currentAttemptLog.item"
           :assessment="true"
           :allowHints="false"
           :kind="exercise.kind"
           :files="exercise.files"
-          :contentId="exercise.content_id"
           :available="exercise.available"
           :answerState="answerState"
           :showCorrectAnswer="showCorrectAnswer"

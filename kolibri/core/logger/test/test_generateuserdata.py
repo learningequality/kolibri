@@ -16,14 +16,19 @@ n_lessons = 2
 
 class GenerateUserDataTest(TestCase):
 
-    fixtures = ['content_test.json']
+    fixtures = ["content_test.json"]
 
     @classmethod
     def setUpTestData(cls):
         # To save testing time, only run the management command once
         # Then make assertions in separate tests to isolate failures
-        call_command('generateuserdata', users=n_users, classes=n_classes, facilities=n_facilities,
-                     num_lessons=n_lessons)
+        call_command(
+            "generateuserdata",
+            users=n_users,
+            classes=n_classes,
+            facilities=n_facilities,
+            num_lessons=n_lessons,
+        )
 
     def test_facilities_created(self):
         self.assertEqual(Facility.objects.count(), n_facilities)
@@ -32,7 +37,9 @@ class GenerateUserDataTest(TestCase):
         self.assertEqual(Classroom.objects.count(), n_facilities * n_classes)
 
     def test_users_created(self):
-        self.assertEqual(FacilityUser.objects.count(), n_facilities * n_classes * n_users)
+        self.assertEqual(
+            FacilityUser.objects.count(), n_facilities * n_classes * n_users
+        )
 
     def test_session_logs_for_each_user(self):
         for user in FacilityUser.objects.all():

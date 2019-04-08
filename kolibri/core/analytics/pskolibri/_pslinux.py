@@ -22,13 +22,13 @@ CLOCK_TICKS = os.sysconf("SC_CLK_TCK")
 PAGESIZE = os.sysconf("SC_PAGE_SIZE")
 BOOT_TIME = None  # set later
 
-svmem = namedtuple('svmem', ['total', 'used'])
-pmem = namedtuple('pmem', 'rss vms shared text lib data dirty')
+svmem = namedtuple("svmem", ["total", "used"])
+pmem = namedtuple("pmem", "rss vms shared text lib data dirty")
 
 
 def get_procfs_path():
     """Return updated psutil.PROCFS_PATH constant."""
-    return sys.modules['kolibri.core.analytics.pskolibri'].PROCFS_PATH
+    return sys.modules["kolibri.core.analytics.pskolibri"].PROCFS_PATH
 
 
 @memoize
@@ -40,20 +40,20 @@ def set_scputimes_ntuple(procfs_path):
     Used by cpu_times() function.
     """
     global scputimes
-    with open_binary('%s/stat' % procfs_path) as f:
+    with open_binary("%s/stat" % procfs_path) as f:
         values = f.readline().split()[1:]
-    fields = ['user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq']
+    fields = ["user", "nice", "system", "idle", "iowait", "irq", "softirq"]
     vlen = len(values)
     if vlen >= 8:
         # Linux >= 2.6.11
-        fields.append('steal')
+        fields.append("steal")
     if vlen >= 9:
         # Linux >= 2.6.24
-        fields.append('guest')
+        fields.append("guest")
     if vlen >= 10:
         # Linux >= 3.2.0
-        fields.append('guest_nice')
-    scputimes = namedtuple('scputimes', fields)
+        fields.append("guest_nice")
+    scputimes = namedtuple("scputimes", fields)
 
 
 def cpu_times():
@@ -65,9 +65,9 @@ def cpu_times():
     """
     procfs_path = get_procfs_path()
     set_scputimes_ntuple(procfs_path)
-    with open_binary('%s/stat' % procfs_path) as f:
+    with open_binary("%s/stat" % procfs_path) as f:
         values = f.readline().split()
-    fields = values[1:len(scputimes._fields) + 1]
+    fields = values[1 : len(scputimes._fields) + 1]
     fields = [float(x) / CLOCK_TICKS for x in fields]
     return scputimes(*fields)
 
@@ -90,7 +90,7 @@ def virtual_memory():
     """
     missing_fields = []
     mems = {}
-    with open_binary('%s/meminfo' % get_procfs_path()) as f:
+    with open_binary("%s/meminfo" % get_procfs_path()) as f:
         for line in f:
             fields = line.split()
             mems[fields[0]] = int(fields[1]) * 1024
@@ -98,18 +98,18 @@ def virtual_memory():
     # /proc doc states that the available fields in /proc/meminfo vary
     # by architecture and compile options, but these 3 values are also
     # returned by sysinfo(2); as such we assume they are always there.
-    total = mems[b'MemTotal:']
-    free = mems[b'MemFree:']
+    total = mems[b"MemTotal:"]
+    free = mems[b"MemFree:"]
     try:
-        buffers = mems[b'Buffers:']
+        buffers = mems[b"Buffers:"]
     except KeyError:
         buffers = 0
-        missing_fields.append('buffers')
+        missing_fields.append("buffers")
     try:
         cached = mems[b"Cached:"]
     except KeyError:
         cached = 0
-        missing_fields.append('cached')
+        missing_fields.append("cached")
     else:
         cached += mems.get(b"SReclaimable:", 0)  # since kernel 2.6.19
 
@@ -134,19 +134,19 @@ def cpu_count_logical():
     except ValueError:
         # as a second fallback we try to parse /proc/cpuinfo
         num = 0
-        with open_binary('%s/cpuinfo' % get_procfs_path()) as f:
+        with open_binary("%s/cpuinfo" % get_procfs_path()) as f:
             for line in f:
-                if line.lower().startswith(b'processor'):
+                if line.lower().startswith(b"processor"):
                     num += 1
 
         # unknown format (e.g. amrel/sparc architectures), see:
         # https://github.com/giampaolo/psutil/issues/200
         # try to parse /proc/stat as a last resort
         if num == 0:
-            search = re.compile(r'cpu\d')
-            with open_text('%s/stat' % get_procfs_path()) as f:
+            search = re.compile(r"cpu\d")
+            with open_text("%s/stat" % get_procfs_path()) as f:
                 for line in f:
-                    line = line.split(' ')[0]
+                    line = line.split(" ")[0]
                     if search.match(line):
                         num += 1
 
@@ -173,7 +173,9 @@ def wrap_exceptions(fun):
             if err.errno == errno.ESRCH:
                 raise NoSuchProcess()
             # ENOENT (no such file or directory) can be raised on open().
-            if err.errno == errno.ENOENT and not os.path.exists("%s/%s" % (self._procfs_path, self.pid)):
+            if err.errno == errno.ENOENT and not os.path.exists(
+                "%s/%s" % (self._procfs_path, self.pid)
+            ):
                 raise NoSuchProcess()
             # Note: zombies will keep existing under /proc until they're
             # gone so there's no way to distinguish them in here.
@@ -185,10 +187,10 @@ def wrap_exceptions(fun):
 def boot_time():
     """Return the system boot time expressed in seconds since the epoch."""
     global BOOT_TIME
-    path = '%s/stat' % get_procfs_path()
+    path = "%s/stat" % get_procfs_path()
     with open_binary(path) as f:
         for line in f:
-            if line.startswith(b'btime'):
+            if line.startswith(b"btime"):
                 ret = float(line.strip().split()[1])
                 BOOT_TIME = ret
                 return ret
@@ -221,9 +223,9 @@ class Process(object):
         # Process name is between parentheses. It can contain spaces and
         # other parentheses. This is taken into account by looking for
         # the first occurrence of "(" and the last occurence of ")".
-        rpar = data.rfind(b')')
-        name = data[data.find(b'(') + 1:rpar]
-        others = data[rpar + 2:].split()
+        rpar = data.rfind(b")")
+        name = data[data.find(b"(") + 1 : rpar]
+        others = data[rpar + 2 :].split()
         return [name] + others
 
     @wrap_exceptions
@@ -233,7 +235,7 @@ class Process(object):
         if not data:
             # may happen in case of zombie process
             return []
-        sep = '\x00' if data.endswith('\x00') else ' '
+        sep = "\x00" if data.endswith("\x00") else " "
         if data.endswith(sep):
             data = data[:-1]
         return [x for x in data.split(sep)]
@@ -263,7 +265,9 @@ class Process(object):
         # | dirty  | dirty pages (unused in Linux 2.6)   | dt   |      |
         #  ============================================================
         with open_binary("%s/%s/statm" % (self._procfs_path, self.pid)) as f:
-            vms, rss, shared, text, lib, data, dirty = [int(x) * PAGESIZE for x in f.readline().split()[:7]]
+            vms, rss, shared, text, lib, data, dirty = [
+                int(x) * PAGESIZE for x in f.readline().split()[:7]
+            ]
         return pmem(rss, vms, shared, text, lib, data, dirty)
 
     @wrap_exceptions

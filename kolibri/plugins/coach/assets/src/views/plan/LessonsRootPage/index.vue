@@ -109,11 +109,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
-  import {
-    ContentNodeKinds,
-    CollectionKinds,
-    ERROR_CONSTANTS,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LessonActive from '../../common/LessonActive';
@@ -148,7 +144,6 @@
     data() {
       return {
         showModal: false,
-        lessonKind: ContentNodeKinds.LESSON,
         filterSelection: {},
       };
     },

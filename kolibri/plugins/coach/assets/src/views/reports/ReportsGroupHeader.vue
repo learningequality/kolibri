@@ -79,6 +79,7 @@
       group() {
         return this.groupMap[this.$route.params.groupId];
       },
+      /** TODO COACH
       recipients() {
         return this.group.member_ids;
       },
@@ -92,6 +93,7 @@
         }
         return this._.meanBy(statuses, 'score');
       },
+      */
     },
     $trs: {
       back: 'All groups',

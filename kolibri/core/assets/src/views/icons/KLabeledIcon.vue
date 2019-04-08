@@ -4,7 +4,7 @@
     <div class="icon">
       <slot name="icon"></slot>
     </div>
-    <div class="label">
+    <div class="label" dir="auto">
       <slot></slot>
     </div>
   </span>
@@ -17,15 +17,6 @@
   export default {
     name: 'KLabeledIcon',
     components: {},
-    props: {
-      /**
-       * Whether the label should wrap
-       */
-      nowrap: {
-        type: Boolean,
-        default: false,
-      },
-    },
   };
 
 </script>
@@ -42,6 +33,7 @@
 
   .icon {
     position: absolute;
+    left: 0;
   }
 
   .label {

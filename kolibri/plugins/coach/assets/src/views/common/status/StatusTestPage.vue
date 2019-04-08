@@ -43,7 +43,9 @@
               <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
             </div>
           </td>
-          <td style="text-align: center">long</td>
+          <td style="text-align: center">
+            long
+          </td>
           <td>
             <StatusSummary :tally="tally" :verbose="true" :ratio="true" />
           </td>
@@ -52,7 +54,9 @@
           </td>
         </tr>
         <tr>
-          <td style="text-align: center">short</td>
+          <td style="text-align: center">
+            short
+          </td>
           <td>
             <StatusSummary :tally="tally" :verbose="false" :ratio="true" />
           </td>

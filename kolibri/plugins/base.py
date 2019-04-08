@@ -14,14 +14,16 @@ logger = logging.getLogger(__name__)
 
 class MandatoryPluginMethodNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginMethodNotImplemented,
-              self).__init__("Plugin needs to define this method")  # pragma: no cover
+        super(MandatoryPluginMethodNotImplemented, self).__init__(
+            "Plugin needs to define this method"
+        )  # pragma: no cover
 
 
 class MandatoryPluginAttributeNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginAttributeNotImplemented,
-              self).__init__("Plugin needs to define this attribute")  # pragma: no cover
+        super(MandatoryPluginAttributeNotImplemented, self).__init__(
+            "Plugin needs to define this attribute"
+        )  # pragma: no cover
 
 
 class KolibriPluginBase(object):
@@ -54,8 +56,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path not in config['INSTALLED_APPS']:
-            config['INSTALLED_APPS'].append(module_path)
+        if module_path not in config["INSTALLED_APPS"]:
+            config["INSTALLED_APPS"].append(module_path)
         else:
             logger.warning("{} already enabled".format(module_path))
 
@@ -64,8 +66,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path in config['INSTALLED_APPS']:
-            config['INSTALLED_APPS'].remove(module_path)
+        if module_path in config["INSTALLED_APPS"]:
+            config["INSTALLED_APPS"].remove(module_path)
         else:
             logger.warning("{} already disabled".format(module_path))
 

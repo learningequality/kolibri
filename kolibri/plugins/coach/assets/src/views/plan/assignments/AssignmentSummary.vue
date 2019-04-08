@@ -176,6 +176,8 @@
         if (this.kind === ContentNodeKinds.LESSON) {
           return this.$tr('statusTooltipTextLessons');
         }
+
+        return '';
       },
     },
   };

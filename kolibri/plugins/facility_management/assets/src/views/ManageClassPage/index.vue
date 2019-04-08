@@ -18,7 +18,9 @@
     </KGrid>
 
     <CoreTable>
-      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
+      <caption class="visuallyhidden">
+        {{ $tr('tableCaption') }}
+      </caption>
       <thead slot="thead">
         <tr>
           <th>{{ $tr('className') }}</th>
@@ -75,7 +77,9 @@
       </transition-group>
     </CoreTable>
 
-    <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
+    <p v-if="noClassesExist">
+      {{ $tr('noClassesExist') }}
+    </p>
 
     <ClassDeleteModal
       v-if="modalShown===Modals.DELETE_CLASS"

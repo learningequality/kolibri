@@ -1,20 +1,16 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: kolibri\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-29 04:10\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
-"Language-Team: Urdu (Pakistan)\n"
-"Language: ur_PK\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ur-PK\n"
-"X-Crowdin-File: /release-v0.12.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"Project-Id-Version: kolibri\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Urdu (Pakistan)\n"
+"Language: ur_PK\n"
+"PO-Revision-Date: 2019-03-25 17:15\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,19 +24,19 @@ msgstr "کمرۂ جماعت"
 msgid "Learner group"
 msgstr "شاگردوں کا گروہ"
 
-#: kolibri/core/content/api.py:132
+#: kolibri/core/content/api.py:130
 msgid "Content"
 msgstr "مواد"
 
-#: kolibri/core/content/api.py:728
+#: kolibri/core/content/api.py:702
 msgid "The requested channel does not exist on the content server"
 msgstr "مواد کے سرور میں التجا ہوا چینل موجود نہیں ہیں"
 
-#: kolibri/core/content/models.py:278
+#: kolibri/core/content/models.py:283
 msgid "Unknown format"
 msgstr "نا معلوم فورمیٹ"
 
-#: kolibri/core/device/serializers.py:50
+#: kolibri/core/device/serializers.py:53
 msgid "Language is not supported by Kolibri"
 msgstr "کولیبری کی طرف سے زبان کی معاونت نہیں"
 
@@ -79,4 +75,3 @@ msgstr "آپ اپنے موجودہ براؤزر کو اپ ڈیٹ کرنے کی �
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "کوئی مناسب صفحات نہیں ملے۔ ممکن ہے کہ یہ کولیبری بری طرح تشکیل کیا گیا ہے"
-

@@ -24,14 +24,18 @@ gvfsd-fuse on /run/user/1000/gvfs type fuse.gvfsd-fuse (rw,nosuid,nodev,user=use
 /dev/sdb1 on /media/user/F571-7814 type vfat (rw,nosuid,nodev,uid=1000,gid=1000,shortname=mixed,dmask=0077,utf8=1,showexec,flush,uhelper=udisks2)
 /dev/sdb2 on /media/user/KEEPOD type ext4 (rw,nosuid,nodev,uhelper=udisks2)
 /dev/mmcblk0p1 on /media/user/disk type vfat (rw,nosuid,nodev,uid=1000,gid=1000,shortname=mixed,dmask=0077,utf8=1,showexec,flush,uhelper=udisks2)
-    """,
+    """
 }
 
 disk_sizes = {
-    "/": {'free': 12704473088, 'total': 117579513856, 'used': 104875040768},
-    "/media/user/F571-7814": {'free': 772001792, 'total': 2142232576, 'used': 1370230784},
-    "/media/user/KEEPOD": {'free': 4997480448, 'total': 5629046784, 'used': 631566336},
-    "/media/user/disk": {'free': 11328000, 'total': 31801344, 'used': 20473344},
+    "/": {"free": 12704473088, "total": 117579513856, "used": 104875040768},
+    "/media/user/F571-7814": {
+        "free": 772001792,
+        "total": 2142232576,
+        "used": 1370230784,
+    },
+    "/media/user/KEEPOD": {"free": 4997480448, "total": 5629046784, "used": 631566336},
+    "/media/user/disk": {"free": 11328000, "total": 31801344, "used": 20473344},
 }
 
 os_access_read = {

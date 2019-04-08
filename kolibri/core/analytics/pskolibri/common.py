@@ -37,7 +37,9 @@ else:
     except AttributeError:
         ENCODING_ERRS = "surrogateescape" if POSIX else "replace"
 
-pcputimes = namedtuple('pcputimes', ['user', 'system', 'children_user', 'children_system'])
+pcputimes = namedtuple(
+    "pcputimes", ["user", "system", "children_user", "children_system"]
+)
 
 
 class NoSuchProcess(Exception):
@@ -151,6 +153,6 @@ def open_text(fname, **kwargs):
     On Python 2 this is just an alias for open(name, 'rt').
     """
     if PY3:
-        kwargs.setdefault('encoding', ENCODING)
-        kwargs.setdefault('errors', ENCODING_ERRS)
+        kwargs.setdefault("encoding", ENCODING)
+        kwargs.setdefault("errors", ENCODING_ERRS)
     return io.open(fname, "rt", **kwargs)

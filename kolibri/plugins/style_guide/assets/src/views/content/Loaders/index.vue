@@ -2,7 +2,7 @@
 
   <PageTemplate title="Loaders" :completed="false">
 
-    
+
     <ComponentDocs :api="KCircularLoaderApi" />
     <h3>Code Example</h3>
     <VueExample :code="KCircularLoaderExampleCode">
@@ -10,7 +10,7 @@
     </VueExample>
 
 
-    
+
     <ComponentDocs :api="KLinearLoaderApi" />
     <h3>Code Example</h3>
     <VueExample :code="KLinearLoaderExampleCode">
@@ -32,13 +32,12 @@
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
 
-  import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
-  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-
+  /* eslint-disable import/no-duplicates */
   import KLinearLoaderExample from './KLinearLoaderExample';
   import KLinearLoaderExampleCode from '!!raw-loader!./KLinearLoaderExample';
   import KCircularLoaderExample from './KCircularLoaderExample';
   import KCircularLoaderExampleCode from '!!raw-loader!./KCircularLoaderExample';
+  /* eslint-enable import/no-duplicates */
 
   import KLinearLoaderApi from '!vue-doc!kolibri.coreVue.components.KLinearLoader';
   import KCircularLoaderApi from '!vue-doc!kolibri.coreVue.components.KCircularLoader';

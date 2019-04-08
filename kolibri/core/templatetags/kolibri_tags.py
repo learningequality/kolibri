@@ -48,7 +48,7 @@ def kolibri_content_cache_key():
       var contentCacheKey = '{cache_key}';
     </script>
     """.format(
-        cache_key=ContentCacheKey.get_cache_key(),
+        cache_key=ContentCacheKey.get_cache_key()
     )
     return mark_safe(js)
 
@@ -72,10 +72,10 @@ def _supports_modern_fonts(request):
     Based on https://caniuse.com/#feat=font-unicode-range
     """
 
-    if 'HTTP_USER_AGENT' not in request.META:
+    if "HTTP_USER_AGENT" not in request.META:
         return False
 
-    browser = user_agents.parse(request.META['HTTP_USER_AGENT']).browser
+    browser = user_agents.parse(request.META["HTTP_USER_AGENT"]).browser
 
     if browser.family == "Edge":  # Edge only needs unicode-range, not font-display
         return browser.version[0] >= 17
@@ -113,12 +113,21 @@ def kolibri_language_globals(context):
 
     languages = {}
     for code, language_name in settings.LANGUAGES:
-        lang_info = next((lang for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES if lang['intl_code'] == code), None)
+        lang_info = next(
+            (
+                lang
+                for lang in i18n.KOLIBRI_SUPPORTED_LANGUAGES
+                if lang["intl_code"] == code
+            ),
+            None,
+        )
         languages[code] = {
             # Format to match the schema of the content Language model
             "id": code,
             "lang_name": language_name,
-            "english_name": lang_info["english_name"] if lang_info else get_language_info(code)["name"],
+            "english_name": lang_info["english_name"]
+            if lang_info
+            else get_language_info(code)["name"],
             "lang_direction": get_language_info(code)["bidi"],
         }
 
@@ -160,59 +169,74 @@ def kolibri_navigation_actions():
 def kolibri_set_urls(context):
     # Modified from:
     # https://github.com/ierror/django-js-reverse/blob/master/django_js_reverse/core.py#L101
-    js_global_object_name = 'window'
-    js_var_name = 'kolibriUrls'
+    js_global_object_name = "window"
+    js_var_name = "kolibriUrls"
     script_prefix = get_script_prefix()
 
-    if 'request' in context:
-        default_urlresolver = get_resolver(getattr(context['request'], 'urlconf', None))
+    if "request" in context:
+        default_urlresolver = get_resolver(getattr(context["request"], "urlconf", None))
     else:
         default_urlresolver = get_resolver(None)
 
-    js = render_to_string('django_js_reverse/urls_js.tpl', {
-        'urls': sorted(list(prepare_url_list(default_urlresolver))),
-        'url_prefix': script_prefix,
-        'js_var_name': js_var_name,
-        'js_global_object_name': js_global_object_name,
-    })
+    js = render_to_string(
+        "django_js_reverse/urls_js.tpl",
+        {
+            "urls": sorted(list(prepare_url_list(default_urlresolver))),
+            "url_prefix": script_prefix,
+            "js_var_name": js_var_name,
+            "js_global_object_name": js_global_object_name,
+        },
+    )
 
     js = jsmin(js)
 
     js = (
         """<script type="text/javascript">"""
-        + js + """
+        + js
+        + """
         {global_object}.staticUrl = '{static_url}';
         </script>
         """.format(
-            global_object=js_global_object_name,
-            static_url=settings.STATIC_URL))
+            global_object=js_global_object_name, static_url=settings.STATIC_URL
+        )
+    )
     return mark_safe(js)
 
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_model(context, base_name, api_resource, **kwargs):
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'detail', **kwargs)
-    html = ("<script type='text/javascript'>"
-            "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
-            "model.synced = true;"
-            "</script>".format(
-                conf.KOLIBRI_CORE_JS_NAME,
-                api_resource,
-                json.dumps(JSONRenderer().render(response.data).decode('utf-8'))))
+    response, kwargs = _kolibri_bootstrap_helper(
+        context, base_name, api_resource, "detail", **kwargs
+    )
+    html = (
+        "<script type='text/javascript'>"
+        "var model = {0}.resources.{1}.createModel(JSON.parse({2}));"
+        "model.synced = true;"
+        "</script>".format(
+            conf.KOLIBRI_CORE_JS_NAME,
+            api_resource,
+            json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
+        )
+    )
     return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
 def kolibri_bootstrap_collection(context, base_name, api_resource, **kwargs):
-    response, kwargs = _kolibri_bootstrap_helper(context, base_name, api_resource, 'list', **kwargs)
-    html = ("<script type='text/javascript'>"
-            "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
-            "collection.synced = true;"
-            "</script>".format(conf.KOLIBRI_CORE_JS_NAME,
-                               api_resource,
-                               json.dumps(kwargs),
-                               json.dumps(JSONRenderer().render(response.data).decode('utf-8')),
-                               ))
+    response, kwargs = _kolibri_bootstrap_helper(
+        context, base_name, api_resource, "list", **kwargs
+    )
+    html = (
+        "<script type='text/javascript'>"
+        "var collection = {0}.resources.{1}.createCollection({2}, JSON.parse({3}));"
+        "collection.synced = true;"
+        "</script>".format(
+            conf.KOLIBRI_CORE_JS_NAME,
+            api_resource,
+            json.dumps(kwargs),
+            json.dumps(JSONRenderer().render(response.data).decode("utf-8")),
+        )
+    )
     return mark_safe(html)
 
 
@@ -224,38 +248,36 @@ def _replace_dict_values(check, replace, dict):
 
 def _kolibri_bootstrap_helper(context, base_name, api_resource, route, **kwargs):
     reversal = dict()
-    kwargs_check = 'kwargs_'
+    kwargs_check = "kwargs_"
     # remove prepended string and matching items from kwargs
     for key in list(kwargs.keys()):
         if kwargs_check in key:
             item = kwargs.pop(key)
-            key = re.sub(kwargs_check, '', key)
+            key = re.sub(kwargs_check, "", key)
             reversal[key] = item
-    view, view_args, view_kwargs = resolve(reverse('kolibri:core:{0}-{1}'.format(base_name, route), kwargs=reversal))
+    view, view_args, view_kwargs = resolve(
+        reverse("kolibri:core:{0}-{1}".format(base_name, route), kwargs=reversal)
+    )
     # switch out None temporarily because invalid filtering and caching can occur
-    _replace_dict_values(None, str(''), kwargs)
-    request = copy.copy(context['request'])
+    _replace_dict_values(None, str(""), kwargs)
+    request = copy.copy(context["request"])
     request.GET = request.GET.copy()
     for key in kwargs:
         request.GET[key] = kwargs[key]
     response = view(request, **view_kwargs)
-    _replace_dict_values(str(''), None, kwargs)
+    _replace_dict_values(str(""), None, kwargs)
     return response, kwargs
 
 
 @register.simple_tag()
 def kolibri_sentry_error_reporting():
 
-    if not conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN']:
-        return ''
+    if not conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]:
+        return ""
 
     template = """
       <script>
         var sentryDSN = '{}';
       </script>
     """
-    return mark_safe(
-        template.format(
-            conf.OPTIONS['Debug']['SENTRY_FRONTEND_DSN'],
-        )
-    )
+    return mark_safe(template.format(conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]))

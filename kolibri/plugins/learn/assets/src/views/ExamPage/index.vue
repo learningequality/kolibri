@@ -14,7 +14,9 @@
           category="action"
           name="assignment_late"
         />
-        <h1 class="exam-title">{{ exam.title }}</h1>
+        <h1 class="exam-title">
+          {{ exam.title }}
+        </h1>
         <div class="exam-status">
           <p class="questions-answered">
             {{
@@ -41,12 +43,9 @@
       >
         <ContentRenderer
           v-if="content && itemId"
-          :id="content.id"
           ref="contentRenderer"
           :kind="content.kind"
           :files="content.files"
-          :contentId="content.content_id"
-          :channelId="channelId"
           :available="content.available"
           :extraFields="content.extra_fields"
           :itemId="itemId"

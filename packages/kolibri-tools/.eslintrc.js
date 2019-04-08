@@ -105,6 +105,14 @@ module.exports = {
       },
     ],
     'vue/no-spaces-around-equal-signs-in-attribute': ERROR,
+    'vue/multiline-html-element-content-newline': [
+      ERROR,
+      {
+        // because of compatibility with our custom HTMLHint rule
+        // enforcing top-level content surrounded by one empty line
+        'allowEmptyLines': true 
+      }
+    ],
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
     'import/newline-after-import': ERROR,
@@ -113,5 +121,6 @@ module.exports = {
     // Custom vue rules
     'kolibri/vue-filename-and-component-name-match': ERROR,
     'kolibri/vue-component-registration-casing': ERROR,
+    'kolibri/vue-no-unused-properties': ERROR,
   },
 };
