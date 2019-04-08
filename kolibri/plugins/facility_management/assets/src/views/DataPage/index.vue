@@ -100,11 +100,6 @@
       DataPageTaskProgress,
     },
     mixins: [themeMixin],
-    data() {
-      return {
-        lista: urls,
-      };
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -143,9 +138,6 @@
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isAndroidWebView();
-      },
-      generatingCSVFile() {
-        return this.inSummaryCSVCreation || this.inSessionCSVCreation;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;

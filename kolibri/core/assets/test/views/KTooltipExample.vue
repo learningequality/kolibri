@@ -32,11 +32,6 @@
         required: false,
         default: () => {},
       },
-      kTooltipText: {
-        type: String,
-        required: false,
-        default: '',
-      },
     },
   };
 

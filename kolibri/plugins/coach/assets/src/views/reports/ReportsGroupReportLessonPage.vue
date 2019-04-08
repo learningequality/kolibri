@@ -93,6 +93,7 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      /** TODO COACH
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -102,6 +103,7 @@
           },
         ];
       },
+      */
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

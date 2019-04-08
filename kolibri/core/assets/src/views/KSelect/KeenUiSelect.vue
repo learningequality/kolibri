@@ -389,14 +389,6 @@
         return this.options.findIndex(option => looseEqual(this.highlightedOption, option));
       },
 
-      // Returns the index of the currently selected option, -1 if multi-select
-      selectedIndex() {
-        if (this.multiple) {
-          return -1;
-        }
-        return this.options.findIndex(option => looseEqual(this.value, option));
-      },
-
       // Returns an array containing the options and extra annotations
       annotatedOptions() {
         const options = JSON.parse(JSON.stringify(this.options));

@@ -30,16 +30,6 @@
       QuizDetailEditor,
     },
     mixins: [commonCoach],
-    data() {
-      return {
-        lessonTitle: 'Lesson A',
-        lessonDescription: 'Ipsum lorem',
-        selectedCollectionIds: ['a'],
-        availableGroups: [{ name: 'Group A', id: 'a' }, { name: 'Group B', id: 'b' }],
-        selectedClassroomId: 'x',
-        isActive: true,
-      };
-    },
     $trs: {},
   };
 

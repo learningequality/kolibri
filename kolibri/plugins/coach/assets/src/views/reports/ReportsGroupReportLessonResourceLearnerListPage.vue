@@ -13,7 +13,7 @@
       <p>
         <BackLink
           :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="$tr('back', { lesson: 'Lesson 1' })"
+          :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
       <h1>
@@ -97,9 +97,6 @@
       },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
-      },
-      avgTime() {
-        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
       },
       tally() {
         return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);

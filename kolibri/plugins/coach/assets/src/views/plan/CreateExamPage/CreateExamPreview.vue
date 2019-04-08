@@ -158,11 +158,9 @@
           </h3>
           <ContentRenderer
             v-if="content && questionId"
-            :id="content.id"
             ref="contentRenderer"
             :kind="content.kind"
             :files="content.files"
-            :contentId="content.content_id"
             :available="content.available"
             :extraFields="content.extra_fields"
             :itemId="questionId"
@@ -299,13 +297,6 @@
       },
       previewQuizStrings() {
         return previewQuizStrings;
-      },
-      draggableOptions() {
-        return {
-          animation: 150,
-          touchStartThreshold: 3,
-          direction: 'vertical',
-        };
       },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};

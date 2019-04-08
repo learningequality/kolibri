@@ -104,7 +104,6 @@
     data() {
       return {
         loading: true,
-        error: false,
         moreResults: true,
         nextPage: 1,
         progressFilter: 'all',

@@ -15,13 +15,10 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      :id="content.id"
       class="content-renderer"
       :kind="content.kind"
       :lang="content.lang"
       :files="content.files"
-      :contentId="contentId"
-      :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
@@ -42,7 +39,6 @@
       :randomize="content.randomize"
       :masteryModel="content.masteryModel"
       :assessmentIds="content.assessmentIds"
-      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
@@ -228,14 +224,6 @@
       },
       recommendedText() {
         return this.$tr('recommended');
-      },
-      parentTopic() {
-        const { breadcrumbs = [] } = this.content;
-        if (breadcrumbs.length > 0) {
-          return breadcrumbs[breadcrumbs.length - 1];
-        }
-
-        return undefined;
       },
       progress() {
         if (this.isUserLoggedIn) {

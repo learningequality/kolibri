@@ -80,12 +80,14 @@
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
+      /** TODO COACH
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
         ];
       },
+      */
       exam() {
         return this.examMap[this.$route.params.quizId];
       },

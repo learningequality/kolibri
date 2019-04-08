@@ -58,13 +58,11 @@
         />
         <ContentRenderer
           v-if="currentInteraction"
-          :id="exercise.id"
           :itemId="currentAttemptLog.item"
           :assessment="true"
           :allowHints="false"
           :kind="exercise.kind"
           :files="exercise.files"
-          :contentId="exercise.content_id"
           :available="exercise.available"
           :answerState="answerState"
           :showCorrectAnswer="showCorrectAnswer"

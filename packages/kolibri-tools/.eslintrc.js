@@ -121,5 +121,6 @@ module.exports = {
     // Custom vue rules
     'kolibri/vue-filename-and-component-name-match': ERROR,
     'kolibri/vue-component-registration-casing': ERROR,
+    'kolibri/vue-no-unused-properties': ERROR,
   },
 };

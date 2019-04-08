@@ -166,9 +166,6 @@
       usersNotInClass() {
         return differenceWith(this.classUsers, this.currentGroupUsers, (a, b) => a.id === b.id);
       },
-      filteredUsers() {
-        return this.usersNotInClass.filter(user => userMatchesFilter(user, this.filterInput));
-      },
       sortedFilteredUsers() {
         return filterAndSortUsers(this.usersNotInClass, user =>
           userMatchesFilter(user, this.filterInput)
@@ -194,9 +191,6 @@
       },
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
-      },
-      showConfirmEnrollmentModal() {
-        return this.modalShown === true;
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
