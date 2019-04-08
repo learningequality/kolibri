@@ -66,7 +66,7 @@
   import {
     filterAndSortUsers,
     userMatchesFilter,
-  } from '../../../../../device_management/assets/src/userSearchUtils';
+  } from '../../../../../../device_management/assets/src/userSearchUtils';
 
   export default {
     name: 'CoachUserCreateModal',

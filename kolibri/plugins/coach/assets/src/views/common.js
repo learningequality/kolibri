@@ -166,6 +166,8 @@ export default {
       'lessonMap',
     ]),
     ...mapGetters('classSummary', [
+      'getClassId',
+      'className',
       'coaches',
       'learners',
       'groups',
