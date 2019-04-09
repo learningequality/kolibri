@@ -14,6 +14,7 @@
               :showLabel="true"
               :checked="allAreSelected"
               class="overflow-label"
+              :disabled="users.length === 0"
               @change="selectAll($event)"
             />
           </th>
