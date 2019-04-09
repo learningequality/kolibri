@@ -37,7 +37,7 @@
         </tr>
       </thead>
 
-      <transition-group slot="tbody" tag="tbody" name="list">
+      <tbody slot="tbody">
         <tr
           v-for="user in users"
           :key="user.id"
@@ -84,7 +84,7 @@
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
-      </transition-group>
+      </tbody>
     </CoreTable>
 
     <p
@@ -200,7 +200,6 @@
     // Overrides overflow-x: hidden rule for CoreTable th's
     overflow-x: visible;
 
-    // white-space: nowrap;
     .k-checkbox-container {
       margin-right: -70px;
     }
