@@ -83,7 +83,7 @@ def test_active_kolibri():
         return_value=(12345, "http://127.0.0.1", 1234),
     ) as gs:
         with pytest.raises(SystemExit):
-            call_command("dbrestore", latest=True)
+            call_command("dbrestore", "-l")
             gs.assert_called_once()
 
 
