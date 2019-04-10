@@ -43,12 +43,9 @@
       >
         <ContentRenderer
           v-if="content && itemId"
-          :id="content.id"
           ref="contentRenderer"
           :kind="content.kind"
           :files="content.files"
-          :contentId="content.content_id"
-          :channelId="channelId"
           :available="content.available"
           :extraFields="content.extra_fields"
           :itemId="itemId"

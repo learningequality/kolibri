@@ -58,10 +58,6 @@
         type: Object,
         required: true,
       },
-      isLast: {
-        type: Boolean,
-        default: false,
-      },
       to: {
         type: Object,
         required: false,

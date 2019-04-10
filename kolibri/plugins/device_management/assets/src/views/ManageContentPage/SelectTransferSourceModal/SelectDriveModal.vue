@@ -58,7 +58,6 @@
       return {
         driveStatus: '',
         selectedDriveId: '',
-        showError: false,
       };
     },
     computed: {

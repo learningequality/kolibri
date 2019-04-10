@@ -1,5 +1,4 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-import { convertKeysToCamelCase } from 'kolibri.coreVue.vuex.mappers';
 import { PageNames, notificationTypes } from '../../constants';
 
 export function showFacilityConfigPage(store) {
@@ -19,9 +18,9 @@ export function showFacilityConfigPage(store) {
         facilityDatasetId: dataset.id,
         facilityName: facility.name,
         // this part of state is mutated as user interacts with form
-        settings: convertKeysToCamelCase(dataset),
+        settings: { ...dataset },
         // this copy is kept for the purpose of undoing if save fails
-        settingsCopy: convertKeysToCamelCase(dataset),
+        settingsCopy: { ...dataset },
         notification: null,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);

@@ -20,13 +20,10 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
-        :id="id"
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
         :files="files"
-        :contentId="contentId"
-        :channelId="channelId"
         :available="available"
         :extraFields="extraFields"
         :assessment="true"
@@ -163,10 +160,6 @@ oriented data synchronization.
       files: {
         type: Array,
         default: () => [],
-      },
-      contentId: {
-        type: String,
-        default: '',
       },
       channelId: {
         type: String,

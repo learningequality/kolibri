@@ -164,7 +164,6 @@
         searchQuery: this.$store.state.search.searchTerm,
         contentKindFilterSelection: {},
         channelFilterSelection: {},
-        test: 10,
       };
     },
     computed: {
