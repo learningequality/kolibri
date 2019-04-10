@@ -49,7 +49,11 @@
             <td>
               <KLabeledIcon>
                 <KIcon slot="icon" quiz />
-                {{ exam.title }}
+                <KRouterLink
+                  :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                  appearance="basic-link"
+                  :text="exam.title"
+                />
               </KLabeledIcon>
             </td>
 
