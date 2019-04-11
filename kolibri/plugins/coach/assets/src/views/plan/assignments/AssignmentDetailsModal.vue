@@ -1,13 +1,14 @@
 <template>
 
-  <KModal
+  <!-- <KModal
     :title="modalTitle"
     :hasError="showServerError || !formIsValid"
     :submitText="isInEditMode ? $tr('save') : $tr('continue')"
     :cancelText="$tr('cancel')"
     @submit="submitData"
     @cancel="closeModal"
-  >
+  > -->
+  <div>
     <UiAlert
       v-if="showServerError"
       type="error"
@@ -15,6 +16,7 @@
     >
       {{ submitErrorMessage }}
     </UiAlert>
+
     <KTextbox
       ref="titleField"
       v-model="title"
@@ -27,6 +29,7 @@
       @blur="titleIsVisited = true"
       @input="showTitleError = false"
     />
+
     <KTextbox
       v-if="showDescriptionField"
       v-model="description"
@@ -34,6 +37,7 @@
       :maxlength="200"
       :disabled="formIsSubmitted"
     />
+
     <fieldset v-if="showActiveOption">
       <legend>{{ coachStrings.$tr('statusLabel') }}</legend>
       <KRadioButton
@@ -47,6 +51,7 @@
         :value="false"
       />
     </fieldset>
+
     <fieldset>
       <legend>{{ $tr('assignedGroupsLabel') }}</legend>
       <RecipientSelector
@@ -56,7 +61,7 @@
         :disabled="formIsSubmitted"
       />
     </fieldset>
-  </KModal>
+  </div>
 
 </template>
 
@@ -64,7 +69,6 @@
 <script>
 
   import xor from 'lodash/xor';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
@@ -74,7 +78,6 @@
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      KModal,
       KTextbox,
       KRadioButton,
       RecipientSelector,
@@ -82,10 +85,6 @@
     },
     mixins: [coachStringsMixin],
     props: {
-      modalTitle: {
-        type: String,
-        required: true,
-      },
       modalTitleErrorMessage: {
         type: String,
         required: false,
