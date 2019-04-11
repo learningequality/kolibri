@@ -3,7 +3,7 @@
   <KGrid>
     <KGridItem sizes="4, 4, 5" class="list-wrapper">
       <KDragContainer
-        v-if="fixedOrder"
+        v-if="fixedOrder && !readOnly"
         :items="annotatedQuestions"
         @sort="handleUserSort"
       >
@@ -41,6 +41,7 @@
           @select="currentQuestionIndex = questionIndex"
         />
       </ul>
+
       <transition name="fade-numbers">
         <ol v-if="fixedOrder" class="list-labels" aria-hidden>
           <li
@@ -101,14 +102,22 @@
       KDragHandle,
     },
     props: {
+      // If set to true, question buttons will be draggable
       fixedOrder: {
         type: Boolean,
         required: true,
       },
+      // If set to true, controls will be disabled for fixed-order mode
+      readOnly: {
+        type: Boolean,
+        default: false,
+      },
+      // Array of { question_id, exercise_id, title } from Exam.question_sources
       selectedQuestions: {
         type: Array,
         required: true,
       },
+      // A Map(id, ContentNode)
       selectedExercises: {
         type: Object,
         required: true,

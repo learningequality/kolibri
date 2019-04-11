@@ -47,7 +47,8 @@
 
       <QuestionListPreview
         v-if="!error && selectedQuestions"
-        :fixedOrder="true"
+        :fixedOrder="!quizIsRandomized"
+        :readOnly="true"
         :selectedQuestions="selectedQuestions"
         :selectedExercises="selectedExercises"
       />
@@ -136,7 +137,9 @@
         });
       },
     },
-    $trs: {},
+    $trs: {
+      pageLoadingError: 'There was a problem loading this quiz',
+    },
   };
 
 </script>
