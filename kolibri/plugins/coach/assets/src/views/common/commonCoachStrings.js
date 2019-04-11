@@ -15,6 +15,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   newQuizAction: 'New quiz',
   previewAction: 'Preview',
   saveAction: 'Save',
+  saveChangesAction: 'Save changes',
   renameAction: 'Rename',
   showAction: 'Show',
   showMoreAction: 'Show more',

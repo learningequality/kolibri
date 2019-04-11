@@ -109,7 +109,7 @@
   import Recipients from '../../common/Recipients';
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
-  import { coachStrings } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
 
@@ -137,6 +137,7 @@
       Recipients,
       TopNavbar,
     },
+    mixins: [coachStringsMixin],
     data() {
       return {
         quiz: {},
@@ -166,9 +167,6 @@
       },
       quizIsRandomized() {
         return !this.quiz.learners_see_fixed_order;
-      },
-      coachStrings() {
-        return coachStrings;
       },
       questionOrderValueString() {
         return this.quizIsRandomized
@@ -209,7 +207,11 @@
         this.$store.dispatch('notLoading');
       },
       setCurrentAction(action) {
-        this.currentAction = action;
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('QuizEditDetailsPage'));
+        } else {
+          this.currentAction = action;
+        }
       },
       closeModal() {
         this.currentAction = '';

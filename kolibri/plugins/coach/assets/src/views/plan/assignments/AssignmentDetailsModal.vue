@@ -1,66 +1,87 @@
 <template>
 
-  <!-- <KModal
-    :title="modalTitle"
-    :hasError="showServerError || !formIsValid"
-    :submitText="isInEditMode ? $tr('save') : $tr('continue')"
-    :cancelText="$tr('cancel')"
-    @submit="submitData"
-    @cancel="closeModal"
-  > -->
   <div>
-    <UiAlert
-      v-if="showServerError"
-      type="error"
-      :dismissible="false"
-    >
-      {{ submitErrorMessage }}
-    </UiAlert>
+    <form @submit.prevent="$emit('submit')">
+      <UiAlert
+        v-if="showServerError"
+        type="error"
+        :dismissible="false"
+      >
+        {{ submitErrorMessage }}
+      </UiAlert>
 
-    <KTextbox
-      ref="titleField"
-      v-model="title"
-      :label="$tr('titlePlaceholder')"
-      :maxlength="50"
-      :autofocus="true"
-      :invalid="titleIsInvalid"
-      :invalidText="titleIsInvalidText"
-      :disabled="formIsSubmitted"
-      @blur="titleIsVisited = true"
-      @input="showTitleError = false"
-    />
+      <fieldset>
+        <KTextbox
+          ref="titleField"
+          v-model="title"
+          :label="$tr('titlePlaceholder')"
+          :maxlength="50"
+          :autofocus="true"
+          :invalid="titleIsInvalid"
+          :invalidText="titleIsInvalidText"
+          :disabled="disabled || formIsSubmitted"
+          @blur="titleIsVisited = true"
+          @input="showTitleError = false"
+        />
 
-    <KTextbox
-      v-if="showDescriptionField"
-      v-model="description"
-      :label="$tr('description')"
-      :maxlength="200"
-      :disabled="formIsSubmitted"
-    />
+        <KTextbox
+          v-if="showDescriptionField"
+          v-model="description"
+          :label="$tr('description')"
+          :maxlength="200"
+          :disabled="disabled || formIsSubmitted"
+        />
+      </fieldset>
 
-    <fieldset v-if="showActiveOption">
-      <legend>{{ coachStrings.$tr('statusLabel') }}</legend>
-      <KRadioButton
-        v-model="activeIsSelected"
-        :label="modalActiveText"
-        :value="true"
+      <fieldset v-if="showActiveOption">
+        <legend>
+          {{ coachStrings.$tr('statusLabel') }}
+        </legend>
+        <p>
+          {{ $tr('activeQuizzesExplanation') }}
+        </p>
+        <KRadioButton
+          v-model="activeIsSelected"
+          :label="modalActiveText"
+          :value="true"
+          :disabled="disabled || formIsSubmitted"
+        />
+        <KRadioButton
+          v-model="activeIsSelected"
+          :label="modalInactiveText"
+          :value="false"
+          :disabled="disabled || formIsSubmitted"
+        />
+      </fieldset>
+
+      <fieldset>
+        <legend>
+          {{ $tr('assignedGroupsLabel') }}
+        </legend>
+        <RecipientSelector
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
+          :disabled="disabled || formIsSubmitted"
+        />
+      </fieldset>
+    </form>
+
+    <Bottom>
+      <KButton
+        :text="coachStrings.$tr('cancelAction')"
+        appearance="flat-button"
+        :primary="false"
+        :disabled="disabled"
+        @click="$emit('cancel')"
       />
-      <KRadioButton
-        v-model="activeIsSelected"
-        :label="modalInactiveText"
-        :value="false"
+      <KButton
+        :text="coachStrings.$tr('saveChangesAction')"
+        :primary="true"
+        :disabled="disabled"
+        @click="submitData"
       />
-    </fieldset>
-
-    <fieldset>
-      <legend>{{ $tr('assignedGroupsLabel') }}</legend>
-      <RecipientSelector
-        v-model="selectedCollectionIds"
-        :groups="groups"
-        :classId="classId"
-        :disabled="formIsSubmitted"
-      />
-    </fieldset>
+    </Bottom>
   </div>
 
 </template>
@@ -70,16 +91,20 @@
 
   import xor from 'lodash/xor';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import Bottom from '../CreateExamPage/Bottom';
   import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      KTextbox,
+      Bottom,
+      KButton,
       KRadioButton,
+      KTextbox,
       RecipientSelector,
       UiAlert,
     },
@@ -94,10 +119,6 @@
         required: true,
       },
       showDescriptionField: {
-        type: Boolean,
-        required: true,
-      },
-      isInEditMode: {
         type: Boolean,
         required: true,
       },
@@ -138,6 +159,11 @@
         type: String,
         required: false,
       },
+      // If set to true, all of the forms are disabled
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -166,6 +192,14 @@
         if (this.titleIsVisited) {
           if (this.title === '') {
             return this.$tr('fieldRequiredErro');
+          }
+          if (
+            this.$store.getters['classSummary/quizTitleUnavailable']({
+              title: this.title,
+              excludeId: this.$route.params.quizId,
+            })
+          ) {
+            return this.$tr('quizTitleAlreadyUsed');
           }
           if (this.showTitleError) {
             return this.modalTitleErrorMessage;
@@ -196,30 +230,22 @@
       submitData() {
         this.showServerError = false;
         this.showTitleError = false;
+
         // Return immediately if "submit" has already been clicked
-        if (this.formIsSubmitted) {
-          // IDEA a loading indictor or something would probably be handy
+        if (this.disabled) {
           return;
         }
 
         if (this.formIsValid) {
-          this.formIsSubmitted = true;
           if (!this.detailsHaveChanged) {
-            this.closeModal();
-            return;
+            this.$emit('submit', null);
+          } else {
+            this.$emit('submit', this.formData);
           }
-
-          return this.isInEditMode
-            ? this.$emit('save', this.formData)
-            : this.$emit('continue', this.formData);
         } else {
-          // shouldn't ever be true, but being safe
           this.formIsSubmitted = false;
           this.$refs.titleField.focus();
         }
-      },
-      closeModal() {
-        this.$emit('cancel');
       },
       // NOTE: These methods are not used inside the component, but may be called
       // from a parent component
@@ -240,6 +266,8 @@
       save: 'Save',
       titlePlaceholder: 'Title',
       assignedGroupsLabel: 'Visible to',
+      activeQuizzesExplanation: 'Learners can only see active quizzes',
+      quizTitleAlreadyUsed: 'A quiz with this name already exists',
     },
   };
 
@@ -250,13 +278,13 @@
 
   fieldset {
     padding: 0;
-    margin: 0;
+    margin: 24px 0;
     border: 0;
   }
 
   legend {
-    padding-top: 16px;
-    padding-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
   }
 
 </style>

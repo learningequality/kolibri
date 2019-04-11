@@ -13,6 +13,7 @@ import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showExamsPage } from '../modules/examsRoot/handlers';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
+import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
 export default [
   {
@@ -70,5 +71,10 @@ export default [
     name: QuizSummaryPage.name,
     path: '/:classId/plan/quizzes/:quizId',
     component: QuizSummaryPage,
+  },
+  {
+    name: QuizEditDetailsPage.name,
+    path: '/:classId/plan/quizzes/:quizId/edit',
+    component: QuizEditDetailsPage,
   },
 ];

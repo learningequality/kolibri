@@ -7,9 +7,6 @@ export function fetchQuizSummaryPageData(examId) {
     exam: {},
     // To render the exercises in QuestionListPreview > ContentRenderer
     exerciseContentNodes: {},
-    // To render the names in the "Visible to" row.
-    // API request returns all groups in the classroom, even if not assigned to Quiz.
-    learnerGroups: [],
   };
   return ExamResource.fetchModel({ id: examId }).then(exam => {
     payload.exam = exam;
