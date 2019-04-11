@@ -11,7 +11,17 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer v-if="!loading">
+
       <section>
+        <div class="with-flushed-button">
+          <p>
+            <BackLink
+              :to="$router.getRoute('EXAMS')"
+              :text="$tr('allQuizzes')"
+            />
+          </p>
+          <QuizOptionsDropdownMenu />
+        </div>
         <h1>
           {{ quiz.title }}
         </h1>
@@ -78,6 +88,7 @@
   import find from 'lodash/find';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../../common';
+  import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import QuizActive from '../../common/QuizActive';
@@ -85,17 +96,20 @@
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStrings } from '../../common/commonCoachStrings';
+  import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import { fetchQuizSummaryPageData } from './api';
 
   export default {
     name: 'QuizSummaryPage',
     components: {
+      BackLink,
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
       KPageContainer,
       QuestionListPreview,
       QuizActive,
+      QuizOptionsDropdownMenu,
       Recipients,
       TopNavbar,
     },
@@ -156,13 +170,30 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      goToActionPage(action) {
+        console.log(action);
+      },
     },
     $trs: {
       pageLoadingError: 'There was a problem loading this quiz',
+      allQuizzes: 'All quizzes',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  // Copied from CoachExamsPage and other places
+  .with-flushed-button {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    button {
+      align-self: flex-end;
+    }
+  }
+
+</style>
