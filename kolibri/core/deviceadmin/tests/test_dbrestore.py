@@ -58,7 +58,7 @@ def mock_status_not_running():
 def test_latest():
 
     with pytest.raises(RuntimeError):
-        call_command("dbrestore", latest=True)
+        call_command("dbrestore", "-l")
 
 
 def test_illegal_command():
@@ -97,7 +97,7 @@ def test_inactive_kolibri():
     ) as gs:
         # Since there's no backups available during a test, this should fail!
         with pytest.raises(RuntimeError):
-            call_command("dbrestore", latest=True)
+            call_command("dbrestore", "-l")
             gs.assert_called_once()
 
 
@@ -145,7 +145,7 @@ def test_restore_from_latest():
             # Destroy current connections and create new ones:
             db.connections.close_all()
             db.connections = db.ConnectionHandler()
-            call_command("dbrestore", latest=True)
+            call_command("dbrestore", "-l")
             # Test that the user has been restored!
             assert (
                 Facility.objects.filter(name="test latest", kind=FACILITY).count() == 1
@@ -177,7 +177,7 @@ def test_restore_from_file_to_memory():
             # Destroy current connections and create new ones:
             db.connections.close_all()
             db.connections = db.ConnectionHandler()
-            call_command("dbrestore", dump_file=backup)
+            call_command("dbrestore", backup)
             # Test that the user has been restored!
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
 
@@ -213,7 +213,7 @@ def test_restore_from_file_to_file():
             # Purposefully destroy the connection pointer, which is the default
             # state of an unopened connection
             db.connections["default"].connection = None
-            call_command("dbrestore", dump_file=backup)
+            call_command("dbrestore", backup)
             # Test that the user has been restored!
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
 
