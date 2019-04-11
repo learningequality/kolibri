@@ -7,8 +7,8 @@
       id="select-classroom"
       :title="modalTitle"
       :submitText="$tr('continue')"
-      :cancelText="$tr('cancel')"
-      @cancel="closeModal"
+      :cancelText="coachStrings.$tr('cancelAction')"
+      @cancel="$emit('cancel')"
       @submit="goToAvailableGroups"
     >
       <KRadioButton
@@ -25,10 +25,10 @@
       v-else
       id="select-learnergroup"
       :title="modalTitle"
-      :submitText="$tr('makeCopy')"
-      :cancelText="$tr('cancel')"
-      @cancel="closeModal"
-      @submit="$emit('copy', selectedClassroomId, selectedCollectionIds)"
+      :submitText="coachStrings.$tr('copyAction')"
+      :cancelText="coachStrings.$tr('cancelAction')"
+      @cancel="$emit('cancel')"
+      @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
     >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
@@ -52,6 +52,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   const Stages = {
@@ -66,6 +67,7 @@
       KRadioButton,
       RecipientSelector,
     },
+    mixins: [coachStringsMixin],
     props: {
       modalTitle: {
         type: String,
@@ -140,9 +142,6 @@
         }
         return classroom.name;
       },
-      closeModal() {
-        return this.$emit('cancel');
-      },
       isCurrentClassroom(classroom) {
         return classroom.id === this.classId;
       },
@@ -150,8 +149,6 @@
     $trs: {
       currentClass: '{ name } (current class)',
       continue: 'Continue',
-      cancel: 'Cancel',
-      makeCopy: 'Copy',
       destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };

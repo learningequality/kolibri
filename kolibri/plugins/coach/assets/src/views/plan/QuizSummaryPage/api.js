@@ -1,5 +1,5 @@
 import map from 'lodash/map';
-import { ExamResource, ContentNodeResource, LearnerGroupResource } from 'kolibri.resources';
+import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
 export function fetchQuizSummaryPageData(examId) {
   const payload = {
@@ -13,20 +13,12 @@ export function fetchQuizSummaryPageData(examId) {
   };
   return ExamResource.fetchModel({ id: examId }).then(exam => {
     payload.exam = exam;
-    return Promise.all([
-      ContentNodeResource.fetchCollection({
-        getParams: {
-          ids: map(exam.question_sources, 'exercise_id'),
-        },
-      }),
-      LearnerGroupResource.fetchCollection({
-        getParams: {
-          parent: exam.collection,
-        },
-      }),
-    ]).then(([contentNodes, learnerGroups]) => {
+    return ContentNodeResource.fetchCollection({
+      getParams: {
+        ids: map(exam.question_sources, 'exercise_id'),
+      },
+    }).then(contentNodes => {
       payload.exerciseContentNodes = contentNodes;
-      payload.learnerGroups = learnerGroups;
       return payload;
     });
   });
@@ -48,4 +40,8 @@ export function clientAssigmentState(listOfIDs, classId) {
     return [];
   }
   return listOfIDs;
+}
+
+export function deleteExam(examId) {
+  return ExamResource.deleteModel({ id: examId });
 }

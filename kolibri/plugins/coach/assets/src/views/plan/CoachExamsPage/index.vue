@@ -85,7 +85,7 @@
 <script>
 
   // import find from 'lodash/find';
-  import { mapState, mapActions, mapMutations } from 'vuex';
+  import { mapState, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -155,7 +155,6 @@
       },
     },
     methods: {
-      ...mapActions('examReport', ['updateExamDetails', 'copyExam', 'deleteExam']),
       ...mapMutations('classSummary', ['UPDATE_ITEM', 'CREATE_ITEM', 'DELETE_ITEM']),
       // // format desired by the server, including class
       // serverAssignmentPayload(listOfIDs) {

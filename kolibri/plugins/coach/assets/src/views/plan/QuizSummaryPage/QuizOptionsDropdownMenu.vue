@@ -14,17 +14,15 @@
 <script>
 
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import { coachStrings } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'QuizOptionsDropdownMenu',
     components: {
       KDropdownMenu,
     },
+    mixins: [coachStringsMixin],
     computed: {
-      coachStrings() {
-        return coachStrings;
-      },
       options() {
         return [
           {

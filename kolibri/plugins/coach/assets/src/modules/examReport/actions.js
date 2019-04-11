@@ -1,7 +1,5 @@
 import { ExamResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
-import router from 'kolibri.coreVue.router';
-import { PageNames } from '../../constants';
 import { createExam } from '../examShared/exams';
 
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
@@ -48,14 +46,4 @@ export function updateExamDetails(store, { examId, payload }) {
       }
     );
   });
-}
-
-export function deleteExam(store, examId) {
-  return ExamResource.deleteModel({ id: examId }).then(
-    () => {
-      router.replace({ name: PageNames.EXAMS });
-      showSnackbar(store, snackbarTranslator.$tr('examDeleted'));
-    },
-    error => store.dispatch('handleError', error, { root: true })
-  );
 }

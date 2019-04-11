@@ -46,6 +46,9 @@ export default {
       // otherwise show the whole class list
       return state.classList.length !== 1;
     },
+    userIsAuthorizedForCoach(state, getters) {
+      return getters.isCoach || getters.isAdmin || getters.isSuperuser;
+    },
   },
   actions: {
     setClassList(store) {

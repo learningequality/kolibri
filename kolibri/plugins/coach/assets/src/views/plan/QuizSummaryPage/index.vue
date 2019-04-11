@@ -2,15 +2,14 @@
 
   <CoreBase
     :immersivePage="false"
-    :authorized="true"
+    :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
-    appBarTitle="Coach"
   >
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer v-if="!loading">
+    <KPageContainer v-if="!loading && !error">
 
       <section>
         <div class="with-flushed-button">
@@ -23,7 +22,10 @@
           <QuizOptionsDropdownMenu @select="setCurrentAction" />
         </div>
         <h1>
-          {{ quiz.title }}
+          <KLabeledIcon>
+            <KIcon slot="icon" quiz />
+            {{ quiz.title }}
+          </KLabeledIcon>
         </h1>
       </section>
 
@@ -42,7 +44,7 @@
               {{ coachStrings.$tr('recipientsLabel') }}
             </span>
             <span slot="value">
-              <Recipients :groupNames="learnerGroups" />
+              <Recipients :groupNames="learnerGroupNames" />
             </span>
           </HeaderTableRow>
           <HeaderTableRow>
@@ -72,9 +74,6 @@
           :selectedQuestions="selectedQuestions"
           :selectedExercises="selectedExercises"
         />
-        <p v-if="error">
-          {{ $tr('pageLoadingError') }}
-        </p>
       </section>
     </KPageContainer>
 
@@ -86,6 +85,9 @@
       @cancel="closeModal"
     />
 
+    <p v-if="error">
+      {{ $tr('pageLoadingError') }}
+    </p>
   </CoreBase>
 
 </template>
@@ -97,6 +99,8 @@
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
@@ -109,7 +113,12 @@
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
 
-  import { fetchQuizSummaryPageData, serverAssignmentPayload, clientAssigmentState } from './api';
+  import {
+    fetchQuizSummaryPageData,
+    serverAssignmentPayload,
+    clientAssigmentState,
+    deleteExam,
+  } from './api';
 
   export default {
     name: 'QuizSummaryPage',
@@ -118,6 +127,8 @@
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
+      KIcon,
+      KLabeledIcon,
       KPageContainer,
       ManageExamModals,
       QuestionListPreview,
@@ -130,7 +141,6 @@
       return {
         quiz: {},
         selectedExercises: {},
-        learnerGroups: [],
         error: null,
         loading: true,
         currentAction: '',
@@ -141,14 +151,13 @@
         .then(data => {
           next(vm => vm.setData(data));
         })
-        .catch(err => {
-          next(vm => {
-            vm.error = err;
-          });
+        .catch(error => {
+          next(vm => vm.setError(error));
         });
     },
     computed: {
       ...mapState(['classList']),
+      ...mapState('classSummary', ['groupMap']),
       selectedQuestions() {
         if (this.quiz.question_sources) {
           return this.quiz.question_sources;
@@ -156,7 +165,7 @@
         return null;
       },
       quizIsRandomized() {
-        return this.quiz.learners_see_fixed_order;
+        return !this.quiz.learners_see_fixed_order;
       },
       coachStrings() {
         return coachStrings;
@@ -174,17 +183,28 @@
       classId() {
         return this.$route.params.classId;
       },
+      learnerGroupNames() {
+        const names = [];
+        const { assignments = [] } = this.quiz;
+        assignments.forEach(({ collection }) => {
+          const match = this.groupMap[collection];
+          if (match) {
+            return names.push(match.name);
+          }
+        });
+        return names;
+      },
     },
     methods: {
       setData(data) {
-        const { exam, exerciseContentNodes, learnerGroups } = data;
+        const { exam, exerciseContentNodes } = data;
         this.quiz = exam;
         this.selectedExercises = fromPairs(exerciseContentNodes.map(x => [x.id, x]));
-        learnerGroups.forEach(lg => {
-          if (find(exam.assignments, { collection: lg.id })) {
-            this.learnerGroups.push(lg.name);
-          }
-        });
+        this.loading = false;
+        this.$store.dispatch('notLoading');
+      },
+      setError(error) {
+        this.error = error;
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
@@ -194,7 +214,7 @@
       closeModal() {
         this.currentAction = '';
       },
-      handleSubmitCopy(selectedClassroomId, listOfIDs, examTitle) {
+      handleSubmitCopy({ classroomId, groupIds, examTitle }) {
         const title = examTitle
           .trim()
           .substring(0, 50)
@@ -203,21 +223,21 @@
         return this.$store
           .dispatch('examReport/copyExam', {
             exam: {
-              collection: selectedClassroomId,
+              collection: classroomId,
               title,
               question_count: this.quiz.question_count,
               question_sources: this.quiz.question_sources,
-              assignments: serverAssignmentPayload(listOfIDs, this.classId),
+              assignments: serverAssignmentPayload(groupIds, this.classId),
             },
-            className: find(this.classList, { id: selectedClassroomId }).name,
+            className: find(this.classList, { id: classroomId }).name,
           })
           .then(result => {
             // If exam was copied to the current classroom, add it to the classSummary module
-            if (selectedClassroomId === this.classId) {
+            if (classroomId === this.classId) {
               const object = {
                 id: result.id,
                 title: result.title,
-                groups: clientAssigmentState(listOfIDs, this.classId),
+                groups: clientAssigmentState(groupIds, this.classId),
                 active: false,
               };
               this.$store.commit('classSummary/CREATE_ITEM', {
@@ -230,15 +250,25 @@
           });
       },
       handleSubmitDelete() {
-        this.$store.dispatch('examReport/deleteExam', this.quiz.id).then(() => {
-          this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
-          this.$router.replace(this.$router.getRoute('EXAMS'));
-        });
+        return deleteExam(this.quiz.id)
+          .then(() => {
+            this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
+            this.$router.replace(this.$router.getRoute('EXAMS'), () => {
+              this.$store.dispatch(
+                'createSnackbar',
+                this.$tr('quizDeletedNotification', { title: this.quiz.title })
+              );
+            });
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
     },
     $trs: {
       pageLoadingError: 'There was a problem loading this quiz',
       allQuizzes: 'All quizzes',
+      quizDeletedNotification: `'{title}' was deleted`,
     },
   };
 
