@@ -31,3 +31,21 @@ export function fetchQuizSummaryPageData(examId) {
     });
   });
 }
+
+export function serverAssignmentPayload(listOfIDs, classId) {
+  const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === classId;
+  if (assignedToClass) {
+    return [{ collection: classId }];
+  }
+  return listOfIDs.map(id => {
+    return { collection: id };
+  });
+}
+
+export function clientAssigmentState(listOfIDs, classId) {
+  const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === classId;
+  if (assignedToClass) {
+    return [];
+  }
+  return listOfIDs;
+}

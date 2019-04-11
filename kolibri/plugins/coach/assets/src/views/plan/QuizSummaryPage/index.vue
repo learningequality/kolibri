@@ -20,7 +20,7 @@
               :text="$tr('allQuizzes')"
             />
           </p>
-          <QuizOptionsDropdownMenu />
+          <QuizOptionsDropdownMenu @select="setCurrentAction" />
         </div>
         <h1>
           {{ quiz.title }}
@@ -77,6 +77,15 @@
         </p>
       </section>
     </KPageContainer>
+
+    <ManageExamModals
+      :currentAction="currentAction"
+      :quiz="quiz"
+      @submit_delete="handleSubmitDelete"
+      @submit_copy="handleSubmitCopy"
+      @cancel="closeModal"
+    />
+
   </CoreBase>
 
 </template>
@@ -84,6 +93,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
@@ -97,7 +107,9 @@
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStrings } from '../../common/commonCoachStrings';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
-  import { fetchQuizSummaryPageData } from './api';
+  import ManageExamModals from './ManageExamModals';
+
+  import { fetchQuizSummaryPageData, serverAssignmentPayload, clientAssigmentState } from './api';
 
   export default {
     name: 'QuizSummaryPage',
@@ -107,6 +119,7 @@
       HeaderTable,
       HeaderTableRow,
       KPageContainer,
+      ManageExamModals,
       QuestionListPreview,
       QuizActive,
       QuizOptionsDropdownMenu,
@@ -120,6 +133,7 @@
         learnerGroups: [],
         error: null,
         loading: true,
+        currentAction: '',
       };
     },
     beforeRouteEnter(to, from, next) {
@@ -134,6 +148,7 @@
         });
     },
     computed: {
+      ...mapState(['classList']),
       selectedQuestions() {
         if (this.quiz.question_sources) {
           return this.quiz.question_sources;
@@ -156,6 +171,9 @@
           ? this.coachStrings.$tr('orderRandomDescription')
           : this.coachStrings.$tr('orderFixedDescription');
       },
+      classId() {
+        return this.$route.params.classId;
+      },
     },
     methods: {
       setData(data) {
@@ -170,8 +188,52 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
-      goToActionPage(action) {
-        console.log(action);
+      setCurrentAction(action) {
+        this.currentAction = action;
+      },
+      closeModal() {
+        this.currentAction = '';
+      },
+      handleSubmitCopy(selectedClassroomId, listOfIDs, examTitle) {
+        const title = examTitle
+          .trim()
+          .substring(0, 50)
+          .trim();
+
+        return this.$store
+          .dispatch('examReport/copyExam', {
+            exam: {
+              collection: selectedClassroomId,
+              title,
+              question_count: this.quiz.question_count,
+              question_sources: this.quiz.question_sources,
+              assignments: serverAssignmentPayload(listOfIDs, this.classId),
+            },
+            className: find(this.classList, { id: selectedClassroomId }).name,
+          })
+          .then(result => {
+            // If exam was copied to the current classroom, add it to the classSummary module
+            if (selectedClassroomId === this.classId) {
+              const object = {
+                id: result.id,
+                title: result.title,
+                groups: clientAssigmentState(listOfIDs, this.classId),
+                active: false,
+              };
+              this.$store.commit('classSummary/CREATE_ITEM', {
+                map: 'examMap',
+                id: object.id,
+                object,
+              });
+            }
+            this.closeModal();
+          });
+      },
+      handleSubmitDelete() {
+        this.$store.dispatch('examReport/deleteExam', this.quiz.id).then(() => {
+          this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
+          this.$router.replace(this.$router.getRoute('EXAMS'));
+        });
       },
     },
     $trs: {

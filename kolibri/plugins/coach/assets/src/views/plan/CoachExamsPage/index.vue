@@ -77,48 +77,6 @@
       </p>
     </KPageContainer>
 
-    <AssignmentDetailsModal
-      v-if="showEditModal"
-      ref="detailsModal"
-      :modalTitle="manageExamModalStrings.$tr('editExamDetails')"
-      :modalTitleErrorMessage="manageExamModalStrings.$tr('duplicateTitle')"
-      :submitErrorMessage="manageExamModalStrings.$tr('saveExamError')"
-      :showDescriptionField="false"
-      :isInEditMode="true"
-      :initialTitle="editExam.title"
-      :initialSelectedCollectionIds="editExam.groups"
-      :classId="classId"
-      :groups="groups"
-      :showActiveOption="true"
-      :initialActive="editExam.active"
-      :modalActiveText="manageExamModalStrings.$tr('changeExamStatusActive')"
-      :modalInactiveText="manageExamModalStrings.$tr('changeExamStatusInactive')"
-      @save="handleExamDetails"
-      @cancel="showEditModal = false"
-    />
-
-    <AssignmentCopyModal
-      v-if="showCopyModal"
-      :modalTitle="manageExamModalStrings.$tr('copyExamTitle')"
-      :assignmentQuestion="manageExamModalStrings.$tr('assignmentQuestion')"
-      :classId="classId"
-      :classList="classList"
-      @copy="handleExamCopy"
-      @cancel="showCopyModal = false"
-    />
-
-    <AssignmentDeleteModal
-      v-if="showDeleteModal"
-      :modalTitle="manageExamModalStrings.$tr('deleteExamTitle')"
-      :modalDescription="manageExamModalStrings.$tr(
-        'deleteExamDescription',
-        { title: editExam.title }
-      )"
-      :modalConfirmation="manageExamModalStrings.$tr('deleteExamConfirmation')"
-      @delete="handleExamDelete"
-      @cancel="showDeleteModal = false"
-    />
-
   </CoreBase>
 
 </template>
@@ -126,28 +84,20 @@
 
 <script>
 
-  import find from 'lodash/find';
+  // import find from 'lodash/find';
   import { mapState, mapActions, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
+  // import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  // import CatchErrors from 'kolibri.utils.CatchErrors';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
-  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
-  import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
-  import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
-  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import QuizActive from '../../common/QuizActive';
-  import ManageExamModals from './ManageExamModals';
-
-  const manageExamModalStrings = crossComponentTranslator(ManageExamModals);
 
   export default {
     name: 'CoachExamsPage',
@@ -162,9 +112,6 @@
       KRouterLink,
       KSelect,
       CoreInfoIcon,
-      AssignmentDetailsModal,
-      AssignmentCopyModal,
-      AssignmentDeleteModal,
       QuizActive,
       KLabeledIcon,
       KIcon,
@@ -173,18 +120,11 @@
     data() {
       return {
         statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
-        showEditModal: false,
-        showCopyModal: false,
-        showDeleteModal: false,
-        editExam: {},
       };
     },
     computed: {
       ...mapState(['classList']),
       ...mapState('examsRoot', { fullExamInfo: 'exams' }),
-      manageExamModalStrings() {
-        return manageExamModalStrings;
-      },
       sortedExams() {
         return this.exams.slice().reverse();
       },
@@ -217,98 +157,51 @@
     methods: {
       ...mapActions('examReport', ['updateExamDetails', 'copyExam', 'deleteExam']),
       ...mapMutations('classSummary', ['UPDATE_ITEM', 'CREATE_ITEM', 'DELETE_ITEM']),
-      showModal(event, exam) {
-        this.editExam = exam;
-        if (event.value === AssignmentActions.EDIT_DETAILS) {
-          this.showEditModal = true;
-        } else if (event.value === AssignmentActions.COPY) {
-          this.showCopyModal = true;
-        }
-        if (event.value === AssignmentActions.DELETE) {
-          this.showDeleteModal = true;
-        }
-      },
-      // format desired by the server, including class
-      serverAssignmentPayload(listOfIDs) {
-        const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
-        if (assignedToClass) {
-          return [{ collection: this.classId }];
-        }
-        return listOfIDs.map(id => {
-          return { collection: id };
-        });
-      },
-      // format used client-side, with only groups
-      clientAssigmentState(listOfIDs) {
-        const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
-        if (assignedToClass) {
-          return [];
-        }
-        return listOfIDs;
-      },
-      handleExamDetails(result) {
-        const listOfIDs = result.assignments.map(item => item.collection);
-        const serverPayload = {
-          title: result.title,
-          active: result.active,
-          assignments: this.serverAssignmentPayload(listOfIDs),
-        };
-        this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload })
-          .then(() => {
-            const object = {
-              id: this.editExam.id,
-              title: result.title,
-              groups: this.clientAssigmentState(listOfIDs),
-              active: result.active,
-            };
-            this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
-            this.showEditModal = false;
-          })
-          .catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-            if (errors) {
-              this.$refs.detailsModal.handleSubmitTitleFailure();
-            } else {
-              this.$refs.detailsModal.handleSubmitFailure();
-            }
-          });
-      },
-      handleExamCopy(selectedClassroomId, listOfIDs) {
-        const title = manageExamModalStrings
-          .$tr('copyOfExam', { examTitle: this.editExam.title })
-          .trim()
-          .substring(0, 50)
-          .trim();
-        const currentExam = find(this.fullExamInfo, exam => exam.id === this.editExam.id);
-        const exam = {
-          collection: selectedClassroomId,
-          title,
-          question_count: currentExam.questionCount,
-          question_sources: currentExam.questionSources,
-          assignments: this.serverAssignmentPayload(listOfIDs),
-        };
-        const classroomName = find(this.classList, { id: selectedClassroomId }).name;
-
-        this.copyExam({ exam, className: classroomName }).then(result => {
-          // If exam was copied to the current classroom, add it to the classSummary module
-          if (selectedClassroomId === this.classId) {
-            const object = {
-              id: result.id,
-              title: result.title,
-              groups: this.clientAssigmentState(listOfIDs),
-              active: false,
-            };
-            this.CREATE_ITEM({ map: 'examMap', id: object.id, object });
-          }
-          this.showCopyModal = false;
-        });
-      },
-      handleExamDelete() {
-        this.deleteExam(this.editExam.id).then(() => {
-          this.DELETE_ITEM({ map: 'examMap', id: this.editExam.id });
-          this.showDeleteModal = false;
-        });
-      },
+      // // format desired by the server, including class
+      // serverAssignmentPayload(listOfIDs) {
+      //   const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
+      //   if (assignedToClass) {
+      //     return [{ collection: this.classId }];
+      //   }
+      //   return listOfIDs.map(id => {
+      //     return { collection: id };
+      //   });
+      // },
+      // // format used client-side, with only groups
+      // clientAssigmentState(listOfIDs) {
+      //   const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
+      //   if (assignedToClass) {
+      //     return [];
+      //   }
+      //   return listOfIDs;
+      // },
+      // handleExamDetails(result) {
+      //   const listOfIDs = result.assignments.map(item => item.collection);
+      //   const serverPayload = {
+      //     title: result.title,
+      //     active: result.active,
+      //     assignments: this.serverAssignmentPayload(listOfIDs),
+      //   };
+      //   this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload })
+      //     .then(() => {
+      //       const object = {
+      //         id: this.editExam.id,
+      //         title: result.title,
+      //         groups: this.clientAssigmentState(listOfIDs),
+      //         active: result.active,
+      //       };
+      //       this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
+      //       this.showEditModal = false;
+      //     })
+      //     .catch(error => {
+      //       const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+      //       if (errors) {
+      //         this.$refs.detailsModal.handleSubmitTitleFailure();
+      //       } else {
+      //         this.$refs.detailsModal.handleSubmitFailure();
+      //       }
+      //     });
+      // },
       genExamRoute(examId) {
         return {
           name: PageNames.EXAM_PREVIEW,
