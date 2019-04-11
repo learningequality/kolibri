@@ -38,7 +38,6 @@
                 tooltipPlacement="bottom"
               />
             </th>
-            <th><span class="visuallyhidden">{{ examReportPageStrings.$tr('options') }}</span></th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -63,15 +62,6 @@
               <QuizActive :active="exam.active" />
             </td>
 
-            <td class="core-table-button-col">
-              <KDropdownMenu
-                slot="optionsDropdown"
-                :text="examReportPageStrings.$tr('options')"
-                :options="actionOptions"
-                appearance="flat-button"
-                @select="showModal($event, exam)"
-              />
-            </td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -155,10 +145,8 @@
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import QuizActive from '../../common/QuizActive';
-  import ExamReportPage from './ExamReportPage';
   import ManageExamModals from './ManageExamModals';
 
-  const examReportPageStrings = crossComponentTranslator(ExamReportPage);
   const manageExamModalStrings = crossComponentTranslator(ManageExamModals);
 
   export default {
@@ -194,9 +182,6 @@
     computed: {
       ...mapState(['classList']),
       ...mapState('examsRoot', { fullExamInfo: 'exams' }),
-      examReportPageStrings() {
-        return examReportPageStrings;
-      },
       manageExamModalStrings() {
         return manageExamModalStrings;
       },
@@ -208,19 +193,6 @@
           { label: this.$tr('allExams'), value: this.$tr('allExams') },
           { label: this.$tr('activeExams'), value: this.$tr('activeExams') },
           { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
-        ];
-      },
-      actionOptions() {
-        return [
-          {
-            label: this.examReportPageStrings.$tr('editDetails'),
-            value: AssignmentActions.EDIT_DETAILS,
-          },
-          {
-            label: this.examReportPageStrings.$tr('copyExamOptionLabel'),
-            value: AssignmentActions.COPY,
-          },
-          { label: this.examReportPageStrings.$tr('delete'), value: AssignmentActions.DELETE },
         ];
       },
       activeExams() {
