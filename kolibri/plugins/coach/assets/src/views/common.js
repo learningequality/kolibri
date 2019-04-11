@@ -85,7 +85,7 @@ function formatPageTitle() {
   return strings.join(' - ');
 }
 
-const CoachCoreBase = {
+export const CoachCoreBase = {
   extends: CoreBase,
   props: {
     // Gives each Coach page a default title of 'Coach – [Class Name]'

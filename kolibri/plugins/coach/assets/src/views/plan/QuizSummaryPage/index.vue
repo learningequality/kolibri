@@ -1,62 +1,73 @@
 <template>
 
-  <div>
-    <section>
-      <h1>
-        {{ quiz.title }}
-      </h1>
-    </section>
+  <CoreBase
+    :immersivePage="false"
+    :authorized="true"
+    authorizedRole="adminOrCoach"
+    :showSubNav="true"
+    appBarTitle="Coach"
+  >
 
-    <section>
-      <HeaderTable>
-        <HeaderTableRow>
-          <span slot="key">
-            {{ coachStrings.$tr('statusLabel') }}
-          </span>
-          <span slot="value">
-            <QuizActive :active="false" />
-          </span>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <span slot="key">
-            {{ coachStrings.$tr('recipientsLabel') }}
-          </span>
-          <span slot="value">
-            <Recipients :groupNames="learnerGroups" />
-          </span>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <span slot="key">
-            {{ coachStrings.$tr('questionOrderLabel') }}
-          </span>
-          <span slot="value">
-            {{ questionOrderValueString }}
-          </span>
-        </HeaderTableRow>
-      </HeaderTable>
-    </section>
+    <TopNavbar slot="sub-nav" />
 
-    <section v-if="selectedQuestions">
-      <h2>
-        {{ coachStrings.$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
-      </h2>
+    <KPageContainer v-if="!loading">
+      <section>
+        <h1>
+          {{ quiz.title }}
+        </h1>
+      </section>
 
-      <p>
-        {{ orderDescriptionString }}
-      </p>
+      <section>
+        <HeaderTable>
+          <HeaderTableRow>
+            <span slot="key">
+              {{ coachStrings.$tr('statusLabel') }}
+            </span>
+            <span slot="value">
+              <QuizActive :active="quiz.active" />
+            </span>
+          </HeaderTableRow>
+          <HeaderTableRow>
+            <span slot="key">
+              {{ coachStrings.$tr('recipientsLabel') }}
+            </span>
+            <span slot="value">
+              <Recipients :groupNames="learnerGroups" />
+            </span>
+          </HeaderTableRow>
+          <HeaderTableRow>
+            <span slot="key">
+              {{ coachStrings.$tr('questionOrderLabel') }}
+            </span>
+            <span slot="value">
+              {{ questionOrderValueString }}
+            </span>
+          </HeaderTableRow>
+        </HeaderTable>
+      </section>
 
-      <QuestionListPreview
-        v-if="!error && selectedQuestions"
-        :fixedOrder="!quizIsRandomized"
-        :readOnly="true"
-        :selectedQuestions="selectedQuestions"
-        :selectedExercises="selectedExercises"
-      />
-      <p v-if="error">
-        {{ $tr('pageLoadingError') }}
-      </p>
-    </section>
-  </div>
+      <section v-if="selectedQuestions">
+        <h2>
+          {{ coachStrings.$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+        </h2>
+
+        <p>
+          {{ orderDescriptionString }}
+        </p>
+
+        <QuestionListPreview
+          v-if="!error && selectedQuestions"
+          :fixedOrder="!quizIsRandomized"
+          :readOnly="true"
+          :selectedQuestions="selectedQuestions"
+          :selectedExercises="selectedExercises"
+        />
+        <p v-if="error">
+          {{ $tr('pageLoadingError') }}
+        </p>
+      </section>
+    </KPageContainer>
+  </CoreBase>
 
 </template>
 
@@ -65,10 +76,13 @@
 
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import { CoachCoreBase } from '../../common';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import QuizActive from '../../common/QuizActive';
   import Recipients from '../../common/Recipients';
+  import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStrings } from '../../common/commonCoachStrings';
   import { fetchQuizSummaryPageData } from './api';
@@ -76,11 +90,14 @@
   export default {
     name: 'QuizSummaryPage',
     components: {
+      CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
+      KPageContainer,
       QuestionListPreview,
       QuizActive,
       Recipients,
+      TopNavbar,
     },
     data() {
       return {
@@ -88,6 +105,7 @@
         selectedExercises: {},
         learnerGroups: [],
         error: null,
+        loading: true,
       };
     },
     beforeRouteEnter(to, from, next) {
@@ -116,13 +134,13 @@
       },
       questionOrderValueString() {
         return this.quizIsRandomized
-          ? coachStrings.$tr('orderRandomLabel')
-          : coachStrings.$tr('orderFixedLabel');
+          ? this.coachStrings.$tr('orderRandomLabel')
+          : this.coachStrings.$tr('orderFixedLabel');
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? coachStrings.$tr('orderRandomDescription')
-          : coachStrings.$tr('orderFixedDescription');
+          ? this.coachStrings.$tr('orderRandomDescription')
+          : this.coachStrings.$tr('orderFixedDescription');
       },
     },
     methods: {
@@ -135,6 +153,8 @@
             this.learnerGroups.push(lg.name);
           }
         });
+        this.loading = false;
+        this.$store.dispatch('notLoading');
       },
     },
     $trs: {
