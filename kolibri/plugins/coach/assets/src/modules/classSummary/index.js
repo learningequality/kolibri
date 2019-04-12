@@ -158,6 +158,12 @@ export default {
   state: defaultState(),
   getters: {
     ...dataHelpers,
+    getClassId(state) {
+      return Object.values(state.id);
+    },
+    className(state) {
+      return Object.values(state.name);
+    },
     /*
      * coaches := [
      *   { id, name, username }, ...
