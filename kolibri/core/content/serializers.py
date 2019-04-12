@@ -243,8 +243,10 @@ def get_summary_logs(content_ids, user):
 
 
 def get_topic_progress_fraction(topic, user):
-    leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
-        kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+    leaf_ids = topic.get_descendants(include_self=False).order_by()\
+        .exclude(kind=content_kinds.TOPIC)\
+        .exclude(available=False)\
+        .values_list("content_id", flat=True)
     return round(
         (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0) / (len(leaf_ids) or 1),
         4
