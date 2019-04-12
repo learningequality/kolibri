@@ -13,7 +13,7 @@ from kolibri.utils import conf
 VALID_STORAGE_FILENAME = re.compile("[0-9a-f]{32}(-data)?\\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip"])
+POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
 # TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
 
 

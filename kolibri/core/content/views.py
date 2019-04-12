@@ -1,10 +1,12 @@
 import hashlib
 import io
+import json
 import mimetypes
 import os
 import zipfile
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
@@ -128,6 +130,36 @@ def get_path_or_404(zipped_filename):
         )
 
 
+def recursive_h5p_dependencies(zf, data, prefix=""):
+
+    jsfiles = []
+    cssfiles = []
+
+    # load the dependencies, recursively, to extract their JS and CSS paths to include
+    for dep in data.get("preloadedDependencies", []):
+        packagepath = "{machineName}-{majorVersion}.{minorVersion}/".format(**dep)
+        librarypath = packagepath + "library.json"
+        info = zf.getinfo(librarypath)
+        content = json.loads(zf.open(info).read())
+        newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
+        cssfiles += newcss
+        jsfiles += newjs
+
+    # load the JS required for the current package
+    for js in data.get("preloadedJs", []):
+        path = prefix + js["path"]
+        if path not in jsfiles:
+            jsfiles.append(path)
+
+    # load the CSS required for the current package
+    for css in data.get("preloadedCss", []):
+        path = prefix + css["path"]
+        if path not in cssfiles:
+            cssfiles.append(path)
+
+    return jsfiles, cssfiles
+
+
 @method_decorator(signin_redirect_exempt, name="dispatch")
 class ZipContentView(View):
     @xframe_options_exempt
@@ -138,6 +170,59 @@ class ZipContentView(View):
         response = HttpResponse()
         _add_access_control_headers(request, response)
         return response
+
+    def get_hashi(self, request, zf):
+        # Sets up our HTML5 zip file endpoint on Kolibri to serve up a
+        # special template that loads Hashi and then initializes it.
+        # Only do this when the request is not AJAX, as Hashi will fetch
+        # the real HTML file using an AJAX request, and presumably other
+        # dynamic loading of HTML content would also get confused if it
+        # got the special Hashi template back instead!
+        cache_key = "hashi_bootstrap_html"
+        bootstrap_content = cache.get(cache_key)
+        if bootstrap_content is None:
+            template = loader.get_template("content/hashi.html")
+            hashi_path = "content/{filename}".format(
+                filename=get_hashi_filename()
+            )
+            bootstrap_content = template.render(
+                {"hashi_path": hashi_path}, None
+            )
+            cache.set(cache_key, bootstrap_content)
+        response = HttpResponse(bootstrap_content)
+        _add_access_control_headers(request, response)
+        _add_content_security_policy_header(request, response)
+        return response
+
+    def get_h5p(self, request, zf, embedded_filepath):
+        if not embedded_filepath:
+            # return the H5P bootloader code
+            h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
+            jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
+            contentdata = zf.open(zf.getinfo("content/content.json")).read()
+            path_includes_version = "true" if "-" in [name for name in zf.namelist() if "/" in name][0] else "false"
+            template = loader.get_template('content/h5p.html')
+            main_library_data = [lib for lib in h5pdata["preloadedDependencies"] if lib["machineName"] == h5pdata["mainLibrary"]][0]
+            bootstrap_content = template.render({
+                "jsfiles": jsfiles,
+                "cssfiles": cssfiles,
+                "content": contentdata,
+                "library": "{machineName} {majorVersion}.{minorVersion}".format(**main_library_data),
+                "path_includes_version": path_includes_version,
+            }, None)
+            response = HttpResponse(bootstrap_content)
+            _add_access_control_headers(request, response)
+            _add_content_security_policy_header(request, response)
+            return response
+        elif embedded_filepath.startswith("dist/"):
+            # return static H5P dist resources
+            path = finders.find("h5p-standalone-" + embedded_filepath)
+            with open(path) as f:
+                dist_content = f.read()
+            response = HttpResponse(dist_content)
+            _add_access_control_headers(request, response)
+            _add_content_security_policy_header(request, response)
+            return response
 
     @vary_on_headers("X-Requested-With")
     @cache_forever
@@ -164,9 +249,23 @@ class ZipContentView(View):
 
         with zipfile.ZipFile(zipped_path) as zf:
 
+            # handle H5P files
+            if zipped_path.endswith('h5p') and (not embedded_filepath or embedded_filepath.startswith("dist/")):
+                return self.get_h5p(request, zf, embedded_filepath)
+
             # if no path, or a directory, is being referenced, look for an index.html file
             if not embedded_filepath or embedded_filepath.endswith("/"):
                 embedded_filepath += "index.html"
+
+            if (
+                (not request.is_ajax())
+                and zipped_path.endswith("zip")
+                and (
+                    embedded_filepath.endswith("htm")
+                    or embedded_filepath.endswith("html")
+                )
+            ):
+                return self.get_hashi(request, zf)
 
             # get the details about the embedded file, and ensure it exists
             try:
@@ -177,36 +276,6 @@ class ZipContentView(View):
                         embedded_filepath, zipped_filename
                     )
                 )
-
-            if (
-                (not request.is_ajax())
-                and zipped_path.endswith("zip")
-                and (
-                    embedded_filepath.endswith("htm")
-                    or embedded_filepath.endswith("html")
-                )
-            ):
-                # Sets up our HTML5 zip file endpoint on Kolibri to serve up a
-                # special template that loads Hashi and then initializes it.
-                # Only do this when the request is not AJAX, as Hashi will fetch
-                # the real HTML file using an AJAX request, and presumably other
-                # dynamic loading of HTML content would also get confused if it
-                # got the special Hashi template back instead!
-                cache_key = "hashi_bootstrap_html"
-                bootstrap_content = cache.get(cache_key)
-                if bootstrap_content is None:
-                    template = loader.get_template("content/hashi.html")
-                    hashi_path = "content/{filename}".format(
-                        filename=get_hashi_filename()
-                    )
-                    bootstrap_content = template.render(
-                        {"hashi_path": hashi_path}, None
-                    )
-                    cache.set(cache_key, bootstrap_content)
-                response = HttpResponse(bootstrap_content)
-                _add_access_control_headers(request, response)
-                _add_content_security_policy_header(request, response)
-                return response
 
             # try to guess the MIME type of the embedded file being referenced
             content_type = (

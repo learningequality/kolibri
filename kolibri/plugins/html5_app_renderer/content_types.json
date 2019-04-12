@@ -5,6 +5,12 @@
     "extensions": [
         "zip"
       ]
+    },
+    {
+    "name": "h5p",
+    "extensions": [
+        "h5p"
+      ]
     }
   ]
 }
