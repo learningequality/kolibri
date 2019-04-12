@@ -58,7 +58,7 @@
 
   import { mapActions, mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { FacilityUsernameResource } from 'kolibri.resources';
+  import {FacilityUserResource} from 'kolibri.resources';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KModal from 'kolibri.coreVue.components.KModal';
@@ -242,9 +242,10 @@
         }
       },
       setSuggestions() {
-        FacilityUsernameResource.fetchCollection({
+        FacilityUserResource.fetchCollection({
           getParams: {
-            facility: this.currentFacilityId,
+            member_of: this.currentFacilityId,
+            force: true,
           },
         })
           .then(users => {
