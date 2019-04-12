@@ -38,7 +38,7 @@
     props: { child: Object },
     data() {
       return {
-        hidden: false,
+        hidden: true,
       };
     },
     methods: {

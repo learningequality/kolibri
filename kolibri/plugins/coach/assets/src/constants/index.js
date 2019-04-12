@@ -42,6 +42,7 @@ export const RecentReports = [
 // modal names
 export const Modals = {
   COACH_CREATE_USER: 'COACH_CREATE_USER',
+  PREREQUISITES: 'PREREQUISITES',
 };
 
 export const TopicReports = [

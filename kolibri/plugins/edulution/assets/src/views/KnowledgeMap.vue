@@ -16,13 +16,20 @@
         class="page-description"
       />
     </div>
-    <ExpandableContentCardGroupGrid v-for="child in contents" v-if="contents[0].children.length" :child="child" />
+    <div v-if="contents[0].children.length">
+      <ExpandableContentCardGroupGrid
+        v-for="child in contents"
+        :key="child.id"
+        :child="child"
+      />
+    </div>
     <ContentCardGroupGrid
       v-if="!contents[0].children.length"
       :contents="contents"
       :genContentLink="genContentLink"
       style="padding-left: 16px; padding-top: 16px"
     />
+    <PrerequisitesModal v-if="modalShown" />
   </div>
 
 </template>
@@ -35,9 +42,9 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
-  import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ExpandableContentCardGroupGrid from './ExpandableContentCardGroupGrid';
+  import PrerequisitesModal from './PrerequisitesModal';
 
   export default {
     name: 'KnowledgeMap',
@@ -49,10 +56,10 @@
     },
     components: {
       ExpandableContentCardGroupGrid,
-      PageHeader,
       ContentCardGroupGrid,
       TextTruncator,
       ProgressIcon,
+      PrerequisitesModal,
     },
     metaInfo() {
       let title;
@@ -68,8 +75,20 @@
       }
       return { title };
     },
+    data: function() {
+      return {
+        hidden: false,
+      };
+    },
     computed: {
-      ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic', 'progress']),
+      ...mapState('topicsTree', [
+        'channel',
+        'contents',
+        'isRoot',
+        'topic',
+        'progress',
+        'modalShown',
+      ]),
       channelId() {
         return this.channel.id;
       },
@@ -90,11 +109,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    data: function() {
-      return {
-        hidden: false,
-      };
     },
   };
 
