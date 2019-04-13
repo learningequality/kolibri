@@ -110,9 +110,35 @@ module.exports = {
       {
         // because of compatibility with our custom HTMLHint rule
         // enforcing top-level content surrounded by one empty line
-        'allowEmptyLines': true 
-      }
+        allowEmptyLines: true,
+      },
     ],
+    'vue/order-in-components': [
+      ERROR,
+      {
+        order: [
+          'el',
+          'name',
+          'parent',
+          'functional',
+          ['delimiters', 'comments'],
+          ['components', 'directives', 'filters'],
+          'extends',
+          'mixins',
+          'inheritAttrs',
+          'model',
+          ['props', 'propsData'],
+          'data',
+          'computed',
+          'watch',
+          'LIFECYCLE_HOOKS',
+          'methods',
+          ['template', 'render'],
+          'renderError',
+        ],
+      },
+    ],
+
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
     'import/newline-after-import': ERROR,
