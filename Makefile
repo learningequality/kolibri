@@ -62,7 +62,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	rm -r kolibri/dist/* || true # remove everything
+	rm -f SQLITE_MAX_VARIABLE_NUMBER.cache
+	rm -fr kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
