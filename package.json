@@ -11,6 +11,7 @@
     "test": "yarn run test-jest --watch",
     "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
+    "test-integration": "yarn run jest --config ./jest.integration.conf.js",
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
@@ -19,6 +20,7 @@
     "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
     "devserver": "npm-run-all --parallel django-devserver watch lint:watch hashi-dev",
     "devserver-hot": "npm-run-all --parallel django-devserver watch-hot lint:watch",
+    "devserver-faster": "npm-run-all --parallel django-devserver watch",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
@@ -45,7 +47,9 @@
   "private": true,
   "dependencies": {},
   "devDependencies": {
+    "jest-puppeteer": "^4.1.1",
     "kolibri-tools": "0.12.0-beta.3.2",
+    "puppeteer": "^1.14.0",
     "yarn-run-all": "^3.1.1"
   },
   "optionalDependencies": {

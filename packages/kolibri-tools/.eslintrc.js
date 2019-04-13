@@ -110,8 +110,8 @@ module.exports = {
       {
         // because of compatibility with our custom HTMLHint rule
         // enforcing top-level content surrounded by one empty line
-        'allowEmptyLines': true 
-      }
+        allowEmptyLines: true,
+      },
     ],
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
