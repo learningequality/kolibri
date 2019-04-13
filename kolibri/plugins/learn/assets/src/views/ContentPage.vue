@@ -149,26 +149,6 @@
 
   export default {
     name: 'ContentPage',
-    $trs: {
-      recommended: 'Recommended',
-      author: 'Author: {author}',
-      license: 'License: {license}',
-      toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder: {copyrightHolder}',
-      nextResource: 'Next resource',
-      documentTitle: '{ contentTitle } - { channelTitle }',
-      topicLocationTooltip: 'Resource is located in this topic',
-    },
-    components: {
-      CoachContentLabel,
-      PageHeader,
-      ContentCardGroupCarousel,
-      ContentRenderer,
-      DownloadButton,
-      AssessmentWrapper,
-      MasteredSnackbars,
-      UiIconButton,
-    },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer
       if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -180,6 +160,16 @@
           channelTitle: this.channel.title,
         }),
       };
+    },
+    components: {
+      CoachContentLabel,
+      PageHeader,
+      ContentCardGroupCarousel,
+      ContentRenderer,
+      DownloadButton,
+      AssessmentWrapper,
+      MasteredSnackbars,
+      UiIconButton,
     },
     data() {
       return {
@@ -320,6 +310,16 @@
           params: { id },
         };
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      author: 'Author: {author}',
+      license: 'License: {license}',
+      toggleLicenseDescription: 'Toggle license description',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      nextResource: 'Next resource',
+      documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
   };
 

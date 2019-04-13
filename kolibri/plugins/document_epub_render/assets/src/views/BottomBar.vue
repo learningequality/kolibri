@@ -54,11 +54,6 @@
 
   export default {
     name: 'BottomBar',
-    $trs: {
-      progress: `{progress, number, percent}`,
-      jumpToPositionInBook: 'Jump to position in book',
-      preparingSlider: 'Preparing slider',
-    },
     components: {
       KLinearLoader,
     },
@@ -85,6 +80,11 @@
       handleChange(newValue) {
         this.$emit('sliderChanged', Number(newValue));
       },
+    },
+    $trs: {
+      progress: `{progress, number, percent}`,
+      jumpToPositionInBook: 'Jump to position in book',
+      preparingSlider: 'Preparing slider',
     },
   };
 

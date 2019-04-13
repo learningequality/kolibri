@@ -89,12 +89,6 @@
 
   export default {
     name: 'GroupsPage',
-    $trs: {
-      classGroups: 'Groups',
-      newGroup: 'New group',
-      noGroups: 'You do not have any groups',
-      documentTitle: 'Groups',
-    },
     components: {
       CoreTable,
       PlanHeader,
@@ -156,6 +150,12 @@
         this.createSnackbar(this.coachStrings.$tr('deletedNotification'));
         this.displayModal(false);
       },
+    },
+    $trs: {
+      classGroups: 'Groups',
+      newGroup: 'New group',
+      noGroups: 'You do not have any groups',
+      documentTitle: 'Groups',
     },
   };
 

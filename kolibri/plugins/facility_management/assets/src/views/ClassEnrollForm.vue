@@ -95,27 +95,6 @@
       UserTable,
     },
     mixins: [responsiveWindow],
-    $trs: {
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
-      name: 'Full name',
-      username: 'Username',
-      userTableLabel: 'User List',
-      role: 'Role',
-      // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
-      noUsersSelected: 'No users are selected',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this class',
-      search: 'Search',
-      selectUser: 'Select user',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
     props: {
       facilityUsers: {
         type: Array,
@@ -195,6 +174,27 @@
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
+    },
+    $trs: {
+      confirmSelectionButtonLabel: 'Confirm',
+      searchForUser: 'Search for a user',
+      userIconColumnHeader: 'User Icon',
+      name: 'Full name',
+      username: 'Username',
+      userTableLabel: 'User List',
+      role: 'Role',
+      // TODO clarify empty state messages after string freeze
+      noUsersExist: 'No users exist',
+      noUsersSelected: 'No users are selected',
+      noUsersMatch: 'No users match',
+      previousResults: 'Previous results',
+      nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      allUsersAlready: 'All users are already enrolled in this class',
+      search: 'Search',
+      selectUser: 'Select user',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
   };
 

@@ -85,14 +85,6 @@
 
   export default {
     name: 'ExamPreview',
-    $trs: {
-      preview: 'Preview quiz',
-      close: 'Close',
-      question: 'Question { num }',
-      numQuestions: '{num} {num, plural, one {question} other {questions}}',
-      exercise: 'Exercise { num }',
-      missingContent: 'This quiz cannot be displayed because some content was deleted',
-    },
     components: {
       CoachContentLabel,
       KModal,
@@ -167,6 +159,14 @@
       close() {
         this.$emit('close');
       },
+    },
+    $trs: {
+      preview: 'Preview quiz',
+      close: 'Close',
+      question: 'Question { num }',
+      numQuestions: '{num} {num, plural, one {question} other {questions}}',
+      exercise: 'Exercise { num }',
+      missingContent: 'This quiz cannot be displayed because some content was deleted',
     },
   };
 

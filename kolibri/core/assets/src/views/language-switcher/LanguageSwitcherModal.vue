@@ -52,11 +52,6 @@
       KRadioButton,
     },
     mixins: [languageSwitcherMixin, responsiveWindow],
-    $trs: {
-      changeLanguageModalHeader: 'Change language',
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Confirm',
-    },
     data() {
       return {
         selectedLanguage: currentLanguage,
@@ -77,6 +72,11 @@
       setLang() {
         this.switchLanguage(this.selectedLanguage);
       },
+    },
+    $trs: {
+      changeLanguageModalHeader: 'Change language',
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Confirm',
     },
   };
 

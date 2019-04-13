@@ -33,9 +33,6 @@
       UiToolbar,
       UiIconButton,
     },
-    $trs: {
-      progressIndicator: 'Step {currentStep, number} of {totalSteps, number}',
-    },
     props: {
       currentStep: {
         type: Number,
@@ -50,6 +47,9 @@
       displayNavIcon() {
         return this.currentStep > 1;
       },
+    },
+    $trs: {
+      progressIndicator: 'Step {currentStep, number} of {totalSteps, number}',
     },
   };
 

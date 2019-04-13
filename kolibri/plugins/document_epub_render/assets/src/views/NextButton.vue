@@ -28,9 +28,6 @@
 
   export default {
     name: 'NextButton',
-    $trs: {
-      goToNextPage: 'Go to next page',
-    },
     components: {
       UiIconButton,
     },
@@ -46,6 +43,9 @@
         type: Boolean,
         required: true,
       },
+    },
+    $trs: {
+      goToNextPage: 'Go to next page',
     },
   };
 

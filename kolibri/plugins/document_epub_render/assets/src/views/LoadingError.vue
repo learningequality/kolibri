@@ -16,11 +16,11 @@
 
   export default {
     name: 'LoadingError',
-    $trs: {
-      couldNotLoadThisBook: 'Could not load this book',
-    },
     components: {
       UiAlert,
+    },
+    $trs: {
+      couldNotLoadThisBook: 'Could not load this book',
     },
   };
 

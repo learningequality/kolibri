@@ -109,14 +109,6 @@
       KGridItem,
       MultiPaneLayout,
     },
-    $trs: {
-      questionLabel: 'Question { questionNumber, number }',
-      completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
-      descriptionDataHeader: 'Description',
-      authorDataHeader: 'Author',
-      licenseDataHeader: 'License',
-      copyrightHolderDataHeader: 'Copyright holder',
-    },
     props: {
       currentContentNode: {
         type: Object,
@@ -199,6 +191,14 @@
         const questionNumber = questionIndex + 1;
         return this.$tr('questionLabel', { questionNumber });
       },
+    },
+    $trs: {
+      questionLabel: 'Question { questionNumber, number }',
+      completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
+      descriptionDataHeader: 'Description',
+      authorDataHeader: 'Author',
+      licenseDataHeader: 'License',
+      copyrightHolderDataHeader: 'Copyright holder',
     },
   };
 

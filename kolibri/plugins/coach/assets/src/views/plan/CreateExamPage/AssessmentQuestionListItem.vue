@@ -41,15 +41,6 @@
 
   export default {
     name: 'AssessmentQuestionListItem',
-    $trs: {
-      questionNum: 'Question {number, number, integer}:',
-      questionNumShort: '{number, number, integer}.',
-      preview: 'Preview',
-      view: 'View',
-      nthExerciseName: '{ name } ({number, number, integer})',
-      moveExerciseUp: 'Move this exercise up by one position',
-      moveExerciseDown: 'Move this exercise down by one position',
-    },
     components: {
       CoachContentLabel,
       KDragSortWidget,
@@ -103,6 +94,15 @@
       handleSelect() {
         this.$emit('select');
       },
+    },
+    $trs: {
+      questionNum: 'Question {number, number, integer}:',
+      questionNumShort: '{number, number, integer}.',
+      preview: 'Preview',
+      view: 'View',
+      nthExerciseName: '{ name } ({number, number, integer})',
+      moveExerciseUp: 'Move this exercise up by one position',
+      moveExerciseDown: 'Move this exercise down by one position',
     },
   };
 

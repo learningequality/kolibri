@@ -39,17 +39,6 @@
 
   export default {
     name: 'TopicsPage',
-    $trs: {
-      topics: 'Topics',
-      navigate: 'Navigate content using headings',
-      documentTitleForChannel: 'Topics - { channelTitle }',
-      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
-    },
-    components: {
-      PageHeader,
-      ContentCardGroupGrid,
-      TextTruncator,
-    },
     metaInfo() {
       let title;
       if (this.isRoot) {
@@ -63,6 +52,11 @@
         });
       }
       return { title };
+    },
+    components: {
+      PageHeader,
+      ContentCardGroupGrid,
+      TextTruncator,
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
@@ -98,6 +92,12 @@
           params: { channel_id: this.channelId, id },
         };
       },
+    },
+    $trs: {
+      topics: 'Topics',
+      navigate: 'Navigate content using headings',
+      documentTitleForChannel: 'Topics - { channelTitle }',
+      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },
   };
 

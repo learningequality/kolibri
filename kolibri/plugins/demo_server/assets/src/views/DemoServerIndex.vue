@@ -73,6 +73,18 @@
       KExternalLink,
     },
     mixins: [themeMixin],
+    data() {
+      return {
+        bannerClosed: false,
+      };
+    },
+    methods: {
+      toggleBannerState(event) {
+        this.bannerClosed = !this.bannerClosed;
+        event.target.blur();
+        return false;
+      },
+    },
     $trs: {
       demoServerHeader: 'Welcome to the Kolibri demo site!',
       demoServerP1: 'You are welcome to explore with any of the three primary user types:',
@@ -85,18 +97,6 @@
         'To learn more about using Kolibri in an offline context and better understand the platform:',
       demoServerA1: 'Read the documentation',
       demoServerA2: 'Download and install the latest release',
-    },
-    data() {
-      return {
-        bannerClosed: false,
-      };
-    },
-    methods: {
-      toggleBannerState(event) {
-        this.bannerClosed = !this.bannerClosed;
-        event.target.blur();
-        return false;
-      },
     },
   };
 

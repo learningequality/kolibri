@@ -16,13 +16,6 @@
 
   export default {
     name: 'UserTypeDisplay',
-    $trs: {
-      superUserLabel: 'Super admin',
-      adminLabel: 'Admin',
-      facilityCoachLabel: 'Facility coach',
-      coachLabel: 'Coach',
-      learnerLabel: 'Learner',
-    },
     props: {
       userType: {
         type: String,
@@ -57,6 +50,13 @@
         }
         return '';
       },
+    },
+    $trs: {
+      superUserLabel: 'Super admin',
+      adminLabel: 'Admin',
+      facilityCoachLabel: 'Facility coach',
+      coachLabel: 'Coach',
+      learnerLabel: 'Learner',
     },
   };
 

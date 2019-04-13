@@ -89,7 +89,6 @@
       ContentCard,
     },
     mixins: [responsiveElement],
-    $trs: { viewAllButtonLabel: 'View all' },
     props: {
       contents: {
         type: Array,
@@ -253,6 +252,7 @@
         this.panBackwards = true;
       },
     },
+    $trs: { viewAllButtonLabel: 'View all' },
   };
 
 </script>

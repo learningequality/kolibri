@@ -80,13 +80,6 @@
       CoachContentLabel,
     },
     mixins: [themeMixin],
-    $trs: {
-      header: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: '{ daysElapsed } days ago',
-      question: 'Question { questionNumber, number }',
-    },
     props: {
       attemptLogs: {
         type: Array,
@@ -118,6 +111,13 @@
             selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
         }
       },
+    },
+    $trs: {
+      header: 'Answer history',
+      today: 'Today',
+      yesterday: 'Yesterday',
+      daysAgo: '{ daysElapsed } days ago',
+      question: 'Question { questionNumber, number }',
     },
   };
 

@@ -131,20 +131,6 @@ oriented data synchronization.
       UiAlert,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
-      tryAgain: 'Try again',
-      correct: 'Correct!',
-      check: 'Check',
-      next: 'Next',
-      itemError: 'There was an error showing this item',
-      completed: 'Completed',
-      inputAnswer: 'Please enter an answer above',
-      hintUsed: 'Hint used',
-      greatKeepGoing: 'Great! Keep going',
-      tryDifferentQuestion: 'Try a different question',
-      tryNextQuestion: 'Try next question',
-    },
     props: {
       id: {
         type: String,
@@ -513,6 +499,20 @@ oriented data synchronization.
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
+    },
+    $trs: {
+      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
+      tryAgain: 'Try again',
+      correct: 'Correct!',
+      check: 'Check',
+      next: 'Next',
+      itemError: 'There was an error showing this item',
+      completed: 'Completed',
+      inputAnswer: 'Please enter an answer above',
+      hintUsed: 'Hint used',
+      greatKeepGoing: 'Great! Keep going',
+      tryDifferentQuestion: 'Try a different question',
+      tryNextQuestion: 'Try next question',
     },
   };
 

@@ -34,7 +34,6 @@
         return backRoute || this.classRoute('ReportsLearnerReportPage', {});
       },
     },
-    $trs: {},
     methods: {
       handleNavigation(params) {
         this.$router.push({
@@ -46,6 +45,7 @@
         });
       },
     },
+    $trs: {},
   };
 
 </script>

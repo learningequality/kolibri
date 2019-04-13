@@ -99,16 +99,6 @@
 
   export default {
     name: 'SettingsSideBar',
-    $trs: {
-      textSize: 'Text size',
-      decrease: 'Decrease',
-      increase: 'Increase',
-      theme: 'Theme',
-      setWhiteTheme: 'Set white theme',
-      setBeigeTheme: 'Set beige theme',
-      setGreyTheme: 'Set grey theme',
-      setBlackTheme: 'Set black theme',
-    },
     components: {
       SideBar,
       KGrid,
@@ -179,6 +169,16 @@
           },
         };
       },
+    },
+    $trs: {
+      textSize: 'Text size',
+      decrease: 'Decrease',
+      increase: 'Increase',
+      theme: 'Theme',
+      setWhiteTheme: 'Set white theme',
+      setBeigeTheme: 'Set beige theme',
+      setGreyTheme: 'Set grey theme',
+      setBlackTheme: 'Set black theme',
     },
   };
 

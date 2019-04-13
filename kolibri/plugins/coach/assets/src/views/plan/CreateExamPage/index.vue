@@ -182,31 +182,6 @@
       Bottom,
     },
     mixins: [responsiveWindow, commonCoach],
-    $trs: {
-      createNewExam: 'Create new quiz',
-      chooseExercises: 'Select topics or exercises',
-      title: 'Title',
-      duplicateTitle: 'A quiz with that name already exists',
-      numQuestions: 'Number of questions',
-      examRequiresTitle: 'This field is required',
-      numQuestionsBetween: 'Enter a number between 1 and 50',
-      numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
-      noneSelected: 'No exercises are selected',
-      preview: 'Preview',
-      continueButtonlabel: 'Continue',
-      // TODO: Interpolate strings correctly
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
-      exitSearchButtonLabel: 'Exit search',
-      // TODO: Handle singular/plural
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
-    },
     data() {
       return {
         showError: false,
@@ -528,6 +503,31 @@
           },
         };
       },
+    },
+    $trs: {
+      createNewExam: 'Create new quiz',
+      chooseExercises: 'Select topics or exercises',
+      title: 'Title',
+      duplicateTitle: 'A quiz with that name already exists',
+      numQuestions: 'Number of questions',
+      examRequiresTitle: 'This field is required',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsNotMet:
+        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
+      noneSelected: 'No exercises are selected',
+      preview: 'Preview',
+      continueButtonlabel: 'Continue',
+      // TODO: Interpolate strings correctly
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      selected: '{count, number, integer} total selected',
+      documentTitle: 'Create new quiz',
+      exitSearchButtonLabel: 'Exit search',
+      // TODO: Handle singular/plural
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
     },
   };
 

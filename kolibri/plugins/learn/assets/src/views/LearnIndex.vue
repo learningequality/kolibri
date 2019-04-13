@@ -73,10 +73,6 @@
 
   export default {
     name: 'LearnIndex',
-    $trs: {
-      learnTitle: 'Learn',
-      examReportTitle: '{examTitle} report',
-    },
     components: {
       ActionBarSearchBox,
       Breadcrumbs,
@@ -201,6 +197,10 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
+    },
+    $trs: {
+      learnTitle: 'Learn',
+      examReportTitle: '{examTitle} report',
     },
   };
 

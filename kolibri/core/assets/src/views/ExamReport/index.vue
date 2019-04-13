@@ -72,15 +72,6 @@
 
   export default {
     name: 'ExamReport',
-    $trs: {
-      backTo: 'Back to quiz report for { title }',
-      correctAnswer: 'Correct answer',
-      yourAnswer: 'Your answer',
-      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
-      question: 'Question { questionNumber, number }',
-      showCorrectAnswerLabel: 'Show correct answer',
-      noItemId: 'This question has an error, please move on to the next question',
-    },
     components: {
       ContentRenderer,
       PageStatus,
@@ -194,6 +185,15 @@
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
       },
+    },
+    $trs: {
+      backTo: 'Back to quiz report for { title }',
+      correctAnswer: 'Correct answer',
+      yourAnswer: 'Your answer',
+      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
+      question: 'Question { questionNumber, number }',
+      showCorrectAnswerLabel: 'Show correct answer',
+      noItemId: 'This question has an error, please move on to the next question',
     },
   };
 

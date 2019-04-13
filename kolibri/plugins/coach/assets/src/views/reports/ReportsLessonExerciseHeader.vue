@@ -48,9 +48,6 @@
     name: 'ReportsLessonExerciseHeader',
     components: {},
     mixins: [commonCoach],
-    $trs: {
-      back: "Back to '{lesson}'",
-    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -58,6 +55,9 @@
       exercise() {
         return this.contentMap[this.$route.params.exerciseId];
       },
+    },
+    $trs: {
+      back: "Back to '{lesson}'",
     },
   };
 
