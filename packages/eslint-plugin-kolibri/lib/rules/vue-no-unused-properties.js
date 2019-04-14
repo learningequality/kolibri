@@ -5,7 +5,7 @@
 'use strict';
 
 const remove = require('lodash/remove');
-const utils = require('eslint-plugin-vue/lib/utils');
+const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const GROUP_PROPERTY = 'props';
 const GROUP_DATA = 'data';
@@ -75,12 +75,17 @@ const create = context => {
         thisExpressionsVariablesNames.push(node.property.name);
       },
     },
-    utils.executeOnVue(context, obj => {
+    eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
-        utils.iterateProperties(obj, new Set([GROUP_PROPERTY, GROUP_DATA, GROUP_COMPUTED_PROPERTY]))
+        eslintPluginVueUtils.iterateProperties(
+          obj,
+          new Set([GROUP_PROPERTY, GROUP_DATA, GROUP_COMPUTED_PROPERTY])
+        )
       );
 
-      const watchers = Array.from(utils.iterateProperties(obj, new Set([GROUP_WATCHER])));
+      const watchers = Array.from(
+        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCHER]))
+      );
       const watchersNames = watchers.map(watcher => watcher.name);
 
       remove(unusedProperties, property => {
@@ -127,7 +132,7 @@ const create = context => {
   return Object.assign(
     {},
     initialize,
-    utils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
   );
 };
 

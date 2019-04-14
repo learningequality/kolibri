@@ -5,7 +5,7 @@
 'use strict';
 
 const remove = require('lodash/remove');
-const utils = require('eslint-plugin-vue/lib/utils');
+const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const GROUP_WATCHER = 'watch';
 const GETTER = 'getter';
@@ -145,8 +145,10 @@ const create = context => {
         });
       },
     },
-    utils.executeOnVue(context, obj => {
-      const watchers = Array.from(utils.iterateProperties(obj, new Set([GROUP_WATCHER])));
+    eslintPluginVueUtils.executeOnVue(context, obj => {
+      const watchers = Array.from(
+        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCHER]))
+      );
       const watchersNames = watchers.map(watcher => watcher.name);
 
       remove(unusedVuexProperties, property => {
@@ -193,7 +195,7 @@ const create = context => {
   return Object.assign(
     {},
     initialize,
-    utils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
   );
 };
 
