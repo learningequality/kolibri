@@ -77,7 +77,10 @@
           :details="authorizationErrorDetails"
         />
       </KPageContainer>
-      <AppError v-else-if="error" />
+      <KPageContainer v-else-if="error">
+        <AppError />
+      </KPageContainer>
+
       <slot v-else></slot>
     </div>
 
