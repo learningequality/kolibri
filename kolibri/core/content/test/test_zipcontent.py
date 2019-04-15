@@ -182,31 +182,32 @@ class ZipContentTestCase(TestCase):
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
         response = self.client.get(self.zip_file_base_url)
-        content = '<html><head><script src="/static/content/hashi123.js"></script></head></html>'
-        self.assertEqual(b"".join(response.streaming_content).decode(), content)
+        content = '<html><body><script src="/static/content/hashi123.js"></script></body></html>'
+        self.assertEqual(response.content.decode("utf-8"), content)
 
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_request_for_html_head_no_script_return_hashi_modified_html(
         self, filename_patch
     ):
         response = self.client.get(self.zip_file_base_url + self.other_name)
-        content = '<html><head><script src="/static/content/hashi123.js"></script></head></html>'
-        self.assertEqual(b"".join(response.streaming_content).decode(), content)
+        content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
+        self.assertEqual(response.content.decode("utf-8"), content)
 
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_request_for_html_head_script_return_hashi_modified_html(
         self, filename_patch
     ):
         response = self.client.get(self.zip_file_base_url + self.script_name)
-        content = '<html><head><script src="/static/content/hashi123.js"></script><script>test</script></head></html>'
-        self.assertEqual(b"".join(response.streaming_content).decode(), content)
+        content = (
+            '<html><head><template hashi-script="true"><script>test</script></template></head>'
+            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
+        )
+        self.assertEqual(response.content.decode("utf-8"), content)
 
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_request_for_html_empty_html_no_modification(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.empty_html_name)
-        self.assertEqual(
-            b"".join(response.streaming_content).decode(), self.empty_html_str
-        )
+        self.assertEqual(response.content.decode("utf-8"), self.empty_html_str)
 
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_not_modified_response_when_if_modified_since_header_set_index_file(
