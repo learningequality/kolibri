@@ -67,15 +67,12 @@
       ...mapGetters('classSummary', ['groups']),
       formProps() {
         return {
+          assignmentType: 'quiz',
           classId: this.$route.params.classId,
           groups: this.groups,
           initialActive: this.quiz.active,
           initialSelectedCollectionIds: this.quiz.assignments.map(({ collection }) => collection),
           initialTitle: this.quiz.title,
-          modalActiveText: this.$tr('activeQuizLabel'),
-          modalInactiveText: this.$tr('inactiveQuizLabel'),
-          showActiveOption: true,
-          showDescriptionField: false,
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
@@ -114,8 +111,6 @@
     $trs: {
       appBarTitle: `Edit quiz details for '{title}'`,
       submitErrorMessage: 'There was a problem saving your changes',
-      activeQuizLabel: 'Active',
-      inactiveQuizLabel: 'Inactive',
     },
   };
 

@@ -33,22 +33,22 @@
         />
       </fieldset>
 
-      <fieldset v-if="showActiveOption">
+      <fieldset>
         <legend>
           {{ coachStrings.$tr('statusLabel') }}
         </legend>
         <p>
-          {{ $tr('activeQuizzesExplanation') }}
+          {{ assignmentStrings.statusExplanation }}
         </p>
         <KRadioButton
           v-model="activeIsSelected"
-          :label="modalActiveText"
+          :label="assignmentStrings.activeStatus"
           :value="true"
           :disabled="disabled || formIsSubmitted"
         />
         <KRadioButton
           v-model="activeIsSelected"
-          :label="modalInactiveText"
+          :label="assignmentStrings.inactiveStatus"
           :value="false"
           :disabled="disabled || formIsSubmitted"
         />
@@ -56,7 +56,7 @@
 
       <fieldset>
         <legend>
-          {{ $tr('assignedGroupsLabel') }}
+          {{ coachStrings.$tr('recipientsLabel') }}
         </legend>
         <RecipientSelector
           v-model="selectedCollectionIds"
@@ -118,10 +118,6 @@
         type: String,
         required: true,
       },
-      showDescriptionField: {
-        type: Boolean,
-        required: true,
-      },
       initialTitle: {
         type: String,
         required: true,
@@ -143,26 +139,19 @@
         type: Array,
         required: true,
       },
-      showActiveOption: {
-        type: Boolean,
-        default: false,
-      },
       initialActive: {
         type: Boolean,
-        required: false,
-      },
-      modalActiveText: {
-        type: String,
-        required: false,
-      },
-      modalInactiveText: {
-        type: String,
         required: false,
       },
       // If set to true, all of the forms are disabled
       disabled: {
         type: Boolean,
         default: false,
+      },
+      // Should be 'quiz' or 'lesson'
+      assignmentType: {
+        type: String,
+        required: true,
       },
     },
     data() {
@@ -193,19 +182,51 @@
           if (this.title === '') {
             return this.$tr('fieldRequiredErro');
           }
-          if (
-            this.$store.getters['classSummary/quizTitleUnavailable']({
-              title: this.title,
-              excludeId: this.$route.params.quizId,
-            })
-          ) {
-            return this.$tr('quizTitleAlreadyUsed');
+          if (this.assignmentIsQuiz) {
+            if (
+              this.$store.getters['classSummary/quizTitleUnavailable']({
+                title: this.title,
+                excludeId: this.$route.params.quizId,
+              })
+            ) {
+              return this.$tr('quizTitleAlreadyUsed');
+            }
+          } else {
+            if (
+              this.$store.getters['classSummary/lessonTitleUnavailable']({
+                title: this.title,
+                excludeId: this.$route.params.lessonId,
+              })
+            ) {
+              return this.$tr('lessonTitleAlreadyUsed');
+            }
           }
           if (this.showTitleError) {
             return this.modalTitleErrorMessage;
           }
         }
         return '';
+      },
+      assignmentIsQuiz() {
+        return this.assignmentType === 'quiz';
+      },
+      assignmentStrings() {
+        if (this.assignmentIsQuiz) {
+          return {
+            activeStatus: this.$tr('activeQuizLabel'),
+            inactiveStatus: this.$tr('inactiveQuizLabel'),
+            statusExplanation: this.$tr('activeQuizzesExplanation'),
+          };
+        }
+        return {
+          activeStatus: this.$tr('activeLessonLabel'),
+          inactiveStatus: this.$tr('inactiveLessonLabel'),
+          statusExplanation: this.$tr('activeLessonsExplanation'),
+        };
+      },
+      showDescriptionField() {
+        // Quizzes don't have descriptions
+        return !this.assignmentIsQuiz;
       },
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
@@ -267,7 +288,13 @@
       titlePlaceholder: 'Title',
       assignedGroupsLabel: 'Visible to',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
+      activeLessonsExplanation: 'Learners can only see active lessons',
       quizTitleAlreadyUsed: 'A quiz with this name already exists',
+      lessonTitleAlreadyUsed: 'A lesson with this name already exists',
+      activeLessonLabel: 'Active',
+      inactiveLessonLabel: 'Inactive',
+      activeQuizLabel: 'Active',
+      inactiveQuizLabel: 'Inactive',
     },
   };
 

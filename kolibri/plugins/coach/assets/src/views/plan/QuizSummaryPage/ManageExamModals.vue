@@ -3,8 +3,8 @@
   <div>
     <AssignmentCopyModal
       v-if="currentAction === 'COPY'"
-      :modalTitle="this.$tr('copyExamTitle')"
-      :assignmentQuestion="this.$tr('assignmentQuestion')"
+      :modalTitle="$tr('copyExamTitle')"
+      :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="$route.params.classId"
       :classList="classList"
       @submit="handleCopyModalSubmit"
@@ -13,12 +13,9 @@
 
     <AssignmentDeleteModal
       v-if="currentAction === 'DELETE'"
-      :modalTitle="this.$tr('deleteExamTitle')"
-      :modalDescription="this.$tr(
-        'deleteExamDescription',
-        { title: quiz.title }
-      )"
-      :modalConfirmation="this.$tr('deleteExamConfirmation')"
+      :modalTitle="$tr('deleteExamTitle')"
+      :modalDescription="$tr('deleteExamDescription', { title: quiz.title })"
+      :modalConfirmation="$tr('deleteExamConfirmation')"
       @submit="$emit('submit_delete')"
       @cancel="$emit('cancel')"
     />

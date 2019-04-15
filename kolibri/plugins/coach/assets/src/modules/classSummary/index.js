@@ -289,6 +289,15 @@ export default {
         );
       };
     },
+    lessonTitleUnavailable(state, getters) {
+      const normalize = title => title.trim().toUpperCase();
+      return function finder({ title, excludeId }) {
+        return find(
+          getters.lessons,
+          lesson => lesson.id !== excludeId && normalize(lesson.title) === normalize(title)
+        );
+      };
+    },
     // Adapter used in 'coachNotifications' module. Make sure this getter is updated
     // whenever this module's state changes.
     notificationModuleData(state) {

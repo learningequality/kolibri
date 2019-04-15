@@ -67,6 +67,7 @@
       ...mapGetters('classSummary', ['groups']),
       formProps() {
         return {
+          assignmentType: 'lesson',
           classId: this.$route.params.classId,
           groups: this.groups,
           initialActive: this.lesson.is_active,
@@ -75,10 +76,6 @@
           ),
           initialTitle: this.lesson.title,
           initialDescription: this.lesson.description,
-          modalActiveText: this.$tr('activeLessonLabel'),
-          modalInactiveText: this.$tr('inactiveLessonLabel'),
-          showActiveOption: true,
-          showDescriptionField: true,
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
