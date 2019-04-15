@@ -9,13 +9,22 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <p>
-        <BackLink
-          :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="backLinkString"
-        />
+      <div class="with-flushed-button">
+        <p>
+          <BackLink
+            :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
+            :text="backLinkString"
+          />
 
-      </p>
+        </p>
+        <KDropdownMenu
+          slot="optionsDropdown"
+          :text="$tr('options')"
+          :options="lessonOptions"
+          @select="handleSelectOption"
+        />
+      </div>
+
       <div class="lesson-summary">
 
         <AssignmentSummary
@@ -26,14 +35,7 @@
           :recipients="lessonAssignments"
           :groups="learnerGroups"
           @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
-        >
-          <KDropdownMenu
-            slot="optionsDropdown"
-            :text="$tr('options')"
-            :options="lessonOptions"
-            @select="handleSelectOption"
-          />
-        </AssignmentSummary>
+        />
 
         <div>
           <div class="resource-list">
@@ -184,6 +186,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../common/definitions';
+
+  .with-flushed-button {
+    @extend %with-flushed-button;
+  }
 
   .resource-list-header {
     // TODO use shared class or mixin

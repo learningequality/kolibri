@@ -299,15 +299,10 @@
 
 <style lang="scss" scoped>
 
-  // Copied from CoachExamsPage and other places
+  @import '../../common/definitions';
+
   .with-flushed-button {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    button {
-      align-self: flex-end;
-    }
+    @extend %with-flushed-button;
   }
 
   // HACK: to prevent perseus multi-choice tiles from appearing

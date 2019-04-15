@@ -1,0 +1,10 @@
+// Use on divs that have a button that needs to be aligned opposite of the main content
+%with-flushed-button {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  button {
+    align-self: flex-end;
+  }
+}

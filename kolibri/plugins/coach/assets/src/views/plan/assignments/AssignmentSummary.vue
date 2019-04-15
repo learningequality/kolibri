@@ -187,6 +187,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../../common/definitions';
+
   $table-header-size: 12px;
 
   // TODO use classes
@@ -229,13 +231,7 @@
   }
 
   .lesson-summary-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    button {
-      align-self: flex-end;
-    }
+    @extend %with-flushed-button;
   }
 
   .lesson-summary-header-title {
