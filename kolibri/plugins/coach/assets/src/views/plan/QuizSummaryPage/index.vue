@@ -101,6 +101,8 @@
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
@@ -112,7 +114,6 @@
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
-
   import {
     fetchQuizSummaryPageData,
     serverAssignmentPayload,
@@ -222,6 +223,8 @@
           .substring(0, 50)
           .trim();
 
+        const className = find(this.classList, { id: classroomId }).name;
+
         return this.$store
           .dispatch('examReport/copyExam', {
             exam: {
@@ -231,7 +234,7 @@
               question_sources: this.quiz.question_sources,
               assignments: serverAssignmentPayload(groupIds, this.classId),
             },
-            className: find(this.classList, { id: classroomId }).name,
+            className,
           })
           .then(result => {
             // If exam was copied to the current classroom, add it to the classSummary module
@@ -248,6 +251,22 @@
                 object,
               });
             }
+            this.closeModal();
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$store.commit('CORE_CREATE_SNACKBAR', {
+                text: this.$tr('uniqueTitleError', {
+                  title,
+                  className,
+                }),
+                autoDismiss: false,
+                actionText: this.coachStrings.$tr('closeAction'),
+                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+              });
+            }
+            this.$store.dispatch('notLoading');
             this.closeModal();
           });
       },
@@ -271,6 +290,7 @@
       pageLoadingError: 'There was a problem loading this quiz',
       allQuizzes: 'All quizzes',
       quizDeletedNotification: `'{title}' was deleted`,
+      uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },
   };
 
@@ -288,6 +308,12 @@
     button {
       align-self: flex-end;
     }
+  }
+
+  // HACK: to prevent perseus multi-choice tiles from appearing
+  // over modal overlay and snackbar
+  /deep/ .perseus-radio-selected {
+    z-index: 0 !important;
   }
 
 </style>

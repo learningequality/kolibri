@@ -71,6 +71,9 @@ export default [
     name: QuizSummaryPage.name,
     path: '/:classId/plan/quizzes/:quizId',
     component: QuizSummaryPage,
+    meta: {
+      titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
+    },
   },
   {
     name: QuizEditDetailsPage.name,

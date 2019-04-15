@@ -16,16 +16,13 @@ function showSnackbar(store, string) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  return new Promise(resolve => {
-    createExam(store, exam).then(
-      newExam => {
-        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-        showSnackbar(store, snackbarTranslator.$tr('copiedExamToClass', { className }));
-        store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
-        resolve(newExam);
-      },
-      error => store.dispatch('handleApiError', error, { root: true })
-    );
+  return new Promise((resolve, reject) => {
+    createExam(store, exam).then(newExam => {
+      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+      showSnackbar(store, snackbarTranslator.$tr('copiedExamToClass', { className }));
+      store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
+      resolve(newExam);
+    }, reject);
   });
 }
 

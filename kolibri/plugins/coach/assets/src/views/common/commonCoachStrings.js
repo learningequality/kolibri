@@ -3,6 +3,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   cancelAction: 'Cancel',
+  closeAction: 'Close',
   copyAction: 'Copy',
   createAction: 'Create',
   deleteAction: 'Delete',
