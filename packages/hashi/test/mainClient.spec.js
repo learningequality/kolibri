@@ -6,6 +6,7 @@ describe('Hashi mainClient', () => {
   let iframe;
   beforeEach(() => {
     iframe = document.createElement('iframe');
+    iframe.name = nameSpace;
     hashi = new Hashi({ iframe });
   });
   describe('constructor method', () => {

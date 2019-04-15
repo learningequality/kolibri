@@ -1,139 +1,141 @@
-/**
- * @jest-environment jest-environment-jsdom-script
- */
-
-import http from 'http';
-import replaceScript, { runScriptTypes } from '../src/replaceScript';
+import { getScripts, replaceScript, seq, setScripts } from '../src/replaceScript';
 
 function headScript(scriptTag) {
-  return `<html><head>${scriptTag}</head></html>`;
+  return `<html><head><template hashi-script="true">${scriptTag}</template></head></html>`;
 }
 
 function bodyScript(scriptTag) {
-  return `<html><body>${scriptTag}</body></html>`;
+  return `<html><body><template hashi-script="true">${scriptTag}</template></body></html>`;
 }
 
 function replaceTestScript(callback = () => {}) {
-  replaceScript(document.getElementsByTagName('script')[0], callback);
+  replaceScript(getScripts()[0], callback);
 }
 
-const port = 9999;
+describe('getScript function', () => {
+  it('should return script tags in the head that have no type', () => {
+    document.documentElement.innerHTML = headScript('<script>window;</script>');
+    const script = getScripts()[0];
+    expect(script.innerHTML).toBe('window;');
+  });
+  it('should return script tags in the body that have no type', () => {
+    document.documentElement.innerHTML = bodyScript('<script>window;</script>');
+    const script = getScripts()[0];
+    expect(script.innerHTML).toBe('window;');
+  });
+  it('should set the original parentNode on the tag as _parentNode', () => {
+    document.documentElement.innerHTML = headScript('<script>window;</script>');
+    const script = getScripts()[0];
+    expect(script._parentNode).toBe(document.head);
+  });
+});
 
 describe('replaceScript function', () => {
+  // Because JSDOM does not handle script tags embedded inside
+  // template tags in the same way a browser does, it is not possible
+  // to test other functionality here.
   describe('inline JS', () => {
-    it('should execute JS in a script tag in the head with no type', () => {
-      window.shouldExecute = jest.fn();
-      document.documentElement.innerHTML = headScript('<script>window.shouldExecute();</script>');
-      expect(window.shouldExecute).not.toHaveBeenCalled();
+    it('should preserve arbitrary attributes from a script tag', () => {
+      document.documentElement.innerHTML = bodyScript('<script data-test="test"></script>');
       replaceTestScript();
-      expect(window.shouldExecute).toHaveBeenCalled();
+      const script = document.querySelector('script');
+      expect(script.getAttribute('data-test')).toBe('test');
     });
-    it('should execute JS in a script tag in the body with no type', () => {
-      window.shouldExecute = jest.fn();
-      document.documentElement.innerHTML = bodyScript('<script>window.shouldExecute();</script>');
-      expect(window.shouldExecute).not.toHaveBeenCalled();
+    it('should preserve async attribute from a script tag', () => {
+      document.documentElement.innerHTML = bodyScript('<script async="true"></script>');
       replaceTestScript();
-      expect(window.shouldExecute).toHaveBeenCalled();
+      const script = document.querySelector('script');
+      expect(script.getAttribute('async')).toBe('true');
     });
-    runScriptTypes.forEach(type => {
-      it(`should execute JS in a head script tag with type ${type}`, () => {
-        window.shouldExecute = jest.fn();
-        document.documentElement.innerHTML = headScript(
-          `<script type="${type}">window.shouldExecute();</script>`
-        );
-        expect(window.shouldExecute).not.toHaveBeenCalled();
-        replaceTestScript();
-        expect(window.shouldExecute).toHaveBeenCalled();
-      });
-      it(`should execute JS in a body script tag with type ${type}`, () => {
-        window.shouldExecute = jest.fn();
-        document.documentElement.innerHTML = bodyScript(
-          `<script type="${type}">window.shouldExecute();</script>`
-        );
-        expect(window.shouldExecute).not.toHaveBeenCalled();
-        replaceTestScript();
-        expect(window.shouldExecute).toHaveBeenCalled();
+  });
+});
+
+describe('seq function', () => {
+  it('should execute a sequence of async functions that accept callbacks in order', () => {
+    let resolve1, resolve2;
+    let promise1, promise2;
+    const mock1 = jest.fn();
+    const mock2 = jest.fn();
+    const mock3 = jest.fn();
+    const fns = [
+      callback => {
+        promise1 = new Promise(resolve => {
+          resolve1 = resolve;
+        }).then(() => {
+          mock1();
+          callback();
+        });
+      },
+      callback => {
+        promise2 = new Promise(resolve => {
+          resolve2 = resolve;
+        }).then(() => {
+          mock2();
+          callback();
+        });
+      },
+      callback => {
+        new Promise(() => {}).then(() => {
+          mock3();
+          callback();
+        });
+      },
+    ];
+    seq(fns);
+    expect(mock1).not.toHaveBeenCalled();
+    expect(mock2).not.toHaveBeenCalled();
+    expect(mock3).not.toHaveBeenCalled();
+    resolve1();
+    return promise1.then(() => {
+      expect(mock1).toHaveBeenCalled();
+      expect(mock2).not.toHaveBeenCalled();
+      expect(mock3).not.toHaveBeenCalled();
+      resolve2();
+      return promise2.then(() => {
+        expect(mock2).toHaveBeenCalled();
+        expect(mock3).not.toHaveBeenCalled();
       });
     });
   });
-  describe('JS from src', () => {
-    let app, script;
-    function runServer() {
-      app = http
-        .createServer((request, response) => {
-          //header to allow CORS request
-          response.setHeader('Access-Control-Allow-Origin', '*');
-          response.setHeader('Access-Control-Request-Method', '*');
-          response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-          response.setHeader('Access-Control-Allow-Headers', '*');
-          response.writeHead(200, { 'Content-Type': 'text/javascript' });
-          response.end(script);
-        })
-        .listen(port, () => {});
-    }
-    beforeEach(() => {
-      runServer();
-    });
-    afterEach(() => {
-      app.close();
-      app = undefined;
-    });
-    it('should execute JS from a script tag src in the head with no type', () => {
-      window.shouldExecute = jest.fn();
-      script = 'window.shouldExecute()';
-      document.documentElement.innerHTML = headScript(
-        `<script src="http://127.0.0.1:${port}/test.js"></script>`
-      );
-      expect(window.shouldExecute).not.toHaveBeenCalled();
-      return new Promise(resolve => {
-        replaceTestScript(() => {
-          expect(window.shouldExecute).toHaveBeenCalled();
-          resolve();
+  it('should fire a DOMContentLoaded event when the last async function has completed', () => {
+    let promise1, promise2, promise3;
+    const fns = [
+      callback => {
+        promise1 = Promise.resolve().then(() => {
+          callback();
         });
-      });
-    });
-    it('should execute JS from a script tag src in the body with no type', () => {
-      window.shouldExecute = jest.fn();
-      script = 'window.shouldExecute()';
-      document.documentElement.innerHTML = bodyScript(
-        `<script src="http://127.0.0.1:${port}/test.js"></script>`
-      );
-      expect(window.shouldExecute).not.toHaveBeenCalled();
-      return new Promise(resolve => {
-        replaceTestScript(() => {
-          expect(window.shouldExecute).toHaveBeenCalled();
-          resolve();
+      },
+      callback => {
+        promise2 = Promise.resolve().then(() => {
+          callback();
         });
-      });
-    });
-    runScriptTypes.forEach(type => {
-      it(`should execute JS in a head script tag with type ${type}`, () => {
-        window.shouldExecute = jest.fn();
-        script = 'window.shouldExecute()';
-        document.documentElement.innerHTML = headScript(
-          `<script src="http://127.0.0.1:${port}/test.js" type="${type}"></script>`
-        );
-        expect(window.shouldExecute).not.toHaveBeenCalled();
-        return new Promise(resolve => {
-          replaceTestScript(() => {
-            expect(window.shouldExecute).toHaveBeenCalled();
-            resolve();
-          });
+      },
+      callback => {
+        promise3 = Promise.resolve().then(() => {
+          callback();
         });
-      });
-      it(`should execute JS in a body script tag with type ${type}`, () => {
-        window.shouldExecute = jest.fn();
-        document.documentElement.innerHTML = bodyScript(
-          `<script src="http://127.0.0.1:${port}/test.js" type="${type}"></script>`
-        );
-        expect(window.shouldExecute).not.toHaveBeenCalled();
-        return new Promise(resolve => {
-          replaceTestScript(() => {
-            expect(window.shouldExecute).toHaveBeenCalled();
-            resolve();
-          });
-        });
-      });
+      },
+    ];
+    const listener = jest.fn();
+    document.addEventListener('DOMContentLoaded', listener);
+    seq(fns);
+    return Promise.all([promise1, promise2, promise3]).then(() => {
+      expect(listener).toHaveBeenCalled();
     });
+  });
+});
+
+describe('setScripts function', () => {
+  // Because JSDOM does not handle script tags embedded inside
+  // template tags in the same way a browser does, it is not possible
+  // to test other functionality here.
+  it('should trigger onload methods', () => {
+    window.mock1 = jest.fn();
+    document.documentElement.innerHTML = `<html>
+      <body onload="window.mock1()">
+      </div>
+      </body></html>`;
+    setScripts(getScripts());
+    expect(window.mock1).toHaveBeenCalled();
   });
 });
