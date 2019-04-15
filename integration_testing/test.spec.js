@@ -1,8 +1,13 @@
-describe('Google', () => {
+const { percySnapshot } = require('@percy/puppeteer');
+
+// jest.setTimeout(40000);
+
+describe('Kolibri', () => {
+  const name = 'login screen';
   beforeAll(async () => {
     await page.goto('http://localhost:8000');
   });
-  it('should display "google" text on page', async () => {
-    await expect(page.title()).resolves.toMatch('Google');
+  it(name, async () => {
+    await percySnapshot(page, 'test-login');
   });
 });
