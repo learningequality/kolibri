@@ -1,5 +1,10 @@
 import { getBrowser, passesRequirements } from '../userAgent';
 
+/*
+ * Relevant test cases copied from:
+ * https://github.com/faisalman/ua-parser-js/blob/master/test/browser-test.json
+ */
+
 const testCases = [
   {
     desc: 'Android Browser on Galaxy Nexus',
@@ -176,7 +181,16 @@ describe('userAgent detection', () => {
     it(`should register the browser ${testCase.desc} as ${testCase.expect.name}`, () => {
       const browser = getBrowser(testCase.ua);
       expect(browser.name).toBe(testCase.expect.name);
-      expect(browser.version).toEqual(testCase.expect.version.split('.'));
+      const version = testCase.expect.version.split('.');
+      if (version[0]) {
+        expect(browser.major).toEqual(version[0]);
+      }
+      if (version[1]) {
+        expect(browser.minor).toEqual(version[1]);
+      }
+      if (version[2]) {
+        expect(browser.patch).toEqual(version[2]);
+      }
     });
   });
 });
@@ -187,7 +201,7 @@ describe('requirements detection', () => {
     const major = 1;
     const browser = {
       name: browserName,
-      version: [major],
+      major,
     };
     const requirements = {
       [browserName]: {
@@ -201,7 +215,7 @@ describe('requirements detection', () => {
     const major = 1;
     const browser = {
       name: browserName,
-      version: [major],
+      major,
     };
     const requirements = {
       [browserName]: {
@@ -216,7 +230,8 @@ describe('requirements detection', () => {
     const minor = 2;
     const browser = {
       name: browserName,
-      version: [major, minor],
+      major,
+      minor,
     };
     const requirements = {
       [browserName]: {
@@ -232,7 +247,8 @@ describe('requirements detection', () => {
     const minor = 2;
     const browser = {
       name: browserName,
-      version: [major, minor],
+      major,
+      minor,
     };
     const requirements = {
       [browserName]: {
@@ -248,7 +264,7 @@ describe('requirements detection', () => {
     const minor = 2;
     const browser = {
       name: browserName,
-      version: [major],
+      major,
     };
     const requirements = {
       [browserName]: {
@@ -265,7 +281,9 @@ describe('requirements detection', () => {
     const patch = 3;
     const browser = {
       name: browserName,
-      version: [major, minor, patch],
+      major,
+      minor,
+      patch,
     };
     const requirements = {
       [browserName]: {
@@ -283,7 +301,9 @@ describe('requirements detection', () => {
     const patch = 3;
     const browser = {
       name: browserName,
-      version: [major, minor, patch],
+      major,
+      minor,
+      patch,
     };
     const requirements = {
       [browserName]: {
@@ -301,7 +321,8 @@ describe('requirements detection', () => {
     const patch = 3;
     const browser = {
       name: browserName,
-      version: [major, minor],
+      major,
+      minor,
     };
     const requirements = {
       [browserName]: {
