@@ -61,8 +61,8 @@
           v-else
           ref="textarea"
 
-          v-model="value"
           v-autofocus="autofocus"
+          :value="value"
           class="ui-textbox-textarea"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"

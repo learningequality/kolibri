@@ -8,7 +8,7 @@
       :classId="classId"
       :classList="classList"
       @submit="handleCopy"
-      @cancel="$emit('cancel')"
+      @cancel="closeModal"
     />
 
     <AssignmentDeleteModal
@@ -16,7 +16,7 @@
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
       @submit="deleteLesson({ lessonId: currentLesson.id, classId })"
-      @cancel="$emit('cancel')"
+      @cancel="closeModal"
     />
   </div>
 
@@ -47,6 +47,9 @@
     },
     methods: {
       ...mapActions('lessonSummary', ['deleteLesson', 'copyLesson']),
+      closeModal() {
+        this.$store.commit('lessonSummary/SET_LESSONS_MODAL', '');
+      },
       handleCopy(selectedClassroomId, selectedCollectionIds) {
         const payload = {
           title: this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(

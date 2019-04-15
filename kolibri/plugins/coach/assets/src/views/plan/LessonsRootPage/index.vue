@@ -14,13 +14,13 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="$tr('show')"
+          :label="coachStrings.$tr('showAction')"
           :options="filterOptions"
           :inline="true"
         />
         <KButton
           :primary="true"
-          :text="$tr('newLesson')"
+          :text="coachStrings.$tr('newLessonAction')"
           @click="showModal=true"
         />
       </div>
@@ -28,17 +28,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ $tr('title') }}</th>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
-            <th>{{ $tr('assignedGroupsHeader') }}</th>
-            <th>
-              {{ $tr('status') }}
-              <CoreInfoIcon
-                :iconAriaLabel="$tr('lessonStatusDescription')"
-                :tooltipText="$tr('statusTooltipText')"
-                tooltipPlacement="bottom"
-              />
-            </th>
+            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
+            <th>{{ coachStrings.$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,7 +49,7 @@
                 />
               </KLabeledIcon>
             </td>
-            <td>{{ $tr('numberOfResources', { count: lesson.resources.length }) }}</td>
+            <td>{{ coachStrings.$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
             <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
             <td>
               <LessonActive :active="lesson.is_active" />
@@ -75,22 +68,26 @@
         {{ $tr('noInactiveLessons') }}
       </p>
 
-      <AssignmentDetailsModal
+      <KModal
         v-if="showModal"
-        ref="detailsModal"
-        :modalTitle="$tr('newLessonModalTitle')"
-        :modalTitleErrorMessage="lessonDetailEditorStrings.$tr('duplicateTitle')"
-        :submitErrorMessage="$tr('saveLessonError')"
-        :initialDescription="''"
-        :showDescriptionField="true"
-        :isInEditMode="false"
-        :initialTitle="''"
-        :initialSelectedCollectionIds="[classId]"
-        :classId="classId"
-        :groups="learnerGroups"
-        @continue="handleDetailsModalContinue"
+        :title="$tr('newLessonModalTitle')"
         @cancel="showModal=false"
-      />
+      >
+        <AssignmentDetailsModal
+          ref="detailsModal"
+          assignmentType="new_lesson"
+          :modalTitleErrorMessage="lessonDetailEditorStrings.$tr('duplicateTitle')"
+          :submitErrorMessage="$tr('saveLessonError')"
+          :initialDescription="''"
+          :initialTitle="''"
+          :initialSelectedCollectionIds="[classId]"
+          :classId="classId"
+          :groups="learnerGroups"
+          :disabled="detailsModalIsDisabled"
+          @submit="handleDetailsModalContinue"
+          @cancel="showModal=false"
+        />
+      </KModal>
     </KPageContainer>
 
   </CoreBase>
@@ -103,12 +100,12 @@
   import { mapState, mapActions } from 'vuex';
   import countBy from 'lodash/countBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
@@ -123,20 +120,15 @@
 
   export default {
     name: 'LessonsRootPage',
-    metaInfo() {
-      return {
-        title: this.$tr('classLessons'),
-      };
-    },
     components: {
       PlanHeader,
       CoreTable,
-      CoreInfoIcon,
       KButton,
       KRouterLink,
       KSelect,
       KLabeledIcon,
       KIcon,
+      KModal,
       LessonActive,
       AssignmentDetailsModal,
     },
@@ -145,6 +137,7 @@
       return {
         showModal: false,
         filterSelection: {},
+        detailsModalIsDisabled: false,
       };
     },
     computed: {
@@ -188,11 +181,12 @@
           numOfAssignments === 1 &&
           assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM
         ) {
-          return this.$tr('entireClass');
+          return this.coachStrings.$tr('entireClassLabel');
         }
-        return this.$tr('numberOfGroups', { count: numOfAssignments });
+        return this.coachStrings.$tr('numberOfGroups', { value: numOfAssignments });
       },
       handleDetailsModalContinue(payload) {
+        this.detailsModalIsDisabled = true;
         this.createLesson({
           classId: this.classId,
           payload: {
@@ -200,7 +194,7 @@
             lesson_assignments: payload.assignments,
           },
         })
-          .then()
+          .then() // If successful, should redirect to LessonSummaryPage
           .catch(error => {
             const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
             if (errors) {
@@ -208,31 +202,20 @@
             } else {
               this.$refs.detailsModal.handleSubmitFailure();
             }
+            this.detailsModalIsDisabled = false;
           });
       },
     },
     $trs: {
-      classLessons: 'Lessons',
-      show: 'Show',
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      newLesson: 'New lesson',
       newLessonModalTitle: 'Create new lesson',
-      title: 'Title',
       size: 'Size',
-      assignedGroupsHeader: 'Visible to',
-      entireClass: 'Entire class',
-      numberOfGroups: '{count, number, integer} {count, plural, one {group} other {groups}}',
       noOne: 'No one',
-      status: 'Status',
-      numberOfResources:
-        '{count, number, integer} {count, plural, one {resource} other {resources}}',
       noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
-      lessonStatusDescription: 'Lesson status description',
-      statusTooltipText: 'Learners can only see active lessons',
       saveLessonError: 'There was a problem saving this lesson',
     },
   };

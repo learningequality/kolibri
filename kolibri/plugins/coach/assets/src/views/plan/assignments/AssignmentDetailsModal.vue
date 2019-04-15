@@ -22,6 +22,7 @@
           :disabled="disabled || formIsSubmitted"
           @blur="titleIsVisited = true"
           @input="showTitleError = false"
+          @keydown.enter="submitData"
         />
 
         <KTextbox
@@ -30,10 +31,11 @@
           :label="$tr('description')"
           :maxlength="200"
           :disabled="disabled || formIsSubmitted"
+          :textArea="true"
         />
       </fieldset>
 
-      <fieldset>
+      <fieldset v-if="assignmentType !== 'new_lesson'">
         <legend>
           {{ coachStrings.$tr('statusLabel') }}
         </legend>
@@ -148,7 +150,7 @@
         type: Boolean,
         default: false,
       },
-      // Should be 'quiz' or 'lesson'
+      // Should be 'quiz', 'lesson', or 'new_lesson'
       assignmentType: {
         type: String,
         required: true,
@@ -178,7 +180,7 @@
       },
       titleIsInvalidText() {
         // submission is handled because "blur" event happens on submit
-        if (this.titleIsVisited) {
+        if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
             return this.$tr('fieldRequiredErro');
           }

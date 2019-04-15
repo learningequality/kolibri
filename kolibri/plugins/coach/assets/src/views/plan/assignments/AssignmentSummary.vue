@@ -24,15 +24,6 @@
         </template>
       </HeaderTableRow>
 
-      <HeaderTableRow v-if="showDescription">
-        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ coachStrings.$tr('descriptionLabel') }}
-        </template>
-        <template slot="value" dir="auto">
-          {{ description || $tr('noDescription') }}
-        </template>
-      </HeaderTableRow>
-
       <HeaderTableRow>
         <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
           {{ coachStrings.$tr('recipientsLabel') }}
@@ -58,6 +49,16 @@
           </ul>
         </template>
       </HeaderTableRow>
+
+      <HeaderTableRow v-if="showDescription">
+        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
+          {{ coachStrings.$tr('descriptionLabel') }}
+        </template>
+        <template slot="value" dir="auto">
+          {{ description || $tr('noDescription') }}
+        </template>
+      </HeaderTableRow>
+
     </HeaderTable>
 
   </div>
