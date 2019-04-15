@@ -271,7 +271,7 @@
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
-        if (this.error && this.error.code == 403) {
+        if (this.error && this.error.status && this.error.status.code == 403) {
           return true;
         }
         return !this.authorized;
