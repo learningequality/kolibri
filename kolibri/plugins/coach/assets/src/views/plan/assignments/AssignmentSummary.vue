@@ -16,27 +16,17 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ $tr('status') }}
-          <CoreInfoIcon
-            :iconAriaLabel="$tr('statusDescription')"
-            :tooltipText="tooltipText"
-          />
+          {{ coachStrings.$tr('statusLabel') }}
         </template>
         <template slot="value" class="description">
           <LessonActive v-if="kind==='lesson'" :active="active" />
           <QuizActive v-else :active="active" />
-          <KButton
-            appearance="basic-link"
-            class="change-status-button"
-            :text="$tr('changeStatus')"
-            @click="$emit('changeStatus')"
-          />
         </template>
       </HeaderTableRow>
 
       <HeaderTableRow v-if="showDescription">
         <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ $tr('description') }}
+          {{ coachStrings.$tr('descriptionLabel') }}
         </template>
         <template slot="value" dir="auto">
           {{ description || $tr('noDescription') }}
@@ -45,14 +35,14 @@
 
       <HeaderTableRow>
         <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ $tr('assignedGroupsListLabel') }}
+          {{ coachStrings.$tr('recipientsLabel') }}
         </template>
         <template slot="value" class="description">
           <template v-if="!recipients.length">
             {{ this.$tr('noOne') }}
           </template>
           <template v-else-if="classIsTheRecipient">
-            {{ this.$tr('entireClass') }}
+            {{ coachStrings.$tr('entireClassLabel') }}
           </template>
           <ul
             v-else
@@ -78,29 +68,26 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { CollectionKinds, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import LessonActive from '../../common/LessonActive';
   import QuizActive from '../../common/QuizActive';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssignmentSummary',
     components: {
-      CoreInfoIcon,
       LessonActive,
       QuizActive,
-      KButton,
       KIcon,
       KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, coachStringsMixin],
     props: {
       kind: {
         type: String,
@@ -157,28 +144,10 @@
             return recipientGroup;
           });
       },
-      tooltipText() {
-        if (this.kind === ContentNodeKinds.EXAM) {
-          return this.$tr('statusTooltipTextExams');
-        }
-        if (this.kind === ContentNodeKinds.LESSON) {
-          return this.$tr('statusTooltipTextLessons');
-        }
-
-        return '';
-      },
     },
     $trs: {
-      status: 'Status',
-      statusDescription: 'Status description',
-      statusTooltipTextExams: 'Learners can only see active quizzes',
-      statusTooltipTextLessons: 'Learners can only see active lessons',
-      changeStatus: 'Change',
-      description: 'Description',
       noDescription: 'No description',
-      assignedGroupsListLabel: 'Visible to',
       noOne: 'No one',
-      entireClass: 'Entire class',
     },
   };
 
