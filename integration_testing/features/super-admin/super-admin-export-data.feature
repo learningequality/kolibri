@@ -8,9 +8,9 @@ Feature: Super admin exports usage data
 
   Scenario: Export session logs
     When I click on "Generate log file" link under *Session logs* heading
-    Then I see generating log file loading
-      And the text change to "Generate a new log file"
-      And the *Download* button is enabled 
+    Then I see the loading indicator
+      And the *Download* button is enabled
+      And the text change to "Generate a new log file" 
     When I click on *Download* button     
     Then I see *Save as* window
     When I enter the name and location for the CSV file
@@ -19,9 +19,9 @@ Feature: Super admin exports usage data
 
   Scenario: Export summary logs
     When I click on "Generate log file" link under *Summary logs* heading
-    Then I see generating log file loading
-      And the text change to "Generate a new log file"
+    Then I see the loading indicator
       And the *Download* button is enabled
+      And the text change to "Generate a new log file"
     When I click on *Download* button 
     Then I see *Save as* window
     When I enter the name and location for the CSV file
