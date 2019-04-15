@@ -125,3 +125,6 @@ build_tools/crowdin-cli.jar
 *.ttf
 *.ttc
 *.otf
+
+# SQLite file
+SQLITE_MAX_VARIABLE_NUMBER.cache
