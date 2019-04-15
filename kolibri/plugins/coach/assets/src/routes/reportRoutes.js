@@ -11,6 +11,7 @@ import {
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
+import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -314,12 +315,13 @@ export default [
     },
   },
   {
+    name: 'LessonReportEditDetailsPage',
     path: path(CLASS, LESSON, '/edit'),
-    component: pages.ReportsLessonEditorPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['editDetailsAction', 'LESSON_NAME', 'CLASS_NAME'],
+    component: LessonEditDetailsPage,
+    props: {
+      showResourcesTable: true,
     },
+    handler: defaultHandler,
   },
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNERS),

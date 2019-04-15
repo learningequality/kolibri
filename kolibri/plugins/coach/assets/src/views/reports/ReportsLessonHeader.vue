@@ -87,7 +87,9 @@
     },
     methods: {
       handleSelectOption(action) {
-        console.log(action);
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('LessonReportEditDetailsPage'));
+        }
       },
     },
     $trs: {

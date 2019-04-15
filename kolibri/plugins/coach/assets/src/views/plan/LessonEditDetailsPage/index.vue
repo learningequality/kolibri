@@ -20,9 +20,14 @@
         @submit="handleSaveChanges"
       />
 
-      <div v-if="showResourcesTable">
-        Resources
-      </div>
+      <section>
+        <h2>Resources</h2>
+        <ResourceListTable
+          v-if="showResourcesTable"
+          :workingResources="lesson.resources"
+        />
+      </section>
+
     </KPageContainer>
 
   </CoreBase>
@@ -35,9 +40,10 @@
   import { mapGetters } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import { CoachCoreBase } from '../common';
-  import { coachStringsMixin } from '../common/commonCoachStrings';
-  import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
+  import { CoachCoreBase } from '../../common';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import ResourceListTable from './EditDetailsResourceListTable';
 
   export default {
     name: 'LessonEditDetailsPage',
@@ -45,6 +51,7 @@
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoreBase: CoachCoreBase,
       KPageContainer,
+      ResourceListTable,
     },
     mixins: [coachStringsMixin],
     props: {

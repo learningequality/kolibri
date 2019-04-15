@@ -147,7 +147,7 @@
           isSamePage: samePageCheckGenerator(this.$store),
         });
       },
-      handleSelectOption({ action }) {
+      handleSelectOption(action) {
         if (action === 'EDIT_DETAILS') {
           this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
         } else {

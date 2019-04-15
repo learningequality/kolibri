@@ -51,7 +51,7 @@
           editDetails,
           {
             label: this.$tr('manageResourcesAction'),
-            value: 'COPY',
+            value: 'MANAGE_RESOURCES',
           },
         ];
       },
