@@ -24,7 +24,7 @@ exports[`side nav component should be hidden if navShown is false 1`] = `
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" alt="Kolibri logo" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
@@ -71,7 +71,7 @@ exports[`side nav component should show nothing if no components are added and u
           <!---->
         </ul>
       </div>
-      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" class="side-nav-scrollable-area-footer-logo">
+      <div class="side-nav-scrollable-area-footer" style="color: rgb(97, 97, 97);"><img src="./kolibri-logo.svg" alt="Kolibri logo" class="side-nav-scrollable-area-footer-logo">
         <div class="side-nav-scrollable-area-footer-info">
           <p>Kolibri testversion</p>
           <p>© 2018 Learning Equality</p>
