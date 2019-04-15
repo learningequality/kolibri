@@ -44,12 +44,19 @@ def get_settings_language():
         return settings.LANGUAGE_CODE
 
 
-def get_language_from_request(request):  # noqa complexity-16
+def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
     """
     Analyzes the request to find what language the user wants the system to
     show. Only languages listed in settings.LANGUAGES are taken into account.
     If the user requests a sublanguage where we have a main language, we send
-    out the main language.
+    out the main language. It also returns a value to determine if the language code
+    was derived from a language code in the URL, or inferred from some other source.
+    :returns: tuple of language code, boolean. The former can be None if the url being
+    requested does not require translation, otherwise it should be a language code
+    from the values in settings.LANGUAGES. The boolean should indicate whether the
+    language code was calculated by reading a language code from the requested URL.
+    In the case that it was, True should be returned, in the case where the URL language
+    code was not used or not present, False is returned.
     """
 
     try:
