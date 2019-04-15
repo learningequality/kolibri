@@ -144,9 +144,7 @@
       };
     },
     computed: {
-      ...mapState(['examAttemptLogs']),
       ...mapState('examViewer', [
-        'channelId',
         'exam',
         'content',
         'itemId',

@@ -89,7 +89,6 @@
         'exercise',
         'interactionIndex',
         'learnerId',
-        'questionNumber',
         'questionId',
         'title',
       ]),

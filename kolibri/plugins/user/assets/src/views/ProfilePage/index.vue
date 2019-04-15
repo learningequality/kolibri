@@ -199,7 +199,7 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', ['busy', 'passwordState', 'success']),
       ...mapState('profile', {
         profileErrors: 'errors',
       }),

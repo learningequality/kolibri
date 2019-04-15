@@ -49,7 +49,7 @@
 
 <script>
 
-  import { mapActions, mapGetters, mapMutations } from 'vuex';
+  import { mapActions, mapMutations } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
@@ -71,9 +71,6 @@
         kolibriStudioIsOffline: false,
         ContentSources,
       };
-    },
-    computed: {
-      ...mapGetters('manageContent/wizard', ['isImportingMore']),
     },
     created() {
       setTimeout(() => {

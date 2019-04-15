@@ -25,7 +25,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import lastItem from 'lodash/last';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -86,7 +86,6 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',

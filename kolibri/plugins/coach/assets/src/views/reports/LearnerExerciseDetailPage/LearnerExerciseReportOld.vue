@@ -88,7 +88,6 @@
     },
     computed: {
       ...mapState(['pageName', 'reportRefreshInterval']),
-      ...mapState('classSummary', { classId: 'id' }),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',
         'currentInteraction',

@@ -207,11 +207,7 @@ oriented data synchronization.
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-      }),
       ...mapState({
-        pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
         currentInteractions: state => state.core.logging.attempt.interaction_history.length,
         totalattempts: state => state.core.logging.mastery.totalattempts,

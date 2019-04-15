@@ -77,7 +77,7 @@
     },
     computed: {
       ...mapState(['classList']),
-      ...mapState('classSummary', { classId: 'id', className: 'name' }),
+      ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'lessonsModalSet', 'learnerGroups']),
       AssignmentActions() {
         return AssignmentActions;

@@ -97,7 +97,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -163,10 +162,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
-      ...mapState({
-        session: state => state.core.session,
-      }),
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },

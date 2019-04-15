@@ -62,7 +62,7 @@
     },
     computed: {
       ...mapGetters('manageContent/wizard', ['driveCanBeUsedForTransfer', 'isImportingMore']),
-      ...mapState('manageContent/wizard', ['driveList', 'transferType', 'transferredChannel']),
+      ...mapState('manageContent/wizard', ['driveList', 'transferType']),
       inImportMode() {
         return this.transferType === TransferTypes.LOCALIMPORT;
       },

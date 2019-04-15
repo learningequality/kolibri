@@ -137,7 +137,7 @@
     computed: {
       ...mapState(['pageName', 'toolbarRoute']),
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       ...mapState('lessonSummary/resources', [
         'ancestorCounts',
         'contentList',

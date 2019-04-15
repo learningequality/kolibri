@@ -71,7 +71,6 @@
     },
     computed: {
       ...mapState('lessonPlaylist/resource', {
-        currentLesson: state => state.currentLesson,
         currentLessonResource: state => state.content,
         nextLessonResource: state => state.content.next_content,
       }),
