@@ -388,7 +388,7 @@ class ChannelMetadata(models.Model):
     min_schema_version = models.CharField(max_length=50)
     root = models.ForeignKey(ContentNode)
     # precalculated fields during annotation/migration
-    published_size = models.IntegerField(default=0, null=True, blank=True)
+    published_size = models.BigIntegerField(default=0, null=True, blank=True)
     total_resource_count = models.IntegerField(default=0, null=True, blank=True)
     included_languages = models.ManyToManyField(
         "Language",
