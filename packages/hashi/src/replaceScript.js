@@ -113,7 +113,16 @@ export function setScripts($scripts) {
   seq(runList);
 }
 
+function supportsTemplate() {
+  return 'content' in document.createElement('template');
+}
+
 export function executePage() {
-  const scripts = getScripts();
-  setScripts(scripts);
+  // If the browser we are in does not support templates,
+  // then the foregoing script tags inside template tags
+  // have already been executed.
+  if (supportsTemplate()) {
+    const scripts = getScripts();
+    setScripts(scripts);
+  }
 }
