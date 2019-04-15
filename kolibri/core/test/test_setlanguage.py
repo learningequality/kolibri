@@ -27,7 +27,8 @@ class I18NTests(TestCase):
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode("utf-8"), reverse("kolibri:core:redirect_user"))
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_null(self):
@@ -38,11 +39,12 @@ class I18NTests(TestCase):
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         post_data = dict(language=None)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode("utf-8"), reverse("kolibri:core:root_redirect"))
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
     def test_setlang_get(self):
@@ -56,7 +58,7 @@ class I18NTests(TestCase):
 
     def test_setlang_for_ajax(self):
         """
-        The set_language view returns 204 for AJAX calls by default.
+        The set_language view returns 200 for AJAX calls by default.
         """
         lang_code = self._get_inactive_language_code()
         post_data = dict(language=lang_code)
@@ -65,7 +67,8 @@ class I18NTests(TestCase):
             post_data,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode("utf-8"), reverse("kolibri:core:redirect_user"))
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_cookie(self):

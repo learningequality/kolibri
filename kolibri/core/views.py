@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
+from django.utils.translation import activate
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
@@ -32,9 +33,12 @@ def set_language(request):
     only be accessed as a POST request. If called as a GET request, it will
     error.
     """
-    response = HttpResponse(status=204)
     lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
+    response = HttpResponse(reverse("kolibri:core:root_redirect"))
     if lang_code and check_for_language(lang_code):
+        activate(lang_code)
+        redirect_user_url = reverse("kolibri:core:redirect_user")
+        response = HttpResponse(redirect_user_url)
         if hasattr(request, "session"):
             request.session[LANGUAGE_SESSION_KEY] = lang_code
         # Always set cookie
