@@ -17,10 +17,9 @@
           />
 
         </p>
-        <KDropdownMenu
-          slot="optionsDropdown"
-          :text="$tr('options')"
-          :options="lessonOptions"
+
+        <LessonOptionsDropdownMenu
+          optionsFor="plan"
           @select="handleSelectOption"
         />
       </div>
@@ -79,9 +78,7 @@
   import { mapState, mapActions } from 'vuex';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import map from 'lodash/map';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -90,6 +87,7 @@
   import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
+  import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
 
   const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
@@ -101,11 +99,11 @@
       };
     },
     components: {
-      KDropdownMenu,
       ResourceListTable,
       ManageLessonModals,
       KRouterLink,
       AssignmentSummary,
+      LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach],
     computed: {
@@ -124,19 +122,6 @@
         learnerGroups: state => state.learnerGroups,
         workingResources: state => state.workingResources,
       }),
-      lessonOptions() {
-        return map(this.actionsToLabelMap, (label, action) => ({
-          label: this.$tr(label),
-          action,
-        }));
-      },
-      actionsToLabelMap() {
-        return {
-          [AssignmentActions.EDIT_DETAILS]: 'editLessonDetails',
-          [AssignmentActions.COPY]: 'copyLesson',
-          [AssignmentActions.DELETE]: 'deleteLesson',
-        };
-      },
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -171,12 +156,7 @@
       },
     },
     $trs: {
-      // TODO make labels more semantic
-      copyLesson: 'Copy lesson',
-      deleteLesson: 'Delete',
-      editLessonDetails: 'Edit details',
       noResourcesInLesson: 'No resources in this lesson',
-      options: 'Options',
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
     },

@@ -1,32 +1,29 @@
 <template>
 
   <div>
-    <p>
-      <BackLink
-        :to="classRoute('ReportsLessonListPage')"
-        :text="$tr('back')"
-      />
-    </p>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" lesson />
-            {{ lesson.title }}
-          </KLabeledIcon>
-        </h1>
+        <p>
+          <BackLink
+            :to="classRoute('ReportsLessonListPage')"
+            :text="$tr('back')"
+          />
+        </p>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage alignment="right">
-        <!-- TODO COACH
-        <KDropdownMenu
-          :text="coachStrings.$tr('optionsLabel')"
-          :options="actionOptions"
-          appearance="raised-button"
-          @select="goTo($event.value)"
+        <LessonOptionsDropdownMenu
+          optionsFor="report"
+          @select="handleSelectOption"
         />
-         -->
       </KGridItem>
     </KGrid>
+
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" lesson />
+        {{ lesson.title }}
+      </KLabeledIcon>
+    </h1>
 
     <HeaderTable>
       <HeaderTableRow>
@@ -45,12 +42,14 @@
           <Recipients :groupNames="getGroupNames(lesson.groups)" />
         </template>
       </HeaderTableRow>
-      <!-- TODO COACH
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-        <template slot="value">{{ lesson.description }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('descriptionLabel') }}
+        </template>
+        <template slot="value">
+          {{ lesson.description || $tr('noDescription') }}
+        </template>
       </HeaderTableRow>
-       -->
     </HeaderTable>
 
     <HeaderTabs>
@@ -73,34 +72,27 @@
 <script>
 
   import commonCoach from '../common';
+  import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
 
   export default {
     name: 'ReportsLessonHeader',
-    components: {},
+    components: {
+      LessonOptionsDropdownMenu,
+    },
     mixins: [commonCoach],
     computed: {
-      /** TODO COACH
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
-      */
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      handleSelectOption(action) {
+        console.log(action);
       },
     },
     $trs: {
       back: 'All lessons',
+      noDescription: 'No description',
     },
   };
 
