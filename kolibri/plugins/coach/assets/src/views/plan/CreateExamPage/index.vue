@@ -222,19 +222,14 @@
     },
     computed: {
       ...mapState(['pageName', 'toolbarRoute']),
-      ...mapGetters({
-        channels: 'getChannels',
-      }),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
-        'title',
         'numberOfQuestions',
         'contentList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
         'ancestors',
-        'examsModalSet',
       ]),
       maxQs() {
         return MAX_QUESTIONS;

@@ -32,7 +32,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ClipboardJS from 'clipboard';
@@ -63,9 +63,6 @@
       },
     },
     computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
       clipboardCapable() {
         return ClipboardJS.isSupported();
       },

@@ -164,7 +164,7 @@
       privacyModalVisible: false,
     }),
     computed: {
-      ...mapGetters(['facilities', 'session']),
+      ...mapGetters(['facilities']),
       ...mapState('signUp', ['errors', 'busy']),
       facilityList() {
         return this.facilities.map(facility => ({
