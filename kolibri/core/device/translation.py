@@ -37,6 +37,21 @@ def get_device_language():
         return None
 
 
+def get_accept_headers_language(request):
+    accept = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
+    for accept_lang, unused in parse_accept_lang_header(accept):
+        if accept_lang == "*":
+            break
+
+        if not language_code_re.search(accept_lang):
+            continue
+
+        try:
+            return get_supported_language_variant(accept_lang)
+        except LookupError:
+            continue
+
+
 def get_settings_language():
     try:
         return get_supported_language_variant(settings.LANGUAGE_CODE)
@@ -95,18 +110,10 @@ def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
     if device_language is not None:
         return device_language, False
 
-    accept = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
-    for accept_lang, unused in parse_accept_lang_header(accept):
-        if accept_lang == "*":
-            break
+    headers_language = get_accept_headers_language(request)
 
-        if not language_code_re.search(accept_lang):
-            continue
-
-        try:
-            return get_supported_language_variant(accept_lang), False
-        except LookupError:
-            continue
+    if headers_language is not None:
+        return headers_language, False
 
     return get_settings_language(), False
 

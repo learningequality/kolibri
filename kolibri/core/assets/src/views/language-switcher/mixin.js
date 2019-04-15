@@ -6,8 +6,9 @@ export default {
   methods: {
     switchLanguage(code) {
       const path = this.Kolibri.urls['kolibri:core:set_language']();
-      const entity = { language: code };
+      const entity = { language: code, next: window.location.href };
       httpClient({
+        method: 'POST',
         path,
         entity,
       }).then(response => {

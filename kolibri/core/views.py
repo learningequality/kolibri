@@ -5,8 +5,11 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import is_valid_path
+from django.urls import translate_url
 from django.utils.decorators import method_decorator
-from django.utils.translation import activate
+from django.utils.six.moves.urllib.parse import urlsplit
+from django.utils.six.moves.urllib.parse import urlunsplit
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +23,9 @@ from kolibri.core.auth.models import Role
 from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.device.hooks import SetupHook
+from kolibri.core.device.translation import get_accept_headers_language
+from kolibri.core.device.translation import get_device_language
+from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.hooks import RoleBasedRedirectHook
 
@@ -34,11 +40,14 @@ def set_language(request):
     error.
     """
     lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
-    response = HttpResponse(reverse("kolibri:core:root_redirect"))
+    next_url = urlsplit(request.POST.get("next")) if request.POST.get("next") else None
     if lang_code and check_for_language(lang_code):
-        activate(lang_code)
-        redirect_user_url = reverse("kolibri:core:redirect_user")
-        response = HttpResponse(redirect_user_url)
+        if next_url and is_valid_path(next_url.path):
+            # If it is a recognized Kolibri path, then translate it to the new language and return it.
+            next_path = urlunsplit((next_url[0], next_url[1], translate_url(next_url[2], lang_code), next_url[3], next_url[4]))
+        else:
+            next_path = translate_url(reverse("kolibri:core:redirect_user"), lang_code)
+        response = HttpResponse(next_path)
         if hasattr(request, "session"):
             request.session[LANGUAGE_SESSION_KEY] = lang_code
         # Always set cookie
@@ -47,6 +56,13 @@ def set_language(request):
                             path=settings.LANGUAGE_COOKIE_PATH,
                             domain=settings.LANGUAGE_COOKIE_DOMAIN)
     else:
+        lang_code = get_device_language() or get_accept_headers_language(request) or get_settings_language()
+        if next_url and is_valid_path(next_url.path):
+            # If it is a recognized Kolibri path, then translate it using the default language code for this device
+            next_path = urlunsplit((next_url[0], next_url[1], translate_url(next_url[2], lang_code), next_url[3], next_url[4]))
+        else:
+            next_path = translate_url(reverse("kolibri:core:redirect_user"), lang_code)
+        response = HttpResponse(next_path)
         if hasattr(request, "session"):
             request.session.pop(LANGUAGE_SESSION_KEY, "")
         response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
