@@ -161,7 +161,11 @@
         });
       },
       handleSelectOption({ action }) {
-        this.setLessonsModal(action);
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
+        } else {
+          this.setLessonsModal(action);
+        }
       },
     },
     $trs: {

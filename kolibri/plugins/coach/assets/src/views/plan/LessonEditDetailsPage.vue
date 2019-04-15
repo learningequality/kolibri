@@ -6,10 +6,10 @@
     :immersivePagePrimary="false"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle', { title: quiz.title })"
-    :pageTitle="$tr('appBarTitle', { title: quiz.title })"
+    :appBarTitle="$tr('appBarTitle', { title: lesson.title })"
+    :pageTitle="$tr('appBarTitle', { title: lesson.title })"
     :showSubNav="false"
-    :immersivePageRoute="$router.getRoute('QuizSummaryPage')"
+    :immersivePageRoute="$router.getRoute('SUMMARY')"
   >
 
     <KPageContainer v-if="!loading && !error">
@@ -29,25 +29,25 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { ExamResource } from 'kolibri.resources';
+  import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
   export default {
-    name: 'QuizEditDetailsPage',
+    name: 'LessonEditDetailsPage',
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoreBase: CoachCoreBase,
       KPageContainer,
     },
     mixins: [coachStringsMixin],
-    props: {},
     data() {
       return {
-        quiz: {
+        lesson: {
           title: '',
+          description: '',
           assignments: [],
           active: false,
         },
@@ -57,10 +57,10 @@
       };
     },
     beforeRouteEnter(to, from, next) {
-      return ExamResource.fetchModel({
-        id: to.params.quizId,
-      }).then(quiz => {
-        next(vm => vm.setData(quiz));
+      return LessonResource.fetchModel({
+        id: to.params.lessonId,
+      }).then(lesson => {
+        next(vm => vm.setData(lesson));
       });
     },
     computed: {
@@ -69,25 +69,28 @@
         return {
           classId: this.$route.params.classId,
           groups: this.groups,
-          initialActive: this.quiz.active,
-          initialSelectedCollectionIds: this.quiz.assignments.map(({ collection }) => collection),
-          initialTitle: this.quiz.title,
-          modalActiveText: this.$tr('activeQuizLabel'),
-          modalInactiveText: this.$tr('inactiveQuizLabel'),
+          initialActive: this.lesson.is_active,
+          initialSelectedCollectionIds: this.lesson.lesson_assignments.map(
+            ({ collection }) => collection
+          ),
+          initialTitle: this.lesson.title,
+          initialDescription: this.lesson.description,
+          modalActiveText: this.$tr('activeLessonLabel'),
+          modalInactiveText: this.$tr('inactiveLessonLabel'),
           showActiveOption: true,
-          showDescriptionField: false,
+          showDescriptionField: true,
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
     },
     methods: {
       setData(data) {
-        this.quiz = data;
+        this.lesson = data;
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
       goBackToSummaryPage() {
-        this.$router.push(this.$router.getRoute('QuizSummaryPage'));
+        this.$router.push(this.$router.getRoute('SUMMARY'));
       },
       handleSaveChanges(changes) {
         let promise;
@@ -96,9 +99,14 @@
         if (changes === null) {
           promise = Promise.resolve();
         } else {
-          promise = ExamResource.saveModel({
-            id: this.$route.params.quizId,
-            data: changes,
+          promise = LessonResource.saveModel({
+            id: this.$route.params.lessonId,
+            data: {
+              title: changes.title,
+              description: changes.description,
+              lesson_assignments: changes.assignments,
+              is_active: changes.active,
+            },
           });
         }
         return promise
@@ -112,10 +120,10 @@
       },
     },
     $trs: {
-      appBarTitle: `Edit quiz details for '{title}'`,
+      appBarTitle: `Edit lesson details for '{title}'`,
       submitErrorMessage: 'There was a problem saving your changes',
-      activeQuizLabel: 'Active',
-      inactiveQuizLabel: 'Inactive',
+      activeLessonLabel: 'Active',
+      inactiveLessonLabel: 'Inactive',
     },
   };
 

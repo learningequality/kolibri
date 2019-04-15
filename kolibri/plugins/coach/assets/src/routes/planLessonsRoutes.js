@@ -14,6 +14,7 @@ import LessonsRootPage from '../views/plan/LessonsRootPage';
 import LessonSummaryPage from '../views/plan/LessonSummaryPage';
 import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPage';
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
+import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 
 const CLASS = '/:classId/plan';
 const LESSON = '/lessons/:lessonId';
@@ -49,6 +50,11 @@ export default [
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
     },
+  },
+  {
+    name: LessonEditDetailsPage.name,
+    path: path(CLASS, LESSON, '/edit'),
+    component: LessonEditDetailsPage,
   },
   {
     name: LessonsPageNames.SELECTION_ROOT,

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <form @submit.prevent="$emit('submit')">
+    <form @submit.prevent="submitData">
       <UiAlert
         v-if="showServerError"
         type="error"
