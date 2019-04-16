@@ -22,10 +22,6 @@
       now: now(),
       timer: null,
     }),
-    $trs: {
-      generatedMomentsAgo: 'Generated moments ago.',
-      generatedInPast: 'Generated {relativeTimeAgo}.',
-    },
     computed: {
       formatedTime() {
         if (this.now - this.date < 10000) {
@@ -43,6 +39,10 @@
     },
     beforeDestroy() {
       clearInterval(this.timer);
+    },
+    $trs: {
+      generatedMomentsAgo: 'Generated moments ago.',
+      generatedInPast: 'Generated {relativeTimeAgo}.',
     },
   };
 

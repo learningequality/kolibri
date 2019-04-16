@@ -29,7 +29,6 @@
 
   export default {
     name: 'TotalPoints',
-    $trs: { pointsTooltip: 'You earned { points, number } points' },
     components: {
       PointsIcon,
       KTooltip,
@@ -42,6 +41,7 @@
     created() {
       this.$store.dispatch('fetchPoints');
     },
+    $trs: { pointsTooltip: 'You earned { points, number } points' },
   };
 
 </script>

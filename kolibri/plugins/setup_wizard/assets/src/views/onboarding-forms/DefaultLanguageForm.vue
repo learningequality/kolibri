@@ -19,9 +19,6 @@
 
   export default {
     name: 'DefaultLanguageForm',
-    $trs: {
-      languageFormHeader: 'Please select the default language for Kolibri',
-    },
     components: {
       OnboardingForm,
       LanguageSwitcherList,
@@ -45,6 +42,9 @@
         this.submitDefaultLanguage(this.currentLanguageId);
         this.$emit('submit');
       },
+    },
+    $trs: {
+      languageFormHeader: 'Please select the default language for Kolibri',
     },
   };
 

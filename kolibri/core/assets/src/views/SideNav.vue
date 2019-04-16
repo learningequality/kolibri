@@ -132,13 +132,6 @@
       PrivacyInfoModal,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
-    $trs: {
-      kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation',
-      closeNav: 'Close navigation',
-      poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
-    },
     props: {
       navShown: {
         type: Boolean,
@@ -226,6 +219,13 @@
         }
         return event;
       },
+    },
+    $trs: {
+      kolibri: 'Kolibri',
+      navigationLabel: 'Main user navigation',
+      closeNav: 'Close navigation',
+      poweredBy: 'Kolibri {version}',
+      privacyLink: 'Usage and privacy',
     },
   };
 

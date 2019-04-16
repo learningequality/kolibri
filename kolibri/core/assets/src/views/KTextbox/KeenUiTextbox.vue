@@ -205,10 +205,6 @@
       };
     },
 
-    $trs: {
-      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
-    },
-
     computed: {
       classes() {
         return [
@@ -356,6 +352,10 @@
           autosize.update(this.$refs.textarea);
         }
       },
+    },
+
+    $trs: {
+      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
     },
   };
 

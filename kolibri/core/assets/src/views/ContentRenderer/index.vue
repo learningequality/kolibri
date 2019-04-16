@@ -58,10 +58,6 @@
 
   export default {
     name: 'ContentRenderer',
-    $trs: {
-      msgNotAvailable: 'This content is not available',
-      rendererNotAvailable: 'Kolibri is unable to render this content',
-    },
     components: {
       KCircularLoader,
       UiAlert,
@@ -228,6 +224,10 @@
         heartbeat.setUserActive();
         return null;
       },
+    },
+    $trs: {
+      msgNotAvailable: 'This content is not available',
+      rendererNotAvailable: 'Kolibri is unable to render this content',
     },
   };
 

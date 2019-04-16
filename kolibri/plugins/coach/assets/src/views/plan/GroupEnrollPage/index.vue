@@ -134,21 +134,6 @@
         groupsPageStrings,
       };
     },
-    $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
       pageTitle() {
@@ -235,6 +220,21 @@
         }
         return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
+    },
+    $trs: {
+      pageHeader: "Enroll learners into '{className}'",
+      confirmSelectionButtonLabel: 'Confirm',
+      searchForUser: 'Search for a user',
+      userTableLabel: 'User List',
+      noUsersExist: 'No users exist',
+      noUsersMatch: 'No users match',
+      previousResults: 'Previous results',
+      nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      allUsersAlready: 'All users are already enrolled in this class',
+      selectUser: 'Select user',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
   };
 

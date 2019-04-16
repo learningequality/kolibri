@@ -17,11 +17,11 @@
 
   export default {
     name: 'LoadingScreen',
-    $trs: {
-      loadingBook: 'Loading book',
-    },
     components: {
       KCircularLoader,
+    },
+    $trs: {
+      loadingBook: 'Loading book',
     },
   };
 

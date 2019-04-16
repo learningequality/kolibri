@@ -40,10 +40,6 @@
       KButton,
     },
     mixins: [themeMixin],
-    $trs: {
-      questionListHeader: '{numOfQuestions, number} Questions',
-      questionLabel: 'Question { questionNumber, number }',
-    },
     props: {
       questions: {
         type: Array,
@@ -59,6 +55,10 @@
         // simple validator, makes sure the function returns a string
         validator: value => typeof value(0) === 'string',
       },
+    },
+    $trs: {
+      questionListHeader: '{numOfQuestions, number} Questions',
+      questionLabel: 'Question { questionNumber, number }',
     },
   };
 

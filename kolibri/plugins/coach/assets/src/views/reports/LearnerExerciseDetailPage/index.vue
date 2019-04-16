@@ -16,12 +16,6 @@
 
   export default {
     name: 'LearnerExerciseDetailPage',
-    $trs: {
-      backPrompt: 'Back to { backTitle }',
-      documentTitleForRecentLearnerItems: 'Recent - Learner Details',
-      documentTitleForLearnerTopic: 'Topics - Learner Details',
-      documentTitleForLearnerItem: 'Learners - Item Details',
-    },
     metaInfo() {
       return {
         title: this.documentTitle,
@@ -98,6 +92,12 @@
         }
         return { title: '' };
       },
+    },
+    $trs: {
+      backPrompt: 'Back to { backTitle }',
+      documentTitleForRecentLearnerItems: 'Recent - Learner Details',
+      documentTitleForLearnerTopic: 'Topics - Learner Details',
+      documentTitleForLearnerItem: 'Learners - Item Details',
     },
   };
 

@@ -55,15 +55,6 @@
 
   export default {
     name: 'SearchPage',
-    $trs: {
-      searchPageHeader: 'Search',
-      noSearch: 'Search by typing in the box above',
-      showingResultsFor:
-        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
-      noResultsMsg: "No results for '{searchTerm}'",
-      documentTitle: 'Search',
-      viewMore: 'View more',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -111,6 +102,15 @@
           });
         }
       },
+    },
+    $trs: {
+      searchPageHeader: 'Search',
+      noSearch: 'Search by typing in the box above',
+      showingResultsFor:
+        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
+      noResultsMsg: "No results for '{searchTerm}'",
+      documentTitle: 'Search',
+      viewMore: 'View more',
     },
   };
 

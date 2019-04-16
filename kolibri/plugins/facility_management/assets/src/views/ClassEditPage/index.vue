@@ -110,20 +110,6 @@
 
   export default {
     name: 'ClassEditPage',
-    $trs: {
-      enrollLearnerButtonLabel: 'Enroll learners',
-      assignCoachesButtonLabel: 'Assign coaches',
-      coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
-      noCoachesInClassMessge: "You don't have any assigned coaches",
-      noLearnersInClassMessage: "You don't have any enrolled learners",
-      remove: 'Remove',
-      noUsersExist: 'No users in this class',
-      edit: 'Edit class name',
-      documentTitle: 'Edit Class',
-      renameButtonLabel: 'Edit',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -179,6 +165,20 @@
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
       },
+    },
+    $trs: {
+      enrollLearnerButtonLabel: 'Enroll learners',
+      assignCoachesButtonLabel: 'Assign coaches',
+      coachEnrollmentPageTitle: 'Manage class coaches and learners',
+      coachTableTitle: 'Coaches',
+      learnerTableTitle: 'Learners',
+      noCoachesInClassMessge: "You don't have any assigned coaches",
+      noLearnersInClassMessage: "You don't have any enrolled learners",
+      remove: 'Remove',
+      noUsersExist: 'No users in this class',
+      edit: 'Edit class name',
+      documentTitle: 'Edit Class',
+      renameButtonLabel: 'Edit',
     },
   };
 

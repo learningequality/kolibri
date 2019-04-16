@@ -35,9 +35,6 @@
 
   export default {
     name: 'AnswerHistory',
-    $trs: {
-      question: 'Question { num }',
-    },
     mixins: [themeMixin],
     props: {
       questionNumber: {
@@ -64,6 +61,9 @@
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
+    },
+    $trs: {
+      question: 'Question { num }',
     },
   };
 

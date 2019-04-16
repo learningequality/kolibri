@@ -80,13 +80,6 @@
 
   export default {
     name: 'RecommendedPage',
-    $trs: {
-      recommended: 'Recommended',
-      popularSectionHeader: 'Most popular',
-      suggestedNextStepsSectionHeader: 'Next steps',
-      resumeSectionHeader: 'Resume',
-      documentTitle: 'Learn',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -147,6 +140,13 @@
       getChannelTitle(channel_id) {
         return this.channels.find(channel => channel.id === channel_id).title;
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      popularSectionHeader: 'Most popular',
+      suggestedNextStepsSectionHeader: 'Next steps',
+      resumeSectionHeader: 'Resume',
+      documentTitle: 'Learn',
     },
   };
 

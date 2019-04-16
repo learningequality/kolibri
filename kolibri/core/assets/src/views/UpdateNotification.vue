@@ -70,15 +70,6 @@
         dontShowNotificationAgain: false,
       };
     },
-    $trs: {
-      updateModalHeader: 'Upgrade available',
-      // adminMessage: 'Please contact the device administrator for this server.',
-      //   DR: using the string below because it exists elsewhere in the app, so we can use
-      //   the translation. The string above is actually preferable.
-      adminMessage: 'Please consult your Kolibri administrator',
-      okButtonLabel: 'OK',
-      hideNotificationLabel: "Don't show this message again",
-    },
     computed: {
       ...mapGetters(['isSuperuser']),
     },
@@ -95,6 +86,15 @@
         this.removeNotification(this.id);
         this.$emit('closeModal');
       },
+    },
+    $trs: {
+      updateModalHeader: 'Upgrade available',
+      // adminMessage: 'Please contact the device administrator for this server.',
+      //   DR: using the string below because it exists elsewhere in the app, so we can use
+      //   the translation. The string above is actually preferable.
+      adminMessage: 'Please consult your Kolibri administrator',
+      okButtonLabel: 'OK',
+      hideNotificationLabel: "Don't show this message again",
     },
   };
 

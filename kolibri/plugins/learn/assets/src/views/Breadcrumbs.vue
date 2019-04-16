@@ -18,10 +18,6 @@
 
   export default {
     name: 'Breadcrumbs',
-    $trs: {
-      recommended: 'Recommended',
-      channels: 'Channels',
-    },
     components: { KBreadcrumbs },
     mixins: [classesBreadcrumbItems],
     computed: {
@@ -110,6 +106,10 @@
           },
         }));
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
     },
   };
 

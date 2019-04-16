@@ -119,11 +119,6 @@
       UserTypeDisplay,
     },
     mixins: [navComponentsMixin, themeMixin],
-    $trs: {
-      userTypeLabel: 'User type',
-      languageSwitchMenuOption: 'Change language',
-      userMenu: 'User menu',
-    },
     props: {
       title: {
         type: String,
@@ -172,6 +167,11 @@
         this.userMenuDropdownIsOpen = false;
       },
       ...mapActions(['kolibriLogout']),
+    },
+    $trs: {
+      userTypeLabel: 'User type',
+      languageSwitchMenuOption: 'Change language',
+      userMenu: 'User menu',
     },
   };
 

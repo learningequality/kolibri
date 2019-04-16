@@ -57,9 +57,6 @@
 
   export default {
     name: 'ContentCard',
-    $trs: {
-      copies: '{ num, number} locations',
-    },
     components: {
       CardThumbnail,
       CoachContentLabel,
@@ -137,6 +134,9 @@
       hasFooter() {
         return this.numCoachContents > 0 || this.copiesCount > 1;
       },
+    },
+    $trs: {
+      copies: '{ num, number} locations',
     },
   };
 

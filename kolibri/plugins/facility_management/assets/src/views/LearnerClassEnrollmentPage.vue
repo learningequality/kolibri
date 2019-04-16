@@ -21,13 +21,13 @@
 
   export default {
     name: 'LearnerClassEnrollmentPage',
-    components: {
-      ClassEnrollForm,
-    },
     metaInfo() {
       return {
         title: this.$tr('pageHeader', { className: this.className }),
       };
+    },
+    components: {
+      ClassEnrollForm,
     },
     computed: {
       ...mapState('classAssignMembers', ['class', 'facilityUsers', 'classUsers']),

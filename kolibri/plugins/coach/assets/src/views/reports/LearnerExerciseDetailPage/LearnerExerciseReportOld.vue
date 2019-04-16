@@ -67,11 +67,6 @@
         title: this.exercise.title,
       };
     },
-    $trs: {
-      backPrompt: 'Back to { backTitle }',
-      showCorrectAnswerLabel: 'Show correct answer',
-      question: 'Question { questionNumber, number }',
-    },
     components: {
       ContentRenderer,
       AttemptSummary,
@@ -167,6 +162,11 @@
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
       },
+    },
+    $trs: {
+      backPrompt: 'Back to { backTitle }',
+      showCorrectAnswerLabel: 'Show correct answer',
+      question: 'Question { questionNumber, number }',
     },
   };
 
