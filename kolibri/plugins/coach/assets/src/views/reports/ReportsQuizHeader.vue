@@ -26,33 +26,25 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('statusLabel') }}
-        </template>
-        <QuizActive slot="value" :active="exam.active" />
+      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <QuizActive
+          slot="value"
+          :active="exam.active"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('recipientsLabel') }}
-        </template>
-        <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
+      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+        <Recipients
+          slot="value"
+          :groupNames="getGroupNames(exam.groups)"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('avgScoreLabel') }}
-        </template>
+      <HeaderTableRow :keyText="coachStrings.$tr('avgScoreLabel')">
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('questionOrderLabel') }}
-        </template>
-        <template slot="value">
-          {{ orderDescriptionString }}
-        </template>
-      </HeaderTableRow>
-
+      <HeaderTableRow
+        :keyText="coachStrings.$tr('questionOrderLabel')"
+        :valueText="orderDescriptionString"
+      />
     </HeaderTable>
 
     <HeaderTabs>

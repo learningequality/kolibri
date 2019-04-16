@@ -113,7 +113,6 @@ export const CoachCoreBase = {
 };
 
 export default {
-  name: 'ReportsQuizHeader',
   components: {
     CoreBase: CoachCoreBase,
     CoreTable,

@@ -26,30 +26,22 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('statusLabel') }}
-        </template>
-        <template slot="value">
-          <LessonActive :active="lesson.active" />
-        </template>
+      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <LessonActive
+          slot="value"
+          :active="lesson.active"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('recipientsLabel') }}
-        </template>
-        <template slot="value">
-          <Recipients :groupNames="getGroupNames(lesson.groups)" />
-        </template>
+      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+        <Recipients
+          slot="value"
+          :groupNames="getGroupNames(lesson.groups)"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">
-          {{ coachStrings.$tr('descriptionLabel') }}
-        </template>
-        <template slot="value">
-          {{ lesson.description || $tr('noDescription') }}
-        </template>
-      </HeaderTableRow>
+      <HeaderTableRow
+        :keyText="coachStrings.$tr('descriptionLabel')"
+        :valueText="lesson.description || $tr('noDescription')"
+      />
     </HeaderTable>
 
     <HeaderTabs>
