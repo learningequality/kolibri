@@ -90,6 +90,16 @@
         if (action === 'EDIT_DETAILS') {
           this.$router.push(this.$router.getRoute('LessonReportEditDetailsPage'));
         }
+        if (action === 'MANAGE_RESOURCES') {
+          this.$router.push(
+            this.$router.getRoute(
+              'SELECTION_ROOT',
+              {},
+              // So the "X" and "Cancel" buttons return back to the ReportPage
+              { last: this.$route.name }
+            )
+          );
+        }
       },
     },
     $trs: {
