@@ -28,7 +28,8 @@
             {{ $tr('resourceTableHeader') }}
           </h2>
           <ResourceListTable
-            :resources.sync="lesson.resources"
+            v-show="!disabled"
+            :resources.sync="updatedResources"
           />
         </section>
       </AssignmentDetailsForm>
@@ -43,6 +44,7 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
+  import isEqual from 'lodash/isEqual';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -73,6 +75,8 @@
           resources: [],
           is_active: false,
         },
+        // A copy of lesson.resources
+        updatedResources: [],
         loading: true,
         disabled: false,
       };
@@ -117,6 +121,7 @@
     methods: {
       setData(data) {
         this.lesson = data;
+        this.updatedResources = [...data.resources];
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
@@ -128,24 +133,42 @@
       goBackToSummaryPage() {
         this.$router.push(this.previousPageRoute);
       },
-      saveLessonModel(changes) {
-        if (changes === null) {
+      saveLessonModel(newDetails, newResources) {
+        if (newDetails === null && newResources === null) {
           return Promise.resolve();
         } else {
-          return LessonResource.saveModel({
-            id: this.$route.params.lessonId,
-            data: {
-              description: changes.description,
-              is_active: changes.active,
-              lesson_assignments: changes.assignments,
-              title: changes.title,
-            },
-          });
+          const data = {};
+          if (newDetails) {
+            Object.assign(data, {
+              description: newDetails.description,
+              is_active: newDetails.active,
+              lesson_assignments: newDetails.assignments,
+              title: newDetails.title,
+            });
+          }
+          if (newResources) {
+            Object.assign(data, {
+              resources: newResources,
+            });
+          }
+          return LessonResource.saveModel({ id: this.$route.params.lessonId, data });
         }
       },
-      handleSaveChanges(changes) {
+      handleSaveChanges(newDetails) {
+        let newResources;
         this.disabled = true;
-        return this.saveLessonModel(changes)
+        if (this.showResourcesTable) {
+          if (isEqual(this.lesson.resources, this.updatedResources)) {
+            // If no change, don't add resources to the PATCH request
+            newResources = null;
+          } else {
+            newResources = this.updatedResources;
+          }
+        } else {
+          // If only editing form data, don't add resources to PATCH
+          newResources = null;
+        }
+        return this.saveLessonModel(newDetails, newResources)
           .then(this.goBackToSummaryPage)
           .catch(() => {
             this.disabled = false;
