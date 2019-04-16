@@ -18,7 +18,7 @@ from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PID_FILE
 
 try:
-    import kolibri.core.analytics.pskolibri as psutil
+    import kolibri.utils.pskolibri as psutil
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None

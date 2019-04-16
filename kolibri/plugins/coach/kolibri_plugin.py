@@ -11,13 +11,7 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class Coach(KolibriPluginBase):
-    def url_module(self):
-        from . import urls
-
-        return urls
-
-    def url_slug(self):
-        return "^coach/"
+    pass
 
 
 class CoachRedirect(RoleBasedRedirectHook):

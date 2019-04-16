@@ -83,8 +83,6 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
-    "kolibri.core.device.middleware.IgnoreGUIMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -104,6 +102,7 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
 
+CACHE_MIDDLEWARE_KEY_PREFIX = 'pages'
 CACHES = {
     # Default cache
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
@@ -124,7 +123,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "kolibri.core.context_processors.custom_context_processor.supported_browser",
                 "kolibri.core.context_processors.custom_context_processor.developer_mode",
             ]
         },

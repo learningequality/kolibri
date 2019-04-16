@@ -9,14 +9,14 @@ import re
 import sys
 from collections import namedtuple
 
-from kolibri.core.analytics.pskolibri.common import AccessDenied
-from kolibri.core.analytics.pskolibri.common import b
-from kolibri.core.analytics.pskolibri.common import memoize
-from kolibri.core.analytics.pskolibri.common import memoize_when_activated
-from kolibri.core.analytics.pskolibri.common import NoSuchProcess
-from kolibri.core.analytics.pskolibri.common import open_binary
-from kolibri.core.analytics.pskolibri.common import open_text
-from kolibri.core.analytics.pskolibri.common import pcputimes
+from kolibri.utils.pskolibri.common import AccessDenied
+from kolibri.utils.pskolibri.common import b
+from kolibri.utils.pskolibri.common import memoize
+from kolibri.utils.pskolibri.common import memoize_when_activated
+from kolibri.utils.pskolibri.common import NoSuchProcess
+from kolibri.utils.pskolibri.common import open_binary
+from kolibri.utils.pskolibri.common import open_text
+from kolibri.utils.pskolibri.common import pcputimes
 
 CLOCK_TICKS = os.sysconf("SC_CLK_TCK")
 PAGESIZE = os.sysconf("SC_PAGE_SIZE")
@@ -28,7 +28,7 @@ pmem = namedtuple("pmem", "rss vms shared text lib data dirty")
 
 def get_procfs_path():
     """Return updated psutil.PROCFS_PATH constant."""
-    return sys.modules["kolibri.core.analytics.pskolibri"].PROCFS_PATH
+    return sys.modules["kolibri.utils.pskolibri"].PROCFS_PATH
 
 
 @memoize

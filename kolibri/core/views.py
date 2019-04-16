@@ -5,51 +5,68 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import is_valid_path
+from django.urls import translate_url
 from django.utils.decorators import method_decorator
+from django.utils.six.moves.urllib.parse import urlsplit
+from django.utils.six.moves.urllib.parse import urlunsplit
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
+from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
+from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.device.hooks import SetupHook
+from kolibri.core.device.translation import get_accept_headers_language
+from kolibri.core.device.translation import get_device_language
+from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.hooks import RoleBasedRedirectHook
 
 
 # Modified from django.views.i18n
 @signin_redirect_exempt
+@require_POST
 def set_language(request):
     """
     Since this view changes how the user will see the rest of the site, it must
     only be accessed as a POST request. If called as a GET request, it will
-    redirect to the page in the request (the 'next' parameter) without changing
-    any state.
+    error.
     """
-    if request.method == "POST":
-        response = HttpResponse(status=204)
-        lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
-        if lang_code and check_for_language(lang_code):
-            if hasattr(request, "session"):
-                request.session[LANGUAGE_SESSION_KEY] = lang_code
-            # Always set cookie
-            response.set_cookie(
-                settings.LANGUAGE_COOKIE_NAME,
-                lang_code,
-                max_age=settings.LANGUAGE_COOKIE_AGE,
-                path=settings.LANGUAGE_COOKIE_PATH,
-                domain=settings.LANGUAGE_COOKIE_DOMAIN,
-            )
+    lang_code = request.POST.get(LANGUAGE_QUERY_PARAMETER)
+    next_url = urlsplit(request.POST.get("next")) if request.POST.get("next") else None
+    if lang_code and check_for_language(lang_code):
+        if next_url and is_valid_path(next_url.path):
+            # If it is a recognized Kolibri path, then translate it to the new language and return it.
+            next_path = urlunsplit((next_url[0], next_url[1], translate_url(next_url[2], lang_code), next_url[3], next_url[4]))
         else:
-            if hasattr(request, "session"):
-                request.session.pop(LANGUAGE_SESSION_KEY, "")
-            response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
-        return response
+            next_path = translate_url(reverse("kolibri:core:redirect_user"), lang_code)
+        response = HttpResponse(next_path)
+        if hasattr(request, "session"):
+            request.session[LANGUAGE_SESSION_KEY] = lang_code
+        # Always set cookie
+        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code,
+                            max_age=settings.LANGUAGE_COOKIE_AGE,
+                            path=settings.LANGUAGE_COOKIE_PATH,
+                            domain=settings.LANGUAGE_COOKIE_DOMAIN)
     else:
-        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
+        lang_code = get_device_language() or get_accept_headers_language(request) or get_settings_language()
+        if next_url and is_valid_path(next_url.path):
+            # If it is a recognized Kolibri path, then translate it using the default language code for this device
+            next_path = urlunsplit((next_url[0], next_url[1], translate_url(next_url[2], lang_code), next_url[3], next_url[4]))
+        else:
+            next_path = translate_url(reverse("kolibri:core:redirect_user"), lang_code)
+        response = HttpResponse(next_path)
+        if hasattr(request, "session"):
+            request.session.pop(LANGUAGE_SESSION_KEY, "")
+        response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
+    return response
 
 
 def logout_view(request):
@@ -144,3 +161,8 @@ class RootURLRedirectView(View):
                 "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
             )
         )
+
+
+@method_decorator(cache_no_user_data, name="dispatch")
+class UnsupportedBrowserView(TemplateView):
+    template_name = "kolibri/unsupported_browser.html"
