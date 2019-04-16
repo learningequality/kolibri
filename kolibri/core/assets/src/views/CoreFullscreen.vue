@@ -51,6 +51,10 @@
       }
     },
     methods: {
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       toggleFullscreen() {
         if (!this.toggling) {
           let fullScreenPromise;

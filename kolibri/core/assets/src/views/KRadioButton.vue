@@ -131,6 +131,10 @@
     },
 
     methods: {
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       focus() {
         this.$refs.input.focus();
       },

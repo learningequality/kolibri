@@ -329,6 +329,10 @@
         this.$emit('keydown-enter', e);
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       reset() {
         // Blur the input if it's focused to prevent required errors
         // when it's value is reset
@@ -347,6 +351,10 @@
         this.isTouched = options.touched;
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       refreshSize() {
         if (this.autosizeInitialized) {
           autosize.update(this.$refs.textarea);

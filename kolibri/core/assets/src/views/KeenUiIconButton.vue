@@ -196,18 +196,30 @@
         this.$emit('dropdown-close');
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       openDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.open();
         }
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       closeDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.close();
         }
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       toggleDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.toggle();

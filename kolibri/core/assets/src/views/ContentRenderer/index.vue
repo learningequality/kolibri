@@ -211,6 +211,10 @@
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       checkAnswer() {
         if (this.assessment && this.$refs.contentView && this.$refs.contentView.checkAnswer) {
           return this.$refs.contentView.checkAnswer();

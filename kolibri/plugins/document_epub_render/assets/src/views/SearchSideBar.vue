@@ -175,7 +175,10 @@
       },
     },
     methods: {
-      // Called from parent
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       focusOnInput() {
         this.$refs.searchInput.focus();
       },

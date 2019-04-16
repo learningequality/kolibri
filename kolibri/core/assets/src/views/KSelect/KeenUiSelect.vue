@@ -771,6 +771,10 @@
         });
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       reset() {
         this.setValue(JSON.parse(this.initialValue));
         this.clearQuery();

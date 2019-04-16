@@ -96,12 +96,24 @@
       },
     },
     methods: {
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       focusOnTocButton() {
         this.$refs.tocButton.$el.focus();
       },
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       focusOnSettingsButton() {
         this.$refs.settingsButton.$el.focus();
       },
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       focusOnSearchButton() {
         this.$refs.searchButton.$el.focus();
       },
