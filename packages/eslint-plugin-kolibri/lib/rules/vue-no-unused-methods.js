@@ -8,25 +8,9 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
+const constants = require('../constants');
 
-const GROUP_METHODS = 'methods';
-
-const PROPERTY_LABEL = {
-  [GROUP_METHODS]: 'method',
-};
-
-const reportUnusedProperties = (context, properties) => {
-  if (!properties || !properties.length) {
-    return;
-  }
-
-  properties.forEach(property => {
-    context.report({
-      node: property.node,
-      message: `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`,
-    });
-  });
-};
+const { GROUP_METHODS } = constants;
 
 const create = context => {
   let hasTemplate;
@@ -58,7 +42,7 @@ const create = context => {
       });
 
       if (!hasTemplate && unusedProperties.length) {
-        reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties);
       }
     })
   );
@@ -76,7 +60,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedProperties.length) {
-        reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties);
       }
     })
   );

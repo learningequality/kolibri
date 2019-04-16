@@ -2,7 +2,9 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
-const GROUP_WATCHER = 'watch';
+const constants = require('./constants');
+
+const { GROUP_WATCH, PROPERTY_LABEL } = constants;
 
 module.exports = {
   /**
@@ -46,7 +48,7 @@ module.exports = {
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
-      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCHER]))
+      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCH]))
     );
     return watchers.map(watcher => watcher.name);
   },
@@ -86,5 +88,21 @@ module.exports = {
         func();
       },
     };
+  },
+
+  /**
+   * Report unused Vue component properties.
+   */
+  reportUnusedProperties(context, properties) {
+    if (!properties || !properties.length) {
+      return;
+    }
+
+    properties.forEach(property => {
+      context.report({
+        node: property.node,
+        message: `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`,
+      });
+    });
   },
 };
