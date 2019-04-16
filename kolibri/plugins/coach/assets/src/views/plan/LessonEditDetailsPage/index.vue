@@ -43,8 +43,9 @@
 
 <script>
 
-  import { LessonResource } from 'kolibri.resources';
   import isEqual from 'lodash/isEqual';
+  import isEmpty from 'lodash/isEmpty';
+  import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -133,42 +134,33 @@
       goBackToSummaryPage() {
         this.$router.push(this.previousPageRoute);
       },
-      saveLessonModel(newDetails, newResources) {
-        if (newDetails === null && newResources === null) {
+      saveLessonModel(data) {
+        if (isEmpty(data)) {
           return Promise.resolve();
         } else {
-          const data = {};
-          if (newDetails) {
-            Object.assign(data, {
-              description: newDetails.description,
-              is_active: newDetails.active,
-              lesson_assignments: newDetails.assignments,
-              title: newDetails.title,
-            });
-          }
-          if (newResources) {
-            Object.assign(data, {
-              resources: newResources,
-            });
-          }
           return LessonResource.saveModel({ id: this.$route.params.lessonId, data });
         }
       },
       handleSaveChanges(newDetails) {
-        let newResources;
         this.disabled = true;
-        if (this.showResourcesTable) {
-          if (isEqual(this.lesson.resources, this.updatedResources)) {
-            // If no change, don't add resources to the PATCH request
-            newResources = null;
-          } else {
-            newResources = this.updatedResources;
-          }
-        } else {
-          // If only editing form data, don't add resources to PATCH
-          newResources = null;
+        const data = {};
+
+        if (newDetails) {
+          Object.assign(data, {
+            description: newDetails.description,
+            is_active: newDetails.active,
+            lesson_assignments: newDetails.assignments,
+            title: newDetails.title,
+          });
         }
-        return this.saveLessonModel(newDetails, newResources)
+
+        if (this.showResourcesTable && !isEqual(this.lesson.resources, this.updatedResources)) {
+          Object.assign(data, {
+            resources: this.updatedResources,
+          });
+        }
+
+        return this.saveLessonModel(data)
           .then(this.goBackToSummaryPage)
           .catch(() => {
             this.disabled = false;
