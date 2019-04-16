@@ -8,7 +8,7 @@
       @click="hidden = !hidden"
     >
       <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
-      <UiIconButton type="secondary" size="large" style="float: right; margin: 8px 8px 0 0" disabled>
+      <UiIconButton type="secondary" size="large" class="topic-arrow" disabled>
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
@@ -24,6 +24,7 @@
   </div>
 
 </template>
+
 
 <script>
 
@@ -66,6 +67,7 @@
 
 </script>
 
+
 <style lang="scss">
 
   .collapsible-grid {
@@ -88,5 +90,11 @@
 
   .hidden-grid {
     display: none;
+
+  .topic-arrow {
+    float: right;
+    margin: 8px 8px 0 0;
   }
+  }
+  
 </style>

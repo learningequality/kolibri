@@ -16,7 +16,8 @@
         class="page-description"
       />
     </div>
-    <ExpandableContentCardGroupGrid v-for="child in contents" v-if="contents[0].children.length" :child="child" />
+    <ExpandableContentCardGroupGrid v-for="child in contents" 
+    v-if="contents[0].children.length" :key="child" :child="child" />
     <ContentCardGroupGrid
       v-if="!contents[0].children.length"
       :contents="contents"
@@ -35,7 +36,6 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
-  import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ExpandableContentCardGroupGrid from './ExpandableContentCardGroupGrid';
 
@@ -49,7 +49,6 @@
     },
     components: {
       ExpandableContentCardGroupGrid,
-      PageHeader,
       ContentCardGroupGrid,
       TextTruncator,
       ProgressIcon,
@@ -67,6 +66,11 @@
         });
       }
       return { title };
+    },
+    data: function() {
+      return {
+        hidden: false,
+      };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic', 'progress']),
@@ -90,11 +94,6 @@
           params: { channel_id: this.channelId, id },
         };
       },
-    },
-    data: function() {
-      return {
-        hidden: false,
-      };
     },
   };
 
