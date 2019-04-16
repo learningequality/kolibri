@@ -2,6 +2,8 @@ import { ClassroomResource } from 'kolibri.resources';
 import logger from 'kolibri.lib.logging';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';
+import userManagement from '../../../../facility_management/assets/src/modules/userManagement';
+import classAssignMembers from '../../../../facility_management/assets/src/modules/classAssignMembers';
 import examCreation from './examCreation';
 import examReport from './examReport';
 import examReportDetail from './examReportDetail';
@@ -124,5 +126,7 @@ export default {
     lessonsRoot,
     questionDetail,
     questionList,
+    userManagement,
+    classAssignMembers,
   },
 };
