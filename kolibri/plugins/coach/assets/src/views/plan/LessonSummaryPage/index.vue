@@ -32,7 +32,6 @@
           :description="lessonDescription"
           :recipients="lessonAssignments"
           :groups="learnerGroups"
-          @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
         />
 
         <div>
@@ -80,7 +79,6 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
-  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
   import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
@@ -123,9 +121,6 @@
         learnerGroups: state => state.learnerGroups,
         workingResources: state => state.workingResources,
       }),
-      AssignmentActions() {
-        return AssignmentActions;
-      },
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
       },
