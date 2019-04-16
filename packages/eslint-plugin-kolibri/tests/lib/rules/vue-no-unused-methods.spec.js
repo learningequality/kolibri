@@ -174,6 +174,25 @@ tester.run('vue-no-unused-methods', rule, {
         </script>
       `,
     },
+
+    // a public method
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            methods: {
+              /**
+               * @public
+               */
+              getCount() {
+                return 2;
+              }
+            }
+          };
+        </script>
+      `,
+    },
   ],
 
   invalid: [

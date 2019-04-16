@@ -17,6 +17,12 @@ const create = context => {
   let unusedProperties = [];
   let thisExpressionsVariablesNames = [];
 
+  const sourceCode = context.getSourceCode();
+  const comments = sourceCode.getAllComments();
+
+  const publicCommentsEnds = utils.getPublicCommentsEnds(comments);
+  const disabledLines = publicCommentsEnds.map(value => value + 1);
+
   const initialize = {
     Program(node) {
       if (!utils.checkVueEslintParser(context)) {
@@ -42,7 +48,7 @@ const create = context => {
       });
 
       if (!hasTemplate && unusedProperties.length) {
-        utils.reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
     })
   );
@@ -60,7 +66,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedProperties.length) {
-        utils.reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
     })
   );

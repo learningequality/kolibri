@@ -54,6 +54,16 @@ module.exports = {
   },
 
   /**
+   * Return an array containing end locations of all comments containing
+   * jsdoc's `@public`
+   */
+  getPublicCommentsEnds(comments) {
+    return comments
+      .filter(comment => comment.value.includes('@public'))
+      .map(comment => comment.loc.end.line);
+  },
+
+  /**
    * Run callback on this expression properties nodes.
    */
   executeOnThisExpressionProperty(func) {
@@ -92,13 +102,18 @@ module.exports = {
 
   /**
    * Report unused Vue component properties.
+   * @param {Array} disabledLines An array of lines to not be reported, e.g. [14, 24]
    */
-  reportUnusedProperties(context, properties) {
+  reportUnusedProperties(context, properties, disabledLines) {
     if (!properties || !properties.length) {
       return;
     }
 
     properties.forEach(property => {
+      if (disabledLines && disabledLines.includes(property.node.loc.start.line)) {
+        return;
+      }
+
       context.report({
         node: property.node,
         message: `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`,
