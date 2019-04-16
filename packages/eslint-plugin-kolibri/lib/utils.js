@@ -4,7 +4,7 @@ const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const constants = require('./constants');
 
-const { GROUP_WATCH, PROPERTY_LABEL } = constants;
+const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = constants;
 
 module.exports = {
   /**
@@ -114,9 +114,14 @@ module.exports = {
         return;
       }
 
+      let message = `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`;
+      if (property.groupName === GROUP_METHODS) {
+        message = `${message}. If the method is supposed to be public, you might forget to add @public tag.`;
+      }
+
       context.report({
         node: property.node,
-        message: `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`,
+        message,
       });
     });
   },
