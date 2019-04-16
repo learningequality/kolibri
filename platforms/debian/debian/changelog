@@ -1,8 +1,8 @@
-kolibri-source (0.12.2-0ubuntu2) trustry; urgency=medium
+kolibri-source (0.12.2-0ubuntu2) trusty; urgency=medium
 
   * Replace patches to delete file by actual deletions in debian/rules
 
- -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 09 Apr 2019 13:53:18 +0200
+ -- Lingyi Wang <lingyi@learningequality.org>  Tue, 16 Apr 2019 15:44:35 -0400
 
 kolibri-source (0.12.2-0ubuntu1) trusty; urgency=medium
 
