@@ -22,18 +22,35 @@
       KDropdownMenu,
     },
     mixins: [coachStringsMixin],
+    props: {
+      // Should be either 'report' or 'plan',
+      optionsFor: {
+        type: String,
+        required: true,
+      },
+    },
     computed: {
       options() {
+        const editDetails = {
+          label: this.coachStrings.$tr('editDetailsAction'),
+          value: 'EDIT_DETAILS',
+        };
+        if (this.optionsFor === 'plan') {
+          return [
+            editDetails,
+            {
+              label: this.$tr('copyQuizAction'),
+              value: 'COPY',
+            },
+            { label: this.coachStrings.$tr('deleteAction'), value: 'DELETE' },
+          ];
+        }
         return [
           {
-            label: this.coachStrings.$tr('editDetailsAction'),
-            value: 'EDIT_DETAILS',
+            label: this.coachStrings.$tr('previewAction'),
+            value: 'PREVIEW',
           },
-          {
-            label: this.$tr('copyQuizAction'),
-            value: 'COPY',
-          },
-          { label: this.coachStrings.$tr('deleteAction'), value: 'DELETE' },
+          editDetails,
         ];
       },
     },

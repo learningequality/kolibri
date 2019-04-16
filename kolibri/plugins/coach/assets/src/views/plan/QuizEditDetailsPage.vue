@@ -9,7 +9,7 @@
     :appBarTitle="$tr('appBarTitle', { title: quiz.title })"
     :pageTitle="$tr('appBarTitle', { title: quiz.title })"
     :showSubNav="false"
-    :immersivePageRoute="$router.getRoute('QuizSummaryPage')"
+    :immersivePageRoute="previousPageRoute"
   >
 
     <KPageContainer v-if="!loading && !error">
@@ -59,9 +59,13 @@
     beforeRouteEnter(to, from, next) {
       return ExamResource.fetchModel({
         id: to.params.quizId,
-      }).then(quiz => {
-        next(vm => vm.setData(quiz));
-      });
+      })
+        .then(quiz => {
+          next(vm => vm.setData(quiz));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
     },
     computed: {
       ...mapGetters('classSummary', ['groups']),
@@ -76,6 +80,16 @@
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
+      previousPageRoute() {
+        let route;
+        if (this.$route.name === 'QuizEditDetailsPage') {
+          route = 'QuizSummaryPage';
+        } else {
+          // If coming from Quiz Report
+          route = 'ReportsQuizLearnerListPage';
+        }
+        return this.$router.getRoute(route);
+      },
     },
     methods: {
       setData(data) {
@@ -83,8 +97,13 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      setError(error) {
+        this.$store.dispatch('handleApiError', error);
+        this.loading = false;
+        this.$store.dispatch('notLoading');
+      },
       goBackToSummaryPage() {
-        this.$router.push(this.$router.getRoute('QuizSummaryPage'));
+        this.$router.push(this.previousPageRoute);
       },
       handleSaveChanges(changes) {
         let promise;

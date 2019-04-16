@@ -223,6 +223,7 @@ class ExamSerializer(serializers.ModelSerializer):
             "groups",
             "data_model_version",
             "question_count",
+            "learners_see_fixed_order",
         )
 
 

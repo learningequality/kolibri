@@ -19,7 +19,10 @@
               :text="$tr('allQuizzes')"
             />
           </p>
-          <QuizOptionsDropdownMenu @select="setCurrentAction" />
+          <QuizOptionsDropdownMenu
+            optionsFor="plan"
+            @select="setCurrentAction"
+          />
         </div>
         <h1>
           <KLabeledIcon>

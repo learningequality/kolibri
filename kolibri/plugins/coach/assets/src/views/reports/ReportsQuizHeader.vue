@@ -1,29 +1,29 @@
 <template>
 
   <div>
+    <KGrid>
+      <KGridItem sizes="100, 50, 50" percentage>
+        <p>
+          <BackLink
+            :to="classRoute('ReportsQuizListPage')"
+            :text="$tr('back')"
+          />
+        </p>
+      </KGridItem>
+      <KGridItem sizes="100, 50, 50" percentage alignment="right">
+        <QuizOptionsDropdownMenu
+          optionsFor="report"
+          @select="handleSelectOption"
+        />
+      </KGridItem>
+    </KGrid>
 
-    <p>
-      <BackLink
-        :to="classRoute('ReportsQuizListPage')"
-        :text="$tr('back')"
-      />
-    </p>
     <h1>
       <KLabeledIcon>
         <KIcon slot="icon" quiz />
         {{ exam.title }}
       </KLabeledIcon>
     </h1>
-
-    <!-- COACH TODO
-    <KDropdownMenu
-      slot="optionsDropdown"
-      :text="coachStrings.$tr('optionsLabel')"
-      :options="actionOptions"
-      appearance="raised-button"
-      @select="goTo($event.value)"
-    />
-     -->
 
     <HeaderTable>
       <HeaderTableRow>
@@ -44,12 +44,15 @@
         </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
-      <!-- TODO COACH
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('questionOrderLabel') }}
+        </template>
+        <template slot="value">
+          {{ orderDescriptionString }}
+        </template>
       </HeaderTableRow>
-       -->
+
     </HeaderTable>
 
     <HeaderTabs>
@@ -71,28 +74,38 @@
 <script>
 
   import commonCoach from '../common';
+  import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
 
   export default {
     name: 'ReportsQuizHeader',
-    components: {},
+    components: {
+      QuizOptionsDropdownMenu,
+    },
     mixins: [commonCoach],
     computed: {
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
-      /** TODO COACH
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
-        ];
-      },
-      */
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
       recipients() {
         return this.getLearnersForGroups(this.exam.groups);
+      },
+      orderDescriptionString() {
+        return this.exam.learners_see_fixed_order
+          ? this.coachStrings.$tr('orderFixedLabel')
+          : this.coachStrings.$tr('orderRandomLabel');
+      },
+    },
+    methods: {
+      handleSelectOption(option) {
+        if (option === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
+        }
+        if (option === 'PREVIEW') {
+          console.log(option);
+        }
       },
     },
     $trs: {
