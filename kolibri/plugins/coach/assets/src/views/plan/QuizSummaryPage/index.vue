@@ -9,7 +9,7 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer v-if="!loading && !error">
+    <KPageContainer v-if="!loading">
 
       <section>
         <div class="with-flushed-button">
@@ -71,7 +71,6 @@
         </p>
 
         <QuestionListPreview
-          v-if="!error && selectedQuestions"
           :fixedOrder="!quizIsRandomized"
           :readOnly="true"
           :selectedQuestions="selectedQuestions"
@@ -87,10 +86,6 @@
       @submit_copy="handleSubmitCopy"
       @cancel="closeModal"
     />
-
-    <p v-if="error">
-      {{ $tr('pageLoadingError') }}
-    </p>
   </CoreBase>
 
 </template>
@@ -144,9 +139,14 @@
     mixins: [coachStringsMixin],
     data() {
       return {
-        quiz: {},
+        quiz: {
+          active: false,
+          assignments: [],
+          learners_see_fixed_order: false,
+          question_sources: [],
+          title: '',
+        },
         selectedExercises: {},
-        error: null,
         loading: true,
         currentAction: '',
       };
@@ -164,10 +164,7 @@
       ...mapState(['classList']),
       ...mapState('classSummary', ['groupMap']),
       selectedQuestions() {
-        if (this.quiz.question_sources) {
-          return this.quiz.question_sources;
-        }
-        return null;
+        return this.quiz.question_sources;
       },
       quizIsRandomized() {
         return !this.quiz.learners_see_fixed_order;
@@ -206,7 +203,7 @@
         this.$store.dispatch('notLoading');
       },
       setError(error) {
-        this.error = error;
+        this.$store.dispatch('handleApiError', error);
         this.loading = false;
         this.$store.dispatch('notLoading');
       },

@@ -500,6 +500,7 @@ export default [
     },
   },
   {
+    name: pages.ReportsQuizPreviewPage.name,
     path: path(CLASS, QUIZ, '/preview'),
     component: pages.ReportsQuizPreviewPage,
     handler: defaultHandler,

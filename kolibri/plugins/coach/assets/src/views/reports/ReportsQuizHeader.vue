@@ -104,7 +104,7 @@
           this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
         }
         if (option === 'PREVIEW') {
-          console.log(option);
+          this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
         }
       },
     },
