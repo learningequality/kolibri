@@ -1,12 +1,16 @@
 from django.db.models import Q
 from django.db.models import Sum
+from django.db.models.query import F
 from rest_framework.serializers import JSONField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamLog
 
@@ -97,19 +101,28 @@ class LearnerClassroomSerializer(ModelSerializer):
         Returns all Exams and Lessons (and progress) assigned to the requesting User
         """
         current_user = self.context['request'].user
-        memberships = current_user.memberships.all()
-        learner_groups = [m.collection for m in memberships]
 
         # Return only active Lessons that are assigned to the requesting user's groups
         # TODO move this to a permission_class on Lesson
+        lesson_assignments = HierarchyRelationsFilter(LessonAssignment.objects.all()) \
+            .filter_by_hierarchy(
+                target_user=current_user,
+                ancestor_collection=F('collection')
+        )
         filtered_lessons = Lesson.objects.filter(
-            lesson_assignments__collection__in=learner_groups,
-            collection=instance,
+            lesson_assignments__in=lesson_assignments,
             is_active=True,
+            collection=instance,
         ).distinct()
 
+        exam_assignments = HierarchyRelationsFilter(ExamAssignment.objects.all()) \
+            .filter_by_hierarchy(
+                target_user=current_user,
+                ancestor_collection=F('collection')
+        )
+
         filtered_exams = Exam.objects.filter(
-            assignments__collection__in=learner_groups,
+            assignments__in=exam_assignments,
             collection=instance,
         ).filter(Q(active=True) | Q(examlogs__user=current_user)).distinct()
 

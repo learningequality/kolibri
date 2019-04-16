@@ -202,6 +202,12 @@ EXTRA_LANG_INFO = {
         'name': 'Haitian Creole',
         'name_local': 'Kreyòl ayisyen',
     },
+    'gu-in': {
+        'bidi': False,
+        'code': 'gu-in',
+        'name': 'Gujarati',
+        'name_local': 'ગુજરાતી',
+    },
     'nyn': {
         'bidi': False,
         'code': 'nyn',

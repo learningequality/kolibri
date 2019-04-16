@@ -23,15 +23,21 @@ export default class SandboxEnvironment {
     this.localStorage = new LocalStorage(this.mediator);
 
     // Initialize the local storage
-    this.localStorage.iframeInitialize();
+    try {
+      this.localStorage.iframeInitialize();
+    } catch (e) {} // eslint-disable-line no-empty
 
     this.sessionStorage = new SessionStorage(this.mediator);
 
-    this.sessionStorage.iframeInitialize();
+    try {
+      this.sessionStorage.iframeInitialize();
+    } catch (e) {} // eslint-disable-line no-empty
 
     this.cookie = new Cookie(this.mediator);
 
-    this.cookie.iframeInitialize();
+    try {
+      this.cookie.iframeInitialize();
+    } catch (e) {} // eslint-disable-line no-empty
 
     patchXMLHttpRequest();
 

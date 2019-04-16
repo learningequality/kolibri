@@ -1,82 +1,77 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: kolibri\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-23 16:44-0800\n"
-"PO-Revision-Date: 2019-01-01 17:27\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
-"Language-Team: Acholi\n"
-"Language: ach_UG\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: ach\n"
-"X-Crowdin-File: /release-v0.12.x/django.po\n"
+"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"Project-Id-Version: kolibri\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Language-Team: Acholi\n"
+"Language: ach_UG\n"
+"PO-Revision-Date: 2019-03-21 08:16\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
-msgstr "crwdns68642:0crwdne68642:0"
+msgstr "crwdns103000:0crwdne103000:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Classroom"
-msgstr "crwdns68644:0crwdne68644:0"
+msgstr "crwdns103002:0crwdne103002:0"
 
 #: kolibri/core/auth/constants/collection_kinds.py:16
 msgid "Learner group"
-msgstr "crwdns68646:0crwdne68646:0"
+msgstr "crwdns103004:0crwdne103004:0"
 
-#: kolibri/core/content/api.py:132
+#: kolibri/core/content/api.py:130
 msgid "Content"
-msgstr "crwdns68648:0crwdne68648:0"
+msgstr "crwdns103006:0crwdne103006:0"
 
-#: kolibri/core/content/api.py:728
+#: kolibri/core/content/api.py:702
 msgid "The requested channel does not exist on the content server"
-msgstr "crwdns68650:0crwdne68650:0"
+msgstr "crwdns103008:0crwdne103008:0"
 
-#: kolibri/core/content/models.py:278
+#: kolibri/core/content/models.py:283
 msgid "Unknown format"
-msgstr "crwdns68652:0crwdne68652:0"
+msgstr "crwdns103010:0crwdne103010:0"
 
-#: kolibri/core/device/serializers.py:50
+#: kolibri/core/device/serializers.py:53
 msgid "Language is not supported by Kolibri"
-msgstr "crwdns68654:0crwdne68654:0"
+msgstr "crwdns103012:0crwdne103012:0"
 
 #: kolibri/core/tasks/api.py:32
 msgid "There was a network error."
-msgstr "crwdns68656:0crwdne68656:0"
+msgstr "crwdns103014:0crwdne103014:0"
 
 #: kolibri/core/tasks/api.py:34
 msgid "There was a disk access error."
-msgstr "crwdns68658:0crwdne68658:0"
+msgstr "crwdns103016:0crwdne103016:0"
 
 #: kolibri/core/tasks/api.py:36
 msgid "There was an unknown error."
-msgstr "crwdns68660:0crwdne68660:0"
+msgstr "crwdns103018:0crwdne103018:0"
 
 #: kolibri/core/templates/kolibri/base.html:13
 msgid "Kolibri"
-msgstr "crwdns68662:0crwdne68662:0"
+msgstr "crwdns103020:0crwdne103020:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:28
 msgid "Unsupported browser"
-msgstr "crwdns68664:0crwdne68664:0"
+msgstr "crwdns103022:0crwdne103022:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:29
 msgid "Sorry, your browser version is not supported."
-msgstr "crwdns68666:0crwdne68666:0"
+msgstr "crwdns103024:0crwdne103024:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:30
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "crwdns68668:0crwdne68668:0"
+msgstr "crwdns103026:0crwdne103026:0"
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:31
 msgid "You can also try updating your current browser."
-msgstr "crwdns68670:0crwdne68670:0"
+msgstr "crwdns103028:0crwdne103028:0"
 
 #: kolibri/core/views.py:131
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "crwdns68672:0crwdne68672:0"
-
+msgstr "crwdns103030:0crwdne103030:0"

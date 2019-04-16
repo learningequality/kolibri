@@ -271,7 +271,7 @@
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
-        if (this.error && this.error.code == 403) {
+        if (this.error && this.error.status && this.error.status.code == 403) {
           return true;
         }
         return !this.authorized;
@@ -379,7 +379,10 @@
         // Setting this will not affect the page layout,
         // but this will then get properly stored in the
         // browser history.
-        window.pageYOffset = this.scrollPosition;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = this.scrollPosition;
+        } catch (e) {} // eslint-disable-line no-empty
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -389,7 +392,10 @@
       },
       setScroll(scrollValue) {
         this.$el.scrollTop = scrollValue;
-        window.pageYOffset = scrollValue;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = scrollValue;
+        } catch (e) {} // eslint-disable-line no-empty
       },
     },
   };

@@ -1,10 +1,40 @@
 import logging.config
 import os
+import sys
 
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from validate import Validator
+try:
+    import kolibri.core.analytics.pskolibri as psutil
+except NotImplementedError:
+    # This module can't work on this OS
+    psutil = None
+
+
+def calculate_thread_pool():
+    """
+    Returns the default value for CherryPY thread_pool:
+    - calculated based on the best values obtained in several partners installations
+    - value must be between 10 (default CherryPy value) and 200
+    - servers with more memory can deal with more threads
+    - calculations are done for servers with more than 2 Gb of RAM
+    """
+    MIN_POOL = 50
+    MAX_POOL = 150
+    if psutil:
+        MIN_MEM = 2
+        MAX_MEM = 6
+        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        # if it's in the range, scale thread count linearly with available memory
+        if MIN_MEM < total_memory < MAX_MEM:
+            return MIN_POOL + int((MAX_POOL - MIN_POOL) * float(total_memory - MIN_MEM) / (MAX_MEM - MIN_MEM))
+        # otherwise return either the min or max amount
+        return MAX_POOL if total_memory >= MAX_MEM else MIN_POOL
+    elif sys.platform.startswith("darwin"):  # Considering MacOS has at least 4 Gb of RAM
+        return MAX_POOL
+    return MIN_POOL
 
 
 option_spec = {
@@ -44,7 +74,7 @@ option_spec = {
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
-            "default": 10,
+            "default": calculate_thread_pool(),
             "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
