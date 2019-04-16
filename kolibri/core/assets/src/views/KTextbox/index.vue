@@ -152,7 +152,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       reset() {
         this.$refs.textbox.reset();
       },
@@ -166,7 +165,6 @@
        * @public
        * Focuses on the textbox
        */
-      // eslint-disable-next-line
       focus() {
         this.$refs.textbox.$el.querySelector('input').focus();
       },

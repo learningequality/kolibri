@@ -225,7 +225,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       handleSubmitFailure() {
         this.formIsSubmitted = false;
         this.showServerError = true;
@@ -233,7 +232,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       handleSubmitTitleFailure() {
         this.formIsSubmitted = false;
         this.showTitleError = true;

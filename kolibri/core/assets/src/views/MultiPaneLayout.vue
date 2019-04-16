@@ -67,7 +67,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       scrollMainToTop() {
         this.$refs.main.scrollTop = 0;
       },

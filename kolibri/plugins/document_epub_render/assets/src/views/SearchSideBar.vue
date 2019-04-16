@@ -178,7 +178,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       focusOnInput() {
         this.$refs.searchInput.focus();
       },

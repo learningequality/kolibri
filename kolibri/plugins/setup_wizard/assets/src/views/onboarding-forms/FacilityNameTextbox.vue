@@ -51,7 +51,6 @@
       /**
        * @public
        */
-      // eslint-disable-next-line
       focus() {
         if (this.$refs['facilityName']) {
           this.$refs['facilityName'].focus();
