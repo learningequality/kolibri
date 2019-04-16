@@ -7,13 +7,6 @@ steps:
 
   - wait
 
-    # Android build only requires whl file
-  - label: Build Android APK
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: dev
-    command: &android_build
-      - .buildkite/build_apk.sh
-
   - label: Build Windows installer
     command: .buildkite/build_windows_installer.sh
 
@@ -32,20 +25,16 @@ steps:
     agents:
       queue: "windows-sign"
 
-  - block: "Create integration testing worksheet?"
-  - label: Create integration testing
-    command: .buildkite/build_worksheet.sh
-
   - wait
 
   - label: Cleaning up
     command: make docker-clean
 
-  - block: "Build release APK?"
-  - label: "Build Release APK"
-    env:
-      KOLIBRI_ANDROID_BUILD_MODE: release
-    command: *android_build
+  - block: "Create APK?"
+  - label: Build the Android APK file
+    command:
+     - mkdir -p dist
+     - .buildkite/build_apk.sh
 
   - block: "Test .debs?"
   - label: Test on Trusty, Xenial, Bionic
