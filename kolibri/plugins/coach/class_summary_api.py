@@ -190,7 +190,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "groups")
+        fields = ("id", "title", "active", "node_ids", "groups", "description")
 
     def get_node_ids(self, obj):
         return [resource["contentnode_id"] for resource in obj.resources]
@@ -231,7 +231,7 @@ class ContentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentNode
-        fields = ("node_id", "content_id", "title", "kind")
+        fields = ("node_id", "content_id", "title", "kind", "channel_id")
 
 
 def data(Serializer, queryset):

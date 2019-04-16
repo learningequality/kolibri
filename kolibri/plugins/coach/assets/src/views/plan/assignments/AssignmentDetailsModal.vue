@@ -67,6 +67,8 @@
           :disabled="disabled || formIsSubmitted"
         />
       </fieldset>
+
+      <slot name="resourceTable"></slot>
     </form>
 
     <Bottom>

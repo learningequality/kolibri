@@ -18,15 +18,20 @@
         :disabled="disabled"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
-      />
+      >
 
-      <section>
-        <h2>Resources</h2>
-        <ResourceListTable
+        <section
           v-if="showResourcesTable"
-          :workingResources="lesson.resources"
-        />
-      </section>
+          slot="resourceTable"
+        >
+          <h2 class="resource-header">
+            {{ $tr('resourceTableHeader') }}
+          </h2>
+          <ResourceListTable
+            :resources.sync="lesson.resources"
+          />
+        </section>
+      </AssignmentDetailsForm>
 
     </KPageContainer>
 
@@ -66,6 +71,7 @@
           title: '',
           description: '',
           assignments: [],
+          resources: [],
           active: false,
         },
         loading: true,
@@ -148,10 +154,18 @@
       submitErrorMessage: 'There was a problem saving your changes',
       activeLessonLabel: 'Active',
       inactiveLessonLabel: 'Inactive',
+      resourceTableHeader: 'Resources',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  // To match the size of the <legend>s in the form
+  .resource-header {
+    font-size: 18px;
+  }
+
+</style>
