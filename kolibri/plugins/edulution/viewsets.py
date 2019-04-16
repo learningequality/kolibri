@@ -10,6 +10,11 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.lessons.serializers import LessonSerializer
 
+from rest_framework.response import Response
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.api import ContentNodeProgressViewset
+from kolibri.core.content.serializers import ContentNodeSlimSerializer
+
 
 class LearnerClassroomViewset(ReadOnlyModelViewSet):
     """
@@ -46,11 +51,6 @@ class LearnerLessonViewset(ReadOnlyModelViewSet):
             lesson_assignments__in=assignments,
             is_active=True
         )
-
-from rest_framework.response import Response
-from kolibri.core.content.models import ContentNode
-from kolibri.core.content.api import ContentNodeProgressViewset
-from kolibri.core.content.serializers import ContentNodeSlimSerializer
 
 
 class KnowledgeMapViewset(ReadOnlyModelViewSet):
