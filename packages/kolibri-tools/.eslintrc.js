@@ -1,6 +1,5 @@
 var path = require('path');
 var OFF = 0;
-var WARNING = 1;
 var ERROR = 2;
 
 module.exports = {
@@ -155,6 +154,6 @@ module.exports = {
     'kolibri/vue-component-registration-casing': ERROR,
     'kolibri/vue-no-unused-properties': ERROR,
     'kolibri/vue-no-unused-vuex-properties': ERROR,
-    'kolibri/vue-no-unused-methods': WARNING,
+    'kolibri/vue-no-unused-methods': ERROR,
   },
 };
