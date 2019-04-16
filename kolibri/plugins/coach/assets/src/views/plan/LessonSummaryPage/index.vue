@@ -9,20 +9,19 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <div class="with-flushed-button">
-        <p>
-          <BackLink
-            :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-            :text="backLinkString"
-          />
 
-        </p>
-
+      <BackLinkWithOptions>
+        <BackLink
+          slot="backlink"
+          :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
+          :text="backLinkString"
+        />
         <LessonOptionsDropdownMenu
+          slot="options"
           optionsFor="plan"
           @select="handleSelectOption"
         />
-      </div>
+      </BackLinkWithOptions>
 
       <div class="lesson-summary">
 
@@ -85,6 +84,7 @@
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
   import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
+  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -99,6 +99,7 @@
       };
     },
     components: {
+      BackLinkWithOptions,
       ResourceListTable,
       ManageLessonModals,
       KRouterLink,
@@ -166,12 +167,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '../../common/definitions';
-
-  .with-flushed-button {
-    @extend %with-flushed-button;
-  }
 
   .resource-list-header {
     // TODO use shared class or mixin

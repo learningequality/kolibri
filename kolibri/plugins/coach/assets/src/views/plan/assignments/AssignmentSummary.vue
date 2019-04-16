@@ -10,25 +10,17 @@
           </KLabeledIcon>
         </h1>
       </div>
-      <slot name="optionsDropdown"></slot>
     </div>
 
     <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ coachStrings.$tr('statusLabel') }}
-        </template>
-        <template slot="value" class="description">
+      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <template slot="value">
           <LessonActive v-if="kind==='lesson'" :active="active" />
           <QuizActive v-else :active="active" />
         </template>
       </HeaderTableRow>
-
-      <HeaderTableRow>
-        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ coachStrings.$tr('recipientsLabel') }}
-        </template>
-        <template slot="value" class="description">
+      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+        <template slot="value">
           <template v-if="!recipients.length">
             {{ this.$tr('noOne') }}
           </template>
@@ -49,16 +41,11 @@
           </ul>
         </template>
       </HeaderTableRow>
-
-      <HeaderTableRow v-if="showDescription">
-        <template slot="key" class="term" :style="{ color: $coreTextAnnotation }">
-          {{ coachStrings.$tr('descriptionLabel') }}
-        </template>
-        <template slot="value" dir="auto">
-          {{ description || $tr('noDescription') }}
-        </template>
-      </HeaderTableRow>
-
+      <HeaderTableRow
+        v-if="showDescription"
+        :keyText="coachStrings.$tr('descriptionLabel')"
+        :valueText="description || $tr('noDescription')"
+      />
     </HeaderTable>
 
   </div>
@@ -68,7 +55,6 @@
 
 <script>
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
@@ -88,7 +74,7 @@
       HeaderTable,
       HeaderTableRow,
     },
-    mixins: [themeMixin, coachStringsMixin],
+    mixins: [coachStringsMixin],
     props: {
       kind: {
         type: String,
@@ -160,18 +146,6 @@
   @import '../../common/definitions';
 
   $table-header-size: 12px;
-
-  // TODO use classes
-  .term {
-    margin-top: 16px;
-    margin-bottom: 8px;
-    font-size: $table-header-size;
-  }
-
-  .description {
-    margin-bottom: 1.5em;
-    margin-left: 0;
-  }
 
   .group-list {
     padding: 0;

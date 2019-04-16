@@ -1,22 +1,18 @@
 <template>
 
   <div>
-    <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
-        <p>
-          <BackLink
-            :to="classRoute('ReportsQuizListPage')"
-            :text="$tr('back')"
-          />
-        </p>
-      </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
-        <QuizOptionsDropdownMenu
-          optionsFor="report"
-          @select="handleSelectOption"
-        />
-      </KGridItem>
-    </KGrid>
+    <BackLinkWithOptions>
+      <BackLink
+        slot="backlink"
+        :to="classRoute('ReportsQuizListPage')"
+        :text="$tr('back')"
+      />
+      <QuizOptionsDropdownMenu
+        slot="options"
+        optionsFor="report"
+        @select="handleSelectOption"
+      />
+    </BackLinkWithOptions>
 
     <h1>
       <KLabeledIcon>
@@ -67,10 +63,12 @@
 
   import commonCoach from '../common';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsQuizHeader',
     components: {
+      BackLinkWithOptions,
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach],

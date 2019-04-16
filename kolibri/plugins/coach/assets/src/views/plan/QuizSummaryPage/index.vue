@@ -10,20 +10,19 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer v-if="!loading">
-
       <section>
-        <div class="with-flushed-button">
-          <p>
-            <BackLink
-              :to="$router.getRoute('EXAMS')"
-              :text="$tr('allQuizzes')"
-            />
-          </p>
+        <BackLinkWithOptions>
+          <BackLink
+            slot="backlink"
+            :to="$router.getRoute('EXAMS')"
+            :text="$tr('allQuizzes')"
+          />
           <QuizOptionsDropdownMenu
+            slot="options"
             optionsFor="plan"
             @select="setCurrentAction"
           />
-        </div>
+        </BackLinkWithOptions>
         <h1>
           <KLabeledIcon>
             <KIcon slot="icon" quiz />
@@ -110,6 +109,7 @@
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -123,6 +123,7 @@
     name: 'QuizSummaryPage',
     components: {
       BackLink,
+      BackLinkWithOptions,
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
@@ -298,12 +299,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '../../common/definitions';
-
-  .with-flushed-button {
-    @extend %with-flushed-button;
-  }
 
   // HACK: to prevent perseus multi-choice tiles from appearing
   // over modal overlay and snackbar

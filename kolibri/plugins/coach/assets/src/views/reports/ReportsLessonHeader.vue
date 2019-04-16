@@ -1,22 +1,18 @@
 <template>
 
   <div>
-    <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
-        <p>
-          <BackLink
-            :to="classRoute('ReportsLessonListPage')"
-            :text="$tr('back')"
-          />
-        </p>
-      </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
-        <LessonOptionsDropdownMenu
-          optionsFor="report"
-          @select="handleSelectOption"
-        />
-      </KGridItem>
-    </KGrid>
+    <BackLinkWithOptions>
+      <BackLink
+        slot="backlink"
+        :to="classRoute('ReportsLessonListPage')"
+        :text="$tr('back')"
+      />
+      <LessonOptionsDropdownMenu
+        slot="options"
+        optionsFor="report"
+        @select="handleSelectOption"
+      />
+    </BackLinkWithOptions>
 
     <h1>
       <KLabeledIcon>
@@ -65,10 +61,12 @@
 
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsLessonHeader',
     components: {
+      BackLinkWithOptions,
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach],
