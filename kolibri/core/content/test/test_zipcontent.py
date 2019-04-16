@@ -29,6 +29,10 @@ class ZipContentTestCase(TestCase):
     other_str = "<html><head></head></html>"
     script_name = "script.html"
     script_str = "<html><head><script>test</script></head></html>"
+    async_script_name = "async_script.html"
+    async_script_str = (
+        '<html><head><script async src="url/url.js"></script></head></html>'
+    )
     empty_html_name = "empty.html"
     empty_html_str = ""
     test_name_1 = "testfile1.txt"
@@ -59,6 +63,7 @@ class ZipContentTestCase(TestCase):
             zf.writestr(self.index_name, self.index_str)
             zf.writestr(self.other_name, self.other_str)
             zf.writestr(self.script_name, self.script_str)
+            zf.writestr(self.async_script_name, self.async_script_str)
             zf.writestr(self.empty_html_name, self.empty_html_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
@@ -200,6 +205,17 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(self.zip_file_base_url + self.script_name)
         content = (
             '<html><head><template hashi-script="true"><script>test</script></template></head>'
+            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
+        )
+        self.assertEqual(response.content.decode("utf-8"), content)
+
+    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
+    def test_request_for_html_body_async_script_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.async_script_name)
+        content = (
+            '<html><head><template async="true" hashi-script="true"><script async="" src="url/url.js"></script></template></head>'
             + '<body><script src="/static/content/hashi123.js"></script></body></html>'
         )
         self.assertEqual(response.content.decode("utf-8"), content)

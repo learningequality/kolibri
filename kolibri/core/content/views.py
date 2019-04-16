@@ -121,6 +121,8 @@ def parse_html(content):
             return content
         for script in soup("script"):
             template = soup.new_tag("template", attrs={"hashi-script": "true"})
+            if hasattr(script, "async"):
+                template["async"] = "true"
             script = script.replace_with(template)
             template.append(script)
         hashi_script = soup.new_tag(
