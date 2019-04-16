@@ -41,11 +41,23 @@ describe('replaceScript function', () => {
       const script = document.querySelector('script');
       expect(script.getAttribute('data-test')).toBe('test');
     });
-    it('should preserve async attribute from a script tag', () => {
+    it('should remove async attribute from a script tag if no async tag on the template tag', () => {
       document.documentElement.innerHTML = bodyScript('<script async="true"></script>');
       replaceTestScript();
       const script = document.querySelector('script');
+      expect(script.getAttribute('async')).toBe(null);
+    });
+    it('should preserve async attribute from a template tag', () => {
+      document.documentElement.innerHTML = `<html><body><template async="true" hashi-script="true"><script></script></template></body></html>`;
+      replaceTestScript();
+      const script = document.querySelector('script');
       expect(script.getAttribute('async')).toBe('true');
+    });
+    it('should preserve async attribute from a template tag but not overwrite script async attribute', () => {
+      document.documentElement.innerHTML = `<html><body><template async="true" hashi-script="true"><script async="bananas"></script></template></body></html>`;
+      replaceTestScript();
+      const script = document.querySelector('script');
+      expect(script.getAttribute('async')).toBe('bananas');
     });
   });
 });

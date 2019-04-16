@@ -3,6 +3,11 @@ export function getScripts() {
   return [].map.call($scripts, $template => {
     const parentNode = $template.parentNode;
     const node = $template.content.children[0];
+    if ($template.hasAttribute('async')) {
+      node.setAttribute('async', node.getAttribute('async') || true);
+    } else {
+      node.removeAttribute('async');
+    }
     parentNode.removeChild($template);
     // Keep a record of the parent node for later
     // reattaching.
@@ -27,7 +32,7 @@ export function replaceScript($script, callback) {
   if ($script) {
     if (!$script.loaded) {
       $script.loaded = true;
-      if ($script.src) {
+      if ($script.src && !$script.async) {
         $script.onload = callback;
         $script.onerror = callback;
       }
@@ -37,7 +42,8 @@ export function replaceScript($script, callback) {
       parentNode.appendChild($script);
 
       // run the callback immediately for inline scripts
-      if (!$script.src) {
+      // and for async loading scripts.
+      if (!$script.src || $script.async) {
         callback();
       }
     }
