@@ -14,8 +14,8 @@
       class="wrapper"
     >
       <KDraggable
-        v-for="(resourceId, index) in resources"
-        :key="resourceId.contentnode_id"
+        v-for="(resource, index) in resourceListItems"
+        :key="resource.id"
       >
         <KDragHandle>
           <KGrid
@@ -29,7 +29,7 @@
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
-                  :isLast="index === resources.length - 1"
+                  :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
                   @moveDown="moveDownOne(index)"
                 />
@@ -37,11 +37,11 @@
             </KGridItem>
             <KGridItem size="4">
               <div class="resource-title">
-                <ContentIcon :kind="resourceKind(resourceId.contentnode_id)" />
-                {{ resourceTitle(resourceId.contentnode_id) }}
+                <ContentIcon :kind="resource.kind" />
+                {{ resource.title }}
                 <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-                  {{ resourceChannelTitle(resourceId.contentnode_id) }}
+                  {{ resource.channelTitle }}
                 </p>
               </div>
             </KGridItem>
@@ -49,7 +49,7 @@
               <KButton
                 :text="$tr('resourceRemovalButtonLabel')"
                 appearance="flat-button"
-                @click="removeResource(resourceId.contentnode_id)"
+                @click="removeResource(resource)"
               />
             </KGridItem>
           </KGrid>
@@ -90,6 +90,7 @@
     },
     mixins: [themeMixin],
     props: {
+      // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
         type: Array,
       },
@@ -117,34 +118,50 @@
           numberOfRemovals,
         });
       },
+      resourceListItems() {
+        return this.resources
+          .map(resource => {
+            const { contentnode_id } = resource;
+            const match = this.contentNodeMap[contentnode_id];
+            if (match) {
+              return {
+                id: contentnode_id,
+                title: match.title,
+                kind: match.kind,
+                channelTitle: this.resourceChannelTitle(contentnode_id),
+              };
+            } else {
+              // Need to filter out objects not in the contentNodeMap.
+              // Hopefully the contentNodeMap is always updated.
+              return null;
+            }
+          })
+          .filter(Boolean);
+      },
     },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
-      resourceTitle(contentId) {
-        return this.contentNodeMap[contentId].title;
+      emitUpdatedResources(resources) {
+        this.$emit('update:resources', resources);
       },
-      resourceChannelTitle(resourceId) {
-        return this.$store.getters['getChannelObject'](this.contentNodeMap[resourceId].channel_id)
-          .title;
+      resourceChannelTitle(id) {
+        const match = this.$store.getters['getChannelObject'](this.contentNodeMap[id].channel_id);
+        return match ? match.title : '';
       },
-      resourceKind(contentId) {
-        return this.contentNodeMap[contentId].kind;
-      },
-      removeResource(resourceId) {
-        this.$emit(
-          'update:resources',
-          this.resources.filter(({ contentnode_id }) => contentnode_id !== resourceId)
-        );
+      removeResource(resource) {
+        const { id, title } = resource;
+        const newResources = this.resources.filter(({ contentnode_id }) => contentnode_id !== id);
+        this.emitUpdatedResources(newResources);
         // Need to wait for the parent to update the resources prop
         this.$nextTick(() => {
-          this.firstRemovalTitle = this.resourceTitle(resourceId);
+          this.firstRemovalTitle = title;
           this.$store.commit('CORE_CREATE_SNACKBAR', {
             text: this.removalMessage,
             autoDismiss: true,
             duration: 5000,
             actionText: this.$tr('undoActionPrompt'),
             actionCallback: () => {
-              this.$emit('update:resources', this.resourcesBackup);
+              this.emitUpdatedResources(this.resourcesBackup);
               this.clearSnackbar();
             },
             hideCallback: () => {
@@ -164,19 +181,14 @@
         const oldResourceId = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
         resources[oldIndex] = oldResourceId;
-
-        this.$emit('update:resources', resources);
-
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.emitUpdatedResources(resources);
       },
       handleDrag({ newArray }) {
-        this.$emit('update:resources', newArray);
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.emitUpdatedResources(newArray);
       },
     },
     $trs: {
-      noResources: 'No resources',
-      resourceReorderConfirmationMessage: 'Resource moved',
+      noResources: 'No resources in this lesson',
       undoActionPrompt: 'Undo',
       resourceReorderColumnHeaderForTable:
         'Use buttons in this column to re-order resources in the lesson',

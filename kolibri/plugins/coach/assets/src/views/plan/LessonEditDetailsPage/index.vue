@@ -12,7 +12,7 @@
     :immersivePageRoute="previousPageRoute"
   >
 
-    <KPageContainer v-if="!loading && !error">
+    <KPageContainer v-if="!loading">
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
@@ -42,7 +42,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { CoachCoreBase } from '../../common';
@@ -70,29 +69,31 @@
         lesson: {
           title: '',
           description: '',
-          assignments: [],
+          lesson_assignments: [],
           resources: [],
-          active: false,
+          is_active: false,
         },
         loading: true,
-        error: false,
         disabled: false,
       };
     },
     beforeRouteEnter(to, from, next) {
       return LessonResource.fetchModel({
         id: to.params.lessonId,
-      }).then(lesson => {
-        next(vm => vm.setData(lesson));
-      });
+      })
+        .then(lesson => {
+          next(vm => vm.setData(lesson));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
     },
     computed: {
-      ...mapGetters('classSummary', ['groups']),
       formProps() {
         return {
           assignmentType: 'lesson',
           classId: this.$route.params.classId,
-          groups: this.groups,
+          groups: this.$store.getters['classSummary/groups'],
           initialActive: this.lesson.is_active,
           initialSelectedCollectionIds: this.lesson.lesson_assignments.map(
             ({ collection }) => collection
@@ -119,30 +120,33 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      setError(error) {
+        this.$store.dispatch('handleApiError', error);
+        this.loading = false;
+        this.$store.dispatch('notLoading');
+      },
       goBackToSummaryPage() {
         this.$router.push(this.previousPageRoute);
       },
-      handleSaveChanges(changes) {
-        let promise;
-
-        this.disabled = true;
+      saveLessonModel(changes) {
         if (changes === null) {
-          promise = Promise.resolve();
+          return Promise.resolve();
         } else {
-          promise = LessonResource.saveModel({
+          return LessonResource.saveModel({
             id: this.$route.params.lessonId,
             data: {
-              title: changes.title,
               description: changes.description,
-              lesson_assignments: changes.assignments,
               is_active: changes.active,
+              lesson_assignments: changes.assignments,
+              title: changes.title,
             },
           });
         }
-        return promise
-          .then(() => {
-            this.goBackToSummaryPage();
-          })
+      },
+      handleSaveChanges(changes) {
+        this.disabled = true;
+        return this.saveLessonModel(changes)
+          .then(this.goBackToSummaryPage)
           .catch(() => {
             this.disabled = false;
             this.$store.dispatch('createSnackbar', this.$tr('submitErrorMessage'));
