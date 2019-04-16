@@ -26,7 +26,6 @@
       <div class="lesson-summary">
 
         <AssignmentSummary
-          :kind="lessonKind"
           :title="lessonTitle"
           :active="lessonActive"
           :description="lessonDescription"
@@ -77,7 +76,6 @@
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
@@ -123,9 +121,6 @@
       }),
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
-      },
-      lessonKind() {
-        return ContentNodeKinds.LESSON;
       },
     },
     mounted() {
