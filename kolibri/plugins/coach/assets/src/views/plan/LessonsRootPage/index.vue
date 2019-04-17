@@ -81,7 +81,7 @@
         <AssignmentDetailsModal
           ref="detailsModal"
           assignmentType="new_lesson"
-          :modalTitleErrorMessage="lessonDetailEditorStrings.$tr('duplicateTitle')"
+          :modalTitleErrorMessage="$tr('duplicateTitle')"
           :submitErrorMessage="$tr('saveLessonError')"
           :initialDescription="''"
           :initialTitle="''"
@@ -114,15 +114,11 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LessonActive from '../../common/LessonActive';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
-  import LessonDetailEditor from '../../common/LessonDetailEditor';
-
-  const lessonDetailEditorStrings = crossComponentTranslator(LessonDetailEditor);
 
   export default {
     name: 'LessonsRootPage',
@@ -158,9 +154,6 @@
       },
       activeLessonCounts() {
         return countBy(this.lessons, 'is_active');
-      },
-      lessonDetailEditorStrings() {
-        return lessonDetailEditorStrings;
       },
     },
     beforeMount() {
@@ -223,6 +216,7 @@
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
       saveLessonError: 'There was a problem saving this lesson',
+      duplicateTitle: 'A lesson with that name already exists',
     },
   };
 

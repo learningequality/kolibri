@@ -82,17 +82,6 @@
         disabled: false,
       };
     },
-    beforeRouteEnter(to, from, next) {
-      return LessonResource.fetchModel({
-        id: to.params.lessonId,
-      })
-        .then(lesson => {
-          next(vm => vm.setData(lesson));
-        })
-        .catch(error => {
-          next(vm => vm.setError(error));
-        });
-    },
     computed: {
       formProps() {
         return {
@@ -118,6 +107,17 @@
         }
         return this.$router.getRoute(route);
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      return LessonResource.fetchModel({
+        id: to.params.lessonId,
+      })
+        .then(lesson => {
+          next(vm => vm.setData(lesson));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
     },
     methods: {
       setData(data) {
@@ -171,8 +171,6 @@
     $trs: {
       appBarTitle: `Edit lesson details for '{title}'`,
       submitErrorMessage: 'There was a problem saving your changes',
-      activeLessonLabel: 'Active',
-      inactiveLessonLabel: 'Inactive',
       resourceTableHeader: 'Resources',
     },
   };

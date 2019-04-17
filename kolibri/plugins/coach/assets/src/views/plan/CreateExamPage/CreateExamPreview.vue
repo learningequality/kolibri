@@ -5,7 +5,7 @@
     immersivePageIcon="arrow_back"
     immersivePagePrimary
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :appBarTitle="previewQuizStrings.$tr('preview')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
@@ -13,7 +13,7 @@
 
     <KPageContainer>
       <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
-      <h2>{{ detailsString }}</h2>
+      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
@@ -140,7 +140,6 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoach from '../../common';
-  import QuizDetailEditor from '../../common/QuizDetailEditor';
   import ExamPreview from '../CoachExamsPage/ExamPreview';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
@@ -148,7 +147,6 @@
   import CreateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
-  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
   export default {
@@ -186,9 +184,6 @@
       ]),
       maxQs() {
         return MAX_QUESTIONS;
-      },
-      detailsString() {
-        return quizDetailStrings.$tr('details');
       },
       moreStrings() {
         return createExamPageStrings;
@@ -228,7 +223,7 @@
           return createExamPageStrings.$tr('examRequiresTitle');
         }
         if (this.showTitleError) {
-          return quizDetailStrings.$tr('duplicateTitle');
+          return this.coachStrings.$tr('quizDuplicateTitleError');
         }
         return null;
       },

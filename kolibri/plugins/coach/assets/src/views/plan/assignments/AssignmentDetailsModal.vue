@@ -28,7 +28,7 @@
         <KTextbox
           v-if="showDescriptionField"
           v-model="description"
-          :label="$tr('description')"
+          :label="coachStrings.$tr('descriptionLabel')"
           :maxlength="200"
           :disabled="disabled || formIsSubmitted"
           :textArea="true"
@@ -157,7 +157,8 @@
         type: String,
         required: true,
       },
-      // If 'true', will only render the form option. Used in the 'New Lesson Modal'.
+      // If 'true', will only render the form and omit the <Bottom>. Use this
+      // when wrapping this component in a modal (e.g. New Lesson Modal)
       onlyShowForm: {
         type: Boolean,
         default: false,
@@ -189,7 +190,7 @@
         // submission is handled because "blur" event happens on submit
         if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('fieldRequiredErro');
+            return this.$tr('fieldRequiredError');
           }
           if (this.assignmentIsQuiz) {
             if (
@@ -222,14 +223,14 @@
       assignmentStrings() {
         if (this.assignmentIsQuiz) {
           return {
-            activeStatus: this.$tr('activeQuizLabel'),
-            inactiveStatus: this.$tr('inactiveQuizLabel'),
+            activeStatus: this.coachStrings.$tr('quizActiveLabel'),
+            inactiveStatus: this.coachStrings.$tr('quizInactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
-          activeStatus: this.$tr('activeLessonLabel'),
-          inactiveStatus: this.$tr('inactiveLessonLabel'),
+          activeStatus: this.coachStrings.$tr('lessonActiveLabel'),
+          inactiveStatus: this.coachStrings.$tr('lessonInactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };
       },
@@ -289,21 +290,12 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
-      continue: 'Continue',
-      description: 'Description',
-      fieldRequiredErro: 'This field is required',
-      save: 'Save',
+      fieldRequiredError: 'This field is required',
       titlePlaceholder: 'Title',
-      assignedGroupsLabel: 'Visible to',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
       activeLessonsExplanation: 'Learners can only see active lessons',
       quizTitleAlreadyUsed: 'A quiz with this name already exists',
       lessonTitleAlreadyUsed: 'A lesson with this name already exists',
-      activeLessonLabel: 'Active',
-      inactiveLessonLabel: 'Inactive',
-      activeQuizLabel: 'Active',
-      inactiveQuizLabel: 'Inactive',
     },
   };
 

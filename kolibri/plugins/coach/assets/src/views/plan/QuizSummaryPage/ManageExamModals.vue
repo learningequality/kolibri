@@ -67,14 +67,6 @@
       deleteExamDescription: "Are you sure you want to delete '{ title }'?",
       deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
       copyOfExam: 'Copy of { examTitle }',
-      // Not used within the component
-      changeExamStatusTitle: 'Change quiz status',
-      changeExamStatusDescription: 'Learners can only see active quizzes',
-      changeExamStatusActive: 'Active',
-      changeExamStatusInactive: 'Inactive',
-      editExamDetails: 'Edit quiz details',
-      duplicateTitle: 'A quiz with that name already exists',
-      saveExamError: 'There was a problem saving this quiz',
     },
   };
 

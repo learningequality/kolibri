@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="$tr('show')"
+          :label="coachStrings.$tr('showAction')"
           :options="statusOptions"
           :inline="true"
         />
@@ -22,21 +22,16 @@
           :primary="true"
           appearance="raised-button"
           :to="newExamRoute"
-          :text="$tr('newExam')"
+          :text="coachStrings.$tr('newQuizAction')"
         />
       </div>
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ $tr('title') }}</th>
-            <th>{{ $tr('assignedGroupsHeader') }}</th>
+            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
             <th>
-              {{ $tr('status') }}
-              <CoreInfoIcon
-                :iconAriaLabel="$tr('statusDescription')"
-                :tooltipText="$tr('statusTooltipText')"
-                tooltipPlacement="bottom"
-              />
+              {{ coachStrings.$tr('statusLabel') }}
             </th>
           </tr>
         </thead>
@@ -84,14 +79,10 @@
 
 <script>
 
-  // import find from 'lodash/find';
   import { mapState, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  // import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  // import CatchErrors from 'kolibri.utils.CatchErrors';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import { PageNames } from '../../../constants';
@@ -111,7 +102,6 @@
       CoreTable,
       KRouterLink,
       KSelect,
-      CoreInfoIcon,
       QuizActive,
       KLabeledIcon,
       KIcon,
@@ -156,51 +146,6 @@
     },
     methods: {
       ...mapMutations('classSummary', ['UPDATE_ITEM', 'CREATE_ITEM', 'DELETE_ITEM']),
-      // // format desired by the server, including class
-      // serverAssignmentPayload(listOfIDs) {
-      //   const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
-      //   if (assignedToClass) {
-      //     return [{ collection: this.classId }];
-      //   }
-      //   return listOfIDs.map(id => {
-      //     return { collection: id };
-      //   });
-      // },
-      // // format used client-side, with only groups
-      // clientAssigmentState(listOfIDs) {
-      //   const assignedToClass = listOfIDs.length === 0 || listOfIDs[0] === this.classId;
-      //   if (assignedToClass) {
-      //     return [];
-      //   }
-      //   return listOfIDs;
-      // },
-      // handleExamDetails(result) {
-      //   const listOfIDs = result.assignments.map(item => item.collection);
-      //   const serverPayload = {
-      //     title: result.title,
-      //     active: result.active,
-      //     assignments: this.serverAssignmentPayload(listOfIDs),
-      //   };
-      //   this.updateExamDetails({ examId: this.editExam.id, payload: serverPayload })
-      //     .then(() => {
-      //       const object = {
-      //         id: this.editExam.id,
-      //         title: result.title,
-      //         groups: this.clientAssigmentState(listOfIDs),
-      //         active: result.active,
-      //       };
-      //       this.UPDATE_ITEM({ map: 'examMap', id: object.id, object });
-      //       this.showEditModal = false;
-      //     })
-      //     .catch(error => {
-      //       const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-      //       if (errors) {
-      //         this.$refs.detailsModal.handleSubmitTitleFailure();
-      //       } else {
-      //         this.$refs.detailsModal.handleSubmitFailure();
-      //       }
-      //     });
-      // },
       genExamRoute(examId) {
         return {
           name: PageNames.EXAM_PREVIEW,
@@ -209,30 +154,19 @@
       },
       genRecipientsString(groups) {
         if (!groups.length) {
-          return this.$tr('entireClass');
+          return this.coachStrings.$tr('entireClassLabel');
         } else {
-          return this.$tr('groups', { count: groups.length });
+          return this.coachStrings.$tr('numberOfGroups', { value: groups.length });
         }
       },
     },
     $trs: {
-      exams: 'Quizzes',
       allExams: 'All quizzes',
       activeExams: 'Active quizzes',
       inactiveExams: 'Inactive quizzes',
-      newExam: 'New quiz',
-      title: 'Title',
-      assignedGroupsHeader: 'Visible to',
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
-      show: 'Show',
-      status: 'Status',
-      statusDescription: 'Status description',
-      statusTooltipText: 'Learners can only see active quizzes',
-      entireClass: 'Entire class',
-      groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
-      nobody: 'Nobody',
       documentTitle: 'Quizzes',
     },
   };

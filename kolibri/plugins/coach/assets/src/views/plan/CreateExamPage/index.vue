@@ -24,7 +24,7 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ detailsString }}</h2>
+      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -124,7 +124,7 @@
           :to="toolbarRoute"
         />
         <KButton
-          :text="$tr('continueButtonlabel')"
+          :text="coachStrings.$tr('continueAction')"
           primary
           @click="continueProcess"
         />
@@ -140,7 +140,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -158,11 +157,8 @@
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
-  import QuizDetailEditor from '../../common/QuizDetailEditor';
   import commonCoach from '../../common';
   import Bottom from './Bottom';
-
-  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -208,9 +204,6 @@
       ]),
       maxQs() {
         return MAX_QUESTIONS;
-      },
-      detailsString() {
-        return quizDetailStrings.$tr('details');
       },
       examTitle: {
         get() {
@@ -503,7 +496,6 @@
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       title: 'Title',
-      duplicateTitle: 'A quiz with that name already exists',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
@@ -512,8 +504,6 @@
       numQuestionsNotMet:
         'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
-      preview: 'Preview',
-      continueButtonlabel: 'Continue',
       // TODO: Interpolate strings correctly
       added: "Added '{item}'",
       removed: "Removed '{item}'",

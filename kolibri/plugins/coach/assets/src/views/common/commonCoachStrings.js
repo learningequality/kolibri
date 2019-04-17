@@ -42,6 +42,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   coachLabel: 'Coach',
   coachesLabel: 'Coaches',
   descriptionLabel: 'Description',
+  detailsLabel: 'Details',
   difficultQuestionsLabel: 'Difficult questions',
   entireClassLabel: 'Entire class',
   exercisesCompletedLabel: 'Exercises completed',
@@ -54,6 +55,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',
   lessonLabel: 'Lesson',
+  lessonActiveLabel: 'Active',
+  lessonInactiveLabel: 'Inactive',
   lessonsLabel: 'Lessons',
   lessonsAssignedLabel: 'Lessons assigned',
   lessonsCompletedLabel: 'Lessons completed',
@@ -78,6 +81,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   questionsCorrectLabel: 'Questions correct',
   questionsLabel: 'Questions',
   quizLabel: 'Quiz',
+  quizActiveLabel: 'Active',
+  quizInactiveLabel: 'Inactive',
   quizScoreLabel: 'Quiz score',
   quizzesLabel: 'Quizzes',
   quizzesAssignedLabel: 'Quizzes assigned',
@@ -136,6 +141,9 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   percentage: '{value, number, percent}',
   ratio: '{value, number, integer} out of {total, number, integer}',
   ratioShort: '{value, number, integer} of {total, number, integer}',
+
+  // Errors
+  quizDuplicateTitleError: 'A quiz with that name already exists',
 });
 
 const coachStringsMixin = {
