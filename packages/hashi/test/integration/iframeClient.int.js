@@ -53,4 +53,18 @@ describe('iframe client', () => {
     const time1 = await page.evaluate('window.loadTimes[1]');
     expect(time1).not.toBeUndefined();
   });
+  it('should make document.write not overwrite the DOM', async () => {
+    await page.goto(url('documentwrite'));
+    await page.waitForSelector('script#test');
+    const insertedScript = await page.$('script#test');
+    const originalScript = await page.$('script#nottest');
+    expect(insertedScript).not.toBe(null);
+    expect(originalScript).not.toBe(null);
+  });
+  it('should make document.write append to the DOM at the point of execution as if writing to an open stream', async () => {
+    await page.goto(url('documentwrite'));
+    await page.waitForSelector('script#test');
+    const siblingElement = await page.$('script#nottest+*');
+    expect(await (await siblingElement.getProperty('id')).jsonValue()).toBe('test');
+  });
 });

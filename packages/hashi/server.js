@@ -158,6 +158,9 @@ const iframeSnippets = {
     wrapInTemplate(wrapInScript(jsSnippet(2))) +
     wrapInTemplate('<script src(unknown)></script>') +
     wrapInTemplate(wrapInScript(jsSnippet(3))),
+  '/documentwrite.html': wrapInTemplate(
+    `<script id="nottest">document.write('<script id="test">');</script>`
+  ),
   '/setlocalstorage.html': wrapInTemplate(
     wrapInScript('localStorage.setItem("test", "this is a test");')
   ),

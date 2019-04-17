@@ -30,6 +30,12 @@ export function replaceScript($script, callback) {
 
       const parentNode = $script._parentNode;
 
+      document.write = function(domString) {
+        const template = document.createElement('template');
+        template.innerHTML = domString;
+        parentNode.appendChild(template.content.firstChild);
+      };
+
       parentNode.appendChild($script);
 
       // run the callback immediately for inline scripts
@@ -119,6 +125,8 @@ export function executePage() {
   // have already been executed.
   if (supportsTemplate()) {
     const scripts = getScripts();
+    const documentWriteOriginal = document.write;
     setScripts(scripts);
+    document.write = documentWriteOriginal;
   }
 }
