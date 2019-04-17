@@ -89,7 +89,6 @@
           :classId="classId"
           :groups="learnerGroups"
           :disabled="detailsModalIsDisabled"
-          :onlyShowForm="true"
           @submit="handleDetailsModalContinue"
           @cancel="showModal=false"
         />

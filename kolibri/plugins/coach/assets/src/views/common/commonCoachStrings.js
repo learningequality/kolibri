@@ -144,6 +144,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 
   // Errors
   quizDuplicateTitleError: 'A quiz with that name already exists',
+  lessonDuplicateTitleError: 'A lesson with this name already exists',
 });
 
 const coachStringsMixin = {

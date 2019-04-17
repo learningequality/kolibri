@@ -6,7 +6,7 @@
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
-      :submitText="$tr('continue')"
+      :submitText="coachStrings.$tr('continueAction')"
       :cancelText="coachStrings.$tr('cancelAction')"
       @cancel="$emit('cancel')"
       @submit="goToAvailableGroups"
@@ -47,7 +47,6 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
-  import { mapActions } from 'vuex';
   import { error as logError } from 'kolibri.lib.logging';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -112,7 +111,6 @@
       this.selectedClassroomId = this.classId;
     },
     methods: {
-      ...mapActions(['handleApiError']),
       getLearnerGroupsForClassroom(classroomId) {
         return LearnerGroupResource.fetchCollection({ getParams: { parent: classroomId } });
       },
@@ -130,9 +128,9 @@
             this.stage = Stages.SELECT_GROUPS;
             this.blockControls = false;
           })
-          .catch(err => {
-            this.handleApiError(err);
-            logError(err);
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+            logError(error);
             this.blockControls = false;
           });
       },
@@ -148,7 +146,6 @@
     },
     $trs: {
       currentClass: '{ name } (current class)',
-      continue: 'Continue',
       destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };

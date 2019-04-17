@@ -33,30 +33,16 @@
 
       <section>
         <HeaderTable>
-          <HeaderTableRow>
-            <span slot="key">
-              {{ coachStrings.$tr('statusLabel') }}
-            </span>
-            <span slot="value">
-              <QuizActive :active="quiz.active" />
-            </span>
+          <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+            <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
-          <HeaderTableRow>
-            <span slot="key">
-              {{ coachStrings.$tr('recipientsLabel') }}
-            </span>
-            <span slot="value">
-              <Recipients :groupNames="learnerGroupNames" />
-            </span>
+          <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+            <Recipients slot="value" :groupNames="learnerGroupNames" />
           </HeaderTableRow>
-          <HeaderTableRow>
-            <span slot="key">
-              {{ coachStrings.$tr('questionOrderLabel') }}
-            </span>
-            <span slot="value">
-              {{ questionOrderValueString }}
-            </span>
-          </HeaderTableRow>
+          <HeaderTableRow
+            :keyText="coachStrings.$tr('questionOrderLabel')"
+            :valueText="questionOrderValueString"
+          />
         </HeaderTable>
       </section>
 
@@ -255,8 +241,8 @@
             this.closeModal();
           })
           .catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-            if (errors) {
+            const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (caughtErrors) {
               this.$store.commit('CORE_CREATE_SNACKBAR', {
                 text: this.$tr('uniqueTitleError', {
                   title,
@@ -266,6 +252,8 @@
                 actionText: this.coachStrings.$tr('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
+            } else {
+              this.$store.dispatch('handleApiError', error);
             }
             this.$store.dispatch('notLoading');
             this.closeModal();

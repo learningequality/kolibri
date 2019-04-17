@@ -71,7 +71,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <Bottom v-if="!onlyShowForm">
+    <Bottom v-if="assignmentType !== 'new_lesson'">
       <KButton
         :text="coachStrings.$tr('cancelAction')"
         appearance="flat-button"
@@ -157,12 +157,6 @@
         type: String,
         required: true,
       },
-      // If 'true', will only render the form and omit the <Bottom>. Use this
-      // when wrapping this component in a modal (e.g. New Lesson Modal)
-      onlyShowForm: {
-        type: Boolean,
-        default: false,
-      },
     },
     data() {
       return {
@@ -199,7 +193,7 @@
                 excludeId: this.$route.params.quizId,
               })
             ) {
-              return this.$tr('quizTitleAlreadyUsed');
+              return this.coachStrings.$tr('quizDuplicateTitleError');
             }
           } else {
             if (
@@ -208,7 +202,7 @@
                 excludeId: this.$route.params.lessonId,
               })
             ) {
-              return this.$tr('lessonTitleAlreadyUsed');
+              return this.coachStrings.$tr('lessonDuplicateTitleError');
             }
           }
           if (this.showTitleError) {
@@ -294,8 +288,6 @@
       titlePlaceholder: 'Title',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
       activeLessonsExplanation: 'Learners can only see active lessons',
-      quizTitleAlreadyUsed: 'A quiz with this name already exists',
-      lessonTitleAlreadyUsed: 'A lesson with this name already exists',
     },
   };
 
