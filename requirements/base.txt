@@ -29,4 +29,4 @@ python-dateutil==2.7.5
 ifcfg==0.17
 sqlalchemy==1.2.10
 semver==2.8.1
-sentry-sdk==0.6.9
+sentry-sdk==0.7.9
