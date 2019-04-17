@@ -16,15 +16,6 @@ export function getScripts() {
   });
 }
 
-function generateSingleInvocationFn(callback) {
-  return function() {
-    if (!callback.called) {
-      callback.called = true;
-      callback();
-    }
-  };
-}
-
 /*
  * Modified from https://ghinda.net/article/script-tags/
  */
@@ -104,12 +95,11 @@ export function setScripts($scripts) {
 
   const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
     return function(callback) {
-      const cb = generateSingleInvocationFn(callback);
-      window.onerror = cb;
+      window.onerror = callback;
       try {
-        replaceScript($script, cb);
+        replaceScript($script, callback);
       } catch (e) {
-        cb();
+        callback();
       }
     };
   });
