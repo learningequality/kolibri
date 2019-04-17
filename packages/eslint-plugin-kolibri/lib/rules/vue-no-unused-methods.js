@@ -8,9 +8,7 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-const constants = require('../constants');
-
-const { GROUP_METHODS } = constants;
+const { GROUP_METHODS } = require('../constants');
 
 const create = context => {
   let hasTemplate;
