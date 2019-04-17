@@ -8,7 +8,7 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer>
+    <KPageContainer v-if="!loading">
 
       <BackLinkWithOptions>
         <BackLink
@@ -39,7 +39,7 @@
             </HeaderTableRow>
             <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
               <template slot="value">
-                <template v-if="!currentLesson.lesson_assignments.length">
+                <template v-if="currentLesson.lesson_assignments.length === 0">
                   {{ this.$tr('noOne') }}
                 </template>
                 <Recipients v-else :groupNames="groupNames" />
@@ -92,7 +92,6 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KIcon from 'kolibri.coreVue.components.KIcon';
@@ -139,6 +138,9 @@
       ...mapState(['reportRefreshInterval']),
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
+      loading() {
+        return this.$store.state.core.loading;
+      },
       lessonId() {
         return this.$route.params.lessonId;
       },
@@ -156,21 +158,8 @@
         return names;
       },
     },
-    mounted() {
-      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
-    },
-    beforeDestroy() {
-      this.intervalId = clearInterval(this.intervalId);
-    },
     methods: {
-      ...mapActions('lessonSummary', ['setLessonsModal', 'setLessonReportTableData']),
-      // Data to do a proper refresh. See showLessonSummaryPage for details.
-      refreshReportData() {
-        return this.setLessonReportTableData({
-          lessonId: this.lessonId,
-          isSamePage: samePageCheckGenerator(this.$store),
-        });
-      },
+      ...mapActions('lessonSummary', ['setLessonsModal']),
       handleSelectOption(action) {
         if (action === 'EDIT_DETAILS') {
           this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
