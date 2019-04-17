@@ -1,16 +1,13 @@
 
-Credits
-=======
+# Credits
 
-Development Lead and Copyright Holder
--------------------------------------
+## Development Lead and Copyright Holder
 
-* Learning Equality – info@learningequality.org
+Learning Equality – info@learningequality.org
 
-Community
----------
+## Community
 
-Please feel free to add your name on this list if you do a PR!
+Please feel free to add your name to this list if you make a PR
 
 * Eli Dai (66eli77)
 * Akshay Mahajan (akshaymahajans)

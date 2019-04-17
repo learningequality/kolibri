@@ -1,7 +1,14 @@
-.. include:: ../../../CODE_OF_CONDUCT.rst
+
+===============
+Code of Conduct
+===============
+
+
+.. mdinclude:: ../../CODE_OF_CONDUCT.md
+
 
 Reporting Guidelines
---------------------
+====================
 
 If you believe someone is violating the code of conduct we ask that you
 report it to the Learning Equality by emailing
@@ -40,7 +47,7 @@ In your report please include:
 #. Any other information you believe we should have.
 
 What happens after you file a report?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 You will receive an email from the Code of Conduct committee
 acknowledging receipt within 48 hours (we aim to be quicker than that).
@@ -217,4 +224,3 @@ a group to make conflicts of interest easier, and to avoid problems in case of
 absence of the chair person. Instead of interchanging "working group" and
 "committee" notation, we replaced all occurrences of "working group" and "group"
 with "committee".
-
