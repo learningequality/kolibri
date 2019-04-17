@@ -2,6 +2,7 @@ import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.db import DataError
 from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
@@ -656,6 +657,7 @@ class FixMultipleTreesWithIdOneTestCase(TransactionTestCase):
 
 
 class CalculateChannelFieldsTestCase(TestCase):
+
     def setUp(self):
         self.node = ContentNode.objects.create(
             title="test",
@@ -679,3 +681,10 @@ class CalculateChannelFieldsTestCase(TestCase):
         self.assertEqual(
             list(self.channel.included_languages.values_list("id", flat=True)), ["en"]
         )
+
+    def test_published_size_big_integer_field(self):
+        self.channel.published_size = 2150000000  # out of range for integer field on postgres
+        try:
+            self.channel.save()
+        except DataError:
+            self.fail('DataError: integer out of range')
