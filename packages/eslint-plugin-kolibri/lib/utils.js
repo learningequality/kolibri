@@ -116,7 +116,7 @@ module.exports = {
 
       let message = `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`;
       if (property.groupName === GROUP_METHODS) {
-        message = `${message}. If the method is supposed to be public, you might forget to add @public tag.`;
+        message = `${message}. If the method is supposed to be public, you might have forgotten to add a @public tag.`;
       }
 
       context.report({

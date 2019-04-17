@@ -217,7 +217,7 @@ tester.run('vue-no-unused-methods', rule, {
       errors: [
         {
           message:
-            'Unused method found: "getCount". If the method is supposed to be public, you might forget to add @public tag.',
+            'Unused method found: "getCount". If the method is supposed to be public, you might have forgotten to add a @public tag.',
           line: 9,
         },
       ],
