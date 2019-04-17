@@ -77,7 +77,10 @@
             {{ $tr('noResourcesInLesson') }}
           </p>
 
-          <ManageLessonModals />
+          <ManageLessonModals
+            :currentAction="currentAction"
+            @cancel="currentAction = ''"
+          />
         </div>
 
       </div>
@@ -91,7 +94,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KIcon from 'kolibri.coreVue.components.KIcon';
@@ -131,6 +134,11 @@
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        currentAction: '',
+      };
+    },
     computed: {
       backLinkString() {
         return ReportsLessonHeaderStrings.$tr('back');
@@ -149,7 +157,7 @@
       },
       groupNames() {
         const names = [];
-        this.recipients.forEach(r => {
+        this.currentLesson.lesson_assignments.forEach(r => {
           const match = this.groups.find(({ id }) => id === r.collection);
           if (match) {
             names.push(match.name);
@@ -159,12 +167,11 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['setLessonsModal']),
       handleSelectOption(action) {
         if (action === 'EDIT_DETAILS') {
           this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
         } else {
-          this.setLessonsModal(action);
+          this.currentAction = action;
         }
       },
     },

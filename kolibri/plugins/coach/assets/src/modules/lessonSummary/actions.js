@@ -28,10 +28,6 @@ export function addToResourceCache(store, { node }) {
   });
 }
 
-export function setLessonsModal(store, modalName) {
-  store.commit('SET_LESSONS_MODAL', modalName);
-}
-
 export function updateCurrentLesson(store, lessonId) {
   return LessonResource.fetchModel({
     id: lessonId,
@@ -102,28 +98,6 @@ export function saveLessonResources(store, { lessonId, resourceIds }) {
   });
 }
 
-export function updateLessonStatus(store, { lessonId, isActive }) {
-  LessonResource.saveModel({
-    id: lessonId,
-    data: {
-      is_active: isActive,
-    },
-  })
-    .then(lesson => {
-      store.commit('SET_CURRENT_LESSON', lesson);
-      store.dispatch('setLessonsModal', null);
-      showSnackbar(
-        store,
-        isActive ? translator.$tr('lessonIsNowActive') : translator.$tr('lessonIsNowInactive')
-      );
-    })
-    .catch(err => {
-      // TODO handle error properly
-      store.dispatch('handleApiError', err, { root: true });
-      logError(err);
-    });
-}
-
 export function deleteLesson(store, { lessonId, classId }) {
   LessonResource.deleteModel({ id: lessonId })
     .then(() => {
@@ -143,35 +117,6 @@ export function deleteLesson(store, { lessonId, classId }) {
     });
 }
 
-export function copyLesson(store, { payload, classroomName }) {
-  LessonResource.saveModel({ data: payload })
-    .then(() => {
-      // Update the class summary now that there is a new lesson
-      store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
-        store.dispatch('setLessonsModal', null);
-        showSnackbar(store, translator.$tr('copiedLessonTo', { classroomName }));
-      });
-    })
-    .catch(error => {
-      store.dispatch('handleApiError', error, { root: true });
-      logError(error);
-    });
-}
-
-export function updateLesson(store, { lessonId, payload }) {
-  return new Promise((resolve, reject) => {
-    LessonResource.saveModel({
-      id: lessonId,
-      data: payload,
-    })
-      .then(() => {
-        store.dispatch('setLessonsModal', null);
-        showSnackbar(store, translator.$tr('changesToLessonSaved'));
-        store.dispatch('updateCurrentLesson', lessonId);
-        resolve();
-      })
-      .catch(error => {
-        reject(error);
-      });
-  });
+export function copyLesson(store, payload) {
+  return LessonResource.saveModel({ data: payload });
 }

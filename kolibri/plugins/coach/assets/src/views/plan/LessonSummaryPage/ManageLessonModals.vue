@@ -2,21 +2,21 @@
 
   <div>
     <AssignmentCopyModal
-      v-if="lessonsModalSet === AssignmentActions.COPY"
+      v-if="currentAction === AssignmentActions.COPY"
       :modalTitle="$tr('copyLessonTitle')"
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
       @submit="handleCopy"
-      @cancel="closeModal"
+      @cancel="$emit('cancel')"
     />
 
     <AssignmentDeleteModal
-      v-if="lessonsModalSet === AssignmentActions.DELETE"
+      v-if="currentAction === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
       @submit="deleteLesson({ lessonId: currentLesson.id, classId })"
-      @cancel="closeModal"
+      @cancel="$emit('cancel')"
     />
   </div>
 
@@ -37,19 +37,24 @@
       AssignmentCopyModal,
       AssignmentDeleteModal,
     },
+    props: {
+      currentAction: {
+        type: String,
+      },
+    },
     computed: {
       ...mapState(['classList']),
-      ...mapState('classSummary', { classId: 'id' }),
+      ...mapState('classSummary', { className: 'name' }),
       ...mapState('lessonSummary', ['currentLesson', 'lessonsModalSet', 'learnerGroups']),
       AssignmentActions() {
         return AssignmentActions;
       },
+      classId() {
+        return this.$route.params.classId;
+      },
     },
     methods: {
-      ...mapActions('lessonSummary', ['deleteLesson', 'copyLesson']),
-      closeModal() {
-        this.$store.commit('lessonSummary/SET_LESSONS_MODAL', '');
-      },
+      ...mapActions('lessonSummary', ['deleteLesson']),
       handleCopy(selectedClassroomId, selectedCollectionIds) {
         const payload = {
           title: this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(
@@ -62,7 +67,19 @@
           lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
         };
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
-        this.copyLesson({ payload, classroomName });
+        this.$store
+          .dispatch('lessonSummary/copyLesson', payload)
+          .then(() => {
+            // If copied to the same classroom, update the class summary
+            if (this.classId === selectedClassroomId) {
+              this.$store.dispatch('classSummary/refreshClassSummary');
+            }
+            this.$emit('cancel');
+            this.$store.dispatch('createSnackbar', this.$tr('copiedLessonTo', { classroomName }));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
     },
     $trs: {
@@ -71,6 +88,7 @@
       deleteLessonTitle: 'Delete lesson',
       deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
       copyOfLesson: 'Copy of { lessonTitle }',
+      copiedLessonTo: `Copied lesson to '{classroomName}'`,
     },
   };
 
