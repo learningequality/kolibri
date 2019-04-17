@@ -112,7 +112,6 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
     return jsfiles, cssfiles
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 def parse_html(content):
     try:
         soup = BeautifulSoup(content, "html.parser")
@@ -121,7 +120,7 @@ def parse_html(content):
             return content
         for script in soup("script"):
             template = soup.new_tag("template", attrs={"hashi-script": "true"})
-            if hasattr(script, "async"):
+            if "async" in script.attrs:
                 template["async"] = "true"
             script = script.replace_with(template)
             template.append(script)

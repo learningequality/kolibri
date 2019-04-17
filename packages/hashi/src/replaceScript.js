@@ -32,7 +32,7 @@ export function replaceScript($script, callback) {
   if ($script) {
     if (!$script.loaded) {
       $script.loaded = true;
-      if ($script.src && !$script.async) {
+      if ($script.src && !$script.hasAttribute('async')) {
         $script.onload = callback;
         $script.onerror = callback;
       }
@@ -43,7 +43,7 @@ export function replaceScript($script, callback) {
 
       // run the callback immediately for inline scripts
       // and for async loading scripts.
-      if (!$script.src || $script.async) {
+      if (!$script.src || $script.hasAttribute('async')) {
         callback();
       }
     }
@@ -99,8 +99,8 @@ export function setScripts($scripts) {
   // First generate the callbacks for all script tags.
   // This will create insertion operations for all script tags
 
-  const $nonDeferredScripts = [].filter.call($scripts, script => !script.defer);
-  const $deferredScripts = [].filter.call($scripts, script => script.defer);
+  const $nonDeferredScripts = [].filter.call($scripts, script => !script.hasAttribute('defer'));
+  const $deferredScripts = [].filter.call($scripts, script => script.hasAttribute('defer'));
 
   const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
     return function(callback) {
