@@ -158,22 +158,6 @@
 
   export default {
     name: 'SignInPage',
-    $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      username: 'Username',
-      password: 'Password',
-      enterPassword: 'Enter password',
-      createAccount: 'Create an account',
-      accessAsGuest: 'Explore without account',
-      signInError: 'Incorrect username or password',
-      poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
-      requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -302,7 +286,9 @@
       },
     },
     watch: {
-      username: 'setSuggestionTerm',
+      username() {
+        this.setSuggestionTerm();
+      },
     },
     mounted() {
       /*
@@ -430,6 +416,22 @@
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
       },
+    },
+    $trs: {
+      kolibri: 'Kolibri',
+      signIn: 'Sign in',
+      username: 'Username',
+      password: 'Password',
+      enterPassword: 'Enter password',
+      createAccount: 'Create an account',
+      accessAsGuest: 'Explore without account',
+      signInError: 'Incorrect username or password',
+      poweredBy: 'Kolibri {version}',
+      required: 'This field is required',
+      requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      documentTitle: 'User Sign In',
+      privacyLink: 'Usage and privacy',
     },
   };
 

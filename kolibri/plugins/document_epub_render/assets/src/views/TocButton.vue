@@ -21,11 +21,11 @@
 
   export default {
     name: 'TocButton',
-    $trs: {
-      toggleTocSideBar: 'Toggle table of contents side bar',
-    },
     components: {
       UiIconButton,
+    },
+    $trs: {
+      toggleTocSideBar: 'Toggle table of contents side bar',
     },
   };
 

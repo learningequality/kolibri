@@ -38,7 +38,6 @@
       LessonContentPreviewPage,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('lessonSummary', ['workingResources']),
@@ -66,6 +65,7 @@
         this.createSnackbar(indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 }));
       },
     },
+    $trs: {},
   };
 
 </script>

@@ -57,7 +57,6 @@
 
   export default {
     name: 'QuestionDetailLearnerList',
-    $trs: {},
     mixins: [coachStringsMixin, themeMixin],
     props: {
       learners: {
@@ -91,6 +90,7 @@
         }
       },
     },
+    $trs: {},
   };
 
 </script>

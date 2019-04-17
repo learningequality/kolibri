@@ -48,10 +48,6 @@
    */
   export default {
     name: 'KFilterTextbox',
-    $trs: {
-      filter: 'filter',
-      clear: 'clear',
-    },
     components: {
       UiIcon,
       UiIconButton,
@@ -98,6 +94,10 @@
           },
         };
       },
+    },
+    $trs: {
+      filter: 'filter',
+      clear: 'clear',
     },
   };
 

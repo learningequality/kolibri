@@ -128,10 +128,22 @@
 
   export default {
     name: 'CoreBase',
-    $trs: {
-      kolibriMessage: 'Kolibri',
-      kolibriTitleMessage: '{ title } - Kolibri',
-      errorPageTitle: 'Error',
+    metaInfo() {
+      return {
+        // Use arrow function to bind $tr to this component
+        titleTemplate: title => {
+          if (this.error) {
+            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
+          }
+          if (!title) {
+            // If no child component sets title, it reads 'Kolibri'
+            return this.$tr('kolibriMessage');
+          }
+          // If child component sets title, it reads 'Child Title - Kolibri'
+          return this.$tr('kolibriTitleMessage', { title });
+        },
+        title: this.pageTitle,
+      };
     },
     components: {
       AppBar,
@@ -225,23 +237,6 @@
         type: Boolean,
         default: false,
       },
-    },
-    metaInfo() {
-      return {
-        // Use arrow function to bind $tr to this component
-        titleTemplate: title => {
-          if (this.error) {
-            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
-          }
-          if (!title) {
-            // If no child component sets title, it reads 'Kolibri'
-            return this.$tr('kolibriMessage');
-          }
-          // If child component sets title, it reads 'Child Title - Kolibri'
-          return this.$tr('kolibriTitleMessage', { title });
-        },
-        title: this.pageTitle,
-      };
     },
     data() {
       return {
@@ -403,6 +398,11 @@
           window.pageYOffset = scrollValue;
         } catch (e) {} // eslint-disable-line no-empty
       },
+    },
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
+      errorPageTitle: 'Error',
     },
   };
 

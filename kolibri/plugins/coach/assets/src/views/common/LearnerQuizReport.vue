@@ -38,7 +38,6 @@
       ExamReport,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('examReportDetail', [
@@ -81,6 +80,7 @@
         });
       },
     },
+    $trs: {},
   };
 
 </script>

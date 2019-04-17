@@ -70,11 +70,6 @@
 
   export default {
     name: 'LessonsSearchBox',
-    $trs: {
-      searchBoxLabel: 'Search',
-      clearButtonLabel: 'Clear',
-      startSearchButtonLabel: 'Start search',
-    },
     components: {
       UiIconButton,
     },
@@ -111,6 +106,11 @@
           this.$emit('searchterm', this.searchTerm);
         }
       },
+    },
+    $trs: {
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
     },
   };
 

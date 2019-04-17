@@ -43,12 +43,6 @@
     name: 'OverviewBlock',
     components: {},
     mixins: [commonCoach],
-    $trs: {
-      back: 'All classes',
-      changeClass: 'Change class',
-      coach: '{count, plural, one {Coach} other {Coaches}}',
-      learner: '{count, plural, one {Learner} other {Learners}}',
-    },
     computed: {
       ...mapGetters(['classListPageEnabled']),
       coachNames() {
@@ -57,6 +51,12 @@
       learnerNames() {
         return this.learners.map(learner => learner.name);
       },
+    },
+    $trs: {
+      back: 'All classes',
+      changeClass: 'Change class',
+      coach: '{count, plural, one {Coach} other {Coaches}}',
+      learner: '{count, plural, one {Learner} other {Learners}}',
     },
   };
 

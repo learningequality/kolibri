@@ -229,15 +229,6 @@
         title: this.$tr('title'),
       };
     },
-    $trs: {
-      title: 'Select questions',
-      backLabel: 'Select topics or exercises',
-      exercise: 'Exercise { num }',
-      randomize: 'Choose a different set of questions',
-      questionOrder: 'Question order',
-      questions: 'Questions',
-      newQuestions: 'New question set created',
-    },
     components: {
       UiIconButton,
       ContentRenderer,
@@ -423,6 +414,15 @@
       listKey(question) {
         return question.exercise_id + question.question_id;
       },
+    },
+    $trs: {
+      title: 'Select questions',
+      backLabel: 'Select topics or exercises',
+      exercise: 'Exercise { num }',
+      randomize: 'Choose a different set of questions',
+      questionOrder: 'Question order',
+      questions: 'Questions',
+      newQuestions: 'New question set created',
     },
   };
 

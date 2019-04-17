@@ -106,10 +106,6 @@
       KButton,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      // error alerts
-      errorAlert: 'Error in { title }',
-    },
     props: {
       /**
        * The title of the modal
@@ -276,6 +272,10 @@
       preventScroll(event) {
         event.preventDefault();
       },
+    },
+    $trs: {
+      // error alerts
+      errorAlert: 'Error in { title }',
     },
   };
 

@@ -24,11 +24,6 @@
     components: {
       KTextbox,
     },
-    $trs: {
-      facilityNameFieldLabel: 'Facility name',
-      facilityNameFieldEmptyErrorMessage: 'Facility cannot be empty',
-      facilityNameFieldMaxLengthReached: 'Facility name cannot be more than 50 characters',
-    },
     data() {
       return {
         facilityName: this.$store.state.onboardingData.facility.name,
@@ -53,11 +48,19 @@
       validateFacilityName() {
         this.fieldVisited = true;
       },
+      /**
+       * @public
+       */
       focus() {
         if (this.$refs['facilityName']) {
           this.$refs['facilityName'].focus();
         }
       },
+    },
+    $trs: {
+      facilityNameFieldLabel: 'Facility name',
+      facilityNameFieldEmptyErrorMessage: 'Facility cannot be empty',
+      facilityNameFieldMaxLengthReached: 'Facility name cannot be more than 50 characters',
     },
   };
 

@@ -39,7 +39,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get("/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse("kolibri:learnplugin:learn"))
+        self.assertEqual(response.get("location"), reverse("kolibri:learn:learn"))
 
 
 class AllUrlsTest(APITestCase):

@@ -771,6 +771,9 @@
         });
       },
 
+      /**
+       * @public
+       */
       reset() {
         this.setValue(JSON.parse(this.initialValue));
         this.clearQuery();

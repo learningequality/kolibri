@@ -31,7 +31,7 @@ class LearnerClassroomTestCase(APITestCase):
         )
         self.learner_user.set_password("password")
         self.learner_user.save()
-        self.basename = "kolibri:learnplugin:learnerclassroom"
+        self.basename = "kolibri:learn:learnerclassroom"
         self.own_classroom = Classroom.objects.create(
             name="Own Classroom", parent=self.facility
         )

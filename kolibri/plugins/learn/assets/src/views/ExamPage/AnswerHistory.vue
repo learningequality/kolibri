@@ -35,9 +35,6 @@
 
   export default {
     name: 'AnswerHistory',
-    $trs: {
-      question: 'Question { num }',
-    },
     mixins: [themeMixin],
     props: {
       questionNumber: {
@@ -50,20 +47,15 @@
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },
     methods: {
-      daysElapsedText(daysElapsed) {
-        if (daysElapsed > 1) {
-          return this.$tr('daysAgo', { daysElapsed });
-        } else if (daysElapsed === 1) {
-          return this.$tr('yesterday');
-        }
-        return this.$tr('today');
-      },
       questionText(num) {
         return this.$tr('question', { num });
       },
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
+    },
+    $trs: {
+      question: 'Question { num }',
     },
   };
 

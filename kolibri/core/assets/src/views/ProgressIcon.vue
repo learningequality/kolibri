@@ -38,10 +38,6 @@
 
   export default {
     name: 'ProgressIcon',
-    $trs: {
-      inProgress: 'In progress',
-      completed: 'Completed',
-    },
     components: {
       UiIcon,
       KTooltip,
@@ -63,6 +59,10 @@
       isCompleted() {
         return this.progress >= 1;
       },
+    },
+    $trs: {
+      inProgress: 'In progress',
+      completed: 'Completed',
     },
   };
 

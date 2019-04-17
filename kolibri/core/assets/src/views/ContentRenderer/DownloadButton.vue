@@ -19,7 +19,6 @@
     components: {
       KDropdownMenu,
     },
-    $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
@@ -39,6 +38,7 @@
         window.open(file.url, '_blank');
       },
     },
+    $trs: { downloadContent: 'Download content' },
   };
 
 </script>

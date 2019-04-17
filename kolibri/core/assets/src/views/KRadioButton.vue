@@ -131,6 +131,9 @@
     },
 
     methods: {
+      /**
+       * @public
+       */
       focus() {
         this.$refs.input.focus();
       },

@@ -22,7 +22,7 @@ from kolibri import dist as kolibri_dist
 
 dist_name = "kolibri"
 
-readme = io.open("README.rst", mode="r", encoding="utf-8").read()
+readme = io.open("README.md", mode="r", encoding="utf-8").read()
 
 # Default description of the distributed package
 description = """Kolibri - the offline app for universal education"""
@@ -137,6 +137,7 @@ setup(
     version=kolibri.__version__,
     description=description,
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Learning Equality",
     author_email="info@learningequality.org",
     url="https://github.com/learningequality/kolibri",

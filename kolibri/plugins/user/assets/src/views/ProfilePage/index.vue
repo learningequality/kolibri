@@ -141,25 +141,6 @@
 
   export default {
     name: 'ProfilePage',
-    $trs: {
-      success: 'Profile details updated',
-      username: 'Username',
-      name: 'Full name',
-      updateProfile: 'Save changes',
-      isSuperuser: 'Super admin permissions ',
-      manageContent: 'Manage content',
-      manageDevicePermissions: 'Manage device permissions',
-      points: 'Points',
-      userType: 'User type',
-      devicePermissions: 'Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      required: 'This field is required',
-      limitedPermissions: 'Limited permissions',
-      youCan: 'You can',
-      changePasswordPrompt: 'Change password',
-      usernameAlreadyExists: 'An account with that username already exists',
-      documentTitle: 'User Profile',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -319,6 +300,25 @@
         }
         return permission;
       },
+    },
+    $trs: {
+      success: 'Profile details updated',
+      username: 'Username',
+      name: 'Full name',
+      updateProfile: 'Save changes',
+      isSuperuser: 'Super admin permissions ',
+      manageContent: 'Manage content',
+      manageDevicePermissions: 'Manage device permissions',
+      points: 'Points',
+      userType: 'User type',
+      devicePermissions: 'Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
+      changePasswordPrompt: 'Change password',
+      usernameAlreadyExists: 'An account with that username already exists',
+      documentTitle: 'User Profile',
     },
   };
 
