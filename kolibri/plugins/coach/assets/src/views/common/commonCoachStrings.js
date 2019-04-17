@@ -4,6 +4,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   cancelAction: 'Cancel',
   closeAction: 'Close',
+  continueAction: 'Continue',
   copyAction: 'Copy',
   createAction: 'Create',
   deleteAction: 'Delete',

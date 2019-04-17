@@ -71,7 +71,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <Bottom>
+    <Bottom v-if="!onlyShowForm">
       <KButton
         :text="coachStrings.$tr('cancelAction')"
         appearance="flat-button"
@@ -156,6 +156,11 @@
       assignmentType: {
         type: String,
         required: true,
+      },
+      // If 'true', will only render the form option. Used in the 'New Lesson Modal'.
+      onlyShowForm: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

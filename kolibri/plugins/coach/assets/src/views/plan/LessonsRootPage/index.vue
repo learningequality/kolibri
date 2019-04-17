@@ -71,7 +71,12 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
+        :submitText="coachStrings.$tr('continueAction')"
+        :cancelText="coachStrings.$tr('cancelAction')"
+        :submitDisabled="detailsModalIsDisabled"
+        :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"
+        @submit="$refs.detailsModal.submitData()"
       >
         <AssignmentDetailsModal
           ref="detailsModal"
@@ -84,6 +89,7 @@
           :classId="classId"
           :groups="learnerGroups"
           :disabled="detailsModalIsDisabled"
+          :onlyShowForm="true"
           @submit="handleDetailsModalContinue"
           @cancel="showModal=false"
         />
