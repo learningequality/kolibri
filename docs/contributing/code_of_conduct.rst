@@ -4,7 +4,7 @@ Code of Conduct
 ===============
 
 
-.. include:: ../../CODE_OF_CONDUCT.rst
+.. mdinclude:: ../../CODE_OF_CONDUCT.md
 
 
 Reporting Guidelines
