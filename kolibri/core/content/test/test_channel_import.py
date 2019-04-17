@@ -365,7 +365,7 @@ class ContentImportTestBase(TransactionTestCase):
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix='.sqlite3')
         db_path_mock.return_value = self.content_db_path
-        self.content_engine = create_engine('sqlite:///' + self.content_db_path, convert_unicode=True)
+        self.content_engine = create_engine('sqlite:///' + self.content_db_path)
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), 'rb') as f:
             metadata = pickle.load(f)

@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        engine = create_engine(get_default_db_string(), convert_unicode=True)
+        engine = create_engine(get_default_db_string())
 
         metadata = MetaData()
 

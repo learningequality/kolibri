@@ -52,7 +52,6 @@ def get_engine(connection_string):
         echo=False,
         connect_args={'check_same_thread': False} if connection_string.startswith('sqlite') else {},
         poolclass=NullPool,
-        convert_unicode=True,
     )
     if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
         event.listen(engine, "connect", set_sqlite_connection_pragma)
