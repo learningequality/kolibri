@@ -25,6 +25,7 @@ from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
 from kolibri.core.content.models import VERSION_2
+from kolibri.core.content.models import VERSION_3
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -302,7 +303,7 @@ class ChannelImport(object):
         query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
             method=method,
             table=dest_table.name,
-            destcols=", ".join(dest_columns),
+            destcols=", ".join(map(lambda c: "'{}'".format(c), dest_columns)),  # Wrap column names in quotes to avoid conflicts with SQL keywords
             sourcevals=", ".join(source_vals),
         )
         self.destination.session.execute(text(query))
@@ -700,6 +701,7 @@ mappings = {
     NO_VERSION: NoVersionChannelImport,
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
+    VERSION_3: ChannelImport,
 }
 
 

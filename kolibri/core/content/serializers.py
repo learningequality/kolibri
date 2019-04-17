@@ -14,6 +14,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.models import SlideshowMetaData
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
@@ -280,6 +281,18 @@ class AssessmentMetaDataSerializer(serializers.ModelSerializer):
         )
 
 
+class SlideshowMetaDataSerializer(serializers.ModelSerializer):
+
+    metadata = serializers.JSONField(default="{}")
+
+    class Meta:
+        model = SlideshowMetaData
+        fields = (
+            "metadata",
+            "sort_order",
+        )
+
+
 def get_summary_logs(content_ids, user):
     from kolibri.core.logger.models import ContentSummaryLog
 
@@ -456,6 +469,9 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
     assessmentmetadata = AssessmentMetaDataSerializer(
         read_only=True, allow_null=True, many=True
     )
+    slideshowmetadata = SlideshowMetaDataSerializer(
+        read_only=True, allow_null=True, many=True
+    )
     lang = LanguageSerializer()
 
     class Meta:
@@ -477,6 +493,7 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
             "license_owner",
             "num_coach_contents",
             "parent",
+            "slideshowmetadata",
             "sort_order",
             "title",
         )

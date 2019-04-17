@@ -25,6 +25,7 @@ const ContentNodeKinds = {
   LESSON: 'lesson',
   CLASSROOM: 'CLASSROOM',
   ACTIVITY: 'ACTIVITY',
+  SLIDESHOW: 'slideshow',
 };
 
 // used internally on the client as a hack to allow content-icons to display users

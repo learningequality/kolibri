@@ -82,12 +82,14 @@ VERSION_1 = "1"
 
 VERSION_2 = "2"
 
+VERSION_3 = "3"
+
 # List of the content db schema versions, ordered from most recent to least recent.
 # When a new schema version is generated, it should be added here, at the top of the list.
-CONTENT_DB_SCHEMA_VERSIONS = [VERSION_2, VERSION_1, NO_VERSION, V040BETA3, V020BETA1]
+CONTENT_DB_SCHEMA_VERSIONS = [VERSION_3, VERSION_2, VERSION_1, NO_VERSION, V040BETA3, V020BETA1]
 
 # The schema version for this version of Kolibri
-CONTENT_SCHEMA_VERSION = VERSION_2
+CONTENT_SCHEMA_VERSION = VERSION_3
 
 
 class UUIDField(models.CharField):
@@ -394,6 +396,22 @@ class AssessmentMetaData(models.Model):
     # Is this assessment compatible with being previewed and answer filled for display in coach reports
     # and use in summative and formative tests?
     is_manipulable = models.BooleanField(default=False)
+
+
+class SlideshowMetaData(models.Model):
+    """
+    A model to describe the additional metadata associated with a Slideshow's slide images.
+    This model includes two fields, sort_order<int> and metadata<JSONfield>. The sort_order
+    determines the position of the image in the Slideshow and the metadata describes the
+    checksum of the associated image file and a caption. The metadata field can be extended
+    as needed to include additional metadata associated with the image.
+    """
+
+    id = UUIDField(primary_key=True)
+    contentnode = models.ForeignKey(ContentNode, related_name="slideshowmetadata")
+    # An integer indicating the position of the slide in the slideshow
+    sort_order = models.IntegerField(default=None)
+    metadata = JSONField(default={})
 
 
 @python_2_unicode_compatible
