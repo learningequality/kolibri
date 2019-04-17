@@ -22,4 +22,4 @@ repos:
         entry: yarn run lint -w
         language: system
         files: \.(js|vue|scss|css)$
-        exclude: '^kolibri/core/static/assets/fonts/.+?\.css$'
+        exclude: '^kolibri/core/static/assets/fonts/.+?\.css$|^kolibri/core/content/static/assets/'
