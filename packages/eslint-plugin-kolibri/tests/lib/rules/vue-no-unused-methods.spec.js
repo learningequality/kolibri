@@ -175,6 +175,25 @@ tester.run('vue-no-unused-methods', rule, {
       `,
     },
 
+    // a method used in a watcher (string method name)
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            watch: {
+              counter: 'getCount'
+            },
+            methods: {
+              getCount() {
+                return 2;
+              }
+            }
+          };
+        </script>
+      `,
+    },
+
     // a public method
     {
       filename: 'test.vue',

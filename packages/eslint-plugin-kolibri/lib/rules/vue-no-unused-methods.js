@@ -14,6 +14,7 @@ const create = context => {
   let hasTemplate;
   let unusedProperties = [];
   let thisExpressionsVariablesNames = [];
+  let watchStringMethods = [];
 
   const sourceCode = context.getSourceCode();
   const comments = sourceCode.getAllComments();
@@ -36,13 +37,26 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    /*
+      watch: {
+        counter: 'getCount'
+      }
+    */
+    {
+      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
+        watchStringMethods.push(node.value);
+      },
+    },
     eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
         eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_METHODS]))
       );
 
       remove(unusedProperties, property => {
-        return thisExpressionsVariablesNames.includes(property.name);
+        return (
+          thisExpressionsVariablesNames.includes(property.name) ||
+          watchStringMethods.includes(property.name)
+        );
       });
 
       if (!hasTemplate && unusedProperties.length) {
