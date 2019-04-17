@@ -203,6 +203,16 @@ class ZipContentView(View):
             if not embedded_filepath or embedded_filepath.endswith("/"):
                 embedded_filepath += "index.html"
 
+            # get the details about the embedded file, and ensure it exists
+            try:
+                info = zf.getinfo(embedded_filepath)
+            except KeyError:
+                raise Http404(
+                    '"{}" does not exist inside "{}"'.format(
+                        embedded_filepath, zipped_filename
+                    )
+                )
+
             # handle non-AJAX HTML file requests with Hashi
             if (
                 (not request.is_ajax())
@@ -213,16 +223,6 @@ class ZipContentView(View):
                 )
             ):
                 return self.get_hashi(request, zf)
-
-            # get the details about the embedded file, and ensure it exists
-            try:
-                info = zf.getinfo(embedded_filepath)
-            except KeyError:
-                raise Http404(
-                    '"{}" does not exist inside "{}"'.format(
-                        embedded_filepath, zipped_filename
-                    )
-                )
 
             # try to guess the MIME type of the embedded file being referenced
             content_type = (
