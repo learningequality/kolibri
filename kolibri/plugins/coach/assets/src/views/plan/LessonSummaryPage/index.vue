@@ -143,7 +143,6 @@
       backLinkString() {
         return ReportsLessonHeaderStrings.$tr('back');
       },
-      ...mapState(['reportRefreshInterval']),
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       loading() {

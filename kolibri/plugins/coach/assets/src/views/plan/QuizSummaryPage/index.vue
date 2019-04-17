@@ -138,15 +138,6 @@
         currentAction: '',
       };
     },
-    beforeRouteEnter(to, from, next) {
-      return fetchQuizSummaryPageData(to.params.quizId)
-        .then(data => {
-          next(vm => vm.setData(data));
-        })
-        .catch(error => {
-          next(vm => vm.setError(error));
-        });
-    },
     computed: {
       ...mapState(['classList']),
       ...mapState('classSummary', ['groupMap']),
@@ -180,6 +171,15 @@
         });
         return names;
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      return fetchQuizSummaryPageData(to.params.quizId)
+        .then(data => {
+          next(vm => vm.setData(data));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
     },
     methods: {
       setData(data) {
