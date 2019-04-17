@@ -1,20 +1,4 @@
 import { LessonResource, ContentNodeSlimResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
-import { error as logError } from 'kolibri.lib.logging';
-import router from 'kolibri.coreVue.router';
-import { LessonsPageNames } from '../../constants/lessonsConstants';
-
-const translator = createTranslator('LessonSummaryActionsTexts', {
-  lessonIsNowActive: 'Lesson is now active',
-  lessonIsNowInactive: 'Lesson is now inactive',
-  lessonDeleted: 'Lesson deleted',
-  copiedLessonTo: `Copied lesson to '{classroomName}'`,
-  changesToLessonSaved: 'Changes to lesson saved',
-});
-
-function showSnackbar(store, string) {
-  return store.dispatch('createSnackbar', string, { root: true });
-}
 
 export function resetLessonSummaryState(store) {
   store.commit('RESET_STATE');
@@ -96,27 +80,4 @@ export function saveLessonResources(store, { lessonId, resourceIds }) {
       });
     });
   });
-}
-
-export function deleteLesson(store, { lessonId, classId }) {
-  LessonResource.deleteModel({ id: lessonId })
-    .then(() => {
-      router.replace({
-        name: LessonsPageNames.PLAN_LESSONS_ROOT,
-        params: {
-          classId,
-          lessonId,
-        },
-      });
-      showSnackbar(store, translator.$tr('lessonDeleted'));
-    })
-    .catch(error => {
-      // TODO handle error inside the current page
-      store.dispatch('handleApiError', error, { root: true });
-      logError(error);
-    });
-}
-
-export function copyLesson(store, payload) {
-  return LessonResource.saveModel({ data: payload });
 }

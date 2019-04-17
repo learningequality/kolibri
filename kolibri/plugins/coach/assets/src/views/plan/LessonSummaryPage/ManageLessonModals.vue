@@ -7,7 +7,7 @@
       :assignmentQuestion="$tr('assignmentQuestion')"
       :classId="classId"
       :classList="classList"
-      @submit="handleCopy"
+      @submit="handleSubmitCopy"
       @cancel="closeModal"
     />
 
@@ -15,7 +15,7 @@
       v-if="currentAction === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
-      @submit="deleteLesson({ lessonId: currentLesson.id, classId })"
+      @submit="handleSubmitDelete"
       @cancel="closeModal"
     />
   </div>
@@ -28,7 +28,8 @@
   import find from 'lodash/find';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
+  import { LessonResource } from 'kolibri.resources';
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -42,14 +43,14 @@
     },
     mixins: [coachStringsMixin],
     props: {
+      // Should be 'COPY' or 'DELETE'
       currentAction: {
         type: String,
       },
     },
     computed: {
       ...mapState(['classList']),
-      ...mapState('classSummary', { className: 'name' }),
-      ...mapState('lessonSummary', ['currentLesson', 'lessonsModalSet', 'learnerGroups']),
+      ...mapState('lessonSummary', ['currentLesson']),
       AssignmentActions() {
         return AssignmentActions;
       },
@@ -58,25 +59,24 @@
       },
     },
     methods: {
-      ...mapActions('lessonSummary', ['deleteLesson']),
       closeModal() {
         this.$emit('cancel');
       },
-      handleCopy(selectedClassroomId, selectedCollectionIds) {
+      handleSubmitCopy(selectedClassroomId, selectedCollectionIds) {
         const title = this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(
           0,
           50
         );
-        const payload = {
-          title,
-          description: this.currentLesson.description,
-          resources: this.currentLesson.resources,
-          collection: selectedClassroomId,
-          lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
-        };
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
-        this.$store
-          .dispatch('lessonSummary/copyLesson', payload)
+        LessonResource.saveModel({
+          data: {
+            title,
+            description: this.currentLesson.description,
+            resources: this.currentLesson.resources,
+            collection: selectedClassroomId,
+            lesson_assignments: selectedCollectionIds.map(id => ({ collection: id })),
+          },
+        })
           .then(() => {
             // If copied to the same classroom, update the class summary
             if (this.classId === selectedClassroomId) {
@@ -103,6 +103,18 @@
             this.closeModal();
           });
       },
+      handleSubmitDelete() {
+        const { title, id } = this.currentLesson;
+        return LessonResource.deleteModel({ id })
+          .then(() => {
+            this.$router.replace(this.$router.getRoute('PLAN_LESSONS_ROOT'), () => {
+              this.$store.dispatch('createSnackbar', this.$tr('lessonDeleted', { title }));
+            });
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
+      },
     },
     $trs: {
       copyLessonTitle: 'Copy lesson to',
@@ -112,6 +124,7 @@
       copyOfLesson: 'Copy of { lessonTitle }',
       copiedLessonTo: `Copied lesson to '{classroomName}'`,
       uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
+      lessonDeleted: `Lesson '{title}' was deleted`,
     },
   };
 
