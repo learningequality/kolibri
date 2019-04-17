@@ -210,6 +210,17 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.content.decode("utf-8"), content)
 
     @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
+    def test_request_for_html_body_script_return_correct_length_header(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.script_name)
+        file_size = len(
+            '<html><head><template hashi-script="true"><script>test</script></template></head>'
+            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
+        )
+        self.assertEqual(int(response["Content-Length"]), file_size)
+
+    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
     def test_request_for_html_body_async_script_return_hashi_modified_html(
         self, filename_patch
     ):
