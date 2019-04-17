@@ -1,5 +1,7 @@
 import uuid
 
+from django.db import DataError
+
 from kolibri.core.auth.test.migrationtestcase import TestMigrations
 
 
@@ -106,3 +108,11 @@ class ChannelOrderTestCase(TestMigrations):
         for channel in ChannelMetadata.objects.all():
             self.assertEqual(channel.order, pos)
             pos += 1
+
+    def test_channel_published_size(self):
+        # tests the integer field overflow for postgres
+        ChannelMetadata = self.apps.get_model("content", "ChannelMetadata")
+        channel = ChannelMetadata.objects.first()
+        channel.published_size = 2150000000  # out of range for integer field on postgres
+        with self.assertRaises(DataError):
+            channel.save()
