@@ -222,12 +222,16 @@
       closeModal() {
         this.$emit('cancel');
       },
-      // NOTE: These methods are not used inside the component, but may be called
-      // from a parent component
+      /**
+       * @public
+       */
       handleSubmitFailure() {
         this.formIsSubmitted = false;
         this.showServerError = true;
       },
+      /**
+       * @public
+       */
       handleSubmitTitleFailure() {
         this.formIsSubmitted = false;
         this.showTitleError = true;

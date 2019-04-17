@@ -2,7 +2,9 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
-const GROUP_WATCHER = 'watch';
+const constants = require('./constants');
+
+const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = constants;
 
 module.exports = {
   /**
@@ -46,9 +48,19 @@ module.exports = {
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
-      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCHER]))
+      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCH]))
     );
     return watchers.map(watcher => watcher.name);
+  },
+
+  /**
+   * Return an array containing end locations of all comments containing
+   * jsdoc's `@public`
+   */
+  getPublicCommentsEnds(comments) {
+    return comments
+      .filter(comment => comment.value.includes('@public'))
+      .map(comment => comment.loc.end.line);
   },
 
   /**
@@ -86,5 +98,31 @@ module.exports = {
         func();
       },
     };
+  },
+
+  /**
+   * Report unused Vue component properties.
+   * @param {Array} disabledLines An array of lines to not be reported, e.g. [14, 24]
+   */
+  reportUnusedProperties(context, properties, disabledLines) {
+    if (!properties || !properties.length) {
+      return;
+    }
+
+    properties.forEach(property => {
+      if (disabledLines && disabledLines.includes(property.node.loc.start.line)) {
+        return;
+      }
+
+      let message = `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`;
+      if (property.groupName === GROUP_METHODS) {
+        message = `${message}. If the method is supposed to be public, you might have forgotten to add a @public tag.`;
+      }
+
+      context.report({
+        node: property.node,
+        message,
+      });
+    });
   },
 };

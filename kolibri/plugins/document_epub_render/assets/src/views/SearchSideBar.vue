@@ -175,7 +175,9 @@
       },
     },
     methods: {
-      // Called from parent
+      /**
+       * @public
+       */
       focusOnInput() {
         this.$refs.searchInput.focus();
       },

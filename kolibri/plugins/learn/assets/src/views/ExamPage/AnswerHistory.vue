@@ -47,14 +47,6 @@
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },
     methods: {
-      daysElapsedText(daysElapsed) {
-        if (daysElapsed > 1) {
-          return this.$tr('daysAgo', { daysElapsed });
-        } else if (daysElapsed === 1) {
-          return this.$tr('yesterday');
-        }
-        return this.$tr('today');
-      },
       questionText(num) {
         return this.$tr('question', { num });
       },

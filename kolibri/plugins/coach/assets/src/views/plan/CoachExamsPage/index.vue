@@ -333,12 +333,6 @@
           this.showDeleteModal = false;
         });
       },
-      genExamRoute(examId) {
-        return {
-          name: PageNames.EXAM_PREVIEW,
-          params: { examId },
-        };
-      },
       genRecipientsString(groups) {
         if (!groups.length) {
           return this.$tr('entireClass');

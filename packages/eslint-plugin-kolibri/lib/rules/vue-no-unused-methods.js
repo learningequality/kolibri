@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow unused properties, data or computed properties.
+ * @fileoverview Disallow unused methods.
  */
 
 'use strict';
@@ -8,14 +8,19 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-const constants = require('../constants');
-
-const { GROUP_PROPS, GROUP_DATA, GROUP_COMPUTED } = constants;
+const { GROUP_METHODS } = require('../constants');
 
 const create = context => {
   let hasTemplate;
   let unusedProperties = [];
   let thisExpressionsVariablesNames = [];
+  let watchStringMethods = [];
+
+  const sourceCode = context.getSourceCode();
+  const comments = sourceCode.getAllComments();
+
+  const publicCommentsEnds = utils.getPublicCommentsEnds(comments);
+  const disabledLines = publicCommentsEnds.map(value => value + 1);
 
   const initialize = {
     Program(node) {
@@ -32,25 +37,30 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    /*
+      watch: {
+        counter: 'getCount'
+      }
+    */
+    {
+      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
+        watchStringMethods.push(node.value);
+      },
+    },
     eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
-        eslintPluginVueUtils.iterateProperties(
-          obj,
-          new Set([GROUP_PROPS, GROUP_DATA, GROUP_COMPUTED])
-        )
+        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_METHODS]))
       );
-
-      const watchersNames = utils.getWatchersNames(obj);
 
       remove(unusedProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
-          watchersNames.includes(property.name)
+          watchStringMethods.includes(property.name)
         );
       });
 
       if (!hasTemplate && unusedProperties.length) {
-        utils.reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
     })
   );
@@ -68,7 +78,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedProperties.length) {
-        utils.reportUnusedProperties(context, unusedProperties);
+        utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
     })
   );
@@ -83,7 +93,7 @@ const create = context => {
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallow unused properties, data or computed properties',
+      description: 'Disallow unused methods',
     },
     fixable: null,
   },
