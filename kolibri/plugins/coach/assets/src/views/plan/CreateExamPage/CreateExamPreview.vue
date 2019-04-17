@@ -5,14 +5,14 @@
     immersivePageIcon="arrow_back"
     immersivePagePrimary
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="previewQuizStrings.$tr('preview')"
+    :appBarTitle="$tr('preview')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
   >
 
     <KPageContainer>
-      <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
+      <h1>{{ $tr('preview') }}</h1>
       <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -140,14 +140,12 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoach from '../../common';
-  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
   import Bottom from './Bottom';
   import CreateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
-  const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
   export default {
     name: 'CreateExamPreview',
@@ -187,9 +185,6 @@
       },
       moreStrings() {
         return createExamPageStrings;
-      },
-      previewQuizStrings() {
-        return previewQuizStrings;
       },
       examTitle: {
         get() {
@@ -286,6 +281,7 @@
       questionOrder: 'Question order',
       questions: 'Questions',
       newQuestions: 'New question set created',
+      preview: 'Preview quiz',
     },
   };
 

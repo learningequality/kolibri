@@ -79,7 +79,6 @@
 
 <script>
 
-  import { mapState, mapMutations } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
@@ -113,8 +112,6 @@
       };
     },
     computed: {
-      ...mapState(['classList']),
-      ...mapState('examsRoot', { fullExamInfo: 'exams' }),
       sortedExams() {
         return this.exams.slice().reverse();
       },
@@ -145,13 +142,6 @@
       },
     },
     methods: {
-      ...mapMutations('classSummary', ['UPDATE_ITEM', 'CREATE_ITEM', 'DELETE_ITEM']),
-      genExamRoute(examId) {
-        return {
-          name: PageNames.EXAM_PREVIEW,
-          params: { examId },
-        };
-      },
       genRecipientsString(groups) {
         if (!groups.length) {
           return this.coachStrings.$tr('entireClassLabel');
