@@ -1,0 +1,13 @@
+{
+  "kinds": [
+    {
+      "name": "slideshow",
+      "extensions": [
+        "jpg",
+        "png",
+        "gif",
+        "jpeg"
+      ]
+    }
+  ]
+}
