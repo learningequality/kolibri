@@ -41,7 +41,7 @@
       </div>
 
       <div
-        v-show="coachContentInResults"
+        v-if="coachContentInResults"
         class="ib"
       >
         <mat-svg
@@ -147,7 +147,7 @@
         return find(this.roleFilterOptions, { value: this.value.role }) || {};
       },
       coachContentInResults() {
-        return find(this.searchResults.results, result => result.num_coach_contents > 0);
+        return Boolean(find(this.searchResults.results, result => result.num_coach_contents > 0));
       },
       roleFilterOptions() {
         return [
@@ -169,13 +169,11 @@
       all: 'All',
       audio: 'Audio',
       channelFilterLabel: 'Channel:',
-      coach: 'Coach',
       contentKindFilterLabel: 'Type:',
       documents: 'Documents',
       exercises: 'Exercises',
       html5: 'Apps',
-      nonCoach: 'Non-coach',
-      coachResourcesLabel: 'Coach resources',
+      coachResourcesLabel: 'Coach resources:',
       topics: 'Topics',
       videos: 'Videos',
       showAction: 'Show',
