@@ -3,19 +3,23 @@
 from __future__ import unicode_literals
 
 import django.db.models.deletion
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('device', '0001_initial'),
-    ]
+    dependencies = [("device", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='devicesettings',
-            name='default_facility',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='kolibriauth.Facility'),
-        ),
+            model_name="devicesettings",
+            name="default_facility",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="kolibriauth.Facility",
+            ),
+        )
     ]

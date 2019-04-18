@@ -112,7 +112,6 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
 
 @method_decorator(signin_redirect_exempt, name="dispatch")
 class ZipContentView(View):
-
     @xframe_options_exempt
     @add_security_headers
     def options(self, request, *args, **kwargs):
@@ -133,12 +132,8 @@ class ZipContentView(View):
         bootstrap_content = cache.get(cache_key)
         if bootstrap_content is None:
             template = loader.get_template("content/hashi.html")
-            hashi_path = "content/{filename}".format(
-                filename=get_hashi_filename()
-            )
-            bootstrap_content = template.render(
-                {"hashi_path": hashi_path}, None
-            )
+            hashi_path = "content/{filename}".format(filename=get_hashi_filename())
+            bootstrap_content = template.render({"hashi_path": hashi_path}, None)
             cache.set(cache_key, bootstrap_content)
         response = HttpResponse(bootstrap_content)
         return response
@@ -150,16 +145,29 @@ class ZipContentView(View):
             h5pdata = json.loads(zf.open(zf.getinfo("h5p.json")).read())
             jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
             contentdata = zf.open(zf.getinfo("content/content.json")).read()
-            path_includes_version = "true" if "-" in [name for name in zf.namelist() if "/" in name][0] else "false"
-            template = loader.get_template('content/h5p.html')
-            main_library_data = [lib for lib in h5pdata["preloadedDependencies"] if lib["machineName"] == h5pdata["mainLibrary"]][0]
-            bootstrap_content = template.render({
-                "jsfiles": jsfiles,
-                "cssfiles": cssfiles,
-                "content": contentdata,
-                "library": "{machineName} {majorVersion}.{minorVersion}".format(**main_library_data),
-                "path_includes_version": path_includes_version,
-            }, None)
+            path_includes_version = (
+                "true"
+                if "-" in [name for name in zf.namelist() if "/" in name][0]
+                else "false"
+            )
+            template = loader.get_template("content/h5p.html")
+            main_library_data = [
+                lib
+                for lib in h5pdata["preloadedDependencies"]
+                if lib["machineName"] == h5pdata["mainLibrary"]
+            ][0]
+            bootstrap_content = template.render(
+                {
+                    "jsfiles": jsfiles,
+                    "cssfiles": cssfiles,
+                    "content": contentdata,
+                    "library": "{machineName} {majorVersion}.{minorVersion}".format(
+                        **main_library_data
+                    ),
+                    "path_includes_version": path_includes_version,
+                },
+                None,
+            )
             response = HttpResponse(bootstrap_content)
             return response
         elif embedded_filepath.startswith("dist/"):
@@ -196,7 +204,9 @@ class ZipContentView(View):
         with zipfile.ZipFile(zipped_path) as zf:
 
             # handle H5P files
-            if zipped_path.endswith('h5p') and (not embedded_filepath or embedded_filepath.startswith("dist/")):
+            if zipped_path.endswith("h5p") and (
+                not embedded_filepath or embedded_filepath.startswith("dist/")
+            ):
                 return self.get_h5p(request, zf, embedded_filepath)
 
             # if no path, or a directory, is being referenced, look for an index.html file

@@ -27,7 +27,9 @@ class KolibriLocaleMiddleware(object):
     def __call__(self, request):
         # First get the language code, and whether this was calculated from the path
         # i.e. was this a language-prefixed URL.
-        language, language_from_path = get_language_from_request_and_is_from_path(request)
+        language, language_from_path = get_language_from_request_and_is_from_path(
+            request
+        )
         # If this URL has been resolved to a view, and the view is not on a language prefixed
         # URL, then the function above will return None for the language code to indicate that
         # no translation is necessary.
@@ -48,29 +50,28 @@ class KolibriLocaleMiddleware(object):
                 # First get any global prefix that is being used.
                 script_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
                 # Replace the global prefix with the global prefix and the language prefix.
-                language_path = request.path_info.replace(script_prefix, "%s%s/" % (script_prefix, language), 1)
+                language_path = request.path_info.replace(
+                    script_prefix, "%s%s/" % (script_prefix, language), 1
+                )
 
                 # Get the urlconf from the request, default to the global settings ROOT_URLCONF
                 urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)
                 # Check if this is a valid path
                 path_valid = is_valid_path(language_path, urlconf)
                 # Check if the path is only invalid because it is missing a trailing slash
-                path_needs_slash = (
-                    not path_valid and (
-                        settings.APPEND_SLASH and not language_path.endswith("/")
-                        and is_valid_path("%s/" % language_path, urlconf)
-                    )
+                path_needs_slash = not path_valid and (
+                    settings.APPEND_SLASH
+                    and not language_path.endswith("/")
+                    and is_valid_path("%s/" % language_path, urlconf)
                 )
                 # If the constructed path is valid, or it would be valid with a trailing slash
                 # then redirect to the prefixed path, with a trailing slash added if needed.
                 if path_valid or path_needs_slash:
                     # Insert language after the script prefix and before the
                     # rest of the URL
-                    language_url = request.get_full_path(force_append_slash=path_needs_slash).replace(
-                        script_prefix,
-                        "%s%s/" % (script_prefix, language),
-                        1
-                    )
+                    language_url = request.get_full_path(
+                        force_append_slash=path_needs_slash
+                    ).replace(script_prefix, "%s%s/" % (script_prefix, language), 1)
                     return HttpResponseRedirect(language_url)
 
             # Add a content language header to the response if not already present.

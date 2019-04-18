@@ -14,28 +14,65 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='LearnerProgressNotification',
+            name="LearnerProgressNotification",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notification_object', models.CharField(blank=True, choices=[('Help', 'Help'),
-                                                                              ('Lesson', 'Lesson'),
-                                                                              ('Quiz', 'Quiz'),
-                                                                              ('Resource', 'Resource')], max_length=200)),
-                ('notification_event', models.CharField(blank=True, choices=[('Completed', 'Completed'),
-                                                                             ('Help', 'HelpNeeded'),
-                                                                             ('Started', 'Started')], max_length=200)),
-                ('user_id', kolibri.core.content.models.UUIDField()),
-                ('classroom_id', kolibri.core.content.models.UUIDField()),
-                ('contentnode_id', kolibri.core.content.models.UUIDField(null=True)),
-                ('lesson_id', kolibri.core.content.models.UUIDField(null=True)),
-                ('quiz_id', kolibri.core.content.models.UUIDField(null=True)),
-                ('reason', models.CharField(blank=True, choices=[('Multiple', 'MultipleUnsuccessfulAttempts')], max_length=200)),
-                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "notification_object",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Help", "Help"),
+                            ("Lesson", "Lesson"),
+                            ("Quiz", "Quiz"),
+                            ("Resource", "Resource"),
+                        ],
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "notification_event",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Completed", "Completed"),
+                            ("Help", "HelpNeeded"),
+                            ("Started", "Started"),
+                        ],
+                        max_length=200,
+                    ),
+                ),
+                ("user_id", kolibri.core.content.models.UUIDField()),
+                ("classroom_id", kolibri.core.content.models.UUIDField()),
+                ("contentnode_id", kolibri.core.content.models.UUIDField(null=True)),
+                ("lesson_id", kolibri.core.content.models.UUIDField(null=True)),
+                ("quiz_id", kolibri.core.content.models.UUIDField(null=True)),
+                (
+                    "reason",
+                    models.CharField(
+                        blank=True,
+                        choices=[("Multiple", "MultipleUnsuccessfulAttempts")],
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "timestamp",
+                    kolibri.core.fields.DateTimeTzField(
+                        default=kolibri.utils.time_utils.local_now
+                    ),
+                ),
             ],
-        ),
+        )
     ]

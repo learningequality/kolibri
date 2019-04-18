@@ -6,6 +6,7 @@ from django.db import migrations
 from django.db import models
 
 from ..constants.facility_presets import choices as facility_choices
+
 # This is necessary because:
 # 1. The list generator has an unpredictable order, and when items swap places
 #    then this would be picked up as a change in Django if we had used
@@ -18,18 +19,15 @@ from ..constants.facility_presets import choices as facility_choices
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0006_auto_20171206_1207'),
-    ]
+    dependencies = [("kolibriauth", "0006_auto_20171206_1207")]
 
     operations = [
         migrations.AlterField(
-            model_name='facilitydataset',
-            name='preset',
-            field=models.CharField(choices=facility_choices, default='nonformal', max_length=50),
+            model_name="facilitydataset",
+            name="preset",
+            field=models.CharField(
+                choices=facility_choices, default="nonformal", max_length=50
+            ),
         ),
-        migrations.AlterUniqueTogether(
-            name='facilityuser',
-            unique_together=set([]),
-        ),
+        migrations.AlterUniqueTogether(name="facilityuser", unique_together=set([])),
     ]

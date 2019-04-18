@@ -17,26 +17,27 @@ from kolibri.utils.tests.helpers import override_option
 
 
 settings_override_dict = {
-    'USE_I18N': True,
-    'LANGUAGE_CODE': 'en',
-    'LANGUAGES': [
-        ('en', 'English'),
-        ('fr-fr', 'French'),
+    "USE_I18N": True,
+    "LANGUAGE_CODE": "en",
+    "LANGUAGES": [("en", "English"), ("fr-fr", "French")],
+    "MIDDLEWARE": [
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "kolibri.core.device.middleware.KolibriLocaleMiddleware",
+        "django.middleware.common.CommonMiddleware",
     ],
-    'MIDDLEWARE': [
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'kolibri.core.device.middleware.KolibriLocaleMiddleware',
-        'django.middleware.common.CommonMiddleware',
+    "ROOT_URLCONF": "kolibri.core.device.test.locale_middleware_urls",
+    "TEMPLATES": [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": [os.path.join(os.path.dirname(upath(__file__)), "templates")],
+        }
     ],
-    'ROOT_URLCONF': 'kolibri.core.device.test.locale_middleware_urls',
-    'TEMPLATES': [{
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(os.path.dirname(upath(__file__)), 'templates')],
-    }],
 }
 
 prefixed_settings_override_dict = settings_override_dict.copy()
-prefixed_settings_override_dict['ROOT_URLCONF'] = 'kolibri.core.device.test.prefixed_locale_middleware_urls'
+prefixed_settings_override_dict[
+    "ROOT_URLCONF"
+] = "kolibri.core.device.test.prefixed_locale_middleware_urls"
 
 
 def get_url(url):
@@ -61,21 +62,30 @@ class URLPrefixTestsBase(object):
     """
     Tests if the `i18n_patterns` is adding the prefix correctly.
     """
+
     def test_not_prefixed(self):
-        with translation.override('en'):
-            self.assertEqual(reverse('not-prefixed'), get_url('not-prefixed/'))
-            self.assertEqual(reverse('not-prefixed-included-url'), get_url('not-prefixed-include/foo/'))
-        with translation.override('fr-fr'):
-            self.assertEqual(reverse('not-prefixed'), get_url('not-prefixed/'))
-            self.assertEqual(reverse('not-prefixed-included-url'), get_url('not-prefixed-include/foo/'))
+        with translation.override("en"):
+            self.assertEqual(reverse("not-prefixed"), get_url("not-prefixed/"))
+            self.assertEqual(
+                reverse("not-prefixed-included-url"),
+                get_url("not-prefixed-include/foo/"),
+            )
+        with translation.override("fr-fr"):
+            self.assertEqual(reverse("not-prefixed"), get_url("not-prefixed/"))
+            self.assertEqual(
+                reverse("not-prefixed-included-url"),
+                get_url("not-prefixed-include/foo/"),
+            )
 
     def test_prefixed(self):
-        with translation.override('en'):
-            self.assertEqual(reverse('prefixed'), get_url('en/prefixed/'))
-        with translation.override('fr-fr'):
-            self.assertEqual(reverse('prefixed'), get_url('fr-fr/prefixed/'))
+        with translation.override("en"):
+            self.assertEqual(reverse("prefixed"), get_url("en/prefixed/"))
+        with translation.override("fr-fr"):
+            self.assertEqual(reverse("prefixed"), get_url("fr-fr/prefixed/"))
         with translation.override(None):
-            self.assertEqual(reverse('prefixed'), get_url('%s/prefixed/') % settings.LANGUAGE_CODE)
+            self.assertEqual(
+                reverse("prefixed"), get_url("%s/prefixed/") % settings.LANGUAGE_CODE
+            )
 
 
 @override_settings(**settings_override_dict)
@@ -94,34 +104,41 @@ class URLRedirectTestsBase(object):
     Tests if the user gets redirected to the right URL when there is no
     language-prefix in the request URL.
     """
+
     def test_no_prefix_response(self):
-        response = self.client.get(get_url('not-prefixed/'))
+        response = self.client.get(get_url("not-prefixed/"))
         self.assertEqual(response.status_code, 200)
 
     def test_en_prefixed_redirect(self):
-        response = self.client.get(get_url('prefixed/'), HTTP_ACCEPT_LANGUAGE='en', follow=True)
-        self.assertRedirects(response, get_url('en/prefixed/'), 302)
+        response = self.client.get(
+            get_url("prefixed/"), HTTP_ACCEPT_LANGUAGE="en", follow=True
+        )
+        self.assertRedirects(response, get_url("en/prefixed/"), 302)
 
     def test_fr_fr_prefixed_redirect(self):
-        response = self.client.get(get_url('prefixed/'), HTTP_ACCEPT_LANGUAGE='fr-fr', follow=True)
-        self.assertRedirects(response, get_url('fr-fr/prefixed/'), 302)
+        response = self.client.get(
+            get_url("prefixed/"), HTTP_ACCEPT_LANGUAGE="fr-fr", follow=True
+        )
+        self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 
     def test_fr_fr_prefixed_redirect_session(self):
         session = self.client.session
-        session[translation.LANGUAGE_SESSION_KEY] = 'fr-fr'
+        session[translation.LANGUAGE_SESSION_KEY] = "fr-fr"
         session.save()
-        response = self.client.get(get_url('prefixed/'), follow=True)
-        self.assertRedirects(response, get_url('fr-fr/prefixed/'), 302)
+        response = self.client.get(get_url("prefixed/"), follow=True)
+        self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 
     def test_fr_fr_prefixed_redirect_cookie(self):
-        self.client.cookies = SimpleCookie({settings.LANGUAGE_COOKIE_NAME: 'fr-fr'})
-        response = self.client.get(get_url('prefixed/'), follow=True)
-        self.assertRedirects(response, get_url('fr-fr/prefixed/'), 302)
+        self.client.cookies = SimpleCookie({settings.LANGUAGE_COOKIE_NAME: "fr-fr"})
+        response = self.client.get(get_url("prefixed/"), follow=True)
+        self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 
     def test_fr_fr_prefixed_redirect_device_setting(self):
-        with patch('kolibri.core.device.translation.get_device_language', return_value='fr-fr'):
-            response = self.client.get(get_url('prefixed/'), follow=True)
-            self.assertRedirects(response, get_url('fr-fr/prefixed/'), 302)
+        with patch(
+            "kolibri.core.device.translation.get_device_language", return_value="fr-fr"
+        ):
+            response = self.client.get(get_url("prefixed/"), follow=True)
+            self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 
 
 @override_settings(**settings_override_dict)
@@ -139,35 +156,48 @@ class URLRedirectWithoutTrailingSlashTestsBase(object):
     """
     Tests the redirect when the requested URL doesn't end with a slash
     """
+
     def test_not_prefixed_redirect(self):
-        response = self.client.get(get_url('not-prefixed'), HTTP_ACCEPT_LANGUAGE='en')
-        self.assertRedirects(response, get_url('not-prefixed/'), 301)
+        response = self.client.get(get_url("not-prefixed"), HTTP_ACCEPT_LANGUAGE="en")
+        self.assertRedirects(response, get_url("not-prefixed/"), 301)
 
     def test_en_prefixed_redirect(self):
-        response = self.client.get(get_url('prefixed'), HTTP_ACCEPT_LANGUAGE='en', follow=True)
-        self.assertRedirects(response, get_url('en/prefixed/'), 302)
+        response = self.client.get(
+            get_url("prefixed"), HTTP_ACCEPT_LANGUAGE="en", follow=True
+        )
+        self.assertRedirects(response, get_url("en/prefixed/"), 302)
 
     def test_fr_fr_prefixed_redirect(self):
-        response = self.client.get(get_url('prefixed'), HTTP_ACCEPT_LANGUAGE='fr-fr', follow=True)
-        self.assertRedirects(response, get_url('fr-fr/prefixed/'), 302)
+        response = self.client.get(
+            get_url("prefixed"), HTTP_ACCEPT_LANGUAGE="fr-fr", follow=True
+        )
+        self.assertRedirects(response, get_url("fr-fr/prefixed/"), 302)
 
     def test_en_redirect(self):
-        response = self.client.get(get_url('prefixed.xml'), HTTP_ACCEPT_LANGUAGE='en', follow=True)
-        self.assertRedirects(response, get_url('en/prefixed.xml'), 302)
+        response = self.client.get(
+            get_url("prefixed.xml"), HTTP_ACCEPT_LANGUAGE="en", follow=True
+        )
+        self.assertRedirects(response, get_url("en/prefixed.xml"), 302)
 
     def test_fr_fr_redirect(self):
-        response = self.client.get(get_url('prefixed.xml'), HTTP_ACCEPT_LANGUAGE='fr-fr', follow=True)
-        self.assertRedirects(response, get_url('fr-fr/prefixed.xml'), 302)
+        response = self.client.get(
+            get_url("prefixed.xml"), HTTP_ACCEPT_LANGUAGE="fr-fr", follow=True
+        )
+        self.assertRedirects(response, get_url("fr-fr/prefixed.xml"), 302)
 
 
 @override_settings(**settings_override_dict)
-class URLRedirectWithoutTrailingSlashTests(URLRedirectWithoutTrailingSlashTestsBase, URLTestCaseBase):
+class URLRedirectWithoutTrailingSlashTests(
+    URLRedirectWithoutTrailingSlashTestsBase, URLTestCaseBase
+):
     pass
 
 
 @override_settings(**prefixed_settings_override_dict)
 @override_option("Deployment", "URL_PATH_PREFIX", "test/")
-class PrefixedURLRedirectWithoutTrailingSlashTests(URLRedirectWithoutTrailingSlashTestsBase, URLTestCaseBase):
+class PrefixedURLRedirectWithoutTrailingSlashTests(
+    URLRedirectWithoutTrailingSlashTestsBase, URLTestCaseBase
+):
     pass
 
 
@@ -175,8 +205,9 @@ class URLResponseTestsBase(object):
     """
     Tests if the response has the right language-code.
     """
+
     def test_not_prefixed_with_prefix(self):
-        response = self.client.get(get_url('en/not-prefixed/'))
+        response = self.client.get(get_url("en/not-prefixed/"))
         self.assertEqual(response.status_code, 404)
 
 

@@ -9,7 +9,6 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class SetupWizardPlugin(KolibriPluginBase):
-
     def url_slug(self):
         return "^setup_wizard/"
 

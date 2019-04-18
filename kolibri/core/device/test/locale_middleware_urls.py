@@ -8,20 +8,20 @@ from kolibri.core.device.translation import i18n_patterns
 
 path_prefix = ""
 
-view = TemplateView.as_view(template_name='dummy.html')
+view = TemplateView.as_view(template_name="dummy.html")
 
-included = [
-    url(r'^foo/$', view, name='not-prefixed-included-url'),
-]
+included = [url(r"^foo/$", view, name="not-prefixed-included-url")]
 
 patterns = [
-    url(r'^not-prefixed/$', view, name='not-prefixed'),
-    url(r'^not-prefixed-include/', include(included)),
+    url(r"^not-prefixed/$", view, name="not-prefixed"),
+    url(r"^not-prefixed-include/", include(included)),
 ]
 
-patterns += i18n_patterns([
-    url(r'^prefixed/$', view, name='prefixed'),
-    url(r'^prefixed\.xml$', view, name='prefixed_xml'),
-])
+patterns += i18n_patterns(
+    [
+        url(r"^prefixed/$", view, name="prefixed"),
+        url(r"^prefixed\.xml$", view, name="prefixed_xml"),
+    ]
+)
 
 urlpatterns = [url(path_prefix, include(patterns))]

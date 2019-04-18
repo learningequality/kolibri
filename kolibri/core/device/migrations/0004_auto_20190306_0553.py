@@ -8,14 +8,12 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('device', '0003_contentcachekey'),
-    ]
+    dependencies = [("device", "0003_contentcachekey")]
 
     operations = [
         migrations.AlterField(
-            model_name='devicesettings',
-            name='language_id',
-            field=models.CharField(blank=True, default='en', max_length=15, null=True),
-        ),
+            model_name="devicesettings",
+            name="language_id",
+            field=models.CharField(blank=True, default="en", max_length=15, null=True),
+        )
     ]

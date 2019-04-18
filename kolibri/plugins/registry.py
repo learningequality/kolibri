@@ -129,16 +129,18 @@ def get_urls():
         api_url_module = plugin_instance.api_url_module()
         instance_patterns = []
         # Normalize slug
-        slug = plugin_instance.url_slug().lstrip('^').rstrip('/') + '/'
+        slug = plugin_instance.url_slug().lstrip("^").rstrip("/") + "/"
         if url_module:
             instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
         if api_url_module:
-            instance_patterns.append(url(slug + 'api/', include(api_url_module)),)
+            instance_patterns.append(url(slug + "api/", include(api_url_module)))
         if instance_patterns:
             urlpatterns.append(
                 url(
                     "",
-                    include(instance_patterns, namespace=plugin_instance.url_namespace())
+                    include(
+                        instance_patterns, namespace=plugin_instance.url_namespace()
+                    ),
                 )
             )
 

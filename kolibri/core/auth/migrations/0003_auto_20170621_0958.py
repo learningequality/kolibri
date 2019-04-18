@@ -24,23 +24,34 @@ def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
         except OperationalError:
             pass
 
+
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0002_auto_20170608_2125'),
-    ]
+    dependencies = [("kolibriauth", "0002_auto_20170608_2125")]
 
     operations = [
         migrations.AlterField(
-            model_name='deviceowner',
-            name='date_joined',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now, editable=False, verbose_name='date joined'),
+            model_name="deviceowner",
+            name="date_joined",
+            field=kolibri.core.fields.DateTimeTzField(
+                default=kolibri.utils.time_utils.local_now,
+                editable=False,
+                verbose_name="date joined",
+            ),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="DeviceOwner")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="DeviceOwner")
+        ),
         migrations.AlterField(
-            model_name='facilityuser',
-            name='date_joined',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now, editable=False, verbose_name='date joined'),
+            model_name="facilityuser",
+            name="date_joined",
+            field=kolibri.core.fields.DateTimeTzField(
+                default=kolibri.utils.time_utils.local_now,
+                editable=False,
+                verbose_name="date joined",
+            ),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="FacilityUser")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="FacilityUser")
+        ),
     ]

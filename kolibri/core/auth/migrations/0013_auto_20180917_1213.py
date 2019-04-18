@@ -9,14 +9,23 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0012_facilitydataset_allow_guest_access'),
-    ]
+    dependencies = [("kolibriauth", "0012_facilitydataset_allow_guest_access")]
 
     operations = [
         migrations.AlterField(
-            model_name='facilityuser',
-            name='username',
-            field=models.CharField(help_text='Required. 30 characters or fewer. Letters and digits only', max_length=30, validators=[django.core.validators.RegexValidator('[\\s`~!@#$%^&*()\\-+={}\\[\\]\\|\\\\\\/:;"\\\'<>,\\.\\?]', 'Enter a valid username. This value can contain only letters, numbers, and underscores.', inverse_match=True)], verbose_name='username'),
-        ),
+            model_name="facilityuser",
+            name="username",
+            field=models.CharField(
+                help_text="Required. 30 characters or fewer. Letters and digits only",
+                max_length=30,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "[\\s`~!@#$%^&*()\\-+={}\\[\\]\\|\\\\\\/:;\"\\'<>,\\.\\?]",
+                        "Enter a valid username. This value can contain only letters, numbers, and underscores.",
+                        inverse_match=True,
+                    )
+                ],
+                verbose_name="username",
+            ),
+        )
     ]
