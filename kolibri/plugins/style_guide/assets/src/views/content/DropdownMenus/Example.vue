@@ -25,6 +25,7 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
 
   export default {
+    name: 'Example',
     components: { KDropdownMenu },
     data: () => ({
       options: [

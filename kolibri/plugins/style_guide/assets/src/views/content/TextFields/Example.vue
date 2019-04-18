@@ -34,6 +34,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
 
   export default {
+    name: 'Example',
     components: { KTextbox },
     data: () => ({
       model1: '',

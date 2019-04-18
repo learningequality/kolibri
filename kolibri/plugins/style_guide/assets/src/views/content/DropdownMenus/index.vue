@@ -19,7 +19,6 @@
 
 <script>
 
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';

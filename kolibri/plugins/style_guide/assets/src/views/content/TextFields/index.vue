@@ -131,7 +131,6 @@
 
 <script>
 
-  import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';

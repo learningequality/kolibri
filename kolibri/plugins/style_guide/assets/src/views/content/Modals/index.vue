@@ -2,7 +2,7 @@
 
   <PageTemplate title="Modals" :completed="false">
 
-    
+
     <ComponentDocs :api="KModalApi" />
     <h3>Code Example</h3>
     <VueExample :code="ExampleCode">
@@ -171,14 +171,14 @@
 
 <script>
 
-  import KModal from 'kolibri.coreVue.components.KModal';
-  import KButton from 'kolibri.coreVue.components.KButton';
+  /* eslint-disable import/no-duplicates */
   import PageTemplate from '../../shell/PageTemplate';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import Example from './Example.vue';
   import ExampleCode from '!!raw-loader!./Example.vue';
   import KModalApi from '!vue-doc!kolibri.coreVue.components.KModal';
+  /* eslint-enable import/no-duplicates */
 
   export default {
     name: 'Modals',

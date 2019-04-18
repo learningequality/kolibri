@@ -2,10 +2,10 @@
 
   <PageTemplate title="Grid" :completed="false">
 
-    
+
     <ComponentDocs :api="kGridApi" />
 
-    
+
     <ComponentDocs :api="kGridItemApi" />
 
     <h2>Code Example</h2>
@@ -23,8 +23,6 @@
 
 <script>
 
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';

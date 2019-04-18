@@ -8,7 +8,9 @@
       />
     </p>
     <ul>
-      <li v-for="item in filteredItems" :key="item">{{ item }}</li>
+      <li v-for="item in filteredItems" :key="item">
+        {{ item }}
+      </li>
     </ul>
   </div>
 
@@ -20,6 +22,7 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
 
   export default {
+    name: 'KFilterTextboxExample',
     components: { KFilterTextbox },
     data: () => ({
       filter: '',

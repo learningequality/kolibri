@@ -22,7 +22,6 @@
 
 <script>
 
-  import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import ComponentDocs from '../../shell/ComponentDocs';
   import VueExample from '../../shell/VueExample';
   import PageTemplate from '../../shell/PageTemplate';

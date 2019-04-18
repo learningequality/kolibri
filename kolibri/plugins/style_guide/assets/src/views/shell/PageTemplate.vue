@@ -1,8 +1,12 @@
 <template>
 
   <div>
-    <p v-if="!completed" class="in-progress">IN PROGRESS</p>
-    <h1 v-if="title">{{ title }}</h1>
+    <p v-if="!completed" class="in-progress">
+      IN PROGRESS
+    </p>
+    <h1 v-if="title">
+      {{ title }}
+    </h1>
     <slot></slot>
   </div>
 
