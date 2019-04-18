@@ -22,23 +22,14 @@
 
   export default {
     name: 'RecommendedSubpage',
-    $trs: {
-      popularPageHeader: 'Most popular',
-      resumePageHeader: 'Resume',
-      nextStepsPageHeader: 'Next steps',
-      recommended: 'Recommended',
-      documentTitleForPopular: 'Popular',
-      documentTitleForResume: 'Resume',
-      documentTitleForNextSteps: 'Next Steps',
-    },
-    components: {
-      ContentCardGroupGrid,
-      KBreadcrumbs,
-    },
     metaInfo() {
       return {
         title: this.documentTitle,
       };
+    },
+    components: {
+      ContentCardGroupGrid,
+      KBreadcrumbs,
     },
     computed: {
       ...mapState(['pageName']),
@@ -85,6 +76,15 @@
           kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
         return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
+    },
+    $trs: {
+      popularPageHeader: 'Most popular',
+      resumePageHeader: 'Resume',
+      nextStepsPageHeader: 'Next steps',
+      recommended: 'Recommended',
+      documentTitleForPopular: 'Popular',
+      documentTitleForResume: 'Resume',
+      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

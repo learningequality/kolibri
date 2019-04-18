@@ -64,6 +64,9 @@
       },
     },
     methods: {
+      /**
+       * @public
+       */
       scrollMainToTop() {
         this.$refs.main.scrollTop = 0;
       },

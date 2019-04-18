@@ -83,8 +83,6 @@ LOCALE_PATHS += [
 ]
 
 MIDDLEWARE = [
-    "kolibri.core.device.middleware.IgnoreGUIMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -104,6 +102,7 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
 
+CACHE_MIDDLEWARE_KEY_PREFIX = 'pages'
 CACHES = {
     # Default cache
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
@@ -124,7 +123,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "kolibri.core.context_processors.custom_context_processor.supported_browser",
                 "kolibri.core.context_processors.custom_context_processor.developer_mode",
             ]
         },
@@ -383,12 +381,18 @@ SESSION_COOKIE_AGE = 600
 
 if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
     import sentry_sdk
+    from kolibri.utils.server import installation_type
     from sentry_sdk.integrations.django import DjangoIntegration
 
     sentry_sdk.init(
         dsn=conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"],
+        environment=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
         integrations=[DjangoIntegration()],
         release=kolibri.__version__,
     )
+
+    with sentry_sdk.configure_scope() as scope:
+        scope.set_tag("mode", conf.OPTIONS["Deployment"]["RUN_MODE"])
+        scope.set_tag("installer", installation_type())
 
     print("Sentry backend error logging is enabled")

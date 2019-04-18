@@ -33,13 +33,13 @@
 
   export default {
     name: 'Snackbar',
-    $trs: {
-      close: 'Close',
-    },
     components: {
       UiIconButton,
     },
     mixins: [themeMixin],
+    $trs: {
+      close: 'Close',
+    },
   };
 
 </script>

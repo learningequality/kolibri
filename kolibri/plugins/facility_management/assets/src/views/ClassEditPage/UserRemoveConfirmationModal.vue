@@ -22,13 +22,6 @@
 
   export default {
     name: 'UserRemoveConfirmationModal',
-    $trs: {
-      modalTitle: 'Remove user',
-      remove: 'Remove',
-      cancel: 'Cancel',
-      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
-      description: "You can still access this account from the 'Users' tab.",
-    },
     components: {
       KModal,
     },
@@ -50,6 +43,13 @@
       close() {
         this.displayModal(false);
       },
+    },
+    $trs: {
+      modalTitle: 'Remove user',
+      remove: 'Remove',
+      cancel: 'Cancel',
+      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
+      description: "You can still access this account from the 'Users' tab.",
     },
   };
 

@@ -11,7 +11,6 @@ import json
 import logging
 import re
 
-import user_agents
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -53,46 +52,6 @@ def kolibri_content_cache_key():
     return mark_safe(js)
 
 
-def _supports_modern_fonts(request):
-    """
-    In order to use the modern font-loading strategy we need to ensure two things:
-
-    1. The browser needs to properly use the font-face unicode-range descriptor in order
-       only load fonts when they are needed. This allows us to reference fonts for every
-       supported alphabet while ensuring that the client doesn't download many megabytes
-       of font data.
-
-    2. The browser needs to avoid a flash of invisible text (FOIT) while extra fonts are
-       loading, and instead render text using the browser's default fonts (FOUT). This
-       allows users to view and begin reading text, even if the fonts haven't loaded yet.
-       With some browsers this means supporting the new font-display descriptor. The
-       Edge browser uses FOUT instead of FOIT by default, and therefore doesn't need to
-       support font-display.
-
-    Based on https://caniuse.com/#feat=font-unicode-range
-    """
-
-    if "HTTP_USER_AGENT" not in request.META:
-        return False
-
-    browser = user_agents.parse(request.META["HTTP_USER_AGENT"]).browser
-
-    if browser.family == "Edge":  # Edge only needs unicode-range, not font-display
-        return browser.version[0] >= 17
-    if browser.family in ("Firefox", "Firefox Mobile"):
-        return browser.version[0] >= 58
-    if browser.family in ("Chrome", "Chrome Mobile"):
-        return browser.version[0] >= 60
-    if browser.family == "Safari":
-        return browser.version[0] >= 11 and browser.version[1] >= 1
-    if browser.family == "Opera":
-        return browser.version[0] >= 47
-    if browser.family == "Mobile Safari":
-        return browser.version[0] >= 11 and browser.version[1] >= 4
-
-    return False
-
-
 @register.simple_tag(takes_context=True)
 def kolibri_language_globals(context):
 
@@ -101,11 +60,11 @@ def kolibri_language_globals(context):
       var languageCode = '{lang_code}';
       var languageDir = '{lang_dir}';
       var languages = JSON.parse('{languages}');
-      var useModernFontLoading = {use_modern};
+      var fullCSSFileModern = '{full_css_file_modern}?v={version}';
+      var fullCSSFileBasic = '{full_css_file_basic}?v={version}';
     </script>
     <link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>
     <link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>
-    <link type="text/css" href="{full_css_file}?v={version}" rel="stylesheet"/>
     """
 
     language_code = get_language()
@@ -133,10 +92,15 @@ def kolibri_language_globals(context):
 
     common_file = static("assets/fonts/noto-common.css")
     subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
-    is_modern = _supports_modern_fonts(context["request"])
-    full_file = static(
-        "assets/fonts/noto-full.{}.{}.css".format(
-            language_code, ("modern" if is_modern else "basic")
+    full_file = "assets/fonts/noto-full.{}.{}.css"
+    full_file_modern = static(
+        full_file.format(
+            language_code, "modern"
+        )
+    )
+    full_file_basic = static(
+        full_file.format(
+            language_code, "basic"
         )
     )
 
@@ -145,10 +109,10 @@ def kolibri_language_globals(context):
             lang_code=language_code,
             lang_dir=lang_dir,
             languages=json.dumps(languages),
-            use_modern="true" if is_modern else "false",
             common_css_file=common_file,
             subset_css_file=subset_file,
-            full_css_file=full_file,
+            full_css_file_modern=full_file_modern,
+            full_css_file_basic=full_file_basic,
             # Temporary cache busting strategy.
             # Would be better to use ManifestStaticFilesStorage
             version=kolibri.__version__,
@@ -277,7 +241,13 @@ def kolibri_sentry_error_reporting():
 
     template = """
       <script>
-        var sentryDSN = '{}';
+        var sentryDSN = '{dsn}';
+        var sentryEnv = '{env}';
       </script>
     """
-    return mark_safe(template.format(conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"]))
+    return mark_safe(
+        template.format(
+            dsn=conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"],
+            env=conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
+        )
+    )

@@ -21,11 +21,11 @@
 
   export default {
     name: 'SearchButton',
-    $trs: {
-      toggleSearchSideBar: 'Toggle search side bar',
-    },
     components: {
       UiIconButton,
+    },
+    $trs: {
+      toggleSearchSideBar: 'Toggle search side bar',
     },
   };
 

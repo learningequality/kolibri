@@ -110,19 +110,6 @@
 
   export default {
     name: 'ExamPage',
-    $trs: {
-      submitExam: 'Submit quiz',
-      backToExamList: 'Back to quiz list',
-      questionsAnswered:
-        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
-      previousQuestion: 'Previous question',
-      nextQuestion: 'Next question',
-      goBack: 'Go back',
-      areYouSure: 'You cannot change your answers after you submit',
-      unanswered:
-        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-      noItemId: 'This question has an error, please move on to the next question',
-    },
     metaInfo() {
       return {
         title: this.exam.title,
@@ -254,6 +241,19 @@
           })
         );
       },
+    },
+    $trs: {
+      submitExam: 'Submit quiz',
+      backToExamList: 'Back to quiz list',
+      questionsAnswered:
+        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+      previousQuestion: 'Previous question',
+      nextQuestion: 'Next question',
+      goBack: 'Go back',
+      areYouSure: 'You cannot change your answers after you submit',
+      unanswered:
+        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      noItemId: 'This question has an error, please move on to the next question',
     },
   };
 

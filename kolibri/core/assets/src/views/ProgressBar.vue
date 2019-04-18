@@ -36,10 +36,6 @@
 
   export default {
     name: 'ProgressBar',
-    $trs: {
-      label: 'Progress',
-      pct: '{0, number, percent}',
-    },
     mixins: [themeMixin],
     props: {
       progress: {
@@ -60,6 +56,10 @@
       percent() {
         return Math.max(Math.min(this.progress * 100, 100), 0);
       },
+    },
+    $trs: {
+      label: 'Progress',
+      pct: '{0, number, percent}',
     },
   };
 

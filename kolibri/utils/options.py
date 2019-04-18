@@ -8,7 +8,7 @@ from configobj import get_extra_values
 from validate import Validator
 
 try:
-    import kolibri.core.analytics.pskolibri as psutil
+    import kolibri.utils.pskolibri as psutil
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None
@@ -132,6 +132,10 @@ option_spec = {
         "SENTRY_FRONTEND_DSN": {
             "type": "string",
             "envvars": ("KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN",),
+        },
+        "SENTRY_ENVIRONMENT": {
+            "type": "string",
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_ENVIRONMENT",),
         },
     },
 }

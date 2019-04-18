@@ -32,18 +32,18 @@
   export default {
     name: 'ErrorPage',
     components: { SubmissionStatePage, KButton },
+    mixins: [themeMixin],
+    methods: {
+      refreshPage() {
+        global.location.reload(true);
+      },
+    },
     $trs: {
       errorPageHeader: 'Something went wrong',
       errorPageSubheader: 'Please check your server connection and retry.',
       errorPageAdditionalGuidance:
         "If retrying doesn't work, restart the server and refresh the page.",
       errorPageRetryButtonLabel: 'Retry',
-    },
-    mixins: [themeMixin],
-    methods: {
-      refreshPage() {
-        global.location.reload(true);
-      },
     },
   };
 

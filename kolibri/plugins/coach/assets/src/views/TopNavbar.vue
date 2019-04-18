@@ -39,10 +39,6 @@
       KNavbarLink,
     },
     mixins: [coachStringsMixin],
-    $trs: {
-      home: 'Class Home',
-      plan: 'Plan',
-    },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
       PageNames() {
@@ -53,6 +49,10 @@
       navRoute(name) {
         return { name, params: { classId: this.classId } };
       },
+    },
+    $trs: {
+      home: 'Class Home',
+      plan: 'Plan',
     },
   };
 

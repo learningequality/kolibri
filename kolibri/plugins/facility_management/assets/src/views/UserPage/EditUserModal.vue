@@ -95,26 +95,6 @@
   // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
-    $trs: {
-      editUserDetailsHeader: 'Edit user details',
-      fullName: 'Full name',
-      username: 'Username',
-      userType: 'User type',
-      admin: 'Admin',
-      coach: 'Coach',
-      learner: 'Learner',
-      save: 'Save',
-      cancel: 'Cancel',
-      required: 'This field is required',
-      usernameAlreadyExists: 'Username already exists',
-      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
-      viewInDeviceTabPrompt: 'View details in Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      classCoachLabel: 'Class coach',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
-      facilityCoachDescription: 'Can instruct all classes in your facility',
-    },
     components: {
       KModal,
       KTextbox,
@@ -299,6 +279,26 @@
           this.displayModal(false);
         });
       },
+    },
+    $trs: {
+      editUserDetailsHeader: 'Edit user details',
+      fullName: 'Full name',
+      username: 'Username',
+      userType: 'User type',
+      admin: 'Admin',
+      coach: 'Coach',
+      learner: 'Learner',
+      save: 'Save',
+      cancel: 'Cancel',
+      required: 'This field is required',
+      usernameAlreadyExists: 'Username already exists',
+      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
+      viewInDeviceTabPrompt: 'View details in Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
     },
   };
 

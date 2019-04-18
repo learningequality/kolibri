@@ -48,14 +48,6 @@
 
   export default {
     name: 'PageStatus',
-    $trs: {
-      title: '{name} - Quiz performance',
-      overallScore: 'Overall score: { score, number, percent }',
-      questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
-      completed: 'Completed',
-      inProgress: 'In progress',
-      notStarted: 'Not started',
-    },
     components: {
       KGrid,
       KGridItem,
@@ -95,6 +87,14 @@
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
       },
+    },
+    $trs: {
+      title: '{name} - Quiz performance',
+      overallScore: 'Overall score: { score, number, percent }',
+      questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
+      completed: 'Completed',
+      inProgress: 'In progress',
+      notStarted: 'Not started',
     },
   };
 

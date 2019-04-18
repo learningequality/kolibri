@@ -99,7 +99,6 @@
       CoachContentLabel,
     },
     mixins: [commonCoach, themeMixin],
-    $trs: {},
     data() {
       return {
         showCorrectAnswer: false,
@@ -159,6 +158,7 @@
         this.$forceUpdate();
       },
     },
+    $trs: {},
   };
 
 </script>

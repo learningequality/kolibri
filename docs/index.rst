@@ -1,15 +1,9 @@
 
-Developer Guide
-===============
-
-These docs are for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri,
-please refer to the `User Guide <https://kolibri.readthedocs.io/>`__.
-
-.. include:: ../README.rst
+.. mdinclude:: ../README.md
 
 
 Table of contents
-=================
+-----------------
 
 .. toctree::
   :maxdepth: 2

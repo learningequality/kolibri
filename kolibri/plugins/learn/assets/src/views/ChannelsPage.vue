@@ -25,10 +25,6 @@
 
   export default {
     name: 'ChannelsPage',
-    $trs: {
-      channels: 'Channels',
-      documentTitle: 'All channels',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -48,6 +44,10 @@
           params: { channel_id },
         };
       },
+    },
+    $trs: {
+      channels: 'Channels',
+      documentTitle: 'All channels',
     },
   };
 

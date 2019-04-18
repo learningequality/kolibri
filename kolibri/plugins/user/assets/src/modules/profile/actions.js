@@ -36,7 +36,7 @@ export function updateUserProfile(store, { edits, session }) {
     exists: true,
   }).then(
     () => {
-      store.commit('CORE_SET_SESSION', changedValues, { root: true });
+      store.dispatch('setSession', { session: changedValues }, { root: true });
       store.commit('SET_PROFILE_SUCCESS', true);
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_ERRORS', []);

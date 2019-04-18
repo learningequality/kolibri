@@ -39,11 +39,6 @@
 
   export default {
     name: 'TechnicalTextBlock',
-    $trs: {
-      copyToClipboardButtonPrompt: 'Copy to clipboard',
-      copiedToClipboardConfirmation: 'Copied to clipboard',
-      downloadAsTextPrompt: 'Or download as a text file',
-    },
     components: {
       KButton,
     },
@@ -94,6 +89,11 @@
     },
     methods: {
       ...mapActions(['createSnackbar']),
+    },
+    $trs: {
+      copyToClipboardButtonPrompt: 'Copy to clipboard',
+      copiedToClipboardConfirmation: 'Copied to clipboard',
+      downloadAsTextPrompt: 'Or download as a text file',
     },
   };
 

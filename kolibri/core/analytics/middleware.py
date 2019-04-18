@@ -23,7 +23,7 @@ requests_profiling_file = os.path.join(
 
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
 try:
-    import kolibri.core.analytics.pskolibri as psutil
+    import kolibri.utils.pskolibri as psutil
 
     kolibri_process = psutil.Process()
 except NotImplementedError:

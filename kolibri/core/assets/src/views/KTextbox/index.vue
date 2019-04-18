@@ -149,6 +149,9 @@
          */
         this.$emit('input', this.currentText);
       },
+      /**
+       * @public
+       */
       reset() {
         this.$refs.textbox.reset();
       },
