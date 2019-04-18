@@ -28,7 +28,7 @@
     "fmt-backend": "yarn run black-fmt",
     "fmt-backend:check": "yarn run black-fmt --check",
     "fmt-backend:watch": "yarn run black-fmt --watch",
-    "build-kolibri-tools": "yarn workspace kolibri-tools run build",
+    "build-kolibri-tools": "yarn workspace kolibri-tools run build-kolibri-tools",
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build"
