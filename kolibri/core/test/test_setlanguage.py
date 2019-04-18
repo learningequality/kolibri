@@ -28,7 +28,10 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_next_valid(self):
@@ -41,7 +44,10 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:learn:learn"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:learn:learn"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_next_invalid(self):
@@ -54,7 +60,10 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_null(self):
@@ -65,12 +74,18 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         post_data = dict(language=None)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), "en"))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), "en"),
+        )
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
     def test_setlang_null_next_valid(self):
@@ -82,13 +97,19 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = reverse("kolibri:learn:learn")
         post_data = dict(language=None, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:learn:learn"), "en"))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:learn:learn"), "en"),
+        )
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
     def test_setlang_null_next_invalid(self):
@@ -100,13 +121,19 @@ class I18NTests(TestCase):
         post_data = dict(language=lang_code)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = "/not/a/real/url"
         post_data = dict(language=None, next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), "en"))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), "en"),
+        )
         self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
 
     def test_setlang_get(self):
@@ -130,7 +157,10 @@ class I18NTests(TestCase):
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), translate_url(reverse("kolibri:core:redirect_user"), lang_code))
+        self.assertEqual(
+            response.content.decode("utf-8"),
+            translate_url(reverse("kolibri:core:redirect_user"), lang_code),
+        )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
 
     def test_setlang_cookie(self):

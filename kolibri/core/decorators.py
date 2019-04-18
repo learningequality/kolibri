@@ -334,11 +334,13 @@ def cache_no_user_data(view_func):
     data into it - this will remove the headers that will make this vary
     on a per user basis.
     """
+
     def inner_func(*args, **kwargs):
         request = args[0]
         del request.session
         response = view_func(*args, **kwargs)
         patch_response_headers(response, cache_timeout=300)
-        response['Vary'] = 'accept-encoding, accept'
+        response["Vary"] = "accept-encoding, accept"
         return response
+
     return inner_func

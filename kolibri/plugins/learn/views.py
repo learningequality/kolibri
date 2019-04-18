@@ -8,6 +8,6 @@ from django.views.generic.base import TemplateView
 from kolibri.core.decorators import cache_no_user_data
 
 
-@method_decorator(cache_no_user_data, name='dispatch')
+@method_decorator(cache_no_user_data, name="dispatch")
 class LearnView(TemplateView):
     template_name = "learn/learn.html"

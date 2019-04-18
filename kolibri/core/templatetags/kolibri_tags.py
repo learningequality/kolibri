@@ -93,16 +93,8 @@ def kolibri_language_globals(context):
     common_file = static("assets/fonts/noto-common.css")
     subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
     full_file = "assets/fonts/noto-full.{}.{}.css"
-    full_file_modern = static(
-        full_file.format(
-            language_code, "modern"
-        )
-    )
-    full_file_basic = static(
-        full_file.format(
-            language_code, "basic"
-        )
-    )
+    full_file_modern = static(full_file.format(language_code, "modern"))
+    full_file_basic = static(full_file.format(language_code, "basic"))
 
     return mark_safe(
         template.format(

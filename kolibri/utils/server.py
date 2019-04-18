@@ -241,8 +241,8 @@ def run_server(port):
 
     # Mount static files
     static_files_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=settings.STATIC_ROOT)
+        section="/", dir=settings.STATIC_ROOT
+    )
     cherrypy.tree.mount(
         static_files_handler,
         settings.STATIC_URL,
@@ -251,22 +251,17 @@ def run_server(port):
                 "tools.gzip.on": True,
                 "tools.gzip.mime_types": ["text/*", "application/javascript"],
             }
-        }
+        },
     )
 
     # Mount content files
     content_files_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=paths.get_content_dir_path()
+        section="/", dir=paths.get_content_dir_path()
     )
     cherrypy.tree.mount(
         content_files_handler,
-        paths.get_content_url(conf.OPTIONS['Deployment']['URL_PATH_PREFIX']),
-        config={
-            "/": {
-                "tools.caching.on": False,
-            }
-        }
+        paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]),
+        config={"/": {"tools.caching.on": False}},
     )
 
     # Unsubscribe the default server

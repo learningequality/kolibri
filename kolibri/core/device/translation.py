@@ -25,6 +25,7 @@ DEVICE_LANGUAGE_CACHE_KEY = "DEVICE_LANGUAGE_CACHE_KEY"
 
 def get_device_language():
     from .models import DeviceSettings
+
     try:
         if cache.get(DEVICE_LANGUAGE_CACHE_KEY) is None:
             # Use a relatively short expiry, in case the device setting is changed in another
@@ -76,7 +77,7 @@ def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
 
     try:
         # If this is not a view that needs to be translated, return None, and be done with it!
-        if not getattr(resolve(request.path_info).func, 'translated', False):
+        if not getattr(resolve(request.path_info).func, "translated", False):
             return None, False
     except Resolver404:
         # If this is an unrecognized URL, it may be redirectable to a language prefixed
@@ -127,7 +128,7 @@ def i18n_patterns(urls, prefix=None):
     if not settings.USE_I18N:
         return list(urls)
     for url in urls:
-        setattr(url.callback, 'translated', True)
+        setattr(url.callback, "translated", True)
     return [LocaleRegexURLResolver(list(urls), prefix=prefix)]
 
 
@@ -141,12 +142,18 @@ class LocaleRegexURLResolver(RegexURLResolver):
     Rather than monkey patch Django to allow this for our use case, make a copy of this here
     and use this instead.
     """
+
     def __init__(
-        self, urlconf_name, default_kwargs=None, app_name=None, namespace=None,
-        prefix_default_language=True, prefix=None
+        self,
+        urlconf_name,
+        default_kwargs=None,
+        app_name=None,
+        namespace=None,
+        prefix_default_language=True,
+        prefix=None,
     ):
         super(LocaleRegexURLResolver, self).__init__(
-            None, urlconf_name, default_kwargs, app_name, namespace,
+            None, urlconf_name, default_kwargs, app_name, namespace
         )
         self.prefix_default_language = prefix_default_language
         self._prefix = prefix
@@ -157,8 +164,8 @@ class LocaleRegexURLResolver(RegexURLResolver):
         language_code = get_language() or device_language
         if language_code not in self._regex_dict:
             if language_code == device_language and not self.prefix_default_language:
-                regex_string = self._prefix or ''
+                regex_string = self._prefix or ""
             else:
-                regex_string = ('^%s/' % language_code) + (self._prefix or '')
+                regex_string = ("^%s/" % language_code) + (self._prefix or "")
             self._regex_dict[language_code] = re.compile(regex_string, re.UNICODE)
         return self._regex_dict[language_code]

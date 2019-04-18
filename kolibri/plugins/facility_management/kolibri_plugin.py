@@ -11,7 +11,6 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class FacilityManagementPlugin(KolibriPluginBase):
-
     def url_slug(self):
         return "^facility/"
 
