@@ -1750,9 +1750,9 @@ binaryextensions@2:
   resolved "https://registry.yarnpkg.com/binaryextensions/-/binaryextensions-2.1.1.tgz#3209a51ca4a4ad541a3b8d3d6a6d5b83a2485935"
   integrity sha512-XBaoWE9RW8pPdPQNibZsW2zh8TW6gcarXp1FZPwT8Uop8ScSNldJEWf2k9l3HeTqdrEwsOsFcq74RiJECW34yA==
 
-"black-fmt@https://github.com/learningequality/black-fmt":
-  version "0.0.1"
-  resolved "https://github.com/learningequality/black-fmt#5a8f1076f7ba4097d1824b0e834fb064d489f596"
+"black-fmt@https://github.com/learningequality/black-fmt#v0.1.1":
+  version "0.1.1"
+  resolved "https://github.com/learningequality/black-fmt#14d381929de2740625e2e6502eebf6f0954594ad"
   dependencies:
     chokidar "^2.1.5"
     commander "^2.19.0"

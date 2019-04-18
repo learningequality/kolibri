@@ -45,7 +45,7 @@
   "private": true,
   "dependencies": {},
   "devDependencies": {
-    "black-fmt": "https://github.com/learningequality/black-fmt",
+    "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.1",
     "kolibri-tools": "0.12.0-beta.3.2",
     "yarn-run-all": "^3.1.1"
   },
