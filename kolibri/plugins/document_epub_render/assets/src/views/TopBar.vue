@@ -96,12 +96,21 @@
       },
     },
     methods: {
+      /**
+       * @public
+       */
       focusOnTocButton() {
         this.$refs.tocButton.$el.focus();
       },
+      /**
+       * @public
+       */
       focusOnSettingsButton() {
         this.$refs.settingsButton.$el.focus();
       },
+      /**
+       * @public
+       */
       focusOnSearchButton() {
         this.$refs.searchButton.$el.focus();
       },

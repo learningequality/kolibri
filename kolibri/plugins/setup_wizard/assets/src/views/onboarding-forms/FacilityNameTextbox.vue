@@ -48,6 +48,9 @@
       validateFacilityName() {
         this.fieldVisited = true;
       },
+      /**
+       * @public
+       */
       focus() {
         if (this.$refs['facilityName']) {
           this.$refs['facilityName'].focus();
