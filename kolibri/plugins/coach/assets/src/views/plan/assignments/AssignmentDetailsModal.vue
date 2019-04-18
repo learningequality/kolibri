@@ -272,11 +272,6 @@
           this.$refs.titleField.focus();
         }
       },
-      // NOTE: These methods are not used inside the component, but may be called
-      // from a parent component
-      closeModal() {
-        this.$emit('cancel');
-      },
       /**
        * @public
        */

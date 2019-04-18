@@ -56,17 +56,6 @@
         disabled: false,
       };
     },
-    beforeRouteEnter(to, from, next) {
-      return ExamResource.fetchModel({
-        id: to.params.quizId,
-      })
-        .then(quiz => {
-          next(vm => vm.setData(quiz));
-        })
-        .catch(error => {
-          next(vm => vm.setError(error));
-        });
-    },
     computed: {
       ...mapGetters('classSummary', ['groups']),
       formProps() {
@@ -91,12 +80,25 @@
         return this.$router.getRoute(route);
       },
     },
+    beforeRouteEnter(to, from, next) {
+      return ExamResource.fetchModel({
+        id: to.params.quizId,
+      })
+        .then(quiz => {
+          next(vm => vm.setData(quiz));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
+    },
     methods: {
+      // @public
       setData(data) {
         this.quiz = data;
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      // @public
       setError(error) {
         this.$store.dispatch('handleApiError', error);
         this.loading = false;

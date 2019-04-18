@@ -120,12 +120,14 @@
         });
     },
     methods: {
+      // @public
       setData(data) {
         this.lesson = data;
         this.updatedResources = [...data.resources];
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      // @public
       setError(error) {
         this.$store.dispatch('handleApiError', error);
         this.loading = false;

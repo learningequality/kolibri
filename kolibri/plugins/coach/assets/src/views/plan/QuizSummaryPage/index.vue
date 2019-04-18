@@ -182,6 +182,7 @@
         });
     },
     methods: {
+      // @public
       setData(data) {
         const { exam, exerciseContentNodes } = data;
         this.quiz = exam;
@@ -189,6 +190,7 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      // @public
       setError(error) {
         this.$store.dispatch('handleApiError', error);
         this.loading = false;

@@ -51,17 +51,6 @@
         loading: true,
       };
     },
-    beforeRouteEnter(to, from, next) {
-      // Use the same data-fetching as QuizSummaryPage to make sure we have
-      // all of the Quiz and ContentNode data to render the preview
-      return fetchQuizSummaryPageData(to.params.quizId)
-        .then(data => {
-          next(vm => vm.setData(data));
-        })
-        .catch(error => {
-          next(vm => vm.setError(error));
-        });
-    },
     computed: {
       selectedQuestions() {
         return this.quiz.question_sources;
@@ -86,7 +75,19 @@
         };
       },
     },
+    beforeRouteEnter(to, from, next) {
+      // Use the same data-fetching as QuizSummaryPage to make sure we have
+      // all of the Quiz and ContentNode data to render the preview
+      return fetchQuizSummaryPageData(to.params.quizId)
+        .then(data => {
+          next(vm => vm.setData(data));
+        })
+        .catch(error => {
+          next(vm => vm.setError(error));
+        });
+    },
     methods: {
+      // @public
       setData(data) {
         const { exam, exerciseContentNodes } = data;
         this.quiz = exam;
@@ -94,6 +95,7 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
+      // @public
       setError(error) {
         this.$store.dispatch('handleApiError', error);
         this.loading = false;

@@ -246,9 +246,6 @@
         this.$store.commit('examCreation/RANDOMIZE_SEED');
         this.$store.dispatch('examCreation/updateSelectedQuestions');
       },
-      numCoachContents(exerciseId) {
-        return this.selectedExercises[exerciseId].num_coach_contents;
-      },
       submit() {
         if (this.numQuestIsInvalidText) {
           this.showError = true;
@@ -268,9 +265,6 @@
             }
           });
         }
-      },
-      listKey(question) {
-        return question.exercise_id + question.question_id;
       },
     },
     $trs: {
