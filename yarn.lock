@@ -13018,9 +13018,10 @@ webpack-bundle-analyzer@^3.0.3:
     ws "^6.0.0"
 
 "webpack-bundle-tracker@https://github.com/learningequality/webpack-bundle-tracker":
-  version "0.0.93"
-  resolved "https://github.com/learningequality/webpack-bundle-tracker#dad5ea24ff38a794893290b4344795d342129afe"
+  version "0.4.2-beta"
+  resolved "https://github.com/learningequality/webpack-bundle-tracker#66e9c785d8d58c4b1d92ab101c6c70ea9fe83143"
   dependencies:
+    deep-extend "^0.6.0"
     mkdirp "^0.5.1"
     strip-ansi "^2.0.1"
 
