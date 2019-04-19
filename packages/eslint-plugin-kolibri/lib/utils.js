@@ -77,6 +77,26 @@ module.exports = {
   },
 
   /**
+   * Run callback on beforeRouteEnter component instance property.
+   */
+  executeOnBefoureRouteEnterInstanceProperty(func) {
+    let instanceParamName;
+
+    return {
+      'Property[key.name=beforeRouteEnter] CallExpression[callee.name=next][arguments]'(node) {
+        if (node.arguments.length && node.arguments[0].params && node.arguments[0].params.length) {
+          instanceParamName = node.arguments[0].params[0].name;
+        }
+      },
+      'MemberExpression[object.name]'(node) {
+        if (node.object.name === instanceParamName) {
+          func(node.property);
+        }
+      },
+    };
+  },
+
+  /**
    * Run callback when end of the root template reached.
    */
   executeOnRootTemplateEnd(func) {

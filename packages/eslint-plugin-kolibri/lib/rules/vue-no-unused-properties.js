@@ -16,6 +16,7 @@ const create = context => {
   let hasTemplate;
   let unusedProperties = [];
   let thisExpressionsVariablesNames = [];
+  let befoureRouteEnterInstanceProperties = [];
 
   const initialize = {
     Program(node) {
@@ -32,6 +33,9 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    utils.executeOnBefoureRouteEnterInstanceProperty(property => {
+      befoureRouteEnterInstanceProperties.push(property.name);
+    }),
     eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
         eslintPluginVueUtils.iterateProperties(
@@ -45,6 +49,7 @@ const create = context => {
       remove(unusedProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
+          befoureRouteEnterInstanceProperties.includes(property.name) ||
           watchersNames.includes(property.name)
         );
       });

@@ -14,6 +14,7 @@ const create = context => {
   let hasTemplate;
   let unusedProperties = [];
   let thisExpressionsVariablesNames = [];
+  let befoureRouteEnterInstanceProperties = [];
   let watchStringMethods = [];
 
   const sourceCode = context.getSourceCode();
@@ -37,6 +38,9 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    utils.executeOnBefoureRouteEnterInstanceProperty(property => {
+      befoureRouteEnterInstanceProperties.push(property.name);
+    }),
     /*
       watch: {
         counter: 'getCount'
@@ -55,6 +59,7 @@ const create = context => {
       remove(unusedProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
+          befoureRouteEnterInstanceProperties.includes(property.name) ||
           watchStringMethods.includes(property.name)
         );
       });

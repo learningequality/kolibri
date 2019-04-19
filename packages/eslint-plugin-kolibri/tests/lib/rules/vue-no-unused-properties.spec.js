@@ -588,6 +588,65 @@ tester.run('vue-no-unused-properties', rule, {
         </script>
       `,
     },
+
+    // a property accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            props: ['count'],
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                alert(vm.count)
+              })
+            }
+          };
+        </script>
+      `,
+    },
+
+    // data accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            data() {
+              return {
+                count: 2
+              }
+            },
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                alert(vm.count)
+              })
+            }
+          };
+        </script>
+      `,
+    },
+
+    // a computed property accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            computed: {
+              count() {
+                return 2
+              }
+            },
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                alert(vm.count)
+              })
+            }
+          };
+        </script>
+      `,
+    },
   ],
 
   invalid: [
