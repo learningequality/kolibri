@@ -23,6 +23,9 @@
 
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
+        <div class="total-points">
+          <slot name="totalPointsMenuItem"></slot>
+        </div>
 
         <UiButton
           ref="userMenuButton"
@@ -59,9 +62,6 @@
                 :distinguishCoachTypes="false"
                 :userType="getUserKind"
               />
-            </div>
-            <div class="total-points">
-              <slot name="totalPointsMenuItem"></slot>
             </div>
           </template>
 
@@ -180,10 +180,6 @@
 
 <style lang="scss" scoped>
 
-  .app-bar {
-    overflow: hidden;
-  }
-
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
@@ -216,8 +212,8 @@
   }
 
   .total-points {
-    margin-top: 16px;
-    margin-left: -32px;
+    display: inline-block;
+    margin-left: 16px;
   }
 
 </style>
