@@ -382,7 +382,7 @@
             (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
           )
         );
-        this.progressStartingPoint = this.player.currentTime();
+        this.progressStartingPoint = this.dummyTime;
       },
       updatePlayerSizeClass() {
         this.player.removeClass('player-medium');
