@@ -29,6 +29,7 @@ const create = context => {
   let hasTemplate;
   let unusedVuexProperties = [];
   let thisExpressionsVariablesNames = [];
+  let befoureRouteEnterInstanceProperties = [];
 
   const initialize = {
     Program(node) {
@@ -123,12 +124,16 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    utils.executeOnBefoureRouteEnterInstanceProperty(property => {
+      befoureRouteEnterInstanceProperties.push(property.name);
+    }),
     eslintPluginVueUtils.executeOnVue(context, obj => {
       const watchersNames = utils.getWatchersNames(obj);
 
       remove(unusedVuexProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
+          befoureRouteEnterInstanceProperties.includes(property.name) ||
           watchersNames.includes(property.name)
         );
       });

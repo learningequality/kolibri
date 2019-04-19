@@ -479,6 +479,40 @@ tester.run('vue-no-unused-vuex-properties', rule, {
         </script>
       `,
     },
+
+    // a getter accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            computed: mapGetters(['count']),
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                alert(vm.count)
+              })
+            }
+          };
+        </script>
+      `,
+    },
+
+    // state accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            computed: mapState(['count']),
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                alert(vm.count)
+              })
+            }
+          };
+        </script>
+      `,
+    },
   ],
 
   invalid: [
