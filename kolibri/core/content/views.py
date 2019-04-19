@@ -227,7 +227,7 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         content = zf.open(info).read()
         html = parse_html(content)
         response = HttpResponse(html, content_type=content_type)
-        file_size = len(html)
+        file_size = len(response.content)
     elif not os.path.splitext(embedded_filepath)[1] == ".json":
         # generate a streaming response object, pulling data from within the zip  file
         response = FileResponse(zf.open(info), content_type=content_type)
@@ -239,7 +239,7 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
         str_to_be_replaced = ("$" + exercises.IMG_PLACEHOLDER).encode()
         content_with_path = content.replace(str_to_be_replaced, image_prefix_url)
         response = HttpResponse(content_with_path, content_type=content_type)
-        file_size = len(content_with_path)
+        file_size = len(response.content)
 
     # set the content-length header to the size of the embedded file
     if file_size:
