@@ -75,7 +75,12 @@ program
   )
   .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
-  .option('-p, --port', 'Set a port number to start devservers or bundle stats servers on')
+  .option(
+    '-p, --port <port>',
+    'Set a port number to start devservers or bundle stats servers on',
+    Number,
+    3000
+  )
   .action(function(mode, options) {
     const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
@@ -115,11 +120,6 @@ program
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
-      process.exit(1);
-    }
-
-    if (options.port && mode !== modes.DEV && mode !== modes.STATS) {
-      cliLogging.error('Port setting is only used in dev or stats mode');
       process.exit(1);
     }
 
@@ -169,6 +169,8 @@ program
           const options_data = JSON.stringify(buildOptions);
           const childProcess = fork(modulePath, {
             env: {
+              // needed to keep same context for child process (e.g. launching editors)
+              ...process.env,
               data,
               index,
               options: options_data,
@@ -287,27 +289,25 @@ program
 // Test
 program
   .command('test')
-  .option(
-    '--extraConfig [extraConfig]',
-    'Additional configuration to merge and overwrite the default jest config'
-  )
+  .option('--config [config]', 'Set configuration for jest tests')
   .allowUnknownOption()
   .action(function(options) {
-    const baseConfig = require('../jest_config/jest.conf.js');
+    const baseConfigPath = path.resolve(__dirname, '../jest.conf');
     if (process.env.NODE_ENV == null) {
       process.env.NODE_ENV = 'test';
     }
     let config;
-    if (options.extraConfig) {
-      const importConfig = require(path.resolve(process.cwd(), options.extraConfig));
-      config = Object.assign({}, baseConfig, importConfig);
-      const extraConfigIndex = process.argv.findIndex(item => item === '--extraConfig');
-      process.argv.splice(extraConfigIndex, 2);
+    if (options.config) {
+      config = path.resolve(process.cwd(), options.config);
+      const configIndex = process.argv.findIndex(item => item === '--config');
+      process.argv.splice(configIndex, 2);
     } else {
-      config = baseConfig;
+      config = baseConfigPath;
     }
+    // Remove the 'test' command that this was invoked with
+    process.argv.splice(2, 1);
     process.argv.push('--config');
-    process.argv.push(JSON.stringify(config));
+    process.argv.push(config);
     require('jest-cli/build/cli').run();
   });
 

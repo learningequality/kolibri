@@ -1,4 +1,4 @@
-Feature: Super admin delete users
+Feature: Super admin deletes users
     Super admin needs to be able to delete users from the facility
 
   Background:

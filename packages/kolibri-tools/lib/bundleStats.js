@@ -6,8 +6,6 @@ const logger = require('./logging');
 
 const buildLogging = logger.getLogger('Kolibri Build Stats');
 
-const basePort = 8888;
-
 function buildWebpack(data, index, startCallback, doneCallback, options) {
   const bundle = webpackConfig(data);
   const compiler = webpack(bundle, (err, stats) => {
@@ -15,7 +13,7 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
       buildLogging.error(`There was a build error for ${bundle.name}`);
       process.exit(1);
     } else {
-      const port = (options.port || basePort) + 1 + index;
+      const port = options.port + 1 + index;
       viewer.startServer(stats.toJson(), {
         openBrowser: false,
         port,

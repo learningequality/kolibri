@@ -5,16 +5,24 @@
 
       <thead slot="thead">
         <tr>
-          <th v-if="selectable" class="core-table-icon-col">
+          <th
+            v-if="selectable"
+            class="core-table-checkbox-col select-all"
+          >
             <KCheckbox
               :label="selectAllLabel"
-              :showLabel="false"
+              :showLabel="true"
               :checked="allAreSelected"
+              class="overflow-label"
               @change="selectAll($event)"
             />
           </th>
-          <th aria-hidden="true" class="core-table-icon-col"></th>
-          <th>{{ $tr('fullName') }}</th>
+          <th>
+            <!-- "Full name" header visually hidden if checkbox is on -->
+            <span :class="{visuallyhidden: selectable}">
+              {{ $tr('fullName') }}
+            </span>
+          </th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('role') }}
@@ -29,45 +37,54 @@
         </tr>
       </thead>
 
-      <tbody slot="tbody">
+      <transition-group slot="tbody" tag="tbody" name="list">
         <tr
           v-for="user in users"
           :key="user.id"
         >
-          <td v-if="selectable" class="core-table-icon-col">
+          <td v-if="selectable" class="core-table-checkbox-col">
             <KCheckbox
               :label="userCheckboxLabel"
               :showLabel="false"
               :checked="userIsSelected(user.id)"
               @change="selectUser(user.id, $event)"
             />
-
-          </td>
-          <td aria-hidden="true" class="core-table-icon-col">
-            <UiIcon>
-              <mat-svg name="person" category="social" />
-            </UiIcon>
           </td>
           <td>
             <span dir="auto">
-              {{ user.full_name }}
+              <KLabeledIcon>
+                <KIcon
+                  slot="icon"
+                  :coach="isCoach"
+                  :person="!isCoach"
+                />
+                {{ user.full_name }}
+              </KLabeledIcon>
             </span>
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
               :omitLearner="true"
               class="role-badge"
+              :style="{
+                color: $coreBgLight,
+                backgroundColor: $coreTextAnnotation,
+              }"
             />
           </td>
           <td class="visuallyhidden">
             {{ user.kind }}
           </td>
-          <td>{{ user.username }}</td>
-          <td v-if="$scopedSlots.action" class="user-action-button">
+          <td>
+            <span dir="auto">
+              {{ user.username }}
+            </span>
+          </td>
+          <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </CoreTable>
 
     <p
@@ -84,10 +101,12 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import difference from 'lodash/difference';
 
   export default {
@@ -96,8 +115,10 @@
       CoreTable,
       KCheckbox,
       UserTypeDisplay,
-      UiIcon,
+      KLabeledIcon,
+      KIcon,
     },
+    mixins: [themeMixin],
     props: {
       users: {
         type: Array,
@@ -125,6 +146,10 @@
       value: {
         type: Array,
         default: null,
+      },
+      isCoach: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
@@ -170,26 +195,41 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  .select-all {
+    position: relative;
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
+
+    // white-space: nowrap;
+    .k-checkbox-container {
+      margin-right: -70px;
+    }
+
+    .k-checkbox-label {
+      // Add extra padding to align label with table headers
+      padding-top: 4px;
+    }
+  }
 
   .empty-message {
     margin-bottom: 16px;
   }
 
-  .user-action-button {
-    text-align: right;
-  }
-
   .role-badge {
     display: inline-block;
-    padding-right: 1em;
-    padding-left: 1em;
-    margin-left: 8px;
+    padding: 2px;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
     font-size: small;
-    color: $core-bg-light;
     white-space: nowrap;
-    background-color: $core-text-annotation;
-    border-radius: 0.5em;
+    border-radius: 4px;
+  }
+
+  .overflow-label {
+    position: absolute;
+    top: 8px;
+    white-space: nowrap;
   }
 
 </style>

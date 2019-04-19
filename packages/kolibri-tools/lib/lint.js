@@ -133,11 +133,14 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (output.results && output.results.length) {
                 messages.push(
                   stylelintFormatter(
-                    output.results.map(message => {
-                      message.line += lineOffset;
-                      // Column offset for Vue template files is always 2 as we indent.
-                      message.column += vue ? 2 : 0;
-                      return message;
+                    output.results.map(result => {
+                      result.warnings = result.warnings.map(message => {
+                        message.line += lineOffset;
+                        // Column offset for Vue template files is always 2 as we indent.
+                        message.column += vue ? 2 : 0;
+                        return message;
+                      });
+                      return result;
                     })
                   )
                 );
@@ -260,17 +263,17 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           }
           // Only write if the formatted file is different to the source file.
           if (write && formatted !== source) {
-            fs.writeFile(file, formatted, { encoding }, error => {
-              if (error) {
-                reject({ error: error.message, code: errorOrChange });
-                return;
-              }
+            try {
+              fs.writeFileSync(file, formatted, { encoding });
               if (!silent) {
                 logging.info(`Rewriting a prettier version of ${file}`);
               }
-              resolve({ code });
-            });
+            } catch (error) {
+              reject({ error: error.message, code: errorOrChange });
+              return;
+            }
           }
+          resolve({ code });
         })
         .catch(err => {
           // Something went wrong, return the source to be safe.

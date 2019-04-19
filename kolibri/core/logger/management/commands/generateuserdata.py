@@ -36,6 +36,7 @@ class Command(BaseCommand):
         parser.add_argument('--no-onboarding', action='store_true', dest="no_onboarding", help="Automatically create superusers and skip onboarding")
         parser.add_argument('--num-content-items', type=int, dest='num_content_items', help="Number of content interactions per user")
         parser.add_argument('--num-lessons', type=int, default=5, dest='num_lessons', help="Number of lessons to be created per class")
+        parser.add_argument('--num-exams', type=int, default=2, dest='num_exams', help="Number of exams to be created per class")
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
@@ -48,6 +49,7 @@ class Command(BaseCommand):
         no_onboarding = options['no_onboarding']
         num_content_items = options['num_content_items']
         num_lessons = options['num_lessons']
+        num_exams = options['num_exams']
 
         # Set the random seed so that all operations will be randomized predictably
         random.seed(options['seed'])
@@ -108,5 +110,14 @@ class Command(BaseCommand):
                     facility=facility,
                     channels=ChannelMetadata.objects.all(),
                     lessons=num_lessons,
+                    now=now
+                )
+
+                # create exams
+                utils.create_exams_for_classrooms(
+                    classroom=classroom,
+                    facility=facility,
+                    channels=ChannelMetadata.objects.all(),
+                    exams=num_exams,
                     now=now
                 )

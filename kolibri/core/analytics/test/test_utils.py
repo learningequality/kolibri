@@ -12,6 +12,10 @@ import uuid
 from django.test import TestCase
 from le_utils.constants import content_kinds
 
+from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
+from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
+from kolibri.core.analytics.models import PingbackNotification
+from kolibri.core.analytics.utils import create_and_update_notifications
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
 from kolibri.core.auth.constants import facility_presets
@@ -173,8 +177,7 @@ class BaseDeviceSetupMixin(object):
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
                             correct=1,
-                            content_id=uuid.uuid4().hex,
-                            channel_id=self.channel.id,
+                            content_id=uuid.uuid4().hex
                         )
 
 
@@ -202,7 +205,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "llc": 20,  # learner_login_count
             "cc": 1,  # coaches_count
             "clc": 1,  # coach_login_count
-            "f" : "2018-10-11",  # first interaction
+            "f": "2018-10-11",  # first interaction
             "l": "2019-10-11",  # last interaction
             "ss": 20,  # summarylog_started
             "sc": 20,  # summarylog_complete
@@ -218,6 +221,31 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sat": 20,  # sess_anon_time
         }
         assert actual == expected
+
+    def test_regression_4606_no_usersessions(self):
+        UserSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
+    def test_regression_4606_no_contentsessions(self):
+        ContentSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] == "2018-10-11"
+        assert actual["l"] == "2019-10-11"
+
+    def test_regression_4606_no_contentsessions_or_usersessions(self):
+        ContentSessionLog.objects.all().delete()
+        UserSessionLog.objects.all().delete()
+        facility = self.facilities[0]
+        # will raise an exception if we haven't addressed https://github.com/learningequality/kolibri/issues/4606
+        actual = extract_facility_statistics(facility)
+        assert actual["f"] is None
+        assert actual["l"] is None
 
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
@@ -240,3 +268,41 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
             "sat": 20,  # sess_anon_time
         }
         assert actual == expected
+
+
+class CreateUpdateNotificationsTestCase(TestCase):
+
+    def setUp(self):
+        self.msg = {'i18n': {}, 'msg_id': 'ping', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0'}
+        self.messages = {'messages': []}
+        self.data = {'i18n': {}, 'id': 'message', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0', 'source': PINGBACK}
+        PingbackNotification.objects.create(**self.data)
+
+    def test_no_messages_still_updates(self):
+        create_and_update_notifications(self.messages, PINGBACK)
+        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+
+    def test_create_and_update_notification(self):
+        self.messages['messages'].append(self.msg)
+        original_count = PingbackNotification.objects.count()
+        create_and_update_notifications(self.messages, PINGBACK)
+        # deactivate all other messages, for this source, not included in response
+        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+        self.assertEqual(PingbackNotification.objects.count(), original_count + 1)
+
+    def test_update_same_notification(self):
+        self.data['msg_id'] = self.data['id']
+        self.data['link_url'] = ''
+        pre_notification = PingbackNotification.objects.get(id='message')
+        self.messages['messages'].append(self.data)
+        create_and_update_notifications(self.messages, PINGBACK)
+        post_notification = PingbackNotification.objects.get(id='message')
+        # messages with same ID are overwritten
+        self.assertTrue(post_notification.active)
+        self.assertNotEqual(pre_notification.link_url, post_notification.link_url)
+
+    def test_update_other_source(self):
+        self.messages['messages'].append(self.msg)
+        create_and_update_notifications(self.messages, STATISTICS)
+        # messages from other source should not be modified
+        self.assertFalse(PingbackNotification.objects.filter(source=PINGBACK, active=False).exists())

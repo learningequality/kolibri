@@ -3,19 +3,20 @@
   <li class="list-item">
     <router-link
       class="tab"
+      :class="$computedClass(tabStyles)"
       :to="link"
     >
-      <div class="tab-icon">
+      <div class="tab-icon dimmable">
         <UiIcon
-          :ariaLabel="title"
           class="icon"
+          tabindex="-1"
         >
           <!--The icon svg-->
           <slot></slot>
         </UiIcon>
       </div>
 
-      <div class="tab-title">
+      <div class="tab-title dimmable" tabindex="-1">
         {{ title }}
       </div>
     </router-link>
@@ -26,6 +27,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import UiIcon from 'keen-ui/src/UiIcon';
 
@@ -35,6 +37,7 @@
   export default {
     name: 'KNavbarLink',
     components: { UiIcon },
+    mixins: [themeMixin],
     props: {
       /**
        * The text
@@ -50,6 +53,20 @@
         type: Object,
         required: true,
         validator: validateLinkObject,
+      },
+    },
+    computed: {
+      tabStyles() {
+        return {
+          color: this.$coreBgCanvas,
+          ':hover': {
+            'background-color': this.$coreActionDark,
+          },
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '-6px',
+          },
+        };
       },
     },
   };
@@ -74,14 +91,14 @@
     padding-bottom: 3px;
     margin: 0;
     font-size: 14px;
-    color: $core-action-light;
     text-decoration: none;
     border: 0;
     border-radius: 0;
-    &:hover,
-    &:focus {
-      background-color: $core-action-dark;
-      outline: none;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+    transition: background-color $core-time ease;
+    .dimmable {
+      opacity: 0.6;
     }
   }
 
@@ -92,6 +109,9 @@
     border-bottom-color: white;
     border-bottom-style: solid;
     border-bottom-width: 2px;
+    .dimmable {
+      opacity: 1;
+    }
   }
 
   .icon {
@@ -106,7 +126,6 @@
 
   .tab-title {
     display: inline-block;
-    overflow-x: hidden;
     font-weight: bold;
     text-overflow: ellipsis;
     text-transform: uppercase;

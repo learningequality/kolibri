@@ -1,4 +1,4 @@
-Feature: Super admin create classes
+Feature: Super admin creates classes
     Super admin needs to be able create classes for each facility
 
   Background:

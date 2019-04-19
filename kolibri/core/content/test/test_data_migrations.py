@@ -1,8 +1,6 @@
 import uuid
 
 from kolibri.core.auth.test.migrationtestcase import TestMigrations
-from kolibri.core.content.models import ChannelMetadata as RealChannelMetadata
-from kolibri.core.content.models import ContentNode as RealContentNode
 
 
 class ChannelFieldsTestCase(TestMigrations):
@@ -58,7 +56,53 @@ class ChannelFieldsTestCase(TestMigrations):
         )
 
     def test_calculated_fields(self):
-        channel = RealChannelMetadata.objects.get()
+        ChannelMetadata = self.apps.get_model('content', 'ChannelMetadata')
+        ContentNode = self.apps.get_model('content', 'ContentNode')
+        channel = ChannelMetadata.objects.get()
         self.assertEqual(channel.published_size, self.file_size)
-        self.assertEqual(channel.total_resource_count, RealContentNode.objects.filter(available=True).count())
+        self.assertEqual(channel.total_resource_count, ContentNode.objects.filter(available=True).count())
         self.assertListEqual(list(channel.included_languages.values_list('id', flat=True)), ['es'])
+
+
+class ChannelOrderTestCase(TestMigrations):
+
+    migrate_from = '0015_auto_20190125_1715'
+    migrate_to = '0016_auto_20190124_1639'
+    app = 'content'
+
+    def setUp(self):
+        super(ChannelOrderTestCase, self).setUp()
+
+    def setUpBeforeMigration(self, apps):
+        ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
+        ContentNode = apps.get_model('content', 'ContentNode')
+        node = ContentNode.objects.create(id=uuid.uuid4(),
+                                          title='test',
+                                          content_id=uuid.uuid4(),
+                                          channel_id=uuid.uuid4(),
+                                          lft=1,
+                                          rght=12,
+                                          tree_id=1,
+                                          level=2)
+        ChannelMetadata.objects.create(
+            id=uuid.uuid4().hex,
+            name='c1',
+            root=node
+        )
+        ChannelMetadata.objects.create(
+            id=uuid.uuid4().hex,
+            name='c2',
+            root=node
+        )
+        ChannelMetadata.objects.create(
+            id=uuid.uuid4().hex,
+            name='c3',
+            root=node
+        )
+
+    def test_channel_order(self):
+        ChannelMetadata = self.apps.get_model('content', 'ChannelMetadata')
+        pos = 1
+        for channel in ChannelMetadata.objects.all():
+            self.assertEqual(channel.order, pos)
+            pos += 1

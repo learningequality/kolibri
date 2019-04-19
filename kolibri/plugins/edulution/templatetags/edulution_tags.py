@@ -32,7 +32,7 @@ def edulution_assets():
 
     :return: HTML of script tags to insert into management/management.html
     """
-    return webpack_asset_render(hooks.EdulutionSyncHook, async=False)
+    return webpack_asset_render(hooks.EdulutionSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -43,4 +43,4 @@ def edulution_async_assets():
 
     :return: HTML of script tags to insert into management/management.html
     """
-    return webpack_asset_render(hooks.EdulutionAsyncHook, async=True)
+    return webpack_asset_render(hooks.EdulutionAsyncHook, is_async=True)

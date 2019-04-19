@@ -15,4 +15,12 @@ export const THEMES = {
     backgroundColor: '#171717',
     textColor: '#bebebe',
   },
+  YELLOW: {
+    backgroundColor: '#202020',
+    textColor: '#FFFF00',
+  },
+  BLUE: {
+    backgroundColor: '#FFFFFF',
+    textColor: '#0000FF',
+  },
 };

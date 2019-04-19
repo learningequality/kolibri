@@ -8,14 +8,14 @@
     />
 
     <div class="wrapper-table">
-      <div class="main-row">
-        <div class="main-cell">
-          <div class="box">
-            <CoreLogo
-              class="logo"
-              :style="{'height': `${logoHeight}px`}"
-            />
-            <h1 :style="{'font-size': `${logoTextSize}px`}">
+      <div class="table-row main-row" :style="backgroundImageStyle">
+        <div class="table-cell main-cell">
+          <div class="box" :style="{ backgroundColor: $coreBgLight }">
+            <CoreLogo :style="{'height': `${logoHeight}px`}" />
+            <h1
+              class="kolibri-title"
+              :style="{'font-size': `${logoTextSize}px`}"
+            >
               {{ $tr('kolibri') }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">
@@ -42,19 +42,21 @@
                 />
               </transition>
               <transition name="list">
-                <ul
-                  v-if="simpleSignIn && suggestions.length"
-                  v-show="showDropdown"
-                  class="suggestions"
-                >
-                  <UiAutocompleteSuggestion
-                    v-for="(suggestion, i) in suggestions"
-                    :key="i"
-                    :suggestion="suggestion"
-                    :class="{ highlighted: highlightedIndex === i }"
-                    @click.native="fillUsername(suggestion)"
-                  />
-                </ul>
+                <div class="suggestions-wrapper">
+                  <ul
+                    v-if="simpleSignIn && suggestions.length"
+                    v-show="showDropdown"
+                    class="suggestions"
+                  >
+                    <UiAutocompleteSuggestion
+                      v-for="(suggestion, i) in suggestions"
+                      :key="i"
+                      :suggestion="suggestion"
+                      :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
+                      @mousedown.native="fillUsername(suggestion)"
+                    />
+                  </ul>
+                </div>
               </transition>
               <transition name="textbox">
                 <KTextbox
@@ -84,38 +86,42 @@
               </div>
             </form>
 
-            <KRouterLink
-              v-if="canSignUp"
-              class="create-button"
-              :text="$tr('createAccount')"
-              :to="signUpPage"
-              :primary="true"
-              appearance="flat-button"
-            />
-            <div>
+            <p class="create">
+              <KRouterLink
+                v-if="canSignUp"
+                :text="$tr('createAccount')"
+                :to="signUpPage"
+                :primary="true"
+                appearance="flat-button"
+              />
+            </p>
+            <p class="guest small-text">
               <KExternalLink
                 v-if="allowGuestAccess"
-                class="guest-button"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
                 :primary="true"
                 appearance="basic-link"
               />
-            </div>
-            <div class="small-text">
-              <span class="version-string">{{ versionMsg }}</span>
-              |
-              <KButton
-                :text="$tr('privacyLink')"
-                appearance="basic-link"
-                @click="privacyModalVisible = true"
-              />
-            </div>
+            </p>
           </div>
         </div>
       </div>
-      <div class="footer-row">
-        <LanguageSwitcherFooter class="footer-cell" />
+      <div class="table-row">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+          <LanguageSwitcherFooter />
+          <div class="small-text">
+            <span class="version-string">
+              {{ versionMsg }}
+            </span>
+            •
+            <KButton
+              :text="$tr('privacyLink')"
+              appearance="basic-link"
+              @click="privacyModalVisible = true"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -133,6 +139,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -158,7 +165,7 @@
       password: 'Password',
       enterPassword: 'Enter password',
       createAccount: 'Create an account',
-      accessAsGuest: 'Continue as guest',
+      accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
       required: 'This field is required',
@@ -184,7 +191,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         username: '',
@@ -286,6 +293,12 @@
       },
       guestURL() {
         return urls['kolibri:core:guest']();
+      },
+      backgroundImageStyle() {
+        return {
+          backgroundColor: this.$coreActionNormal,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
+        };
       },
     },
     watch: {
@@ -438,43 +451,36 @@
     text-align: center;
   }
 
-  .main-row {
-    // Workaround for print-width css issue https://github.com/prettier/prettier/issues/4460
-    $bk-img: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./background.jpg');
-
+  .table-row {
     display: table-row;
+  }
+
+  .main-row {
     text-align: center;
-    background-color: $core-action-normal;
-    background-image: $bk-img;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
   }
 
-  .main-cell {
+  .table-cell {
     display: table-cell;
+  }
+
+  .main-cell {
     height: 100%;
     vertical-align: middle;
   }
 
   .box {
-    width: 300px;
-    margin: 16px auto;
-    background-color: $core-bg-light;
-    border-radius: $radius;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-      0 2px 1px -1px rgba(0, 0, 0, 0.12);
-  }
+    @extend %dropshadow-16dp;
 
-  .logo {
-    margin-top: 16px;
+    width: 300px;
+    padding: 16px 32px;
+    margin: 16px auto;
+    border-radius: $radius;
   }
 
   .login-form {
-    position: relative;
-    width: 70%;
-    max-width: 300px;
-    margin: auto;
     text-align: left;
   }
 
@@ -482,10 +488,17 @@
     width: calc(100% - 16px);
   }
 
+  .create {
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  .guest {
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+
   .small-text {
-    padding-bottom: 16px;
-    margin-top: 24px;
-    margin-bottom: 0;
     font-size: 0.8em;
   }
 
@@ -493,19 +506,24 @@
     white-space: nowrap;
   }
 
-  .footer-row {
-    display: table-row;
-    background-color: $core-bg-light;
+  .footer-cell {
+    @extend %dropshadow-8dp;
+
+    padding: 16px;
   }
 
-  .footer-cell {
-    display: table-cell;
-    min-height: 56px;
-    padding: 16px;
-    vertical-align: middle;
+  .footer-cell .small-text {
+    margin-top: 8px;
+  }
+
+  .suggestions-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .suggestions {
+    @extend %dropshadow-1dp;
+
     position: absolute;
     z-index: 8;
     width: 100%;
@@ -515,11 +533,6 @@
     margin-top: -2em;
     list-style-type: none;
     background-color: white;
-    box-shadow: 1px 2px 8px #e6e6e6;
-  }
-
-  .highlighted {
-    background-color: $core-grey;
   }
 
   .textbox-enter-active {
@@ -538,19 +551,12 @@
     transition: opacity 0s;
   }
 
-  h1 {
+  .kolibri-title {
     margin-top: 0;
+    margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
     color: #9174a9;
-  }
-
-  .create-button {
-    margin-top: 16px;
-  }
-
-  .guest-button {
-    font-size: 14px;
   }
 
 </style>

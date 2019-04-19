@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-25 15:19-0700\n"
-"PO-Revision-Date: 2018-11-05 01:39\n"
+"POT-Creation-Date: 2018-12-23 16:44-0800\n"
+"PO-Revision-Date: 2019-02-21 19:57\n"
 "Last-Translator: learningequality <accounts@learningequality.org>\n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: hi\n"
-"X-Crowdin-File: /privacy-info/django.po\n"
+"X-Crowdin-File: /release-v0.12.x/django.po\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -28,13 +28,13 @@ msgstr "कक्षा"
 msgid "Learner group"
 msgstr "पाठक समूह"
 
-#: kolibri/core/content/api.py:131
+#: kolibri/core/content/api.py:132
 msgid "Content"
 msgstr "सामग्री"
 
-#: kolibri/core/content/api.py:715
+#: kolibri/core/content/api.py:728
 msgid "The requested channel does not exist on the content server"
-msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं है"
+msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं हैं"
 
 #: kolibri/core/content/models.py:278
 msgid "Unknown format"

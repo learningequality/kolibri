@@ -5,7 +5,9 @@
     <section>
       <h2>{{ $tr('points') }}</h2>
       <PointsIcon class="points-icon" :active="true" />
-      <span class="points-num">{{ $formatNumber(totalPoints) }}</span>
+      <span class="points-num" :style="{ color: $coreStatusCorrect }">
+        {{ $formatNumber(totalPoints) }}
+      </span>
     </section>
 
     <section>
@@ -13,11 +15,19 @@
       <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
     </section>
 
+    <section v-if="facilityName">
+      <h2>{{ facilityString }}</h2>
+      <p>{{ facilityName }}</p>
+    </section>
+
+
     <section v-if="userHasPermissions">
       <h2>{{ $tr('devicePermissions') }}</h2>
       <p>
-        <PermissionsIcon :permissionType="permissionType" class="permissions-icon" />
-        {{ permissionTypeText }}
+        <KLabeledIcon>
+          <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
+          {{ permissionTypeText }}
+        </KLabeledIcon>
       </p>
       <p>
         {{ $tr('youCan') }}
@@ -107,8 +117,12 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -118,7 +132,10 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import SignUpPage from '../SignUpPage';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
+
+  const SignUpPageStrings = crossComponentTranslator(SignUpPage);
 
   export default {
     name: 'ProfilePage',
@@ -149,13 +166,14 @@
     components: {
       KButton,
       KTextbox,
+      KLabeledIcon,
       UiAlert,
       PointsIcon,
       PermissionsIcon,
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         username: this.$store.state.core.session.username,
@@ -179,9 +197,21 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success', 'profileErrors']),
+      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', {
+        profileErrors: 'errors',
+      }),
       userPermissions() {
         return pickBy(this.getUserPermissions);
+      },
+      facilityString() {
+        return SignUpPageStrings.$tr('facility');
+      },
+      facilityName() {
+        const match = find(this.$store.getters.facilities, {
+          id: this.$store.getters.currentFacilityId,
+        });
+        return match ? match.name : '';
       },
       passwordModalVisible() {
         return this.passwordState.modal;
@@ -246,10 +276,7 @@
         return Boolean(this.usernameIsInvalidText);
       },
       usernameAlreadyExists() {
-        if (this.profileErrors) {
-          return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-        }
-        return false;
+        return this.profileErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
       },
       formIsValid() {
         return !this.usernameIsInvalid;
@@ -298,8 +325,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   // taken from docs, assumes 1rem = 16px
   $vertical-page-margin: 50px;
   $iphone-width: 320px;
@@ -325,7 +350,6 @@
     margin-left: 16px;
     font-size: 3em;
     font-weight: bold;
-    color: $core-status-correct;
   }
 
   section {

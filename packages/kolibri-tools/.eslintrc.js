@@ -1,6 +1,5 @@
 var path = require('path');
 var OFF = 0;
-var WARNING = 1;
 var ERROR = 2;
 
 module.exports = {

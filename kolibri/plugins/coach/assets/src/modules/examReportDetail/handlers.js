@@ -1,41 +1,30 @@
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import router from 'kolibri.coreVue.router';
 import { getExamReport } from 'kolibri.utils.exams';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { PageNames } from '../../constants';
+import store from 'kolibri.coreVue.vuex.store';
 
 const translator = createTranslator('ExamReportPageTitles', {
   examReportTitle: '{examTitle} report',
 });
 
-export function showExamReportDetailPage(store, params) {
-  const { classId, userId, examId, question, interaction } = params;
-  // idk what this is for
-  if (store.state.pageName !== PageNames.EXAM_REPORT_DETAIL) {
-    store.commit('CORE_SET_PAGE_LOADING', true);
-    store.commit('SET_PAGE_NAME', PageNames.EXAM_REPORT_DETAIL);
-  }
-  const promises = [
-    getExamReport(store, examId, userId, question, interaction),
-    store.dispatch('setClassState', classId),
-  ];
-  ConditionalPromise.all(promises).then(
-    ([examReport]) => {
-      store.commit('examReportDetail/SET_STATE', examReport);
-      store.commit('SET_TOOLBAR_ROUTE', { name: PageNames.EXAM_REPORT });
-      store.commit('CORE_SET_ERROR', null);
-      store.commit(
-        'SET_TOOLBAR_TITLE',
-        translator.$tr('examReportTitle', {
+export function generateExamReportDetailHandler(paramsToCheck) {
+  return function showExamReportDetailPage({ params }, from) {
+    const { learnerId, quizId, questionId, interactionIndex } = params;
+    const fromParams = from.params;
+    const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
+    if (setLoading) {
+      // Only set loading state if we are not switching between
+      // different views of the same learner's exercise report.
+      store.dispatch('loading');
+    }
+    getExamReport(store, quizId, learnerId, questionId, interactionIndex).then(examReport => {
+      store.commit('examReportDetail/SET_STATE', {
+        ...examReport,
+        learnerId,
+        pageTitle: translator.$tr('examReportTitle', {
           examTitle: examReport.exam.title,
-        })
-      );
-      store.commit('CORE_SET_PAGE_LOADING', false);
-    },
-    () =>
-      router.replace({
-        name: PageNames.EXAM_REPORT,
-        params: { classId, examId },
-      })
-  );
+        }),
+      });
+      store.dispatch('notLoading');
+    });
+  };
 }

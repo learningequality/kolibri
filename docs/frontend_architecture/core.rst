@@ -47,7 +47,52 @@ These modules would now be available for import anywhere with the following stat
 Styling
 -------
 
-To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri.styles.definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``core-theme.scss`` and ``definitions.scss``.
+To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri.styles.definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``definitions.scss``.
+
+Dynamic core theme
+------------------
+
+Vuex state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in Vuex state, which are then applied inline to elements using Vue.js style bindings from Vuex getters.
+
+There are two cases where dynamic styles cannot be directly applied to DOM elements:
+- inline styles cannot apply `pseudo-classes<https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
+- styles applied during `Vue transitions<https://vuejs.org/v2/guide/transitions.html>`__
+
+For these cases, it's necessary to define a "computed class" using the `$computedClass` function. This returns an auto-generated class name which can be used like a standard CSS class name. Under the hood, this uses `Aphrodite<https://github.com/Khan/aphrodite>`__ to create unique classes for each set of inputs given, so be careful not to abuse this feature!
+
+In order to apply a style using a computed class, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object:
+
+.. code-block:: javascript
+
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
+  export default {
+    mixins: [themeMixin],
+    computed: {
+      pseudoStyle() {
+        return {
+          ':hover': {
+            backgroundColor: this.$coreBgCanvas,
+          },
+        };
+      },
+    },
+  };
+
+Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the `$computedClass` method, referencing this style object:
+
+.. code-block:: javascript
+
+  <div :class="$computedClass(pseudoStyle)">I'm going to get a white background when you hover on me!</div>
+
+To use computed classes for Vue.js transitions, you can use the `{event}-class` `properties<https://vuejs.org/v2/api/#transition>`__ as options on the `<transition>` or `<transition-group>` special component, and the `$computedClass` method can be used again:
+
+.. code-block:: javascript
+
+  <transition-group :move-class="$computedClass(pseudoSelector)">
+    <div>While moving I'll have the hover style applied!</div>
+  </transition-group>
+
 
 Bootstrapped data
 -----------------

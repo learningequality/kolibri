@@ -91,6 +91,11 @@ export function saveLessonResources(store, { lessonId, resourceIds }) {
     return LessonResource.saveModel({
       id: lessonId,
       data: { resources },
+    }).then(lesson => {
+      // Update the class summary now that there is a change to a lesson
+      return store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+        return lesson;
+      });
     });
   });
 }
@@ -127,7 +132,7 @@ export function deleteLesson(store, { lessonId, classId }) {
   LessonResource.deleteModel({ id: lessonId })
     .then(() => {
       router.replace({
-        name: LessonsPageNames.ROOT,
+        name: LessonsPageNames.PLAN_LESSONS_ROOT,
         params: {
           classId,
           lessonId,
@@ -152,15 +157,18 @@ export function deleteLesson(store, { lessonId, classId }) {
 export function copyLesson(store, { payload, classroomName }) {
   LessonResource.saveModel({ data: payload })
     .then(() => {
-      store.dispatch('setLessonsModal', null);
-      store.dispatch(
-        'createSnackbar',
-        {
-          text: translator.$tr('copiedLessonTo', { classroomName }),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
+      // Update the class summary now that there is a new lesson
+      store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+        store.dispatch('setLessonsModal', null);
+        store.dispatch(
+          'createSnackbar',
+          {
+            text: translator.$tr('copiedLessonTo', { classroomName }),
+            autoDismiss: true,
+          },
+          { root: true }
+        );
+      });
     })
     .catch(error => {
       store.dispatch('handleApiError', error, { root: true });

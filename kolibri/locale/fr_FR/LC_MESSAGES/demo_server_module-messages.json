@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "Consulter la documentation",
+  "DemoServerIndex.demoServerA2": "Télécharger et installer la dernière version",
+  "DemoServerIndex.demoServerHeader": "Bienvenue sur le site de démo de Kolibri !",
+  "DemoServerIndex.demoServerL1": "Elève (identifiant : \"{user}\", mot de passe : \"{pass}\") ou accès en tant qu'invité",
+  "DemoServerIndex.demoServerL2": "Éducateur (identifiant : \"{user}\", mot de passe : \"{pass}\")",
+  "DemoServerIndex.demoServerL3": "Admin (identifiant : \"{user}\", mot de passe : \"{pass}\")",
+  "DemoServerIndex.demoServerP1": "Vous êtes invité à explorer le site suivant un des trois types d'utilisateurs :",
+  "DemoServerIndex.demoServerP2": "La démo en ligne contient les caractéristiques et fonctionnalités de la dernière version, mais ne contient seulement qu'un échantillon du contenu disponible en offline sur Kolibri. C'est destiné à des fins de démonstration et toutes les données utilisateur figurant ici peuvent être effacées périodiquement.",
+  "DemoServerIndex.demoServerP3": "Pour en savoir plus sur l'utilisation de Kolibri dans un contexte offline et pour mieux comprendre la plate-forme :"
+}

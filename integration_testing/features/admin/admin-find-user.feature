@@ -12,6 +12,14 @@ Feature: Admin find users
     When I write enough characters for all other users to be excluded
     Then I see just the user I was searching for
 
+  Scenario: Clear the previous search
+    Given that I've writen something in the search field
+      When I use the TAB key to focus the *Clear* button 
+        And I press ENTER
+          Or I click/tap the *Clear* button directly
+      Then the filter is cleared 
+        And I see the complete list of users 
+
   Scenario: Search for and find user using the role dropdown filter
     When I click to open the *User type* filter
       And I select the role <role>

@@ -4,7 +4,10 @@
 
     <div>
       <h1 class="title-header" dir="auto">
-        {{ currentClass.name }}
+        <KLabeledIcon>
+          <KIcon slot="icon" classroom />
+          {{ currentClass.name }}
+        </KLabeledIcon>
       </h1>
       <KButton
         :text="$tr('renameButtonLabel')"
@@ -48,6 +51,7 @@
     <UserTable
       :users="classCoaches"
       :emptyMessage="$tr('noCoachesInClassMessge')"
+      isCoach
     >
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
@@ -97,6 +101,8 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
@@ -131,6 +137,8 @@
       KGridItem,
       KRouterLink,
       KButton,
+      KIcon,
+      KLabeledIcon,
     },
     data() {
       return {
@@ -179,19 +187,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   .title-header {
     display: inline-block;
     margin-right: 8px;
-  }
-
-  .edit-button {
-    position: relative;
-    top: -4px;
-    left: 10px;
-    display: inline-block;
-    fill: $core-action-normal;
   }
 
   .top-margin {

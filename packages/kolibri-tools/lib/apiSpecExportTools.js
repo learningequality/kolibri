@@ -123,10 +123,12 @@ const baseAliasSourcePaths = {
   ),
 };
 
+const baseAliasDistPath = path.resolve(__dirname, '../dist');
+
 const baseAliasDistPaths = {
-  kolibri_module: path.resolve(__dirname, '../dist/kolibri_module'),
-  kolibri_app: path.resolve(__dirname, '../dist/kolibri_app'),
-  content_renderer_module: path.resolve(__dirname, '../dist/content_renderer_module'),
+  kolibri_module: path.resolve(baseAliasDistPath, 'kolibri_module'),
+  kolibri_app: path.resolve(baseAliasDistPath, 'kolibri_app'),
+  content_renderer_module: path.resolve(baseAliasDistPath, 'content_renderer_module'),
 };
 
 // Assume if kolibri_module is not available on the source path, then we need to use the dist
@@ -134,6 +136,182 @@ if (fs.existsSync(baseAliasSourcePaths.kolibri_module + '.js')) {
   baseAliases = baseAliasSourcePaths;
 } else {
   baseAliases = baseAliasDistPaths;
+}
+
+function recurseAndCopySpecObject(specObj, targetPath) {
+  const knownAliases = coreAliases();
+
+  const distPath = targetPath;
+
+  // Keep track of all the external dependencies so that they can be added to the package.json
+  // for the exported API spec.
+  const externalDependencies = {};
+  const files = [];
+
+  function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
+    const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion: 2018 });
+    const importNodes = esquery.query(
+      sourceTree,
+      '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]'
+    );
+    importNodes.forEach(node => {
+      if (node.source) {
+        const importPath = node.source.value;
+        // Prefix any resolved files with an underscore as they are not part of the core spec
+        const replacePath = resolveDependenciesAndCopy({
+          sourcePath: importPath,
+          destinationFolder,
+          sourceFolder,
+          prefix: '_',
+        });
+        sourceContents = sourceContents.replace(importPath, replacePath);
+      }
+    });
+    return sourceContents;
+  }
+
+  function parseScssDependencies(sourceContents, destinationFolder, sourceFolder) {
+    const sourceTree = scssParser.parse(sourceContents);
+    const scssWrapper = createQueryWrapper(sourceTree);
+    const importNodes = scssWrapper('atrule')
+      .has(wrapper => wrapper.node.value === 'import')
+      .children('string_single').nodes;
+    importNodes.forEach(node => {
+      // This should be the path for the import statement
+      const importPath = node.node.value;
+      // Prefix any resolved files with an underscore as they are not part of the core spec
+      const replacePath = resolveDependenciesAndCopy({
+        sourcePath: importPath,
+        destinationFolder,
+        sourceFolder,
+        prefix: '_',
+      });
+      sourceContents.replace(importPath, replacePath);
+    });
+    return sourceContents;
+  }
+
+  function parseVueDependencies(sourceContents, destinationFolder, sourceFolder) {
+    let template = vueTemplateCompiler.parseComponent(sourceContents);
+    function insertContent(source, block, newCode) {
+      const start = block.start;
+      const end = block.end;
+      return source.replace(source.slice(start, end), newCode);
+    }
+    const args = [destinationFolder, sourceFolder];
+    if (template.script) {
+      const newJs = parseJSDependencies(template.script.content, ...args);
+      sourceContents = insertContent(sourceContents, template.script, newJs);
+      template = vueTemplateCompiler.parseComponent(sourceContents);
+    }
+    template.styles.forEach(style => {
+      const newStyle = parseScssDependencies(style.content, ...args);
+      sourceContents = insertContent(sourceContents, style, newStyle);
+      template = vueTemplateCompiler.parseComponent(sourceContents);
+    });
+    return sourceContents;
+  }
+
+  function resolveDependenciesAndCopy({
+    sourcePath,
+    destinationFolder,
+    sourceFolder = '',
+    prefix = '',
+    destinationFileBase = '',
+  } = {}) {
+    // The source file path must be an absolute or relative path, otherwise it is a library external to Kolibri
+    // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
+    // Create a path without ~ because this is used for node_module or alias import resolution in SCSS/CSS
+    if (sourcePath.startsWith('/') || sourcePath.startsWith('.')) {
+      const source = path.join(sourceFolder, sourcePath);
+      // Find the actual source file name, as many path references do not have an extension.
+      const sourceFile = resolve.sync(source, {
+        extensions: ['.js', '.json', '.vue', '.scss', '.css'],
+      });
+
+      let extraPath = '';
+
+      // Possible that the resolved file is actually an index file inside a folder
+      // Check for that case.
+      if (path.basename(sourceFile).startsWith('index')) {
+        extraPath = path
+          .dirname(sourceFile)
+          .split(path.sep)
+          .slice(-1)[0];
+      }
+      // Create the destination file name based on the source file name base name, copy it exactly.
+      const destinationFile = path.join(
+        destinationFolder,
+        extraPath,
+        prefix +
+          (destinationFileBase
+            ? destinationFileBase + path.extname(sourceFile)
+            : path.basename(sourceFile))
+      );
+      // Copy from the source to the destination.
+      const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
+
+      const extension = path.extname(sourceFile);
+
+      let finalSource;
+
+      const newDestFolder = path.join(destinationFolder, extraPath);
+
+      mkdirp.sync(newDestFolder);
+
+      const newSourceFolder = path.dirname(sourceFile);
+
+      const args = [sourceContents, newDestFolder, newSourceFolder];
+
+      if (extension === '.js') {
+        finalSource = parseJSDependencies(...args);
+      } else if (extension === '.vue') {
+        finalSource = parseVueDependencies(...args);
+      } else if (extension === '.scss' || extension === '.css') {
+        // SCSS is a superset of CSS
+        finalSource = parseScssDependencies(...args);
+      } else {
+        finalSource = sourceContents;
+      }
+      // Write out the final contents of the file to disk
+      fs.writeFileSync(destinationFile, finalSource, { encoding: 'utf-8' });
+      files.push(destinationFile);
+      // Return a relative path to the copied file
+      return './' + prefix + path.basename(sourceFile);
+    } else {
+      const exportSourcePath = (sourcePath.startsWith('~')
+        ? sourcePath.slice(1)
+        : sourcePath
+      ).split('/')[0];
+      if (!knownAliases[exportSourcePath] && !externalDependencies[exportSourcePath]) {
+        externalDependencies[exportSourcePath] = true;
+      }
+    }
+    // If we have not already returned, return the original sourcePath unmodified.
+    return sourcePath;
+  }
+
+  function recurseSpecAndCopy(pathsArray, obj) {
+    Object.keys(obj).forEach(key => {
+      if (typeof obj[key] === 'object') {
+        recurseSpecAndCopy([...pathsArray, key], obj[key]);
+      } else {
+        // Make a folder so that we have a directory structure that maps to the core API object structure
+        const destinationFolder = path.resolve(path.join(distPath, ...pathsArray));
+        mkdirp.sync(destinationFolder);
+        resolveDependenciesAndCopy({
+          sourcePath: obj[key],
+          destinationFolder,
+          destinationFileBase: key,
+        });
+      }
+    });
+  }
+  recurseSpecAndCopy([], specObj);
+  return {
+    files,
+    externalDependencies,
+  };
 }
 
 const __builder = {
@@ -186,13 +364,7 @@ const __builder = {
     fs.writeFileSync(distSpecFilePath, JSON.stringify(specObj, undefined, 2), {
       encoding: 'utf-8',
     });
-    Object.keys(baseAliasSourcePaths).forEach(key => {
-      // Paths above have no extensions so resolve the source and then use extension on the destination.
-      const source = resolve.sync(baseAliasSourcePaths[key], {
-        extensions: ['.js', '.json', '.vue', '.scss', '.css'],
-      });
-      fs.copyFileSync(source, baseAliasDistPaths[key] + path.extname(source));
-    });
+    recurseAndCopySpecObject(baseAliasSourcePaths, baseAliasDistPath);
   },
   exportApiSpec(distPath) {
     /*
@@ -203,173 +375,7 @@ const __builder = {
      */
     this.checkSrc();
 
-    const knownAliases = coreAliases();
-
-    // Keep track of all the external dependencies so that they can be added to the package.json for
-    // for the exported API spec.
-    const externalDependencies = {};
-    const files = [];
-
-    function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
-      const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion: 2018 });
-      const importNodes = esquery.query(
-        sourceTree,
-        '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]'
-      );
-      importNodes.forEach(node => {
-        if (node.source) {
-          const importPath = node.source.value;
-          // Prefix any resolved files with an underscore as they are not part of the core spec
-          const replacePath = resolveDependenciesAndCopy({
-            sourcePath: importPath,
-            destinationFolder,
-            sourceFolder,
-            prefix: '_',
-          });
-          sourceContents = sourceContents.replace(importPath, replacePath);
-        }
-      });
-      return sourceContents;
-    }
-
-    function parseScssDependencies(sourceContents, destinationFolder, sourceFolder) {
-      const sourceTree = scssParser.parse(sourceContents);
-      const scssWrapper = createQueryWrapper(sourceTree);
-      const importNodes = scssWrapper('atrule')
-        .has(wrapper => wrapper.node.value === 'import')
-        .children('string_single').nodes;
-      importNodes.forEach(node => {
-        // This should be the path for the import statement
-        const importPath = node.node.value;
-        // Prefix any resolved files with an underscore as they are not part of the core spec
-        const replacePath = resolveDependenciesAndCopy({
-          sourcePath: importPath,
-          destinationFolder,
-          sourceFolder,
-          prefix: '_',
-        });
-        sourceContents.replace(importPath, replacePath);
-      });
-      return sourceContents;
-    }
-
-    function parseVueDependencies(sourceContents, destinationFolder, sourceFolder) {
-      let template = vueTemplateCompiler.parseComponent(sourceContents);
-      function insertContent(source, block, newCode) {
-        const start = block.start;
-        const end = block.end;
-        return source.replace(source.slice(start, end), newCode);
-      }
-      const args = [destinationFolder, sourceFolder];
-      if (template.script) {
-        const newJs = parseJSDependencies(template.script.content, ...args);
-        sourceContents = insertContent(sourceContents, template.script, newJs);
-        template = vueTemplateCompiler.parseComponent(sourceContents);
-      }
-      template.styles.forEach(style => {
-        const newStyle = parseScssDependencies(style.content, ...args);
-        sourceContents = insertContent(sourceContents, style, newStyle);
-        template = vueTemplateCompiler.parseComponent(sourceContents);
-      });
-      return sourceContents;
-    }
-
-    function resolveDependenciesAndCopy({
-      sourcePath,
-      destinationFolder,
-      sourceFolder = '',
-      prefix = '',
-      destinationFileBase = '',
-    } = {}) {
-      // The source file path must be an absolute or relative path, otherwise it is a library external to Kolibri
-      // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
-      // Create a path without ~ because this is used for node_module or alias import resolution in SCSS/CSS
-      if (sourcePath.startsWith('/') || sourcePath.startsWith('.')) {
-        source = path.join(sourceFolder, sourcePath);
-        // Find the actual source file name, as many path references do not have an extension.
-        const sourceFile = resolve.sync(source, {
-          extensions: ['.js', '.json', '.vue', '.scss', '.css'],
-        });
-
-        let extraPath = '';
-
-        // Possible that the resolved file is actually an index file inside a folder
-        // Check for that case.
-        if (path.basename(sourceFile).startsWith('index')) {
-          extraPath = path
-            .dirname(sourceFile)
-            .split(path.sep)
-            .slice(-1)[0];
-        }
-        // Create the destination file name based on the source file name base name, copy it exactly.
-        const destinationFile = path.join(
-          destinationFolder,
-          extraPath,
-          prefix +
-            (destinationFileBase
-              ? destinationFileBase + path.extname(sourceFile)
-              : path.basename(sourceFile))
-        );
-        // Copy from the source to the destination.
-        const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
-
-        const extension = path.extname(sourceFile);
-
-        let finalSource;
-
-        const newDestFolder = path.join(destinationFolder, extraPath);
-
-        mkdirp.sync(newDestFolder);
-
-        const newSourceFolder = path.dirname(sourceFile);
-
-        const args = [sourceContents, newDestFolder, newSourceFolder];
-
-        if (extension === '.js') {
-          finalSource = parseJSDependencies(...args);
-        } else if (extension === '.vue') {
-          finalSource = parseVueDependencies(...args);
-        } else if (extension === '.scss' || extension === '.css') {
-          // SCSS is a superset of CSS
-          finalSource = parseScssDependencies(...args);
-        } else {
-          finalSource = sourceContents;
-        }
-        // Write out the final contents of the file to disk
-        fs.writeFileSync(destinationFile, finalSource, { encoding: 'utf-8' });
-        files.push(destinationFile);
-        // Return a relative path to the copied file
-        return './' + prefix + path.basename(sourceFile);
-      } else {
-        const exportSourcePath = (sourcePath.startsWith('~')
-          ? sourcePath.slice(1)
-          : sourcePath
-        ).split('/')[0];
-        if (!knownAliases[exportSourcePath] && !externalDependencies[exportSourcePath]) {
-          externalDependencies[exportSourcePath] = true;
-        }
-      }
-      // If we have not already returned, return the original sourcePath unmodified.
-      return sourcePath;
-    }
-
-    function recurseSpecAndCopy(pathsArray, obj) {
-      Object.keys(obj).forEach(key => {
-        if (typeof obj[key] === 'object') {
-          recurseSpecAndCopy([...pathsArray, key], obj[key]);
-        } else {
-          // Make a folder so that we have a directory structure that maps to the core API object structure
-          const destinationFolder = path.resolve(path.join(distPath, ...pathsArray));
-          mkdirp.sync(destinationFolder);
-          resolveDependenciesAndCopy({
-            sourcePath: obj[key],
-            destinationFolder,
-            destinationFileBase: key,
-          });
-        }
-      });
-    }
-    recurseSpecAndCopy([], apiSpec);
+    const { files, externalDependencies } = recurseAndCopySpecObject(apiSpec, distPath);
     return {
       dependencies: Object.keys(externalDependencies),
       files,

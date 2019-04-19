@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
-import AssignmentDetailsModal from '../../src/views/assignments/AssignmentDetailsModal';
+import store from 'kolibri.coreVue.vuex.store';
+import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
 const defaultProps = {
   initialDescription: '',
@@ -14,6 +15,7 @@ const defaultProps = {
 };
 
 function makeWrapper(options) {
+  options.store = store;
   const wrapper = mount(AssignmentDetailsModal, options);
   const els = {
     titleField: () => wrapper.findAll({ name: 'KTextbox' }).at(0),
@@ -34,6 +36,7 @@ describe('AssignmentDetailsModal', () => {
       propsData: { ...defaultProps },
     });
     const expected = {
+      active: false,
       title: 'Lesson 1',
       description: 'The first lesson',
       assignments: [],
@@ -74,6 +77,7 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       const expected = {
+        active: false,
         title: 'Old Lesson V2',
         description: props.initialDescription,
         assignments: [],
@@ -88,6 +92,7 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       const expected = {
+        active: false,
         title: props.initialTitle,
         description: 'Its da remix',
         assignments: [],

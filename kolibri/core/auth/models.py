@@ -29,6 +29,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import UserManager
 from django.core import validators
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -60,6 +61,7 @@ from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
 from .permissions.base import BasePermissions
 from .permissions.base import RoleBasedPermissions
+from .permissions.general import AllowCoach
 from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
@@ -68,7 +70,7 @@ from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.constants.morango_scope_definitions import SINGLE_USER
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
-from kolibri.utils.time import local_now
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +161,21 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     class Meta:
         abstract = True
 
+    def cached_related_dataset_lookup(self, related_obj_name):
+        """
+        Attempt to get the dataset_id either from the cache or the actual related obj instance.
+
+        :param related_obj_name: string representing the name of the related object on this model
+        :return: the dataset_id associated with the related obj
+        """
+        field = self._meta.get_field(related_obj_name)
+        key = '{id}_{db_table}_dataset'.format(id=getattr(self, field.attname), db_table=field.related_model._meta.db_table)
+        dataset_id = cache.get(key)
+        if dataset_id is None:
+            dataset_id = getattr(self, related_obj_name).dataset_id
+            cache.set(key, dataset_id, 60 * 10)
+        return dataset_id
+
     def calculate_source_id(self):
         # by default, we'll use randomly generated source IDs; this can be overridden as desired
         return None
@@ -189,15 +206,15 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         inconsistencies, make sure it matches the inferred dataset, otherwise raise a ``KolibriValidationError``.
         If we have no dataset and it can't be inferred, we raise a ``KolibriValidationError`` exception as well.
         """
-        inferred_dataset = self.infer_dataset(*args, **kwargs)
+        inferred_dataset_id = self.infer_dataset(*args, **kwargs)
         if self.dataset_id:
             # make sure currently stored dataset matches inferred dataset, if any
-            if inferred_dataset and inferred_dataset != self.dataset:
+            if inferred_dataset_id and inferred_dataset_id != self.dataset_id:
                 raise KolibriValidationError("This model is not associated with the correct FacilityDataset.")
         else:
             # use the inferred dataset, if there is one, otherwise throw an error
-            if inferred_dataset:
-                self.dataset = inferred_dataset
+            if inferred_dataset_id:
+                self.dataset_id = inferred_dataset_id
             else:
                 raise KolibriValidationError("FacilityDataset ('dataset') not provided, and could not be inferred.")
 
@@ -522,6 +539,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     permissions = (
         IsSelf() |  # FacilityUser can be read and written by itself
         IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
+        AllowCoach() |
         RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
             target_field=".",
             can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
@@ -541,7 +559,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         return "{dataset_id}:user-ro:{user_id}".format(dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.facility.dataset
+        return self.cached_related_dataset_lookup('facility')
 
     def get_permission(self, permission):
         try:
@@ -882,7 +900,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         if self.parent:
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
-            return self.parent.get_root().dataset
+            return self.parent.get_root().dataset_id
         else:
             return None  # the root node (i.e. Facility) must be explicitly tied to a dataset
 
@@ -903,6 +921,7 @@ class Membership(AbstractFacilityDataModel):
     morango_model_name = "membership"
 
     permissions = (
+        AllowCoach() |
         IsOwn(read_only=True) |  # users can read their own Memberships
         RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
             target_field="user",
@@ -929,11 +948,13 @@ class Membership(AbstractFacilityDataModel):
         return '{collection_id}'.format(collection_id=self.collection_id)
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
+        user_dataset_id = self.cached_related_dataset_lookup('user')
+        collection_dataset_id = self.cached_related_dataset_lookup('collection')
+        # user_dataset_id = self.user.dataset_id
+        # collection_dataset_id = self.collection.dataset_id
+        if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError("Collection and user for a Membership object must be in same dataset.")
-        return user_dataset
+        return user_dataset_id
 
     def __str__(self):
         return "{user}'s membership in {collection}".format(user=self.user, collection=self.collection)
@@ -978,11 +999,11 @@ class Role(AbstractFacilityDataModel):
         return '{collection_id}:{kind}'.format(collection_id=self.collection_id, kind=self.kind)
 
     def infer_dataset(self, *args, **kwargs):
-        user_dataset = self.user.dataset
-        collection_dataset = self.collection.dataset
-        if user_dataset != collection_dataset:
+        user_dataset_id = self.cached_related_dataset_lookup('user')
+        collection_dataset_id = self.cached_related_dataset_lookup('collection')
+        if user_dataset_id != collection_dataset_id:
             raise KolibriValidationError("The collection and user for a Role object must be in the same dataset.")
-        return user_dataset
+        return user_dataset_id
 
     def __str__(self):
         return "{user}'s {kind} role for {collection}".format(user=self.user, kind=self.kind, collection=self.collection)
@@ -1042,7 +1063,7 @@ class Facility(Collection):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
             self.dataset = FacilityDataset.objects.create()
-        return self.dataset
+        return self.dataset_id
 
     def get_classrooms(self):
         """

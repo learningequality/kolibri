@@ -1,11 +1,11 @@
-Feature: Super admin manage import network locations
+Feature: Super admin manages import network locations
   Super admin needs to be able to add and remove a network location from which they can import content
 
   Background:
-    Given I am signed in to Kolibri as an admin user
+    Given I am signed in to Kolibri as a super admin user
       And I am on the *Device > Channels* page
 
-  Scenario: Access the Select Network Address modal
+  Scenario: Access the Select network address modal
     When I click on *Import*
       And I select the *Local network or internet* radio button
       And I click the *Continue* button
@@ -14,12 +14,12 @@ Feature: Super admin manage import network locations
   Scenario: No addresses have been saved
     Given I have not saved any addresses
       And I am on the *Select network address* modal
-    Then I see an alert *You have not entered any addresses*
+    Then I see an alert *There are no addresses yet*
       And The *Continue* button is disabled
 
   Scenario: Adding an address
     Given I am on the *Select network address* modal
-    When I click the *New address* button
+    When I click the *Add new address* link
     Then I see the *New address* modal
     When I enter <network_address> in the *Full network address* field
       And I enter <network_name> in the *Network name* field
@@ -33,7 +33,7 @@ Feature: Super admin manage import network locations
   Scenario: Removing an address
     Given I am on the *Select network address* modal
       And I have saved a network location for <network_name>
-    When I click the *Forget* button next to the radio button for <network_name>
+    When I click the *Forget* link next to the radio button for <network_name>
     Then The radio button for <network_name> disappears from the list
       And I see a snackbar alert saying *Successfully removed address*
 

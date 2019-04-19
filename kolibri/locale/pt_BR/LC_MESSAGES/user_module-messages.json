@@ -27,7 +27,7 @@
   "ProfilePage.usernameAlreadyExists": "Já existe uma conta para esse usuário",
   "ProfilePage.usernameNotAlphaNumUnderscore": "O nome de usuário só pode conter letras, números e sublinhados",
   "ProfilePage.youCan": "Você pode",
-  "SignInPage.accessAsGuest": "Continuar como convidado",
+  "SignInPage.accessAsGuest": "Explorar sem conta",
   "SignInPage.createAccount": "Criar uma conta",
   "SignInPage.documentTitle": "Iniciar sessão",
   "SignInPage.enterPassword": "Digite a senha",
@@ -58,6 +58,8 @@
   "SignUpPage.usernameAlphaNumError": "O nome de usuário só pode conter letras, números e sublinhados",
   "SignUpPage.usernameAlreadyExistsError": "Já existe uma conta para esse usuário",
   "UserIndex.userProfileTitle": "Perfil",
+  "UserIndex.userSignInTitle": "Iniciar sessão",
+  "UserIndex.userSignUpTitle": "Inscrever-se",
   "UserPageSnackbars.dismiss": "Descartar",
   "UserPageSnackbars.signedOut": "Devido à inatividade, sua sessão foi automaticamente encerrada",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Senha alterada"

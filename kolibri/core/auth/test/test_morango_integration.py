@@ -23,6 +23,8 @@ from ..models import LearnerGroup
 from ..models import Role
 from .sync_utils import multiple_kolibri_servers
 
+from .helpers import DUMMY_PASSWORD
+
 
 class FacilityDatasetCertificateTestCase(TestCase):
 
@@ -71,9 +73,9 @@ class EcosystemTestCase(TestCase):
 
     def _create_objects(self, server):
         fac = Facility.objects.using(server.db_alias).first()
-        admin = FacilityUser(username=uuid.uuid4().hex[:30], facility=fac)
+        admin = FacilityUser(username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac)
         admin.save(using=server.db_alias)
-        learner = FacilityUser(username=uuid.uuid4().hex[:30], facility=fac)
+        learner = FacilityUser(username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac)
         learner.save(using=server.db_alias)
         class_resp = self.request_server(server, "classroom", data=self._data(parent=fac.id, name=uuid.uuid4().hex))
         lg_resp = self.request_server(server, "learnergroup", data=self._data(parent=class_resp.json()['id'], name=uuid.uuid4().hex))
@@ -124,7 +126,8 @@ class EcosystemTestCase(TestCase):
         s1_url = servers[1].base_url
         s2_alias = servers[2].db_alias
         s2_url = servers[2].base_url
-        servers[0].manage("generateuserdata", no_onboarding=True)
+        servers[0].manage('loaddata', 'content_test')
+        servers[0].manage("generateuserdata", no_onboarding=True, num_content_items=1)
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
         servers[2].manage("fullfacilitysync", base_url=s1_url, username="superuser", password="password")
 
@@ -133,13 +136,13 @@ class EcosystemTestCase(TestCase):
             self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
 
         # assert created user is synced
-        FacilityUser(username="user", facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
+        FacilityUser(username="user", password=DUMMY_PASSWORD, facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
         self.assertTrue(FacilityUser.objects.using(s1_alias).filter(username="user").exists())
 
         # create user with same username on two servers and check they both exist
-        FacilityUser(username="copycat", facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
-        FacilityUser(username="copycat", facility=Facility.objects.using(s1_alias).first()).save(using=s1_alias)
+        FacilityUser(username="copycat", password=DUMMY_PASSWORD, facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
+        FacilityUser(username="copycat", password=DUMMY_PASSWORD, facility=Facility.objects.using(s1_alias).first()).save(using=s1_alias)
         servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
         self.assertEqual(FacilityUser.objects.using(s0_alias).filter(username='copycat').count(), 2)
         self.assertEqual(FacilityUser.objects.using(s1_alias).filter(username='copycat').count(), 2)

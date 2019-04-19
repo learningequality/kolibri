@@ -1,8 +1,8 @@
-Feature: Super admin edit users
+Feature: Super admin edits users
     Super admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
-    Given I am signed in to Kolibri as a Super admin
+    Given I am signed in to Kolibri as a super admin
       And I am on the *Facility > Users* page
 
   Scenario: Edit user's full name
@@ -35,7 +35,17 @@ Feature: Super admin edit users
       And I click the *Save* button
     Then the modal closes
       And I see the user with edited type (label or no label depending on the change)
-# TODO: add options for the 2 coach types
+
+  Scenario: Change class coach user to facility coach user
+    Given there is class coach <username> in the facility
+    When I click on *Options* button for the user <username>
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
+      And I see the *Class coach* radio button active under the *User type*
+    When I click and make the *Facility coach* radio button active
+      And I click the *Save* button
+    Then the modal closes
+      And I see the user <username> with the *Facility coach* label
 
   Scenario: Reset user's password
     When I click on *Options* button of the user I want to reset password for
@@ -49,36 +59,33 @@ Feature: Super admin edit users
     Then the modal closes
       And I see the *Facility > Users* page again # no confirmation that the password has been reset
 
-  Feature: Super admin can see that their role is distinguished in the user list in *Facility > Users* and there are different Options options than other users
-
-    Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
-      When I scroll to my name in the user list
+  Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
+      When I see my name in the user list
       Then I see a label *Super admin* next to my full name
 
-    Scenario: Super admin can’t delete themselves
-      When I scroll to my name in the user list
+  Scenario: Super admin cannot delete themselves
+      When I see my name in the user list
         And I click on the *Options* dropdown button
-      Then I see that the *Delete* action is disabled
+      Then I see that the *Delete* option is disabled
 
-  Feature: Super admin cannot edit their own user type from the *Edit user* modal, but can find a cross link to the Device permissions page
-
-    Scenario: Super admin can see the read-only label *Super admin* under *User type*, not their facility role
-      When I look at the field for *User type*
-      Then I see that I am a Super admin
-      And a message that directs me to *Device permissions* to view more details
-
-    Scenario: Super admin navigates to *Device permissions* from the *Edit user* modal
-      When I click on the link to *Device permissions*
+  Scenario: Super admin cannot change their own user type from the *Edit user details* modal
+    When I click on *Options* button for my own <username>
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
+    When I look at the field for *User type*
+    Then I see that I am a Super admin
+      And I see I cannot change my user type
+      And I see the *View details in Device permissions* link
+    When I click on the link *View details in Device permissions*
       Then I am redirected to my permissions page in *Device > Permissions*
 
-  Feature: Super admin cannot edit the user type of another Super admin from the *Edit user* modal, but can find a cross link to the Device permissions page to make changes there
-
-    Scenario: Super admin can see the read-only *Super admin* label under *User type*, and a cross-link to *Device permissions* to make changes
-    	When I look at the field for *User type*
-    	Then I see that I am a Super admin
-    	And a message that directs me to *Device permissions* to make changes
-
-    Scenario: Super admin navigates to *Device permissions* from the *Edit user details* modal
-      When I click on the link to *Device permissions*
-      Then I am redirected to that user’s device permissions page in *Device > Permissions*
-
+  Scenario: Super admin cannot change the user type of other super admin users in the *Edit user details* modal
+    When I click on *Options* button for another super admin
+      And I select *Edit details* option
+    Then I see *Edit user details* modal
+    When I look at the field for *User type*
+    Then I see the *Super admin* label
+      And I see I cannot change the user type
+      And I see the *Go to Device permissions to change this* link
+    When I click on the link *Go to Device permissions to change this*
+    Then I am redirected to their permissions page in *Device > Permissions*

@@ -1,4 +1,4 @@
-Feature: Guest engage content channels
+Feature: Guest engages content channels
   Guest needs to engage with content on Channels tab
 
   Background:

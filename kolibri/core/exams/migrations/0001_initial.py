@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('_morango_source_id', models.CharField(editable=False, max_length=96)),
                 ('_morango_partition', models.CharField(editable=False, max_length=128)),
                 ('title', models.CharField(max_length=200)),
-                ('channel_id', models.CharField(max_length=32)),
+                ('channel_id', models.CharField(max_length=32, blank=True)),
                 ('question_count', models.IntegerField()),
                 ('question_sources', jsonfield.fields.JSONField(blank=True, default=[])),
                 ('seed', models.IntegerField(default=1)),

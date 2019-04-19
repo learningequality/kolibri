@@ -124,6 +124,7 @@ export default {
       */
       windowBreakpoint: undefined,
       windowGutter: 16,
+      windowIsShort: false,
     };
   },
   watch: {
@@ -133,6 +134,7 @@ export default {
     },
     windowHeight() {
       this._updateGutter();
+      this.windowIsShort = this.windowHeight < 600;
     },
   },
   computed: {

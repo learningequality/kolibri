@@ -1,9 +1,9 @@
-Feature: Coach copy lesson
+Feature: Coach copies lesson
   Coaches need to be able to copy lessons to the same or a different class, and assign it to different groups or an entire class
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on *Coach > Lessons* page
+      And I am on *Coach > Plan > Lessons* page
       And I see the <lesson> lesson
 
   Scenario: Copy lesson to the same class and assign to the entire class

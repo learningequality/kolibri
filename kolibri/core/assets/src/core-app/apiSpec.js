@@ -12,9 +12,7 @@
 // N.B. You cannot use keys that require quotation marks in this object.
 // e.g. 'content-icon' (although this can be used as a value in module).
 
-import vue from 'vue';
 import vuex from 'vuex';
-import seededshuffle from 'seededshuffle';
 import UiAlert from 'keen-ui/src/UiAlert';
 import tetherDrop from 'tether-drop';
 import tetherTooltip from 'tether-tooltip';
@@ -59,7 +57,6 @@ import responsiveWindow from '../mixins/responsive-window';
 import responsiveElement from '../mixins/responsive-element';
 import contentRendererMixin from '../mixins/contentRenderer';
 import CoreFullscreen from '../views/CoreFullscreen';
-import theme from '../styles/core-theme.scss';
 import definitions from '../styles/definitions.scss';
 import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
@@ -81,9 +78,17 @@ import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
+import KDraggable from '../views/kSortable/KDraggable';
+import KDragHandle from '../views/kSortable/KDragHandle';
+import KDragContainer from '../views/kSortable/KDragContainer';
+import KDragSortWidget from '../views/kSortable/KDragSortWidget';
+import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
+import KPageContainer from '../views/KPageContainer';
+import KIcon from '../views/icons/KIcon';
+import KLabeledIcon from '../views/icons/KLabeledIcon';
+import KBasicContentIcon from '../views/icons/KBasicContentIcon';
 
 // webpack optimization
-import buttonAndLinkStyles from '../views/buttons-and-links/buttons.scss';
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
 import AttemptLogList from '../views/AttemptLogList';
@@ -97,6 +102,11 @@ import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
+import UiIconButton from '../views/KeenUiIconButton.vue';
+import * as colour from '../utils/colour';
+import shuffled from '../utils/shuffled';
+import themeMixin from '../mixins/theme';
+import vue from './kolibriVue';
 import * as client from './client';
 import urls from './urls';
 
@@ -109,7 +119,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    seededshuffle,
     tetherDrop,
     tetherTooltip,
   },
@@ -167,28 +176,38 @@ export default {
       CoreFullscreen,
       CoreLogo,
       UiAlert,
+      UiIconButton,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
       KTooltip,
+      KDraggable,
+      KDragHandle,
+      KDragContainer,
+      KDragSortWidget,
+      KEmptyPlaceholder,
+      KPageContainer,
+      KIcon,
+      KLabeledIcon,
+      KBasicContentIcon,
     },
     router,
     mixins: {
       responsiveWindow,
       responsiveElement,
       contentRendererMixin,
+      themeMixin,
     },
   },
   resources,
   styles: {
-    theme,
     definitions,
     keenVars,
-    buttonAndLinkStyles,
   },
   urls,
   utils: {
     contentNode,
+    colour,
     browser,
     exams,
     validators,
@@ -198,5 +217,6 @@ export default {
     samePageCheckGenerator,
     CatchErrors,
     UserType,
+    shuffled,
   },
 };

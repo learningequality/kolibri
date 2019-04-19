@@ -70,7 +70,7 @@ def webpack_base_assets():
 
     :return: HTML of script tags to insert into base.html
     """
-    return webpack_asset_render(hooks.FrontEndBaseSyncHook, async=False)
+    return webpack_asset_render(hooks.FrontEndBaseSyncHook, is_async=False)
 
 
 @register.simple_tag()
@@ -82,4 +82,4 @@ def webpack_base_async_assets():
 
     :return: HTML of script tags to insert into base.html
     """
-    return webpack_asset_render(hooks.FrontEndBaseASyncHook, async=True)
+    return webpack_asset_render(hooks.FrontEndBaseASyncHook, is_async=True)

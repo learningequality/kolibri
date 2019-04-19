@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="wrapper" class="wrapper">
+  <div ref="wrapper" :class="['wrapper', $computedClass(progressStyle)]">
     <div v-show="loading" class="fill-space">
       <KCircularLoader
         class="loader"
@@ -57,6 +57,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
   import Lockr from 'lockr';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -100,7 +101,7 @@
     },
     components: { KCircularLoader, CoreFullscreen },
 
-    mixins: [ResponsiveElement, contentRendererMixin],
+    mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
 
     data: () => ({
       dummyTime: 0,
@@ -149,6 +150,16 @@
           return this.extraFields.contentState.savedLocation;
         }
         return 0;
+      },
+      progressStyle() {
+        return {
+          '.vjs-play-progress': {
+            backgroundColor: this.$coreActionNormal,
+            '::before': {
+              color: this.$coreActionNormal,
+            },
+          },
+        };
       },
     },
     created() {
@@ -439,6 +450,7 @@
   @import './videojs-style/video-js.min.css';
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
+  @import '~kolibri.styles.definitions';
 
   .wrapper {
     width: 854px;
@@ -462,8 +474,6 @@
 
   /***** PLAYER OVERRIDES *****/
 
-  @import '~kolibri.styles.definitions';
-
   /* !!rtl:begin:ignore */
 
   /** COLOR PALLETTE **/
@@ -472,7 +482,6 @@
   $video-player-color-2: tint($video-player-color, 7%);
   $video-player-color-3: tint($video-player-color, 15%);
   $video-player-font-color: white;
-  $video-player-accent-color: $core-action-normal;
 
   $video-player-font-size: 12px;
 
@@ -516,12 +525,9 @@
         }
 
         .vjs-play-progress {
-          background-color: $video-player-accent-color;
-
           &::before {
             top: -5px;
             font-size: 18px;
-            color: $video-player-accent-color;
           }
         }
       }

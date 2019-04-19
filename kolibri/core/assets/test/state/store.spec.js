@@ -5,6 +5,8 @@ import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
+jest.mock('kolibri.urls');
+
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
     const errorMessage = 'testError';
@@ -19,7 +21,11 @@ describe('Vuex store/actions for core module', () => {
     it('handleApiError action updates core state', () => {
       const store = makeStore();
       const apiError = { message: 'Too Bad' };
-      store.dispatch('handleApiError', apiError);
+      try {
+        store.dispatch('handleApiError', apiError);
+      } catch (e) {
+        expect(e.message).toBe(apiError.message);
+      }
       expect(store.state.core.error.match(/Too Bad/)).toHaveLength(1);
       expect(store.state.core.loading).toBeFalsy();
     });
@@ -27,15 +33,15 @@ describe('Vuex store/actions for core module', () => {
 
   describe('kolibriLogin', () => {
     let store;
-    let assignStub;
+    let redirectStub;
 
     beforeEach(() => {
       store = makeStore();
-      assignStub = jest.spyOn(browser, 'redirectBrowser');
+      redirectStub = jest.spyOn(browser, 'redirectBrowser');
     });
 
     afterEach(() => {
-      assignStub.mockRestore();
+      redirectStub.mockRestore();
     });
 
     it('successful login', async () => {
@@ -52,11 +58,7 @@ describe('Vuex store/actions for core module', () => {
       });
 
       await store.dispatch('kolibriLogin', {});
-      const { session } = store.state.core;
-      expect(session.id).toEqual('123');
-      expect(session.username).toEqual('e_fermi');
-      expect(session.kind).toEqual(['cool-guy-user']);
-      expect(assignStub).toHaveBeenCalled();
+      expect(redirectStub).toHaveBeenCalled();
     });
 
     it('failed login (401)', async () => {

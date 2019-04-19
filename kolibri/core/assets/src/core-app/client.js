@@ -40,8 +40,15 @@ const loginTimeoutDetection = interceptor({
     // client code is still trying to access data that they would be allowed to see
     // if they were logged in.
     if (response.status && response.status.code === 403) {
-      // In this case, we should check right now if they are still logged in
-      heartbeat.beat();
+      if (!store.state.core.session.id) {
+        // Don't have any session information, so assume that this
+        // page has just been reopened and the session has expired.
+        // Redirect now!
+        heartbeat.signOutDueToInactivity();
+      } else {
+        // In this case, we should check right now if they are still logged in
+        heartbeat.pollSessionEndPoint();
+      }
     }
     return Promise.reject(response);
   },

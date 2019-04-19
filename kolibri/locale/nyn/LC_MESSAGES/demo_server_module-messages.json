@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "Werengani malangizo",
+  "DemoServerIndex.demoServerA2": "Pangani dawunilodi ndi kupanga insto pulogalamu yatsopano",
+  "DemoServerIndex.demoServerHeader": "Takulandira ku webusaiti ya Kolibri demo!",
+  "DemoServerIndex.demoServerL1": "Wophunzira (username: '{user}', pasiwedi: '{pass}') kapena lowani ngati mlendo",
+  "DemoServerIndex.demoServerL2": "Kochi (username: '{user}', pasiwedi: '{pass}')",
+  "DemoServerIndex.demoServerL3": "Adimini (username: '{user}', pasiwedi: '{pass}')",
+  "DemoServerIndex.demoServerP1": "Mungathe kugwiritsa ntchito njira zitatu zolowera pa webusaiti iyi:",
+  "DemoServerIndex.demoServerP2": "Webusaiti ya demo ino ili ndi zinthu zonse za pulogalamu yatsopano, komabe ili ndi sampulo ya zinthu zimene mungazigwiritse ntchito popanda intaneti mu Kolibri. Cholinga chake ndi kungokusonyezani m'mene wabusaitiyi imagwirira ntchito ndipo zinthu zokhudza munthu zidzichotsedwa pa webusaiti ino nthawi ndi nthawi.",
+  "DemoServerIndex.demoServerP3": "Kuti mudziwe zambiri za m'mene mungawiritsire ntchito Kolibri popanda intaneti komanso kuti mumvetse bwino kagwiritsidwe ntchito ka Kolibri:"
+}

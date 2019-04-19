@@ -10,7 +10,7 @@
         class="thumbnail"
         v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
       />
-      <div class="text">
+      <div class="text" :style="{ color: $coreTextDefault }">
         <h3 class="title" dir="auto">
           <TextTruncator
             :text="title"
@@ -48,13 +48,14 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ToggledRouterLink from '../ToggledRouterLink';
   import CardThumbnail from './CardThumbnail';
+  import ToggledRouterLink from '../ToggledRouterLink';
 
   export default {
     name: 'ContentCard',
@@ -68,6 +69,7 @@
       KButton,
       ToggledRouterLink,
     },
+    mixins: [themeMixin],
     props: {
       title: {
         type: String,
@@ -168,21 +170,22 @@
   }
 
   .card {
+    @extend %dropshadow-1dp;
+
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
     word-break: break-all; // fallback
     word-break: break-word;
     vertical-align: top;
-    background-color: $core-bg-light;
     border-radius: 2px;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
     transition: box-shadow $core-time ease;
-    &:hover,
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
     &:focus {
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12),
-        0 5px 5px -3px rgba(0, 0, 0, 0.2);
+      outline-width: 4px;
+      outline-offset: 6px;
     }
   }
 
@@ -190,7 +193,6 @@
     position: relative;
     height: 92px;
     padding: $margin;
-    color: $core-text-default;
   }
 
   .title,

@@ -1,0 +1,11 @@
+{
+  "DemoServerIndex.demoServerA1": "Hãy đọc tài liệu này",
+  "DemoServerIndex.demoServerA2": "Tải và cài đặt bản mới nhất",
+  "DemoServerIndex.demoServerHeader": "Chào mừng bạn đến với trang thử nghiệm của Kolibri!",
+  "DemoServerIndex.demoServerL1": "Học viên (tên người dùng: '{user}', mật khẩu: '{pass}') hoặc là khách truy cập",
+  "DemoServerIndex.demoServerL2": "Giáo viên (tên người dùng: '{user}', mật khẩu: '{pass}')",
+  "DemoServerIndex.demoServerL3": "Quản trị viên (tên người dùng: '{user}', mật khẩu: '{pass}')",
+  "DemoServerIndex.demoServerP1": "Bạn có thể tự do khám phá bằng một trong ba loại người dùng chủ yếu sau:",
+  "DemoServerIndex.demoServerP2": "Trang thử nghiệm trực tuyến này bao gồm những tính năng và chức năng của phiên bản mới nhất, nhưng chỉ chứa một mẫu nội dung có sẵn cho sử dụng ngoại tuyến trong Kolibri. Trang này có mục đích thử nghiệm và bất kỳ dữ liệu người dùng nào ở đây đều có thể bị xóa định kỳ.",
+  "DemoServerIndex.demoServerP3": "Để tìm hiểu thêm về việc sử dụng Kolibri ngoại tuyến và hiểu rõ hơn về nền tảng:"
+}

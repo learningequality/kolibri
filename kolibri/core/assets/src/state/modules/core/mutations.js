@@ -34,4 +34,16 @@ export default {
   SET_CORE_CHANNEL_LIST(state, channelList) {
     state.channels.list = channelList;
   },
+  CORE_SET_NOTIFICATIONS(state, notifications) {
+    state.notifications = notifications;
+  },
+  CORE_REMOVE_NOTIFICATION(state, notification_id) {
+    state.notifications = state.notifications.filter(obj => obj.id !== notification_id);
+  },
+  SET_SCROLL_POSITION(state, scrollPosition) {
+    state.scrollPosition = scrollPosition;
+  },
+  CORE_SET_PAGE_VISIBILITY(state, visible) {
+    state.pageVisible = visible;
+  },
 };

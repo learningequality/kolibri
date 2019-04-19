@@ -2,7 +2,7 @@
 
   <UiToolbar
     class="progress-toolbar"
-    type="colored"
+    type="clear"
     textColor="white"
   >
     <UiIconButton
@@ -25,7 +25,7 @@
 <script>
 
   import UiToolbar from 'keen-ui/src/UiToolbar';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'ProgressToolbar',
@@ -52,8 +52,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .progress-toolbar {
     fill: white;

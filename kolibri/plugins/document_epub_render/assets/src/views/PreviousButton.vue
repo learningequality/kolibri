@@ -4,7 +4,6 @@
     class="previous-button"
     :class="{'previous-button-white': color === 'white'}"
     type="secondary"
-    :disableRipple="false"
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >
@@ -25,7 +24,7 @@
 
 <script>
 
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
 
   export default {
     name: 'PreviousButton',
@@ -42,6 +41,10 @@
         validator(val) {
           return ['black', 'white'].includes(val);
         },
+      },
+      isRtl: {
+        type: Boolean,
+        required: true,
       },
     },
   };

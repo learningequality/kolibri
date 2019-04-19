@@ -191,11 +191,4 @@
     margin: auto;
   }
 
-  .points-link {
-    position: relative;
-    display: inline-block;
-    color: $core-status-correct;
-    text-decoration: none;
-  }
-
 </style>

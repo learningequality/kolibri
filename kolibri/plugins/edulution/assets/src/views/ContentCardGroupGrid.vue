@@ -75,8 +75,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   $gutters: 16px;
 
   .grid-item {

@@ -13,7 +13,7 @@
         >
           <KButton
             ref="decreaseFontSizeButton"
-            class="settings-button"
+            :class="['settings-button', $computedClass(settingsButtonFocus)]"
             :disabled="decreaseFontSizeDisabled"
             @click="$emit('decreaseFontSize')"
           >
@@ -31,7 +31,7 @@
           <KButton
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
-            class="settings-button"
+            :class="['settings-button', $computedClass(settingsButtonFocus)]"
             @click="$emit('increaseFontSize')"
           >
             <mat-svg
@@ -53,12 +53,15 @@
         <KGridItem
           v-for="(value, key) in themes"
           :key="key"
-          :size="12 / Object.keys(themes).length"
+          :size="3"
           :percentage="false"
         >
           <KButton
-            class="settings-button theme-button"
-            :style="{ backgroundColor: value.backgroundColor }"
+            :class="[
+              'settings-button',
+              'theme-button',
+              $computedClass(generateStyle(value.backgroundColor))
+            ]"
             :aria-label="generateThemeAriaLabel(key)"
             @click="$emit('setTheme', value)"
           >
@@ -80,10 +83,13 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import { darken } from 'kolibri.utils.colour';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -105,6 +111,7 @@
       KGridItem,
       KButton,
     },
+    mixins: [themeMixin],
     props: {
       theme: {
         type: Object,
@@ -128,6 +135,15 @@
       themes() {
         return THEMES;
       },
+      settingsButtonFocus() {
+        return {
+          ':focus': {
+            ...this.$coreOutline,
+            outlineOffset: '0px',
+            outlineWidth: '2px',
+          },
+        };
+      },
     },
     methods: {
       generateThemeAriaLabel(themeName) {
@@ -150,6 +166,15 @@
           theme.textColor === this.theme.textColor
         );
       },
+      generateStyle(backgroundColor) {
+        return {
+          ...this.settingsButtonFocus,
+          backgroundColor,
+          ':hover': {
+            backgroundColor: darken(backgroundColor, '10%'),
+          },
+        };
+      },
     },
   };
 
@@ -158,20 +183,15 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
-
   @import './EpubStyles';
 
-  .settings-button.button.secondary.raised {
+  .settings-button {
     width: calc(100% - 4px);
     min-width: unset;
     padding: 8px;
     margin: 2px;
     line-height: unset;
     transition: none;
-    &:focus {
-      outline: $core-outline;
-    }
   }
 
   .theme-button {

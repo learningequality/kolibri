@@ -24,6 +24,7 @@ const ContentNodeKinds = {
   EXAM: 'exam',
   LESSON: 'lesson',
   CLASSROOM: 'CLASSROOM',
+  ACTIVITY: 'ACTIVITY',
 };
 
 // used internally on the client as a hack to allow content-icons to display users
@@ -94,6 +95,8 @@ const PermissionTypes = {
 
 const SIGNED_OUT_DUE_TO_INACTIVITY = 'SIGNED_OUT_DUE_TO_INACTIVITY';
 
+const UPDATE_MODAL_DISMISSED = 'UPDATE_MODAL_DISMISSED';
+
 const NavComponentSections = {
   ACCOUNT: 'account',
 };
@@ -107,6 +110,7 @@ const ERROR_CONSTANTS = {
   MISSING_PASSWORD: 'MISSING_PASSWORD',
   MAX_LENGTH: 'MAX_LENGTH',
   INVALID: 'INVALID',
+  UNIQUE: 'UNIQUE',
   INVALID_NETWORK_LOCATION_FORMAT: 'INVALID_NETWORK_LOCATION_FORMAT',
   NETWORK_LOCATION_NOT_FOUND: 'NETWORK_LOCATION_NOT_FOUND',
   // 401 error constants
@@ -131,6 +135,7 @@ export {
   LoginErrors,
   PermissionTypes,
   SIGNED_OUT_DUE_TO_INACTIVITY,
+  UPDATE_MODAL_DISMISSED,
   NavComponentSections,
   ERROR_CONSTANTS,
 };

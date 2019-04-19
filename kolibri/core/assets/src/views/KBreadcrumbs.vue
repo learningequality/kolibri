@@ -96,7 +96,7 @@
   import filter from 'lodash/filter';
   import startsWith from 'lodash/startsWith';
   import throttle from 'lodash/throttle';
-  import UiIconButton from 'keen-ui/src/UiIconButton';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
 
   const DROPDOWN_BTN_WIDTH = 55;
@@ -244,8 +244,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
 
   .breadcrumbs {
     margin-top: 8px;

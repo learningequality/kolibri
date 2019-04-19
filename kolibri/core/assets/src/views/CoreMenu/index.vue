@@ -12,6 +12,7 @@
         v-if="$slots.header"
         class="ui-menu-header"
         :class="{'ui-menu-header-lp': hasIcons}"
+        :style="{ color: $coreTextDefault }"
       >
         <slot name="header"></slot>
       </div>
@@ -33,8 +34,11 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   export default {
     name: 'CoreMenu',
+    mixins: [themeMixin],
     props: {
       hasIcons: {
         type: Boolean,
@@ -90,6 +94,7 @@
 <style lang="scss" scoped>
 
   @import '~keen-ui/src/styles/imports';
+  @import '~kolibri.styles.definitions';
 
   /* stylelint-disable csstree/validator */
 
@@ -102,14 +107,14 @@
     overflow-x: hidden;
     overflow-y: auto;
     list-style: none;
-    background-color: white;
+    background-color: inherit;
     border: rem-calc(1px) solid rgba(black, 0.08);
     outline: none;
 
     &.is-raised {
+      @extend %dropshadow-8dp;
+
       border: 0;
-      box-shadow: 0 2px 4px -1px rgba(black, 0.2), 0 4px 5px 0 rgba(black, 0.14),
-        0 1px 10px 0 rgba(black, 0.12);
     }
 
     &.has-secondary-text {
@@ -126,7 +131,6 @@
   .ui-menu-header {
     padding: 1rem;
     font-size: $ui-dropdown-item-font-size;
-    color: $primary-text-color;
     border-bottom: solid 1px rgba(black, 0.08);
   }
 

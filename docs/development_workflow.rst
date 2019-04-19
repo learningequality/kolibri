@@ -19,7 +19,9 @@ Be sure to follow the `instructions <https://github.com/learningequality/kolibri
 
 Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
 
-Every pull request (with a couple minor exceptions) requires testing, code review, automated tests, and potentially UI design review. Developers must fully test their own code before requesting a review, and then closely follow the template and checklist that appears in the PR description. All automated tests must pass.
+Every pull request will require some combination of manual testing, code review, automated tests, gherkin stories, and UI design review. Developers must fully test their own code before requesting a review, and then closely follow the template and checklist that appears in the PR description. All automated tests must pass.
+
+Unit tests and gherkin stories should be written to ensure coverage of critical, brittle, complicated, or otherwise risky paths through the code and user experience. Intentional, thoughtful coverage of these critical paths is more important than global percentage of code covered.
 
 Try to keep PRs as self-contained as possible. The bigger the PR, the more challenging it is to review, and the more likely that merging will be blocked by various issues. If your PR is not being reviewed in a timely manner, reach out to stakeholders and politely remind them that you're waiting for a review.
 

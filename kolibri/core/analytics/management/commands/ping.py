@@ -6,20 +6,25 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand
+from django.db import connection
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
+from django.utils.timezone import localtime
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
 import kolibri
+from ...constants import nutrition_endpoints
+from ...utils import create_and_update_notifications
 from ...utils import dump_zipped_json
 from ...utils import extract_channel_statistics
 from ...utils import extract_facility_statistics
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils.server import installation_type
 from kolibri.utils.server import vacuum_db_lock
 
 logger = logging.getLogger(__name__)
@@ -57,8 +62,11 @@ class Command(BaseCommand):
                 with vacuum_db_lock:
                     data = self.perform_ping(server)
                     logger.info("Ping succeeded! (response: {})".format(data))
+                    create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
                     if "id" in data:
-                        self.perform_statistics(server, data["id"])
+                        stat_data = self.perform_statistics(server, data["id"])
+                        create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+                    connection.close()
                 if once:
                     break
                 logger.info("Sleeping for {} minutes.".format(interval))
@@ -100,6 +108,8 @@ class Command(BaseCommand):
             "language": language,
             "timezone": timezone,
             "uptime": int((datetime.now() - self.started).total_seconds() / 60),
+            "timestamp": localtime(),
+            "installer": installation_type(),
         }
 
         logger.debug("Pingback data: {}".format(data))

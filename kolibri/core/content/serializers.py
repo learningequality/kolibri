@@ -7,6 +7,7 @@ from django.db.models.query import RawQuerySet
 from le_utils.constants import content_kinds
 from rest_framework import serializers
 
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -538,10 +539,14 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         importable = True
         for f in content_files:
             # Node is importable only if all of its Files are on the external drive
-            file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
-            importable = importable and os.path.exists(file_path)
+            try:
+                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+                importable = importable and os.path.exists(file_path)
+            except InvalidStorageFilenameError:
+                importable = False
             if not importable:
                 break
+
         return importable
 
 

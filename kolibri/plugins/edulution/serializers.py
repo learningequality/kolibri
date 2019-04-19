@@ -37,12 +37,14 @@ class ExamProgressSerializer(ModelSerializer):
                 'score': examlogs.attemptlogs.aggregate(Sum('correct')).get('correct__sum'),
                 'answer_count': examlogs.attemptlogs.count(),
                 'closed': examlogs.closed,
+                'started': True,
             }
         except ExamLog.DoesNotExist:
             return {
                 'score': None,
                 'answer_count': None,
                 'closed': None,
+                'started': False,
             }
 
 
@@ -67,15 +69,14 @@ class LessonProgressSerializer(ModelSerializer):
 
     def get_progress(self, instance):
         content_ids = [resource['content_id'] for resource in instance.resources]
-        num_completed_logs = ContentSummaryLog.objects \
-            .exclude(completion_timestamp__isnull=True) \
+        resource_progress = ContentSummaryLog.objects \
             .filter(
                 user=self.context['user'],
                 content_id__in=content_ids
             ) \
-            .count()
+            .aggregate(Sum('progress')).get('progress__sum')
         return {
-            'resources_completed': num_completed_logs,
+            'resource_progress': resource_progress,
             'total_resources': len(instance.resources),
         }
 

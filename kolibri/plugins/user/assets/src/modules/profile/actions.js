@@ -36,10 +36,10 @@ export function updateUserProfile(store, { edits, session }) {
     exists: true,
   }).then(
     () => {
-      store.dispatch('getCurrentSession', true, { root: true });
+      store.commit('CORE_SET_SESSION', changedValues, { root: true });
       store.commit('SET_PROFILE_SUCCESS', true);
       store.commit('SET_PROFILE_BUSY', false);
-      store.commit('SET_PROFILE_ERRORS', { isError: false });
+      store.commit('SET_PROFILE_ERRORS', []);
     },
     error => {
       const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);

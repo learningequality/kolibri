@@ -1,6 +1,6 @@
 {
   "name": "kolibri-tools",
-  "version": "0.12.0-dev.1",
+  "version": "0.12.0-beta.3.2",
   "description": "Tools for building Kolibri frontend plugins",
   "main": "lib/cli.js",
   "repository": "github.com/learningequality/kolibri",
@@ -31,10 +31,9 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.26.1",
-    "eslint-plugin-kolibri": "0.12.0-dev.1",
+    "eslint-plugin-kolibri": "0.12.0-beta.3.2",
     "eslint-plugin-vue": "^5.0.0-beta.3",
     "espree": "^4.1.0",
-    "esprima": "https://github.com/jquery/esprima.git",
     "esquery": "^1.0.1",
     "express": "^4.16.4",
     "file-loader": "^2.0.0",
@@ -44,12 +43,11 @@
     "jest": "^23.6.0",
     "jest-serializer-vue": "^2.0.2",
     "json-loader": "^0.5.4",
-    "kolibri": "0.12.0-dev.1",
     "launch-editor-middleware": "^2.2.1",
     "mini-css-extract-plugin": "^0.4.0",
     "mkdirp": "^0.5.1",
     "node-sass": "^4.9.1",
-    "optimize-css-assets-webpack-plugin": "^4.0.0",
+    "optimize-css-assets-webpack-plugin": "5.0.1",
     "postcss-loader": "^2.0.6",
     "prettier": "^1.13.7",
     "query-ast": "^1.0.1",
@@ -69,7 +67,7 @@
     "stylelint-scss": "^3.3.2",
     "svg-icon-inline-loader": "^3.0.0",
     "temp": "^0.8.3",
-    "uglifyjs-webpack-plugin": "^1.2.5",
+    "terser-webpack-plugin": "^1.2.2",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.3",
     "vue-jest": "^3.0.0",
@@ -81,7 +79,7 @@
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
     "webpack-cli": "^2.0.15",
     "webpack-dev-middleware": "^3.1.2",
-    "webpack-dev-server": "3.1.3",
+    "webpack-dev-server": "^3.1.14",
     "webpack-hot-middleware": "2.12.1",
     "webpack-merge": "^4.1.0",
     "webpack-rtl-plugin": "^1.7.0"
@@ -92,5 +90,8 @@
   },
   "devDependencies": {
     "readline-sync": "^1.4.9"
+  },
+  "optionalDependencies": {
+    "kolibri": "0.12.0-beta.3.2"
   }
 }

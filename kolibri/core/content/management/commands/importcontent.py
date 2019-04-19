@@ -9,6 +9,7 @@ from ...utils import annotation
 from ...utils import import_export_content
 from ...utils import paths
 from ...utils import transfer
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 
@@ -17,6 +18,10 @@ DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 
 logger = logging.getLogger(__name__)
+
+FILE_TRANSFERRED = 2
+FILE_SKIPPED = 1
+FILE_NOT_TRANSFERRED = 0
 
 
 class Command(AsyncCommand):
@@ -136,7 +141,12 @@ class Command(AsyncCommand):
                     break
 
                 filename = f.get_filename()
-                dest = paths.get_content_storage_file_path(filename)
+                try:
+                    dest = paths.get_content_storage_file_path(filename)
+                except InvalidStorageFilenameError:
+                    # If the destination file name is malformed, just stop now.
+                    overall_progress_update(f.file_size)
+                    continue
 
                 # if the file already exists, add its size to our overall progress, and skip
                 if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
@@ -149,22 +159,27 @@ class Command(AsyncCommand):
                     url = paths.get_content_storage_remote_url(filename, baseurl=baseurl)
                     filetransfer = transfer.FileDownload(url, dest, session=session)
                 elif method == COPY_METHOD:
-                    srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    try:
+                        srcpath = paths.get_content_storage_file_path(filename, datafolder=path)
+                    except InvalidStorageFilenameError:
+                        # If the source file name is malformed, just stop now.
+                        overall_progress_update(f.file_size)
+                        continue
                     filetransfer = transfer.FileCopy(srcpath, dest)
 
                 finished = False
                 try:
                     while not finished:
-                        finished, increment = self._start_file_transfer(
+                        finished, status = self._start_file_transfer(
                             f, filetransfer, overall_progress_update)
 
                         if self.is_cancelled():
                             break
 
-                        if increment == 2:
+                        if status == FILE_TRANSFERRED:
                             file_checksums_to_annotate.append(f.id)
-                        else:
-                            number_of_skipped_files += increment
+                        elif status == FILE_SKIPPED:
+                            number_of_skipped_files += 1
                 except Exception as e:
                     exception = e
                     break
@@ -186,10 +201,10 @@ class Command(AsyncCommand):
         """
         Start to transfer the file from network/disk to the destination.
         Return value:
-            * True, 2 - successfully transfer the file.
-            * True, 1 - the file does not exist so it is skipped.
-            * True, 0 - the transfer is cancelled.
-            * False, 0 - the transfer fails and needs to retry.
+            * True, FILE_TRANSFERRED - successfully transfer the file.
+            * True, FILE_SKIPPED - the file does not exist so it is skipped.
+            * True, FILE_NOT_TRANSFERRED - the transfer is cancelled.
+            * False, FILE_NOT_TRANSFERRED - the transfer fails and needs to retry.
         """
         try:
             # Save the current progress value
@@ -197,23 +212,34 @@ class Command(AsyncCommand):
             original_progress = self.progresstrackers[0].get_progress()
 
             with filetransfer, self.start_progress(total=filetransfer.total_size) as file_dl_progress_update:
-                # If size of the source file is smaller than the the size
-                # indicated in the database, it's very likely that the source
-                # file is corrupted. Skip this file.
-                if filetransfer.total_size < f.file_size:
-                    e = "File {} is corrupted.".format(filetransfer.source)
-                    logger.error("An error occurred during content import: {}".format(e))
-                    overall_progress_update(f.file_size)
-                    return True, 1
-
                 for chunk in filetransfer:
                     if self.is_cancelled():
                         filetransfer.cancel()
-                        return True, 0
+                        return True, FILE_NOT_TRANSFERRED
                     length = len(chunk)
                     overall_progress_update(length)
                     file_dl_progress_update(length)
-            return True, 2
+
+                # Ensure that if for some reason the total file size for the transfer
+                # is less than what we have marked in the database that we make up
+                # the difference so that the overall progress is never incorrect.
+                # This could happen, for example for a local transfer if a file
+                # has been replaced or corrupted (which we catch below) or for
+                # a remote transfer if the peer to peer transfer is is compressing
+                # files using gzip.
+                overall_progress_update(f.file_size - filetransfer.total_size)
+
+                # If size of the destination file is smaller than the size
+                # indicated in the database, it's very likely that the source
+                # file is corrupted. Skip importing this file.
+                dest_file_size_on_disk = os.path.getsize(filetransfer.dest)
+                if dest_file_size_on_disk < f.file_size:
+                    e = "File {} is corrupted.".format(filetransfer.source)
+                    logger.error("An error occurred during content import: {}".format(e))
+                    os.remove(filetransfer.dest)
+                    return True, FILE_SKIPPED
+
+            return True, FILE_TRANSFERRED
 
         except Exception as e:
             logger.error("An error occurred during content import: {}".format(e))
@@ -222,17 +248,17 @@ class Command(AsyncCommand):
             if retry:
                 # Restore the previous progress so that the progress bar will
                 # not reach over 100% later
-                self.progresstrackers[0].progressbar.n = original_value
                 self.progresstrackers[0].progress = original_value
+
                 self.progresstrackers[0].update_callback(original_progress.progress_fraction, original_progress)
 
                 logger.info('Waiting for 30 seconds before retrying import: {}\n'.format(
                     filetransfer.source))
                 sleep(30)
-                return False, 0
+                return False, FILE_NOT_TRANSFERRED
             else:
                 overall_progress_update(f.file_size)
-                return True, 1
+                return True, FILE_SKIPPED
 
     def handle_async(self, *args, **options):
         if options['command'] == 'network':

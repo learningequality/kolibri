@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var url = require('url');
-var esprima = require('esprima');
+var espree = require('espree');
 var escodegen = require('escodegen');
 var mkdirp = require('mkdirp');
 var logging = require('./logging');
@@ -102,8 +102,9 @@ extract$trs.prototype.apply = function(compiler) {
           ) {
             // Inspect each source file in the chunk if it is a vue file.
             // Parse the AST for the Vue file.
-            ast = esprima.parse(module._source.source(), {
+            ast = espree.parse(module._source.source(), {
               sourceType: 'module',
+              ecmaVersion: 2018,
             });
             // Maintain references to possible component definitions in case
             // it is not exported as the default export
@@ -193,7 +194,7 @@ extract$trs.prototype.apply = function(compiler) {
             !module.resource.includes('node_modules')
           ) {
             // Inspect each source file in the chunk if it is a js file too.
-            ast = esprima.parse(module._source.source(), {
+            ast = espree.parse(module._source.source(), {
               sourceType: 'module',
             });
             var createTranslateFn;
@@ -201,7 +202,7 @@ extract$trs.prototype.apply = function(compiler) {
             ast.body.forEach(node => {
               // Check if an import
               if (
-                node.type === esprima.Syntax.ImportDeclaration &&
+                node.type === espree.Syntax.ImportDeclaration &&
                 // Check if importing from the i18n alias
                 node.source.value === i18nAlias
               ) {
@@ -222,27 +223,27 @@ extract$trs.prototype.apply = function(compiler) {
               var varScope;
               if (node) {
                 if (
-                  node.type === esprima.Syntax.FunctionDeclaration ||
-                  node.type === esprima.Syntax.FunctionExpression ||
-                  node.type === esprima.Syntax.Program
+                  node.type === espree.Syntax.FunctionDeclaration ||
+                  node.type === espree.Syntax.FunctionExpression ||
+                  node.type === espree.Syntax.Program
                 ) {
                   // These node types create a new scope
                   scopeChain.unshift({});
                 }
                 var localScope = scopeChain[0];
                 // New declarations only affect the local scope
-                if (node.type === esprima.Syntax.VariableDeclaration) {
+                if (node.type === espree.Syntax.VariableDeclaration) {
                   node.declarations.forEach(dec => {
                     localScope[dec.id.name] = dec.init;
                   });
                 }
                 // Check if is an expression
                 if (
-                  node.type === esprima.Syntax.ExpressionStatement &&
+                  node.type === espree.Syntax.ExpressionStatement &&
                   // That assigns a value
-                  node.expression.type === esprima.Syntax.AssignmentExpression &&
+                  node.expression.type === espree.Syntax.AssignmentExpression &&
                   // To a variable
-                  node.expression.left.type === esprima.Syntax.Identifier &&
+                  node.expression.left.type === espree.Syntax.Identifier &&
                   // But only handle equality, because other kinds are difficult to track
                   node.expression.operator === '='
                 ) {
@@ -254,15 +255,15 @@ extract$trs.prototype.apply = function(compiler) {
                   varScope[node.expression.left.name] = node.expression.right;
                 }
                 if (
-                  node.type === esprima.Syntax.CallExpression &&
+                  node.type === espree.Syntax.CallExpression &&
                   node.callee.name === createTranslateFn
                 ) {
                   var messageNameSpace, messages;
                   var firstArg = node.arguments[0];
-                  if (firstArg.type === esprima.Syntax.Literal) {
+                  if (firstArg.type === espree.Syntax.Literal) {
                     // First argument is a string, get its value directly
                     messageNameSpace = firstArg.value;
-                  } else if (firstArg.type === esprima.Syntax.Identifier) {
+                  } else if (firstArg.type === espree.Syntax.Identifier) {
                     // First argument is a variable, lookup in the appropriate scope
                     varScope = getVarScope(firstArg.name);
                     if (varScope) {
@@ -276,11 +277,11 @@ extract$trs.prototype.apply = function(compiler) {
                     }
                   }
                   var secondArg = node.arguments[1];
-                  if (secondArg.type === esprima.Syntax.ObjectExpression) {
+                  if (secondArg.type === espree.Syntax.ObjectExpression) {
                     // Second argument is an object, parse this chunk of
                     // the AST to get an object back
                     messages = generateMessagesObject(secondArg);
-                  } else if (secondArg.type === esprima.Syntax.Identifier) {
+                  } else if (secondArg.type === espree.Syntax.Identifier) {
                     // Second argument is a variable, lookup in the appropriate scope
                     varScope = getVarScope(secondArg.name);
                     if (varScope) {
@@ -310,9 +311,9 @@ extract$trs.prototype.apply = function(compiler) {
                   }
                 }
                 if (
-                  node.type === esprima.Syntax.FunctionDeclaration ||
-                  node.type === esprima.Syntax.FunctionExpression ||
-                  node.type === esprima.Syntax.Program
+                  node.type === espree.Syntax.FunctionDeclaration ||
+                  node.type === espree.Syntax.FunctionExpression ||
+                  node.type === espree.Syntax.Program
                 ) {
                   // Leaving this scope now!
                   scopeChain.shift();

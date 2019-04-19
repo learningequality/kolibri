@@ -1,8 +1,8 @@
-Feature: Admin create classes
+Feature: Admin creates classes
   Admin needs to be able create classes for each facility
 
   Background:
-    Given I am signed in to Kolibri as admin user
+    Given I am signed in to Kolibri as facility admin user
       And I am on *Facility > Classes* page
 
   Scenario: Create class
