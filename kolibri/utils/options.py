@@ -64,7 +64,7 @@ option_spec = {
         },
         "CACHE_LOCATION": {
             "type": "string",
-            "default": "kolibri_cache",
+            "default": "localhost:6379",
             "envvars": ("KOLIBRI_CACHE_LOCATION",),
         },
     },

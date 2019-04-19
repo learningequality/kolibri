@@ -1,3 +1,4 @@
+import copy
 import sys
 
 from kolibri.utils.conf import OPTIONS
@@ -32,9 +33,9 @@ if cache_options["CACHE_BACKEND"] == "redis":
         "TIMEOUT": cache_options["CACHE_TIMEOUT"],
         "OPTIONS": {"PASSWORD": cache_options["CACHE_PASSWORD"]},
     }
-    default_cache = dict(base_cache)
+    default_cache = copy.deepcopy(base_cache)
     default_cache["OPTIONS"]["DB"] = 0
-    built_files_cache = dict(base_cache)
+    built_files_cache = copy.deepcopy(base_cache)
     built_files_cache["OPTIONS"]["DB"] = 1
 
 built_files_cache["KEY_PREFIX"] = built_files_prefix
