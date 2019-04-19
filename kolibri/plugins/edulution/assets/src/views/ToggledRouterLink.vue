@@ -1,10 +1,20 @@
 <template>
 
   <div>
-    <router-link v-if="!pendingPrerequisites.length" :to="link" :class="{ 'mobile-card': isMobile }" class="card">
+    <router-link 
+      v-if="!pendingPrerequisites.length"
+      :to="link"
+      :class="{ 'mobile-card': isMobile }"
+      class="card"
+    >
       <slot></slot>
     </router-link>
-    <div v-if="pendingPrerequisites.length" class="prereqs-not-done" :class="{ 'mobile-card': isMobile }" @click="showModal()">
+    <div 
+      v-if="pendingPrerequisites.length"
+      class="prereqs-not-done"
+      :class="{ 'mobile-card': isMobile }"
+      @click="showModal()"
+    >
       <slot></slot>
       <div class="lock">
         <mat-svg category="action" name="lock" />
@@ -68,7 +78,6 @@
     position: relative;
     height: 92px;
     padding: $margin;
-    color: $core-text-default;
   }
 
   .title,

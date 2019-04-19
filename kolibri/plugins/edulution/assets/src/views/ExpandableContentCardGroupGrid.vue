@@ -13,13 +13,17 @@
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
       <div
-        v-if="child.progress!==undefined"
+        v-if="child.progress !== undefined"
         class="progress-bar-wrapper"
+        :style="{ backgroundColor: $coreGrey }"
       >
         <div
           class="progress-bar"
-          :style="{ width: `${child.progress * 100}%` }"
-          :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+          :style="{
+            width: `${child.progress * 100}%`,
+            backgroundColor: isMastered ?
+              $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+          }"
         >
         </div>
       </div>
@@ -113,20 +117,11 @@
   .progress-bar-wrapper {
     width: 100%;
     height: 8px;
-    background-color: $core-grey;
     opacity: 0.9;
   }
 
   .progress-bar {
     height: 100%;
-  }
-
-  .progress-bar-mastered {
-    background-color: $core-status-mastered;
-  }
-
-  .progress-bar-progress {
-    background-color: $core-status-progress;
   }
 
 </style>
