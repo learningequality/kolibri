@@ -11,6 +11,7 @@ from django_filters.rest_framework import FilterSet
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import AttemptLog
@@ -107,7 +108,7 @@ class LoggerViewSet(viewsets.ModelViewSet):
             obj.id = obj.calculate_uuid()
             final_obj = self.get_serializer(obj)
             return Response(final_obj.data)
-        except Exception as e:
+        except ValidationError as e:
             logger.error("Failed to validate data: {}".format(e))
             return Response(request.data, status.HTTP_400_BAD_REQUEST)
 
