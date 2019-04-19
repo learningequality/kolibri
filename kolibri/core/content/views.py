@@ -4,8 +4,9 @@ import json
 import mimetypes
 import os
 import zipfile
+from xml.etree.ElementTree import SubElement
 
-from bs4 import BeautifulSoup
+import html5lib
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.http import Http404
@@ -112,29 +113,45 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
     return jsfiles, cssfiles
 
 
+def replace_script(parent, script):
+    parent.remove(script)
+    template = SubElement(parent, "template", attrib={"hashi-script": "true"})
+    if script.get("async") is not None:
+        template.set("async", "true")
+    template.append(script)
+
+
 def parse_html(content):
     try:
-        soup = BeautifulSoup(content, "html.parser")
-        if soup.html is None:
+        document = html5lib.parse(content, namespaceHTMLElements=False)
+        if not document:
             # Could not parse
             return content
-        for script in soup("script"):
-            template = soup.new_tag("template", attrs={"hashi-script": "true"})
-            if "async" in script.attrs:
-                template["async"] = "true"
-            script = script.replace_with(template)
-            template.append(script)
-        hashi_script = soup.new_tag(
+
+        for parent in document.findall(".//script/.."):
+            for script in parent.findall("script"):
+                replace_script(parent, script)
+        # Because html5lib parses like a browser, it will
+        # always create head and body tags if they are missing.
+        body = document.find("body")
+        SubElement(
+            body,
             "script",
-            src=static("content/{filename}".format(filename=get_hashi_filename())),
+            attrib={
+                "src": static(
+                    "content/{filename}".format(filename=get_hashi_filename())
+                )
+            },
         )
-        if soup.body is None:
-            body_tag = soup.new_tag("body")
-            soup.html.append(body_tag)
-        soup.body.append(hashi_script)
-        return soup.encode(formatter="html5")
-    # Use blanket exception, as HTMLParseError is Python2 only.
-    except Exception:
+        return html5lib.serialize(
+            document,
+            quote_attr_values="always",
+            omit_optional_tags=False,
+            minimize_boolean_attributes=False,
+            use_trailing_solidus=True,
+            space_before_trailing_solidus=False,
+        )
+    except html5lib.html5parser.ParseError:
         return content
 
 

@@ -16,6 +16,8 @@ from kolibri.utils.tests.helpers import override_option
 
 DUMMY_FILENAME = "hashi123.js"
 
+empty_content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
+
 
 @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -189,15 +191,14 @@ class ZipContentTestCase(TestCase):
 
     def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
         response = self.client.get(self.zip_file_base_url)
-        content = '<html><body><script src="/static/content/hashi123.js"></script></body></html>'
+        content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_body_no_script_return_hashi_modified_html(
         self, filename_patch
     ):
         response = self.client.get(self.zip_file_base_url + self.other_name)
-        content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
-        self.assertEqual(response.content.decode("utf-8"), content)
+        self.assertEqual(response.content.decode("utf-8"), empty_content)
 
     def test_request_for_html_body_script_return_hashi_modified_html(
         self, filename_patch
@@ -224,14 +225,14 @@ class ZipContentTestCase(TestCase):
     ):
         response = self.client.get(self.zip_file_base_url + self.async_script_name)
         content = (
-            '<html><head><template async="true" hashi-script="true"><script async="" src="url/url.js"></script></template></head>'
+            '<html><head><template hashi-script="true" async="true"><script async="" src="url/url.js"></script></template></head>'
             + '<body><script src="/static/content/hashi123.js"></script></body></html>'
         )
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_empty_html_no_modification(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.empty_html_name)
-        self.assertEqual(response.content.decode("utf-8"), self.empty_html_str)
+        self.assertEqual(response.content.decode("utf-8"), empty_content)
 
     def test_not_modified_response_when_if_modified_since_header_set_index_file(
         self, filename_patch
