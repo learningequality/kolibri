@@ -26,6 +26,6 @@ export const KnowledgeMapResource = new Resource({
   namespace: 'edulutionplugin',
 
   fetchKnowdledgeMap(id) {
-    return this.fetchModel({ id });
+    return this.fetchModel({ id, force: true });
   },
 });
