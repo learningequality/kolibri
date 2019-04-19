@@ -3,6 +3,7 @@ import os
 import tempfile
 import zipfile
 
+from bs4 import BeautifulSoup
 from django.test import Client
 from django.test import TestCase
 from le_utils.constants import exercises
@@ -224,11 +225,9 @@ class ZipContentTestCase(TestCase):
         self, filename_patch
     ):
         response = self.client.get(self.zip_file_base_url + self.async_script_name)
-        content = (
-            '<html><head><template hashi-script="true" async="true"><script async="" src="url/url.js"></script></template></head>'
-            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
-        )
-        self.assertEqual(response.content.decode("utf-8"), content)
+        soup = BeautifulSoup(response.content, "html.parser")
+        template = soup.find("template")
+        self.assertEqual(template.attrs["async"], "true")
 
     def test_request_for_html_empty_html_no_modification(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.empty_html_name)
