@@ -3,7 +3,6 @@
   <div dir="auto">
     <h1 class="title">
       {{ title }}
-      <ProgressIcon :progress="progress" />
     </h1>
   </div>
 

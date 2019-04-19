@@ -4,7 +4,6 @@
     <div style="padding-left: 16px; margin: 32px 0 8px 0">
       <h1 class="page-header">
         {{ topic.title }}
-        <ProgressIcon :progress="progress" />
       </h1>
       <TextTruncator
         v-if="topic.description"

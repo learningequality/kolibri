@@ -2,11 +2,22 @@
 
   <div class="collapsible-grid">
     <div class="clickable-header" :class="{'expanded-header': !hidden}" @click="hidden = !hidden">
-      <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
+      <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block; padding-left: 16px" />
       <UiIconButton type="secondary" size="large" style="float: right; margin: 8px 8px 0 0" disabled>
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
+      <div
+        v-if="child.progress!==undefined"
+        class="progress-bar-wrapper"
+      >
+        <div
+          class="progress-bar"
+          :style="{ width: `${child.progress * 100}%` }"
+          :class="{ 'progress-bar-mastered': isMastered, 'progress-bar-progress': isInProgress }"
+        >
+        </div>
+      </div>
     </div>
     <div :class="{'hidden-grid': hidden}">
       <ContentCardGroupGrid
@@ -19,6 +30,7 @@
   </div>
 
 </template>
+
 
 <script>
 
@@ -41,6 +53,14 @@
         hidden: true,
       };
     },
+    computed: {
+      isMastered() {
+        return this.child.progress === 1;
+      },
+      isInProgress() {
+        return this.child.progress > 0 && this.child.progress < 1;
+      },
+    },
     methods: {
       genContentLink(id, kind) {
         if (kind === ContentNodeKinds.TOPIC) {
@@ -59,6 +79,7 @@
 
 </script>
 
+
 <style lang="scss">
 
   @import '~kolibri.styles.definitions';
@@ -72,7 +93,6 @@
   }
 
   .clickable-header {
-    padding-left: 16px;
     color: white;
     background-color: $core-action-normal;
     border-radius: 8px;
@@ -85,4 +105,24 @@
   .hidden-grid {
     display: none;
   }
+
+  .progress-bar-wrapper {
+    width: 100%;
+    height: 8px;
+    background-color: $core-grey;
+    opacity: 0.9;
+  }
+
+  .progress-bar {
+    height: 100%;
+  }
+
+  .progress-bar-mastered {
+    background-color: $core-status-mastered;
+  }
+
+  .progress-bar-progress {
+    background-color: $core-status-progress;
+  }
+
 </style>
