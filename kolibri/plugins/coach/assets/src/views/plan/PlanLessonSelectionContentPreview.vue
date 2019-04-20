@@ -39,7 +39,12 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState(['toolbarRoute']),
+      toolbarRoute() {
+        return {
+          ...this.$store.state.toolbarRoute,
+          query: this.$route.query,
+        };
+      },
       ...mapState('lessonSummary', ['workingResources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
       isSelected() {

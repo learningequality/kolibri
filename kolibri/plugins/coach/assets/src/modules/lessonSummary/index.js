@@ -6,8 +6,6 @@ function defaultState() {
   return {
     currentLesson: {},
     learnerGroups: [],
-    lessonReport: {},
-    lessonsModalSet: '',
     resourceCache: {},
     workingResources: [],
   };
@@ -35,12 +33,6 @@ export default {
     },
     SET_LEARNER_GROUPS(state, learnerGroups) {
       state.learnerGroups = [...learnerGroups];
-    },
-    SET_LESSON_REPORT(state, report) {
-      state.lessonReport = { ...report };
-    },
-    SET_LESSONS_MODAL(state, modalName) {
-      state.lessonsModalSet = modalName;
     },
     SET_WORKING_RESOURCES(state, workingResources) {
       state.workingResources = [...workingResources];

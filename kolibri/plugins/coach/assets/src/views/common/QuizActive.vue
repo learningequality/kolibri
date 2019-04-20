@@ -15,6 +15,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'QuizActive',
@@ -22,7 +23,7 @@
       KLabeledIcon,
       KIcon,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, coachStringsMixin],
     props: {
       active: {
         type: Boolean,
@@ -31,12 +32,10 @@
     },
     computed: {
       label() {
-        return this.active ? this.$tr('active') : this.$tr('inactive');
+        return this.active
+          ? this.coachStrings.$tr('quizActiveLabel')
+          : this.coachStrings.$tr('quizInactiveLabel');
       },
-    },
-    $trs: {
-      active: 'Active',
-      inactive: 'Inactive',
     },
   };
 

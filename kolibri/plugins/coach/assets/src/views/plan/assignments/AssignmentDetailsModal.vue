@@ -1,62 +1,92 @@
 <template>
 
-  <KModal
-    :title="modalTitle"
-    :hasError="showServerError || !formIsValid"
-    :submitText="isInEditMode ? $tr('save') : $tr('continue')"
-    :cancelText="$tr('cancel')"
-    @submit="submitData"
-    @cancel="closeModal"
-  >
-    <UiAlert
-      v-if="showServerError"
-      type="error"
-      :dismissible="false"
-    >
-      {{ submitErrorMessage }}
-    </UiAlert>
-    <KTextbox
-      ref="titleField"
-      v-model="title"
-      :label="$tr('titlePlaceholder')"
-      :maxlength="50"
-      :autofocus="true"
-      :invalid="titleIsInvalid"
-      :invalidText="titleIsInvalidText"
-      :disabled="formIsSubmitted"
-      @blur="titleIsVisited = true"
-      @input="showTitleError = false"
-    />
-    <KTextbox
-      v-if="showDescriptionField"
-      v-model="description"
-      :label="$tr('description')"
-      :maxlength="200"
-      :disabled="formIsSubmitted"
-    />
-    <fieldset v-if="showActiveOption">
-      <legend>{{ coachStrings.$tr('statusLabel') }}</legend>
-      <KRadioButton
-        v-model="activeIsSelected"
-        :label="modalActiveText"
-        :value="true"
+  <div>
+    <form @submit.prevent="submitData">
+      <UiAlert
+        v-if="showServerError"
+        type="error"
+        :dismissible="false"
+      >
+        {{ submitErrorMessage }}
+      </UiAlert>
+
+      <fieldset>
+        <KTextbox
+          ref="titleField"
+          v-model="title"
+          :label="$tr('titlePlaceholder')"
+          :maxlength="50"
+          :autofocus="true"
+          :invalid="titleIsInvalid"
+          :invalidText="titleIsInvalidText"
+          :disabled="disabled || formIsSubmitted"
+          @blur="titleIsVisited = true"
+          @input="showTitleError = false"
+          @keydown.enter="submitData"
+        />
+
+        <KTextbox
+          v-if="showDescriptionField"
+          v-model="description"
+          :label="coachStrings.$tr('descriptionLabel')"
+          :maxlength="200"
+          :disabled="disabled || formIsSubmitted"
+          :textArea="true"
+        />
+      </fieldset>
+
+      <fieldset v-if="assignmentType !== 'new_lesson'">
+        <legend>
+          {{ coachStrings.$tr('statusLabel') }}
+        </legend>
+        <p>
+          {{ assignmentStrings.statusExplanation }}
+        </p>
+        <KRadioButton
+          v-model="activeIsSelected"
+          :label="assignmentStrings.activeStatus"
+          :value="true"
+          :disabled="disabled || formIsSubmitted"
+        />
+        <KRadioButton
+          v-model="activeIsSelected"
+          :label="assignmentStrings.inactiveStatus"
+          :value="false"
+          :disabled="disabled || formIsSubmitted"
+        />
+      </fieldset>
+
+      <fieldset>
+        <legend>
+          {{ coachStrings.$tr('recipientsLabel') }}
+        </legend>
+        <RecipientSelector
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
+          :disabled="disabled || formIsSubmitted"
+        />
+      </fieldset>
+
+      <slot name="resourceTable"></slot>
+    </form>
+
+    <Bottom v-if="assignmentType !== 'new_lesson'">
+      <KButton
+        :text="coachStrings.$tr('cancelAction')"
+        appearance="flat-button"
+        :primary="false"
+        :disabled="disabled"
+        @click="$emit('cancel')"
       />
-      <KRadioButton
-        v-model="activeIsSelected"
-        :label="modalInactiveText"
-        :value="false"
+      <KButton
+        :text="coachStrings.$tr('saveChangesAction')"
+        :primary="true"
+        :disabled="disabled"
+        @click="submitData"
       />
-    </fieldset>
-    <fieldset>
-      <legend>{{ $tr('assignedGroupsLabel') }}</legend>
-      <RecipientSelector
-        v-model="selectedCollectionIds"
-        :groups="groups"
-        :classId="classId"
-        :disabled="formIsSubmitted"
-      />
-    </fieldset>
-  </KModal>
+    </Bottom>
+  </div>
 
 </template>
 
@@ -64,42 +94,32 @@
 <script>
 
   import xor from 'lodash/xor';
-  import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import Bottom from '../CreateExamPage/Bottom';
   import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      KModal,
-      KTextbox,
+      Bottom,
+      KButton,
       KRadioButton,
+      KTextbox,
       RecipientSelector,
       UiAlert,
     },
     mixins: [coachStringsMixin],
     props: {
-      modalTitle: {
-        type: String,
-        required: true,
-      },
       modalTitleErrorMessage: {
         type: String,
         required: false,
       },
       submitErrorMessage: {
         type: String,
-        required: true,
-      },
-      showDescriptionField: {
-        type: Boolean,
-        required: true,
-      },
-      isInEditMode: {
-        type: Boolean,
         required: true,
       },
       initialTitle: {
@@ -123,21 +143,19 @@
         type: Array,
         required: true,
       },
-      showActiveOption: {
-        type: Boolean,
-        default: false,
-      },
       initialActive: {
         type: Boolean,
         required: false,
       },
-      modalActiveText: {
-        type: String,
-        required: false,
+      // If set to true, all of the forms are disabled
+      disabled: {
+        type: Boolean,
+        default: false,
       },
-      modalInactiveText: {
+      // Should be 'quiz', 'lesson', or 'new_lesson'
+      assignmentType: {
         type: String,
-        required: false,
+        required: true,
       },
     },
     data() {
@@ -164,15 +182,55 @@
       },
       titleIsInvalidText() {
         // submission is handled because "blur" event happens on submit
-        if (this.titleIsVisited) {
+        if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('fieldRequiredErro');
+            return this.$tr('fieldRequiredError');
+          }
+          if (this.assignmentIsQuiz) {
+            if (
+              this.$store.getters['classSummary/quizTitleUnavailable']({
+                title: this.title,
+                excludeId: this.$route.params.quizId,
+              })
+            ) {
+              return this.coachStrings.$tr('quizDuplicateTitleError');
+            }
+          } else {
+            if (
+              this.$store.getters['classSummary/lessonTitleUnavailable']({
+                title: this.title,
+                excludeId: this.$route.params.lessonId,
+              })
+            ) {
+              return this.coachStrings.$tr('lessonDuplicateTitleError');
+            }
           }
           if (this.showTitleError) {
             return this.modalTitleErrorMessage;
           }
         }
         return '';
+      },
+      assignmentIsQuiz() {
+        return this.assignmentType === 'quiz';
+      },
+      assignmentStrings() {
+        if (this.assignmentIsQuiz) {
+          return {
+            activeStatus: this.coachStrings.$tr('quizActiveLabel'),
+            inactiveStatus: this.coachStrings.$tr('quizInactiveLabel'),
+            statusExplanation: this.$tr('activeQuizzesExplanation'),
+          };
+        }
+        return {
+          activeStatus: this.coachStrings.$tr('lessonActiveLabel'),
+          inactiveStatus: this.coachStrings.$tr('lessonInactiveLabel'),
+          statusExplanation: this.$tr('activeLessonsExplanation'),
+        };
+      },
+      showDescriptionField() {
+        // Quizzes don't have descriptions
+        return !this.assignmentIsQuiz;
       },
       titleIsInvalid() {
         return Boolean(this.titleIsInvalidText);
@@ -197,30 +255,22 @@
       submitData() {
         this.showServerError = false;
         this.showTitleError = false;
+
         // Return immediately if "submit" has already been clicked
-        if (this.formIsSubmitted) {
-          // IDEA a loading indictor or something would probably be handy
+        if (this.disabled) {
           return;
         }
 
         if (this.formIsValid) {
-          this.formIsSubmitted = true;
           if (!this.detailsHaveChanged) {
-            this.closeModal();
-            return;
+            this.$emit('submit', null);
+          } else {
+            this.$emit('submit', this.formData);
           }
-
-          return this.isInEditMode
-            ? this.$emit('save', this.formData)
-            : this.$emit('continue', this.formData);
         } else {
-          // shouldn't ever be true, but being safe
           this.formIsSubmitted = false;
           this.$refs.titleField.focus();
         }
-      },
-      closeModal() {
-        this.$emit('cancel');
       },
       /**
        * @public
@@ -238,13 +288,10 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
-      continue: 'Continue',
-      description: 'Description',
-      fieldRequiredErro: 'This field is required',
-      save: 'Save',
+      fieldRequiredError: 'This field is required',
       titlePlaceholder: 'Title',
-      assignedGroupsLabel: 'Visible to',
+      activeQuizzesExplanation: 'Learners can only see active quizzes',
+      activeLessonsExplanation: 'Learners can only see active lessons',
     },
   };
 
@@ -255,13 +302,13 @@
 
   fieldset {
     padding: 0;
-    margin: 0;
+    margin: 24px 0;
     border: 0;
   }
 
   legend {
-    padding-top: 16px;
-    padding-bottom: 8px;
+    font-size: 18px;
+    font-weight: bold;
   }
 
 </style>
