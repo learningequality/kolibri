@@ -58,19 +58,11 @@
 
   export default {
     name: 'ContentRenderer',
-    $trs: {
-      msgNotAvailable: 'This content is not available',
-      rendererNotAvailable: 'Kolibri is unable to render this content',
-    },
     components: {
       KCircularLoader,
       UiAlert,
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       kind: {
         type: String,
         required: true,
@@ -78,14 +70,6 @@
       files: {
         type: Array,
         default: () => [],
-      },
-      contentId: {
-        type: String,
-        default: '',
-      },
-      channelId: {
-        type: String,
-        default: '',
       },
       available: {
         type: Boolean,
@@ -227,6 +211,9 @@
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
+      /**
+       * @public
+       */
       checkAnswer() {
         if (this.assessment && this.$refs.contentView && this.$refs.contentView.checkAnswer) {
           return this.$refs.contentView.checkAnswer();
@@ -240,6 +227,10 @@
         heartbeat.setUserActive();
         return null;
       },
+    },
+    $trs: {
+      msgNotAvailable: 'This content is not available',
+      rendererNotAvailable: 'Kolibri is unable to render this content',
     },
   };
 

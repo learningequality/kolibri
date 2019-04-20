@@ -69,18 +69,6 @@
     },
 
     methods: {
-      selectOption(option) {
-        if (option.disabled || option.type === 'divider') {
-          return;
-        }
-        this.$emit('select', option);
-        this.closeMenu();
-      },
-
-      closeMenu() {
-        this.$emit('close');
-      },
-
       redirectFocus(e) {
         e.stopPropagation();
         this.$el.querySelector('.ui-menu-option').focus();

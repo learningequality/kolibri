@@ -6,7 +6,9 @@
 
     <SearchBox :filters="true" />
 
-    <p v-if="!searchTerm">{{ $tr('noSearch') }}</p>
+    <p v-if="!searchTerm">
+      {{ $tr('noSearch') }}
+    </p>
 
     <template v-else>
       <h1 v-if="contents.length === 0" class="search-results">
@@ -53,15 +55,6 @@
 
   export default {
     name: 'SearchPage',
-    $trs: {
-      searchPageHeader: 'Search',
-      noSearch: 'Search by typing in the box above',
-      showingResultsFor:
-        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
-      noResultsMsg: "No results for '{searchTerm}'",
-      documentTitle: 'Search',
-      viewMore: 'View more',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -96,6 +89,9 @@
           params: {
             id: contentId,
           },
+          query: {
+            searchTerm: this.searchTerm,
+          },
         };
       },
       loadMore() {
@@ -106,6 +102,15 @@
           });
         }
       },
+    },
+    $trs: {
+      searchPageHeader: 'Search',
+      noSearch: 'Search by typing in the box above',
+      showingResultsFor:
+        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
+      noResultsMsg: "No results for '{searchTerm}'",
+      documentTitle: 'Search',
+      viewMore: 'View more',
     },
   };
 

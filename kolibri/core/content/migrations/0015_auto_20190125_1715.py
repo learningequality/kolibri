@@ -8,18 +8,15 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0014_auto_20181218_1132'),
-    ]
+    dependencies = [("content", "0014_auto_20181218_1132")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='channelmetadata',
-            options={'ordering': ['order']},
+            name="channelmetadata", options={"ordering": ["order"]}
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='order',
+            model_name="channelmetadata",
+            name="order",
             field=models.PositiveIntegerField(blank=True, default=0, null=True),
         ),
     ]

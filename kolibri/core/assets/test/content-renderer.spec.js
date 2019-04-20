@@ -23,7 +23,6 @@ describe('ContentRenderer Component', () => {
 
   function defaultPropsDataFromFiles(files = defaultFiles) {
     return {
-      id: 'testing',
       kind: 'test',
       files,
     };

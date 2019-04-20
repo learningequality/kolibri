@@ -37,16 +37,16 @@
     components: {
       KButton,
     },
-    $trs: {
-      removeLabel: 'Remove',
-      addButtonLabel: 'Add',
-      addedIndicator: 'Added',
-    },
     props: {
       isSelected: {
         type: Boolean,
         required: true,
       },
+    },
+    $trs: {
+      removeLabel: 'Remove',
+      addButtonLabel: 'Add',
+      addedIndicator: 'Added',
     },
   };
 

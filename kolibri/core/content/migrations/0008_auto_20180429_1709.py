@@ -8,19 +8,17 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0007_auto_20180212_1155'),
-    ]
+    dependencies = [("content", "0007_auto_20180212_1155")]
 
     operations = [
         migrations.AlterField(
-            model_name='contentnode',
-            name='description',
+            model_name="contentnode",
+            name="description",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='contentnode',
-            name='license_description',
+            model_name="contentnode",
+            name="license_description",
             field=models.TextField(blank=True, null=True),
         ),
     ]

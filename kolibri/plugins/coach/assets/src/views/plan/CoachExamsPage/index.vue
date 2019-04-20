@@ -138,7 +138,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { ContentNodeKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
@@ -159,26 +159,6 @@
 
   export default {
     name: 'CoachExamsPage',
-    $trs: {
-      exams: 'Quizzes',
-      allExams: 'All quizzes',
-      activeExams: 'Active quizzes',
-      inactiveExams: 'Inactive quizzes',
-      newExam: 'New quiz',
-      title: 'Title',
-      assignedGroupsHeader: 'Visible to',
-      noExams: 'You do not have any quizzes',
-      noActiveExams: 'No active quizzes',
-      noInactiveExams: 'No inactive quizzes',
-      show: 'Show',
-      status: 'Status',
-      statusDescription: 'Status description',
-      statusTooltipText: 'Learners can only see active quizzes',
-      entireClass: 'Entire class',
-      groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
-      nobody: 'Nobody',
-      documentTitle: 'Quizzes',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -215,9 +195,6 @@
       },
       manageExamModalStrings() {
         return manageExamModalStrings;
-      },
-      examKind() {
-        return ContentNodeKinds.EXAM;
       },
       sortedExams() {
         return this.exams.slice().reverse();
@@ -356,12 +333,6 @@
           this.showDeleteModal = false;
         });
       },
-      genExamRoute(examId) {
-        return {
-          name: PageNames.EXAM_PREVIEW,
-          params: { examId },
-        };
-      },
       genRecipientsString(groups) {
         if (!groups.length) {
           return this.$tr('entireClass');
@@ -369,6 +340,26 @@
           return this.$tr('groups', { count: groups.length });
         }
       },
+    },
+    $trs: {
+      exams: 'Quizzes',
+      allExams: 'All quizzes',
+      activeExams: 'Active quizzes',
+      inactiveExams: 'Inactive quizzes',
+      newExam: 'New quiz',
+      title: 'Title',
+      assignedGroupsHeader: 'Visible to',
+      noExams: 'You do not have any quizzes',
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: 'No inactive quizzes',
+      show: 'Show',
+      status: 'Status',
+      statusDescription: 'Status description',
+      statusTooltipText: 'Learners can only see active quizzes',
+      entireClass: 'Entire class',
+      groups: '{count, number, integer} {count, plural, one {Group} other {Groups}}',
+      nobody: 'Nobody',
+      documentTitle: 'Quizzes',
     },
   };
 

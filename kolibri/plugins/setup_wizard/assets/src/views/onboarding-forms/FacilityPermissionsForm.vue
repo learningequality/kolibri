@@ -61,20 +61,6 @@
       OnboardingForm,
       KRadioButton,
     },
-    $trs: {
-      facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
-      facilityPermissionsSetupFormDescription:
-        'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
-      facilityPermissionsPresetDetailsLink: 'More information about these settings',
-      adminManagedSetupTitle: 'Formal',
-      adminManagedSetupDescription: 'Schools and other formal learning contexts',
-      selfManagedSetupTitle: 'Non-formal',
-      selfManagedSetupDescription:
-        'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
-      informalSetupTitle: 'Personal',
-      informalSetupDescription:
-        'Homeschooling, supplementary individual learning, and other informal use',
-    },
     props: {
       submitText: {
         type: String,
@@ -140,6 +126,20 @@
           this.$emit('submit');
         }
       },
+    },
+    $trs: {
+      facilityPermissionsSetupFormHeader: 'What kind of facility are you installing Kolibri in?',
+      facilityPermissionsSetupFormDescription:
+        'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
+      facilityPermissionsPresetDetailsLink: 'More information about these settings',
+      adminManagedSetupTitle: 'Formal',
+      adminManagedSetupDescription: 'Schools and other formal learning contexts',
+      selfManagedSetupTitle: 'Non-formal',
+      selfManagedSetupDescription:
+        'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+      informalSetupTitle: 'Personal',
+      informalSetupDescription:
+        'Homeschooling, supplementary individual learning, and other informal use',
     },
   };
 

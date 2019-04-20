@@ -21,7 +21,9 @@
               name="remove"
               category="content"
             />
-            <div class="truncate">{{ $tr('decrease') }}</div>
+            <div class="truncate">
+              {{ $tr('decrease') }}
+            </div>
           </KButton>
         </KGridItem>
         <KGridItem
@@ -38,7 +40,9 @@
               name="add"
               category="content"
             />
-            <div class="truncate">{{ $tr('increase') }}</div>
+            <div class="truncate">
+              {{ $tr('increase') }}
+            </div>
           </KButton>
         </KGridItem>
       </KGrid>
@@ -95,16 +99,6 @@
 
   export default {
     name: 'SettingsSideBar',
-    $trs: {
-      textSize: 'Text size',
-      decrease: 'Decrease',
-      increase: 'Increase',
-      theme: 'Theme',
-      setWhiteTheme: 'Set white theme',
-      setBeigeTheme: 'Set beige theme',
-      setGreyTheme: 'Set grey theme',
-      setBlackTheme: 'Set black theme',
-    },
     components: {
       SideBar,
       KGrid,
@@ -175,6 +169,16 @@
           },
         };
       },
+    },
+    $trs: {
+      textSize: 'Text size',
+      decrease: 'Decrease',
+      increase: 'Increase',
+      theme: 'Theme',
+      setWhiteTheme: 'Set white theme',
+      setBeigeTheme: 'Set beige theme',
+      setGreyTheme: 'Set grey theme',
+      setBlackTheme: 'Set black theme',
     },
   };
 

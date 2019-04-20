@@ -22,17 +22,17 @@
     <script src="{% static 'rest_framework/js/coreapi-0.1.1.js' %}"></script>
     <script src="{% url 'api-docs:schema-js' %}"></script>
   {% endif %}
+  {% kolibri_language_globals %}
+  {% kolibri_set_urls %}
+  {% webpack_asset 'user_agent' %}
 </head>
 <body>
-{% if supported_browser %}
 <rootvue>
   {% include "kolibri/loading_snippet.html" %}
 </rootvue>
 {% block frontend_assets %}
 {% kolibri_sentry_error_reporting %}
-{% kolibri_language_globals %}
 {% kolibri_content_cache_key %}
-{% kolibri_set_urls %}
 {% webpack_asset 'default_frontend' %}
 {% kolibri_navigation_actions %}
 {% webpack_base_assets %}
@@ -44,10 +44,5 @@
 
 {% endblock %}
 
-{% else %}
-
-{% include 'kolibri/unsupported_browser.html' %}
-
-{% endif %}
 </body>
 </html>

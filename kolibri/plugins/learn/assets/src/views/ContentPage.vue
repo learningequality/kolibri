@@ -15,13 +15,10 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      :id="content.id"
       class="content-renderer"
       :kind="content.kind"
       :lang="content.lang"
       :files="content.files"
-      :contentId="contentId"
-      :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
@@ -42,7 +39,6 @@
       :randomize="content.randomize"
       :masteryModel="content.masteryModel"
       :assessmentIds="content.assessmentIds"
-      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
@@ -79,10 +75,14 @@
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <template v-if="translatedLicense">
-              <p class="license-details-name">{{ licenseName }}</p>
+              <p class="license-details-name">
+                {{ licenseName }}
+              </p>
               <p>{{ licenseDescription }}</p>
             </template>
-            <p v-else>{{ content.license_description }}</p>
+            <p v-else>
+              {{ content.license_description }}
+            </p>
           </div>
         </template>
       </p>
@@ -149,25 +149,6 @@
 
   export default {
     name: 'ContentPage',
-    $trs: {
-      recommended: 'Recommended',
-      author: 'Author: {author}',
-      license: 'License: {license}',
-      toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder: {copyrightHolder}',
-      nextResource: 'Next resource',
-      documentTitle: '{ contentTitle } - { channelTitle }',
-    },
-    components: {
-      CoachContentLabel,
-      PageHeader,
-      ContentCardGroupCarousel,
-      ContentRenderer,
-      DownloadButton,
-      AssessmentWrapper,
-      MasteredSnackbars,
-      UiIconButton,
-    },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer
       if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -180,6 +161,16 @@
         }),
       };
     },
+    components: {
+      CoachContentLabel,
+      PageHeader,
+      ContentCardGroupCarousel,
+      ContentRenderer,
+      DownloadButton,
+      AssessmentWrapper,
+      MasteredSnackbars,
+      UiIconButton,
+    },
     data() {
       return {
         wasIncomplete: false,
@@ -187,7 +178,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'contentPoints', 'pageMode']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -319,6 +310,16 @@
           params: { id },
         };
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      author: 'Author: {author}',
+      license: 'License: {license}',
+      toggleLicenseDescription: 'Toggle license description',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      nextResource: 'Next resource',
+      documentTitle: '{ contentTitle } - { channelTitle }',
+      topicLocationTooltip: 'Resource is located in this topic',
     },
   };
 

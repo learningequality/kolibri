@@ -7,7 +7,7 @@ from .models import KolibriAnonymousUser
 
 def _get_user(request):
 
-    if not hasattr(request, '_cached_user'):
+    if not hasattr(request, "_cached_user"):
         user = get_user(request)
         if user.is_anonymous():
             user = KolibriAnonymousUser()
@@ -23,7 +23,7 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
     """
 
     def process_request(self, request):
-        assert hasattr(request, 'session'), (
+        assert hasattr(request, "session"), (
             "The authentication middleware requires session middleware "
             "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
             "'django.contrib.sessions.middleware.SessionMiddleware' before "

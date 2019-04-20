@@ -8,17 +8,15 @@ from kolibri.core.content.utils.annotation import calculate_next_order
 
 
 def calculate_channel_order(apps, schema_editor):
-    ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
+    ChannelMetadata = apps.get_model("content", "ChannelMetadata")
     for channel in ChannelMetadata.objects.all():
         calculate_next_order(channel)
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0015_auto_20190125_1715'),
-    ]
+    dependencies = [("content", "0015_auto_20190125_1715")]
 
     operations = [
-        migrations.RunPython(calculate_channel_order, migrations.RunPython.noop),
+        migrations.RunPython(calculate_channel_order, migrations.RunPython.noop)
     ]

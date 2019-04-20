@@ -27,7 +27,6 @@
       LearnerExerciseReport,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
@@ -46,6 +45,7 @@
         });
       },
     },
+    $trs: {},
   };
 
 </script>

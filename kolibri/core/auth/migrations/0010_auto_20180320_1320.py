@@ -8,14 +8,19 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0009_auto_20180301_1123'),
-    ]
+    dependencies = [("kolibriauth", "0009_auto_20180301_1123")]
 
     operations = [
         migrations.AlterField(
-            model_name='role',
-            name='kind',
-            field=models.CharField(choices=[('admin', 'Admin'), ('coach', 'Coach'), ('classroom assignable coach', 'Classroom Assignable Coach')], max_length=26),
-        ),
+            model_name="role",
+            name="kind",
+            field=models.CharField(
+                choices=[
+                    ("admin", "Admin"),
+                    ("coach", "Coach"),
+                    ("classroom assignable coach", "Classroom Assignable Coach"),
+                ],
+                max_length=26,
+            ),
+        )
     ]

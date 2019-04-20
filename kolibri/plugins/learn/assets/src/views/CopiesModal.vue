@@ -94,6 +94,9 @@
         return {
           name: PageNames.TOPICS_CONTENT,
           params: { id },
+          query: {
+            searchTerm: this.$route.query.searchTerm || '',
+          },
         };
       },
     },

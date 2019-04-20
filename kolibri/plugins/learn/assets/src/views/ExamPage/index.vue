@@ -14,7 +14,9 @@
           category="action"
           name="assignment_late"
         />
-        <h1 class="exam-title">{{ exam.title }}</h1>
+        <h1 class="exam-title">
+          {{ exam.title }}
+        </h1>
         <div class="exam-status">
           <p class="questions-answered">
             {{
@@ -41,12 +43,9 @@
       >
         <ContentRenderer
           v-if="content && itemId"
-          :id="content.id"
           ref="contentRenderer"
           :kind="content.kind"
           :files="content.files"
-          :contentId="content.content_id"
-          :channelId="channelId"
           :available="content.available"
           :extraFields="content.extra_fields"
           :itemId="itemId"
@@ -111,19 +110,6 @@
 
   export default {
     name: 'ExamPage',
-    $trs: {
-      submitExam: 'Submit quiz',
-      backToExamList: 'Back to quiz list',
-      questionsAnswered:
-        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
-      previousQuestion: 'Previous question',
-      nextQuestion: 'Next question',
-      goBack: 'Go back',
-      areYouSure: 'You cannot change your answers after you submit',
-      unanswered:
-        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-      noItemId: 'This question has an error, please move on to the next question',
-    },
     metaInfo() {
       return {
         title: this.exam.title,
@@ -145,9 +131,7 @@
       };
     },
     computed: {
-      ...mapState(['examAttemptLogs']),
       ...mapState('examViewer', [
-        'channelId',
         'exam',
         'content',
         'itemId',
@@ -257,6 +241,19 @@
           })
         );
       },
+    },
+    $trs: {
+      submitExam: 'Submit quiz',
+      backToExamList: 'Back to quiz list',
+      questionsAnswered:
+        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+      previousQuestion: 'Previous question',
+      nextQuestion: 'Next question',
+      goBack: 'Go back',
+      areYouSure: 'You cannot change your answers after you submit',
+      unanswered:
+        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+      noItemId: 'This question has an error, please move on to the next question',
     },
   };
 

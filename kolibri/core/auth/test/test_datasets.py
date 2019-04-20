@@ -12,12 +12,13 @@ from ..models import LearnerGroup
 
 
 class FacilityDatasetTestCase(TestCase):
-
     def setUp(self):
         self.facility = Facility.objects.create()
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
-        self.facility_user = FacilityUser.objects.create(username="blah", password="#", facility=self.facility)
+        self.facility_user = FacilityUser.objects.create(
+            username="blah", password="#", facility=self.facility
+        )
 
     def test_datasets_equal(self):
         self.assertTrue(self.facility.dataset is not None)
@@ -32,14 +33,18 @@ class FacilityDatasetTestCase(TestCase):
 
     def test_cannot_create_membership_across_datasets(self):
         facility2 = Facility.objects.create()
-        facility_user2 = FacilityUser.objects.create(username="blah", password="#", facility=facility2)
+        facility_user2 = FacilityUser.objects.create(
+            username="blah", password="#", facility=facility2
+        )
         with self.assertRaises(IntegrityError):
             self.learner_group.add_learner(facility_user2)
 
     def test_cannot_pass_inappropriate_dataset(self):
         facility2 = Facility.objects.create()
         with self.assertRaises(IntegrityError):
-            FacilityUser.objects.create(facility=self.facility, dataset=facility2.dataset)
+            FacilityUser.objects.create(
+                facility=self.facility, dataset=facility2.dataset
+            )
 
     def test_cannot_change_dataset(self):
         facility2 = Facility.objects.create()
@@ -61,6 +66,9 @@ class FacilityDatasetTestCase(TestCase):
         self.assertEqual(dataset, facility.dataset)
 
     def test_dataset_representation(self):
-        self.assertEqual(str(self.facility.dataset), "FacilityDataset for {}".format(self.facility.name))
+        self.assertEqual(
+            str(self.facility.dataset),
+            "FacilityDataset for {}".format(self.facility.name),
+        )
         new_dataset = FacilityDataset.objects.create()
         self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")

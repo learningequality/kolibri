@@ -13,7 +13,9 @@ import time
 from django.core.wsgi import get_wsgi_application
 from django.db.utils import OperationalError
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base")
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
+)
 logger = logging.getLogger(__name__)
 
 application = None

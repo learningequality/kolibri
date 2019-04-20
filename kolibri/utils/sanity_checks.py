@@ -45,7 +45,7 @@ def check_port_availability(host, port):
 
 
 def check_content_directory_exists_and_writable():
-    content_directory = OPTIONS['Paths']['CONTENT_DIR']
+    content_directory = OPTIONS["Paths"]["CONTENT_DIR"]
 
     # Check if the content directory exists
     if not os.path.exists(content_directory):

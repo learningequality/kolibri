@@ -35,7 +35,9 @@
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
-              <template v-else>{{ tableRow.name }}</template>
+              <template v-else>
+                {{ tableRow.name }}
+              </template>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
@@ -71,9 +73,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      lesson() {
-        return this.lessonMap[this.$route.params.lessonId];
-      },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },

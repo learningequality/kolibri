@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "یک حساب کاربری با این نام کاربری از قبل وجود دارد",
   "UserIndex.userProfileTitle": "پروفایل",
   "UserIndex.userSignInTitle": "ورود",
-  "UserIndex.userSignUpTitle": "ثبت‌نام",
   "UserPageSnackbars.dismiss": "رَد کردن",
   "UserPageSnackbars.signedOut": "شما به طور خودکار و بدلیل عدم فعالیت از سیستم خارج شدید",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "رمز عبور تغییر کرد"

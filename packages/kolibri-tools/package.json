@@ -11,7 +11,7 @@
     "kolibri-tools": "./lib/cli.js"
   },
   "scripts": {
-    "build": "node ./build.js"
+    "build-kolibri-tools": "node ./build_kolibri_tools.js"
   },
   "dependencies": {
     "@vue/test-utils": "1.0.0-beta.25",
@@ -32,7 +32,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.26.1",
     "eslint-plugin-kolibri": "0.12.0-beta.3.2",
-    "eslint-plugin-vue": "^5.0.0-beta.3",
+    "eslint-plugin-vue": "^5.2.2",
     "espree": "^4.1.0",
     "esquery": "^1.0.1",
     "express": "^4.16.4",
@@ -69,11 +69,9 @@
     "temp": "^0.8.3",
     "terser-webpack-plugin": "^1.2.2",
     "url-loader": "^1.0.1",
-    "vue-html-loader": "^1.2.3",
     "vue-jest": "^3.0.0",
-    "vue-loader": "15.4.2",
+    "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
-    "vue-template-compiler": "^2.5.17",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
@@ -82,14 +80,18 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-hot-middleware": "2.12.1",
     "webpack-merge": "^4.1.0",
-    "webpack-rtl-plugin": "^1.7.0"
+    "webpack-rtl-plugin": "^2.0.0"
+  },
+  "peerDependencies": {
+    "vue-template-compiler": "^2.x"
   },
   "engines": {
     "node": "10.x",
     "npm": ">= 3"
   },
   "devDependencies": {
-    "readline-sync": "^1.4.9"
+    "readline-sync": "^1.4.9",
+    "vue-template-compiler": "=2.6.8"
   },
   "optionalDependencies": {
     "kolibri": "0.12.0-beta.3.2"

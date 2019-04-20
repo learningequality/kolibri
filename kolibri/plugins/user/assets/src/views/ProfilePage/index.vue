@@ -32,7 +32,9 @@
       <p>
         {{ $tr('youCan') }}
         <ul class="permissions-list">
-          <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
+          <li v-if="isSuperuser">
+            {{ $tr('manageDevicePermissions') }}
+          </li>
           <li v-for="(value, key) in userPermissions" :key="key">
             {{ getPermissionString(key) }}
           </li>
@@ -139,25 +141,6 @@
 
   export default {
     name: 'ProfilePage',
-    $trs: {
-      success: 'Profile details updated',
-      username: 'Username',
-      name: 'Full name',
-      updateProfile: 'Save changes',
-      isSuperuser: 'Super admin permissions ',
-      manageContent: 'Manage content',
-      manageDevicePermissions: 'Manage device permissions',
-      points: 'Points',
-      userType: 'User type',
-      devicePermissions: 'Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      required: 'This field is required',
-      limitedPermissions: 'Limited permissions',
-      youCan: 'You can',
-      changePasswordPrompt: 'Change password',
-      usernameAlreadyExists: 'An account with that username already exists',
-      documentTitle: 'User Profile',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -197,7 +180,7 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', ['busy', 'passwordState', 'success']),
       ...mapState('profile', {
         profileErrors: 'errors',
       }),
@@ -317,6 +300,25 @@
         }
         return permission;
       },
+    },
+    $trs: {
+      success: 'Profile details updated',
+      username: 'Username',
+      name: 'Full name',
+      updateProfile: 'Save changes',
+      isSuperuser: 'Super admin permissions ',
+      manageContent: 'Manage content',
+      manageDevicePermissions: 'Manage device permissions',
+      points: 'Points',
+      userType: 'User type',
+      devicePermissions: 'Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
+      changePasswordPrompt: 'Change password',
+      usernameAlreadyExists: 'An account with that username already exists',
+      documentTitle: 'User Profile',
     },
   };
 

@@ -8,14 +8,12 @@ RUN apt-get update -y && \
       git \
       git-lfs \
       sudo \
-      software-properties-common
+      software-properties-common \
+      ttf-mscorefonts-installer \
+      wine-stable \
+      wine32
 
 RUN git lfs install
-
-RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      ttf-mscorefonts-installer \
-      wine-stable
 
 VOLUME /kolibridist/
 
@@ -25,4 +23,5 @@ CMD git clone https://github.com/learningequality/kolibri-installer-windows.git 
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
     wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss && \
+    mv *.exe kolibri-$KOLIBRI_VERSION-unsigned.exe && \
     cp *.exe /kolibridist/

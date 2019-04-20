@@ -15,25 +15,39 @@
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('usernameLabel') }}</template>
-        <template slot="value">{{ learner.username }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('usernameLabel') }}
+        </template>
+        <template slot="value">
+          {{ learner.username }}
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('groupsLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('groupsLabel') }}
+        </template>
         <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('avgQuizScoreLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('percentage', {value: avgScore}) }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('avgQuizScoreLabel') }}
+        </template>
+        <template slot="value">
+          {{ coachStrings.$tr('percentage', {value: avgScore}) }}
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('exercisesCompletedLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('exercisesCompletedLabel') }}
+        </template>
         <template slot="value">
           {{ coachStrings.$tr('integer', {value: exercisesCompleted}) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('resourcesViewedLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('resourcesViewedLabel') }}
+        </template>
         <template slot="value">
           {{ coachStrings.$tr('integer', {value: resourcesViewed}) }}
         </template>

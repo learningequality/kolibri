@@ -22,11 +22,6 @@
         />
       </UiIconButton>
 
-      <div>
-        <div class="app-bar-title-icon"></div>
-        {{ title }}
-      </div>
-
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
 
@@ -57,7 +52,9 @@
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
-            <div class="role">{{ $tr('userTypeLabel') }}</div>
+            <div class="role">
+              {{ $tr('userTypeLabel') }}
+            </div>
             <div>
               <UserTypeDisplay
                 :distinguishCoachTypes="false"
@@ -100,7 +97,7 @@
 
   import { mapGetters, mapState, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
@@ -123,12 +120,6 @@
       UserTypeDisplay,
     },
     mixins: [navComponentsMixin, themeMixin],
-    $trs: {
-      openNav: 'Open sidebar navigation',
-      userTypeLabel: 'User type',
-      languageSwitchMenuOption: 'Change language',
-      userMenu: 'User menu',
-    },
     props: {
       title: {
         type: String,
@@ -177,6 +168,12 @@
         this.userMenuDropdownIsOpen = false;
       },
       ...mapActions(['kolibriLogout']),
+    },
+    $trs: {
+      openNav: 'Open sidebar navigation',
+      userTypeLabel: 'User type',
+      languageSwitchMenuOption: 'Change language',
+      userMenu: 'User menu',
     },
   };
 

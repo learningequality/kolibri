@@ -1,13 +1,9 @@
 <template>
 
   <CoreBase
-    :appBarTitle="appBarTitle"
     :marginBottom="bottomSpaceReserved"
-    :immersivePage="isImmersivePage"
-    :immersivePageIcon="immersivePageIcon"
-    :immersivePagePrimary="immersivePageIsPrimary"
-    :immersivePageRoute="immersiveToolbarRoute"
     :showSubNav="topNavIsVisible"
+    v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="!isWithinSearchPage" />
@@ -18,7 +14,7 @@
     <TotalPoints slot="totalPointsMenuItem" />
 
     <div>
-      <Breadcrumbs />
+      <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
       <component :is="currentPage" />
     </div>
 
@@ -29,7 +25,9 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
+  import lastItem from 'lodash/last';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
@@ -51,6 +49,8 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
 
+  const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
+
   // Bottom toolbar is 111px high on mobile, 113px normally.
   // We reserve the smaller number so there is no gap on either screen size.
   const BOTTOM_SPACED_RESERVED = 111;
@@ -71,17 +71,8 @@
     [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
-  const immersivePages = [
-    ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    ClassesPageNames.EXAM_REPORT_VIEWER,
-  ];
-
   export default {
     name: 'LearnIndex',
-    $trs: {
-      learnTitle: 'Learn',
-      examReportTitle: '{examTitle} report',
-    },
     components: {
       ActionBarSearchBox,
       Breadcrumbs,
@@ -91,12 +82,13 @@
     },
     mixins: [responsiveWindow],
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
+        currentLesson: 'currentLesson',
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
+        topicsTreeChannel: 'channel',
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
@@ -106,49 +98,79 @@
         }
         return pageNameToComponentMap[this.pageName] || null;
       },
-      appBarTitle() {
+      immersivePageProps() {
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return this.lessonContent.title || '';
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
+          return {
+            appBarTitle: this.currentLesson.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
+        if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
           if (this.exam) {
-            return this.$tr('examReportTitle', {
-              examTitle: this.exam.title,
-            });
+            return {
+              appBarTitle: this.$tr('examReportTitle', {
+                examTitle: this.exam.title,
+              }),
+              immersivePage: true,
+              immersivePageRoute: this.$router.getRoute(ClassesPageNames.EXAM_REPORT_VIEWER),
+              immersivePagePrimary: false,
+              immersivePageIcon: 'arrow_back',
+            };
           }
         }
-        return this.$tr('learnTitle');
-      },
-      isImmersivePage() {
-        return immersivePages.includes(this.pageName);
-      },
-      immersiveToolbarRoute() {
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          let immersivePageRoute = {};
+          let appBarTitle;
+          const { searchTerm, last } = this.$route.query;
+          if (searchTerm) {
+            immersivePageRoute = this.$router.getRoute(
+              PageNames.SEARCH,
+              {},
+              {
+                searchTerm: searchTerm,
+              }
+            );
+          } else if (last) {
+            // 'last' should only be route names for Recommended Page and its subpages
+            immersivePageRoute = this.$router.getRoute(last);
+            const trString = {
+              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
+              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
+              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
+              [PageNames.RECOMMENDED]: 'recommended',
+            }[last];
+            appBarTitle = RecommendedSubpageStrings.$tr(trString);
+          } else if (this.topicsTreeContent.parent) {
+            // Need to guard for parent being non-empty to avoid console errors
+            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+              id: this.topicsTreeContent.parent,
+            });
+
+            if (this.topicsTreeContent.breadcrumbs.length > 0) {
+              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            } else {
+              // `breadcrumbs` is empty if the direct parent is the channel, so pull
+              // channel info from state.topicsTree.channel
+              appBarTitle = this.topicsTreeChannel.title;
+            }
+          }
           return {
-            name: ClassesPageNames.LESSON_PLAYLIST,
+            appBarTitle,
+            immersivePage: true,
+            immersivePageRoute,
+            immersivePagePrimary: false,
+            immersivePageIcon: 'arrow_back',
           };
-        } else if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
-          return {
-            name: ClassesPageNames.CLASS_ASSIGNMENTS,
-          };
         }
-      },
-      immersivePageIsPrimary() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
-        ) {
-          return false;
-        }
-        return true;
-      },
-      immersivePageIcon() {
-        if (
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER ||
-          this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER
-        ) {
-          return 'arrow_back';
-        }
-        return null;
+
+        return {
+          appBarTitle: this.$tr('learnTitle'),
+          immersivePage: false,
+        };
       },
       isWithinSearchPage() {
         return this.pageName === PageNames.SEARCH;
@@ -157,7 +179,7 @@
         return (
           this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
           this.pageName !== PageNames.SEARCH &&
-          !this.isImmersivePage
+          !this.immersivePageProps.immersivePage
         );
       },
       bottomSpaceReserved() {
@@ -174,6 +196,10 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
+    },
+    $trs: {
+      learnTitle: 'Learn',
+      examReportTitle: '{examTitle} report',
     },
   };
 

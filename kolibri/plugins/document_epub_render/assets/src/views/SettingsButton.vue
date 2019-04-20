@@ -21,11 +21,11 @@
 
   export default {
     name: 'SettingsButton',
-    $trs: {
-      toggleSettingsSideBar: 'Toggle settings side bar',
-    },
     components: {
       UiIconButton,
+    },
+    $trs: {
+      toggleSettingsSideBar: 'Toggle settings side bar',
     },
   };
 

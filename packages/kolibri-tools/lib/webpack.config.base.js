@@ -17,7 +17,7 @@ const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
-const extract$trs = require('./extract_$trs');
+const extract$trs = require('./extract$trs');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
@@ -137,6 +137,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           options: {
             objectAssign: 'Object.assign',
           },
+          exclude: /node_modules\/vue/,
         },
         {
           test: /\.css$/,

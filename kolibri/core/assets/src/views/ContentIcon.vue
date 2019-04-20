@@ -96,18 +96,6 @@
 
   export default {
     name: 'ContentIcon',
-    $trs: {
-      topic: 'Topic',
-      channel: 'Channel',
-      exercise: 'Exercise',
-      video: 'Video',
-      audio: 'Audio',
-      document: 'Document',
-      html5: 'App',
-      exam: 'Quiz',
-      lesson: 'Lesson',
-      user: 'User',
-    },
     components: {
       UiIcon,
       KTooltip,
@@ -120,7 +108,7 @@
           return validateContentNodeKind(value, [USER]);
         },
       },
-      colorstyle: {
+      colorStyle: {
         type: String,
         default: 'action',
       },
@@ -160,6 +148,18 @@
       is(kind) {
         return this.kind === kind;
       },
+    },
+    $trs: {
+      topic: 'Topic',
+      channel: 'Channel',
+      exercise: 'Exercise',
+      video: 'Video',
+      audio: 'Audio',
+      document: 'Document',
+      html5: 'App',
+      exam: 'Quiz',
+      lesson: 'Lesson',
+      user: 'User',
     },
   };
 

@@ -1,7 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $coreBgLight }">
-    <h3 class="header">{{ $tr('header') }}</h3>
+    <h3 class="header">
+      {{ $tr('header') }}
+    </h3>
 
     <ul ref="attemptList" class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
@@ -78,13 +80,6 @@
       CoachContentLabel,
     },
     mixins: [themeMixin],
-    $trs: {
-      header: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: '{ daysElapsed } days ago',
-      question: 'Question { questionNumber, number }',
-    },
     props: {
       attemptLogs: {
         type: Array,
@@ -116,6 +111,13 @@
             selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
         }
       },
+    },
+    $trs: {
+      header: 'Answer history',
+      today: 'Today',
+      yesterday: 'Yesterday',
+      daysAgo: '{ daysElapsed } days ago',
+      question: 'Question { questionNumber, number }',
     },
   };
 

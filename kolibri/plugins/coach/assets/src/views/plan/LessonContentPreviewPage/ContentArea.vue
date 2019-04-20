@@ -5,15 +5,12 @@
       {{ header }}
     </h2>
     <ContentRenderer
-      :id="content.id"
       :class="{ hof: isExercise}"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
       :kind="content.kind"
       :files="content.files"
-      :contentId="content.content_id"
-      :channelId="content.channel_id"
       :available="content.available"
       :extraFields="content.extra_fields"
       :interactive="false"
@@ -53,11 +50,6 @@
         type: String,
         required: false,
         default: '',
-      },
-    },
-    computed: {
-      hasHeader() {
-        return Boolean(this.header);
       },
     },
   };

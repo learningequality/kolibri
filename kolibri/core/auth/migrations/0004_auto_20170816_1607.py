@@ -10,25 +10,30 @@ from kolibri.core.auth.constants.role_kinds import ADMIN
 
 
 def device_owner_to_super_user(apps, schema_editor):
-    from kolibri.core.auth.models import FacilityUser as RealFacilityUser, Facility as RealFacility, Role as RealRole
+    from kolibri.core.auth.models import (
+        FacilityUser as RealFacilityUser,
+        Facility as RealFacility,
+        Role as RealRole,
+    )
+
     # The get_default_facility method now requires database access to another model that does not exist yet for
     # this migration, so just defer to the old behaviour.
     real_default_facility = RealFacility.objects.first()
     # Can't do much if no facilities exist, as no facility to FK the users onto
     if real_default_facility:
-        DeviceOwner = apps.get_model('kolibriauth', 'DeviceOwner')
-        FacilityUser = apps.get_model('kolibriauth', 'FacilityUser')
-        Facility = apps.get_model('kolibriauth', 'Facility')
+        DeviceOwner = apps.get_model("kolibriauth", "DeviceOwner")
+        FacilityUser = apps.get_model("kolibriauth", "FacilityUser")
+        Facility = apps.get_model("kolibriauth", "Facility")
         default_facility = Facility.objects.get(pk=real_default_facility.id)
-        DevicePermissions = apps.get_model('device', 'DevicePermissions')
-        DeviceSettings = apps.get_model('device', 'DeviceSettings')
-        Role = apps.get_model('kolibriauth', 'Role')
+        DevicePermissions = apps.get_model("device", "DevicePermissions")
+        DeviceSettings = apps.get_model("device", "DeviceSettings")
+        Role = apps.get_model("kolibriauth", "Role")
         for device_owner in DeviceOwner.objects.all():
             dataset_id = real_default_facility.dataset_id
             real_superuser = RealFacilityUser(
                 username=device_owner.username,
                 facility=real_default_facility,
-                dataset_id=dataset_id
+                dataset_id=dataset_id,
             )
             uuid = real_superuser.calculate_uuid()
             # due to uniqueness constraints, can't have two users with same username for a facility
@@ -69,13 +74,11 @@ def device_owner_to_super_user(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kolibriauth', '0003_auto_20170621_0958'),
-        ('device', '0001_initial')
+        ("kolibriauth", "0003_auto_20170621_0958"),
+        ("device", "0001_initial"),
     ]
 
     operations = [
         migrations.RunPython(device_owner_to_super_user, migrations.RunPython.noop),
-        migrations.DeleteModel(
-            name='DeviceOwner',
-        ),
+        migrations.DeleteModel(name="DeviceOwner"),
     ]

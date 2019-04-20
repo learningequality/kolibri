@@ -1,6 +1,5 @@
-import store from 'kolibri.coreVue.vuex.store';
 import logger from 'kolibri.lib.logging';
-import { THEME_MODULE_NAMESPACE } from '../state/modules/theme';
+import { dynamicState } from '../styles/theme';
 
 const logging = logger.getLogger(__filename);
 
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'focus',
     e => {
       if (hadKeyboardEvent || focusTriggersKeyboardModality(e.target)) {
-        store.commit(`${THEME_MODULE_NAMESPACE}/SET_MODALITY`, 'keyboard');
+        dynamicState.modality = 'keyboard';
       }
     },
     true
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.addEventListener(
     'blur',
     () => {
-      store.commit(`${THEME_MODULE_NAMESPACE}/SET_MODALITY`, null);
+      dynamicState.modality = null;
     },
     true
   );

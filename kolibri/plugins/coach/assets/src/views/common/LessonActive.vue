@@ -29,14 +29,14 @@
         required: true,
       },
     },
-    $trs: {
-      active: 'Active',
-      inactive: 'Inactive',
-    },
     computed: {
       label() {
         return this.active ? this.$tr('active') : this.$tr('inactive');
       },
+    },
+    $trs: {
+      active: 'Active',
+      inactive: 'Inactive',
     },
   };
 

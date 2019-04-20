@@ -11,15 +11,14 @@
 
 <script>
 
-  import filesize from 'filesize';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import { getFilePresetString } from './filePresetStrings';
 
   export default {
     name: 'DownloadButton',
     components: {
       KDropdownMenu,
     },
-    $trs: { downloadContent: 'Download content' },
     props: {
       files: {
         type: Array,
@@ -29,7 +28,7 @@
     computed: {
       fileOptions() {
         return this.files.map(file => ({
-          label: `${file.preset} (${filesize(file.file_size)})`,
+          label: getFilePresetString(file),
           url: file.download_url,
         }));
       },
@@ -39,6 +38,7 @@
         window.open(file.url, '_blank');
       },
     },
+    $trs: { downloadContent: 'Download content' },
   };
 
 </script>

@@ -70,13 +70,17 @@
         <div>{{ routePath }}</div>
       </div>
 
-      <AuthMessage
-        v-if="notAuthorized"
-        :authorizedRole="authorizedRole"
-        :header="authorizationErrorHeader"
-        :details="authorizationErrorDetails"
-      />
-      <AppError v-else-if="error" />
+      <KPageContainer v-if="notAuthorized">
+        <AuthMessage
+          :authorizedRole="authorizedRole"
+          :header="authorizationErrorHeader"
+          :details="authorizationErrorDetails"
+        />
+      </KPageContainer>
+      <KPageContainer v-else-if="error">
+        <AppError />
+      </KPageContainer>
+
       <slot v-else></slot>
     </div>
 
@@ -110,6 +114,7 @@
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { throttle } from 'frame-throttle';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
@@ -123,10 +128,22 @@
 
   export default {
     name: 'CoreBase',
-    $trs: {
-      kolibriMessage: 'Kolibri',
-      kolibriTitleMessage: '{ title } - Kolibri',
-      errorPageTitle: 'Error',
+    metaInfo() {
+      return {
+        // Use arrow function to bind $tr to this component
+        titleTemplate: title => {
+          if (this.error) {
+            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
+          }
+          if (!title) {
+            // If no child component sets title, it reads 'Kolibri'
+            return this.$tr('kolibriMessage');
+          }
+          // If child component sets title, it reads 'Child Title - Kolibri'
+          return this.$tr('kolibriTitleMessage', { title });
+        },
+        title: this.pageTitle,
+      };
     },
     components: {
       AppBar,
@@ -136,6 +153,7 @@
       AuthMessage,
       GlobalSnackbar,
       KLinearLoader,
+      KPageContainer,
       ScrollingHeader,
       UpdateNotification,
       LanguageSwitcherModal,
@@ -220,23 +238,6 @@
         default: false,
       },
     },
-    metaInfo() {
-      return {
-        // Use arrow function to bind $tr to this component
-        titleTemplate: title => {
-          if (this.error) {
-            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
-          }
-          if (!title) {
-            // If no child component sets title, it reads 'Kolibri'
-            return this.$tr('kolibriMessage');
-          }
-          // If child component sets title, it reads 'Child Title - Kolibri'
-          return this.$tr('kolibriTitleMessage', { title });
-        },
-        title: this.pageTitle,
-      };
-    },
     data() {
       return {
         navShown: false,
@@ -271,7 +272,7 @@
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
-        if (this.error && this.error.code == 403) {
+        if (this.error && this.error.status && this.error.status.code == 403) {
           return true;
         }
         return !this.authorized;
@@ -379,7 +380,10 @@
         // Setting this will not affect the page layout,
         // but this will then get properly stored in the
         // browser history.
-        window.pageYOffset = this.scrollPosition;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = this.scrollPosition;
+        } catch (e) {} // eslint-disable-line no-empty
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -389,8 +393,16 @@
       },
       setScroll(scrollValue) {
         this.$el.scrollTop = scrollValue;
-        window.pageYOffset = scrollValue;
+        try {
+          // This property can sometimes be readonly in older browsers
+          window.pageYOffset = scrollValue;
+        } catch (e) {} // eslint-disable-line no-empty
       },
+    },
+    $trs: {
+      kolibriMessage: 'Kolibri',
+      kolibriTitleMessage: '{ title } - Kolibri',
+      errorPageTitle: 'Error',
     },
   };
 

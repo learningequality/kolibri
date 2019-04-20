@@ -6,4 +6,4 @@ from os import environ
 # Python for Android always sets some Android environment variables, so we check
 # for one of them to differentiate. This is how Kivy detects Android as well.
 def on_android():
-    return 'ANDROID_ARGUMENT' in environ
+    return "ANDROID_ARGUMENT" in environ

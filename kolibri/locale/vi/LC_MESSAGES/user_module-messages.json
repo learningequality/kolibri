@@ -59,7 +59,6 @@
   "SignUpPage.usernameAlreadyExistsError": "Tài khoản có tên người dùng này đã tồn tại",
   "UserIndex.userProfileTitle": "Hồ sơ",
   "UserIndex.userSignInTitle": "Đăng nhập",
-  "UserIndex.userSignUpTitle": "Đăng ký",
   "UserPageSnackbars.dismiss": "Bỏ qua",
   "UserPageSnackbars.signedOut": "Bạn đã được tự động đăng xuất do không hoạt động",
   "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Đã thay đổi mật khẩu"

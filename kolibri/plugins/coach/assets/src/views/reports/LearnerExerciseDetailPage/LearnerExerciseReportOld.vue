@@ -30,14 +30,11 @@
         />
         <ContentRenderer
           v-if="currentInteraction"
-          :id="exercise.id"
           :itemId="currentAttemptLog.item"
           :assessment="true"
           :allowHints="false"
           :kind="exercise.kind"
           :files="exercise.files"
-          :contentId="exercise.content_id"
-          :channelId="channelId"
           :available="exercise.available"
           :answerState="answerState"
           :showCorrectAnswer="showCorrectAnswer"
@@ -70,11 +67,6 @@
         title: this.exercise.title,
       };
     },
-    $trs: {
-      backPrompt: 'Back to { backTitle }',
-      showCorrectAnswerLabel: 'Show correct answer',
-      question: 'Question { questionNumber, number }',
-    },
     components: {
       ContentRenderer,
       AttemptSummary,
@@ -91,7 +83,6 @@
     },
     computed: {
       ...mapState(['pageName', 'reportRefreshInterval']),
-      ...mapState('classSummary', { classId: 'id' }),
       ...mapGetters('exerciseDetail', [
         'currentAttemptLog',
         'currentInteraction',
@@ -171,6 +162,11 @@
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
       },
+    },
+    $trs: {
+      backPrompt: 'Back to { backTitle }',
+      showCorrectAnswerLabel: 'Show correct answer',
+      question: 'Question { questionNumber, number }',
     },
   };
 

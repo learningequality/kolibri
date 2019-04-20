@@ -18,6 +18,7 @@ from docopt import docopt
 
 import kolibri
 from .debian_check import check_debian_user
+
 # Check if the current user is the kolibri user when running kolibri from .deb.
 # Putting it here because importing server module creates KOLIBRI_HOME directory.
 check_debian_user()
@@ -96,7 +97,9 @@ Auto-generated usage instructions from ``kolibri -h``::
 
 {usage:s}
 
-""".format(usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n"))))
+""".format(
+    usage="\n".join(map(lambda x: "    " + x, USAGE.split("\n")))
+)
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +116,7 @@ class PluginBaseLoadsApp(Exception):
     An exception raised in case a kolibri_plugin.py results in loading of the
     Django app stack.
     """
+
     pass
 
 
@@ -122,12 +126,17 @@ def version_file():
     regenerated
     """
     from .conf import KOLIBRI_HOME
-    return os.path.join(KOLIBRI_HOME, '.data_version')
+
+    return os.path.join(KOLIBRI_HOME, ".data_version")
 
 
 def should_back_up(kolibri_version, version_file_contents):
     change_version = kolibri_version != version_file_contents
-    return change_version and 'dev' not in version_file_contents and 'dev' not in kolibri_version
+    return (
+        change_version
+        and "dev" not in version_file_contents
+        and "dev" not in kolibri_version
+    )
 
 
 def initialize(debug=False):
@@ -147,6 +156,7 @@ def initialize(debug=False):
         # Do this here so that we can fix any issues with our configuration file before
         # we attempt to set up django.
         from .conf import autoremove_unavailable_plugins, enable_default_plugins
+
         autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()
@@ -158,14 +168,15 @@ def initialize(debug=False):
             enable_default_plugins()
             # Version changed, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
+
             try:
                 backup = dbbackup(version)
-                logger.info(
-                    "Backed up database to: {path}".format(path=backup))
+                logger.info("Backed up database to: {path}".format(path=backup))
             except IncompatibleDatabase:
                 logger.warning(
                     "Skipped automatic database backup, not compatible with "
-                    "this DB engine.")
+                    "this DB engine."
+                )
 
         django.setup()
 
@@ -174,8 +185,7 @@ def initialize(debug=False):
         if kolibri.__version__ != version:
             logger.info(
                 "Version was {old}, new version: {new}".format(
-                    old=version,
-                    new=kolibri.__version__
+                    old=version, new=kolibri.__version__
                 )
             )
             update()
@@ -187,6 +197,7 @@ def _migrate_databases():
     been initialized.
     """
     from django.conf import settings
+
     for database in settings.DATABASES:
         call_command("migrate", interactive=False, database=database)
 
@@ -199,9 +210,7 @@ def _first_run():
     Called once at least.
     """
     if os.path.exists(version_file()):
-        logger.error(
-            "_first_run() called, but Kolibri is already initialized."
-        )
+        logger.error("_first_run() called, but Kolibri is already initialized.")
         return
     logger.info("Kolibri running for the first time.")
     logger.info(
@@ -257,10 +266,12 @@ def update():
         f.write(kolibri.__version__)
 
     from kolibri.core.content.utils.annotation import update_channel_metadata
+
     update_channel_metadata()
 
     from django.core.cache import caches
-    cache = caches['built_files']
+
+    cache = caches["built_files"]
     cache.clear()
 
 
@@ -295,7 +306,8 @@ def start(port=None, daemon=True):
         if not urls:
             logger.error(
                 "Could not detect an IP address that Kolibri binds to, but try "
-                "opening up the following addresses:\n")
+                "opening up the following addresses:\n"
+            )
             urls = [
                 "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
             ]
@@ -314,11 +326,9 @@ def start(port=None, daemon=True):
         # Truncate the file
         if os.path.isfile(server.DAEMON_LOG):
             open(server.DAEMON_LOG, "w").truncate()
-        logger.info(
-            "Going to daemon mode, logging to {0}".format(server.DAEMON_LOG)
-        )
-        kwargs['out_log'] = server.DAEMON_LOG
-        kwargs['err_log'] = server.DAEMON_LOG
+        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
+        kwargs["out_log"] = server.DAEMON_LOG
+        kwargs["err_log"] = server.DAEMON_LOG
 
         # close all connections before forking, to avoid SQLite corruption:
         # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
@@ -343,26 +353,19 @@ def stop():
             logger.info("Kolibri background services have successfully been stopped.")
     except server.NotRunning as e:
         verbose_status = "{msg:s} ({code:d})".format(
-            code=e.status_code,
-            msg=status.codes[e.status_code]
+            code=e.status_code, msg=status.codes[e.status_code]
         )
         if e.status_code == server.STATUS_STOPPED:
             logger.info("Already stopped: {}".format(verbose_status))
             stopped = True
         elif e.status_code == server.STATUS_STARTING_UP:
-            logger.error(
-                "Not stopped: {}".format(verbose_status)
-            )
+            logger.error("Not stopped: {}".format(verbose_status))
             sys.exit(e.status_code)
         else:
             logger.error(
-                "During graceful shutdown, server says: {}".format(
-                    verbose_status
-                )
+                "During graceful shutdown, server says: {}".format(verbose_status)
             )
-            logger.error(
-                "Not responding, killing with force"
-            )
+            logger.error("Not responding, killing with force")
             server.stop(force=True)
             stopped = True
 
@@ -395,24 +398,26 @@ def status():
         return server.STATUS_RUNNING
     else:
         verbose_status = status.codes[status_code]
-        sys.stderr.write("{msg:s} ({code:d})\n".format(
-            code=status_code, msg=verbose_status))
+        sys.stderr.write(
+            "{msg:s} ({code:d})\n".format(code=status_code, msg=verbose_status)
+        )
         return status_code
 
 
 status.codes = {
-    server.STATUS_RUNNING: 'OK, running',
-    server.STATUS_STOPPED: 'Stopped',
-    server.STATUS_STARTING_UP: 'Starting up',
-    server.STATUS_NOT_RESPONDING: 'Not responding',
-    server.STATUS_FAILED_TO_START:
-        'Failed to start (check log file: {0})'.format(server.DAEMON_LOG),
-    server.STATUS_UNCLEAN_SHUTDOWN: 'Unclean shutdown',
-    server.STATUS_UNKNOWN_INSTANCE: 'Unknown Kolibri running on port',
-    server.STATUS_SERVER_CONFIGURATION_ERROR: 'Kolibri server configuration error',
-    server.STATUS_PID_FILE_READ_ERROR: 'Could not read PID file',
-    server.STATUS_PID_FILE_INVALID: 'Invalid PID file',
-    server.STATUS_UNKNOWN: 'Could not determine status',
+    server.STATUS_RUNNING: "OK, running",
+    server.STATUS_STOPPED: "Stopped",
+    server.STATUS_STARTING_UP: "Starting up",
+    server.STATUS_NOT_RESPONDING: "Not responding",
+    server.STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(
+        server.DAEMON_LOG
+    ),
+    server.STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
+    server.STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
+    server.STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
+    server.STATUS_PID_FILE_READ_ERROR: "Could not read PID file",
+    server.STATUS_PID_FILE_INVALID: "Invalid PID file",
+    server.STATUS_UNKNOWN: "Could not determine status",
 }
 
 
@@ -430,9 +435,10 @@ def setup_logging(debug=False):
         from kolibri.deployment.default.settings.base import LOGGING
     if debug:
         from django.conf import settings
+
         settings.DEBUG = True
-        LOGGING['handlers']['console']['level'] = 'DEBUG'
-        LOGGING['loggers']['kolibri']['level'] = 'DEBUG'
+        LOGGING["handlers"]["console"]["level"] = "DEBUG"
+        LOGGING["loggers"]["kolibri"]["level"] = "DEBUG"
         logger.debug("Debug mode is on!")
     logging.config.dictConfig(LOGGING)
 
@@ -448,7 +454,8 @@ def manage(cmd, args=[]):
     # module
     sys.argv = ["-m", "kolibri"] + sys.argv[1:]
     from django.core.management import execute_from_command_line
-    argv = ['kolibri manage', cmd] + args
+
+    argv = ["kolibri manage", cmd] + args
     execute_from_command_line(argv=argv)
 
 
@@ -456,7 +463,8 @@ def _is_plugin(obj):
     from kolibri.plugins.base import KolibriPluginBase  # NOQA
 
     return (
-        isinstance(obj, type) and obj is not KolibriPluginBase
+        isinstance(obj, type)
+        and obj is not KolibriPluginBase
         and issubclass(obj, KolibriPluginBase)
     )
 
@@ -471,15 +479,13 @@ def get_kolibri_plugin(plugin_name):
     plugin_classes = []
 
     try:
-        plugin_module = importlib.import_module(
-            plugin_name + ".kolibri_plugin"
-        )
+        plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
         for obj in plugin_module.__dict__.values():
             if _is_plugin(obj):
                 plugin_classes.append(obj)
     except ImportError as e:
         # Python 2: message, Python 3: msg
-        exc_message = getattr(e, 'message', getattr(e, 'msg', None))
+        exc_message = getattr(e, "message", getattr(e, "msg", None))
         if exc_message.startswith("No module named"):
             msg = (
                 "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
@@ -511,12 +517,12 @@ def plugin(plugin_name, **kwargs):
     """
     from kolibri.utils import conf
 
-    if kwargs.get('enable', False):
+    if kwargs.get("enable", False):
         plugin_classes = get_kolibri_plugin(plugin_name)
         for klass in plugin_classes:
             klass.enable()
 
-    if kwargs.get('disable', False):
+    if kwargs.get("disable", False):
         try:
             plugin_classes = get_kolibri_plugin(plugin_name)
             for klass in plugin_classes:
@@ -524,20 +530,17 @@ def plugin(plugin_name, **kwargs):
         except PluginDoesNotExist as e:
             logger.error(str(e))
             logger.warning(
-                "Removing '{}' from configuration in a naive way.".format(
-                    plugin_name
-                )
+                "Removing '{}' from configuration in a naive way.".format(plugin_name)
             )
-            if plugin_name in conf.config['INSTALLED_APPS']:
-                conf.config['INSTALLED_APPS'].remove(plugin_name)
-                logger.info(
-                    "Removed '{}' from INSTALLED_APPS".format(plugin_name)
-                )
+            if plugin_name in conf.config["INSTALLED_APPS"]:
+                conf.config["INSTALLED_APPS"].remove(plugin_name)
+                logger.info("Removed '{}' from INSTALLED_APPS".format(plugin_name))
             else:
                 logger.warning(
                     (
-                        "Could not find any matches for {} in INSTALLED_APPS"
-                        .format(plugin_name)
+                        "Could not find any matches for {} in INSTALLED_APPS".format(
+                            plugin_name
+                        )
                     )
                 )
 
@@ -556,7 +559,7 @@ def set_default_language(lang):
     valid_languages = [l[0] for l in settings.LANGUAGES]
 
     if lang in valid_languages:
-        conf.config['LANGUAGE_CODE'] = lang
+        conf.config["LANGUAGE_CODE"] = lang
         conf.save()
     else:
         msg = "Invalid language code {langcode}. Must be one of: {validlangs}".format(
@@ -579,33 +582,30 @@ def parse_args(args=None):
 
     # Split out the parts of the argument list that we pass on to Django
     # and don't feed to docopt.
-    if '--' in args:
+    if "--" in args:
         # At the moment, we keep this for backwards-compatibility and in case there
         # is a real case of having to force the parsing of DJANGO_OPTIONS to a
         # specific location. Example:
         # kolibri manage commandname --non-django-arg -- --django-arg
-        pivot = args.index('--')
-        args, django_args = args[:pivot], args[pivot + 1:]
-    elif 'manage' in args:
+        pivot = args.index("--")
+        args, django_args = args[:pivot], args[pivot + 1 :]
+    elif "manage" in args:
         # Include "manage COMMAND" for docopt parsing, but split out the rest
-        pivot = args.index('manage') + 2
+        pivot = args.index("manage") + 2
         args, django_args = args[:pivot], args[pivot:]
     else:
         django_args = []
 
-    docopt_kwargs = dict(
-        version=str(kolibri.__version__),
-        options_first=False,
-    )
+    docopt_kwargs = dict(version=str(kolibri.__version__), options_first=False)
 
     if args:
-        docopt_kwargs['argv'] = args
+        docopt_kwargs["argv"] = args
 
     return docopt(USAGE, **docopt_kwargs), django_args
 
 
 def _get_port(port):
-    return int(port) if port else OPTIONS["Deployment"]['HTTP_PORT']
+    return int(port) if port else OPTIONS["Deployment"]["HTTP_PORT"]
 
 
 def main(args=None):  # noqa: max-complexity=13
@@ -619,10 +619,10 @@ def main(args=None):  # noqa: max-complexity=13
 
     arguments, django_args = parse_args(args)
 
-    debug = arguments['--debug']
+    debug = arguments["--debug"]
 
-    if arguments['start']:
-        port = _get_port(arguments['--port'])
+    if arguments["start"]:
+        port = _get_port(arguments["--port"])
         if OPTIONS["Server"]["CHERRYPY_START"]:
             check_other_kolibri_running(port)
 
@@ -639,25 +639,27 @@ def main(args=None):  # noqa: max-complexity=13
         raise
 
     # Alias
-    if arguments['shell']:
-        arguments['manage'] = True
-        arguments['COMMAND'] = 'shell'
+    if arguments["shell"]:
+        arguments["manage"] = True
+        arguments["COMMAND"] = "shell"
 
-    if arguments['manage']:
-        command = arguments['COMMAND']
+    if arguments["manage"]:
+        command = arguments["COMMAND"]
         manage(command, args=django_args)
         return
 
-    if arguments['plugin']:
-        plugin_name = arguments['PLUGIN']
+    if arguments["plugin"]:
+        plugin_name = arguments["PLUGIN"]
         plugin(plugin_name, **arguments)
         return
 
-    if arguments['start']:
+    if arguments["start"]:
         try:
             server._write_pid_file(server.STARTUP_LOCK, port)
         except (IOError, OSError):
-            logger.warn('Impossible to create file lock to communicate starting process')
+            logger.warn(
+                "Impossible to create file lock to communicate starting process"
+            )
         # Check if the content directory exists when Kolibri runs after the first time.
         check_content_directory_exists_and_writable()
 
@@ -667,20 +669,22 @@ def main(args=None):  # noqa: max-complexity=13
         # Clear old sessions up
         call_command("clearsessions")
 
-        daemon = not arguments['--foreground']
-        if sys.platform == 'darwin':
+        daemon = not arguments["--foreground"]
+        # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+        # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+        if sys.platform == "darwin":
             daemon = False
         start(port, daemon=daemon)
         return
 
-    if arguments['stop']:
+    if arguments["stop"]:
         stop()
         return
 
-    if arguments['status']:
+    if arguments["status"]:
         status_code = status()
         sys.exit(status_code)
         return
 
-    if arguments['language'] and arguments['setdefault']:
-        set_default_language(arguments['<langcode>'])
+    if arguments["language"] and arguments["setdefault"]:
+        set_default_language(arguments["<langcode>"])

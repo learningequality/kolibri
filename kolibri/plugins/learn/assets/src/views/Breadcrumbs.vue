@@ -18,10 +18,6 @@
 
   export default {
     name: 'Breadcrumbs',
-    $trs: {
-      recommended: 'Recommended',
-      channels: 'Channels',
-    },
     components: { KBreadcrumbs },
     mixins: [classesBreadcrumbItems],
     computed: {
@@ -85,6 +81,8 @@
         } else if (this.pageName === PageNames.TOPICS_TOPIC) {
           return { text: this.topicTitle };
         }
+
+        return {};
       },
       topicsBreadcrumbs() {
         return [
@@ -108,6 +106,10 @@
           },
         }));
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      channels: 'Channels',
     },
   };
 

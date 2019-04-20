@@ -26,7 +26,9 @@
           </KGridItem>
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-        <p v-if="completionRequirements">{{ completionRequirements }}</p>
+        <p v-if="completionRequirements">
+          {{ completionRequirements }}
+        </p>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <p v-if="description" dir="auto" v-html="description"></p>
         <ul class="meta">
@@ -107,14 +109,6 @@
       KGridItem,
       MultiPaneLayout,
     },
-    $trs: {
-      questionLabel: 'Question { questionNumber, number }',
-      completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
-      descriptionDataHeader: 'Description',
-      authorDataHeader: 'Author',
-      licenseDataHeader: 'License',
-      copyrightHolderDataHeader: 'Copyright holder',
-    },
     props: {
       currentContentNode: {
         type: Object,
@@ -167,6 +161,8 @@
           const md = new markdownIt('zero', { breaks: true });
           return md.render(this.content.description);
         }
+
+        return undefined;
       },
       content() {
         return this.currentContentNode;
@@ -195,6 +191,14 @@
         const questionNumber = questionIndex + 1;
         return this.$tr('questionLabel', { questionNumber });
       },
+    },
+    $trs: {
+      questionLabel: 'Question { questionNumber, number }',
+      completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
+      descriptionDataHeader: 'Description',
+      authorDataHeader: 'Author',
+      licenseDataHeader: 'License',
+      copyrightHolderDataHeader: 'Copyright holder',
     },
   };
 

@@ -25,8 +25,14 @@ class TransferNotYetClosed(Exception):
 
 
 class Transfer(object):
-
-    def __init__(self, source, dest, block_size=2097152, remove_existing_temp_file=True, timeout=20):
+    def __init__(
+        self,
+        source,
+        dest,
+        block_size=2097152,
+        remove_existing_temp_file=True,
+        timeout=20,
+    ):
         self.source = source
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
@@ -44,7 +50,8 @@ class Transfer(object):
         # signal.signal(signal.SIGTERM, self._kill_gracefully)
 
         assert not os.path.isdir(
-            dest), "dest must include the target filename, not just directory path"
+            dest
+        ), "dest must include the target filename, not just directory path"
 
         # ensure the directories in the destination path exist
         try:
@@ -53,7 +60,8 @@ class Transfer(object):
         except OSError as e:
             if e.errno == 17:  # File exists (folder already created)
                 logger.debug(
-                    "Not creating directory '{}' as it already exists.".format(filedir))
+                    "Not creating directory '{}' as it already exists.".format(filedir)
+                )
             else:
                 raise
 
@@ -62,7 +70,10 @@ class Transfer(object):
                 os.remove(self.dest_tmp)
             else:
                 raise ExistingTransferInProgress(
-                    "Temporary transfer destination '{}' already exists!".format(self.dest_tmp))
+                    "Temporary transfer destination '{}' already exists!".format(
+                        self.dest_tmp
+                    )
+                )
 
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
@@ -112,10 +123,12 @@ class Transfer(object):
     def finalize(self):
         if not self.completed:
             raise TransferNotYetCompleted(
-                "Transfer must have completed before it can be finalized.")
+                "Transfer must have completed before it can be finalized."
+            )
         if not self.closed:
             raise TransferNotYetClosed(
-                "Transfer must be closed before it can be finalized.")
+                "Transfer must be closed before it can be finalized."
+            )
         if self.finalized:
             return
         self._move_tmp_to_dest()
@@ -127,7 +140,6 @@ class Transfer(object):
 
 
 class FileDownload(Transfer):
-
     def __init__(self, *args, **kwargs):
 
         # allow an existing requests.Session instance to be passed in, so it can be reused for speed
@@ -146,11 +158,10 @@ class FileDownload(Transfer):
             self.dest_file_obj = open(self.dest_tmp, "wb")
 
         # initiate the download, check for status errors, and calculate download size
-        self.response = self.session.get(
-            self.source, stream=True, timeout=self.timeout)
+        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
         try:
-            self.total_size = int(self.response.headers['content-length'])
+            self.total_size = int(self.response.headers["content-length"])
         except Exception:
             # HACK: set the total_size very large so downloads are not considered "corrupted"
             # in importcontent._start_file_transfer
@@ -176,9 +187,10 @@ class FileDownload(Transfer):
 
 
 class FileCopy(Transfer):
-
     def start(self):
-        assert not self.started, "File copy has already been started, and cannot be started again"
+        assert (
+            not self.started
+        ), "File copy has already been started, and cannot be started again"
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
         self.started = True

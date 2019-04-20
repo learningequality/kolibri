@@ -27,7 +27,7 @@
             @input="showTitleError = false"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage>
+        <KGridItem sizes="100, 100, 50" percentage class="number-input-grid-item">
           <KTextbox
             ref="numQuest"
             v-model.trim.number="numQuestions"
@@ -76,7 +76,9 @@
           @click="getNewQuestionSet"
         />
       </div>
-      <h2 class="header-margin">{{ $tr('questionOrder') }}</h2>
+      <h2 class="header-margin">
+        {{ $tr('questionOrder') }}
+      </h2>
       <div>
         <KRadioButton
           v-model="fixedOrder"
@@ -91,7 +93,9 @@
           :value="true"
         />
       </div>
-      <h2 class="header-margin">{{ $tr('questions') }}</h2>
+      <h2 class="header-margin">
+        {{ $tr('questions') }}
+      </h2>
       <KGrid v-if="!loadingNewQuestions">
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
           <KDragContainer
@@ -149,14 +153,14 @@
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
-          <h3 class="question-title">{{ currentQuestion.title }}</h3>
+          <h3 class="question-title">
+            {{ currentQuestion.title }}
+          </h3>
           <ContentRenderer
             v-if="content && questionId"
-            :id="content.id"
             ref="contentRenderer"
             :kind="content.kind"
             :files="content.files"
-            :contentId="content.content_id"
             :available="content.available"
             :extraFields="content.extra_fields"
             :itemId="questionId"
@@ -212,9 +216,9 @@
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
-  import CeateExamPage from './index';
+  import CreateExamPage from './index';
 
-  const createExamPageStrings = crossComponentTranslator(CeateExamPage);
+  const createExamPageStrings = crossComponentTranslator(CreateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
@@ -224,15 +228,6 @@
       return {
         title: this.$tr('title'),
       };
-    },
-    $trs: {
-      title: 'Select questions',
-      backLabel: 'Select topics or exercises',
-      exercise: 'Exercise { num }',
-      randomize: 'Choose a different set of questions',
-      questionOrder: 'Question order',
-      questions: 'Questions',
-      newQuestions: 'New question set created',
     },
     components: {
       UiIconButton,
@@ -263,6 +258,7 @@
         'loadingNewQuestions',
         'selectedQuestions',
         'selectedExercises',
+        'availableQuestions',
       ]),
       annotatedQuestions() {
         const counts = {};
@@ -292,13 +288,6 @@
       },
       previewQuizStrings() {
         return previewQuizStrings;
-      },
-      draggableOptions() {
-        return {
-          animation: 150,
-          touchStartThreshold: 3,
-          direction: 'vertical',
-        };
       },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
@@ -426,6 +415,15 @@
         return question.exercise_id + question.question_id;
       },
     },
+    $trs: {
+      title: 'Select questions',
+      backLabel: 'Select topics or exercises',
+      exercise: 'Exercise { num }',
+      randomize: 'Choose a different set of questions',
+      questionOrder: 'Question order',
+      questions: 'Questions',
+      newQuestions: 'New question set created',
+    },
   };
 
 </script>
@@ -437,6 +435,7 @@
 
   .number-field {
     display: inline-block;
+    max-width: 250px;
     margin-right: 8px;
   }
 

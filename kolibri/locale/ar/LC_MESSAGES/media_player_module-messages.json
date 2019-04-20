@@ -6,7 +6,7 @@
   "MediaPlayerIndex.durationTime": "المدة الزمنية",
   "MediaPlayerIndex.encryptionError": "الملف مشفر ولا نملك مفاتيح فك التشفير",
   "MediaPlayerIndex.formatError": "لا يمكن تحميل الوسيط المطلوب إما لمشكلة في الخادم أو الشبكة أو لأن الصيغة غير مدعومة",
-  "MediaPlayerIndex.forward": "الانتقال 10 ثوان إلى الأمام",
+  "MediaPlayerIndex.forward": "الانتقال 10 ثوانٍ إلى الأمام",
   "MediaPlayerIndex.fullscreen": "شاشة كاملة",
   "MediaPlayerIndex.loaded": "تم تحميله",
   "MediaPlayerIndex.mute": "كتم الصوت",
@@ -17,7 +17,7 @@
   "MediaPlayerIndex.playbackRate": "سرعة الإعادة",
   "MediaPlayerIndex.progress": "التقدّم",
   "MediaPlayerIndex.progressBar": "شريط التقدم المُحرز",
-  "MediaPlayerIndex.replay": "العودة 10 ثوان للوراء",
+  "MediaPlayerIndex.replay": "العودة 10 ثوانٍ للوراء",
   "MediaPlayerIndex.sourceError": "لم يتم العثور على مصدر متوافق لهذا الملف",
   "MediaPlayerIndex.unmute": "إلغاء كتم الصوت",
   "MediaPlayerIndex.volumeLevel": "مستوى الصوت"

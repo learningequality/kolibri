@@ -40,37 +40,27 @@ USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
 
 
 class BaseDeviceSetupMixin(object):
-
     def setUp(self):
         # create dummy channel
         channel_id = uuid.uuid4().hex
         root = ContentNode.objects.create(
             id=uuid.uuid4().hex,
-            title='root',
+            title="root",
             channel_id=channel_id,
             content_id=uuid.uuid4().hex,
         )
         min_timestamp = datetime.datetime(2018, 10, 11)
         self.channel = ChannelMetadata.objects.create(
-            id=channel_id,
-            name='channel',
-            last_updated=min_timestamp,
-            root=root
+            id=channel_id, name="channel", last_updated=min_timestamp, root=root
         )
         lf = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            available=True,
-            file_size=1048576  # 1 MB
+            id=uuid.uuid4().hex, available=True, file_size=1048576  # 1 MB
         )
-        File.objects.create(
-            id=uuid.uuid4().hex,
-            contentnode=root,
-            local_file=lf,
-        )
+        File.objects.create(id=uuid.uuid4().hex, contentnode=root, local_file=lf)
 
         # Load in the user data from the csv file to give a predictable source of user data
         data_path = os.path.join(USER_CSV_PATH)
-        with io.open(data_path, mode='r', encoding='utf-8') as f:
+        with io.open(data_path, mode="r", encoding="utf-8") as f:
             users = [data for data in csv.DictReader(f)]
 
         n_facilities = 1
@@ -91,20 +81,14 @@ class BaseDeviceSetupMixin(object):
             )
             # create lesson and exam for facility
             Lesson.objects.create(
-                created_by=superuser,
-                title='lesson',
-                collection=facility,
+                created_by=superuser, title="lesson", collection=facility
             )
             exam = Exam.objects.create(
-                creator=superuser,
-                title='exam',
-                question_count=1,
-                collection=facility,
+                creator=superuser, title="exam", question_count=1, collection=facility
             )
 
             classrooms = user_data.get_or_create_classrooms(
-                n_classes=n_classes,
-                facility=facility,
+                n_classes=n_classes, facility=facility
             )
 
             # Get all the user data at once so that it is distinct across classrooms
@@ -113,12 +97,14 @@ class BaseDeviceSetupMixin(object):
             # create random content id for the session logs
             self.content_id = uuid.uuid4().hex
             for i, classroom in enumerate(classrooms):
-                classroom_user_data = facility_user_data[i * n_users: (i + 1) * n_users]
+                classroom_user_data = facility_user_data[
+                    i * n_users : (i + 1) * n_users
+                ]
                 users = user_data.get_or_create_classroom_users(
                     n_users=n_users,
                     classroom=classroom,
                     user_data=classroom_user_data,
-                    facility=facility
+                    facility=facility,
                 )
                 # create 1 of each type of log per user
                 for user in users:
@@ -133,7 +119,7 @@ class BaseDeviceSetupMixin(object):
                             kind=content_kinds.EXERCISE,
                         )
                         AttemptLog.objects.create(
-                            item='item',
+                            item="item",
                             start_timestamp=min_timestamp,
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
@@ -167,26 +153,22 @@ class BaseDeviceSetupMixin(object):
                             channel_id=self.channel.id,
                         )
                     for _ in range(1):
-                        examlog = ExamLog.objects.create(
-                            exam=exam,
-                            user=user,
-                        )
+                        examlog = ExamLog.objects.create(exam=exam, user=user)
                         ExamAttemptLog.objects.create(
                             examlog=examlog,
                             start_timestamp=min_timestamp,
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
                             correct=1,
-                            content_id=uuid.uuid4().hex
+                            content_id=uuid.uuid4().hex,
                         )
 
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
-
     def test_extract_facility_statistics(self):
         facility = self.facilities[0]
         actual = extract_facility_statistics(facility)
-        facility_id_hash = actual.pop('fi')
+        facility_id_hash = actual.pop("fi")
         # just assert the beginning hex values of the facility id don't match
         self.assertFalse(facility_id_hash.startswith(facility.id[:3]))
         expected = {
@@ -249,7 +231,6 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
 
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
-
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
         expected = {
@@ -271,38 +252,52 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
 
 
 class CreateUpdateNotificationsTestCase(TestCase):
-
     def setUp(self):
-        self.msg = {'i18n': {}, 'msg_id': 'ping', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0'}
-        self.messages = {'messages': []}
-        self.data = {'i18n': {}, 'id': 'message', 'link_url': 'le.org', 'timestamp': datetime.date(2012, 12, 12), 'version_range': '<1.0.0', 'source': PINGBACK}
+        self.msg = {
+            "i18n": {},
+            "msg_id": "ping",
+            "link_url": "le.org",
+            "timestamp": datetime.date(2012, 12, 12),
+            "version_range": "<1.0.0",
+        }
+        self.messages = {"messages": []}
+        self.data = {
+            "i18n": {},
+            "id": "message",
+            "link_url": "le.org",
+            "timestamp": datetime.date(2012, 12, 12),
+            "version_range": "<1.0.0",
+            "source": PINGBACK,
+        }
         PingbackNotification.objects.create(**self.data)
 
     def test_no_messages_still_updates(self):
         create_and_update_notifications(self.messages, PINGBACK)
-        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+        self.assertFalse(PingbackNotification.objects.get(id="message").active)
 
     def test_create_and_update_notification(self):
-        self.messages['messages'].append(self.msg)
+        self.messages["messages"].append(self.msg)
         original_count = PingbackNotification.objects.count()
         create_and_update_notifications(self.messages, PINGBACK)
         # deactivate all other messages, for this source, not included in response
-        self.assertFalse(PingbackNotification.objects.get(id='message').active)
+        self.assertFalse(PingbackNotification.objects.get(id="message").active)
         self.assertEqual(PingbackNotification.objects.count(), original_count + 1)
 
     def test_update_same_notification(self):
-        self.data['msg_id'] = self.data['id']
-        self.data['link_url'] = ''
-        pre_notification = PingbackNotification.objects.get(id='message')
-        self.messages['messages'].append(self.data)
+        self.data["msg_id"] = self.data["id"]
+        self.data["link_url"] = ""
+        pre_notification = PingbackNotification.objects.get(id="message")
+        self.messages["messages"].append(self.data)
         create_and_update_notifications(self.messages, PINGBACK)
-        post_notification = PingbackNotification.objects.get(id='message')
+        post_notification = PingbackNotification.objects.get(id="message")
         # messages with same ID are overwritten
         self.assertTrue(post_notification.active)
         self.assertNotEqual(pre_notification.link_url, post_notification.link_url)
 
     def test_update_other_source(self):
-        self.messages['messages'].append(self.msg)
+        self.messages["messages"].append(self.msg)
         create_and_update_notifications(self.messages, STATISTICS)
         # messages from other source should not be modified
-        self.assertFalse(PingbackNotification.objects.filter(source=PINGBACK, active=False).exists())
+        self.assertFalse(
+            PingbackNotification.objects.filter(source=PINGBACK, active=False).exists()
+        )

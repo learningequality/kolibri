@@ -3,7 +3,7 @@
   <div class="mh">
     <KeenUiTextbox
       ref="textbox"
-      v-model.trim="currentText"
+      v-model="currentText"
       class="textbox"
       :label="label"
       :disabled="disabled"
@@ -149,6 +149,9 @@
          */
         this.$emit('input', this.currentText);
       },
+      /**
+       * @public
+       */
       reset() {
         this.$refs.textbox.reset();
       },

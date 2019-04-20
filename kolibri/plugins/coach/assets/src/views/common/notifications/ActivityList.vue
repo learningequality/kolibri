@@ -104,7 +104,6 @@
     data() {
       return {
         loading: true,
-        error: false,
         moreResults: true,
         nextPage: 1,
         progressFilter: 'all',
@@ -373,12 +372,6 @@
           targetPage: notification.targetPage,
         };
       },
-    },
-    $trs: {
-      back: 'Class home',
-      classActivity: 'Class activity',
-      noActivity: 'No activity in your class',
-      viewMore: 'View more',
     },
   };
 

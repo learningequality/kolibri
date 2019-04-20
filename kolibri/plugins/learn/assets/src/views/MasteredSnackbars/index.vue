@@ -22,7 +22,9 @@
           <div
             class="points-amount"
             :style="{ color: $coreStatusCorrect }"
-          >{{ $tr('plusPoints', { maxPoints }) }}</div>
+          >
+            {{ $tr('plusPoints', { maxPoints }) }}
+          </div>
         </template>
 
         <UiAlert
@@ -60,7 +62,9 @@
             <h2
               class="next-content-heading"
               :style="{ color: $coreTextAnnotation }"
-            >{{ $tr('next') }}</h2>
+            >
+              {{ $tr('next') }}
+            </h2>
             <KRouterLink
               :text="nextContent.title"
               :to="nextContentLink"

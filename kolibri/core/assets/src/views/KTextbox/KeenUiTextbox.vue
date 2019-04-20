@@ -87,11 +87,15 @@
 
       <div v-if="hasFeedback || maxlength" class="ui-textbox-feedback">
         <div v-if="showError" class="ui-textbox-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-textbox-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
 
         <div v-if="maxlength" class="ui-textbox-counter">
@@ -199,10 +203,6 @@
         initialValue: this.value,
         autosizeInitialized: false,
       };
-    },
-
-    $trs: {
-      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
     },
 
     computed: {
@@ -329,6 +329,9 @@
         this.$emit('keydown-enter', e);
       },
 
+      /**
+       * @public
+       */
       reset() {
         // Blur the input if it's focused to prevent required errors
         // when it's value is reset
@@ -347,11 +350,18 @@
         this.isTouched = options.touched;
       },
 
+      /**
+       * @public
+       */
       refreshSize() {
         if (this.autosizeInitialized) {
           autosize.update(this.$refs.textarea);
         }
       },
+    },
+
+    $trs: {
+      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
     },
   };
 

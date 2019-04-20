@@ -2,6 +2,7 @@ import csv
 import os.path
 import sys
 import time
+from datetime import datetime
 from os import getpid
 
 from django.core.management.base import BaseCommand
@@ -38,12 +39,17 @@ class Command(BaseCommand):
     - Percentage of use of cpu by the Kolibri process
     - Memory (In Mbytes) used by the kolibri process (just RAM, not swap memory included)
     """
+
     help = "Logs performance/profiling info in the server running Kolibri"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--num-samples', action='store', dest='num_samples', default=60, type=int,
-            help='Specifies the number of times the profile will take measures before ending'
+            "--num-samples",
+            action="store",
+            dest="num_samples",
+            default=60,
+            type=int,
+            help="Specifies the number of times the profile will take measures before ending",
         )
 
     def check_start_conditions(self):
@@ -52,14 +58,16 @@ class Command(BaseCommand):
             sys.exit(1)
 
         if not conf.OPTIONS["Server"]["PROFILE"]:
-            print("Kolibri has not enabled profiling of its requests."
-                  "To enable it, edit the Kolibri options.ini file and "
-                  "add `PROFILE = true` in the [Server] section")
+            print(
+                "Kolibri has not enabled profiling of its requests."
+                "To enable it, edit the Kolibri options.ini file and "
+                "add `PROFILE = true` in the [Server] section"
+            )
 
         if os.path.exists(PROFILE_LOCK):
             command_pid = None
             try:
-                with open(PROFILE_LOCK, 'r') as f:
+                with open(PROFILE_LOCK, "r") as f:
                     command_pid = int(f.readline())
             except (IOError, TypeError, ValueError):
                 remove_lock()
@@ -75,34 +83,55 @@ class Command(BaseCommand):
         interval = 10  # the measures are taken every 10 seconds
 
         this_pid = getpid()
-        file_timestamp = time.strftime('%Y%m%d_%H%M%S')
+        file_timestamp = time.strftime("%Y%m%d_%H%M%S")
         try:
-            with open(PROFILE_LOCK, 'w') as f:
+            with open(PROFILE_LOCK, "w") as f:
                 f.write("%d" % this_pid)
                 f.write("\n{}".format(file_timestamp))
         except (IOError, OSError):
-            print("Impossible to create profile lock file. Kolibri won't profile its requests")
+            print(
+                "Impossible to create profile lock file. Kolibri won't profile its requests"
+            )
         samples = 1
-        num_samples = options['num_samples']
-        performance_dir = os.path.join(conf.KOLIBRI_HOME, 'performance')
-        self.performance_file = os.path.join(performance_dir,
-                                             '{}_performance.csv'.format(file_timestamp))
+        num_samples = options["num_samples"]
+        performance_dir = os.path.join(conf.KOLIBRI_HOME, "performance")
+        self.performance_file = os.path.join(
+            performance_dir, "{}_performance.csv".format(file_timestamp)
+        )
         if not os.path.exists(performance_dir):
             try:
                 os.mkdir(performance_dir)
             except OSError:
                 print("Not enough permissions to write performance logs")
                 sys.exit(1)
-        with open(self.performance_file, mode='w') as profile_file:
-            profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            profile_writer.writerow(('Date', 'Active sessions', 'Active users', 'Users last minute',
-                                     'Server CPU %', 'Server used memory (Mb)', 'Server memory (Mb)', 'Processes',
-                                     'Kolibri CPU % use ', 'Kolibri Memory (Mb)'))
+        with open(self.performance_file, mode="w") as profile_file:
+            profile_writer = csv.writer(
+                profile_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
+            profile_writer.writerow(
+                (
+                    "Date",
+                    "Active sessions",
+                    "Active users",
+                    "Users last minute",
+                    "Server CPU %",
+                    "Server used memory (Mb)",
+                    "Server memory (Mb)",
+                    "Processes",
+                    "Kolibri CPU % use ",
+                    "Kolibri Memory (Mb)",
+                )
+            )
 
         while samples <= num_samples:
             message = self.get_logs()
-            with open(self.performance_file, mode='a') as profile_file:
-                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            with open(self.performance_file, mode="a") as profile_file:
+                profile_writer = csv.writer(
+                    profile_file,
+                    delimiter=",",
+                    quotechar='"',
+                    quoting=csv.QUOTE_MINIMAL,
+                )
                 profile_writer.writerow(message)
             samples += 1
             time.sleep(interval)
@@ -118,8 +147,18 @@ class Command(BaseCommand):
 
         active_sessions, active_users, active_users_minute = get_db_info()
         used_cpu, used_memory, total_memory, total_processes = get_machine_info()
-        timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
-        collected_information = (timestamp, active_sessions, active_users, active_users_minute, used_cpu,
-                                 used_memory, total_memory, total_processes, kolibri_cpu, kolibri_mem)
+        timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+        collected_information = (
+            timestamp,
+            active_sessions,
+            active_users,
+            active_users_minute,
+            used_cpu,
+            used_memory,
+            total_memory,
+            total_processes,
+            kolibri_cpu,
+            kolibri_mem,
+        )
 
         return collected_information

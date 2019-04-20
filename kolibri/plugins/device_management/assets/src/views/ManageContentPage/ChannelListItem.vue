@@ -16,7 +16,9 @@
 
     <template slot="header">
       <div>
-        <h2 class="title" dir="auto">{{ channel.name }}</h2>
+        <h2 class="title" dir="auto">
+          {{ channel.name }}
+        </h2>
         <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
@@ -82,7 +84,7 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from './bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';

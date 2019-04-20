@@ -33,14 +33,6 @@
 
   export default {
     name: 'ClassCreateModal',
-    $trs: {
-      createNewClassHeader: 'Create new class',
-      classname: 'Class name',
-      cancel: 'Cancel',
-      saveClassButtonLabel: 'Save',
-      duplicateName: 'A class with that name already exists',
-      required: 'This field is required',
-    },
     components: {
       KModal,
       KTextbox,
@@ -101,6 +93,14 @@
       close() {
         this.displayModal(false);
       },
+    },
+    $trs: {
+      createNewClassHeader: 'Create new class',
+      classname: 'Class name',
+      cancel: 'Cancel',
+      saveClassButtonLabel: 'Save',
+      duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
   };
 

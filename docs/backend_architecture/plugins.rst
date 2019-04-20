@@ -35,5 +35,4 @@ Core plugin example
 View the source to learn more!
 
 .. automodule:: kolibri.core.kolibri_plugin
-    :members: KolibriCore
     :noindex:

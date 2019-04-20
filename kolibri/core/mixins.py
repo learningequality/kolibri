@@ -6,11 +6,10 @@ from rest_framework.response import Response
 
 
 class BulkCreateMixin(object):
-
     def get_serializer(self, *args, **kwargs):
         """ if an array is passed, set serializer to many """
-        if isinstance(kwargs.get('data', {}), list):
-            kwargs['many'] = True
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
         return super(BulkCreateMixin, self).get_serializer(*args, **kwargs)
 
 
@@ -25,7 +24,9 @@ class BulkDeleteMixin(object):
         filtered querysets.
         """
         # Only let a bulk destroy if the queryset is being filtered by a valid filter_field parameter
-        return any(key in self.filter_fields for key in self.request.query_params.keys())
+        return any(
+            key in self.filter_fields for key in self.request.query_params.keys()
+        )
 
     def bulk_destroy(self, request, *args, **kwargs):
         qs = self.get_queryset()

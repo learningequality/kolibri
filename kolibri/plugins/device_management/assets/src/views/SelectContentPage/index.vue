@@ -9,7 +9,6 @@
     <template v-else>
       <TaskProgress
         v-if="showUpdateProgressBar"
-        id="updatingchannel"
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
@@ -185,6 +184,8 @@
         if (Object.values(ContentWizardErrors).includes(this.status)) {
           return this.status;
         }
+
+        return undefined;
       },
       channelOnDevice() {
         return this.channelIsInstalled(this.transferredChannel.id) || {};

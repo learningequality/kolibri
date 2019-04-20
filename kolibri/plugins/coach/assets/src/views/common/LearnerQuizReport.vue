@@ -38,9 +38,7 @@
       ExamReport,
     },
     mixins: [commonCoach],
-    $trs: {},
     computed: {
-      ...mapState(['classId']),
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('examReportDetail', [
         'currentAttempt',
@@ -54,7 +52,6 @@
         'questionNumber',
         'questions',
         'learnerId',
-        'pageTitle',
       ]),
       ...mapState('examReportDetail', {
         closed: state => state.examLog.closed,
@@ -83,6 +80,7 @@
         });
       },
     },
+    $trs: {},
   };
 
 </script>

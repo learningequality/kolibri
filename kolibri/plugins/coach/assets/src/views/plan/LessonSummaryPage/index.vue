@@ -39,7 +39,9 @@
           <div class="resource-list">
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
-                <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
+                <h2 class="resource-list-header-title">
+                  {{ $tr('resources') }}
+                </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
@@ -117,7 +119,6 @@
         lessonActive: state => state.currentLesson.is_active,
         lessonDescription: state => state.currentLesson.description,
         lessonAssignments: state => state.currentLesson.lesson_assignments,
-        lessonResources: state => state.currentLesson.resources,
         learnerGroups: state => state.learnerGroups,
         workingResources: state => state.workingResources,
       }),

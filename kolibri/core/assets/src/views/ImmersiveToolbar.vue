@@ -71,7 +71,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import UiToolbar from 'keen-ui/src/UiToolbar';
+  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { darken } from 'kolibri.utils.colour';
   import { validateLinkObject } from 'kolibri.utils.validators';

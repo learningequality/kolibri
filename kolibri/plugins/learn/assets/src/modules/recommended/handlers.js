@@ -56,19 +56,8 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   ]).then(([content, channels]) => [_mapContentSet(content), channels]);
 
   pagePrep.then(
-    ([recommendations, channels]) => {
-      if (!channels.length) {
-        return;
-      }
-      const recommendedState = {
-        recommendations,
-      };
-      if (channelId) {
-        const currentChannel = store.getters.getChannelObject(channelId);
-        const channelTitle = currentChannel.title;
-        recommendedState.channelTitle = channelTitle;
-      }
-      store.commit('recommended/subpage/SET_STATE', recommendedState);
+    ([recommendations]) => {
+      store.commit('recommended/subpage/SET_STATE', { recommendations });
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);

@@ -6,9 +6,7 @@ from .api import ExamAssignmentViewset
 from .api import ExamViewset
 
 router = routers.SimpleRouter()
-router.register(r'exam', ExamViewset, base_name='exam')
-router.register(r'examassignment', ExamAssignmentViewset, base_name='examassignment')
+router.register(r"exam", ExamViewset, base_name="exam")
+router.register(r"examassignment", ExamAssignmentViewset, base_name="examassignment")
 
-urlpatterns = [
-    url(r'^', include(router.urls)),
-]
+urlpatterns = [url(r"^", include(router.urls))]

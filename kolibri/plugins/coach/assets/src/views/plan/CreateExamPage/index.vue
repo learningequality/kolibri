@@ -43,8 +43,8 @@
             type="number"
             :min="1"
             :max="maxQs"
-            :invalidText="$tr('numQuestionsBetween')"
-            :invalid="numQuestionsInvalid"
+            :invalid="Boolean(showError && numQuestIsInvalidText)"
+            :invalidText="numQuestIsInvalidText"
             :label="$tr('numQuestions')"
             class="number-field"
             @blur="numQuestionsBlurred = true"
@@ -182,31 +182,6 @@
       Bottom,
     },
     mixins: [responsiveWindow, commonCoach],
-    $trs: {
-      createNewExam: 'Create new quiz',
-      chooseExercises: 'Select topics or exercises',
-      title: 'Title',
-      duplicateTitle: 'A quiz with that name already exists',
-      numQuestions: 'Number of questions',
-      examRequiresTitle: 'This field is required',
-      numQuestionsBetween: 'Enter a number between 1 and 50',
-      numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
-      noneSelected: 'No exercises are selected',
-      preview: 'Preview',
-      continueButtonlabel: 'Continue',
-      // TODO: Interpolate strings correctly
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
-      exitSearchButtonLabel: 'Exit search',
-      // TODO: Handle singular/plural
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
-    },
     data() {
       return {
         showError: false,
@@ -222,19 +197,14 @@
     },
     computed: {
       ...mapState(['pageName', 'toolbarRoute']),
-      ...mapGetters({
-        channels: 'getChannels',
-      }),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
-        'title',
         'numberOfQuestions',
         'contentList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
         'ancestors',
-        'examsModalSet',
       ]),
       maxQs() {
         return MAX_QUESTIONS;
@@ -252,7 +222,7 @@
       },
       numQuestions: {
         get() {
-          return this.$store.state.examCreation.numberOfQuestions;
+          return this.numberOfQuestions;
         },
         set(value) {
           // If it is cleared out, then set vuex state to null so it can be caught during
@@ -347,11 +317,23 @@
         }
         return this.ancestors[this.ancestors.length - 1].description;
       },
-      numQuestionsInvalid() {
-        return (
-          this.numQuestionsBlurred &&
-          (this.numQuestions === null || this.numQuestions < 0 || this.numQuestions > this.maxQs)
-        );
+      numQuestIsInvalidText() {
+        if (this.numQuestions === '') {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions < 1 || this.numQuestions > 50) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (!Number.isInteger(this.numQuestions)) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions > this.availableQuestions) {
+          return this.$tr('numQuestionsExceed', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: this.availableQuestions,
+          });
+        }
+        return null;
       },
     },
     watch: {
@@ -430,55 +412,44 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
+        let snackbarString;
         if (isChecked) {
           this.showError = false;
           this.addToSelectedExercises(this.addableExercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: this.topicTitle }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else {
           this.removeFromSelectedExercises(this.allExercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: this.topicTitle }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
         }
+        this.createSnackbar(this.$tr(snackbarString, { item: this.topicTitle }));
       },
       toggleSelected({ checked, contentId }) {
         let exercises;
+        let snackbarString;
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else if (checked && !isTopic) {
           this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('added', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'added';
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
-          this.createSnackbar({
-            text: this.$tr('removed', { item: contentNode.title }),
-            autoDismiss: true,
-          });
+          snackbarString = 'removed';
+        }
+
+        if (snackbarString) {
+          this.createSnackbar(this.$tr(snackbarString, { item: contentNode.title }));
         }
       },
       handleMoreResults() {
@@ -528,6 +499,31 @@
         };
       },
     },
+    $trs: {
+      createNewExam: 'Create new quiz',
+      chooseExercises: 'Select topics or exercises',
+      title: 'Title',
+      duplicateTitle: 'A quiz with that name already exists',
+      numQuestions: 'Number of questions',
+      examRequiresTitle: 'This field is required',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsNotMet:
+        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
+      noneSelected: 'No exercises are selected',
+      preview: 'Preview',
+      continueButtonlabel: 'Continue',
+      // TODO: Interpolate strings correctly
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      selected: '{count, number, integer} total selected',
+      documentTitle: 'Create new quiz',
+      exitSearchButtonLabel: 'Exit search',
+      // TODO: Handle singular/plural
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
+    },
   };
 
 </script>
@@ -559,6 +555,7 @@
 
   .number-field {
     display: inline-block;
+    max-width: 250px;
     margin-right: 8px;
   }
 

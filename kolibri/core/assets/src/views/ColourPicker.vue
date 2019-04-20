@@ -2,7 +2,9 @@
 
   <div class="wrapper">
     <div class="handle" :style="{ right: hidden ? '-75px' : '179px' }">
-      <button @click="toggleHidden">Kolibri Colour Picker</button>
+      <button @click="toggleHidden">
+        Kolibri Colour Picker
+      </button>
     </div>
     <div v-if="!hidden" class="popout">
       <div v-if="!currentValue">
@@ -23,8 +25,12 @@
       <div v-else class="selector">
         <h1>{{ themeColours[currentValue] }}</h1>
         <Picker :value="theme[currentValue]" @input="setColourValue" />
-        <KButton @click="resetState">Reset</KButton>
-        <KButton :primary="true" @click="setCurrentValue(null)">Done</KButton>
+        <KButton @click="resetState">
+          Reset
+        </KButton>
+        <KButton :primary="true" @click="setCurrentValue(null)">
+          Done
+        </KButton>
       </div>
     </div>
   </div>
@@ -35,8 +41,8 @@
 <script>
 
   import { Chrome } from 'vue-color';
-  import store from 'kolibri.coreVue.vuex.store';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import { dynamicState, resetThemeValue } from '../styles/theme';
 
   const themeColours = {
     '$core-action-light': 'Core Action Light',
@@ -70,7 +76,7 @@
     },
     computed: {
       theme() {
-        return store.state.core.theme;
+        return dynamicState;
       },
     },
     methods: {
@@ -79,12 +85,12 @@
       },
       setColourValue(value) {
         if (this.currentValue && value) {
-          store.commit('SET_CORE_THEME', { [this.currentValue]: value.hex8 });
+          dynamicState[this.currentValue] = value.hex8;
         }
       },
       resetState() {
         if (this.currentValue) {
-          store.commit('RESET_THEME_VALUE', this.currentValue);
+          resetThemeValue(this.currentValue);
         }
       },
       getValue(key) {

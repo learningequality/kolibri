@@ -52,11 +52,9 @@
           >
             <ContentRenderer
               v-if="content && itemId"
-              :id="content.id"
               ref="contentRenderer"
               :kind="content.kind"
               :files="content.files"
-              :contentId="content.content_id"
               :available="content.available"
               :extraFields="content.extra_fields"
               :itemId="itemId"
@@ -87,14 +85,6 @@
 
   export default {
     name: 'ExamPreview',
-    $trs: {
-      preview: 'Preview quiz',
-      close: 'Close',
-      question: 'Question { num }',
-      numQuestions: '{num} {num, plural, one {question} other {questions}}',
-      exercise: 'Exercise { num }',
-      missingContent: 'This quiz cannot be displayed because some content was deleted',
-    },
     components: {
       CoachContentLabel,
       KModal,
@@ -169,6 +159,14 @@
       close() {
         this.$emit('close');
       },
+    },
+    $trs: {
+      preview: 'Preview quiz',
+      close: 'Close',
+      question: 'Question { num }',
+      numQuestions: '{num} {num, plural, one {question} other {questions}}',
+      exercise: 'Exercise { num }',
+      missingContent: 'This quiz cannot be displayed because some content was deleted',
     },
   };
 

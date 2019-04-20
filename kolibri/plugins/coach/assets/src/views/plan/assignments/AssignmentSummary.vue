@@ -128,18 +128,6 @@
         required: true,
       },
     },
-    $trs: {
-      status: 'Status',
-      statusDescription: 'Status description',
-      statusTooltipTextExams: 'Learners can only see active quizzes',
-      statusTooltipTextLessons: 'Learners can only see active lessons',
-      changeStatus: 'Change',
-      description: 'Description',
-      noDescription: 'No description',
-      assignedGroupsListLabel: 'Visible to',
-      noOne: 'No one',
-      entireClass: 'Entire class',
-    },
     computed: {
       showDescription() {
         return this.description !== null;
@@ -176,7 +164,21 @@
         if (this.kind === ContentNodeKinds.LESSON) {
           return this.$tr('statusTooltipTextLessons');
         }
+
+        return '';
       },
+    },
+    $trs: {
+      status: 'Status',
+      statusDescription: 'Status description',
+      statusTooltipTextExams: 'Learners can only see active quizzes',
+      statusTooltipTextLessons: 'Learners can only see active lessons',
+      changeStatus: 'Change',
+      description: 'Description',
+      noDescription: 'No description',
+      assignedGroupsListLabel: 'Visible to',
+      noOne: 'No one',
+      entireClass: 'Entire class',
     },
   };
 

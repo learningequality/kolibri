@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import csv
 import os
 import time
+from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import caches
@@ -14,13 +15,16 @@ from kolibri.utils import conf
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
 
-requests_profiling_file = os.path.join(conf.KOLIBRI_HOME,
-                                       'performance',
-                                       '{}_requests_performance.csv'.format(time.strftime('%Y%m%d_%H%M%S')))
+requests_profiling_file = os.path.join(
+    conf.KOLIBRI_HOME,
+    "performance",
+    "{}_requests_performance.csv".format(time.strftime("%Y%m%d_%H%M%S")),
+)
 
 cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
 try:
-    import kolibri.core.analytics.pskolibri as psutil
+    import kolibri.utils.pskolibri as psutil
+
     kolibri_process = psutil.Process()
 except NotImplementedError:
     # This middleware can't work on this OS
@@ -71,6 +75,7 @@ class MetricsMiddleware(MiddlewareMixin):
     - Percentage of use of cpu by the Kolibri process when the response was sent
     - One flag indicating if this request is the slowest since the analysis was started
     """
+
     slowest_request_time = 0
     disabled = True
     command_pid = 0
@@ -78,7 +83,7 @@ class MetricsMiddleware(MiddlewareMixin):
     def __init__(self, get_response=None):
         super(MetricsMiddleware, self).__init__(get_response=get_response)
         if not conf.OPTIONS["Server"]["PROFILE"]:
-            raise MiddlewareNotUsed('Request profiling is not enabled')
+            raise MiddlewareNotUsed("Request profiling is not enabled")
 
     def process_request(self, request):
         """
@@ -93,7 +98,7 @@ class MetricsMiddleware(MiddlewareMixin):
         """
         MetricsMiddleware.disabled = True
         MetricsMiddleware.command_pid = 0
-        delattr(self, 'metrics')
+        delattr(self, "metrics")
         if os.path.exists(PROFILE_LOCK):
             try:
                 os.remove(PROFILE_LOCK)
@@ -107,19 +112,37 @@ class MetricsMiddleware(MiddlewareMixin):
         if MetricsMiddleware.disabled and conf.OPTIONS["Server"]["PROFILE"]:
             if os.path.exists(PROFILE_LOCK):
                 try:
-                    with open(PROFILE_LOCK, 'r') as f:
+                    with open(PROFILE_LOCK, "r") as f:
                         MetricsMiddleware.command_pid = int(f.readline())
                         file_timestamp = f.readline()
                         if SUPPORTED_OS:
                             MetricsMiddleware.disabled = False
-                            self.requests_profiling_file = os.path.join(conf.KOLIBRI_HOME,
-                                                                        'performance',
-                                                                        '{}_requests_performance.csv'.format(file_timestamp))
-                            with open(self.requests_profiling_file, mode='a') as profile_file:
-                                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                                profile_writer.writerow(('Date', 'Path', 'Duration', 'Memory before (Kb)',
-                                                         'Memory after (Kb)', 'Load before (%)', 'Load after(%)',
-                                                         'Longest time up to now'))
+                            self.requests_profiling_file = os.path.join(
+                                conf.KOLIBRI_HOME,
+                                "performance",
+                                "{}_requests_performance.csv".format(file_timestamp),
+                            )
+                            with open(
+                                self.requests_profiling_file, mode="a"
+                            ) as profile_file:
+                                profile_writer = csv.writer(
+                                    profile_file,
+                                    delimiter=",",
+                                    quotechar='"',
+                                    quoting=csv.QUOTE_MINIMAL,
+                                )
+                                profile_writer.writerow(
+                                    (
+                                        "Date",
+                                        "Path",
+                                        "Duration",
+                                        "Memory before (Kb)",
+                                        "Memory after (Kb)",
+                                        "Load before (%)",
+                                        "Load after(%)",
+                                        "Longest time up to now",
+                                    )
+                                )
                 except (IOError, TypeError, ValueError):
                     # Kolibri command PID file has been deleted or it's corrupted
                     try:
@@ -137,18 +160,36 @@ class MetricsMiddleware(MiddlewareMixin):
         """
         self.check_start_conditions()
 
-        if not MetricsMiddleware.disabled and hasattr(self, 'metrics'):
+        if not MetricsMiddleware.disabled and hasattr(self, "metrics"):
             path = request.get_full_path()
-            duration, memory_before, memory, load_before, load = self.metrics.get_stats()
+            duration, memory_before, memory, load_before, load = (
+                self.metrics.get_stats()
+            )
             max_time = False
             if float(duration) > MetricsMiddleware.slowest_request_time:
                 MetricsMiddleware.slowest_request_time = float(duration)
                 max_time = True
-            timestamp = time.strftime('%Y/%m/%d %H:%M:%S.%f')
-            collected_information = (timestamp, path, duration, memory_before, memory, load_before, load, str(max_time))
-            with open(self.requests_profiling_file, mode='a') as profile_file:
-                profile_writer = csv.writer(profile_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+            collected_information = (
+                timestamp,
+                path,
+                duration,
+                memory_before,
+                memory,
+                load_before,
+                load,
+                str(max_time),
+            )
+            with open(self.requests_profiling_file, mode="a") as profile_file:
+                profile_writer = csv.writer(
+                    profile_file,
+                    delimiter=",",
+                    quotechar='"',
+                    quoting=csv.QUOTE_MINIMAL,
+                )
                 profile_writer.writerow(collected_information)
-            if not pid_exists(MetricsMiddleware.command_pid) or not os.path.exists(PROFILE_LOCK):
+            if not pid_exists(MetricsMiddleware.command_pid) or not os.path.exists(
+                PROFILE_LOCK
+            ):
                 self.shutdown()
         return response

@@ -20,13 +20,10 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
-        :id="id"
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
         :files="files"
-        :contentId="contentId"
-        :channelId="channelId"
         :available="available"
         :extraFields="extraFields"
         :assessment="true"
@@ -98,7 +95,9 @@ oriented data synchronization.
                 :numSpaces="attemptsWindowN"
                 :log="recentAttempts"
               />
-              <p class="current-status">{{ currentStatus }}</p>
+              <p class="current-status">
+                {{ currentStatus }}
+              </p>
             </div>
           </div>
         </div>
@@ -132,20 +131,6 @@ oriented data synchronization.
       UiAlert,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
-      tryAgain: 'Try again',
-      correct: 'Correct!',
-      check: 'Check',
-      next: 'Next',
-      itemError: 'There was an error showing this item',
-      completed: 'Completed',
-      inputAnswer: 'Please enter an answer above',
-      hintUsed: 'Hint used',
-      greatKeepGoing: 'Great! Keep going',
-      tryDifferentQuestion: 'Try a different question',
-      tryNextQuestion: 'Try next question',
-    },
     props: {
       id: {
         type: String,
@@ -161,10 +146,6 @@ oriented data synchronization.
       files: {
         type: Array,
         default: () => [],
-      },
-      contentId: {
-        type: String,
-        default: '',
       },
       channelId: {
         type: String,
@@ -212,11 +193,7 @@ oriented data synchronization.
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-      }),
       ...mapState({
-        pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
         currentInteractions: state => state.core.logging.attempt.interaction_history.length,
         totalattempts: state => state.core.logging.mastery.totalattempts,
@@ -311,7 +288,11 @@ oriented data synchronization.
         return null;
       },
     },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    watch: {
+      exerciseProgress() {
+        this.updateExerciseProgressMethod();
+      },
+    },
     beforeDestroy() {
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
@@ -518,6 +499,20 @@ oriented data synchronization.
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
+    },
+    $trs: {
+      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
+      tryAgain: 'Try again',
+      correct: 'Correct!',
+      check: 'Check',
+      next: 'Next',
+      itemError: 'There was an error showing this item',
+      completed: 'Completed',
+      inputAnswer: 'Please enter an answer above',
+      hintUsed: 'Hint used',
+      greatKeepGoing: 'Great! Keep going',
+      tryDifferentQuestion: 'Try a different question',
+      tryNextQuestion: 'Try next question',
     },
   };
 

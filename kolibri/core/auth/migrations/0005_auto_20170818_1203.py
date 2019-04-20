@@ -9,14 +9,20 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0004_auto_20170816_1607'),
-    ]
+    dependencies = [("kolibriauth", "0004_auto_20170816_1607")]
 
     operations = [
         migrations.AddField(
-            model_name='facilitydataset',
-            name='preset',
-            field=models.CharField(choices=[('formal', 'Admin-managed'), ('informal', 'Informal and personal use'), ('nonformal', 'Self-managed')], default='formal', max_length=50),
-        ),
+            model_name="facilitydataset",
+            name="preset",
+            field=models.CharField(
+                choices=[
+                    ("formal", "Admin-managed"),
+                    ("informal", "Informal and personal use"),
+                    ("nonformal", "Self-managed"),
+                ],
+                default="formal",
+                max_length=50,
+            ),
+        )
     ]

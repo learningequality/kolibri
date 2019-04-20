@@ -8,24 +8,27 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0010_merge_20180504_1540'),
-    ]
+    dependencies = [("content", "0010_merge_20180504_1540")]
 
     operations = [
         migrations.AddField(
-            model_name='channelmetadata',
-            name='included_languages',
-            field=models.ManyToManyField(blank=True, related_name='channels', to='content.Language', verbose_name='languages'),
+            model_name="channelmetadata",
+            name="included_languages",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="channels",
+                to="content.Language",
+                verbose_name="languages",
+            ),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='published_size',
+            model_name="channelmetadata",
+            name="published_size",
             field=models.IntegerField(default=0, blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='total_resource_count',
+            model_name="channelmetadata",
+            name="total_resource_count",
             field=models.IntegerField(default=0, blank=True, null=True),
         ),
     ]

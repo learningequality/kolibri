@@ -44,6 +44,16 @@ def db_matches_schema(Base, session):
                     for column in column_prop.columns:
                         # Assume normal flat column
                         if column.key not in columns:
-                            raise DBSchemaError("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
+                            raise DBSchemaError(
+                                "Model %s declares column %s which does not exist in database %s",
+                                klass,
+                                column.key,
+                                engine,
+                            )
         else:
-            raise DBSchemaError("Model %s declares table %s which does not exist in database %s", klass, table, engine)
+            raise DBSchemaError(
+                "Model %s declares table %s which does not exist in database %s",
+                klass,
+                table,
+                engine,
+            )

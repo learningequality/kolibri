@@ -15,4 +15,5 @@ class KolibriUpgradeError(KolibriError):
     for example: change in content database schemas, change in content that is not supported by old versions
     of Kolibri.
     """
+
     pass

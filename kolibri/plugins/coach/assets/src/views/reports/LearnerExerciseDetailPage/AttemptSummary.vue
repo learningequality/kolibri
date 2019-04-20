@@ -77,13 +77,6 @@
 
   export default {
     name: 'AttemptSummary',
-    $trs: {
-      statusMastered: 'Completed',
-      statusInProgress: 'In progress',
-      requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
-      attemptDateIndicator: 'on { date }',
-      notStarted: 'Not started',
-    },
     components: {
       ContentIcon,
       ProgressIcon,
@@ -174,6 +167,13 @@
           throw e;
         }
       },
+    },
+    $trs: {
+      statusMastered: 'Completed',
+      statusInProgress: 'In progress',
+      requirementsMOfN: 'Completion: {m ,number} out of {n, number} correct',
+      attemptDateIndicator: 'on { date }',
+      notStarted: 'Not started',
     },
   };
 

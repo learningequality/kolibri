@@ -12,9 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
-
     def add_arguments(self, parser):
-        parser.add_argument('channel_id', type=str)
+        parser.add_argument("channel_id", type=str)
 
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
@@ -22,22 +21,25 @@ class Command(AsyncCommand):
         try:
             channel = ChannelMetadata.objects.get(pk=channel_id)
         except ChannelMetadata.DoesNotExist:
-            raise CommandError("Channel matching id {id} does not exist".format(id=channel_id))
+            raise CommandError(
+                "Channel matching id {id} does not exist".format(id=channel_id)
+            )
 
         logger.info("Deleting all channel metadata")
         channel.delete_content_tree_and_files()
 
         # Get orphan files that are being deleted
-        total_file_deletion_operations = LocalFile.objects.get_orphan_files().filter(
-            available=True).count()
+        total_file_deletion_operations = (
+            LocalFile.objects.get_orphan_files().filter(available=True).count()
+        )
 
         total_local_files_to_delete = LocalFile.objects.get_orphan_files().count()
 
-        progress_extra_data = {
-            "channel_id": channel_id,
-        }
+        progress_extra_data = {"channel_id": channel_id}
 
-        with self.start_progress(total=total_file_deletion_operations + total_local_files_to_delete + 1) as progress_update:
+        with self.start_progress(
+            total=total_file_deletion_operations + total_local_files_to_delete + 1
+        ) as progress_update:
             logger.info("Deleting all channel metadata")
 
             for file in LocalFile.objects.delete_orphan_files():

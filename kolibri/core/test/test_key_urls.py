@@ -17,18 +17,20 @@ from kolibri.deployment.default.urls import urlpatterns
 
 
 class KolibriTagNavigationTestCase(APITestCase):
-
     def test_redirect_to_setup_wizard(self):
-        with patch('kolibri.core.views.is_provisioned', return_value=False):
+        with patch("kolibri.core.views.is_provisioned", return_value=False):
             response = self.client.get("/")
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.get("location"), reverse('kolibri:setupwizardplugin:setupwizard'))
+            self.assertEqual(
+                response.get("location"),
+                reverse("kolibri:setupwizardplugin:setupwizard"),
+            )
 
     def test_redirect_root_to_user_if_not_logged_in(self):
         provision_device()
         response = self.client.get("/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse('kolibri:user:user'))
+        self.assertEqual(response.get("location"), reverse("kolibri:user:user"))
 
     def test_redirect_root_to_learn_if_logged_in(self):
         facility = FacilityFactory.create()
@@ -37,7 +39,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get("/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.get("location"), reverse('kolibri:learnplugin:learn'))
+        self.assertEqual(response.get("location"), reverse("kolibri:learn:learn"))
 
 
 class AllUrlsTest(APITestCase):
@@ -49,8 +51,8 @@ class AllUrlsTest(APITestCase):
     def setUp(self):
         provision_device()
 
-    def check_responses(self, credentials=None): # noqa max-complexity=12
-        """
+    def check_responses(self, credentials=None):  # noqa max-complexity=12
+        r"""
         This is a very liberal test, we are mostly just concerned with making sure
         that no pages throw errors (500).
         Adapted from:
@@ -76,16 +78,18 @@ class AllUrlsTest(APITestCase):
         if not credentials:
             credentials = {}
 
-        def check_urls(urlpatterns, prefix=''):
+        def check_urls(urlpatterns, prefix=""):
             failures = []
             if credentials:
                 self.client.login(**credentials)
             for pattern in urlpatterns:
-                if hasattr(pattern, 'url_patterns'):
+                if hasattr(pattern, "url_patterns"):
                     # this is an included urlconf
                     new_prefix = prefix
                     if pattern.namespace:
-                        new_prefix = prefix + (":" if prefix else "") + pattern.namespace
+                        new_prefix = (
+                            prefix + (":" if prefix else "") + pattern.namespace
+                        )
                     check_urls(pattern.url_patterns, prefix=new_prefix)
                 skip = False
                 regex = pattern.regex
@@ -103,17 +107,22 @@ class AllUrlsTest(APITestCase):
                         url = reverse(fullname)
                         response = self.client.get(url)
                         if response.status_code not in self.allowed_http_codes:
-                            failures.append("{url} gave status code {status_code}".format(url=url, status_code=response.status_code))
-                        if url == reverse('kolibri:core:logout'):
+                            failures.append(
+                                "{url} gave status code {status_code}".format(
+                                    url=url, status_code=response.status_code
+                                )
+                            )
+                        if url == reverse("kolibri:core:logout"):
                             self.client.login(**credentials)
                     except NoReverseMatch:
                         pass
-            self.assertFalse(failures, '\n'.join(failures))
+            self.assertFalse(failures, "\n".join(failures))
 
         # Some API endpoints start iceqube tasks which can cause the task runner to hang
         # Patch this so that no tasks get started.
-        with patch('kolibri.core.webpack.hooks.WebpackBundleHook.bundle', return_value=[]),\
-                patch('kolibri.core.tasks.api.get_client'):
+        with patch(
+            "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
+        ), patch("kolibri.core.tasks.api.get_client"):
             check_urls(urlpatterns)
 
     def test_anonymous_responses(self):
@@ -121,19 +130,27 @@ class AllUrlsTest(APITestCase):
 
     def test_learner_responses(self):
         user = FacilityUserFactory.create()
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+        self.check_responses(
+            credentials={"username": user.username, "password": DUMMY_PASSWORD}
+        )
 
     def test_coach_responses(self):
         user = FacilityUserFactory.create()
         user.facility.add_role(user, role_kinds.COACH)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+        self.check_responses(
+            credentials={"username": user.username, "password": DUMMY_PASSWORD}
+        )
 
     def test_admin_responses(self):
         user = FacilityUserFactory.create()
         user.facility.add_role(user, role_kinds.ADMIN)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+        self.check_responses(
+            credentials={"username": user.username, "password": DUMMY_PASSWORD}
+        )
 
     def test_superuser_responses(self):
         facility = FacilityFactory.create()
         user = create_superuser(facility)
-        self.check_responses(credentials={'username': user.username, 'password': DUMMY_PASSWORD})
+        self.check_responses(
+            credentials={"username": user.username, "password": DUMMY_PASSWORD}
+        )

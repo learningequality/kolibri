@@ -40,10 +40,6 @@
       KButton,
     },
     mixins: [themeMixin],
-    $trs: {
-      questionListHeader: '{numOfQuestions, number} Questions',
-      questionLabel: 'Question { questionNumber, number }',
-    },
     props: {
       questions: {
         type: Array,
@@ -60,12 +56,9 @@
         validator: value => typeof value(0) === 'string',
       },
     },
-    computed: {
-      buttonAndHeaderBorder() {
-        return {
-          borderBottom: `2px solid ${this.$coreTextDisabled}`,
-        };
-      },
+    $trs: {
+      questionListHeader: '{numOfQuestions, number} Questions',
+      questionLabel: 'Question { questionNumber, number }',
     },
   };
 

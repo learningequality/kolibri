@@ -65,6 +65,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
@@ -103,6 +104,7 @@ import navComponents from '../utils/navComponents';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
+import UiToolbar from '../views/KeenUiToolbar.vue';
 import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import themeMixin from '../mixins/theme';
@@ -177,6 +179,7 @@ export default {
       CoreLogo,
       UiAlert,
       UiIconButton,
+      UiToolbar,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
@@ -218,5 +221,6 @@ export default {
     CatchErrors,
     UserType,
     shuffled,
+    bytesForHumans,
   },
 };

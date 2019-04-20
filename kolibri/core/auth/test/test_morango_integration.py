@@ -21,13 +21,11 @@ from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
 from ..models import Role
-from .sync_utils import multiple_kolibri_servers
-
 from .helpers import DUMMY_PASSWORD
+from .sync_utils import multiple_kolibri_servers
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
-
     def test_creating_facility_creates_dataset(self):
         facility = Facility.objects.create(name="hallo")
         self.assertIsNotNone(facility.dataset)
@@ -48,14 +46,13 @@ class FacilityDatasetCertificateTestCase(TestCase):
 
 
 class DateTimeTZFieldTestCase(TestCase):
-
     def setUp(self):
-        self.controller = MorangoProfileController('facilitydata')
+        self.controller = MorangoProfileController("facilitydata")
         InstanceIDModel.get_or_create_current_instance()
 
     def test_deserializing_field(self):
         facility = Facility.objects.create(name="hallo")
-        FacilityUser.objects.create(username='jamie', facility=facility)
+        FacilityUser.objects.create(username="jamie", facility=facility)
         self.controller.serialize_into_store()
         Store.objects.update(dirty_bit=True)
         try:
@@ -65,25 +62,50 @@ class DateTimeTZFieldTestCase(TestCase):
 
 
 @unittest.skipIf(sys.platform.startswith("win"), "can't run on Windows")
-@unittest.skipIf(not os.environ.get('TRAVIS_TAG'), "This test will only be run during tagged builds.")
+@unittest.skipIf(
+    not os.environ.get("TRAVIS_TAG"), "This test will only be run during tagged builds."
+)
 class EcosystemTestCase(TestCase):
-
     def _data(self, *args, **kwargs):
         return kwargs
 
     def _create_objects(self, server):
         fac = Facility.objects.using(server.db_alias).first()
-        admin = FacilityUser(username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac)
+        admin = FacilityUser(
+            username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac
+        )
         admin.save(using=server.db_alias)
-        learner = FacilityUser(username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac)
+        learner = FacilityUser(
+            username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=fac
+        )
         learner.save(using=server.db_alias)
-        class_resp = self.request_server(server, "classroom", data=self._data(parent=fac.id, name=uuid.uuid4().hex))
-        lg_resp = self.request_server(server, "learnergroup", data=self._data(parent=class_resp.json()['id'], name=uuid.uuid4().hex))
-        self.request_server(server, "membership", data=self._data(user=learner.id, collection=class_resp.json()['id']))
-        self.request_server(server, "membership", data=self._data(user=learner.id, collection=lg_resp.json()['id']))
-        self.request_server(server, "role", data=self._data(collection=fac.id, user=admin.id, kind="admin"))
+        class_resp = self.request_server(
+            server, "classroom", data=self._data(parent=fac.id, name=uuid.uuid4().hex)
+        )
+        lg_resp = self.request_server(
+            server,
+            "learnergroup",
+            data=self._data(parent=class_resp.json()["id"], name=uuid.uuid4().hex),
+        )
+        self.request_server(
+            server,
+            "membership",
+            data=self._data(user=learner.id, collection=class_resp.json()["id"]),
+        )
+        self.request_server(
+            server,
+            "membership",
+            data=self._data(user=learner.id, collection=lg_resp.json()["id"]),
+        )
+        self.request_server(
+            server,
+            "role",
+            data=self._data(collection=fac.id, user=admin.id, kind="admin"),
+        )
 
-    def request_server(self, server, endpoint, method="POST", lookup=None, data={}, params={}):
+    def request_server(
+        self, server, endpoint, method="POST", lookup=None, data={}, params={}
+    ):
         """
 
         :param server: kolibri instance we are querying
@@ -97,7 +119,7 @@ class EcosystemTestCase(TestCase):
 
         # build up url and send request
         if lookup:
-            lookup = lookup + '/'
+            lookup = lookup + "/"
         url = urljoin(urljoin(server.base_url, "api/auth/" + endpoint + "/"), lookup)
         auth = ("superuser", "password")
         resp = requests.request(method, url, json=data, params=params, auth=auth)
@@ -105,16 +127,32 @@ class EcosystemTestCase(TestCase):
         return resp
 
     def assertServerQuerysetEqual(self, s1, s2, dataset_id):
-        syncable_models = list(_profile_models['facilitydata'].values())
-        syncable_models.pop(0)  # remove FacilityDataset because __str__() does not point to correct db alias
+        syncable_models = list(_profile_models["facilitydata"].values())
+        syncable_models.pop(
+            0
+        )  # remove FacilityDataset because __str__() does not point to correct db alias
         for klass in syncable_models:
-            self.assertQuerysetEqual(klass.objects.using(s1.db_alias).filter(dataset_id=dataset_id),
-                                     [repr(u) for u in klass.objects.using(s2.db_alias).filter(dataset_id=dataset_id)],
-                                     ordered=False)
+            self.assertQuerysetEqual(
+                klass.objects.using(s1.db_alias).filter(dataset_id=dataset_id),
+                [
+                    repr(u)
+                    for u in klass.objects.using(s2.db_alias).filter(
+                        dataset_id=dataset_id
+                    )
+                ],
+                ordered=False,
+            )
         # morango models
-        self.assertQuerysetEqual(Store.objects.using(s1.db_alias).filter(partition__startswith=dataset_id),
-                                 [repr(u) for u in Store.objects.using(s2.db_alias).filter(partition__startswith=dataset_id)],
-                                 ordered=False)
+        self.assertQuerysetEqual(
+            Store.objects.using(s1.db_alias).filter(partition__startswith=dataset_id),
+            [
+                repr(u)
+                for u in Store.objects.using(s2.db_alias).filter(
+                    partition__startswith=dataset_id
+                )
+            ],
+            ordered=False,
+        )
 
     @multiple_kolibri_servers(3)
     def test_scenarios(self, servers):
@@ -126,83 +164,235 @@ class EcosystemTestCase(TestCase):
         s1_url = servers[1].base_url
         s2_alias = servers[2].db_alias
         s2_url = servers[2].base_url
-        servers[0].manage('loaddata', 'content_test')
+        servers[0].manage("loaddata", "content_test")
         servers[0].manage("generateuserdata", no_onboarding=True, num_content_items=1)
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        servers[2].manage("fullfacilitysync", base_url=s1_url, username="superuser", password="password")
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        servers[2].manage(
+            "fullfacilitysync",
+            base_url=s1_url,
+            username="superuser",
+            password="password",
+        )
 
         # assert that all kolibri instances start off equal
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(
+                servers[i],
+                servers[(i + 1) % servers_len],
+                FacilityDataset.objects.using(servers[0].db_alias).first().id,
+            )
 
         # assert created user is synced
-        FacilityUser(username="user", password=DUMMY_PASSWORD, facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertTrue(FacilityUser.objects.using(s1_alias).filter(username="user").exists())
+        FacilityUser(
+            username="user",
+            password=DUMMY_PASSWORD,
+            facility=Facility.objects.using(s0_alias).first(),
+        ).save(using=s0_alias)
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        self.assertTrue(
+            FacilityUser.objects.using(s1_alias).filter(username="user").exists()
+        )
 
         # create user with same username on two servers and check they both exist
-        FacilityUser(username="copycat", password=DUMMY_PASSWORD, facility=Facility.objects.using(s0_alias).first()).save(using=s0_alias)
-        FacilityUser(username="copycat", password=DUMMY_PASSWORD, facility=Facility.objects.using(s1_alias).first()).save(using=s1_alias)
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertEqual(FacilityUser.objects.using(s0_alias).filter(username='copycat').count(), 2)
-        self.assertEqual(FacilityUser.objects.using(s1_alias).filter(username='copycat').count(), 2)
+        FacilityUser(
+            username="copycat",
+            password=DUMMY_PASSWORD,
+            facility=Facility.objects.using(s0_alias).first(),
+        ).save(using=s0_alias)
+        FacilityUser(
+            username="copycat",
+            password=DUMMY_PASSWORD,
+            facility=Facility.objects.using(s1_alias).first(),
+        ).save(using=s1_alias)
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        self.assertEqual(
+            FacilityUser.objects.using(s0_alias).filter(username="copycat").count(), 2
+        )
+        self.assertEqual(
+            FacilityUser.objects.using(s1_alias).filter(username="copycat").count(), 2
+        )
 
         # Add a classroom
-        self.request_server(servers[0], "classroom", data=self._data(name="classroom", parent=Facility.objects.using(s0_alias).first().id))
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertTrue(Classroom.objects.using(s1_alias).filter(name="classroom").exists())
+        self.request_server(
+            servers[0],
+            "classroom",
+            data=self._data(
+                name="classroom", parent=Facility.objects.using(s0_alias).first().id
+            ),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        self.assertTrue(
+            Classroom.objects.using(s1_alias).filter(name="classroom").exists()
+        )
 
         # Add a learnergroup
-        self.request_server(servers[0], "learnergroup", data=self._data(name="learnergroup", parent=Classroom.objects.using(s0_alias).first().id))
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertTrue(LearnerGroup.objects.using(s1_alias).filter(name="learnergroup").exists())
+        self.request_server(
+            servers[0],
+            "learnergroup",
+            data=self._data(
+                name="learnergroup", parent=Classroom.objects.using(s0_alias).first().id
+            ),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        self.assertTrue(
+            LearnerGroup.objects.using(s1_alias).filter(name="learnergroup").exists()
+        )
 
         # assert conflicting serialized data is appended after same role is created on different device
         fac = Facility.objects.using(s1_alias).get()
-        alk_user = FacilityUser.objects.using(s0_alias).get(username='Antemblowind')
-        self.request_server(servers[1], "role", data=self._data(collection=fac.id, user=alk_user.id, kind="admin"))
-        self.request_server(servers[0], "role", data=self._data(collection=fac.id, user=alk_user.id, kind="admin"))
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
+        alk_user = FacilityUser.objects.using(s0_alias).get(username="Antemblowind")
+        self.request_server(
+            servers[1],
+            "role",
+            data=self._data(collection=fac.id, user=alk_user.id, kind="admin"),
+        )
+        self.request_server(
+            servers[0],
+            "role",
+            data=self._data(collection=fac.id, user=alk_user.id, kind="admin"),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
         role = Role.objects.using(s1_alias).get(user=alk_user)
         admin_role = Store.objects.using(s1_alias).get(id=role.id)
         self.assertTrue(admin_role.conflicting_serialized_data)
 
         # assert deleted object is propagated
-        self.request_server(servers[0], "facilityuser", method="DELETE", lookup=alk_user.id)
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        self.assertFalse(FacilityUser.objects.using(s1_alias).filter(username='Antemblowind').exists())
+        self.request_server(
+            servers[0], "facilityuser", method="DELETE", lookup=alk_user.id
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        self.assertFalse(
+            FacilityUser.objects.using(s1_alias)
+            .filter(username="Antemblowind")
+            .exists()
+        )
         self.assertTrue(Store.objects.using(s1_alias).get(id=alk_user.id).deleted)
 
         # # role deletion and re-creation
         # Change roles for users
-        alto_user = FacilityUser.objects.using(s1_alias).get(username='Altobjews1977')
-        resp = self.request_server(servers[1], "role", data=self._data(collection=fac.id, user=alto_user.id, kind="admin"))
-        servers[1].manage("fullfacilitysync", base_url=s2_url, username="superuser", password="password")
+        alto_user = FacilityUser.objects.using(s1_alias).get(username="Altobjews1977")
+        resp = self.request_server(
+            servers[1],
+            "role",
+            data=self._data(collection=fac.id, user=alto_user.id, kind="admin"),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s2_url,
+            username="superuser",
+            password="password",
+        )
 
-        self.assertEqual(FacilityUser.objects.using(s2_alias).get(username='Altobjews1977').roles.all().first().kind, "admin")
+        self.assertEqual(
+            FacilityUser.objects.using(s2_alias)
+            .get(username="Altobjews1977")
+            .roles.all()
+            .first()
+            .kind,
+            "admin",
+        )
         # delete admin role and sync
-        self.request_server(servers[2], "role", method="DELETE", lookup=resp.json()['id'])
-        servers[1].manage("fullfacilitysync", base_url=s2_url, username="superuser", password="password")
+        self.request_server(
+            servers[2], "role", method="DELETE", lookup=resp.json()["id"]
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s2_url,
+            username="superuser",
+            password="password",
+        )
         # create admin role and sync
-        resp = self.request_server(servers[1], "role", data=self._data(collection=fac.id, user=alto_user.id, kind="admin"))
-        servers[1].manage("fullfacilitysync", base_url=s2_url, username="superuser", password="password")
+        resp = self.request_server(
+            servers[1],
+            "role",
+            data=self._data(collection=fac.id, user=alto_user.id, kind="admin"),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s2_url,
+            username="superuser",
+            password="password",
+        )
 
-        self.assertFalse(Store.objects.using(s2_alias).get(id=resp.json()['id']).deleted)
+        self.assertFalse(
+            Store.objects.using(s2_alias).get(id=resp.json()["id"]).deleted
+        )
 
         # Change password for a user, check if you can log in on other device
-        self.request_server(servers[1], "facilityuser", method="PATCH", lookup=alto_user.id, data=self._data(password="syncing"))
-        servers[1].manage("fullfacilitysync", base_url=s0_url, username="superuser", password="password")
-        resp = self.request_server(servers[0], "session", data=self._data(username=alto_user.username, password="syncing", facility=fac.id))
+        self.request_server(
+            servers[1],
+            "facilityuser",
+            method="PATCH",
+            lookup=alto_user.id,
+            data=self._data(password="syncing"),
+        )
+        servers[1].manage(
+            "fullfacilitysync",
+            base_url=s0_url,
+            username="superuser",
+            password="password",
+        )
+        resp = self.request_server(
+            servers[0],
+            "session",
+            data=self._data(
+                username=alto_user.username, password="syncing", facility=fac.id
+            ),
+        )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         # sync in a circle node twice to ensure full consistency
         for i in range(2):
             for j in range(servers_len):
-                servers[j].manage("fullfacilitysync", base_url=servers[(j + 1) % servers_len].base_url, username="superuser", password="password")
+                servers[j].manage(
+                    "fullfacilitysync",
+                    base_url=servers[(j + 1) % servers_len].base_url,
+                    username="superuser",
+                    password="password",
+                )
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(
+                servers[i],
+                servers[(i + 1) % servers_len],
+                FacilityDataset.objects.using(servers[0].db_alias).first().id,
+            )
 
     @multiple_kolibri_servers(5)
     def test_chaos_sync(self, servers):
@@ -211,7 +401,12 @@ class EcosystemTestCase(TestCase):
         # consistent state for all servers
         servers[0].manage("generateuserdata", no_onboarding=True)
         for i in range(servers_len - 1):
-            servers[i + 1].manage("fullfacilitysync", base_url=servers[0].base_url, username="superuser", password="password")
+            servers[i + 1].manage(
+                "fullfacilitysync",
+                base_url=servers[0].base_url,
+                username="superuser",
+                password="password",
+            )
 
         # randomly create objects on two servers and sync with each other
         for i in range(10):
@@ -220,13 +415,27 @@ class EcosystemTestCase(TestCase):
             else:
                 self._create_objects(servers[4])
 
-            servers[2].manage("fullfacilitysync", base_url=servers[4].base_url, username="superuser", password="password")
+            servers[2].manage(
+                "fullfacilitysync",
+                base_url=servers[4].base_url,
+                username="superuser",
+                password="password",
+            )
 
         # sync in a circle node twice to ensure full consistency
         for i in range(2):
             for j in range(servers_len):
-                servers[j].manage("fullfacilitysync", base_url=servers[(j + 1) % servers_len].base_url, username="superuser", password="password")
+                servers[j].manage(
+                    "fullfacilitysync",
+                    base_url=servers[(j + 1) % servers_len].base_url,
+                    username="superuser",
+                    password="password",
+                )
 
         # assert that the data of specific models match up
         for i in range(servers_len):
-            self.assertServerQuerysetEqual(servers[i], servers[(i + 1) % servers_len], FacilityDataset.objects.using(servers[0].db_alias).first().id)
+            self.assertServerQuerysetEqual(
+                servers[i],
+                servers[(i + 1) % servers_len],
+                FacilityDataset.objects.using(servers[0].db_alias).first().id,
+            )

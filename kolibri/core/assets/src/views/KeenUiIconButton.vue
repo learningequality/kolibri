@@ -62,7 +62,9 @@
       :openOn="openTooltipOn"
 
       :position="tooltipPosition"
-    >{{ tooltip }}</UiTooltip>
+    >
+      {{ tooltip }}
+    </UiTooltip>
   </button>
 
 </template>
@@ -174,6 +176,8 @@
             fill: this.$coreActionNormal,
           };
         }
+
+        return {};
       },
     },
 
@@ -192,18 +196,28 @@
         this.$emit('dropdown-close');
       },
 
+      /**
+       * @public
+       */
       openDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.open();
         }
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       closeDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.close();
         }
       },
 
+      /**
+       * @public
+       */
       toggleDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.toggle();

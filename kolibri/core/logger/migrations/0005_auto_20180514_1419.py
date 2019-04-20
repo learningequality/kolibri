@@ -8,19 +8,17 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('logger', '0004_tidy_progress_range'),
-    ]
+    dependencies = [("logger", "0004_tidy_progress_range")]
 
     operations = [
         migrations.AddField(
-            model_name='attemptlog',
-            name='error',
+            model_name="attemptlog",
+            name="error",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='examattemptlog',
-            name='error',
+            model_name="examattemptlog",
+            name="error",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -105,6 +105,45 @@ module.exports = {
       },
     ],
     'vue/no-spaces-around-equal-signs-in-attribute': ERROR,
+    'vue/multiline-html-element-content-newline': [
+      ERROR,
+      {
+        // because of compatibility with our custom HTMLHint rule
+        // enforcing top-level content surrounded by one empty line
+        allowEmptyLines: true,
+      },
+    ],
+    'vue/order-in-components': [
+      ERROR,
+      {
+        order: [
+          'el',
+          'name',
+          'metaInfo',
+          'parent',
+          'functional',
+          ['delimiters', 'comments'],
+          ['components', 'directives', 'filters'],
+          'extends',
+          'mixins',
+          'inheritAttrs',
+          'model',
+          ['props', 'propsData'],
+          'data',
+          'computed',
+          'watch',
+          'beforeRouteEnter',
+          'beforeRouteUpdate',
+          'beforeRouteLeave',
+          'LIFECYCLE_HOOKS',
+          'methods',
+          ['template', 'render'],
+          'renderError',
+          '$trs',
+        ],
+      },
+    ],
+
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
     'import/newline-after-import': ERROR,
@@ -113,5 +152,9 @@ module.exports = {
     // Custom vue rules
     'kolibri/vue-filename-and-component-name-match': ERROR,
     'kolibri/vue-component-registration-casing': ERROR,
+    'kolibri/vue-no-unused-properties': ERROR,
+    'kolibri/vue-no-unused-vuex-properties': ERROR,
+    'kolibri/vue-no-unused-methods': ERROR,
+    'kolibri/vue-watch-no-string': ERROR,
   },
 };

@@ -30,11 +30,17 @@
 
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-        <template slot="value"><LessonActive :active="lesson.active" /></template>
+        <template slot="key">
+          {{ coachStrings.$tr('statusLabel') }}
+        </template>
+        <template slot="value">
+          <LessonActive :active="lesson.active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
+        <template slot="key">
+          {{ coachStrings.$tr('recipientsLabel') }}
+        </template>
         <template slot="value">
           <Recipients :groupNames="getGroupNames(lesson.groups)" />
         </template>
@@ -73,6 +79,7 @@
     components: {},
     mixins: [commonCoach],
     computed: {
+      /** TODO COACH
       actionOptions() {
         return [
           { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
@@ -82,14 +89,17 @@
           },
         ];
       },
+      */
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
     },
     methods: {
+      /* TODO COACH
       goTo(page) {
         this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
       },
+      */
     },
     $trs: {
       back: 'All lessons',

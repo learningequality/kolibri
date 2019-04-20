@@ -9,14 +9,12 @@ import kolibri.core.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('logger', '0002_auto_20170518_1031'),
-    ]
+    dependencies = [("logger", "0002_auto_20170518_1031")]
 
     operations = [
         migrations.AlterField(
-            model_name='usersessionlog',
-            name='last_interaction_timestamp',
+            model_name="usersessionlog",
+            name="last_interaction_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
-        ),
+        )
     ]

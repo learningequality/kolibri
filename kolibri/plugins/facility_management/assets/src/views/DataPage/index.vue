@@ -21,8 +21,12 @@
           @click="downloadSessionLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSessionCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSessionCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="sessionDateCreated" />
@@ -48,8 +52,12 @@
           @click="downloadSummaryLog"
         />
       </p>
-      <p v-if="cannotDownload" :style="noDlStyle">{{ $tr('noDownload') }}</p>
-      <p v-else-if="inSummaryCSVCreation"><DataPageTaskProgress /></p>
+      <p v-if="cannotDownload" :style="noDlStyle">
+        {{ $tr('noDownload') }}
+      </p>
+      <p v-else-if="inSummaryCSVCreation">
+        <DataPageTaskProgress />
+      </p>
       <p v-else>
         <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
         <GeneratedElapsedTime v-else :date="summaryDateCreated" />
@@ -84,6 +92,11 @@
 
   export default {
     name: 'DataPage',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       GeneratedElapsedTime,
       KButton,
@@ -92,36 +105,6 @@
       DataPageTaskProgress,
     },
     mixins: [themeMixin],
-    data() {
-      return {
-        lista: urls,
-      };
-    },
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
-    $trs: {
-      pageHeading: 'Export usage data',
-      pageSubHeading:
-        'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
-      detailsHeading: 'Session logs',
-      detailsSubHeading: 'Individual visits to each piece of content',
-      summaryHeading: 'Summary logs',
-      summarySubHeading: 'Total time/progress for each piece of content',
-      detailsInfo:
-        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
-      summaryInfo:
-        'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
-      generateLog: 'Generate log file',
-      regenerateLog: 'Generate a new log file',
-      noLogsYet: 'No logs are available to download.',
-      download: 'Download',
-      note: 'Note:',
-      noDownload: 'Download is not supported on Android',
-      documentTitle: 'Manage Data',
-    },
     computed: {
       ...mapGetters('manageCSV', [
         'inSessionCSVCreation',
@@ -135,9 +118,6 @@
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       cannotDownload() {
         return isAndroidWebView();
-      },
-      generatingCSVFile() {
-        return this.inSummaryCSVCreation || this.inSessionCSVCreation;
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;
@@ -194,6 +174,26 @@
       downloadSummaryLog() {
         window.open(urls['kolibri:core:download_csv_file']('summary'), '_blank');
       },
+    },
+    $trs: {
+      pageHeading: 'Export usage data',
+      pageSubHeading:
+        'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
+      detailsHeading: 'Session logs',
+      detailsSubHeading: 'Individual visits to each piece of content',
+      summaryHeading: 'Summary logs',
+      summarySubHeading: 'Total time/progress for each piece of content',
+      detailsInfo:
+        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
+      summaryInfo:
+        'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
+      generateLog: 'Generate log file',
+      regenerateLog: 'Generate a new log file',
+      noLogsYet: 'No logs are available to download.',
+      download: 'Download',
+      note: 'Note:',
+      noDownload: 'Download is not supported on Android',
+      documentTitle: 'Manage Data',
     },
   };
 
