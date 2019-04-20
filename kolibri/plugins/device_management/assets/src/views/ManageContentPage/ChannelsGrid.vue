@@ -86,11 +86,7 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', [
-        'startImportWorkflow',
-        'triggerChannelDeleteTask',
-        'refreshChannelList',
-      ]),
+      ...mapActions('manageContent', ['startImportWorkflow', 'triggerChannelDeleteTask']),
       handleDeleteChannel() {
         if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;

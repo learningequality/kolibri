@@ -94,7 +94,7 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -166,7 +166,6 @@
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
       },
-      ...mapActions(['kolibriLogout']),
     },
     $trs: {
       userTypeLabel: 'User type',
