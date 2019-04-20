@@ -24,7 +24,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
@@ -39,9 +39,16 @@
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
-    watch: { currentUserId: 'fetchPoints' },
+    watch: {
+      currentUserId() {
+        this.fetchPoints();
+      },
+    },
     created() {
-      this.$store.dispatch('fetchPoints');
+      this.fetchPoints();
+    },
+    methods: {
+      ...mapActions(['fetchPoints']),
     },
     $trs: { pointsTooltip: 'You earned { points, number } points' },
   };

@@ -212,6 +212,27 @@ tester.run('vue-no-unused-methods', rule, {
         </script>
       `,
     },
+
+    // a method accessed via instance parameter in `beforeRouteEnter`
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            methods: {
+              getCount() {
+                return 2;
+              }
+            },
+            beforeRouteEnter (to, from, next) {
+              next(vm => {
+                vm.getCount()
+              })
+            }
+          };
+        </script>
+      `,
+    },
   ],
 
   invalid: [

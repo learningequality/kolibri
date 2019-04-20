@@ -2,6 +2,18 @@
 
 List of the most important changes for each release.
 
+## 0.12.y
+
+### Added
+
+- Coaches can edit lessons from the Coach > Reports page
+- Coaches can preview and edit quiz details from the Coach > Reports and Plan pages
+
+### Changed or fixed
+
+- Coaches can edit quiz and lesson details and statuses in the same user interface
+
+
 ## 0.12.2
 
 ### Added

@@ -2,6 +2,9 @@ import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
 import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
+// HACK to avoid having to mock this property's dependancies on vuex and vue router
+AssignmentDetailsModal.computed.titleIsInvalidText = () => '';
+
 const defaultProps = {
   initialDescription: '',
   initialSelectedCollectionIds: [],
@@ -44,7 +47,7 @@ describe('AssignmentDetailsModal', () => {
     actions.inputTitle('Lesson 1');
     actions.inputDescription('The first lesson');
     actions.submitForm();
-    expect(wrapper.emitted().continue[0][0]).toEqual(expected);
+    expect(wrapper.emitted().submit[0][0]).toEqual(expected);
   });
 
   it('does not submit when form data is invalid', () => {
@@ -68,8 +71,7 @@ describe('AssignmentDetailsModal', () => {
         propsData: props,
       });
       actions.submitForm();
-      expect(wrapper.emitted().save).toBeUndefined();
-      expect(wrapper.emitted().cancel.length).toEqual(1);
+      expect(wrapper.emitted().submit[0][0]).toEqual(null);
     });
 
     it('in edit mode, if the name has changed, makes a request after clicking submit', () => {
@@ -84,7 +86,7 @@ describe('AssignmentDetailsModal', () => {
       };
       actions.inputTitle('Old Lesson V2');
       actions.submitForm();
-      expect(wrapper.emitted().save[0][0]).toEqual(expected);
+      expect(wrapper.emitted().submit[0][0]).toEqual(expected);
     });
 
     it('in edit mode, if the description has changed, makes a request after clicking submit', () => {
@@ -99,7 +101,7 @@ describe('AssignmentDetailsModal', () => {
       };
       actions.inputDescription('Its da remix');
       actions.submitForm();
-      expect(wrapper.emitted().save[0][0]).toEqual(expected);
+      expect(wrapper.emitted().submit[0][0]).toEqual(expected);
     });
   });
 

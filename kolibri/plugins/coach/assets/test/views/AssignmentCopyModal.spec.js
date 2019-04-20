@@ -85,7 +85,7 @@ describe('AssignmentCopyModal', () => {
     return wrapper.vm.goToAvailableGroups().then(() => {
       els.selectLearnerGroupForm().trigger('submit');
       // By default, this will copy the Assignment to the same class, and the entire class
-      expect(wrapper.emitted().copy[0]).toEqual(['class_2', ['class_2']]);
+      expect(wrapper.emitted().submit[0]).toEqual(['class_2', ['class_2']]);
     });
   });
 

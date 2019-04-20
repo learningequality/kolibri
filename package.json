@@ -17,8 +17,8 @@
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
     "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
-    "devserver": "npm-run-all --parallel django-devserver lint-frontend:watch fmt-backend:watch hashi-dev watch",
-    "devserver-hot": "npm-run-all --parallel django-devserver lint-frontend:watch fmt-backend:watch hashi-dev watch-hot",
+    "devserver": "npm-run-all --parallel django-devserver lint-frontend:watch hashi-dev watch",
+    "devserver-hot": "npm-run-all --parallel django-devserver lint-frontend:watch hashi-dev watch-hot",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
@@ -45,7 +45,7 @@
   "private": true,
   "dependencies": {},
   "devDependencies": {
-    "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.1",
+    "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.3",
     "kolibri-tools": "0.12.0-beta.3.2",
     "yarn-run-all": "^3.1.1"
   },
