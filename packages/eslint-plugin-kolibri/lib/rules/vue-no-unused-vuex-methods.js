@@ -8,22 +8,7 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-
-const MUTATION = 'mutation';
-const ACTION = 'action';
-
-const reportUnusedVuexProperties = (context, properties) => {
-  if (!properties || !properties.length) {
-    return;
-  }
-
-  properties.forEach(property => {
-    context.report({
-      node: property.node,
-      message: `Unused Vuex ${property.kind} found: "${property.name}"`,
-    });
-  });
-};
+const { VUEX_MUTATION, VUEX_ACTION } = require('../constants');
 
 const create = context => {
   let hasTemplate;
@@ -60,7 +45,7 @@ const create = context => {
         node
       ) {
         unusedVuexProperties.push({
-          kind: MUTATION,
+          kind: VUEX_MUTATION,
           name: node.key.name,
           node,
         });
@@ -76,7 +61,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapMutations][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: MUTATION,
+          kind: VUEX_MUTATION,
           name: node.value,
           node,
         });
@@ -98,7 +83,7 @@ const create = context => {
         node
       ) {
         unusedVuexProperties.push({
-          kind: ACTION,
+          kind: VUEX_ACTION,
           name: node.key.name,
           node,
         });
@@ -114,7 +99,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapActions][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: ACTION,
+          kind: VUEX_ACTION,
           name: node.value,
           node,
         });
@@ -126,16 +111,9 @@ const create = context => {
     utils.executeOnBefoureRouteEnterInstanceProperty(property => {
       befoureRouteEnterInstanceProperties.push(property.name);
     }),
-    /*
-      watch: {
-        counter: 'add'
-      }
-    */
-    {
-      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
-        watchStringMethods.push(node.value);
-      },
-    },
+    utils.executeOnWatchStringMethod(node => {
+      watchStringMethods.push(node.value);
+    }),
     eslintPluginVueUtils.executeOnVue(context, () => {
       remove(unusedVuexProperties, property => {
         return (
@@ -146,7 +124,7 @@ const create = context => {
       });
 
       if (!hasTemplate && unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );
@@ -164,7 +142,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );

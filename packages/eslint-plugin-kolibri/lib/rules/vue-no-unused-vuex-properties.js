@@ -8,22 +8,7 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-
-const GETTER = 'getter';
-const STATE = 'state';
-
-const reportUnusedVuexProperties = (context, properties) => {
-  if (!properties || !properties.length) {
-    return;
-  }
-
-  properties.forEach(property => {
-    context.report({
-      node: property.node,
-      message: `Unused Vuex ${property.kind} found: "${property.name}"`,
-    });
-  });
-};
+const { VUEX_STATE, VUEX_GETTER } = require('../constants');
 
 const create = context => {
   let hasTemplate;
@@ -63,7 +48,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapState][arguments] ObjectExpression Property[key.name]'(node) {
         unusedVuexProperties.push({
-          kind: STATE,
+          kind: VUEX_STATE,
           name: node.key.name,
           node,
         });
@@ -79,7 +64,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapState][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: STATE,
+          kind: VUEX_STATE,
           name: node.value,
           node,
         });
@@ -95,7 +80,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapGetters][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: GETTER,
+          kind: VUEX_GETTER,
           name: node.value,
           node,
         });
@@ -115,7 +100,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapGetters][arguments] ObjectExpression Identifier[name]'(node) {
         unusedVuexProperties.push({
-          kind: GETTER,
+          kind: VUEX_GETTER,
           name: node.name,
           node,
         });
@@ -139,7 +124,7 @@ const create = context => {
       });
 
       if (!hasTemplate && unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );
@@ -157,7 +142,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );

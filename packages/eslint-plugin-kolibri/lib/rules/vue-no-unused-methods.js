@@ -41,16 +41,9 @@ const create = context => {
     utils.executeOnBefoureRouteEnterInstanceProperty(property => {
       befoureRouteEnterInstanceProperties.push(property.name);
     }),
-    /*
-      watch: {
-        counter: 'getCount'
-      }
-    */
-    {
-      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
-        watchStringMethods.push(node.value);
-      },
-    },
+    utils.executeOnWatchStringMethod(node => {
+      watchStringMethods.push(node.value);
+    }),
     eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
         eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_METHODS]))

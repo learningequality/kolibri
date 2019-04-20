@@ -13,6 +13,11 @@ const PROPERTY_LABEL = {
   [GROUP_METHODS]: 'method',
 };
 
+const VUEX_STATE = 'state';
+const VUEX_GETTER = 'getter';
+const VUEX_MUTATION = 'mutation';
+const VUEX_ACTION = 'action';
+
 module.exports = {
   GROUP_PROPS,
   GROUP_DATA,
@@ -20,4 +25,8 @@ module.exports = {
   GROUP_METHODS,
   GROUP_WATCH,
   PROPERTY_LABEL,
+  VUEX_STATE,
+  VUEX_GETTER,
+  VUEX_MUTATION,
+  VUEX_ACTION,
 };
