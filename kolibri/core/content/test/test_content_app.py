@@ -3,7 +3,6 @@ To run this test, type this in command line <kolibri manage test -- kolibri.core
 """
 import datetime
 import uuid
-from collections import namedtuple
 
 import mock
 import requests
@@ -216,7 +215,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
 
-    def test_contentnode_granular_network_import(self):
+    def test_contentnode_granular_no_importable_check(self):
         c1_id = content.ContentNode.objects.get(title="root").id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
@@ -226,140 +225,101 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self.assertEqual(
             response.data,
-            {
-                "id": c1_id,
-                "title": "root",
-                "kind": "topic",
-                "available": False,
-                "total_resources": 1,
-                "on_device_resources": 0,
-                "coach_content": False,
-                "importable": True,
-                "num_coach_contents": 0,
-                "children": [
-                    {
-                        "id": c2_id,
-                        "title": "c1",
-                        "kind": "video",
-                        "available": False,
-                        "total_resources": 1,
-                        "on_device_resources": 0,
-                        "importable": True,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                    {
-                        "id": c3_id,
-                        "title": "c2",
-                        "kind": "topic",
-                        "available": False,
-                        "total_resources": 0,
-                        "on_device_resources": 0,
-                        "importable": True,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                ],
-            },
+            [
+                {
+                    "id": c2_id,
+                    "title": "c1",
+                    "kind": "video",
+                    "available": False,
+                    "total_resources": 1,
+                    "on_device_resources": 0,
+                    "coach_content": False,
+                    "num_coach_contents": 0,
+                },
+                {
+                    "id": c3_id,
+                    "title": "c2",
+                    "kind": "topic",
+                    "available": False,
+                    "total_resources": 0,
+                    "on_device_resources": 0,
+                    "coach_content": False,
+                    "num_coach_contents": 0,
+                },
+            ],
         )
 
-    @mock.patch("kolibri.core.content.serializers.get_mounted_drives_with_channel_info")
-    def test_contentnode_granular_local_import(self, drive_mock):
-        DriveData = namedtuple("DriveData", ["id", "datafolder"])
-        drive_mock.return_value = {"123": DriveData(id="123", datafolder="test/")}
-
-        content.LocalFile.objects.update(available=False)
-        content.ContentNode.objects.update(available=False)
+    def test_contentnode_granular_importable_check(self):
+        c2 = content.ContentNode.objects.get(title="c1")
+        c2.importable = True
+        c2.save()
 
         c1_id = content.ContentNode.objects.get(title="root").id
-        c2_id = content.ContentNode.objects.get(title="c1").id
-        c3_id = content.ContentNode.objects.get(title="c2").id
+        c2_id = c2.id
 
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
-            {"importing_from_drive_id": "123"},
+            {"check_importable": True},
         )
         self.assertEqual(
             response.data,
-            {
-                "id": c1_id,
-                "title": "root",
-                "kind": "topic",
-                "available": False,
-                "total_resources": 1,
-                "on_device_resources": 0,
-                "importable": True,
-                "coach_content": False,
-                "num_coach_contents": 0,
-                "children": [
-                    {
-                        "id": c2_id,
-                        "title": "c1",
-                        "kind": "video",
-                        "available": False,
-                        "total_resources": 1,
-                        "on_device_resources": 0,
-                        "importable": False,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                    {
-                        "id": c3_id,
-                        "title": "c2",
-                        "kind": "topic",
-                        "available": False,
-                        "total_resources": 0,
-                        "on_device_resources": 0,
-                        "importable": True,
-                        "coach_content": False,
-                        "num_coach_contents": 0,
-                    },
-                ],
-            },
+            [
+                {
+                    "id": c2_id,
+                    "title": "c1",
+                    "kind": "video",
+                    "available": True,
+                    "total_resources": 1,
+                    "on_device_resources": 1,
+                    "coach_content": False,
+                    "num_coach_contents": 0,
+                }
+            ],
         )
 
     def test_contentnode_granular_export_available(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
+        c1_id = content.ContentNode.objects.get(title="root").id
+        c2_id = content.ContentNode.objects.get(title="c1").id
+        c3_id = content.ContentNode.objects.get(title="c2").id
+        content.ContentNode.objects.all().update(available=True)
         response = self.client.get(
-            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"for_export": True},
         )
         self.assertEqual(
             response.data,
-            {
-                "id": c1_id,
-                "title": "c1",
-                "kind": "video",
-                "available": True,
-                "total_resources": 1,
-                "on_device_resources": 1,
-                "importable": True,
-                "children": [],
-                "coach_content": False,
-                "num_coach_contents": 0,
-            },
+            [
+                {
+                    "id": c2_id,
+                    "title": "c1",
+                    "kind": "video",
+                    "available": True,
+                    "total_resources": 1,
+                    "on_device_resources": 1,
+                    "coach_content": False,
+                    "num_coach_contents": 0,
+                },
+                {
+                    "id": c3_id,
+                    "title": "c2",
+                    "kind": "topic",
+                    "available": True,
+                    "total_resources": 0,
+                    "on_device_resources": 0,
+                    "coach_content": False,
+                    "num_coach_contents": 0,
+                },
+            ],
         )
 
     def test_contentnode_granular_export_unavailable(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
-        content.ContentNode.objects.filter(title="c1").update(available=False)
+        content.ContentNode.objects.all().update(available=False)
         response = self.client.get(
-            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
+            {"for_export": True},
         )
-        self.assertEqual(
-            response.data,
-            {
-                "id": c1_id,
-                "title": "c1",
-                "kind": "video",
-                "available": False,
-                "total_resources": 1,
-                "on_device_resources": 0,
-                "importable": True,
-                "children": [],
-                "coach_content": False,
-                "num_coach_contents": 0,
-            },
-        )
+        self.assertEqual(response.data, [])
 
     def test_contentnodefilesize_resourcenode(self):
         c1_id = content.ContentNode.objects.get(title="c1").id

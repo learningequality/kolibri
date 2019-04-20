@@ -8,8 +8,12 @@ from ...utils import channel_import
 from ...utils import paths
 from ...utils import transfer
 from ...utils.import_export_content import retry_import
-from kolibri.core.content.utils.importability_annotation import annotate_importability_from_disk
-from kolibri.core.content.utils.importability_annotation import annotate_importability_from_remote
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_remote,
+)
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -36,7 +40,7 @@ def import_channel_by_id(channel_id, cancel_check):
         )
 
 
-default_studio_url = conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL']
+default_studio_url = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
 
 
 class Command(AsyncCommand):
@@ -103,6 +107,7 @@ class Command(AsyncCommand):
                 # Only try to annotate importability if not importing from Studio
                 if baseurl != default_studio_url:
                     annotate_importability_from_remote(channel_id, baseurl)
+
         elif method == COPY_METHOD:
             srcpath = paths.get_content_database_file_path(channel_id, datafolder=path)
             filetransfer = transfer.FileCopy(srcpath, dest)
@@ -114,12 +119,16 @@ class Command(AsyncCommand):
 
         finished = False
         while not finished:
-            finished = self._start_file_transfer(filetransfer, channel_id, dest, annotate_importability)
+            finished = self._start_file_transfer(
+                filetransfer, channel_id, dest, annotate_importability
+            )
             if self.is_cancelled():
                 self.cancel()
                 break
 
-    def _start_file_transfer(self, filetransfer, channel_id, dest, annotate_importability):
+    def _start_file_transfer(
+        self, filetransfer, channel_id, dest, annotate_importability
+    ):
         progress_extra_data = {"channel_id": channel_id}
 
         try:

@@ -120,15 +120,26 @@ def get_public_channel_lookup(request, version, identifier):
     )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def get_public_file_checksums(request, version, channel_id):
     """ Endpoint: /public/<version>/file_checksums/<channel_id> """
     if version == "v1":
         try:
             channel = ChannelMetadata.objects.get(id=channel_id)
-            contentnodes = channel.root.get_descendants(include_self=True)
-            checksums = LocalFile.objects.filter(available=True, files__contentnode__in=contentnodes).values_list('id', flat=True).distinct()
-            return HttpResponse(json.dumps(list(checksums)), content_type='application/json')
+            tree_id = channel.root.tree_id
+            checksums = (
+                LocalFile.objects.filter(
+                    available=True, files__contentnode__tree_id=tree_id
+                )
+                .values_list("id", flat=True)
+                .distinct()
+            )
+            return HttpResponse(
+                json.dumps(list(checksums)), content_type="application/json"
+            )
         except ChannelMetadata.DoesNotExist:
             pass
-    return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
+    return HttpResponseNotFound(
+        json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
+        content_type="application/json",
+    )

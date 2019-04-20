@@ -785,8 +785,10 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         queryset = self.get_queryset()
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
-        if request.query_params.get('check_importable', None):
+        if request.query_params.get("check_importable", None):
             children = children.filter(importable=True)
+        elif request.query_params.get("for_export", None):
+            children = children.filter(available=True)
 
         child_serializer = self.get_serializer(children, many=True)
 

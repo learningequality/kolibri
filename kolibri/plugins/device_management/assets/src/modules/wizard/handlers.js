@@ -282,7 +282,7 @@ export function updateTreeViewTopic(store, topic) {
     fetchArgs.check_importable = true;
   }
   if (store.getters['manageContent/wizard/inExportMode']) {
-    fetchArgs.for_export = 'true';
+    fetchArgs.for_export = true;
   }
   store.commit('CORE_SET_PAGE_LOADING', true);
   return ContentNodeGranularResource.fetchDetailCollection('detail', topic.id, fetchArgs, true)

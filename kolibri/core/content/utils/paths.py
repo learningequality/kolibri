@@ -110,10 +110,14 @@ def get_info_url(baseurl=None):
     return get_content_server_url("/api/public/info", baseurl=baseurl)
 
 
-def get_file_checksums_url(channel_id, baseurl, version='1'):
+def get_file_checksums_url(channel_id, baseurl, version="1"):
     # This endpoint does not exist on Studio, so a baseurl is required.
     return get_content_server_url(
-        '/api/public/v{version}/file_checksums/{channel_id}'.format(version=version, channel_id=channel_id), baseurl=baseurl)
+        "/api/public/v{version}/file_checksums/{channel_id}".format(
+            version=version, channel_id=channel_id
+        ),
+        baseurl=baseurl,
+    )
 
 
 def get_channel_lookup_url(

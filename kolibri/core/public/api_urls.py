@@ -43,5 +43,9 @@ urlpatterns = [
         get_public_channel_list,
         name="get_public_channel_list",
     ),
-    url(r'(?P<version>[^/]+)/file_checksums/(?P<channel_id>[^/]+)', get_public_file_checksums, name='get_public_file_checksums'),
+    url(
+        r"(?P<version>[^/]+)/file_checksums/(?P<channel_id>[^/]+)",
+        get_public_file_checksums,
+        name="get_public_file_checksums",
+    ),
 ]

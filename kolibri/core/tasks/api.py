@@ -288,10 +288,10 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def startannotateimportable(self, request):
-        '''
+        """
         Annotate the database with importability information for the specific
         import method specified
-        '''
+        """
 
         # Load the required parameter
         try:
@@ -305,10 +305,7 @@ class TasksViewSet(viewsets.ViewSet):
         if drive_id is None and baseurl is None:
             raise serializers.ValidationError("The drive_id field is required.")
 
-        job_metadata = {
-            "type": "IMPORTANNOTATION",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "IMPORTANNOTATION", "started_by": request.user.pk}
 
         if drive_id:
             try:
@@ -316,7 +313,9 @@ class TasksViewSet(viewsets.ViewSet):
                 drive = drives[drive_id]
                 directory = drive.datafolder
             except KeyError:
-                raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+                raise serializers.ValidationError(
+                    "That drive_id was not found in the list of drives."
+                )
         else:
             directory = None
 

@@ -1,0 +1,326 @@
+import json
+import os
+import shutil
+import tempfile
+import uuid
+
+from django.core.management import call_command
+from django.test import TransactionTestCase
+from le_utils.constants import content_kinds
+from mock import patch
+
+from .sqlalchemytesting import django_connection_engine
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import File
+from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_disk,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_remote,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    mark_local_files_as_importable,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    recurse_importability_up_tree,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    set_leaf_node_importability_from_local_file_importability,
+)
+
+
+def get_engine(connection_string):
+    return django_connection_engine()
+
+
+test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class AnnotationFromLocalFileImportability(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def test_all_local_files_importable(self):
+        LocalFile.objects.all().update(importable=True)
+        set_leaf_node_importability_from_local_file_importability(test_channel_id)
+        self.assertTrue(all(File.objects.all().values_list("importable", flat=True)))
+        self.assertTrue(
+            all(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+                .exclude(files=None)
+                .values_list("importable", flat=True)
+            )
+        )
+
+    def test_no_local_files_importable(self):
+        LocalFile.objects.all().update(importable=False)
+        set_leaf_node_importability_from_local_file_importability(test_channel_id)
+        self.assertEqual(File.objects.filter(importable=True).count(), 0)
+        self.assertEqual(
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+            .filter(importable=True)
+            .count(),
+            0,
+        )
+
+    def test_one_local_file_importable(self):
+        LocalFile.objects.all().update(importable=False)
+        LocalFile.objects.filter(id="6bdfea4a01830fdd4a585181c0b8068c").update(
+            importable=True
+        )
+        set_leaf_node_importability_from_local_file_importability(test_channel_id)
+        self.assertTrue(
+            ContentNode.objects.get(id="32a941fb77c2576e8f6b294cde4c3b0c").importable
+        )
+        self.assertFalse(
+            all(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+                .exclude(id="32a941fb77c2576e8f6b294cde4c3b0c")
+                .values_list("importable", flat=True)
+            )
+        )
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(AnnotationFromLocalFileImportability, self).tearDown()
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class AnnotationTreeRecursion(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super(AnnotationTreeRecursion, self).setUp()
+        ContentNode.objects.all().update(importable=False)
+
+    def test_all_content_nodes_importable(self):
+        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(importable=True)
+        recurse_importability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertTrue(
+            ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").importable
+        )
+        self.assertTrue(
+            ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").importable
+        )
+
+    def test_no_content_nodes_importable(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(importable=True)
+        recurse_importability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        # 3, as there are three childless topics in the fixture, these cannot exist in real databases
+        self.assertEqual(
+            ContentNode.objects.filter(kind=content_kinds.TOPIC)
+            .filter(importable=True)
+            .count(),
+            3,
+        )
+
+    def test_one_content_node_importable(self):
+        ContentNode.objects.filter(id="32a941fb77c2576e8f6b294cde4c3b0c").update(
+            importable=True
+        )
+        recurse_importability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        # Check parent is importable
+        self.assertTrue(
+            ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").importable
+        )
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(AnnotationTreeRecursion, self).tearDown()
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class LocalFileByChecksum(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super(LocalFileByChecksum, self).setUp()
+        LocalFile.objects.all().update(importable=False)
+
+    def test_set_one_file(self):
+        file_id = "6bdfea4a01830fdd4a585181c0b8068c"
+        mark_local_files_as_importable([file_id])
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertTrue(LocalFile.objects.get(id=file_id).importable)
+
+    def test_set_two_files(self):
+        file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+        file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
+        mark_local_files_as_importable([file_id_1, file_id_2])
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 2)
+        self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(LocalFileByChecksum, self).tearDown()
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class LocalFileByDisk(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+    file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
+
+    def setUp(self):
+        super(LocalFileByDisk, self).setUp()
+        LocalFile.objects.all().update(importable=False)
+        self.mock_home_dir = tempfile.mkdtemp()
+        self.mock_storage_dir = os.path.join(self.mock_home_dir, "content", "storage")
+        os.makedirs(self.mock_storage_dir)
+
+    def createmock_content_file(self, prefix, suffix="mp4"):
+        second_dir = os.path.join(self.mock_storage_dir, prefix[0], prefix[1])
+        try:
+            os.makedirs(second_dir)
+        except OSError:
+            pass
+        open(os.path.join(second_dir, prefix + "." + suffix), "w+b")
+
+    def createmock_content_file1(self):
+        self.createmock_content_file(self.file_id_1, suffix="mp4")
+
+    def createmock_content_file2(self):
+        self.createmock_content_file(self.file_id_2, suffix="epub")
+
+    def test_set_one_file_in_channel(self):
+        self.createmock_content_file1()
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertTrue(LocalFile.objects.get(id=self.file_id_1).importable)
+
+    def test_set_one_file_not_in_channel(self):
+        self.createmock_content_file(uuid.uuid4().hex)
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_1).importable)
+
+    def test_set_two_files_in_channel(self):
+        self.createmock_content_file1()
+        self.createmock_content_file2()
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 2)
+        self.assertTrue(LocalFile.objects.get(id=self.file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=self.file_id_2).importable)
+
+    def test_set_two_files_one_in_channel(self):
+        self.createmock_content_file1()
+        self.createmock_content_file(uuid.uuid4().hex)
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertTrue(LocalFile.objects.get(id=self.file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_2).importable)
+
+    def test_set_two_files_none_in_channel(self):
+        self.createmock_content_file(uuid.uuid4().hex)
+        self.createmock_content_file(uuid.uuid4().hex)
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_2).importable)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        shutil.rmtree(self.mock_home_dir)
+        super(LocalFileByDisk, self).tearDown()
+
+
+file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class LocalFileRemote(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super(LocalFileRemote, self).setUp()
+        LocalFile.objects.all().update(importable=False)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_one_file_in_channel(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps([file_id_1])
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_one_file_not_in_channel(self, requests_mock):
+        # This shouldn't happen unless something weird is happening on the other
+        # end of the request, but make sure we behave anyway
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps([uuid.uuid4().hex])
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_two_files_in_channel(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps([file_id_1, file_id_2])
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 2)
+        self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_two_files_one_in_channel(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps(
+            [file_id_1, uuid.uuid4().hex]
+        )
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_two_files_none_in_channel(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps(
+            [uuid.uuid4().hex, uuid.uuid4().hex]
+        )
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_404_remote_checksum_response(self, requests_mock):
+        requests_mock.get.return_value.status_code = 404
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(
+            LocalFile.objects.filter(importable=True).count(),
+            LocalFile.objects.all().count(),
+        )
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_invalid_json_remote_checksum_response(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = "I am not a json, I am a free man!"
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(
+            LocalFile.objects.filter(importable=True).count(),
+            LocalFile.objects.all().count(),
+        )
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_invalid_checksums_remote_checksum_response(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps(
+            ["I am not a checksum, I am a free man!", file_id_1 + ".mp4"]
+        )
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(LocalFileRemote, self).tearDown()
