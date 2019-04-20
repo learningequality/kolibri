@@ -23,11 +23,3 @@ repos:
         language: system
         files: \.(js|vue|scss|css)$
         exclude: '^kolibri/core/static/assets/fonts/.+?\.css$|^kolibri/core/content/static/assets/'
--   repo: local
-    hooks:
-    -   id: black-fmt
-        name: Python formatter
-        description: Apply Black formatter to Python code
-        entry: yarn run black-fmt
-        language: system
-        files: \.py$
