@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const os = require('os');
 const path = require('path');
 const program = require('commander');
 const version = require('../package.json').version;
@@ -116,7 +117,12 @@ program
       program.help();
       process.exit(1);
     }
-    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE;
+    // Use one less than the number of cpus to allow other
+    // processes to carry on.
+    const numberOfCPUs = Math.max(1, os.cpus().length - 1);
+    // Don't bother using multiprocessor mode if there is only one processor that we can
+    // use without bogging down the system.
+    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE && numberOfCPUs > 1;
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
@@ -180,6 +186,9 @@ program
               ...process.env,
               data,
               index,
+              // Only start a number of processes equal to the number of
+              // available CPUs.
+              start: Math.floor(index / numberOfCPUs) === 0,
               options: options_data,
             },
             stdio: 'inherit',
@@ -198,6 +207,10 @@ program
               startCallback();
             } else if (msg === 'done') {
               doneCallback();
+              const nextIndex = index + numberOfCPUs;
+              if (children[nextIndex]) {
+                children[nextIndex].send('start');
+              }
             }
           });
         } else {

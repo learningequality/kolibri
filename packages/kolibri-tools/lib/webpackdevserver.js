@@ -111,10 +111,11 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   return compiler;
 }
 
-if (require.main === module) {
-  const data = JSON.parse(process.env.data);
-  const index = JSON.parse(process.env.index);
-  const options = JSON.parse(process.env.options);
+const data = JSON.parse(process.env.data);
+const index = JSON.parse(process.env.index);
+const options = JSON.parse(process.env.options);
+const start = JSON.parse(process.env.start);
+function build() {
   buildWebpack(
     data,
     index,
@@ -126,6 +127,24 @@ if (require.main === module) {
     },
     options
   );
+}
+
+let waitToBuild;
+
+waitToBuild = msg => {
+  if (msg === 'start') {
+    build();
+  } else {
+    process.once('message', waitToBuild);
+  }
+};
+
+if (require.main === module) {
+  if (start) {
+    build();
+  } else {
+    waitToBuild();
+  }
 }
 
 module.exports = buildWebpack;
