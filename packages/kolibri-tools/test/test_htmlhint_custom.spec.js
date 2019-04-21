@@ -51,6 +51,7 @@ describe('--vue-component-conventions', function() {
       expect(output).toHaveLength(0);
     });
   });
+  // single quotes in lang attr
   describe('input is invalid', function() {
     it('should have one error', function() {
       const input =
@@ -59,24 +60,7 @@ describe('--vue-component-conventions', function() {
       expect(output).toHaveLength(1);
     });
   });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\nhtml\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
+  // first block isn't on the first line
   describe('input is invalid', function() {
     it('should have one error with rule id: --vue-component-conventions', function() {
       const input =
@@ -86,15 +70,7 @@ describe('--vue-component-conventions', function() {
       expectRuleName(output, '--vue-component-conventions');
     });
   });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n\n</template>\n\n\n<script>\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
+  // missing space between template and script block
   describe('input is invalid', function() {
     it('should have one error with rule id: --vue-component-conventions', function() {
       const input =
@@ -104,6 +80,7 @@ describe('--vue-component-conventions', function() {
       expectRuleName(output, '--vue-component-conventions');
     });
   });
+  // extra space between script and style block
   describe('input is invalid', function() {
     it('should have one error with rule id: --vue-component-conventions', function() {
       const input =
@@ -113,24 +90,7 @@ describe('--vue-component-conventions', function() {
       expectRuleName(output, '--vue-component-conventions');
     });
   });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n\n</template>\n\n\n<script>\n\n   scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
+  // script block with whitespace characters only
   describe('input is invalid', function() {
     it('should have one error with rule id: --vue-component-conventions', function() {
       const input =
@@ -140,6 +100,7 @@ describe('--vue-component-conventions', function() {
       expectRuleName(output, '--vue-component-conventions');
     });
   });
+  // script block with whitespace characters only
   describe('input is invalid', function() {
     it('should have one error with rule id: --vue-component-conventions', function() {
       const input =
@@ -155,42 +116,6 @@ describe('--vue-component-conventions', function() {
         '<template>\n\n  html\n\n</template>\n\n\n<script></script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
       const output = HTMLHint.verify(input, ruleset);
       expect(output).toHaveLength(0);
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n  html\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --vue-component-conventions', function() {
-      const input =
-        '<template>\n\n\n  html\n\n</template>\n\n\n<script>\n\n  scripts\n\n</script>\n\n\n<style lang="stylus" scoped>\n\n  styles\n\n</style>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--vue-component-conventions');
     });
   });
   describe('defer unpaired tags', function() {
