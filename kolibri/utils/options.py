@@ -67,6 +67,11 @@ option_spec = {
             "default": "localhost:6379",
             "envvars": ("KOLIBRI_CACHE_LOCATION",),
         },
+        "CACHE_REDIS_MIN_DB": {
+            "type": "integer",
+            "default": 0,
+            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB"),
+        },
     },
     "Database": {
         "DATABASE_ENGINE": {

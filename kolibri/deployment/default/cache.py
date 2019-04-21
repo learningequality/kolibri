@@ -34,9 +34,9 @@ if cache_options["CACHE_BACKEND"] == "redis":
         "OPTIONS": {"PASSWORD": cache_options["CACHE_PASSWORD"]},
     }
     default_cache = copy.deepcopy(base_cache)
-    default_cache["OPTIONS"]["DB"] = 0
+    default_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_MIN_DB"]
     built_files_cache = copy.deepcopy(base_cache)
-    built_files_cache["OPTIONS"]["DB"] = 1
+    built_files_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_MIN_DB"] + 1
 
 built_files_cache["KEY_PREFIX"] = built_files_prefix
 
