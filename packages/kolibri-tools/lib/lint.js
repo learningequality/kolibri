@@ -191,9 +191,8 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (linted.trim() !== (stylinted || code).trim()) {
                 notSoPretty = true;
               }
-              if (linted.trim() !== code.trim()) {
-                styleCodeUpdates.push(() => callback(linted));
-              }
+
+              styleCodeUpdates.push(() => callback(linted));
             })
             .catch(err => {
               messages.push(err.toString());
