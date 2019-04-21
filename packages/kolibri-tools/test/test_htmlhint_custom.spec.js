@@ -42,24 +42,6 @@ function expectRuleName(output, ruleName) {
   expect(output[0].rule.id).toEqual(ruleName);
 }
 
-describe('--no-self-close-common-html5-tags', function() {
-  describe('input is valid', function() {
-    it('should have no errors', function() {
-      const input = '<div></div>';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(0);
-    });
-  });
-  describe('input is invalid', function() {
-    it('should have one error with rule id: --no-self-close-common-html5-tags', function() {
-      const input = '<div />';
-      const output = HTMLHint.verify(input, ruleset);
-      expect(output).toHaveLength(1);
-      expectRuleName(output, '--no-self-close-common-html5-tags');
-    });
-  });
-});
-
 describe('--vue-component-conventions', function() {
   describe('input is valid', function() {
     it('should have no errors', function() {
