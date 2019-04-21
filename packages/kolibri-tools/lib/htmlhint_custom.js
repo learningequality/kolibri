@@ -43,15 +43,6 @@ HTMLHint.addRule({
               event.raw
             );
           }
-          if (match && match[2].length !== 2) {
-            reporter.error(
-              'Top-level content should be indented two spaces.',
-              event.line,
-              event.col,
-              self,
-              event.raw
-            );
-          }
         }
       }
     });
@@ -75,15 +66,6 @@ HTMLHint.addRule({
             if (match[1].length !== 2) {
               reporter.error(
                 'Top-level content should be surrounded by one empty line.',
-                event.line,
-                event.col,
-                self,
-                event.raw
-              );
-            }
-            if (match[2].length !== 2) {
-              reporter.error(
-                'Top-level content should be indented two spaces.',
                 event.line,
                 event.col,
                 self,
