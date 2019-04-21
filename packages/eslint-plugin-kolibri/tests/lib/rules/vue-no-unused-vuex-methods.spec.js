@@ -297,6 +297,54 @@ tester.run('vue-no-unused-vuex-methods', rule, {
       ],
     },
 
+    // unused aliased mutation
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <div @click="sav" />
+        </template>
+
+        <script>
+          export default {
+            methods: mapMutations({
+              save: 'sav'
+            })
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex mutation found: "save"',
+          line: 9,
+        },
+      ],
+    },
+
+    // unused mutation - spread operator
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <div @click="sav" />
+        </template>
+
+        <script>
+          export default {
+            methods: {
+              ...mapMutations(['save'])
+            }
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex mutation found: "save"',
+          line: 9,
+        },
+      ],
+    },
+
     // unused action
     {
       filename: 'test.vue',
@@ -315,6 +363,54 @@ tester.run('vue-no-unused-vuex-methods', rule, {
         {
           message: 'Unused Vuex action found: "save"',
           line: 8,
+        },
+      ],
+    },
+
+    // unused aliased action
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <div @click="sav" />
+        </template>
+
+        <script>
+          export default {
+            methods: mapActions({
+              save: 'sav'
+            })
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex action found: "save"',
+          line: 9,
+        },
+      ],
+    },
+
+    // unused action - spread operator
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <div @click="sav" />
+        </template>
+
+        <script>
+          export default {
+            methods: {
+              ...mapActions(['save'])
+            }
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex action found: "save"',
+          line: 9,
         },
       ],
     },
