@@ -1,12 +1,17 @@
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import F
+from django.db.utils import IntegrityError
 from django.http import Http404
 from django_filters import ModelChoiceFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from rest_framework import filters
+from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import AttemptLog
@@ -35,6 +40,8 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.exams.models import Exam
+
+logger = logging.getLogger(__name__)
 
 
 class BaseLogFilter(FilterSet):
@@ -89,6 +96,21 @@ class LoggerViewSet(viewsets.ModelViewSet):
                 method = getattr(serializer.root, method_name)
                 default_response[field] = method(instance)
         return Response(default_response)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super(LoggerViewSet, self).create(request, *args, **kwargs)
+        except IntegrityError:
+            # The object has been created previously: let's calculate its id and return it
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.Meta.model(**serializer.validated_data)
+            obj.id = obj.calculate_uuid()
+            final_obj = self.get_serializer(obj)
+            return Response(final_obj.data)
+        except ValidationError as e:
+            logger.error("Failed to validate data: {}".format(e))
+            return Response(request.data, status.HTTP_400_BAD_REQUEST)
 
 
 class ContentSessionLogFilter(BaseLogFilter):
