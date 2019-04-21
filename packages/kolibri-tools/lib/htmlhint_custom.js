@@ -28,24 +28,6 @@ HTMLHint.addRule({
     var mapEmptyTags = parser.makeMap(
       'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,track,command,source,keygen,wbr'
     ); //HTML 4.01 + HTML 5
-    parser.addListener('text', function(event) {
-      var eventData = clean(event.raw);
-      var last = event.lastEvent;
-      if (last.type === 'tagstart') {
-        if (stack.length === 1 && last.tagName === 'template') {
-          var match = eventData.match(/^(\n*)( *)/);
-          if (match && match[1].length !== 2) {
-            reporter.error(
-              'Top-level content should be surrounded by one empty line.',
-              event.line,
-              event.col,
-              self,
-              event.raw
-            );
-          }
-        }
-      }
-    });
     // handle script and style tags
     parser.addListener('cdata', function(event) {
       var eventData = clean(event.raw);
@@ -58,31 +40,6 @@ HTMLHint.addRule({
             self,
             event.raw
           );
-        } else {
-          // note - [^] is like . except it matches newlines
-          // http://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
-          var match = eventData.match(/^(\n*)( *)[^]+?(\n*)$/);
-          if (match) {
-            if (match[1].length !== 2) {
-              reporter.error(
-                'Top-level content should be surrounded by one empty line.',
-                event.line,
-                event.col,
-                self,
-                event.raw
-              );
-            }
-            if (match[3].length !== 2) {
-              var offset = (eventData.match(/\n/g) || []).length;
-              reporter.error(
-                'Top-level content should be surrounded by one empty line.',
-                event.line + offset,
-                1,
-                self,
-                event.raw
-              );
-            }
-          }
         }
       }
     });
@@ -119,22 +76,6 @@ HTMLHint.addRule({
       }
     });
     parser.addListener('tagend', function(event) {
-      var last = event.lastEvent;
-      var lastData = clean(last.raw);
-      if (last.type === 'text') {
-        if (stack.length === 1 && event.tagName === 'template') {
-          var match = lastData.match(/(\n*)$/);
-          if (match && match[1].length !== 2) {
-            reporter.error(
-              'Top-level content should be surrounded by one empty line.',
-              event.line,
-              event.col,
-              self,
-              event.raw
-            );
-          }
-        }
-      }
       var tagName = event.tagName.toLowerCase();
       for (var pos = stack.length - 1; pos >= 0; pos--) {
         if (stack[pos].tagName === tagName) {
