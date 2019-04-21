@@ -140,7 +140,7 @@
       },
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       emitUpdatedResources(resources) {
         this.$emit('update:resources', resources);
       },

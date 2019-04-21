@@ -341,7 +341,6 @@
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
-        'setSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
       contentLink(content) {

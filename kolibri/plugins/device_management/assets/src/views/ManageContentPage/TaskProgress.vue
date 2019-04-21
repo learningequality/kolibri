@@ -55,7 +55,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -159,7 +158,6 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList']),
       endTask() {
         this.uiBlocked = true;
         this.$emit('cleartask', () => {

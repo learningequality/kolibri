@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow unused Vuex state and getters.
+ * @fileoverview Disallow unused Vuex mutations and actions.
  */
 
 'use strict';
@@ -8,13 +8,14 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-const { VUEX_STATE, VUEX_GETTER } = require('../constants');
+const { VUEX_MUTATION, VUEX_ACTION } = require('../constants');
 
 const create = context => {
   let hasTemplate;
   let unusedVuexProperties = [];
   let thisExpressionsVariablesNames = [];
   let befoureRouteEnterInstanceProperties = [];
+  let watchStringMethods = [];
 
   const initialize = {
     Program(node) {
@@ -29,79 +30,77 @@ const create = context => {
   const scriptVisitor = Object.assign(
     {},
     /*
-      computed: mapState({
-        count: state => state.todosCount
+      methods: mapMutations({
+        add: 'increment'
       })
 
-      computed: {
-        ...mapState({
-          count: state => state.todosCount
+      methods: {
+        ...mapMutations({
+          add: 'increment'
         })
       }
-
-      computed: mapState({
-        count (state) {
-          return state.todosCount
-        }
-      })
     */
     {
-      'CallExpression[callee.name=mapState][arguments] ObjectExpression Property[key.name]'(node) {
+      'CallExpression[callee.name=mapMutations][arguments] ObjectExpression Property[key.name]'(
+        node
+      ) {
         unusedVuexProperties.push({
-          kind: VUEX_STATE,
+          kind: VUEX_MUTATION,
           name: node.key.name,
           node,
         });
       },
     },
     /*
-      computed: mapState(['count'])
+      methods: mapMutations(['add'])
 
-      computed: {
-        ...mapState(['count'])
+      methods: {
+        ...mapMutations(['add'])
       }
     */
     {
-      'CallExpression[callee.name=mapState][arguments] ArrayExpression Literal[value]'(node) {
+      'CallExpression[callee.name=mapMutations][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: VUEX_STATE,
+          kind: VUEX_MUTATION,
           name: node.value,
           node,
         });
       },
     },
     /*
-      computed: mapGetters(['count1', 'count2'])
-
-      computed: {
-        ...mapGetters(['count']),
-      }
-    */
-    {
-      'CallExpression[callee.name=mapGetters][arguments] ArrayExpression Literal[value]'(node) {
-        unusedVuexProperties.push({
-          kind: VUEX_GETTER,
-          name: node.value,
-          node,
-        });
-      },
-    },
-    /*
-      computed: mapGetters({
-        count: 'todosCount'
+      methods: mapActions({
+        add: 'increment'
       })
 
-      computed: {
-        ...mapGetters({
-          count: 'todosCount'
+      methods: {
+        ...mapActions({
+          add: 'increment'
         })
       }
     */
     {
-      'CallExpression[callee.name=mapGetters][arguments] ObjectExpression Identifier[name]'(node) {
+      'CallExpression[callee.name=mapActions][arguments] ObjectExpression Property[key.name]'(
+        node
+      ) {
         unusedVuexProperties.push({
-          kind: VUEX_GETTER,
-          name: node.name,
+          kind: VUEX_ACTION,
+          name: node.key.name,
+          node,
+        });
+      },
+    },
+    /*
+    methods: mapActions(['add'])
+
+    methods: {
+      ...mapActions(['add'])
+    }
+  */
+    {
+      'CallExpression[callee.name=mapActions][arguments] ArrayExpression Literal[value]'(node) {
+        unusedVuexProperties.push({
+          kind: VUEX_ACTION,
+          name: node.value,
           node,
         });
       },
@@ -112,14 +111,15 @@ const create = context => {
     utils.executeOnBefoureRouteEnterInstanceProperty(property => {
       befoureRouteEnterInstanceProperties.push(property.name);
     }),
-    eslintPluginVueUtils.executeOnVue(context, obj => {
-      const watchersNames = utils.getWatchersNames(obj);
-
+    utils.executeOnWatchStringMethod(node => {
+      watchStringMethods.push(node.value);
+    }),
+    eslintPluginVueUtils.executeOnVue(context, () => {
       remove(unusedVuexProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
           befoureRouteEnterInstanceProperties.includes(property.name) ||
-          watchersNames.includes(property.name)
+          watchStringMethods.includes(property.name)
         );
       });
 
@@ -157,7 +157,7 @@ const create = context => {
 module.exports = {
   meta: {
     docs: {
-      description: 'Disallow unused Vuex state and getters',
+      description: 'Disallow unused Vuex mutations and actions',
     },
     fixable: null,
   },
