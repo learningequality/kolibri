@@ -33,7 +33,8 @@ WORKDIR /kolibri
 
 # Python dependencies
 COPY requirements/ requirements/
-RUN pip install -r requirements/dev.txt && \
+RUN echo '--- Installing Python dependencies' && \
+    pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
 
 # Set yarn cache folder for easy binding during runtime
@@ -42,7 +43,10 @@ RUN yarn config set cache-folder /yarn_cache
 # Copy all files in this directory
 COPY . .
 
-CMD yarn install --pure-lockfile
+CMD echo '--- Installing JS dependencies' && \
+    yarn install --pure-lockfile && \
+    echo `--- Making whl` && \
     make dist && \
+    echo `--- Making pex` && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/
