@@ -25,16 +25,22 @@ RUN apt-get update && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     apt-get install yarn
 
-RUN git lfs install
+RUN git lfs install &&\
+    mkdir kolibri
 
-COPY . /kolibri
+WORKDIR /kolibri
+
+# Python dependencies
+COPY requirements/ requirements/
+RUN pip install -r requirements/dev.txt && \
+    pip install -r requirements/build.txt
+
+# Copy all files in this directory
+COPY . .
 
 VOLUME /kolibridist/  # for mounting the whl files into other docker containers
 
-CMD cd /kolibri && \
-    pip install -r requirements/dev.txt && \
-    pip install -r requirements/build.txt && \
-    yarn install && \
+CMD yarn install --pure-lockfile
     make dist && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/
