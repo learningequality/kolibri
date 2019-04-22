@@ -113,7 +113,9 @@ class IdFilter(FilterSet):
 
     def filter_ids(self, queryset, name, value):
         try:
-            return queryset.filter(pk__in=value.split(','))
+            # SQLITE_MAX_VARIABLE_NUMBER is 999 by default.
+            # It means 999 is the max number of params for a query
+            return queryset.filter(pk__in=value.split(',')[:900])
         except ValueError:
             # Catch in case of a poorly formed UUID
             return queryset.none()
