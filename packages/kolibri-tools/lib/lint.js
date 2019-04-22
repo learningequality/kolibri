@@ -37,9 +37,9 @@ try {
 
 let prettierConfig;
 try {
-  prettierConfig = require(`${hostProjectDir}/.prettier.js`);
+  prettierConfig = require(`${hostProjectDir}/.prettierrc.js`);
 } catch (e) {
-  prettierConfig = require('../.prettier.js');
+  prettierConfig = require('../.prettierrc.js');
 }
 
 const logger = require('./logging');
