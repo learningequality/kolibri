@@ -5,6 +5,7 @@
       v-if="$slots.header"
       ref="header"
       class="header"
+      :style="styles.header"
     >
       <slot name="header"></slot>
     </header>
@@ -12,8 +13,9 @@
     <div>
       <aside
         v-if="$slots.aside"
+        ref="aside"
         class="aside"
-        :style="{ maxHeight: `${maxHeight}px` }"
+        :style="styles.aside"
       >
         <slot name="aside"></slot>
       </aside>
@@ -22,7 +24,7 @@
         ref="main"
         class="main"
         :class="{'main-with-aside': $slots.aside }"
-        :style="{ maxHeight: $slots.aside ? `${maxHeight}px` : '' }"
+        :style="styles.main"
       >
         <slot name="main"></slot>
       </main>
@@ -44,10 +46,11 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import themeMixin from '../mixins/theme';
 
   export default {
     name: 'MultiPaneLayout',
-    mixins: [responsiveWindow, responsiveElement],
+    mixins: [responsiveWindow, responsiveElement, themeMixin],
     computed: {
       maxHeight() {
         const APP_BAR_HEIGHT = this.windowIsSmall ? 56 : 64;
@@ -61,6 +64,20 @@
           maxHeight = maxHeight - this.$refs.footer.clientHeight;
         }
         return maxHeight;
+      },
+      styles() {
+        return {
+          header: {
+            borderBottomColor: this.$coreTextDisabled,
+          },
+          aside: {
+            height: `${this.maxHeight}px`,
+            borderRightColor: this.$coreTextDisabled,
+          },
+          main: {
+            maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
+          },
+        };
       },
     },
     methods: {
@@ -79,7 +96,9 @@
 <style lang="scss" scoped>
 
   .header {
-    margin-bottom: 8px;
+    padding: 16px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
   }
 
   .aside,
@@ -89,13 +108,16 @@
 
   .aside {
     display: inline-block;
-    width: 25%;
-    margin-right: 8px;
+    width: 33%;
+    padding: 16px;
+    border-right-style: solid;
+    border-right-width: 1px;
   }
 
   .main-with-aside {
     display: inline-block;
-    width: calc(75% - 8px);
+    width: 67%;
+    padding: 16px;
     vertical-align: top;
   }
 
