@@ -26,7 +26,8 @@ RUN apt-get update && \
     apt-get install yarn
 
 RUN git lfs install &&\
-    mkdir kolibri
+    mkdir kolibri &&\
+    mkdir yarn_cache
 
 WORKDIR /kolibri
 
@@ -34,6 +35,9 @@ WORKDIR /kolibri
 COPY requirements/ requirements/
 RUN pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
+
+# Set yarn cache folder for easy binding during runtime
+RUN yarn config set cache-folder /yarn_cache
 
 # Copy all files in this directory
 COPY . .

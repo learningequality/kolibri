@@ -218,7 +218,10 @@ docker-clean:
 
 docker-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
+	docker run &&\
+		--env-file ./docker/env.list -v $$PWD/dist:/kolibridist &&\
+		-v yarn_cache:/yarn_cache &&\
+		"learningequality/kolibri-whl" &&\
 
 docker-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
