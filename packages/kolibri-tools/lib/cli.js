@@ -147,6 +147,8 @@ program
     function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
       const numberOfBundles = bundleData.length;
       let currentlyCompiling = numberOfBundles;
+      let firstRun = true;
+      const start = new Date();
       // The way we are binding this callback to the webpack compilation hooks
       // it seems to miss this on first compilation, so we will only use this for
       // watched builds where rebuilds are possible.
@@ -156,7 +158,12 @@ program
       function doneCallback() {
         currentlyCompiling -= 1;
         if (currentlyCompiling === 0) {
-          buildLogging.info('All builds complete!');
+          if (firstRun) {
+            firstRun = false;
+            buildLogging.info(`Initial build complete in ${(new Date() - start) / 1000} seconds`);
+          } else {
+            buildLogging.info('All builds complete!');
+          }
           if (completionCallback) {
             completionCallback(bundleData, buildOptions);
           }
