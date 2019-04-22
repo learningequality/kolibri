@@ -51,6 +51,9 @@
       }
     },
     methods: {
+      /**
+       * @public
+       */
       toggleFullscreen() {
         if (!this.toggling) {
           let fullScreenPromise;

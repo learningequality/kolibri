@@ -8,27 +8,13 @@ const remove = require('lodash/remove');
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
 const utils = require('../utils');
-
-const GETTER = 'getter';
-const STATE = 'state';
-
-const reportUnusedVuexProperties = (context, properties) => {
-  if (!properties || !properties.length) {
-    return;
-  }
-
-  properties.forEach(property => {
-    context.report({
-      node: property.node,
-      message: `Unused Vuex ${property.kind} found: "${property.name}"`,
-    });
-  });
-};
+const { VUEX_STATE, VUEX_GETTER } = require('../constants');
 
 const create = context => {
   let hasTemplate;
   let unusedVuexProperties = [];
   let thisExpressionsVariablesNames = [];
+  let befoureRouteEnterInstanceProperties = [];
 
   const initialize = {
     Program(node) {
@@ -62,7 +48,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapState][arguments] ObjectExpression Property[key.name]'(node) {
         unusedVuexProperties.push({
-          kind: STATE,
+          kind: VUEX_STATE,
           name: node.key.name,
           node,
         });
@@ -78,7 +64,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapState][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: STATE,
+          kind: VUEX_STATE,
           name: node.value,
           node,
         });
@@ -94,7 +80,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapGetters][arguments] ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
-          kind: GETTER,
+          kind: VUEX_GETTER,
           name: node.value,
           node,
         });
@@ -114,7 +100,7 @@ const create = context => {
     {
       'CallExpression[callee.name=mapGetters][arguments] ObjectExpression Identifier[name]'(node) {
         unusedVuexProperties.push({
-          kind: GETTER,
+          kind: VUEX_GETTER,
           name: node.name,
           node,
         });
@@ -123,18 +109,22 @@ const create = context => {
     utils.executeOnThisExpressionProperty(property => {
       thisExpressionsVariablesNames.push(property.name);
     }),
+    utils.executeOnBefoureRouteEnterInstanceProperty(property => {
+      befoureRouteEnterInstanceProperties.push(property.name);
+    }),
     eslintPluginVueUtils.executeOnVue(context, obj => {
       const watchersNames = utils.getWatchersNames(obj);
 
       remove(unusedVuexProperties, property => {
         return (
           thisExpressionsVariablesNames.includes(property.name) ||
+          befoureRouteEnterInstanceProperties.includes(property.name) ||
           watchersNames.includes(property.name)
         );
       });
 
       if (!hasTemplate && unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );
@@ -152,7 +142,7 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       if (unusedVuexProperties.length) {
-        reportUnusedVuexProperties(context, unusedVuexProperties);
+        utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
     })
   );

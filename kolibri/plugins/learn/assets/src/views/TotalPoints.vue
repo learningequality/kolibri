@@ -1,9 +1,11 @@
 <template>
 
   <div v-if="isUserLoggedIn">
-    <div ref="icon" class="points" :style="{ color: $coreTextAnnotation }">
-      <PointsIcon class="icon" :active="true" />
-      <div class="description">
+    <div ref="icon" class="points">
+      <div class="points-icon-border">
+        <PointsIcon class="icon" :active="true" />
+      </div>
+      <div v-show="!windowIsSmall" class="description">
         <div class="description-value">
           {{ $formatNumber(totalPoints) }}
         </div>
@@ -22,8 +24,8 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import { mapGetters, mapActions } from 'vuex';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -33,13 +35,20 @@
       PointsIcon,
       KTooltip,
     },
-    mixins: [themeMixin],
+    mixins: [responsiveWindow],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
-    watch: { currentUserId: 'fetchPoints' },
+    watch: {
+      currentUserId() {
+        this.fetchPoints();
+      },
+    },
     created() {
-      this.$store.dispatch('fetchPoints');
+      this.fetchPoints();
+    },
+    methods: {
+      ...mapActions(['fetchPoints']),
     },
     $trs: { pointsTooltip: 'You earned { points, number } points' },
   };
@@ -63,7 +72,16 @@
 
   .description {
     display: inline-block;
-    margin-left: 16px;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .points-icon-border {
+    display: inline;
+    padding: 4px 8px;
+    background: white;
+    border-radius: 100%;
   }
 
 </style>

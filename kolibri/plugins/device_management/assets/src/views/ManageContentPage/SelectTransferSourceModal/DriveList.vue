@@ -77,9 +77,6 @@
         }
         return driveLabel;
       },
-      disabledDriveLabel(drive) {
-        return `${drive.name} (${this.disabledMsg})`;
-      },
     },
     $trs: {
       drivesFound: 'Drives found',

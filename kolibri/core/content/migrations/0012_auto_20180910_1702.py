@@ -10,7 +10,7 @@ from kolibri.core.content.utils.annotation import calculate_total_resource_count
 
 
 def calculate_fields(apps, schema_editor):
-    ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
+    ChannelMetadata = apps.get_model("content", "ChannelMetadata")
     for channel in ChannelMetadata.objects.all():
         calculate_published_size(channel)
         calculate_total_resource_count(channel)
@@ -19,10 +19,6 @@ def calculate_fields(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0011_auto_20180907_1017'),
-    ]
+    dependencies = [("content", "0011_auto_20180907_1017")]
 
-    operations = [
-        migrations.RunPython(calculate_fields, migrations.RunPython.noop),
-    ]
+    operations = [migrations.RunPython(calculate_fields, migrations.RunPython.noop)]

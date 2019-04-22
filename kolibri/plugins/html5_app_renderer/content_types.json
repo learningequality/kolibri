@@ -3,7 +3,8 @@
     {
     "name": "html5",
     "extensions": [
-        "zip"
+        "zip",
+        "h5p"
       ]
     }
   ]

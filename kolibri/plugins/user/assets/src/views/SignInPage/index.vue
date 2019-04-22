@@ -286,7 +286,9 @@
       },
     },
     watch: {
-      username: 'setSuggestionTerm',
+      username() {
+        this.setSuggestionTerm();
+      },
     },
     mounted() {
       /*

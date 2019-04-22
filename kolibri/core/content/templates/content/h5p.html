@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="google" content="notranslate">
+
+        <style>
+            body {
+                background-color: white;
+            }
+        </style>
+
+        <link type="text/css" rel="stylesheet" media="all" href="dist/styles/h5p.css" />
+
+        {% for path in cssfiles %}
+        <link type="text/css" rel="stylesheet" media="all" href="{{ path }}" />
+        {% endfor %}
+
+        <script>
+
+            window.H5PIntegration = {
+                pathIncludesVersion: {{ path_includes_version }},
+                contents: {
+                    "cid-1": {
+                        library: "{{ library }}",
+                        jsonContent: JSON.stringify({{ content|safe }}),
+                        displayOptions: {
+                            copyright: false,
+                            download: false,
+                            embed: false,
+                            export: false,
+                            frame: false,
+                            icon: false
+                        }
+                    }
+                },
+                url: ".",
+                l10n: {
+                    H5P: {
+                        advancedHelp: "Include this script on your website if you want dynamic sizing of the embedded content:",
+                        author: "Author",
+                        by: "by",
+                        close: "Close",
+                        contentChanged: "This content has changed since you last used it.",
+                        copyrightInformation: "Rights of use",
+                        copyrights: "Rights of use",
+                        copyrightsDescription: "View copyright information for this content.",
+                        disableFullscreen: "Disable fullscreen",
+                        download: "Download",
+                        downloadDescription: "Download this content as a H5P file.",
+                        embed: "Embed",
+                        embedDescription: "View the embed code for this content.",
+                        fullscreen: "Fullscreen",
+                        h5pDescription: "Visit H5P.org to check out more cool content.",
+                        hideAdvanced: "Hide advanced",
+                        license: "License",
+                        noCopyrights: "No copyright information available for this content.",
+                        showAdvanced: "Show advanced",
+                        showLess: "Show less",
+                        showMore: "Show more",
+                        size: "Size",
+                        source: "Source",
+                        startingOver: "You'll be starting over.",
+                        subLevel: "Sublevel",
+                        thumbnail: "Thumbnail",
+                        title: "Title",
+                        year: "Year"
+                    }
+                }
+            };
+
+            var H5P = window.H5P || {};
+            H5P.externalEmbed = true;
+
+        </script>
+
+        <script type="text/javascript" src="dist/js/h5p-standalone-frame.min.js"></script>
+
+        {% for path in jsfiles %}
+        <script type="text/javascript" src="{{ path }}"></script>
+        {% endfor %}
+
+    </head>
+    <body>
+        <div class="h5p-content" data-content-id="1"/>
+    </body>
+</html>

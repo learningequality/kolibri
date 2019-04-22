@@ -115,7 +115,7 @@
                 examTitle: this.exam.title,
               }),
               immersivePage: true,
-              immersivePageRoute: this.$router.getRoute(ClassesPageNames.EXAM_REPORT_VIEWER),
+              immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
               immersivePagePrimary: false,
               immersivePageIcon: 'arrow_back',
             };

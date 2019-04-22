@@ -2,7 +2,7 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
-const GROUP_WATCHER = 'watch';
+const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = require('./constants');
 
 module.exports = {
   /**
@@ -46,9 +46,19 @@ module.exports = {
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
-      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCHER]))
+      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCH]))
     );
     return watchers.map(watcher => watcher.name);
+  },
+
+  /**
+   * Return an array containing end locations of all comments containing
+   * jsdoc's `@public`
+   */
+  getPublicCommentsEnds(comments) {
+    return comments
+      .filter(comment => comment.value.includes('@public'))
+      .map(comment => comment.loc.end.line);
   },
 
   /**
@@ -60,6 +70,40 @@ module.exports = {
         node
       ) {
         func(node.property);
+      },
+    };
+  },
+
+  /**
+   * Run callback on beforeRouteEnter component instance property.
+   */
+  executeOnBefoureRouteEnterInstanceProperty(func) {
+    let instanceParamName;
+
+    return {
+      'Property[key.name=beforeRouteEnter] CallExpression[callee.name=next][arguments]'(node) {
+        if (node.arguments.length && node.arguments[0].params && node.arguments[0].params.length) {
+          instanceParamName = node.arguments[0].params[0].name;
+        }
+      },
+      'MemberExpression[object.name]'(node) {
+        if (node.object.name === instanceParamName) {
+          func(node.property);
+        }
+      },
+    };
+  },
+
+  /**
+   * Run callback on watch string method literal node, e.g. on `add` literal node in
+   * watch: {
+   *   counter: 'add'
+   * }
+   */
+  executeOnWatchStringMethod(func) {
+    return {
+      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
+        func(node);
       },
     };
   },
@@ -86,5 +130,47 @@ module.exports = {
         func();
       },
     };
+  },
+
+  /**
+   * Report unused Vue component properties.
+   * @param {Array} disabledLines An array of lines to not be reported, e.g. [14, 24]
+   */
+  reportUnusedProperties(context, properties, disabledLines) {
+    if (!properties || !properties.length) {
+      return;
+    }
+
+    properties.forEach(property => {
+      if (disabledLines && disabledLines.includes(property.node.loc.start.line)) {
+        return;
+      }
+
+      let message = `Unused ${PROPERTY_LABEL[property.groupName]} found: "${property.name}"`;
+      if (property.groupName === GROUP_METHODS) {
+        message = `${message}. If the method is supposed to be public, you might have forgotten to add a @public tag.`;
+      }
+
+      context.report({
+        node: property.node,
+        message,
+      });
+    });
+  },
+
+  /**
+   * Report unused Vuex properties.
+   */
+  reportUnusedVuexProperties(context, properties) {
+    if (!properties || !properties.length) {
+      return;
+    }
+
+    properties.forEach(property => {
+      context.report({
+        node: property.node,
+        message: `Unused Vuex ${property.kind} found: "${property.name}"`,
+      });
+    });
   },
 };

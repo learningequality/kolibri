@@ -159,20 +159,8 @@
       },
     },
     methods: {
-      reducePageNum() {
-        while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
-          this.pageNum = this.pageNum - 1;
-        }
-      },
       goToPage(page) {
         this.pageNum = page;
-      },
-      pageWithinRange(page) {
-        const maxOnEachSide = 1;
-        if (this.pageNum === 1 || this.pageNum === this.numPages) {
-          return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
-        }
-        return Math.abs(this.pageNum - page) <= maxOnEachSide;
       },
     },
     $trs: {

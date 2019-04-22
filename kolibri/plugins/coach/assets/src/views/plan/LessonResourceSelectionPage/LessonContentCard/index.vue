@@ -183,7 +183,7 @@
 
   .description {
     // HACK to get long descriptions to fit in the card
-    height: $thumb-height * 0.5;
+    max-height: $thumb-height * 0.5;
     overflow-y: visible;
     font-size: 14px;
   }

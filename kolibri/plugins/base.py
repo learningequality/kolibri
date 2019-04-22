@@ -87,7 +87,7 @@ class KolibriPluginBase(object):
 
     def _return_module(self, module_name):
         if module_has_submodule(sys.modules[self._module_path()], module_name):
-            models_module_name = '%s.%s' % (self._module_path(), module_name)
+            models_module_name = "%s.%s" % (self._module_path(), module_name)
             return import_module(models_module_name)
 
         return None
@@ -108,7 +108,7 @@ class KolibriPluginBase(object):
         By default urls.py will be automatically discovered, if you wish to
         override this behaviour, override this method.
         """
-        return self._return_module('urls')
+        return self._return_module("urls")
 
     def api_url_module(self):
         """
@@ -129,7 +129,7 @@ class KolibriPluginBase(object):
         By default api_urls.py will be automatically discovered, if you wish to
         override this behaviour, override this method.
         """
-        return self._return_module('api_urls')
+        return self._return_module("api_urls")
 
     def url_namespace(self):
         """

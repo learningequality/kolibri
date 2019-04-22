@@ -1,7 +1,5 @@
 import { ExamResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
-import router from 'kolibri.coreVue.router';
-import { PageNames } from '../../constants';
 import { createExam } from '../examShared/exams';
 
 const snackbarTranslator = createTranslator('ExamReportSnackbarTexts', {
@@ -18,16 +16,13 @@ function showSnackbar(store, string) {
 
 export function copyExam(store, { exam, className }) {
   store.commit('CORE_SET_PAGE_LOADING', true, { root: true });
-  return new Promise(resolve => {
-    createExam(store, exam).then(
-      newExam => {
-        store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-        showSnackbar(store, snackbarTranslator.$tr('copiedExamToClass', { className }));
-        store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
-        resolve(newExam);
-      },
-      error => store.dispatch('handleApiError', error, { root: true })
-    );
+  return new Promise((resolve, reject) => {
+    createExam(store, exam).then(newExam => {
+      store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
+      showSnackbar(store, snackbarTranslator.$tr('copiedExamToClass', { className }));
+      store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
+      resolve(newExam);
+    }, reject);
   });
 }
 
@@ -48,14 +43,4 @@ export function updateExamDetails(store, { examId, payload }) {
       }
     );
   });
-}
-
-export function deleteExam(store, examId) {
-  return ExamResource.deleteModel({ id: examId }).then(
-    () => {
-      router.replace({ name: PageNames.EXAMS });
-      showSnackbar(store, snackbarTranslator.$tr('examDeleted'));
-    },
-    error => store.dispatch('handleError', error, { root: true })
-  );
 }

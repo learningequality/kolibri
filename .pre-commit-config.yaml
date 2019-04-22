@@ -19,7 +19,7 @@ repos:
     -   id: frontend-lint
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
-        entry: yarn run lint -w
+        entry: yarn run kolibri-tools lint --write
         language: system
         files: \.(js|vue|scss|css)$
-        exclude: '^kolibri/core/static/assets/fonts/.+?\.css$'
+        exclude: '^kolibri/core/static/assets/fonts/.+?\.css$|^kolibri/core/content/static/assets/'

@@ -24,7 +24,6 @@ export default {
     pageName: '',
     toolbarRoute: {},
     toolbarTitle: '',
-    reportRefreshInterval: 30000,
   },
   mutations: {
     SET_PAGE_NAME(state, pageName) {
@@ -45,6 +44,9 @@ export default {
       // If the number of classes is exactly 1, then redirect to its home page,
       // otherwise show the whole class list
       return state.classList.length !== 1;
+    },
+    userIsAuthorizedForCoach(state, getters) {
+      return getters.isCoach || getters.isAdmin || getters.isSuperuser;
     },
   },
   actions: {

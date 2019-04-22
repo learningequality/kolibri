@@ -14,45 +14,111 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('kolibriauth', '0007_auto_20171226_1125'),
-    ]
+    dependencies = [("kolibriauth", "0007_auto_20171226_1125")]
 
     operations = [
         migrations.CreateModel(
-            name='Lesson',
+            name="Lesson",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('name', models.CharField(max_length=50)),
-                ('description', models.CharField(blank=True, default='', max_length=200)),
-                ('resources', jsonfield.fields.JSONField(blank=True, default=[])),
-                ('is_active', models.BooleanField(default=False)),
-                ('is_archived', models.BooleanField(default=False)),
-                ('collection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lessons', to='kolibriauth.Collection')),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lessons_created', to='kolibriauth.FacilityUser')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                ("name", models.CharField(max_length=50)),
+                (
+                    "description",
+                    models.CharField(blank=True, default="", max_length=200),
+                ),
+                ("resources", jsonfield.fields.JSONField(blank=True, default=[])),
+                ("is_active", models.BooleanField(default=False)),
+                ("is_archived", models.BooleanField(default=False)),
+                (
+                    "collection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lessons",
+                        to="kolibriauth.Collection",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lessons_created",
+                        to="kolibriauth.FacilityUser",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityDataset",
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='LessonAssignment',
+            name="LessonAssignment",
             fields=[
-                ('id', morango.utils.uuids.UUIDField(editable=False, primary_key=True, serialize=False)),
-                ('_morango_dirty_bit', models.BooleanField(default=True, editable=False)),
-                ('_morango_source_id', models.CharField(editable=False, max_length=96)),
-                ('_morango_partition', models.CharField(editable=False, max_length=128)),
-                ('assigned_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_lessons', to='kolibriauth.FacilityUser')),
-                ('collection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_lessons', to='kolibriauth.Collection')),
-                ('dataset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityDataset')),
-                ('lesson', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_groups', to='lessons.Lesson')),
+                (
+                    "id",
+                    morango.utils.uuids.UUIDField(
+                        editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "_morango_dirty_bit",
+                    models.BooleanField(default=True, editable=False),
+                ),
+                ("_morango_source_id", models.CharField(editable=False, max_length=96)),
+                (
+                    "_morango_partition",
+                    models.CharField(editable=False, max_length=128),
+                ),
+                (
+                    "assigned_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_lessons",
+                        to="kolibriauth.FacilityUser",
+                    ),
+                ),
+                (
+                    "collection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_lessons",
+                        to="kolibriauth.Collection",
+                    ),
+                ),
+                (
+                    "dataset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityDataset",
+                    ),
+                ),
+                (
+                    "lesson",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_groups",
+                        to="lessons.Lesson",
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
     ]

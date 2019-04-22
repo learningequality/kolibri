@@ -11,7 +11,7 @@
     "kolibri-tools": "./lib/cli.js"
   },
   "scripts": {
-    "build": "node ./build.js"
+    "build-kolibri-tools": "node ./build_kolibri_tools.js"
   },
   "dependencies": {
     "@vue/test-utils": "1.0.0-beta.25",

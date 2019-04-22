@@ -81,17 +81,6 @@
       emptyMessage() {
         return LessonSummaryPageStrings.$tr('noResourcesInLesson');
       },
-      /** TODO COACH
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
-      */
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

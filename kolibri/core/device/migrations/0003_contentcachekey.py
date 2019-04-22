@@ -10,21 +10,28 @@ from django.db import models
 
 def create_content_cache_key(apps, schema_editor):
     from kolibri.core.device.models import ContentCacheKey
+
     ContentCacheKey.update_cache_key()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('device', '0002_devicesettings_default_facility'),
-    ]
+    dependencies = [("device", "0002_devicesettings_default_facility")]
 
     operations = [
         migrations.CreateModel(
-            name='ContentCacheKey',
+            name="ContentCacheKey",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.IntegerField(default=time.time)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", models.IntegerField(default=time.time)),
             ],
         ),
         migrations.RunPython(create_content_cache_key, migrations.RunPython.noop),

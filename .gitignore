@@ -120,6 +120,7 @@ build_tools/crowdin-cli.jar
 
 # Ignore pytest cache directory
 .pytest_cache/
+.pytest_kolibri_home
 
 # ignore source font files
 *.ttf
@@ -128,3 +129,6 @@ build_tools/crowdin-cli.jar
 
 # SQLite file
 SQLITE_MAX_VARIABLE_NUMBER.cache
+
+# don't ignore the TTF font for H5P
+!h5p-core-18.ttf

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import LessonsSearchFilters from '../LessonsSearchFilters';
 import makeStore from '../../../../../../test/makeStore';
 
-function makeWrapper() {
+function makeWrapper(props) {
   const wrapper = mount(LessonsSearchFilters, {
     store: makeStore(),
     propsData: {
@@ -16,13 +16,14 @@ function makeWrapper() {
         content_kinds: [],
         channel_ids: [],
       },
+      ...props,
     },
   });
-  const kSelects = wrapper.findAll({ name: 'KSelect' });
+  const kSelects = () => wrapper.findAll({ name: 'KSelect' });
   const els = {
-    kindSelect: () => kSelects.at(0),
-    channelSelect: () => kSelects.at(1),
-    roleSelect: () => kSelects.at(2),
+    kindSelect: () => kSelects().at(0),
+    channelSelect: () => kSelects().at(1),
+    roleSelect: () => kSelects().at(2),
   };
   return { wrapper, els };
 }
@@ -60,22 +61,10 @@ describe('LessonsSearchFilters', () => {
     ]);
   });
 
-  it('has the correct role filter options when there are no coach contents', () => {
-    const { wrapper, els } = makeWrapper();
-    wrapper.setProps({
-      searchResults: {
-        channel_ids: [],
-        content_kinds: [],
-        results: [
-          { kind: 'topic', channel_id: '123', num_coach_contents: 0 },
-          { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
-        ],
-      },
-    });
-    expect(els.roleSelect().props().options).toEqual([
-      { label: 'All', value: null },
-      { label: 'Non-coach', value: 'nonCoach' },
-    ]);
+  it('does not show role filter options when there are no coach contents', () => {
+    const { wrapper } = makeWrapper();
+    const kSelects = wrapper.findAll({ name: 'KSelect' });
+    expect(kSelects.length).toEqual(2);
   });
 
   it('has the correct role filter options when there are coach contents', () => {
@@ -91,9 +80,8 @@ describe('LessonsSearchFilters', () => {
       },
     });
     expect(els.roleSelect().props().options).toEqual([
-      { label: 'All', value: null },
-      { label: 'Coach', value: 'coach' },
-      { label: 'Non-coach', value: 'nonCoach' },
+      { label: 'Show', value: null },
+      { label: 'Hide', value: 'nonCoach' },
     ]);
   });
 
@@ -118,12 +106,21 @@ describe('LessonsSearchFilters', () => {
   });
 
   it('emits the correct event when the role filter has changed', () => {
-    const { wrapper, els } = makeWrapper();
-    els.roleSelect().vm.$emit('change', { value: 'nonCoach' });
+    const { wrapper, els } = makeWrapper({
+      searchResults: {
+        channel_ids: [],
+        content_kinds: [],
+        results: [
+          { kind: 'topic', channel_id: '123', num_coach_contents: 1 },
+          { kind: 'exercise', channel_id: '123', num_coach_contents: 0 },
+        ],
+      },
+    });
+    els.roleSelect().vm.$emit('change', { value: 'coach' });
     expect(wrapper.emitted().input[0][0]).toEqual({
       channel: '123',
       kind: 'html5',
-      role: 'nonCoach',
+      role: 'coach',
     });
   });
 });

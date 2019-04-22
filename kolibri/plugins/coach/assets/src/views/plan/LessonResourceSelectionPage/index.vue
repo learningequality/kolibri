@@ -4,7 +4,7 @@
     :immersivePage="true"
     immersivePageIcon="close"
     immersivePagePrimary
-    :immersivePageRoute="toolbarRoute"
+    :immersivePageRoute="exitButtonRoute"
     :appBarTitle="coachStrings.$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
@@ -95,7 +95,6 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { topicListingLink, selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import Bottom from '../../plan/CreateExamPage/Bottom';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
@@ -135,7 +134,7 @@
       };
     },
     computed: {
-      ...mapState(['pageName', 'toolbarRoute']),
+      ...mapState(['pageName']),
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       ...mapState('lessonSummary/resources', [
@@ -145,6 +144,12 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
+      toolbarRoute() {
+        if (this.$route.query.last) {
+          return this.$router.getRoute(this.$route.query.last);
+        }
+        return this.$store.state.toolbarRoute;
+      },
       pageTitle() {
         return this.$tr('documentTitle', { lessonName: this.currentLesson.title });
       },
@@ -207,14 +212,14 @@
         );
       },
       channelsLink() {
-        return selectionRootLink(this.$route.params);
+        return this.selectionRootLink();
       },
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
-          return topicListingLink({ ...this.routerParams, topicId: lastId });
+          return this.topicListingLink({ ...this.routerParams, topicId: lastId });
         } else if (this.inSearchMode) {
-          return selectionRootLink({ ...this.routerParams });
+          return this.selectionRootLink({ ...this.routerParams });
         } else {
           return this.toolbarRoute;
         }
@@ -305,14 +310,18 @@
         });
         this.addToWorkingResources([contentId]);
       },
-      // IDEA refactor router logic into actions
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
       },
-      // IDEA refactor router logic into actions
+      selectionRootLink() {
+        return this.$router.getRoute(LessonsPageNames.SELECTION_ROOT, {}, this.$route.query);
+      },
+      topicListingLink({ topicId }) {
+        return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId }, this.$route.query);
+      },
       contentLink(content) {
         if (this.contentIsDirectoryKind(content)) {
-          return topicListingLink({ ...this.routerParams, topicId: content.id });
+          return this.topicListingLink({ ...this.routerParams, topicId: content.id });
         }
         const { query } = this.$route;
         return {
@@ -358,15 +367,19 @@
         }
       },
       handleSearchTerm(searchTerm) {
-        const lastId = this.$route.query.last_id || this.$route.params.topicId;
+        const query = {
+          last_id: this.$route.query.last_id || this.$route.params.topicId,
+        };
+        const lastPage = this.$route.query.last;
+        if (lastPage) {
+          query.last = lastPage;
+        }
         this.$router.push({
           name: LessonsPageNames.SELECTION_SEARCH,
           params: {
             searchTerm,
           },
-          query: {
-            last_id: lastId,
-          },
+          query,
         });
       },
       handleMoreResults() {
@@ -385,7 +398,7 @@
           });
       },
       topicsLink(topicId) {
-        return topicListingLink({ ...this.$route.params, topicId });
+        return this.topicListingLink({ ...this.$route.params, topicId });
       },
     },
     $trs: {

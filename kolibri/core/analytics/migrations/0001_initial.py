@@ -12,33 +12,63 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('kolibriauth', '0001_initial'),
-    ]
+    dependencies = [("kolibriauth", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='PingbackNotification',
+            name="PingbackNotification",
             fields=[
-                ('id', models.CharField(max_length=50, primary_key=True, serialize=False)),
-                ('version_range', models.CharField(max_length=50)),
-                ('timestamp', models.DateField()),
-                ('link_url', models.CharField(blank=True, max_length=150)),
-                ('i18n', jsonfield.fields.JSONField(default={})),
-                ('active', models.BooleanField(default=True)),
-                ('source', models.CharField(choices=[('pingback', 'Pingback'), ('statistics', 'Statistics')], max_length=20)),
+                (
+                    "id",
+                    models.CharField(max_length=50, primary_key=True, serialize=False),
+                ),
+                ("version_range", models.CharField(max_length=50)),
+                ("timestamp", models.DateField()),
+                ("link_url", models.CharField(blank=True, max_length=150)),
+                ("i18n", jsonfield.fields.JSONField(default={})),
+                ("active", models.BooleanField(default=True)),
+                (
+                    "source",
+                    models.CharField(
+                        choices=[
+                            ("pingback", "Pingback"),
+                            ("statistics", "Statistics"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PingbackNotificationDismissed',
+            name="PingbackNotificationDismissed",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='analytics.PingbackNotification')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='kolibriauth.FacilityUser')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "notification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="analytics.PingbackNotification",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="kolibriauth.FacilityUser",
+                    ),
+                ),
             ],
         ),
         migrations.AlterUniqueTogether(
-            name='pingbacknotificationdismissed',
-            unique_together=set([('user', 'notification')]),
+            name="pingbacknotificationdismissed",
+            unique_together=set([("user", "notification")]),
         ),
     ]

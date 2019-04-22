@@ -288,7 +288,11 @@ oriented data synchronization.
         return null;
       },
     },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    watch: {
+      exerciseProgress() {
+        this.updateExerciseProgressMethod();
+      },
+    },
     beforeDestroy() {
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
