@@ -34,6 +34,7 @@
       v-if="$slots.footer"
       ref="footer"
       class="footer"
+      :style="styles.footer"
     >
       <slot name="footer"></slot>
     </footer>
@@ -71,11 +72,16 @@
             borderBottomColor: this.$coreTextDisabled,
           },
           aside: {
-            height: `${this.maxHeight}px`,
+            maxHeight: `${this.maxHeight}px`,
             borderRightColor: this.$coreTextDisabled,
+            borderRightStyle: 'none',
           },
           main: {
             maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
+            borderLeftColor: this.$coreTextDisabled,
+          },
+          footer: {
+            borderTopColor: this.$coreTextDisabled,
           },
         };
       },
@@ -122,7 +128,9 @@
   }
 
   .footer {
-    margin-top: 8px;
+    padding: 16px;
+    border-top-style: solid;
+    border-top-width: 1px;
   }
 
 </style>

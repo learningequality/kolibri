@@ -30,6 +30,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -79,6 +80,7 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      KPageContainer,
     },
     mixins: [responsiveWindow],
     computed: {
