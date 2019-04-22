@@ -42,8 +42,6 @@ RUN yarn config set cache-folder /yarn_cache
 # Copy all files in this directory
 COPY . .
 
-VOLUME /kolibridist/  # for mounting the whl files into other docker containers
-
 CMD yarn install --pure-lockfile
     make dist && \
     make pex && \
