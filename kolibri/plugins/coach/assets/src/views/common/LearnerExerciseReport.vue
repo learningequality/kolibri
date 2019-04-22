@@ -168,13 +168,6 @@
 
   .exercise-section {
     padding: 16px;
-    h3 {
-      margin-top: 0;
-    }
-  }
-
-  .learner-name {
-    margin-bottom: 0;
   }
 
   .exercise-detail-section {
