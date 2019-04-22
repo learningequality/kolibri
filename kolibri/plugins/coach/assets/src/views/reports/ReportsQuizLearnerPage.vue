@@ -7,9 +7,11 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <LearnerQuizReport
-      @navigate="handleNavigation"
-    />
+    <KPageContainer>
+      <LearnerQuizReport
+        @navigate="handleNavigation"
+      />
+    </KPageContainer>
   </CoreBase>
 
 </template>
