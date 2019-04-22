@@ -70,7 +70,7 @@ option_spec = {
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",
             "default": 0,
-            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB"),
+            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
         },
     },
     "Database": {
