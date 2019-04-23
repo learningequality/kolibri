@@ -47,7 +47,7 @@
             </HeaderTableRow>
             <HeaderTableRow
               :keyText="coachStrings.$tr('descriptionLabel')"
-              :valueText="currentLesson.description || $tr('noDescription')"
+              :valueText="currentLesson.description || coachStrings.$tr('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>
@@ -178,7 +178,6 @@
       noResourcesInLesson: 'No resources in this lesson',
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
-      noDescription: 'No description',
       noOne: 'No one',
     },
   };
