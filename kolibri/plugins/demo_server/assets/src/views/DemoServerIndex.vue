@@ -78,9 +78,13 @@
         bannerClosed: false,
       };
     },
+    mounted() {
+      kolibriGlobal.emit('showDemoNotice', { bannerClosed: this.bannerClosed });
+    },
     methods: {
       toggleBannerState(event) {
         this.bannerClosed = !this.bannerClosed;
+        kolibriGlobal.emit('showDemoNotice', { bannerClosed: this.bannerClosed });
         event.target.blur();
         return false;
       },
@@ -109,6 +113,7 @@
     position: absolute;
     top: 0%;
     left: 0%;
+    z-index: 7500;
     width: 100%;
     margin: 0 auto;
     overflow-y: auto;
