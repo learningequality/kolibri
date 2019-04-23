@@ -72,4 +72,9 @@
     font-size: 16px; // same as question-list
   }
 
+  // Centers the video inside the main slot
+  /deep/ .wrapper {
+    margin: auto;
+  }
+
 </style>

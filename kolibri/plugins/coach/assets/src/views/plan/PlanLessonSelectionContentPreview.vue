@@ -8,7 +8,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <KPageContainer>
+    <KPageContainer noPadding>
       <LessonContentPreviewPage
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
