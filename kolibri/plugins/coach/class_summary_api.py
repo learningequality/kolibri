@@ -190,7 +190,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "groups", "description")
+        fields = ("id", "title", "active", "node_ids", "groups")
 
     def get_node_ids(self, obj):
         return [resource["contentnode_id"] for resource in obj.resources]
@@ -223,7 +223,6 @@ class ExamSerializer(serializers.ModelSerializer):
             "groups",
             "data_model_version",
             "question_count",
-            "learners_see_fixed_order",
         )
 
 
@@ -232,7 +231,7 @@ class ContentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentNode
-        fields = ("node_id", "content_id", "title", "kind", "channel_id")
+        fields = ("node_id", "content_id", "title", "kind")
 
 
 def data(Serializer, queryset):
