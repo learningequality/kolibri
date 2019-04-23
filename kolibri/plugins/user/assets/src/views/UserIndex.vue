@@ -52,7 +52,6 @@
       ...mapState(['pageName']),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
-          banner;
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
           return translator.$tr('createAccount');
