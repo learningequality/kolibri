@@ -1,16 +1,16 @@
 Frontend code conventions
 =========================
 
-Establishing code conventions is important in order to keep a more consistent codebase.
+Establishing code conventions is important in order to keep a more consistent codebase. Therefore the goal for the tools and principles below is to help ensure any committed code is properly aligned with the conventions.
 
 Linting and auto formatting
 ---------------------------
 
-Many of our conventions are enforced through various linters including `ESLint <https://eslint.org/>`__, `ESLint Vue plugin <https://github.com/vuejs/eslint-plugin-vue>`__, `stylelint <https://stylelint.io/>`__, and `HTMLHint <https://htmlhint.io/>`__. The enforced rules are located in the ``.eslintrc.js``, ``.stylelintrc.js``, and ``.htmlhintrc`` files located at the root of the project. Many of these rules are auto fixed during the Webpack dev server.
+Many of our conventions are enforced through various linters including `ESLint <https://eslint.org/>`__, `ESLint Vue plugin <https://github.com/vuejs/eslint-plugin-vue>`__, `stylelint <https://stylelint.io/>`__, and `HTMLHint <https://htmlhint.io/>`__. The enforced rules are located in the ``.eslintrc.js``, ``.stylelintrc.js``, and ``.htmlhintrc`` files located at the root of the project.
 
-We use `Prettier <https://prettier.io/>`__ to auto-format ``.vue``, ``.js``, and ``.scss`` files. We use `Black <https://github.com/ambv/black>`__ to auto-format ``.py`` files.
+Also available are options and tools that enable auto-formatting of ``.vue``, ``.js``, ``.scss``, and ``.py`` files to conform to code conventions. To facilitate this, we use `Black <https://github.com/ambv/black>`__ to auto-format ``.py`` files, and  `Prettier <https://prettier.io/>`__ to auto-format the others. Auto-formatting runs by default while running the dev server, otherwise be sure to run the dev server with ``-warn`` as described in :doc:`/getting_started` to prevent it from auto-formatting.
 
-The linting and auto formating is incorporated into the dev server and pre commit hooks, so make sure you've set up `pre-commit` as described in :doc:`/getting_started`.
+In addition, ``pre-commit`` hooks can be installed to perform linting and auto-formatting. To enable the hooks, be sure to follow the directions described in :doc:`/getting_started`.
 
 You can also install the appropriate editor plugins for the various linters to see linting warnings/errors inline.
 

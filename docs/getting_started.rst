@@ -358,9 +358,9 @@ Development workflows
 Linting and auto-formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting provided by Prettier and Black are run in the background automatically when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
+Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by default when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
 
-Linting and auto-formatting should also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
+Linting and auto-formatting can also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
 
 You can manually run the auto-formatters using:
 
