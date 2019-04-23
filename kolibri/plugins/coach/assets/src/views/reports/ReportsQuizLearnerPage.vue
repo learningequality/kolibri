@@ -7,11 +7,9 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <KPageContainer noPadding>
-      <LearnerQuizReport
-        @navigate="handleNavigation"
-      />
-    </KPageContainer>
+    <LearnerQuizReport
+      @navigate="handleNavigation"
+    />
   </CoreBase>
 
 </template>
