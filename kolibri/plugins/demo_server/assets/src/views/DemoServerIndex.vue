@@ -79,12 +79,12 @@
       };
     },
     mounted() {
-      kolibriGlobal.emit('showDemoNotice', { bannerClosed: this.bannerClosed });
+      kolibriGlobal.emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
     },
     methods: {
       toggleBannerState(event) {
         this.bannerClosed = !this.bannerClosed;
-        kolibriGlobal.emit('showDemoNotice', { bannerClosed: this.bannerClosed });
+        kolibriGlobal.emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
         event.target.blur();
         return false;
       },

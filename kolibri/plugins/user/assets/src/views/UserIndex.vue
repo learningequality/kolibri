@@ -43,7 +43,7 @@
       };
     },
     mounted() {
-      kolibriGlobal.on('showDemoNotice', data => {
+      kolibriGlobal.on('demoBannerChanged', data => {
         console.log(data);
         this.bannerClosed = data.bannerClosed;
       });
