@@ -12,21 +12,28 @@
         </KLabeledIcon>
       </div>
 
-      <HeaderTable class="scores">
-        <HeaderTableRow
-          :keyText="$tr('overallScore')"
-        >
-          <strong slot="value">
-            {{ $formatNumber(score, { style: 'percent' }) }}
-          </strong>
-        </HeaderTableRow>
-        <HeaderTableRow
-          :keyText="$tr('questionsCorrectLabel')"
-          :valueText="$tr('questionsCorrectValue', {
-            correct: questionsCorrect, total: questions.length
-          })"
-        />
-      </HeaderTable>
+      <table class="scores">
+        <tr>
+          <th>
+            {{ $tr('overallScore') }}
+          </th>
+          <td>
+            <strong>
+              {{ $formatNumber(score, { style: 'percent' }) }}
+            </strong>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{ $tr('questionsCorrectLabel') }}
+          </th>
+          <td>
+            {{ $tr('questionsCorrectValue', {
+              correct: questionsCorrect, total: questions.length
+            }) }}
+          </td>
+        </tr>
+      </table>
     </KGridItem>
     <KGridItem size="25" percentage align="right">
       <div>
@@ -53,8 +60,6 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
-  import HeaderTableRow from '../../../../../plugins/coach/assets/src/views/common/HeaderTable/HeaderTableRow';
-  import HeaderTable from '../../../../../plugins/coach/assets/src/views/common/HeaderTable';
 
   export default {
     name: 'PageStatus',
@@ -65,8 +70,6 @@
       ElapsedTime,
       KIcon,
       KLabeledIcon,
-      HeaderTable,
-      HeaderTableRow,
     },
     mixins: [themeMixin],
     props: {
@@ -154,7 +157,19 @@
   }
 
   .scores {
+    min-width: 200px;
     margin-top: 24px;
+
+    th {
+      text-align: left;
+    }
+
+    th,
+    td {
+      height: 2em;
+      padding-right: 24px;
+      font-size: 14px;
+    }
   }
 
 </style>
