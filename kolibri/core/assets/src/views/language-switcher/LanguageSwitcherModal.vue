@@ -5,7 +5,6 @@
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
     @submit="setLang"
-    @cancel="closeModal"
   >
     <KGrid>
       <KGridItem
@@ -66,9 +65,6 @@
       },
     },
     methods: {
-      closeModal() {
-        this.$emit('close');
-      },
       setLang() {
         this.switchLanguage(this.selectedLanguage);
       },

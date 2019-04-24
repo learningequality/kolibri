@@ -6,7 +6,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
-    @cancel="closeModal"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
@@ -41,13 +40,10 @@
       };
     },
     methods: {
-      ...mapActions('userManagement', ['deleteUser', 'displayModal']),
+      ...mapActions('userManagement', ['deleteUser']),
       handleDeleteUser() {
         this.submitting = true;
         this.deleteUser(this.id);
-      },
-      closeModal() {
-        this.displayModal(false);
       },
     },
     $trs: {

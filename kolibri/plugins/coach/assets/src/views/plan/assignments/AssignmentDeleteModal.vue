@@ -4,8 +4,6 @@
     :title="modalTitle"
     :submitText="coachStrings.$tr('deleteAction')"
     :cancelText="coachStrings.$tr('cancelAction')"
-    @submit="$emit('submit')"
-    @cancel="$emit('cancel')"
   >
     <p>{{ modalDescription }}</p>
     <p v-if="modalConfirmation">

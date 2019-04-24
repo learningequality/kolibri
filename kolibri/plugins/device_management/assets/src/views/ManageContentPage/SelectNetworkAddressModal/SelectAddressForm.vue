@@ -7,7 +7,6 @@
     size="medium"
     :submitDisabled="submitDisabled"
     @submit="handleSubmit"
-    @cancel="$emit('cancel')"
   >
     <UiAlert
       v-if="uiAlertProps"

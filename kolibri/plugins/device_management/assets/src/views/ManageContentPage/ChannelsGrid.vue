@@ -37,7 +37,7 @@
     <DeleteChannelModal
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
-      @confirm="handleDeleteChannel"
+      @submit="handleDeleteChannel"
       @cancel="selectedChannelId=null"
     />
   </div>

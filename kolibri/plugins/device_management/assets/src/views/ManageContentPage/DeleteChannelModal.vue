@@ -4,8 +4,6 @@
     :title="$tr('title')"
     :submitText="$tr('confirmButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
-    @submit="handleClickConfirm"
-    @cancel="handleClickCancel"
   >
     <p>{{ $tr('confirmationQuestion', { channelTitle }) }}</p>
   </KModal>
@@ -26,14 +24,6 @@
       channelTitle: {
         type: String,
         required: true,
-      },
-    },
-    methods: {
-      handleClickCancel() {
-        this.$emit('cancel');
-      },
-      handleClickConfirm() {
-        this.$emit('confirm');
       },
     },
     $trs: {

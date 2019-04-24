@@ -7,7 +7,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="updateName"
-    @cancel="close"
   >
     <KTextbox
       ref="name"
@@ -92,7 +91,7 @@
       },
     },
     methods: {
-      ...mapActions('classEditManagement', ['updateClass', 'displayModal']),
+      ...mapActions('classEditManagement', ['updateClass']),
       updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -101,9 +100,6 @@
         } else {
           this.$refs.name.focus();
         }
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

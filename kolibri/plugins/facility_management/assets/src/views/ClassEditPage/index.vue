@@ -26,12 +26,14 @@
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
+      @cancel="closeModal"
     />
     <UserRemoveConfirmationModal
       v-if="modalShown===Modals.REMOVE_USER"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
-      @confirm="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
+      @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
+      @cancel="closeModal"
     />
     <!-- /Modals -->
 
@@ -160,6 +162,9 @@
         'removeClassLearner',
         'removeClassCoach',
       ]),
+      closeModal() {
+        this.displayModal(false);
+      },
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;

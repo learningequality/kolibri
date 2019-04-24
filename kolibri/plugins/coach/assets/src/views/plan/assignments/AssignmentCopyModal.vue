@@ -8,7 +8,6 @@
       :title="modalTitle"
       :submitText="coachStrings.$tr('continueAction')"
       :cancelText="coachStrings.$tr('cancelAction')"
-      @cancel="$emit('cancel')"
       @submit="goToAvailableGroups"
     >
       <KRadioButton
@@ -27,7 +26,6 @@
       :title="modalTitle"
       :submitText="coachStrings.$tr('copyAction')"
       :cancelText="coachStrings.$tr('cancelAction')"
-      @cancel="$emit('cancel')"
       @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
     >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>

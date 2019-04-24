@@ -6,7 +6,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
-    @cancel="displayModal(false)"
   >
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 
@@ -98,14 +97,14 @@
     },
     methods: {
       ...mapActions(['handleApiError']),
-      ...mapActions('userManagement', ['updateFacilityUser', 'displayModal']),
+      ...mapActions('userManagement', ['updateFacilityUser']),
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {
           // TODO handle the error within this modal (needs new strings)
           this.updateFacilityUser({ userId: this.id, updates: { password: this.password } })
             .catch(error => this.handleApiError(error))
-            .then(() => this.displayModal(false));
+            .then(() => this.$emit('cancel'));
         } else {
           if (this.passwordIsInvalid) {
             this.$refs.password.focus();

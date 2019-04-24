@@ -6,7 +6,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="createNewUser"
-    @cancel="close"
   >
     <section>
       <KTextbox
@@ -214,7 +213,7 @@
       },
     },
     methods: {
-      ...mapActions('userManagement', ['createUser', 'displayModal']),
+      ...mapActions('userManagement', ['createUser']),
       ...mapActions(['handleApiError']),
       createNewUser() {
         this.usernameAlreadyExistsOnServer = false;
@@ -231,7 +230,7 @@
             password: this.password,
           }).then(
             () => {
-              this.close();
+              this.$emit('cancel');
             },
             error => {
               const usernameAlreadyExistsError = CatchErrors(error, [
@@ -259,9 +258,6 @@
         } else if (this.confirmedPasswordIsInvalid) {
           this.$refs.confirmedPassword.focus();
         }
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

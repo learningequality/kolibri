@@ -6,7 +6,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
-    @cancel="displayModal(false)"
   >
     <KTextbox
       ref="name"
@@ -242,7 +241,7 @@
       }
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError', 'displayModal']),
+      ...mapActions('userManagement', ['updateUser', 'setError']),
       ...mapActions(['kolibriLogout']),
       submitForm() {
         if (this.formIsInvalid) {
@@ -276,7 +275,7 @@
             // user has demoted themselves
             this.kolibriLogout();
           }
-          this.displayModal(false);
+          this.$emit('cancel');
         });
       },
     },

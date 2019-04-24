@@ -20,7 +20,7 @@
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
       :sharedContentId="sharedContentId"
-      @cancel="modalIsOpen = false"
+      @submit="modalIsOpen = false"
     />
   </div>
 

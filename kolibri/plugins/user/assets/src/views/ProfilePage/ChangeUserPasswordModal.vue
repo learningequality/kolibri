@@ -7,7 +7,6 @@
     :cancelText="$tr('cancelButtonLabel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
-    @cancel="closeModal"
   >
     <KTextbox
       ref="newPassword"
@@ -87,9 +86,6 @@
     },
     methods: {
       ...mapActions('profile', ['updateUserProfilePassword']),
-      closeModal() {
-        this.$emit('cancel');
-      },
       submitForm() {
         this.submittedForm = true;
         if (this.formIsValid) {

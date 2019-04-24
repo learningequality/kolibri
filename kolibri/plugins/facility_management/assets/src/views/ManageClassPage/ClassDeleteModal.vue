@@ -6,7 +6,6 @@
     :cancelText="$tr('cancel')"
     :hasError="false"
     @submit="classDelete"
-    @cancel="close"
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
@@ -36,12 +35,9 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['deleteClass', 'displayModal']),
+      ...mapActions('classManagement', ['deleteClass']),
       classDelete() {
         this.deleteClass(this.classid);
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

@@ -7,7 +7,6 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="callRenameGroup"
-    @cancel="close"
   >
     <KTextbox
       ref="name"
@@ -92,7 +91,7 @@
       },
     },
     methods: {
-      ...mapActions('groups', ['renameGroup', 'displayModal']),
+      ...mapActions('groups', ['renameGroup']),
       callRenameGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -104,9 +103,6 @@
         } else {
           this.$refs.name.focus();
         }
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {
