@@ -1,3 +1,4 @@
+import uniq from 'lodash/uniq';
 import { LearnerGroupResource, MembershipResource } from 'kolibri.resources';
 
 function _groupState(group) {
@@ -66,17 +67,15 @@ export function deleteGroup(store, groupId) {
 }
 
 function _addMultipleUsersToGroup(store, groupId, userIds) {
-  const memberships = userIds.map(userId => ({
-    collection: groupId,
-    user: userId,
-  }));
-
   return new Promise((resolve, reject) => {
     MembershipResource.saveCollection({
       getParams: {
         collection: groupId,
       },
-      data: memberships,
+      data: uniq(userIds).map(userId => ({
+        collection: groupId,
+        user: userId,
+      })),
     }).then(
       () => {
         const groups = Array(...store.state.groups);
