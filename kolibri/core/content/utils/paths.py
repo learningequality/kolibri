@@ -140,6 +140,6 @@ def get_content_storage_file_url(filename, baseurl=None):
             kwargs={"zipped_filename": filename, "embedded_filepath": ""},
         )
     else:
-        return "{}{}/{}/{}".format(
-            get_content_storage_url(baseurl), filename[0], filename[1], filename
+        return "/{}{}/{}/{}".format(
+            get_content_storage_url(baseurl).lstrip('/'), filename[0], filename[1], filename
         )

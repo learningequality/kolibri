@@ -260,7 +260,7 @@ def run_server(port):
     )
     cherrypy.tree.mount(
         content_files_handler,
-        paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]),
+        "/" + paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]).lstrip('/'),
         config={"/": {"tools.caching.on": False}},
     )
 
