@@ -107,11 +107,22 @@ export default [
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, '/resource', PREVIEW),
     component: PlanLessonSelectionContentPreview,
-    props: {
-      showSelectOptions: false,
-      backRoute: {
-        name: LessonsPageNames.SUMMARY,
-      },
+    props(data) {
+      let backRoute;
+      // If linked from the Reports section, go back there
+      if (data.query.last === 'LessonReportEditDetailsPage') {
+        backRoute = {
+          name: 'LessonReportEditDetailsPage',
+        };
+      } else {
+        backRoute = {
+          name: LessonsPageNames.SUMMARY,
+        };
+      }
+      return {
+        showSelectOptions: false,
+        backRoute,
+      };
     },
     handler(toRoute) {
       showLessonResourceContentPreview(store, toRoute.params);
