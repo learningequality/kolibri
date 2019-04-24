@@ -141,5 +141,8 @@ def get_content_storage_file_url(filename, baseurl=None):
         )
     else:
         return "/{}{}/{}/{}".format(
-            get_content_storage_url(baseurl).lstrip('/'), filename[0], filename[1], filename
+            get_content_storage_url(baseurl).lstrip("/"),
+            filename[0],
+            filename[1],
+            filename,
         )
