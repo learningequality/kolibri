@@ -106,6 +106,13 @@ export default [
   {
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, '/resource', PREVIEW),
+    component: PlanLessonSelectionContentPreview,
+    props: {
+      showSelectOptions: false,
+      backRoute: {
+        name: LessonsPageNames.SUMMARY,
+      },
+    },
     handler(toRoute) {
       showLessonResourceContentPreview(store, toRoute.params);
     },
