@@ -8,6 +8,6 @@ class SlideshowModule extends ContentRendererModule {
   }
 }
 
-//const slideshowModule = new SlideshowModule();
+const slideshowModule = new SlideshowModule();
 
-export { SlideshowModule as default };
+export { slideshowModule as default };
