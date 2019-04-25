@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
   remove|purge)
-    rm -f /etc/nginx/con.d/kolibri.conf
+    rm -f /etc/nginx/conf.d/kolibri.conf
     ;;
 
 
