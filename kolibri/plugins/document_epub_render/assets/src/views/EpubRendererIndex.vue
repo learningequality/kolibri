@@ -460,7 +460,8 @@
           const tables = Array.from(contents.document.getElementsByTagName('table'));
 
           tables.forEach(table => {
-            if (table.clientHeight < height) {
+            const containerHeight = table.parentElement.clientHeight - EPUB_VERTICAL_PADDING;
+            if (table.clientHeight < containerHeight) {
               return;
             }
 
@@ -474,10 +475,10 @@
             }
 
             // So we'll split the table into a bunch of smaller tables
-            this.splitTable(height, table).forEach(newTable => {
+            this.splitTable(containerHeight, table).forEach(newTable => {
               table.parentElement.insertBefore(newTable, table);
 
-              if (newTable.clientHeight < height) {
+              if (newTable.clientHeight < containerHeight) {
                 return;
               }
 
@@ -486,7 +487,7 @@
               Array.from(newTable.getElementsByTagName('td')).forEach(cell => {
                 const diff = newTable.clientHeight - cell.clientHeight;
                 const div = contents.document.createElement('div');
-                div.style.maxHeight = `${height - EPUB_VERTICAL_PADDING - diff}px`;
+                div.style.maxHeight = `${containerHeight - diff}px`;
                 div.style.overflowY = 'auto';
 
                 // Move cell contents into div
