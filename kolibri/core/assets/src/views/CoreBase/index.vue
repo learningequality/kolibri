@@ -1,7 +1,6 @@
 <template>
 
   <div
-    ref="mainWrapper"
     class="main-wrapper"
     :style="mainWrapperStyles"
     :class="fullScreen ? '' : 'scrolling-pane'"
@@ -109,7 +108,6 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import router from 'kolibri.coreVue.router';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
@@ -127,6 +125,27 @@
   import UpdateNotification from '../UpdateNotification';
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import ScrollingHeader from './ScrollingHeader';
+
+  const scrollPositions = {
+    _scrollPositions: {},
+    getScrollPosition() {
+      // Use key set by Vue Router on the history state.
+      const key = window.history.state.key;
+      const defaultPos = { x: 0, y: 0 };
+      if (key && this._scrollPositions[key]) {
+        return this._scrollPositions[key];
+      }
+      return defaultPos;
+    },
+    setScrollPosition({ x, y }) {
+      const key = window.history.state.key;
+      // Only set if we have a vue router key on the state,
+      // otherwise we don't do anything.
+      if (key) {
+        this._scrollPositions[window.history.state.key] = { x, y };
+      }
+    },
+  };
 
   export default {
     name: 'CoreBase',
@@ -257,7 +276,6 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
-        startingScroll: state => state.core.scrollPosition,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -347,10 +365,10 @@
       },
     },
     watch: {
-      startingScroll(newVal) {
+      $route() {
         // Set a watcher so that if the router sets a new
-        // starting scroll position based on the history, then it gets
-        // set here.
+        // route, we update our scroll position based on the ones
+        // we have tracked in the scrollPosition object above.
         if (this.unwatchScrollHeight) {
           this.unwatchScrollHeight();
         }
@@ -365,21 +383,21 @@
             this.$nextTick(() => {
               // Set the scroll in next tick for safety, to ensure
               // that the child components have finished mounting
-              this.setScroll(newVal);
+              this.setScroll();
             });
           });
         } else {
-          this.setScroll(newVal);
+          this.setScroll();
         }
       },
     },
     mounted() {
-      this.setScroll(this.startingScroll);
+      this.setScroll();
     },
     methods: {
-      handleScroll(e) {
-        this.scrollPosition = e.target.scrollTop;
-        router.storeScrollPosition({ y: this.$refs.mainWrapper.scrollTop });
+      handleScroll() {
+        this.scrollPosition = this.$el.scrollTop;
+        scrollPositions.setScrollPosition({ y: this.$el.scrollTop });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -387,9 +405,8 @@
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },
-      setScroll(scrollValue) {
-        this.$el.scrollTop = scrollValue;
-        router.storeScrollPosition({ y: this.$refs.mainWrapper.scrollTop });
+      setScroll() {
+        this.$el.scrollTop = scrollPositions.getScrollPosition().y;
       },
     },
     $trs: {
