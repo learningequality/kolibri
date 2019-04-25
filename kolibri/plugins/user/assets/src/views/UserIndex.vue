@@ -39,12 +39,11 @@
     },
     data() {
       return {
-        bannerClosed: false,
+        bannerClosed: !Object.keys(kolibriGlobal.kolibri_modules).includes("demo_server_module"),
       };
     },
     mounted() {
       kolibriGlobal.on('demoBannerChanged', data => {
-        console.log(data);
         this.bannerClosed = data.bannerClosed;
       });
     },
