@@ -277,6 +277,7 @@
           h3: { ...colorStyle },
           h4: { ...colorStyle },
           h5: { ...colorStyle },
+          table: { width: '100%!important' },
           'p:first-of-type::first-letter': { ...colorStyle },
           video: { 'max-width': '100%' },
         };
