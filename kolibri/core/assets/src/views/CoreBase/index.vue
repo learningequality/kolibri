@@ -130,7 +130,7 @@
     _scrollPositions: {},
     getScrollPosition() {
       // Use key set by Vue Router on the history state.
-      const key = window.history.state.key;
+      const key = (window.history.state || {}).key;
       const defaultPos = { x: 0, y: 0 };
       if (key && this._scrollPositions[key]) {
         return this._scrollPositions[key];
@@ -138,7 +138,7 @@
       return defaultPos;
     },
     setScrollPosition({ x, y }) {
-      const key = window.history.state.key;
+      const key = (window.history.state || {}).key;
       // Only set if we have a vue router key on the state,
       // otherwise we don't do anything.
       if (key) {
