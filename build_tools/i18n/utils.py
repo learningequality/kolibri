@@ -40,7 +40,7 @@ if not (os.path.exists(PERSEUS_LOCALE_PATH)):
     logging.error("Cannot find Perseus locale directory.")
     logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
     sys.exit(1)
-elif '/site-packages/' in PERSEUS_LOCALE_PATH:
+elif "/site-packages/" in PERSEUS_LOCALE_PATH:
     logging.error("It appears that Perseus is not installed for development.")
     logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
     sys.exit(1)

@@ -447,7 +447,9 @@ def command_stats(branch):
     total_untranslated_strings = sum([row[2] for row in untranslated_table])
     total_unapproved_strings = sum([row[2] for row in needs_approval_table])
 
-    avg_untranslated_strings = round(total_untranslated_strings / len(untranslated_table))
+    avg_untranslated_strings = round(
+        total_untranslated_strings / len(untranslated_table)
+    )
     avg_unapproved_strings = round(total_unapproved_strings / len(needs_approval_table))
 
     total_untranslated_words = sum([row[1] for row in untranslated_table])
@@ -469,8 +471,12 @@ def command_stats(branch):
         STATS_TEMPLATE.format(
             branch=branch,
             summary_table=tabulate(summary_table, headers=summary_table_headers),
-            untranslated_table=tabulate(untranslated_table, headers=untranslated_table_headers),
-            needs_approval_table=tabulate(needs_approval_table, headers=needs_approval_table_headers),
+            untranslated_table=tabulate(
+                untranslated_table, headers=untranslated_table_headers
+            ),
+            needs_approval_table=tabulate(
+                needs_approval_table, headers=needs_approval_table_headers
+            ),
         )
     )
 
