@@ -84,6 +84,24 @@ export function convertExamQuestionSourcesV1V2(questionSources) {
   });
 }
 
+export function convertExamQuestionSources(exam, extraArgs) {
+  const { data_model_version } = exam;
+  if (data_model_version === 0) {
+    // TODO contentNodes are only needed for V0 -> V2 conversion, but a request is
+    // made regardless of the version
+    const { contentNodes = [] } = extraArgs;
+    const questionIds = {};
+    contentNodes.forEach(node => {
+      questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
+    });
+    return convertExamQuestionSourcesV0V1(exam.question_sources, exam.seed, questionIds);
+  }
+  if (data_model_version === 1) {
+    return convertExamQuestionSourcesV1V2(exam.question_sources);
+  }
+  return exam.question_sources;
+}
+
 export function fetchNodeDataAndConvertExam(exam) {
   const { data_model_version } = exam;
   if (data_model_version >= 2) {
@@ -94,22 +112,10 @@ export function fetchNodeDataAndConvertExam(exam) {
       ids: uniq(exam.question_sources.map(item => item.exercise_id)),
     },
   }).then(contentNodes => {
-    if (data_model_version === 0) {
-      const questionIds = {};
-      contentNodes.forEach(node => {
-        questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
-      });
-      exam.question_sources = convertExamQuestionSourcesV0V1(
-        exam.question_sources,
-        exam.seed,
-        questionIds
-      );
-    }
-
-    if (data_model_version === 1) {
-      exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
-    }
-    return exam;
+    return {
+      ...exam,
+      question_sources: convertExamQuestionSources(exam, { contentNodes }),
+    };
   });
 }
 
@@ -152,19 +158,7 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
         contentPromise.only(
           samePageCheckGenerator(store),
           contentNodes => {
-            const questionIds = {};
-            contentNodes.forEach(node => {
-              questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
-            });
-
-            let questions = questionSources;
-            if (exam.data_model_version === 0) {
-              questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
-            }
-
-            if (exam.data_model_version === 1) {
-              questions = convertExamQuestionSourcesV1V2(questionSources);
-            }
+            const questions = convertExamQuestionSources(exam, { contentNodes });
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {

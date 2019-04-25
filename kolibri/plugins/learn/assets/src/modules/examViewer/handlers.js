@@ -5,11 +5,7 @@ import {
   ExamAttemptLogResource,
 } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import {
-  convertExamQuestionSourcesV0V1,
-  convertExamQuestionSourcesV1V2,
-} from 'kolibri.utils.exams';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
+import { convertExamQuestionSources } from 'kolibri.utils.exams';
 import { now } from 'kolibri.utils.serverClock';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
@@ -92,24 +88,8 @@ export function showExam(store, params) {
         contentPromise.only(
           samePageCheckGenerator(store),
           contentNodes => {
-            const questionIds = {};
-            contentNodes.forEach(node => {
-              questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
-            });
-
             // If necessary, convert the question source info
-            let questions;
-            if (exam.data_model_version === 0) {
-              questions = convertExamQuestionSourcesV0V1(
-                exam.question_sources,
-                exam.seed,
-                questionIds
-              );
-            } else if (exam.data_model_version === 1) {
-              questions = convertExamQuestionSourcesV1V2(exam.question_sources);
-            } else {
-              questions = exam.question_sources;
-            }
+            let questions = convertExamQuestionSources(exam, { contentNodes });
 
             // When necessary, randomize the questions for the learner.
             // Seed based on the user ID so they see a consistent order each time.
