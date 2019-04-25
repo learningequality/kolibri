@@ -319,7 +319,6 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
-      topicLocationTooltip: 'Resource is located in this topic',
     },
   };
 
