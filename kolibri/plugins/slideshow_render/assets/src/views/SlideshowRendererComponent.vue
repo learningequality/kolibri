@@ -154,7 +154,7 @@
     box-sizing: content-box;
     width: calc(100% - 100px);
     height: calc(
-      100% - 40px
+      100% - 50px
     ); // Very much not going to be this way once the caption positioning is figured out
 
     margin: 0 auto;
@@ -171,8 +171,9 @@
   }
   .caption {
     position: absolute;
-    bottom: 20px;
+    bottom: 30px;
     width: 100%;
+    padding: 0.25em;
     background: #efefef;
   }
 
