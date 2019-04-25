@@ -474,11 +474,7 @@
             }
 
             // So we'll split the table into a bunch of smaller tables
-            const newTables = this.splitTable(height, table, tag =>
-              contents.document.createElement(tag)
-            );
-
-            newTables.forEach(newTable => {
+            this.splitTable(height, table).forEach(newTable => {
               table.parentElement.insertBefore(newTable, table);
 
               if (newTable.clientHeight < height) {
@@ -493,6 +489,7 @@
                 div.style.maxHeight = `${height - EPUB_VERTICAL_PADDING - diff}px`;
                 div.style.overflowY = 'auto';
 
+                // Move cell contents into div
                 while (cell.firstChild) {
                   div.append(cell.removeChild(cell.firstChild));
                 }
