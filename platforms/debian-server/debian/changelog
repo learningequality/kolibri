@@ -1,3 +1,9 @@
+kolibri-server (0.2.5-0ubuntu1) bionic; urgency=medium
+
+  * Ensure URL_PATH_PREFIX is correctly inserted in nginx urls
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 25 Apr 2019 19:13:20 +0200
+
 kolibri-server (0.2.4-1ubuntu1) bionic; urgency=medium
 
   * uwsgi.ini: doubled buffer-size limit to avoid problems with requests with long params

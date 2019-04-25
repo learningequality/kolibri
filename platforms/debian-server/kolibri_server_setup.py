@@ -118,13 +118,15 @@ def save_nginx_conf_include(static_root, nginx_conf=None):
             "package,\n"
             "# please write custom configurations in /etc/kolibri/nginx.d/\n"
             "\n"
-            "location /static {{\n"
+            "location {path_prefix}static {{\n"
             "    alias  {static_dir};\n"
             "}}\n"
-            "location /content {{\n"
+            "location {path_prefix}content {{\n"
             "    alias  {content_dir}/;\n"
             "}}\n"
-        ).format(static_dir=static_root, content_dir=get_content_dir_path())
+        ).format(static_dir=static_root,
+                 content_dir=get_content_dir_path(),
+                 path_prefix=path_prefix)
         nginx_conf_file.write(configuration)
 
 
