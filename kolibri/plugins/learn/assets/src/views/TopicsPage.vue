@@ -5,6 +5,7 @@
     <PageHeader
       :title="topic.title"
       :progress="calculateProgress"
+      contentType="topic"
     />
 
     <TextTruncator
