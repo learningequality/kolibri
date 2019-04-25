@@ -1,6 +1,7 @@
 <template>
 
   <div
+    ref="mainWrapper"
     class="main-wrapper"
     :style="mainWrapperStyles"
     :class="fullScreen ? '' : 'scrolling-pane'"
@@ -108,6 +109,7 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import router from 'kolibri.coreVue.router';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
@@ -377,13 +379,7 @@
     methods: {
       handleScroll(e) {
         this.scrollPosition = e.target.scrollTop;
-        // Setting this will not affect the page layout,
-        // but this will then get properly stored in the
-        // browser history.
-        try {
-          // This property can sometimes be readonly in older browsers
-          window.pageYOffset = this.scrollPosition;
-        } catch (e) {} // eslint-disable-line no-empty
+        router.storeScrollPosition({ y: this.$refs.mainWrapper.scrollTop });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -393,10 +389,7 @@
       },
       setScroll(scrollValue) {
         this.$el.scrollTop = scrollValue;
-        try {
-          // This property can sometimes be readonly in older browsers
-          window.pageYOffset = scrollValue;
-        } catch (e) {} // eslint-disable-line no-empty
+        router.storeScrollPosition({ y: this.$refs.mainWrapper.scrollTop });
       },
     },
     $trs: {

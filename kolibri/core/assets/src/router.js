@@ -4,6 +4,8 @@ import store from 'kolibri.coreVue.vuex.store';
 
 const logging = logger.getLogger(__filename);
 
+const scrollPositions = {};
+
 /** Wrapper around Vue Router.
  *  Implements URL mapping to Vuex actions in addition to Vue components.
  *  Otherwise intended as a mostly transparent replacement to vue-router.
@@ -14,8 +16,9 @@ class Router {
    */
   constructor() {
     this._vueRouter = new VueRouter({
-      scrollBehavior(to, from, savedPosition) {
+      scrollBehavior() {
         let y = 0;
+        const savedPosition = scrollPositions[window.history.state.key];
         if (savedPosition) {
           y = savedPosition.y;
         }
@@ -79,6 +82,10 @@ class Router {
 
   enableHandlers() {
     this._vueRouter.beforeEach(this._hook.bind(this));
+  }
+
+  storeScrollPosition({ x, y }) {
+    scrollPositions[window.history.state.key] = { x, y };
   }
 
   /****************************/
