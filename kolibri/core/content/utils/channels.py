@@ -6,7 +6,6 @@ from sqlalchemy.exc import DatabaseError
 
 from .paths import get_content_database_dir_path
 from .sqlalchemybridge import Bridge
-from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
@@ -42,11 +41,7 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         if not os.path.exists(filename) or os.path.getsize(filename) == 0:
             db_files_to_remove.add(db_name)
             os.remove(filename)
-            # Delete the channel metadata from the database if exists, so that
-            # users can download the database file again from the channel import page.
-            channel = ChannelMetadata.objects.filter(id=db_name)
-            if channel:
-                channel.delete()
+
     if db_files_to_remove:
         err_msg = (
             "Removing nonexistent or empty databases in content database directory "
