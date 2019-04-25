@@ -46,6 +46,9 @@ export default function selectQuestions(
     shuffled(questionArray, seed)
   );
 
+  // Used to add a disambiguating number to the title
+  const counterInExerciseMap = {};
+
   // fill up the output list
   const output = [];
   let i = 0;
@@ -54,10 +57,20 @@ export default function selectQuestions(
     // check if we've used up all questions in one exercise
     if (get(shuffledQuestionIdArrays, i).length) {
       // if not, add it to the list
+      const question_id = get(shuffledQuestionIdArrays, i).pop();
+
+      if (!counterInExerciseMap[question_id]) {
+        counterInExerciseMap[question_id] = 0;
+      }
+
+      const counterInExercise = (counterInExerciseMap[question_id] += 1);
+
+      // This matches V2 version of question_sources in Exam model
       output.push({
         exercise_id: get(exerciseIds, i),
         question_id: get(shuffledQuestionIdArrays, i).pop(),
         title: get(exerciseTitles, i),
+        counterInExercise,
       });
     } else if (
       shuffledQuestionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) === 0
