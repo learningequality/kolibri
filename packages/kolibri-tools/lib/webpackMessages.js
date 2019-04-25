@@ -1,7 +1,9 @@
 /*
  * Vendored from https://github.com/lukeed/webpack-messages and https://github.com/lukeed/webpack-format-messages
  */
-const logging = require('./logging');
+const logger = require('./logging');
+
+const logging = logger.getLogger('Kolibri Build');
 
 const errorLabel = 'Syntax error:';
 const isLikelyASyntaxError = str => str.includes(errorLabel);
