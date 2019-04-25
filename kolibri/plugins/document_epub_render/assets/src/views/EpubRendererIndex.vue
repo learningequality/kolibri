@@ -466,12 +466,12 @@
               return;
             }
 
-            const bounds = table.getBoundingClientRect();
+            const rects = table.getClientRects();
 
             // In Firefox, the table will not be breaking and wrapping according to the
-            // writing-mode direction so it's width will be ~= to it's bounding area width.
-            // In Chrome and others, the bounding area will cover all of the table's display area
-            if (Math.round(bounds.width) > table.clientWidth) {
+            // writing-mode direction so `rects` will be just one rectangular area of where the
+            // table is rendered, not multiple like in browsers that do break it among columns.
+            if (rects.length > 1) {
               return;
             }
 
