@@ -22,7 +22,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { exercise_id, question_id }
  */
-function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
+export function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
@@ -68,8 +68,25 @@ function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   }));
 }
 
-function fetchNodeDataAndConvertExam(exam) {
-  if (exam.data_model_version > 0) {
+export function convertExamQuestionSourcesV1V2(questionSources) {
+  // In V1, question_sources is missing the counterInExercise field
+  const counterInExerciseMap = {};
+  return questionSources.map(source => {
+    const { question_id } = source;
+    if (!counterInExerciseMap[question_id]) {
+      counterInExerciseMap[question_id] = 0;
+    }
+    const counterInExercise = (counterInExerciseMap[question_id] += 1);
+    return {
+      ...source,
+      counterInExercise,
+    };
+  });
+}
+
+export function fetchNodeDataAndConvertExam(exam) {
+  const { data_model_version } = exam;
+  if (data_model_version >= 2) {
     return Promise.resolve(exam);
   }
   return ContentNodeResource.fetchCollection({
@@ -77,21 +94,27 @@ function fetchNodeDataAndConvertExam(exam) {
       ids: uniq(exam.question_sources.map(item => item.exercise_id)),
     },
   }).then(contentNodes => {
-    const questionIds = {};
-    contentNodes.forEach(node => {
-      questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
-    });
-    exam.question_sources = convertExamQuestionSourcesV0V1(
-      exam.question_sources,
-      exam.seed,
-      questionIds
-    );
+    if (data_model_version === 0) {
+      const questionIds = {};
+      contentNodes.forEach(node => {
+        questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
+      });
+      exam.question_sources = convertExamQuestionSourcesV0V1(
+        exam.question_sources,
+        exam.seed,
+        questionIds
+      );
+    }
+
+    if (data_model_version === 1) {
+      exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
+    }
     return exam;
   });
 }
 
 // idk the best place to place this function
-function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
+export function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
     const examPromise = ExamResource.fetchModel({ id: examId });
     const examLogPromise = ExamLogResource.fetchCollection({
@@ -137,6 +160,10 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
             let questions = questionSources;
             if (exam.data_model_version === 0) {
               questions = convertExamQuestionSourcesV0V1(questionSources, exam.seed, questionIds);
+            }
+
+            if (exam.data_model_version === 1) {
+              questions = convertExamQuestionSourcesV1V2(questionSources);
             }
 
             // When all the Exercises are not available on the server
@@ -209,5 +236,3 @@ function getExamReport(store, examId, userId, questionNumber = 0, interactionInd
     );
   });
 }
-
-export { convertExamQuestionSourcesV0V1, fetchNodeDataAndConvertExam, getExamReport };
