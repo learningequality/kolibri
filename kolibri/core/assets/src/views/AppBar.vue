@@ -50,7 +50,7 @@
           class="user-menu-dropdown"
           :raised="true"
           :containFocus="true"
-          :hasIcons="true"
+          :showActive="false"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">

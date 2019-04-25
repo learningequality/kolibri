@@ -64,6 +64,7 @@
         default: false,
       },
     },
+    inject: ['showActive'],
     computed: {
       classes() {
         return {
@@ -75,9 +76,9 @@
       isDivider() {
         return this.type === 'divider';
       },
-
       active() {
-        return window.location.pathname.startsWith(this.link);
+        let showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
+        return showActive && window.location.pathname.startsWith(this.link);
       },
       optionStyle() {
         let color = '';
