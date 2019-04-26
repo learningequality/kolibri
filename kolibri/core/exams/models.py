@@ -35,13 +35,13 @@ class Exam(AbstractFacilityDataModel):
     The `question_sources` field contains different values depending on the 'data_model_version' field.
 
     V2:
-        Similar to V1, but with a `counterInExercise` field
+        Similar to V1, but with a `counter_in_exercise` field
         [
             {
                 "exercise_id": <exercise_pk>,
                 "question_id": <item_id_within_exercise>,
                 "title": <exercise_title>,
-                "counterInExercise": <unique_count_for_question>
+                "counter_in_exercise": <unique_count_for_question>
             },
             ...
         ]

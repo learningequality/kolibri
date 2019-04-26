@@ -109,7 +109,7 @@ class ExamSerializer(serializers.ModelSerializer):
                 "exercise_id",
                 "question_id",
                 "title",
-                "counterInExercise",
+                "counter_in_exercise",
             ]
             for field in required_fields:
                 if field not in question:

@@ -63,14 +63,12 @@ export default function selectQuestions(
         counterInExerciseMap[question_id] = 0;
       }
 
-      const counterInExercise = (counterInExerciseMap[question_id] += 1);
-
       // This matches V2 version of question_sources in Exam model
       output.push({
         exercise_id: get(exerciseIds, i),
         question_id,
         title: get(exerciseTitles, i),
-        counterInExercise,
+        counter_in_exercise: (counterInExerciseMap[question_id] += 1),
       });
     } else if (
       shuffledQuestionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) === 0

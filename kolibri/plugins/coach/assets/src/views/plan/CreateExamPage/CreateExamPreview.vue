@@ -110,7 +110,7 @@
                     :isSelected="isSelected(question)"
                     :exerciseName="question.title"
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-                    :questionNumberOfExercise="question.counterInExercise"
+                    :questionNumberOfExercise="question.counter_in_exercise"
                     :isFirst="questionIndex === 0"
                     :isLast="questionIndex === selectedQuestions.length - 1"
                     @select="currentQuestionIndex = questionIndex"
@@ -129,7 +129,7 @@
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-              :questionNumberOfExercise="question.counterInExercise"
+              :questionNumberOfExercise="question.counter_in_exercise"
               @select="currentQuestionIndex = questionIndex"
             />
           </ul>

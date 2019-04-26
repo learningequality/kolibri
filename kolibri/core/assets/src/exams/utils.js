@@ -62,7 +62,7 @@ export function convertExamQuestionSourcesV0V2(questionSources, seed, questionId
     exercise_id: question.exercise_id,
     question_id: shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
     title: question.title,
-    counterInExercise:
+    counter_in_exercise:
       questionIds[question.exercise_id].findIndex(
         id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber]
       ) + 1,
@@ -72,9 +72,14 @@ export function convertExamQuestionSourcesV0V2(questionSources, seed, questionId
 export function convertExamQuestionSourcesV1V2(questionSources) {
   // In V1, question_sources can be missing the counterInExercise field
   const counterInExerciseMap = {};
-  // In case a V1 quiz already has this field, do nothing
+  // In case a V1 quiz already has this with the old name, rename it
   if (every(questionSources, 'counterInExercise')) {
-    return questionSources;
+    return questionSources.map(source => {
+      const copy = source;
+      copy.counter_in_exercise = copy.counterInExercise;
+      delete copy.counterInExercise;
+      return copy;
+    });
   }
 
   return questionSources.map(source => {
@@ -82,10 +87,9 @@ export function convertExamQuestionSourcesV1V2(questionSources) {
     if (!counterInExerciseMap[question_id]) {
       counterInExerciseMap[question_id] = 0;
     }
-    const counterInExercise = (counterInExerciseMap[question_id] += 1);
     return {
       ...source,
-      counterInExercise,
+      counter_in_exercise: (counterInExerciseMap[question_id] += 1),
     };
   });
 }
