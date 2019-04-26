@@ -41,7 +41,7 @@ const MIN_RECONNECT_TIME = 5;
 // In the case of the page being backgrounded, we double this, which is
 // sufficient to maintain the current Kolibri session, but will start a
 // new user session log when activity is detected again.
-const ACTIVE_DELAY = 240;
+const ACTIVE_DELAY = 120;
 
 export class HeartBeat {
   constructor() {
