@@ -160,9 +160,17 @@
     methods: {
       endTask() {
         this.uiBlocked = true;
-        this.$emit('cleartask', () => {
+        if (this.taskHasCompleted || this.taskHasFailed) {
+          this.$emit('cleartask', () => {
+            this.uiBlocked = false;
+          });
+        } else if (this.cancellable) {
+          this.$emit('canceltask', () => {
+            this.uiBlocked = false;
+          });
+        } else {
           this.uiBlocked = false;
-        });
+        }
       },
     },
     $trs: {
