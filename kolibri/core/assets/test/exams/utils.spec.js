@@ -91,31 +91,52 @@ describe('exam utils', () => {
             question_id: 'Q2',
             exercise_id: 'E2',
             title: 'Question 2',
-          }
-        ]
-      }
+          },
+        ],
+      };
       const converted = convertExamQuestionSources(exam);
       const expectedOutput = [
+        {
+          question_id: 'Q1',
+          exercise_id: 'E1',
+          title: 'Question 1',
+          counterInExercise: 1,
+        },
+        {
+          question_id: 'Q1',
+          exercise_id: 'E2',
+          title: 'Question 1',
+          counterInExercise: 2,
+        },
+        {
+          question_id: 'Q2',
+          exercise_id: 'E2',
+          title: 'Question 2',
+          counterInExercise: 1,
+        },
+      ];
+      expect(converted).toEqual(expectedOutput);
+    });
+    it('does not change anything if question_sources array is fine', () => {
+      const exam = {
+        data_model_version: 1,
+        question_sources: [
           {
             question_id: 'Q1',
             exercise_id: 'E1',
             title: 'Question 1',
-            counterInExercise: 1,
+            counterInExercise: 4000,
           },
           {
             question_id: 'Q1',
             exercise_id: 'E2',
-            title: 'Question 1',
-            counterInExercise: 2,
-          },
-          {
-            question_id: 'Q2',
-            exercise_id: 'E2',
             title: 'Question 2',
             counterInExercise: 1,
           },
-      ]
-      expect(converted).toEqual(expectedOutput);
+        ],
+      };
+      const converted = convertExamQuestionSources(exam);
+      expect(converted).toEqual(exam.question_sources);
     });
   });
 

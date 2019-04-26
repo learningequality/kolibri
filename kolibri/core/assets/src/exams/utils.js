@@ -1,3 +1,4 @@
+import every from 'lodash/every';
 import uniq from 'lodash/uniq';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
@@ -69,8 +70,13 @@ export function convertExamQuestionSourcesV0V2(questionSources, seed, questionId
 }
 
 export function convertExamQuestionSourcesV1V2(questionSources) {
-  // In V1, question_sources is missing the counterInExercise field
+  // In V1, question_sources can be missing the counterInExercise field
   const counterInExerciseMap = {};
+  // In case a V1 quiz already has this field, do nothing
+  if (every(questionSources, 'counterInExercise')) {
+    return questionSources;
+  }
+
   return questionSources.map(source => {
     const { question_id } = source;
     if (!counterInExerciseMap[question_id]) {
