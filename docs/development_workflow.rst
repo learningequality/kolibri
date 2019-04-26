@@ -15,6 +15,9 @@ At a high level, we follow the 'Gitflow' model. Some helpful references:
 Pull requests
 -------------
 
+Submissions
+~~~~~~~~~~~
+
 Be sure to follow the `instructions <https://github.com/learningequality/kolibri/blob/develop/.github/PULL_REQUEST_TEMPLATE.md>`__ shown in the Github PR template when you `create a new PR <https://github.com/learningequality/kolibri/compare>`__.
 
 Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
@@ -25,13 +28,17 @@ Unit tests and gherkin stories should be written to ensure coverage of critical,
 
 Try to keep PRs as self-contained as possible. The bigger the PR, the more challenging it is to review, and the more likely that merging will be blocked by various issues. If your PR is not being reviewed in a timely manner, reach out to stakeholders and politely remind them that you're waiting for a review.
 
-When reviewing PRs, keep feedback focused on critical changes. Lengthy conversations should be moved to a real-time chat when possible. In many situations it is preferable to open a new issue for follow-up changes rather than blocking merging of the PR.
 
-Be polite, respectful, and constructive. We highly recommend following the `guidance in this blog post <https://medium.freecodecamp.org/unlearning-toxic-behaviors-in-a-code-review-culture-b7c295452a3c>`__.
+Some additional guidelines:
+
+* Submitters should fully test their code *before* asking for a review
+* If the PR is languishing, feel free to prod team members for review
+* Try to keep the PR up-to-date with the target branch
+* Make sure to use the checkboxes in the PR template
 
 
 Git history
------------
+~~~~~~~~~~~
 
 Within the Kolibri repo, we have the following primary rule:
 
@@ -46,6 +53,28 @@ Some additional git history guidance:
 * When possible, make each commit a self-contained change that plays nicely with ``git bisect``
 * Once a PR code review has occurred, avoid squashing subsequent changes as this makes it impossible to see what changes were made since the code review
 * Don't worry too much about a "clean" commit history. It's better to have some messy commits than to waste an hour than debugging a rebase-gone-wrong
+
+
+Code Reviews
+~~~~~~~~~~~~
+
+When reviewing PRs, keep feedback focused on critical changes. Lengthy conversations should be moved to a real-time chat when possible. Be polite, respectful, and constructive. We highly recommend following the `guidance in this blog post <https://medium.freecodecamp.org/unlearning-toxic-behaviors-in-a-code-review-culture-b7c295452a3c>`__.
+
+Some general guidelines:
+
+* Reviewers should actually run and test the PR
+* When giving opinions, clarify whether the comment is meant to be a “blocking” comment or if it is just a conversation
+* Pre-existing issues or other cleanup suggestions are can be opened as new issues, or mentioned as “non-blocking” comments
+* Code formatting comments should be rare because we use Prettier and Black
+
+Finally, if you see a very trivial but important necessary change, the reviewer can `commit the change directly to a pull request branch <https://help.github.com/en/articles/committing-changes-to-a-pull-request-branch-created-from-a-fork>`__. This can greatly speed up the process of getting a PR merged. Pushing commits to a submitter's branch should only be done for non-controversial changes or with the submitter's permission.
+
+.. note::
+  When pushing to another user's branch, you may get an error like:
+
+    ``Authentication required: You must have push access to verify locks``
+
+  This is due to a `Git LFS bug <https://github.com/git-lfs/git-lfs/issues/2291>`__. Try `disabling lock verification <https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings>`__ using the ``lfs.[remote].locksverify`` setting, or simply running ``rm -rf .git/hooks/pre-push``.
 
 
 Development phases
