@@ -170,7 +170,7 @@
       ...mapActions(['kolibriLogout']),
     },
     $trs: {
-      openNav: 'Open sidebar navigation',
+      openNav: 'Open site navigation',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
