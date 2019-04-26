@@ -105,12 +105,17 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def validate_question_sources(self, value):
         for question in value:
-            if 'exercise_id' not in question:
-                raise serializers.ValidationError("Question missing 'exercise_id'")
-            if 'question_id' not in question:
-                raise serializers.ValidationError("Question missing 'question_id'")
-            if 'title' not in question:
-                raise serializers.ValidationError("Question missing 'title'")
+            required_fields = [
+                "exercise_id",
+                "question_id",
+                "title",
+                "counterInExercise",
+            ]
+            for field in required_fields:
+                if field not in question:
+                    raise serializers.ValidationError(
+                        "Question missing '{}'".format(field)
+                    )
         return value
 
     def to_internal_value(self, data):
