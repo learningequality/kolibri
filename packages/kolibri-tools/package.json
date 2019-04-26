@@ -40,7 +40,7 @@
     "glob": "^7.1.2",
     "htmlhint": "^0.9.13",
     "intl-messageformat-parser": "^1.3.0",
-    "jest": "^23.6.0",
+    "jest": "^24.5.0",
     "jest-serializer-vue": "^2.0.2",
     "json-loader": "^0.5.4",
     "launch-editor-middleware": "^2.2.1",
