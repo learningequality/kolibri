@@ -1,17 +1,24 @@
 <template>
 
-  <div ref="wrapper" :class="['wrapper', $computedClass(progressStyle)]">
-    <div v-show="loading" class="fill-space">
-      <KCircularLoader
-        class="loader"
-        :delay="true"
-      />
-    </div>
-    <CoreFullscreen
-      v-show="!loading"
-      ref="container"
-      class="fill-space"
+  <MediaPlayerFullscreen
+    ref="fullscreen"
+    class="fill-space"
+    @changeFullscreen="isFullscreen = $event"
+  >
+    <div
+      ref="wrapper"
+      :class="[
+        'wrapper',
+        $computedClass(progressStyle)
+      ]"
     >
+      <div v-show="loading" class="loading-space fill-space">
+        <KCircularLoader
+          class="loader"
+          :delay="true"
+        />
+      </div>
+
       <video
         v-if="isVideo"
         ref="player"
@@ -45,8 +52,8 @@
           >
         </template>
       </audio>
-    </CoreFullscreen>
-  </div>
+    </div>
+  </MediaPlayerFullscreen>
 
 </template>
 
@@ -56,24 +63,62 @@
   import vue from 'kolibri.lib.vue';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
-  import Lockr from 'lockr';
+
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
-  import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
+
+  import Settings from './settings';
+  import { ReplayButton, ForwardButton } from './customButtons';
+  import MediaPlayerFullscreen, { MimicFullscreenToggle } from './MediaPlayerFullscreen';
+
   import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
+  const PLAYER_CONFIG = {
+    fluid: false,
+    fill: true,
+    controls: true,
+    textTrackDisplay: true,
+    bigPlayButton: true,
+    preload: 'metadata',
+    playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
+    controlBar: {
+      children: [
+        { name: 'PlayToggle' },
+        { name: 'ReplayButton' },
+        { name: 'ForwardButton' },
+        { name: 'CurrentTimeDisplay' },
+        { name: 'ProgressControl' },
+        { name: 'TimeDivider' },
+        { name: 'DurationDisplay' },
+        {
+          name: 'VolumePanel',
+          inline: false,
+        },
+        { name: 'PlaybackRateMenuButton' },
+        { name: 'CaptionsButton' },
+        { name: 'MimicFullscreenToggle' },
+      ],
+    },
+    language: GlobalLangCode,
+  };
 
-  const MEDIA_PLAYER_SETTINGS_KEY = 'kolibriMediaPlayerSettings';
+  const componentsToRegister = {
+    MimicFullscreenToggle,
+    ReplayButton,
+    ForwardButton,
+  };
+
+  Object.entries(componentsToRegister).forEach(([name, component]) =>
+    videojs.registerComponent(name, component)
+  );
 
   export default {
     name: 'MediaPlayerIndex',
 
-    components: { KCircularLoader, CoreFullscreen },
+    components: { KCircularLoader, MediaPlayerFullscreen },
 
     mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
 
@@ -87,6 +132,7 @@
       playerRate: 1.0,
       videoLangCode: GlobalLangCode,
       updateContentStateInterval: null,
+      isFullscreen: false,
     }),
 
     computed: {
@@ -137,64 +183,48 @@
       },
     },
     created() {
-      ReplayButton.prototype.controlText_ = this.$tr('replay');
-      ForwardButton.prototype.controlText_ = this.$tr('forward');
-      videojs.registerComponent('ReplayButton', ReplayButton);
-      videojs.registerComponent('ForwardButton', ForwardButton);
-      const { videoLangCode = this.videoLangCode } = this.getSavedSettings();
-      this.videoLangCode = videoLangCode;
+      this.settings = new Settings({
+        playerVolume: this.playerVolume,
+        playerMuted: this.playerMuted,
+        playerRate: this.playerRate,
+        videoLangCode: this.videoLangCode,
+      });
+
+      this.videoLangCode = this.settings.videoLangCode;
     },
     mounted() {
       this.initPlayer();
       window.addEventListener('resize', this.throttledResizePlayer);
     },
     beforeDestroy() {
+      clearInterval(this.updateContentStateInterval);
       this.updateContentState();
+
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
       this.player.dispose();
-      clearInterval(this.updateContentStateInterval);
     },
     methods: {
       isDefaultTrack(langCode) {
         const shortLangCode = langCode.split('-')[0];
         const shortGlobalLangCode = this.videoLangCode.split('-')[0];
-        if (shortLangCode === shortGlobalLangCode) {
-          return true;
-        }
-        return false;
+
+        return shortLangCode === shortGlobalLangCode;
       },
       initPlayer() {
-        const videojsConfig = {
-          fluid: true,
-          aspectRatio: '16:9',
-          controls: true,
-          textTrackDisplay: true,
-          bigPlayButton: true,
-          preload: 'metadata',
-          playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
-          controlBar: {
-            children: [
-              { name: 'playToggle' },
-              { name: 'ReplayButton' },
-              { name: 'ForwardButton' },
-              { name: 'currentTimeDisplay' },
-              { name: 'progressControl' },
-              { name: 'timeDivider' },
-              { name: 'durationDisplay' },
-              {
-                name: 'volumePanel',
-                inline: false,
-              },
-              { name: 'playbackRateMenuButton' },
-              { name: 'captionsButton' },
-            ],
-          },
-          language: GlobalLangCode,
+        this.$nextTick(() => {
+          this.player = videojs(this.$refs.player, this.getPlayerConfig(), this.handleReadyPlayer);
+          this.$refs.fullscreen.setPlayer(this.player);
+        });
+      },
+      getPlayerConfig() {
+        const videojsConfig = Object.assign({}, PLAYER_CONFIG, {
           languages: {
             [GlobalLangCode]: {
               Play: this.$tr('play'),
               Pause: this.$tr('pause'),
+              Replay: this.$tr('replay'),
+              Forward: this.$tr('forward'),
               'Current Time': this.$tr('currentTime'),
               'Duration Time': this.$tr('durationTime'),
               Loaded: this.$tr('loaded'),
@@ -223,23 +253,13 @@
               ),
             },
           },
-        };
+        });
 
         if (!this.isVideo) {
           videojsConfig.poster = this.audioPoster;
         }
 
-        // Add appropriate fullscreen button
-        if (fullscreenApiIsSupported) {
-          videojsConfig.controlBar.children.push({ name: 'fullscreenToggle' });
-        } else {
-          videojs.registerComponent('MimicFullscreenToggle', MimicFullscreenToggle);
-          videojsConfig.controlBar.children.push({ name: 'MimicFullscreenToggle' });
-        }
-
-        this.$nextTick(() => {
-          this.player = videojs(this.$refs.player, videojsConfig, this.handleReadyPlayer);
-        });
+        return videojsConfig;
       },
       handleReadyPlayer() {
         const startTime = this.savedLocation >= this.player.duration() ? 0 : this.savedLocation;
@@ -261,12 +281,11 @@
         this.player.on('ratechange', this.updateRate);
         this.player.on('texttrackchange', this.updateLang);
         this.player.on('ended', () => this.setPlayState(false));
-        this.player.on('mimicFullscreenToggled', () => {
-          this.$refs.container.toggleFullscreen();
-        });
+
         this.$watch('elementWidth', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();
+
         this.useSavedSettings();
         this.loading = false;
         this.$refs.player.tabIndex = -1;
@@ -274,10 +293,15 @@
         this.updateContentStateInterval = setInterval(this.updateContentState, 30000);
       },
       resizePlayer() {
-        const wrapperWidth = this.$refs.wrapper.clientWidth;
+        if (this.isFullscreen) {
+          this.$refs.wrapper.style.height = `100vh`;
+          return;
+        }
+
         const aspectRatio = 16 / 9;
-        const adjustedHeight = wrapperWidth * (1 / aspectRatio);
-        this.$refs.wrapper.setAttribute('style', `height:${adjustedHeight}px`);
+        const adjustedHeight = this.$refs.wrapper.clientWidth * (1 / aspectRatio);
+
+        this.$refs.wrapper.style.height = `${adjustedHeight}px`;
       },
       throttledResizePlayer: throttle(function resizePlayer() {
         this.resizePlayer();
@@ -287,57 +311,37 @@
         this.updateVolume();
       }, 1000),
 
-      getSavedSettings() {
-        return Lockr.get(MEDIA_PLAYER_SETTINGS_KEY) || {};
-      },
-      saveSettings(updatedSettings) {
-        const savedSettings = this.getSavedSettings();
-        Lockr.set(MEDIA_PLAYER_SETTINGS_KEY, {
-          ...savedSettings,
-          ...updatedSettings,
-        });
-      },
       updateVolume() {
-        this.saveSettings({
-          playerVolume: this.player.volume(),
-          playerMuted: this.player.muted(),
-        });
+        this.settings.playerVolume = this.player.volume();
+        this.settings.playerMuted = this.player.muted();
       },
 
       updateRate() {
-        this.saveSettings({
-          playerRate: this.player.playbackRate(),
-        });
+        this.settings.playerRate = this.player.playbackRate();
+      },
+
+      getTextTracks() {
+        return Array.from(this.player.textTracks());
       },
 
       updateLang() {
-        const currentTrack = Array.from(this.player.textTracks()).find(
-          track => track.mode === 'showing'
-        );
+        const currentTrack = this.getTextTracks().find(track => track.mode === 'showing');
         if (currentTrack) {
-          this.saveSettings({
-            videoLangCode: currentTrack.language,
-          });
+          this.settings.videoLangCode = currentTrack.language;
         }
       },
 
       useSavedSettings() {
-        const {
-          savedPlayerVolume = this.playerVolume,
-          savedPlayerMuted = this.playerMuted,
-          savedPlayerRate = this.playerRate,
-        } = this.getSavedSettings();
-        this.playerVolume = savedPlayerVolume;
-        this.playerMuted = savedPlayerMuted;
-        this.playerRate = savedPlayerRate;
+        this.playerVolume = this.settings.playerVolume;
+        this.playerMuted = this.settings.playerMuted;
+        this.playerRate = this.settings.playerRate;
         this.player.volume(this.playerVolume);
         this.player.muted(this.playerMuted);
         this.player.playbackRate(this.playerRate);
       },
 
       focusOnPlayControl() {
-        const wrapper = this.$refs.wrapper;
-        wrapper.getElementsByClassName('vjs-play-control')[0].focus();
+        this.$refs.wrapper.getElementsByClassName('vjs-play-control')[0].focus();
       },
       handleSeek() {
         // record progress before updating the times,
@@ -399,6 +403,7 @@
           this.player.addClass('player-tiny');
         }
       },
+
       updateContentState() {
         const currentLocation = this.player.currentTime();
         let contentState;
@@ -454,16 +459,24 @@
   @import '~kolibri.styles.definitions';
 
   .wrapper {
-    width: 854px;
     max-width: 100%;
-    height: 480px;
-    max-height: 480px;
+    max-height: 562px;
+  }
+
+  .normalize-fullscreen .wrapper,
+  .mimic-fullscreen .wrapper {
+    max-height: none;
   }
 
   .fill-space {
     position: relative;
     width: 100%;
     height: 100%;
+  }
+
+  .loading-space {
+    box-sizing: border-box;
+    padding-top: calc(100% * 9 / 16);
   }
 
   .loader {
