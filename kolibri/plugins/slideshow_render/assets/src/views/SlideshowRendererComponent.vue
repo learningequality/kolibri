@@ -19,8 +19,14 @@
       <Slide v-for="slide in slides" :key="slide.id">
         <div
           class="slideshow-slide-image"
-          :style="{ backgroundImage: `url(${slide.storage_url})` }"
+          :style="{
+            height: `calc(100% - ${caption_height}px)`
+          }"
         >
+          <img :src="slide.storage_url" alt="slide.caption">
+        </div>
+        <div :ref="slide.id" class="caption">
+          {{ slide.caption }}
         </div>
       </Slide>
       <HooperNavigation
@@ -28,9 +34,6 @@
         :class="{'hooper-navigation-fullscreen' : isInFullscreen}"
       />
       <HooperPagination slot="hooper-addons" />
-      <div slot="hooper-addons" class="caption">
-        {{ (currentSlide && currentSlide.caption) || slides[0].caption }}
-      </div>
     </Hooper>
   </CoreFullscreen>
 
@@ -94,6 +97,9 @@
       slideshow_images: function() {
         const files = this.files;
         return files.filter(file => file.preset != 'Slideshow Manifest');
+      },
+      caption_height: function() {
+        return 30 + (this.currentSlide ? this.$refs[this.currentSlide.id][0].clientHeight : 0);
       },
     },
     mounted() {
@@ -161,6 +167,12 @@
     background-repeat: no-repeat;
     background-position: center center;
     background-size: contain;
+
+    img {
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
+    }
   }
   .hooper {
     height: 100%;
