@@ -1,12 +1,10 @@
 import Hashi from '../src/iframeClient';
 import { events, nameSpace } from '../src/hashiBase';
-import loadCurrentPage from '../src/loadCurrentPage';
-
-jest.mock('../src/loadCurrentPage');
 
 describe('Hashi iframeClient', () => {
   let hashi;
   beforeEach(() => {
+    window.name = nameSpace;
     hashi = new Hashi();
   });
   describe('constructor method', () => {
@@ -29,11 +27,12 @@ describe('Hashi iframeClient', () => {
         });
       });
     });
-    it('should bind a listener to a ready event to call the loadPage method', () => {
-      expect(hashi.mediator.__messageHandlers[nameSpace][events.READY]).toEqual([loadCurrentPage]);
+    it('should bind a listener to a ready event to call the setScripts callback', () => {
+      expect(hashi.mediator.__messageHandlers[nameSpace][events.READY].length).toBe(1);
     });
     it('should call the loadPage method when the ready event is triggered', () => {
-      hashi.mediator.__messageHandlers[nameSpace][events.READY] = [loadCurrentPage];
+      const loadPage = jest.fn();
+      hashi.mediator.__messageHandlers[nameSpace][events.READY] = [loadPage];
       hashi.mediator.sendMessage = jest.fn();
       return new Promise(resolve => {
         hashi.mediator.registerMessageHandler({
@@ -45,7 +44,7 @@ describe('Hashi iframeClient', () => {
         });
         hashi.mediator.sendLocalMessage({ nameSpace, event: events.READY });
       }).then(() => {
-        expect(loadCurrentPage).toHaveBeenCalled();
+        expect(loadPage).toHaveBeenCalled();
       });
     });
   });

@@ -3,7 +3,7 @@ import os
 import tempfile
 import zipfile
 
-from django.template import loader
+from bs4 import BeautifulSoup
 from django.test import Client
 from django.test import TestCase
 from le_utils.constants import exercises
@@ -17,7 +17,10 @@ from kolibri.utils.tests.helpers import override_option
 
 DUMMY_FILENAME = "hashi123.js"
 
+empty_content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
 
+
+@patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ZipContentTestCase(TestCase):
     """
@@ -27,7 +30,15 @@ class ZipContentTestCase(TestCase):
     index_name = "index.html"
     index_str = "<html></html>"
     other_name = "other.html"
-    other_str = "<html></html>"
+    other_str = "<html><head></head></html>"
+    script_name = "script.html"
+    script_str = "<html><head><script>test</script></head></html>"
+    async_script_name = "async_script.html"
+    async_script_str = (
+        '<html><head><script async src="url/url.js"></script></head></html>'
+    )
+    empty_html_name = "empty.html"
+    empty_html_str = ""
     test_name_1 = "testfile1.txt"
     test_str_1 = "This is a test!"
     test_name_2 = "testfile2.txt"
@@ -39,9 +50,7 @@ class ZipContentTestCase(TestCase):
 
     def setUp(self):
 
-        # Fetch with this header by default to run through non-hashi related behaviour.
-        self.client = Client(HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.non_xhr_client = Client()
+        self.client = Client()
 
         provision_device()
 
@@ -57,6 +66,9 @@ class ZipContentTestCase(TestCase):
         with zipfile.ZipFile(self.zip_path, "w") as zf:
             zf.writestr(self.index_name, self.index_str)
             zf.writestr(self.other_name, self.other_str)
+            zf.writestr(self.script_name, self.script_str)
+            zf.writestr(self.async_script_name, self.async_script_str)
+            zf.writestr(self.empty_html_name, self.empty_html_str)
             zf.writestr(self.test_name_1, self.test_str_1)
             zf.writestr(self.test_name_2, self.test_str_2)
             zf.writestr(self.test_name_3, self.test_str_3)
@@ -66,13 +78,13 @@ class ZipContentTestCase(TestCase):
         )
         self.zip_file_base_url = self.zip_file_obj.get_storage_url()
 
-    def test_zip_file_url_reversal(self):
+    def test_zip_file_url_reversal(self, filename_patch):
         file = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.assertEqual(
             file.get_storage_url(), "/zipcontent/{}/".format(self.filename)
         )
 
-    def test_non_zip_file_url_reversal(self):
+    def test_non_zip_file_url_reversal(self, filename_patch):
         file = LocalFile(id=self.hash, extension="otherextension", available=True)
         filename = file.get_filename()
         self.assertEqual(
@@ -80,7 +92,7 @@ class ZipContentTestCase(TestCase):
             "/content/storage/{}/{}/{}".format(filename[0], filename[1], filename),
         )
 
-    def test_zip_file_internal_file_access(self):
+    def test_zip_file_internal_file_access(self, filename_patch):
 
         # test reading the data from file #1 inside the zip
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
@@ -90,36 +102,38 @@ class ZipContentTestCase(TestCase):
         response = self.client.get(self.zip_file_base_url + self.test_name_2)
         self.assertEqual(next(response.streaming_content).decode(), self.test_str_2)
 
-    def test_nonexistent_zip_file_access(self):
+    def test_nonexistent_zip_file_access(self, filename_patch):
         bad_base_url = self.zip_file_base_url.replace(
             self.zip_file_base_url[20:25], "aaaaa"
         )
         response = self.client.get(bad_base_url + self.test_name_1)
         self.assertEqual(response.status_code, 404)
 
-    def test_zip_file_nonexistent_internal_file_access(self):
+    def test_zip_file_nonexistent_internal_file_access(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + "qqq" + self.test_name_1)
         self.assertEqual(response.status_code, 404)
 
-    def test_non_allowed_file_internal_file_access(self):
+    def test_non_allowed_file_internal_file_access(self, filename_patch):
         response = self.client.get(
             self.zip_file_base_url.replace("zip", "png") + self.test_name_1
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_not_modified_response_when_if_modified_since_header_set(self):
+    def test_not_modified_response_when_if_modified_since_header_set(
+        self, filename_patch
+    ):
         caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
         response = caching_client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.status_code, 304)
 
-    def test_content_security_policy_header(self):
+    def test_content_security_policy_header(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(
             response.get("Content-Security-Policy"),
             "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver",
         )
 
-    def test_content_security_policy_header_http_referer(self):
+    def test_content_security_policy_header_http_referer(self, filename_patch):
         response = self.client.get(
             self.zip_file_base_url + self.test_name_1,
             HTTP_REFERER="http://testserver:1234/iam/a/real/path/#thatsomeonemightuse",
@@ -129,17 +143,17 @@ class ZipContentTestCase(TestCase):
             "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver:1234",
         )
 
-    def test_access_control_allow_origin_header(self):
+    def test_access_control_allow_origin_header(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
         response = self.client.options(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
 
-    def test_x_frame_options_header(self):
+    def test_x_frame_options_header(self, filename_patch):
         response = self.client.get(self.zip_file_base_url + self.test_name_1)
         self.assertEqual(response.get("X-Frame-Options", ""), "")
 
-    def test_access_control_allow_headers(self):
+    def test_access_control_allow_headers(self, filename_patch):
         headerval = "X-Penguin-Dance-Party"
         response = self.client.options(
             self.zip_file_base_url + self.test_name_1,
@@ -152,7 +166,7 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
 
-    def test_json_image_replacement_http_referer_header(self):
+    def test_json_image_replacement_http_referer_header(self, filename_patch):
         server_name = "http://testserver"
         response = self.client.get(
             self.zip_file_base_url + self.test_name_3, HTTP_REFERER=server_name
@@ -165,7 +179,7 @@ class ZipContentTestCase(TestCase):
             ).strip("/"),
         )
 
-    def test_json_image_replacement_no_http_referer_header(self):
+    def test_json_image_replacement_no_http_referer_header(self, filename_patch):
         server_name = "http://testserver"
         response = self.client.get(self.zip_file_base_url + self.test_name_3)
         self.assertEqual(
@@ -176,81 +190,59 @@ class ZipContentTestCase(TestCase):
             ).strip("/"),
         )
 
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_request_for_html_return_hashi(self, filename_patch):
-        hashi_path = "content/{filename}".format(filename=DUMMY_FILENAME)
-        client = Client()
-        response = client.get(self.zip_file_base_url)
-        template = loader.get_template("content/hashi.html")
-        hashi_snippet = template.render({"hashi_path": hashi_path}, None)
-        self.assertEqual(response.content.decode(), hashi_snippet)
-
-    def test_xhr_request_for_html_return_html(self):
+    def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
         response = self.client.get(self.zip_file_base_url)
-        self.assertEqual(b"".join(response.streaming_content).decode(), self.index_str)
+        content = '<html><head></head><body><script src="/static/content/hashi123.js"></script></body></html>'
+        self.assertEqual(response.content.decode("utf-8"), content)
 
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_nonexistent_zip_file_access(self, filename_patch):
-        client = Client()
-        bad_base_url = self.zip_file_base_url.replace(
-            self.zip_file_base_url[20:25], "aaaaa"
+    def test_request_for_html_body_no_script_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.other_name)
+        self.assertEqual(response.content.decode("utf-8"), empty_content)
+
+    def test_request_for_html_body_script_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.script_name)
+        content = (
+            '<html><head><template hashi-script="true"><script>test</script></template></head>'
+            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
         )
-        response = client.get(bad_base_url + self.test_name_1)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode("utf-8"), content)
 
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_zip_file_nonexistent_internal_file_access(self, filename_patch):
-        response = self.non_xhr_client.get(
-            self.zip_file_base_url + "qqq" + self.index_name
+    def test_request_for_html_body_script_return_correct_length_header(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.script_name)
+        file_size = len(
+            '<html><head><template hashi-script="true"><script>test</script></template></head>'
+            + '<body><script src="/static/content/hashi123.js"></script></body></html>'
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(int(response["Content-Length"]), file_size)
 
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_not_modified_response_when_if_modified_since_header_set_index_file(
+    def test_request_for_html_body_async_script_return_hashi_modified_html(
+        self, filename_patch
+    ):
+        response = self.client.get(self.zip_file_base_url + self.async_script_name)
+        soup = BeautifulSoup(response.content, "html.parser")
+        template = soup.find("template")
+        self.assertEqual(template.attrs["async"], "true")
+
+    def test_request_for_html_empty_html_no_modification(self, filename_patch):
+        response = self.client.get(self.zip_file_base_url + self.empty_html_name)
+        self.assertEqual(response.content.decode("utf-8"), empty_content)
+
+    def test_not_modified_response_when_if_modified_since_header_set_index_file(
         self, filename_patch
     ):
         caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
         response = caching_client.get(self.zip_file_base_url)
         self.assertEqual(response.status_code, 304)
 
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_not_modified_response_when_if_modified_since_header_set_other_html_file(
+    def test_not_modified_response_when_if_modified_since_header_set_other_html_file(
         self, filename_patch
     ):
         caching_client = Client(HTTP_IF_MODIFIED_SINCE="Sat, 10-Sep-2016 19:14:07 GMT")
         response = caching_client.get(self.zip_file_base_url + self.other_name)
         self.assertEqual(response.status_code, 304)
-
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_content_security_policy_header(self, filename_patch):
-        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
-        self.assertEqual(
-            response.get("Content-Security-Policy"),
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://testserver",
-        )
-
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_access_control_allow_origin_header(self, filename_patch):
-        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
-        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
-        response = self.non_xhr_client.options(self.zip_file_base_url + self.index_name)
-        self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
-
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_x_frame_options_header(self, filename_patch):
-        response = self.non_xhr_client.get(self.zip_file_base_url + self.index_name)
-        self.assertEqual(response.get("X-Frame-Options", ""), "")
-
-    @patch("kolibri.core.content.views.get_hashi_filename", return_value=DUMMY_FILENAME)
-    def test_non_xhr_access_control_allow_headers(self, filename_patch):
-        headerval = "X-Penguin-Dance-Party"
-        response = self.non_xhr_client.options(
-            self.zip_file_base_url + self.index_name,
-            HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval,
-        )
-        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
-        response = self.non_xhr_client.get(
-            self.zip_file_base_url + self.index_name,
-            HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval,
-        )
-        self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)

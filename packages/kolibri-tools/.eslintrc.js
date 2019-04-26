@@ -18,6 +18,18 @@ module.exports = {
         jest: true,
       },
     },
+    {
+      files: ['*.int.js'],
+      env: {
+        jest: true,
+      },
+      globals: {
+        page: true,
+        browser: true,
+        context: true,
+        jestPuppeteer: true,
+      },
+    },
   ],
   parserOptions: {
     sourceType: 'module',
@@ -155,6 +167,7 @@ module.exports = {
     'kolibri/vue-no-unused-properties': ERROR,
     'kolibri/vue-no-unused-vuex-properties': ERROR,
     'kolibri/vue-no-unused-methods': ERROR,
+    'kolibri/vue-no-unused-vuex-methods': ERROR,
     'kolibri/vue-watch-no-string': ERROR,
   },
 };

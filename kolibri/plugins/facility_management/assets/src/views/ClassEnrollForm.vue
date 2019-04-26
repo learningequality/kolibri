@@ -45,7 +45,7 @@
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('nextResults')"
-        :disabled="pageNum === numPages"
+        :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
         @click="goToPage(pageNum + 1)"
       >

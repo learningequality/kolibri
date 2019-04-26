@@ -45,6 +45,34 @@ def calculate_thread_pool():
 
 
 option_spec = {
+    "Cache": {
+        "CACHE_BACKEND": {
+            "type": "option",
+            "options": ("memory", "redis"),
+            "default": "memory",
+            "envvars": ("KOLIBRI_CACHE_BACKEND",),
+        },
+        "CACHE_TIMEOUT": {
+            "type": "integer",
+            "default": 300,
+            "envvars": ("KOLIBRI_CACHE_TIMEOUT",),
+        },
+        "CACHE_PASSWORD": {
+            "type": "string",
+            "default": "",
+            "envvars": ("KOLIBRI_CACHE_PASSWORD",),
+        },
+        "CACHE_LOCATION": {
+            "type": "string",
+            "default": "localhost:6379",
+            "envvars": ("KOLIBRI_CACHE_LOCATION",),
+        },
+        "CACHE_REDIS_MIN_DB": {
+            "type": "integer",
+            "default": 0,
+            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
+        },
+    },
     "Database": {
         "DATABASE_ENGINE": {
             "type": "option",

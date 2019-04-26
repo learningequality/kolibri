@@ -24,6 +24,9 @@
 
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
+        <div class="total-points">
+          <slot name="totalPointsMenuItem"></slot>
+        </div>
 
         <UiButton
           ref="userMenuButton"
@@ -48,7 +51,7 @@
           class="user-menu-dropdown"
           :raised="true"
           :containFocus="true"
-          :hasIcons="true"
+          :showActive="false"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
@@ -60,9 +63,6 @@
                 :distinguishCoachTypes="false"
                 :userType="getUserKind"
               />
-            </div>
-            <div class="total-points">
-              <slot name="totalPointsMenuItem"></slot>
             </div>
           </template>
 
@@ -95,7 +95,7 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -167,7 +167,6 @@
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
       },
-      ...mapActions(['kolibriLogout']),
     },
     $trs: {
       openNav: 'Open site navigation',
@@ -181,10 +180,6 @@
 
 
 <style lang="scss" scoped>
-
-  .app-bar {
-    overflow: hidden;
-  }
 
   .user-menu-button {
     text-transform: none;
@@ -218,8 +213,8 @@
   }
 
   .total-points {
-    margin-top: 16px;
-    margin-left: -32px;
+    display: inline-block;
+    margin-left: 16px;
   }
 
 </style>

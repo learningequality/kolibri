@@ -30,3 +30,6 @@ ifcfg==0.17
 sqlalchemy==1.2.10
 semver==2.8.1
 sentry-sdk==0.7.9
+django-redis-cache==2.0.0
+redis==3.2.1
+html5lib==1.0.1

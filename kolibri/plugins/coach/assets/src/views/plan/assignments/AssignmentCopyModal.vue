@@ -6,9 +6,9 @@
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
-      :submitText="$tr('continue')"
-      :cancelText="$tr('cancel')"
-      @cancel="closeModal"
+      :submitText="coachStrings.$tr('continueAction')"
+      :cancelText="coachStrings.$tr('cancelAction')"
+      @cancel="$emit('cancel')"
       @submit="goToAvailableGroups"
     >
       <KRadioButton
@@ -25,10 +25,10 @@
       v-else
       id="select-learnergroup"
       :title="modalTitle"
-      :submitText="$tr('makeCopy')"
-      :cancelText="$tr('cancel')"
-      @cancel="closeModal"
-      @submit="$emit('copy', selectedClassroomId, selectedCollectionIds)"
+      :submitText="coachStrings.$tr('copyAction')"
+      :cancelText="coachStrings.$tr('cancelAction')"
+      @cancel="$emit('cancel')"
+      @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
     >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
@@ -47,11 +47,11 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
-  import { mapActions } from 'vuex';
   import { error as logError } from 'kolibri.lib.logging';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   const Stages = {
@@ -66,6 +66,7 @@
       KRadioButton,
       RecipientSelector,
     },
+    mixins: [coachStringsMixin],
     props: {
       modalTitle: {
         type: String,
@@ -110,7 +111,6 @@
       this.selectedClassroomId = this.classId;
     },
     methods: {
-      ...mapActions(['handleApiError']),
       getLearnerGroupsForClassroom(classroomId) {
         return LearnerGroupResource.fetchCollection({ getParams: { parent: classroomId } });
       },
@@ -128,9 +128,9 @@
             this.stage = Stages.SELECT_GROUPS;
             this.blockControls = false;
           })
-          .catch(err => {
-            this.handleApiError(err);
-            logError(err);
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+            logError(error);
             this.blockControls = false;
           });
       },
@@ -140,18 +140,12 @@
         }
         return classroom.name;
       },
-      closeModal() {
-        return this.$emit('cancel');
-      },
       isCurrentClassroom(classroom) {
         return classroom.id === this.classId;
       },
     },
     $trs: {
       currentClass: '{ name } (current class)',
-      continue: 'Continue',
-      cancel: 'Cancel',
-      makeCopy: 'Copy',
       destinationExplanation: `Will be copied to '{classroomName}'`,
     },
   };

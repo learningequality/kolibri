@@ -20,8 +20,10 @@ from six.moves.urllib.parse import urljoin
 from tzlocal import get_localzone
 
 import kolibri
+from kolibri.deployment.default.cache import CACHES
 from kolibri.utils import conf
 from kolibri.utils import i18n
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
@@ -103,12 +105,8 @@ QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 CACHE_MIDDLEWARE_SECONDS = 0
 
 CACHE_MIDDLEWARE_KEY_PREFIX = "pages"
-CACHES = {
-    # Default cache
-    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    # Cache for builtfiles - frontend assets that only change on upgrade.
-    "built_files": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-}
+
+CACHES = CACHES
 
 ROOT_URLCONF = "kolibri.deployment.default.urls"
 
@@ -376,7 +374,7 @@ SESSION_COOKIE_NAME = "kolibri"
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-SESSION_COOKIE_AGE = 600
+SESSION_COOKIE_AGE = 1200
 
 
 if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:

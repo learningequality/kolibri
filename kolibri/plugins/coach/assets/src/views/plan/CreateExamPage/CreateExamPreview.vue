@@ -5,15 +5,15 @@
     immersivePageIcon="arrow_back"
     immersivePagePrimary
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('coachLabel')"
+    :appBarTitle="$tr('preview')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
   >
 
     <KPageContainer>
-      <h1>{{ previewQuizStrings.$tr('preview') }}</h1>
-      <h2>{{ detailsString }}</h2>
+      <h1>{{ $tr('preview') }}</h1>
+      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
@@ -96,81 +96,14 @@
       <h2 class="header-margin">
         {{ $tr('questions') }}
       </h2>
-      <KGrid v-if="!loadingNewQuestions">
-        <KGridItem sizes="4, 4, 5" class="list-wrapper">
-          <KDragContainer
-            v-if="fixedOrder"
-            :items="annotatedQuestions"
-            @sort="handleUserSort"
-          >
-            <transition-group tag="ol" name="list" class="question-list">
-              <KDraggable
-                v-for="(question, questionIndex) in annotatedQuestions"
-                :key="listKey(question)"
-              >
-                <KDragHandle>
-                  <AssessmentQuestionListItem
-                    :draggable="true"
-                    :isSelected="isSelected(question)"
-                    :exerciseName="question.title"
-                    :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-                    :questionNumberOfExercise="question.counterInExercise"
-                    :isFirst="questionIndex === 0"
-                    :isLast="questionIndex === annotatedQuestions.length - 1"
-                    @select="currentQuestionIndex = questionIndex"
-                    @moveDown="moveQuestionDown(questionIndex)"
-                    @moveUp="moveQuestionUp(questionIndex)"
-                  />
-                </KDragHandle>
-              </KDraggable>
-            </transition-group>
-          </KDragContainer>
-          <ul v-else class="question-list">
-            <AssessmentQuestionListItem
-              v-for="(question, questionIndex) in annotatedQuestions"
-              :key="listKey(question)"
-              :draggable="false"
-              :isSelected="isSelected(question)"
-              :exerciseName="question.title"
-              :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-              :questionNumberOfExercise="question.counterInExercise"
-              @select="currentQuestionIndex = questionIndex"
-            />
-          </ul>
-          <transition name="fade-numbers">
-            <ol v-if="fixedOrder" class="list-labels" aria-hidden>
-              <li
-                v-for="(question, questionIndex) in selectedQuestions"
-                :key="questionIndex"
-              ></li>
-            </ol>
-            <ul v-else class="list-labels" aria-hidden>
-              <li
-                v-for="(question, questionIndex) in selectedQuestions"
-                :key="questionIndex"
-              ></li>
-            </ul>
-          </transition>
-        </KGridItem>
-        <KGridItem sizes="4, 4, 7">
-          <h3 class="question-title">
-            {{ currentQuestion.title }}
-          </h3>
-          <ContentRenderer
-            v-if="content && questionId"
-            ref="contentRenderer"
-            :kind="content.kind"
-            :files="content.files"
-            :available="content.available"
-            :extraFields="content.extra_fields"
-            :itemId="questionId"
-            :assessment="true"
-            :allowHints="false"
-            :showCorrectAnswer="true"
-            :interactive="false"
-          />
-        </KGridItem>
-      </KGrid>
+
+      <QuestionListPreview
+        v-if="!loadingNewQuestions"
+        :fixedOrder="fixedOrder"
+        :selectedQuestions="selectedQuestions"
+        :selectedExercises="selectedExercises"
+      />
+
       <Bottom>
         <KRouterLink
           appearance="flat-button"
@@ -197,7 +130,6 @@
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -205,22 +137,15 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import KDragContainer from 'kolibri.coreVue.components.KDragContainer';
-  import KDraggable from 'kolibri.coreVue.components.KDraggable';
-  import KDragHandle from 'kolibri.coreVue.components.KDragHandle';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoach from '../../common';
-  import QuizDetailEditor from '../../common/QuizDetailEditor';
-  import ExamPreview from '../CoachExamsPage/ExamPreview';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
-  import AssessmentQuestionListItem from './AssessmentQuestionListItem';
+  import QuestionListPreview from './QuestionListPreview';
   import Bottom from './Bottom';
   import CreateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
-  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
-  const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
   export default {
     name: 'CreateExamPreview',
@@ -231,23 +156,18 @@
     },
     components: {
       UiIconButton,
-      ContentRenderer,
       KRouterLink,
       KButton,
-      AssessmentQuestionListItem,
       KRadioButton,
       KGrid,
       KGridItem,
       Bottom,
       KTextbox,
-      KDraggable,
-      KDragContainer,
-      KDragHandle,
+      QuestionListPreview,
     },
     mixins: [responsiveWindow, commonCoach],
     data() {
       return {
-        currentQuestionIndex: 0,
         showError: false,
         showTitleError: false,
       };
@@ -260,43 +180,11 @@
         'selectedExercises',
         'availableQuestions',
       ]),
-      annotatedQuestions() {
-        const counts = {};
-        const totals = {};
-        this.selectedQuestions.forEach(question => {
-          if (!totals[question.exercise_id]) {
-            totals[question.exercise_id] = 0;
-          }
-          totals[question.exercise_id] += 1;
-          counts[this.listKey(question)] = totals[question.exercise_id];
-        });
-        return this.selectedQuestions.map(question => {
-          if (totals[question.exercise_id] > 1) {
-            question.counterInExercise = counts[this.listKey(question)];
-          }
-          return question;
-        });
-      },
       maxQs() {
         return MAX_QUESTIONS;
       },
-      detailsString() {
-        return quizDetailStrings.$tr('details');
-      },
       moreStrings() {
         return createExamPageStrings;
-      },
-      previewQuizStrings() {
-        return previewQuizStrings;
-      },
-      currentQuestion() {
-        return this.selectedQuestions[this.currentQuestionIndex] || {};
-      },
-      content() {
-        return this.selectedExercises[this.currentQuestion.exercise_id];
-      },
-      questionId() {
-        return this.currentQuestion.question_id;
       },
       examTitle: {
         get() {
@@ -330,7 +218,7 @@
           return createExamPageStrings.$tr('examRequiresTitle');
         }
         if (this.showTitleError) {
-          return quizDetailStrings.$tr('duplicateTitle');
+          return this.coachStrings.$tr('quizDuplicateTitleError');
         }
         return null;
       },
@@ -354,42 +242,9 @@
       },
     },
     methods: {
-      handleUserSort({ newArray, newIndex, oldIndex }) {
-        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', newArray);
-        if (this.isSelected(this.selectedQuestions[oldIndex])) {
-          // switch immediately
-          this.currentQuestionIndex = newIndex;
-        } else {
-          // wait for the bounce animation to complete before switching
-          setTimeout(() => {
-            this.currentQuestionIndex = newIndex;
-          }, 250);
-        }
-      },
-      shiftOne(oldIndex, newIndex) {
-        const newArray = [...this.selectedQuestions];
-        newArray[oldIndex] = this.selectedQuestions[newIndex];
-        newArray[newIndex] = this.selectedQuestions[oldIndex];
-        this.handleUserSort({ newArray, oldIndex, newIndex });
-      },
-      moveQuestionUp(index) {
-        this.shiftOne(index, index - 1);
-      },
-      moveQuestionDown(index) {
-        this.shiftOne(index, index + 1);
-      },
       getNewQuestionSet() {
         this.$store.commit('examCreation/RANDOMIZE_SEED');
         this.$store.dispatch('examCreation/updateSelectedQuestions');
-      },
-      numCoachContents(exerciseId) {
-        return this.selectedExercises[exerciseId].num_coach_contents;
-      },
-      isSelected(question) {
-        return (
-          this.currentQuestion.question_id === question.question_id &&
-          this.currentQuestion.exercise_id === question.exercise_id
-        );
       },
       submit() {
         if (this.numQuestIsInvalidText) {
@@ -411,9 +266,6 @@
           });
         }
       },
-      listKey(question) {
-        return question.exercise_id + question.question_id;
-      },
     },
     $trs: {
       title: 'Select questions',
@@ -423,6 +275,7 @@
       questionOrder: 'Question order',
       questions: 'Questions',
       newQuestions: 'New question set created',
+      preview: 'Preview quiz',
     },
   };
 
@@ -450,52 +303,12 @@
     margin-top: 32px;
   }
 
-  .list-wrapper {
-    position: relative;
-  }
-
-  .question-list {
-    padding: 0;
-    margin-top: 0;
-    margin-left: 40px;
-    list-style: none;
-  }
-
-  .question-title {
-    margin-top: 8px;
-    text-align: center;
-  }
-
-  .list-labels {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin-top: 0;
-    font-weight: bold;
-
-    li {
-      padding: 8px;
-    }
-  }
-
   .sortable-ghost {
     visibility: hidden;
   }
 
   .sortable-ghost * {
     visibility: hidden;
-  }
-
-  .fade-numbers-enter-active {
-    transition: opacity $core-time;
-  }
-
-  .fade-numbers-enter {
-    opacity: 0;
-  }
-
-  .list-move {
-    transition: transform $core-time ease;
   }
 
 </style>

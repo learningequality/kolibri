@@ -1,8 +1,16 @@
 <template>
 
   <tr>
-    <th><slot name="key"></slot></th>
-    <td><slot name="value"></slot></td>
+    <th>
+      <slot name="key">
+        {{ keyText }}
+      </slot>
+    </th>
+    <td>
+      <slot name="value">
+        {{ valueText }}
+      </slot>
+    </td>
   </tr>
 
 </template>
@@ -12,6 +20,16 @@
 
   export default {
     name: 'HeaderTableRow',
+    props: {
+      keyText: {
+        type: String,
+        required: false,
+      },
+      valueText: {
+        type: String,
+        required: false,
+      },
+    },
   };
 
 </script>

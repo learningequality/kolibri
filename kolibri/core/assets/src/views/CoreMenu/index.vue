@@ -40,9 +40,10 @@
     name: 'CoreMenu',
     mixins: [themeMixin],
     props: {
-      hasIcons: {
+      // Whether to show if links are currently active
+      showActive: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       hasSecondaryText: {
         type: Boolean,
@@ -57,12 +58,15 @@
         default: false,
       },
     },
-
+    provide() {
+      return {
+        showActive: this.showActive,
+      };
+    },
     computed: {
       classes() {
         return {
           'is-raised': this.raised,
-          'has-icons': this.hasIcons,
           'has-secondary-text': this.hasSecondaryText,
         };
       },

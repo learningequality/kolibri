@@ -2,9 +2,7 @@
 
 const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 
-const constants = require('./constants');
-
-const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = constants;
+const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = require('./constants');
 
 module.exports = {
   /**
@@ -97,6 +95,20 @@ module.exports = {
   },
 
   /**
+   * Run callback on watch string method literal node, e.g. on `add` literal node in
+   * watch: {
+   *   counter: 'add'
+   * }
+   */
+  executeOnWatchStringMethod(func) {
+    return {
+      'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
+        func(node);
+      },
+    };
+  },
+
+  /**
    * Run callback when end of the root template reached.
    */
   executeOnRootTemplateEnd(func) {
@@ -142,6 +154,22 @@ module.exports = {
       context.report({
         node: property.node,
         message,
+      });
+    });
+  },
+
+  /**
+   * Report unused Vuex properties.
+   */
+  reportUnusedVuexProperties(context, properties) {
+    if (!properties || !properties.length) {
+      return;
+    }
+
+    properties.forEach(property => {
+      context.report({
+        node: property.node,
+        message: `Unused Vuex ${property.kind} found: "${property.name}"`,
       });
     });
   },

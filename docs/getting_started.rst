@@ -141,16 +141,6 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
 Note that the ``--upgrade`` and ``--force`` flags above can usually be omitted to speed up the process.
 
 
-Install pre-commit
-~~~~~~~~~~~~~~~~~~
-
-We use `pre-commit <http://pre-commit.com/>`__ to help ensure consistent, clean code. The pip package should already be installed from the previous step, but you need to install the git hooks using this command:
-
-.. code-block:: bash
-
-  pre-commit install
-
-
 Running the Kolibri server
 --------------------------
 
@@ -171,6 +161,17 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   yarn run devserver-hot
 
+Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them. If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit), then it is best to use the following commands, whereby linting and formatting errors will generate warnings, but not be fixed on the fly:
+
+.. code-block:: bash
+
+  yarn run devserver-warn
+
+Or:
+
+.. code-block:: bash
+
+  yarn run devserver-hot-warn
 
 .. warning::
 
@@ -349,8 +350,6 @@ You can initialize the server using:
   kolibri manage migrate
 
 
-
-
 .. _workflow_intro:
 
 Development workflows
@@ -359,9 +358,9 @@ Development workflows
 Linting and auto-formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting provided by Prettier and Black are run in the background automatically when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
+Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by default when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
 
-Linting and auto-formatting should also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
+Linting and auto-formatting can also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
 
 You can manually run the auto-formatters using:
 
@@ -377,6 +376,11 @@ Or to check the formatting without writing changes, run:
   yarn run lint-frontend
   yarn run fmt-backend:check
 
+To have code automatically formatted and checked for linting upon commit, you may use `pre-commit <http://pre-commit.com/>`__ this can help ensure clean, consistent code, and will prevent automated build checks due to linting errors. The pip package should already be installed from the Python dev dependency installation, but you need to install the git hooks using this command:
+
+.. code-block:: bash
+
+  pre-commit install
 
 
 Automated testing

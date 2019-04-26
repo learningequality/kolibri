@@ -148,8 +148,8 @@ def dbrestore(from_file):
 def search_latest(search_root, fallback_version):
     logger.info("Searching latest backup in {}...".format(search_root))
 
-    newest = None  # Should be a path/filename.sqlite3
-    newest_dtm = None
+    newest = ""  # Should be a path/filename.sqlite3
+    newest_dtm = ""
 
     # All file names have to be according to the fall back version.
     prefix = "db-v{}".format(fallback_version)
