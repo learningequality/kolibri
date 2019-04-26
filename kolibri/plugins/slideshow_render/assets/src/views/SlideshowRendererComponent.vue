@@ -150,7 +150,7 @@
   }
   .slideshow-renderer {
     position: relative;
-    height: 500px;
+    height: 70vh;
     overflow-x: auto;
     overflow-y: hidden;
     text-align: center;
