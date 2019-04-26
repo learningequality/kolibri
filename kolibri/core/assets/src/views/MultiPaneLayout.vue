@@ -73,12 +73,9 @@
           },
           aside: {
             maxHeight: `${this.maxHeight}px`,
-            borderRightColor: this.$coreTextDisabled,
-            borderRightStyle: 'none',
           },
           main: {
             maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
-            borderLeftColor: this.$coreTextDisabled,
           },
           footer: {
             borderTopColor: this.$coreTextDisabled,
@@ -116,8 +113,6 @@
     display: inline-block;
     width: 33%;
     padding: 16px;
-    border-right-style: solid;
-    border-right-width: 1px;
   }
 
   .main-with-aside {
