@@ -68,7 +68,7 @@ export default function selectQuestions(
       // This matches V2 version of question_sources in Exam model
       output.push({
         exercise_id: get(exerciseIds, i),
-        question_id: get(shuffledQuestionIdArrays, i).pop(),
+        question_id,
         title: get(exerciseTitles, i),
         counterInExercise,
       });

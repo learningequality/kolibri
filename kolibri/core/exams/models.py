@@ -78,7 +78,7 @@ class Exam(AbstractFacilityDataModel):
 
     V0:
         Used to decide which questions are in an exam at runtime.
-        See convertExamQuestionSourcesV0V1 in exams/utils.js for details.
+        See convertExamQuestionSourcesV0V2 in exams/utils.js for details.
     """
     seed = models.IntegerField(default=1)
 

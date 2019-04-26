@@ -22,7 +22,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { exercise_id, question_id }
  */
-export function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
+export function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
@@ -94,7 +94,7 @@ export function convertExamQuestionSources(exam, extraArgs) {
     contentNodes.forEach(node => {
       questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
     });
-    return convertExamQuestionSourcesV0V1(exam.question_sources, exam.seed, questionIds);
+    return convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds);
   }
   if (data_model_version === 1) {
     return convertExamQuestionSourcesV1V2(exam.question_sources);

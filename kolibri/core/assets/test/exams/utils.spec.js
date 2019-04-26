@@ -1,4 +1,4 @@
-import { convertExamQuestionSourcesV0V1 } from '../../src/exams/utils';
+import { convertExamQuestionSources, convertExamQuestionSourcesV0V2 } from '../../src/exams/utils';
 
 // map of content IDs to lists of question IDs
 const QUESTION_IDS = {
@@ -71,9 +71,56 @@ const QUESTION_IDS = {
   ],
 };
 
-describe('exam utils', function() {
-  describe('convertExamQuestionSourcesV0V1', function() {
-    it('should return 10 specific ordered questions from 3 exercises', function() {
+describe('exam utils', () => {
+  describe('convertExamQuestionSources converting from V1', () => {
+    it('returns a question_sources array with a counterInExercise field', () => {
+      const exam = {
+        data_model_version: 1,
+        question_sources: [
+          {
+            question_id: 'Q1',
+            exercise_id: 'E1',
+            title: 'Question 1',
+          },
+          {
+            question_id: 'Q1',
+            exercise_id: 'E2',
+            title: 'Question 1',
+          },
+          {
+            question_id: 'Q2',
+            exercise_id: 'E2',
+            title: 'Question 2',
+          }
+        ]
+      }
+      const converted = convertExamQuestionSources(exam);
+      const expectedOutput = [
+          {
+            question_id: 'Q1',
+            exercise_id: 'E1',
+            title: 'Question 1',
+            counterInExercise: 1,
+          },
+          {
+            question_id: 'Q1',
+            exercise_id: 'E2',
+            title: 'Question 1',
+            counterInExercise: 2,
+          },
+          {
+            question_id: 'Q2',
+            exercise_id: 'E2',
+            title: 'Question 2',
+            counterInExercise: 1,
+          },
+      ]
+      expect(converted).toEqual(expectedOutput);
+    });
+  });
+
+  describe('convertExamQuestionSourcesV0V2', () => {
+    it('should return 10 specific ordered questions from 3 exercises', () => {
       const questionSources = [
         {
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
@@ -92,7 +139,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 423;
-      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V2(questionSources, seed, QUESTION_IDS);
 
       /*
         The selected questions should be:
@@ -173,7 +220,7 @@ describe('exam utils', function() {
 
       expect(converted).toEqual(expectedOutput);
     });
-    it('should return 10 specific ordered questions from 1 exercise', function() {
+    it('should return 10 specific ordered questions from 1 exercise', () => {
       const questionSources = [
         {
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
@@ -182,7 +229,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 837;
-      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V2(questionSources, seed, QUESTION_IDS);
       const expectedOutput = [
         {
           counterInExercise: 20,
@@ -247,7 +294,7 @@ describe('exam utils', function() {
       ];
       expect(converted).toEqual(expectedOutput);
     });
-    it('should return 3 specific ordered questions from 3 exercises', function() {
+    it('should return 3 specific ordered questions from 3 exercises', () => {
       const questionSources = [
         {
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
@@ -266,7 +313,7 @@ describe('exam utils', function() {
         },
       ];
       const seed = 168;
-      const converted = convertExamQuestionSourcesV0V1(questionSources, seed, QUESTION_IDS);
+      const converted = convertExamQuestionSourcesV0V2(questionSources, seed, QUESTION_IDS);
       const expectedOutput = [
         {
           counterInExercise: 9,
