@@ -2,6 +2,8 @@ import fnmatch
 import logging
 import os
 
+from sqlalchemy.exc import DatabaseError
+
 from .paths import get_content_database_dir_path
 from .sqlalchemybridge import Bridge
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
@@ -30,18 +32,25 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         logger.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
                        .format(directory=content_database_dir, names=invalid_db_names))
 
+    # nonexistent database files are created if we delete the files that have broken symbolic links;
     # empty database files are created if we delete a database file while the server is running and connected to it;
     # here, we delete and exclude such databases to avoid errors when we try to connect to them
-    empty_db_files = set({})
+    db_files_to_remove = set({})
     for db_name in valid_db_names:
         filename = os.path.join(content_database_dir, "{}.sqlite3".format(db_name))
-        if os.path.getsize(filename) == 0:
-            empty_db_files.add(db_name)
+        if not os.path.exists(filename) or os.path.getsize(filename) == 0:
+            db_files_to_remove.add(db_name)
             os.remove(filename)
-    if empty_db_files:
-        logger.warning("Removing empty databases in content database directory '{directory}' with IDs: {names}"
-                       .format(directory=content_database_dir, names=empty_db_files))
-    valid_dbs = list(set(valid_db_names) - set(empty_db_files))
+
+    if db_files_to_remove:
+        err_msg = (
+            "Removing nonexistent or empty databases in content database directory "
+            "'{directory}' with IDs: {names}.\nPlease import the channels again."
+        )
+        logger.warning(
+            err_msg.format(directory=content_database_dir, names=db_files_to_remove)
+        )
+    valid_dbs = list(set(valid_db_names) - set(db_files_to_remove))
 
     return valid_dbs
 
@@ -80,7 +89,11 @@ def read_channel_metadata_from_db_file(channeldbpath):
 def get_channels_for_data_folder(datafolder):
     channels = []
     for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
-        channel = read_channel_metadata_from_db_file(path)
+        try:
+            channel = read_channel_metadata_from_db_file(path)
+        except DatabaseError:
+            logger.warning("Tried to import channel from database file {}, but the file was corrupted.".format(path))
+            continue
         channel_data = {
             "path": path,
             "id": channel.id,
