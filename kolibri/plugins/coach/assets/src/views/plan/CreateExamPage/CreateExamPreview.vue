@@ -96,12 +96,12 @@
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
           <KDragContainer
             v-if="fixedOrder"
-            :items="annotatedQuestions"
+            :items="selectedQuestions"
             @sort="handleUserSort"
           >
             <transition-group tag="ol" name="list" class="question-list">
               <KDraggable
-                v-for="(question, questionIndex) in annotatedQuestions"
+                v-for="(question, questionIndex) in selectedQuestions"
                 :key="listKey(question)"
               >
                 <KDragHandle>
@@ -112,7 +112,7 @@
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
                     :questionNumberOfExercise="question.counterInExercise"
                     :isFirst="questionIndex === 0"
-                    :isLast="questionIndex === annotatedQuestions.length - 1"
+                    :isLast="questionIndex === selectedQuestions.length - 1"
                     @select="currentQuestionIndex = questionIndex"
                     @moveDown="moveQuestionDown(questionIndex)"
                     @moveUp="moveQuestionUp(questionIndex)"
@@ -123,7 +123,7 @@
           </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
-              v-for="(question, questionIndex) in annotatedQuestions"
+              v-for="(question, questionIndex) in selectedQuestions"
               :key="listKey(question)"
               :draggable="false"
               :isSelected="isSelected(question)"
@@ -265,23 +265,6 @@
         'selectedExercises',
         'availableQuestions',
       ]),
-      annotatedQuestions() {
-        const counts = {};
-        const totals = {};
-        this.selectedQuestions.forEach(question => {
-          if (!totals[question.exercise_id]) {
-            totals[question.exercise_id] = 0;
-          }
-          totals[question.exercise_id] += 1;
-          counts[this.listKey(question)] = totals[question.exercise_id];
-        });
-        return this.selectedQuestions.map(question => {
-          if (totals[question.exercise_id] > 1) {
-            question.counterInExercise = counts[this.listKey(question)];
-          }
-          return question;
-        });
-      },
       maxQs() {
         return MAX_QUESTIONS;
       },
