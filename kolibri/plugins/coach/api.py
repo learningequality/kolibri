@@ -1,8 +1,12 @@
 import datetime
+from datetime import timedelta
 
+from django.db import connection
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Sum
+from django.db.utils import OperationalError
+from django.utils import timezone
 from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -13,6 +17,7 @@ from .serializers import LessonReportSerializer
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -22,6 +27,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 
@@ -76,9 +82,53 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Lesson.objects.all()
 
 
+def get_db_info(classroom_name):
+    """
+    Returns information about the sessions and users the current
+    Kolibri server has in use
+
+    """
+    active_users = None
+    try:
+        connection.ensure_connection()
+        last_hour = timezone.now() - timedelta(minutes=60)
+        last_5_minutes = timezone.now() - timedelta(minutes=5)
+
+        usersessions = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_hour).all()
+        for session in usersessions:
+            pass
+            print("name: ", session.user.get_username())
+            print("last: ", session.last_interaction_timestamp)
+        print("usersessions: ", usersessions.count())
+
+        session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_5_minutes).all()
+        users_in_class = \
+            set(filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom_name)),
+                       session_objects))
+        active_users = map(lambda user_session: user_session.user.get_short_name(), users_in_class)
+    except OperationalError:
+        print('Database unavailable, impossible to retrieve users and sessions info')
+
+    return active_users
+
+
+class LiveAttendanceViewset(viewsets.ViewSet):
+    """
+    A simple ViewSet for retrieving the list of logged-in users
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def list(self, request):
+        print(request.data)
+        sessions = get_db_info('test')
+        output = {
+            "sessions": sessions
+        }
+        return Response(output)
+
+
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
-
     permission_classes = (KolibriReportPermissions,)
     serializer_class = LearnerNotificationSerializer
     pagination_class = OptionalPageNumberPagination
