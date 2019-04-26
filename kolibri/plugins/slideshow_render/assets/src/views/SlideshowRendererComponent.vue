@@ -23,7 +23,7 @@
             height: `calc(100% - ${caption_height}px)`
           }"
         >
-          <img :src="slide.storage_url" alt="slide.caption">
+          <img :src="slide.storage_url" :alt="slide.caption">
         </div>
         <div :ref="slide.id" class="caption">
           {{ slide.caption }}
