@@ -96,11 +96,15 @@ def start(port=8080, run_cherrypy=True):
 
     update_channel_metadata()
 
+    # Initialize the iceqube engine to handle scheduled tasks
+    from kolibri.core.tasks.queue import initialize_worker
+    initialize_worker()
+
     # This is also run every time the server is started to clear all the tasks
     # in the queue
-    from kolibri.core.tasks.client import get_client
+    from kolibri.core.tasks.queue import get_queue
 
-    get_client().clear(force=True)
+    get_queue().empty()
 
     def rm_pid_file():
         os.unlink(PID_FILE)
