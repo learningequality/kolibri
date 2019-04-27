@@ -94,12 +94,17 @@ function convertExamQuestionSourcesV1V2(questionSources) {
   });
 }
 
-export function convertExamQuestionSources(exam, extraArgs) {
+export function convertExamQuestionSources(exam, extraArgs = {}) {
   const { data_model_version } = exam;
   if (data_model_version === 0) {
-    // TODO contentNodes are only needed for V0 -> V2 conversion, but a request is
-    // made regardless of the version
-    const { contentNodes = [] } = extraArgs;
+    // TODO contentNodes are only needed for V0 -> V2 conversion, but a request to the
+    // ContentNode API is made regardless of the version being converted
+    if (extraArgs.contentNodes === undefined) {
+      throw new Error(
+        "Missing 'contentNodes' array, which is required when converting a V0 Exam model"
+      );
+    }
+    const { contentNodes } = extraArgs;
     const questionIds = {};
     contentNodes.forEach(node => {
       questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;

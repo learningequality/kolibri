@@ -163,6 +163,17 @@ describe('exam utils', () => {
   });
 
   describe('convertExamQuestionSources converting from V0 to V2', () => {
+    it('throws an error if the required "contentNodes" data is not provided', () => {
+      const exam = {
+        data_model_version: 0,
+        seed: 1,
+        question_sources: [],
+      };
+      expect(() => {
+        convertExamQuestionSources(exam);
+      }).toThrow();
+    });
+
     it('should return 10 specific ordered questions from 3 exercises', () => {
       const exam = {
         data_model_version: 0,
