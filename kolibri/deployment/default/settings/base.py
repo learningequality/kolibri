@@ -302,7 +302,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {"handlers": ["console", "file"], "propagate": True},
+        "django": {"handlers": ["console", "file"], "propagate": False},
         "django.request": {
             "handlers": ["mail_admins", "file", "request_debug"],
             "level": "ERROR",
@@ -316,12 +316,12 @@ LOGGING = {
         "iceqube": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "morango": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
     },
 }
