@@ -43,6 +43,7 @@ Usage:
   kolibri restart [options]
   kolibri status [options]
   kolibri shell [options]
+  kolibri services [--foreground]
   kolibri manage COMMAND [DJANGO_OPTIONS ...]
   kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
@@ -66,6 +67,7 @@ Examples:
   kolibri start             Start Kolibri
   kolibri stop              Stop Kolibri
   kolibri status            How is Kolibri doing?
+  kolibri services          Start Kolibri background services
   kolibri url               Tell me the address of Kolibri
   kolibri shell             Display a Django shell
   kolibri manage help       Show the Django management usage dialogue
@@ -416,6 +418,34 @@ status.codes = {
 }
 
 
+def services(daemon=True):
+    """
+    Start the kolibri background services.
+
+    :param: daemon: Fork to background process (default: True)
+    """
+    # This is temporarily put in place because of
+    # https://github.com/learningequality/kolibri/issues/1615
+    update()
+
+    logger.info("Starting Kolibri background services")
+
+    # Daemonize at this point, no more user output is needed
+    if daemon:
+
+        kwargs = {}
+        # Truncate the file
+        if os.path.isfile(server.DAEMON_LOG):
+            open(server.DAEMON_LOG, "w").truncate()
+        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
+        kwargs["out_log"] = server.DAEMON_LOG
+        kwargs["err_log"] = server.DAEMON_LOG
+
+        become_daemon(**kwargs)
+
+    server.services()
+
+
 def setup_logging(debug=False):
     """
     Configures logging in cases where a Django environment is not supposed
@@ -633,6 +663,12 @@ def main(args=None):  # noqa: max-complexity=13
             )
         raise
 
+    daemon = not arguments["--foreground"]
+    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+    if sys.platform == "darwin":
+        daemon = False
+
     # Alias
     if arguments["shell"]:
         arguments["manage"] = True
@@ -664,11 +700,6 @@ def main(args=None):  # noqa: max-complexity=13
         # Clear old sessions up
         call_command("clearsessions")
 
-        daemon = not arguments["--foreground"]
-        # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
-        # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-        if sys.platform == "darwin":
-            daemon = False
         start(port, daemon=daemon)
         return
 
@@ -679,6 +710,17 @@ def main(args=None):  # noqa: max-complexity=13
     if arguments["status"]:
         status_code = status()
         sys.exit(status_code)
+        return
+
+    if arguments["services"]:
+        try:
+            server._write_pid_file(server.STARTUP_LOCK, None)
+        except (IOError, OSError):
+            logger.warn(
+                "Impossible to create file lock to communicate starting process"
+            )
+
+        services(daemon=daemon)
         return
 
     if arguments["language"] and arguments["setdefault"]:

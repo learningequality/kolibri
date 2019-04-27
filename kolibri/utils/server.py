@@ -72,12 +72,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def start(port=8080, run_cherrypy=True):
-    """
-    Starts the server.
-
-    :param: port: Port number (default: 8080)
-    """
+def run_services():
 
     # start the pingback thread
     PingbackThread.start_command()
@@ -85,9 +80,28 @@ def start(port=8080, run_cherrypy=True):
     # Do a db vacuum periodically
     VacuumThread.start_command()
 
+    # This is run every time the server is started to clear all the tasks
+    # in the queue
+    from kolibri.core.tasks.queue import get_queue
+
+    get_queue().empty()
+
+    # Initialize the iceqube engine to handle scheduled tasks
+    from kolibri.core.tasks.queue import initialize_worker
+    initialize_worker()
+
+
+def start(port=8080, run_cherrypy=True):
+    """
+    Starts the server.
+
+    :param: port: Port number (default: 8080)
+    """
+
+    run_services()
+
     # Write the new PID
-    with open(PID_FILE, "w") as f:
-        f.write("%d\n%d" % (os.getpid(), port))
+    _write_pid_file(PID_FILE, port=port)
 
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
@@ -95,16 +109,6 @@ def start(port=8080, run_cherrypy=True):
     from kolibri.core.content.utils.annotation import update_channel_metadata
 
     update_channel_metadata()
-
-    # Initialize the iceqube engine to handle scheduled tasks
-    from kolibri.core.tasks.queue import initialize_worker
-    initialize_worker()
-
-    # This is also run every time the server is started to clear all the tasks
-    # in the queue
-    from kolibri.core.tasks.queue import get_queue
-
-    get_queue().empty()
 
     def rm_pid_file():
         os.unlink(PID_FILE)
@@ -115,6 +119,24 @@ def start(port=8080, run_cherrypy=True):
         run_server(port=port)
     else:
         block()
+
+
+def services():
+    """
+    Runs the background services.
+    """
+
+    run_services()
+
+    # Write the new PID
+    _write_pid_file(PID_FILE)
+
+    def rm_pid_file():
+        os.unlink(PID_FILE)
+
+    atexit.register(rm_pid_file)
+
+    block()
 
 
 def block():
@@ -329,7 +351,7 @@ def _read_pid_file(filename):
     return pid, port
 
 
-def _write_pid_file(filename, port):
+def _write_pid_file(filename, port=None):
     """
     Writes a PID file in the format Kolibri parses
 
@@ -338,7 +360,9 @@ def _write_pid_file(filename, port):
     """
 
     with open(filename, "w") as f:
-        f.write("%d\n%d" % (os.getpid(), port))
+        f.write("%d\n" % os.getpid())
+        if port is not None:
+            f.write("%d" % port)
 
 
 def get_status():  # noqa: max-complexity=16
