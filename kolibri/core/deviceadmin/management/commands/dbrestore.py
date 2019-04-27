@@ -33,7 +33,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser_group = parser.add_mutually_exclusive_group(required=True)
         parser_group.add_argument(
-            "dump_file", nargs="?", type=str, help="Specifies the exact dump file to restore from"
+            "dump_file",
+            nargs="?",
+            type=str,
+            help="Specifies the exact dump file to restore from",
         )
         parser_group.add_argument(
             "--latest",
@@ -66,7 +69,11 @@ class Command(BaseCommand):
         if os.path.exists(dumps_root):
             use_backup = search_latest(dumps_root, fallback_version)
         if not use_backup:
-            raise RuntimeError("Could not find a database backup for version: {}".format(fallback_version))
+            raise RuntimeError(
+                "Could not find a database backup for version: {}".format(
+                    fallback_version
+                )
+            )
         return use_backup
 
     def select_backup(self, dumps_root):
@@ -86,11 +93,16 @@ class Command(BaseCommand):
             raise RuntimeError("Could not find a database backup}")
         # Shows a list of options to select from
         backup_options = [
-            {"selector": str(sel + 1), "prompt": get_dtm_from_backup_name(backup), "return": backup}
+            {
+                "selector": str(sel + 1),
+                "prompt": get_dtm_from_backup_name(backup),
+                "return": backup,
+            }
             for sel, backup in enumerate(backups)
         ]
         selected_backup = prompt.options(
-            "Type the number in brackets to select the backup to be restored", backup_options
+            "Type the number in brackets to select the backup to be restored",
+            backup_options,
         )
         return os.path.join(dumps_root, selected_backup)
 
@@ -98,7 +110,11 @@ class Command(BaseCommand):
         try:
             server.get_status()
             self.stderr.write(
-                self.style.ERROR("Cannot restore while Kolibri is running, please run:\n" "\n" "    kolibri stop\n")
+                self.style.ERROR(
+                    "Cannot restore while Kolibri is running, please run:\n"
+                    "\n"
+                    "    kolibri stop\n"
+                )
             )
             raise SystemExit()
         except server.NotRunning:
@@ -125,4 +141,6 @@ class Command(BaseCommand):
 
         dbrestore(use_backup)
 
-        self.stdout.write(self.style.SUCCESS("Restored database from: {path}".format(path=use_backup)))
+        self.stdout.write(
+            self.style.SUCCESS("Restored database from: {path}".format(path=use_backup))
+        )
