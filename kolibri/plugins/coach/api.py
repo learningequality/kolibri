@@ -120,7 +120,9 @@ class LiveAttendanceViewset(viewsets.ViewSet):
 
     def list(self, request):
         print(request.data)
-        sessions = get_db_info('test')
+        print(request.query_params)
+        classroom_name = request.query_params["classroom"]
+        sessions = get_db_info(classroom_name)
         output = {
             "sessions": sessions
         }

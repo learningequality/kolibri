@@ -164,11 +164,13 @@ export default {
       'contentNodeMap',
       'contentLearnerStatusMap',
       'lessonMap',
+      'activeLearnersArray',
     ]),
     ...mapGetters('classSummary', [
       'getClassId',
       'className',
       'coaches',
+      'activeLearners',
       'learners',
       'groups',
       'exams',

@@ -1,7 +1,12 @@
+from datetime import timedelta
+
+from django.db import connection
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
+from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import permissions
 from rest_framework import serializers
@@ -9,13 +14,14 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
+from kolibri.core.auth.models import Classroom
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
+from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
-
 
 # Intended to match  NotificationEventType
 NOT_STARTED = "NotStarted"
@@ -207,6 +213,27 @@ def data(Serializer, queryset):
     return Serializer(queryset, many=True).data
 
 
+def get_active_learners(classroom_name):
+    """
+    Returns information about the sessions and users the current
+    Kolibri server has in use
+
+    """
+    active_users = None
+    try:
+        connection.ensure_connection()
+        last_5_minutes = timezone.now() - timedelta(minutes=5)
+        session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_5_minutes).all()
+        active_users_in_class = \
+            filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom_name)),
+                   session_objects)
+        active_users = set(map(lambda user_session: user_session.user.get_short_name(), active_users_in_class))
+    except OperationalError:
+        print('Database unavailable, impossible to retrieve users and sessions info')
+
+    return active_users
+
+
 class ClassSummaryViewSet(viewsets.ViewSet):
 
     # TODO use more granular permissions. Not sure if KolibriReportPermissions will
@@ -215,6 +242,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
+        active_learners = get_active_learners(classroom)
         query_learners = classroom.get_members()
         query_lesson = Lesson.objects.filter(collection=pk)
         query_exams = Exam.objects.filter(collection=pk)
@@ -273,6 +301,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             "content": data(ContentSerializer, query_content),
             "content_learner_status": content_status_serializer(lesson_data, learners_data, classroom),
             "lessons": lesson_data,
+            "active_learners": active_learners
         }
+
+        print(output)
 
         return Response(output)
