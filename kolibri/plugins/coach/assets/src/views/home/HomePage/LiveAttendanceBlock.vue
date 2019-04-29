@@ -9,16 +9,12 @@
       {{ coachStrings.$tr('liveAttendanceLabel') }}
     </KLabeledIcon>
 
-    <p v-if="table.length === 0">
-      {{ coachStrings.$tr('lessonListEmptyState') }}
-    </p>
-
     <BlockItem class="block-item">
       <ItemProgressDisplay
         :name="$tr('activeLearners')"
-        :tally="table[0].tally"
-        :groupNames="table[0].groups"
-        :to="classRoute('ReportsLessonLearnerListPage', { lessonId: table[0].key })"
+        :tally="liveAttendance.tally"
+        :groupNames="liveAttendance.groups"
+        :to="classRoute('ReportsAttendanceListPage')"
       />
     </BlockItem>
   </Block>
@@ -28,15 +24,12 @@
 
 <script>
 
-  import orderBy from 'lodash/orderBy';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
   import ActivityBlock from './ActivityBlock';
-
-  const MAX_LESSONS = 3;
 
   const translator = crossComponentTranslator(ActivityBlock);
 
@@ -53,22 +46,18 @@
       activeLearners: 'Active Learners',
     },
     computed: {
-      table() {
+      liveAttendance() {
         const tallies = {
           started: this.activeLearners.length,
           notStarted: this.learners.length - this.activeLearners.length,
           completed: 0,
           helpNeeded: 0,
         };
-        const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
-        return recent.map(lesson => {
-          return {
-            key: lesson.id,
-            name: lesson.title,
-            tally: tallies,
-            groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
-          };
-        });
+        return {
+          key: 'a5c81693b5dec7c6147aad567c7676ff',
+          tally: tallies,
+          groups: [],
+        };
       },
       viewAllString() {
         return translator.$tr('viewAll');
