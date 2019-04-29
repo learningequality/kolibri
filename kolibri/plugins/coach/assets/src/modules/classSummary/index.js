@@ -79,6 +79,7 @@ function defaultState() {
      */
     lessonMap: {},
     activeLearnersArray: [],
+    learnersInfoArray: [],
   };
 }
 
@@ -183,6 +184,9 @@ export default {
     },
     activeLearners(state) {
       return Object.values(state.activeLearnersArray);
+    },
+    learnersInfo(state) {
+      return Object.values(state.learnersInfoArray);
     },
     /*
      * groups := [
@@ -294,6 +298,7 @@ export default {
     notificationModuleData(state) {
       return {
         activeLearners: state.activeLearnersArray,
+        learnersInfo: state.learnersInfo,
         learners: state.learnerMap,
         learnerGroups: state.groupMap,
         lessons: state.lessonMap,
@@ -329,6 +334,7 @@ export default {
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap: _itemMap(summary.lessons, 'id'),
         activeLearnersArray: summary.active_learners,
+        learnersInfoArray: summary.learners_info,
       });
     },
     CREATE_ITEM(state, { map, id, object }) {

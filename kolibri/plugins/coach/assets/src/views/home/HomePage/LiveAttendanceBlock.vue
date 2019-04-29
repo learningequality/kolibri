@@ -54,7 +54,6 @@
           helpNeeded: 0,
         };
         return {
-          key: 'a5c81693b5dec7c6147aad567c7676ff',
           tally: tallies,
           groups: [],
         };

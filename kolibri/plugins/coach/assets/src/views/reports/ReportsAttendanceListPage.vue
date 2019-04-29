@@ -18,7 +18,8 @@
       <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
+            <th>{{ coachStrings.$tr('usernameLabel') }}</th>
+            <th>{{ coachStrings.$tr('fullNameLabel') }}</th>
             <th>{{ coachStrings.$tr('statusLabel') }}</th>
             <th>{{ coachStrings.$tr('lastLoggedInLabel') }}</th>
           </tr>
@@ -29,13 +30,14 @@
               <KLabeledIcon>
                 <KIcon slot="icon" person />
                 <KRouterLink
-                  :text="tableRow.name"
+                  :text="tableRow.username"
                   :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
                 />
               </KLabeledIcon>
             </td>
+            <td>{{ tableRow.name }}</td>
             <td><LessonActive :active="tableRow.active" /></td>
-            <td></td>
+            <td>{{ tableRow.lastLoggedIn }}</td>
           </tr>
         </transition-group>
       </CoreTable>
@@ -62,6 +64,7 @@
         const mapped = sorted.map(learner => {
           const augmentedObj = {
             active: this.active(learner),
+            lastLoggedIn: this.lastLoggedIn(learner),
           };
           Object.assign(augmentedObj, learner);
           return augmentedObj;
@@ -71,7 +74,20 @@
     },
     methods: {
       active(learner) {
-        return this.activeLearners.includes(learner.name);
+        return this.activeLearners.includes(learner.username);
+      },
+      lastLoggedIn(learner) {
+        if (!this.active(learner)) {
+          for (let i = 0; i < this.learnersInfo.length; i++) {
+            if (this.learnersInfo[i].user__username == learner.username) {
+              const lastLoggedInDate = new Date(
+                this.learnersInfo[i].last_interaction_timestamp__max
+              );
+              return lastLoggedInDate.toDateString();
+            }
+          }
+          return this.coachStrings.$tr('neverLoggedInLabel');
+        }
       },
     },
   };

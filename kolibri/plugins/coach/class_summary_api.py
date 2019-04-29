@@ -213,25 +213,30 @@ def data(Serializer, queryset):
     return Serializer(queryset, many=True).data
 
 
-def get_active_learners(classroom_name):
+def get_active_learners(classroom):
     """
     Returns information about the sessions and users the current
     Kolibri server has in use
 
     """
-    active_users = None
+    active_learners = []
+    learners_info = []
     try:
         connection.ensure_connection()
         last_5_minutes = timezone.now() - timedelta(minutes=5)
+        classroom_members = set(map(lambda member: member.username, classroom.get_members()))
+        learners_info = UserSessionLog.objects.filter(user__username__in=classroom_members)\
+            .values('user__username').annotate(Max('last_interaction_timestamp')).all()
+
         session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_5_minutes).all()
-        active_users_in_class = \
-            filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom_name)),
+        active_learners_in_class = \
+            filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom)),
                    session_objects)
-        active_users = set(map(lambda user_session: user_session.user.get_short_name(), active_users_in_class))
+        active_learners = set(map(lambda user_session: user_session.user.username, active_learners_in_class))
     except OperationalError:
         print('Database unavailable, impossible to retrieve users and sessions info')
 
-    return active_users
+    return active_learners, learners_info
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
@@ -301,9 +306,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             "content": data(ContentSerializer, query_content),
             "content_learner_status": content_status_serializer(lesson_data, learners_data, classroom),
             "lessons": lesson_data,
-            "active_learners": active_learners
+            "active_learners": active_learners[0],
+            "learners_info": active_learners[1]
         }
-
-        print(output)
 
         return Response(output)
