@@ -391,12 +391,21 @@
         }
       },
     },
+    beforeRouteUpdate() {
+      this.recordScroll();
+    },
+    beforeRouteLeave() {
+      this.recordScroll();
+    },
     mounted() {
       this.setScroll();
     },
     methods: {
       handleScroll() {
         this.scrollPosition = this.$el.scrollTop;
+        this.recordScroll();
+      },
+      recordScroll() {
         scrollPositions.setScrollPosition({ y: this.$el.scrollTop });
       },
       dismissUpdateModal() {
@@ -407,6 +416,7 @@
       },
       setScroll() {
         this.$el.scrollTop = scrollPositions.getScrollPosition().y;
+        this.scrollPosition = this.$el.scrollTop;
       },
     },
     $trs: {
