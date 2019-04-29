@@ -11,7 +11,7 @@
       <div
         v-if="$slots.header"
         class="ui-menu-header"
-        :class="{'ui-menu-header-lp': hasIcons}"
+        :class="{'ui-menu-header-lp': showActive}"
         :style="{ color: $coreTextDefault }"
       >
         <slot name="header"></slot>
