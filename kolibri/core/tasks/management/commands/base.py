@@ -2,7 +2,7 @@ import abc
 from collections import namedtuple
 
 from django.core.management.base import BaseCommand
-from iceqube.common.exceptions import UserCancelledError
+from iceqube.exceptions import UserCancelledError
 
 Progress = namedtuple(
     "Progress", ["progress_fraction", "message", "extra_data", "level"]

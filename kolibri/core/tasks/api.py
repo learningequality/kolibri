@@ -5,8 +5,8 @@ from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
-from iceqube.common.classes import State
-from iceqube.common.exceptions import UserCancelledError
+from iceqube.classes import State
+from iceqube.exceptions import UserCancelledError
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
