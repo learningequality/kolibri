@@ -12,6 +12,7 @@
       <UiIconButton
         slot="icon"
         type="secondary"
+        :aria-label="$tr('openNav')"
         @click="$emit('toggleSideNav')"
       >
         <mat-svg
@@ -50,7 +51,7 @@
           class="user-menu-dropdown"
           :raised="true"
           :containFocus="true"
-          :hasIcons="true"
+          :showActive="false"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
@@ -168,6 +169,7 @@
       },
     },
     $trs: {
+      openNav: 'Open site navigation',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',

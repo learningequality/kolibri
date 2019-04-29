@@ -12,7 +12,7 @@
       :currentContentNode="currentContentNode"
       :isSelected="isSelected"
       :questions="preview.questions"
-      :displaySelectOptions="Boolean(workingResources)"
+      :displaySelectOptions="showSelectOptions"
       :completionData="preview.completionData"
       @addResource="handleAddResource"
       @removeResource="handleRemoveResource"
@@ -38,12 +38,26 @@
       LessonContentPreviewPage,
     },
     mixins: [commonCoach],
+    props: {
+      // If set to true, will show the add/remove buttons.
+      showSelectOptions: {
+        type: Boolean,
+        default: true,
+      },
+      // Override the toolbarRoute in vuex
+      backRoute: {
+        type: Object,
+        required: false,
+      },
+    },
     computed: {
       toolbarRoute() {
-        return {
-          ...this.$store.state.toolbarRoute,
-          query: this.$route.query,
-        };
+        return (
+          this.backRoute || {
+            ...this.$store.state.toolbarRoute,
+            query: this.$route.query,
+          }
+        );
       },
       ...mapState('lessonSummary', ['workingResources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),

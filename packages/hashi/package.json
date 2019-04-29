@@ -7,7 +7,9 @@
     "build-base": "webpack --config ./webpack.config.js",
     "build": "yarn run build-base --mode=production",
     "dev": "yarn run build-base --mode=development --watch",
-    "compat": "eslint -c ./compat.js ./src/*.js"
+    "compat": "eslint -c ./compat.js ./src/*.js",
+    "integration": "JEST_PUPPETEER_CONFIG=jest.puppeteer.config.js jest --config=jest.integration.conf.js",
+    "integration-coverage": "yarn run integration --coverage"
   },
   "author": "Learning Equality",
   "license": "MIT",
@@ -17,8 +19,9 @@
     "eslint-plugin-compat": "^3.0.0",
     "express": "^4.16.4",
     "http-server": "^0.11.1",
-    "jest-environment-hashi-integration": "0.0.1",
-    "jest-environment-jsdom-script": "0.0.1",
+    "jest-environment-puppeteer": "^4.1.0",
+    "jest-puppeteer": "^4.1.0",
+    "puppeteer": "^1.13.0",
     "webpack": "4.6.0",
     "webpack-cli": "^3.1.2"
   },
