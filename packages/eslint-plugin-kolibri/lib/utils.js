@@ -62,6 +62,23 @@ module.exports = {
   },
 
   /**
+   * Extract name from a directive dynamic argument node.
+   */
+  getDirectiveDynamicArgName(node) {
+    if (!node.raw || !node.raw.argument || !node.raw.argument.length) {
+      return null;
+    }
+
+    const rawArg = node.raw.argument;
+
+    if (rawArg[0] !== '[' || rawArg.slice(-1) !== ']') {
+      return null;
+    }
+
+    return rawArg.slice(1, rawArg.length - 1);
+  },
+
+  /**
    * Run callback on this expression properties nodes.
    */
   executeOnThisExpressionProperty(func) {
@@ -103,6 +120,27 @@ module.exports = {
   executeOnWatchStringMethod(func) {
     return {
       'Property[key.name=watch] ObjectExpression[properties] Literal[value]'(node) {
+        func(node);
+      },
+    };
+  },
+
+  /**
+   * Run callback on directive dynamic argument node, e.g. on
+   * <a :[attributeName]="..."> ... </a>
+   */
+  executeOnDirectiveDynamicArg(func) {
+    return {
+      'VDirectiveKey[argument]'(node) {
+        if (!node.raw || !node.raw.argument || !node.raw.argument.length) {
+          return;
+        }
+
+        const rawArg = node.raw.argument;
+        if (rawArg[0] !== '[' || rawArg.slice(-1) !== ']') {
+          return;
+        }
+
         func(node);
       },
     };

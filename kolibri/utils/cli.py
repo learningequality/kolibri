@@ -255,7 +255,7 @@ def update():
     # import settings. Otherwise the updated configuration will not be used
     # during this runtime.
 
-    call_command("collectstatic", interactive=False)
+    call_command("collectstatic", interactive=False, verbosity=0)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 

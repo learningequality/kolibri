@@ -100,7 +100,7 @@
     />
 
     <slot name="below_content">
-      <template v-if="progress >= 1 && content.next_content">
+      <template v-if="content.next_content">
         <h2>{{ $tr('nextResource') }}</h2>
         <ContentCardGroupCarousel
           :genContentLink="genContentLink"
@@ -322,7 +322,6 @@
       copyrightHolder: 'Copyright holder: {copyrightHolder}',
       nextResource: 'Next resource',
       documentTitle: '{ contentTitle } - { channelTitle }',
-      topicLocationTooltip: 'Resource is located in this topic',
     },
   };
 

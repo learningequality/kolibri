@@ -9,6 +9,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        aria-hidden="true"
         @click="handleClickPrevious"
       >
         <mat-svg
@@ -22,6 +23,7 @@
       <ul
         ref="navbarUl"
         class="items"
+        tabindex="-1"
         :style="{ maxWidth: `${ maxWidth }px` }"
       >
         <!-- Contains KNavbarLink components -->
@@ -31,6 +33,7 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        aria-hidden="true"
         :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >

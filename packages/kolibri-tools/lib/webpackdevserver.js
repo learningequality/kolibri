@@ -15,6 +15,8 @@ const openInEditor = require('launch-editor-middleware');
 const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
 
+const buildLogging = logger.getLogger('Kolibri Webpack Dev Server');
+
 function genPublicPath(address, port, basePath) {
   const baseURL = `http://${address}:${port}/`;
   if (basePath) {
@@ -66,7 +68,7 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
     if (typeof bundleConfig.entry[data.name] === 'string') {
       bundleConfig.entry[data.name] = [bundleConfig.entry[data.name]];
     } else if (!Array.isArray(bundleConfig.entry[data.name])) {
-      logger.error('Unhandled data type for bundle entries');
+      buildLogging.error('Unhandled data type for bundle entries');
       process.exit(1);
     }
     // Next, prepend two hot-reload-related entry points to the config:
@@ -104,17 +106,16 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
     server.use('/__open-in-editor', openInEditor());
   }
 
-  server.listen(port, CONFIG.host, () => {
-    logger.info(`webpack dev server listening on port ${port}`);
-  });
+  server.listen(port, CONFIG.host, () => {});
 
   return compiler;
 }
 
-if (require.main === module) {
-  const data = JSON.parse(process.env.data);
-  const index = JSON.parse(process.env.index);
-  const options = JSON.parse(process.env.options);
+const data = JSON.parse(process.env.data);
+const index = JSON.parse(process.env.index);
+const options = JSON.parse(process.env.options);
+const start = JSON.parse(process.env.start);
+function build() {
   buildWebpack(
     data,
     index,
@@ -126,6 +127,24 @@ if (require.main === module) {
     },
     options
   );
+}
+
+let waitToBuild;
+
+waitToBuild = msg => {
+  if (msg === 'start') {
+    build();
+  } else {
+    process.once('message', waitToBuild);
+  }
+};
+
+if (require.main === module) {
+  if (start) {
+    build();
+  } else {
+    waitToBuild();
+  }
 }
 
 module.exports = buildWebpack;

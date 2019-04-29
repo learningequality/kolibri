@@ -258,9 +258,12 @@ def run_server(port):
     content_files_handler = cherrypy.tools.staticdir.handler(
         section="/", dir=paths.get_content_dir_path()
     )
+
+    url_path_prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+
     cherrypy.tree.mount(
         content_files_handler,
-        paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]),
+        "/{}".format(paths.get_content_url(url_path_prefix).lstrip("/")),
         config={"/": {"tools.caching.on": False}},
     )
 
@@ -402,6 +405,9 @@ def get_status():  # noqa: max-complexity=16
 
         if response.status_code != 200:
             # Probably a mis-configured kolibri
+            sys.stderr.write("---Debug information---\n")
+            sys.stderr.write(response.text)
+            sys.stderr.write("\n-----------------------\n")
             raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
 
     else:

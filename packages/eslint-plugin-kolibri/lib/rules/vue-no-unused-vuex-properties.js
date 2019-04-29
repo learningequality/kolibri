@@ -140,6 +140,13 @@ const create = context => {
         });
       },
     },
+    utils.executeOnDirectiveDynamicArg(node => {
+      const argName = utils.getDirectiveDynamicArgName(node);
+
+      remove(unusedVuexProperties, property => {
+        return argName === property.name;
+      });
+    }),
     utils.executeOnRootTemplateEnd(() => {
       if (unusedVuexProperties.length) {
         utils.reportUnusedVuexProperties(context, unusedVuexProperties);
