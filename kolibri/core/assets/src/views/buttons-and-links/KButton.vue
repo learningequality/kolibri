@@ -13,7 +13,7 @@
   >
     <slot v-if="$slots.default"></slot>
     <template v-else>
-      {{ text }}
+      <span>{{ text }}</span>
     </template>
     <mat-svg
       v-if="hasDropdown"
