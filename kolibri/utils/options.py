@@ -136,6 +136,13 @@ option_spec = {
                 "KOLIBRI_CENTRAL_CONTENT_BASE_URL",
                 "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",
             ),
+        },
+        "DATA_PORTAL_SYNCING_BASE_URL": {
+            "type": "string",
+            "default": "https://kolibridataportal.learningequality.org",
+            "envvars": (
+                "KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL",
+            ),
         }
     },
     "Deployment": {
