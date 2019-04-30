@@ -39,7 +39,7 @@
     },
     data() {
       return {
-        bannerClosed: !Object.keys(kolibriGlobal.kolibri_modules).includes("demo_server_module"),
+        bannerClosed: !Object.keys(kolibriGlobal.kolibri_modules).includes('demo_server_module'),
       };
     },
     mounted() {
@@ -79,7 +79,7 @@
     transition: margin-top 0.1s linear;
   }
   .mask {
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
