@@ -57,18 +57,18 @@ export default function selectQuestions(
     // check if we've used up all questions in one exercise
     if (get(shuffledQuestionIdArrays, i).length) {
       // if not, add it to the list
-      const question_id = get(shuffledQuestionIdArrays, i).pop();
+      const exercise_id = get(exerciseIds, i);
 
-      if (!counterInExerciseMap[question_id]) {
-        counterInExerciseMap[question_id] = 0;
+      if (!counterInExerciseMap[exercise_id]) {
+        counterInExerciseMap[exercise_id] = 0;
       }
 
       // This matches V2 version of question_sources in Exam model
       output.push({
-        exercise_id: get(exerciseIds, i),
-        question_id,
+        exercise_id,
+        question_id: get(shuffledQuestionIdArrays, i).pop(),
         title: get(exerciseTitles, i),
-        counter_in_exercise: (counterInExerciseMap[question_id] += 1),
+        counter_in_exercise: (counterInExerciseMap[exercise_id] += 1),
       });
     } else if (
       shuffledQuestionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) === 0
