@@ -180,6 +180,7 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
+  import FixTableWrap from './FixTableWrap';
   import { THEMES } from './EpubConstants';
 
   const FONT_SIZE_MIN = 8;
@@ -195,7 +196,6 @@
   const TOP_BAR_HEIGHT = 36;
   const BOTTOM_BAR_HEIGHT = 54;
 
-  const EPUB_VERTICAL_PADDING = 40;
   const LOCATIONS_INTERVAL = 1000;
 
   const EPUB_RENDERER_SETTINGS_KEY = 'kolibriEpubRendererSettings';
@@ -458,51 +458,7 @@
         // Known issues: https://caniuse.com/#feat=multicolumn
         // Hook into content render, to check tables are breaking properly in column layout
         this.rendition.hooks.content.register(contents => {
-          const tables = Array.from(contents.document.getElementsByTagName('table'));
-
-          tables.forEach(table => {
-            const containerHeight = table.parentElement.clientHeight - EPUB_VERTICAL_PADDING;
-            if (table.clientHeight < containerHeight) {
-              return;
-            }
-
-            const rects = table.getClientRects();
-
-            // In Firefox, the table will not be breaking and wrapping according to the
-            // writing-mode direction so `rects` will be just one rectangular area of where the
-            // table is rendered, not multiple like in browsers that do break it among columns.
-            if (rects.length > 1) {
-              return;
-            }
-
-            // So we'll split the table into a bunch of smaller tables
-            this.splitTable(containerHeight, table).forEach(newTable => {
-              table.parentElement.insertBefore(newTable, table);
-
-              if (newTable.clientHeight < containerHeight) {
-                return;
-              }
-
-              // ARG, table is still too tall... that's probably because it has one row
-              // with cells too large, so we'll replace cell contents with scrollable divs
-              Array.from(newTable.getElementsByTagName('td')).forEach(cell => {
-                const diff = newTable.clientHeight - cell.clientHeight;
-                const div = contents.document.createElement('div');
-                div.style.maxHeight = `${containerHeight - diff}px`;
-                div.style.overflowY = 'auto';
-
-                // Move cell contents into div
-                while (cell.firstChild) {
-                  div.append(cell.removeChild(cell.firstChild));
-                }
-
-                cell.append(div);
-              });
-            });
-
-            // And remove the old table
-            table.parentElement.removeChild(table);
-          });
+          FixTableWrap.doFix(contents.document);
         });
       });
       this.book.on(EVENTS.BOOK.OPEN_FAILED, () => {
@@ -520,57 +476,6 @@
       delete global.ePub;
     },
     methods: {
-      // TODO: Get rid of this when Firefox breaks tables properly in CSS column layout
-      splitTable(maxHeight, table) {
-        // Chunk all rows into groups that will fit into a table within `maxHeight`
-        const tableSets = Array.from(table.getElementsByTagName('tr')).reduce(
-          (tableSets, row) => {
-            const current = tableSets.pop();
-            const currentHeight = current.reduce((h, row) => h + row.clientHeight, 0);
-
-            if (current.length && currentHeight + row.clientHeight >= maxHeight) {
-              tableSets.push(current);
-              tableSets.push([row]);
-              return tableSets;
-            }
-
-            current.push(row);
-            tableSets.push(current);
-            return tableSets;
-          },
-          [[]]
-        );
-
-        // Loop through row chunks and create the replacement tables
-        return tableSets.map(tableSet => {
-          // Deep clone to maintain as much as possible
-          const newTable = table.cloneNode(true);
-
-          // Then remove all the unnecessary leftovers
-          const toRemove = [
-            ...Array.from(newTable.getElementsByTagName('thead')),
-            ...Array.from(newTable.getElementsByTagName('tfoot')),
-            ...Array.from(newTable.getElementsByTagName('tr')),
-          ];
-
-          toRemove.forEach(el => {
-            el.parentElement.removeChild(el);
-          });
-
-          const tbody = newTable.getElementsByTagName('tbody')[0];
-
-          // Shouldn't happen :/
-          if (!tbody) {
-            return newTable;
-          }
-
-          tableSet.forEach(row => {
-            tbody.appendChild(row);
-          });
-
-          return newTable;
-        });
-      },
       updateProgress() {
         if (this.locations.length > 0) {
           this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
@@ -889,6 +794,11 @@
     right: 0;
     bottom: 54px;
     left: 0;
+    white-space: nowrap;
+  }
+
+  .navigation-and-epubjs > * {
+    white-space: normal;
   }
 
   .column {
