@@ -5,6 +5,7 @@ import os
 import re
 
 import requests
+from django.core import cache
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
@@ -222,14 +223,20 @@ def annotate_importability_from_remote(channel_id, baseurl):
 
 
 def annotate_importability_from_disk(channel_id, basepath):
-    content_dir = get_content_storage_dir_path(datafolder=basepath)
+    CACHE_KEY = 'disk_import_checksums_{basepath}'.format(basepath)
+    checksums = cache.get(CACHE_KEY)
+    if not checksums:
+        content_dir = get_content_storage_dir_path(datafolder=basepath)
 
-    checksums = []
+        checksums = []
 
-    for _, _, files in os.walk(content_dir):
-        for name in files:
-            checksum = os.path.splitext(name)[0]
-            # Only add valid checksums formatted according to our standard filename
-            if checksum_regex.match(checksum):
-                checksums.append(checksum)
+        for _, _, files in os.walk(content_dir):
+            for name in files:
+                checksum = os.path.splitext(name)[0]
+                # Only add valid checksums formatted according to our standard filename
+                if checksum_regex.match(checksum):
+                    checksums.append(checksum)
+        # Cache is per device, so a relatively long lived one should
+        # be fine.
+        cache.set(CACHE_KEY, checksums, 1800)
     annotate_importability(channel_id, checksums)
