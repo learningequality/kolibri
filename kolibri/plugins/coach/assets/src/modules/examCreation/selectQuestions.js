@@ -1,5 +1,6 @@
 import sortBy from 'lodash/sortBy';
 import shuffled from 'kolibri.utils.shuffled';
+import { annotateQuestionSourcesWithCounter } from 'kolibri.utils.exams';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -46,29 +47,18 @@ export default function selectQuestions(
     shuffled(questionArray, seed)
   );
 
-  // Used to add a disambiguating number to the title
-  const counterInExerciseMap = {};
-
   // fill up the output list
-  const output = [];
+  let output = [];
   let i = 0;
   let questionsRemaining = true;
   while (output.length < numQuestions && questionsRemaining) {
     // check if we've used up all questions in one exercise
     if (get(shuffledQuestionIdArrays, i).length) {
       // if not, add it to the list
-      const exercise_id = get(exerciseIds, i);
-
-      if (!counterInExerciseMap[exercise_id]) {
-        counterInExerciseMap[exercise_id] = 0;
-      }
-
-      // This matches V2 version of question_sources in Exam model
       output.push({
-        exercise_id,
+        exercise_id: get(exerciseIds, i),
         question_id: get(shuffledQuestionIdArrays, i).pop(),
         title: get(exerciseTitles, i),
-        counter_in_exercise: (counterInExerciseMap[exercise_id] += 1),
       });
     } else if (
       shuffledQuestionIdArrays.reduce((acc, questionArray) => acc + questionArray.length, 0) === 0
@@ -78,6 +68,9 @@ export default function selectQuestions(
     // cycle through questions
     i = (i + 1) % exerciseIds.length;
   }
+
+  // Add the counter_in_exercise field to make it match the V2 Exam specification
+  output = annotateQuestionSourcesWithCounter(output);
 
   // sort the resulting questions by exercise title
   return sortBy(output, 'title');

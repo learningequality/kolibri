@@ -70,8 +70,6 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
 }
 
 function convertExamQuestionSourcesV1V2(questionSources) {
-  // In V1, question_sources can be missing the counterInExercise field
-  const counterInExerciseMap = {};
   // In case a V1 quiz already has this with the old name, rename it
   if (every(questionSources, 'counterInExercise')) {
     return questionSources.map(source => {
@@ -82,16 +80,7 @@ function convertExamQuestionSourcesV1V2(questionSources) {
     });
   }
 
-  return questionSources.map(source => {
-    const { question_id } = source;
-    if (!counterInExerciseMap[question_id]) {
-      counterInExerciseMap[question_id] = 0;
-    }
-    return {
-      ...source,
-      counter_in_exercise: (counterInExerciseMap[question_id] += 1),
-    };
-  });
+  return annotateQuestionSourcesWithCounter(questionSources);
 }
 
 export function convertExamQuestionSources(exam, extraArgs = {}) {
@@ -130,6 +119,23 @@ export function fetchNodeDataAndConvertExam(exam) {
     return {
       ...exam,
       question_sources: convertExamQuestionSources(exam, { contentNodes }),
+    };
+  });
+}
+
+// Takes a V1 Exam's question_sources field, and annotates it with the
+// counter_in_exercise field. Also used in selectQuestions.js to do same
+// calculations when creating a new Exam.
+export function annotateQuestionSourcesWithCounter(questionSources) {
+  const counterInExerciseMap = {};
+  return questionSources.map(source => {
+    const { exercise_id } = source;
+    if (!counterInExerciseMap[exercise_id]) {
+      counterInExerciseMap[exercise_id] = 0;
+    }
+    return {
+      ...source,
+      counter_in_exercise: (counterInExerciseMap[exercise_id] += 1),
     };
   });
 }
