@@ -256,6 +256,7 @@ export function showSelectContentPage(store, params) {
           return updateTreeViewTopic(store, {
             id: store.state.manageContent.wizard.transferredChannel.root,
             title: transferredChannel.name,
+            ...store.state.manageContent.wizard.transferredChannel,
           }).then(() => {});
         }
       });

@@ -60,7 +60,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
@@ -101,23 +100,8 @@
         // Guard against when state is reset going back to manage content page
         return this.currentTopicNode.children || [];
       },
-      noSelectableNodes() {
-        // If importing from an external drive, disable select-all if every child node is
-        // 1) a leaf node and 2) already on the server or not available on the drive
-        // TODO check to see if this logic is valid for PEER_IMPORT as well.
-        if (this.transferType === TransferTypes.LOCALIMPORT) {
-          return every(this.annotatedChildNodes, node => {
-            return (
-              node.kind !== ContentNodeKinds.TOPIC &&
-              (!node.available || node.on_device_resources > 0)
-            );
-          });
-        } else {
-          return false;
-        }
-      },
       disableSelectAll() {
-        return this.disableAll || this.annotatedTopicNode.disabled || this.noSelectableNodes;
+        return this.disableAll || this.annotatedTopicNode.disabled;
       },
       childNodesWithPath() {
         return this.childNodes.map(node => ({
