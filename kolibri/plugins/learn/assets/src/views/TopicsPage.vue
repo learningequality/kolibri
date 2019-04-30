@@ -61,9 +61,6 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      channelId() {
-        return this.channel.id;
-      },
       channelTitle() {
         return this.channel.title;
       },
@@ -82,15 +79,11 @@
     },
     methods: {
       genContentLink(id, kind) {
-        if (kind === ContentNodeKinds.TOPIC) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
+        const routeName =
+          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
         return {
-          name: PageNames.TOPICS_CONTENT,
-          params: { channel_id: this.channelId, id },
+          name: routeName,
+          params: { id },
         };
       },
     },
