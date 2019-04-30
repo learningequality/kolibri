@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import logging
 import os
 
@@ -254,11 +255,12 @@ def set_local_file_availability_from_disk(checksums=None):
     checksums_to_set_unavailable = []
     for file in files:
         try:
-            # Update if the file exists, *and* the localfile is set as unavailable.
-            if os.path.exists(
-                get_content_storage_file_path(get_content_file_name(file))
-            ):
-                if not file.available:
+            file_path = get_content_storage_file_path(get_content_file_name(file))
+            # Update if the file exists, the checksum of the file is the same
+            # as the localfile ID, *and* the localfile is set as unavailable.
+            if os.path.exists(file_path):
+                checksum_correctness = compare_checksums(file_path, file.id)
+                if not file.available and checksum_correctness:
                     checksums_to_set_available.append(file.id)
             # Update if the file does not exist, *and* the localfile is set as available.
             else:
@@ -478,3 +480,13 @@ def calculate_next_order(channel):
     else:
         channel.order = latest_order + 1
     channel.save()
+
+
+def compare_checksums(file_name, file_id):
+    hasher = hashlib.md5()
+    with open(file_name, "rb") as f:
+        # Read chunks of 4096 bytes for memory efficiency
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    checksum = hasher.hexdigest()
+    return checksum == file_id
