@@ -87,40 +87,40 @@ describe('exam utils', () => {
         data_model_version: 1,
         question_sources: [
           {
-            question_id: 'Q1',
             exercise_id: 'E1',
-            title: 'Question 1',
-          },
-          {
             question_id: 'Q1',
-            exercise_id: 'E2',
             title: 'Question 1',
           },
           {
+            exercise_id: 'E1',
             question_id: 'Q2',
-            exercise_id: 'E2',
             title: 'Question 2',
+          },
+          {
+            exercise_id: 'E2',
+            question_id: 'Q1',
+            title: 'Question 1',
           },
         ],
       };
       const converted = convertExamQuestionSources(exam);
       const expectedOutput = [
         {
-          question_id: 'Q1',
           exercise_id: 'E1',
+          question_id: 'Q1',
           title: 'Question 1',
           counter_in_exercise: 1,
         },
         {
-          question_id: 'Q1',
-          exercise_id: 'E2',
-          title: 'Question 1',
+          exercise_id: 'E1',
+          question_id: 'Q2',
+          title: 'Question 2',
           counter_in_exercise: 2,
         },
         {
-          question_id: 'Q2',
           exercise_id: 'E2',
-          title: 'Question 2',
+          question_id: 'Q1',
+          title: 'Question 1',
           counter_in_exercise: 1,
         },
       ];
