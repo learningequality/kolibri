@@ -30,6 +30,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -79,6 +80,7 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      KPageContainer,
     },
     mixins: [responsiveWindow],
     computed: {
@@ -99,13 +101,22 @@
         return pageNameToComponentMap[this.pageName] || null;
       },
       immersivePageProps() {
+        if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
+          return {
+            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
+        }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           return {
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: false,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -117,7 +128,7 @@
               immersivePage: true,
               immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
               immersivePagePrimary: false,
-              immersivePageIcon: 'arrow_back',
+              immersivePageIcon: 'close',
             };
           }
         }

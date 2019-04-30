@@ -8,15 +8,17 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <LessonContentPreviewPage
-      :currentContentNode="currentContentNode"
-      :isSelected="isSelected"
-      :questions="preview.questions"
-      :displaySelectOptions="showSelectOptions"
-      :completionData="preview.completionData"
-      @addResource="handleAddResource"
-      @removeResource="handleRemoveResource"
-    />
+    <KPageContainer noPadding>
+      <LessonContentPreviewPage
+        :currentContentNode="currentContentNode"
+        :isSelected="isSelected"
+        :questions="preview.questions"
+        :displaySelectOptions="showSelectOptions"
+        :completionData="preview.completionData"
+        @addResource="handleAddResource"
+        @removeResource="handleRemoveResource"
+      />
+    </KPageContainer>
   </CoreBase>
 
 </template>

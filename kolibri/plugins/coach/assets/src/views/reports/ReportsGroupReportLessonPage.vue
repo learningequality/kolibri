@@ -16,23 +16,21 @@
           :text="group.name"
         />
       </p>
-      <h1>{{ lesson.title }}</h1>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" lesson />
+          {{ lesson.title }}
+        </KLabeledIcon>
+      </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow>
-          <template slot="key">
-            {{ coachStrings.$tr('statusLabel') }}
-          </template>
-          <template slot="value">
-            <LessonActive :active="lesson.active" />
-          </template>
+        <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+          <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
-        <!-- TODO COACH
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
-        </HeaderTableRow>
-         -->
+        <HeaderTableRow
+          :keyText="coachStrings.$tr('descriptionLabel')"
+          :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+        />
       </HeaderTable>
 
       <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">

@@ -1,27 +1,29 @@
 <template>
 
-  <ExamReport
-    v-if="examAttempts"
-    :examAttempts="examAttempts"
-    :exam="exam"
-    :userName="learner.name"
-    :currentAttempt="currentAttempt"
-    :currentInteractionHistory="currentInteractionHistory"
-    :currentInteraction="currentInteraction"
-    :selectedInteractionIndex="selectedInteractionIndex"
-    :questionNumber="questionNumber"
-    :exercise="exercise"
-    :itemId="itemId"
-    :completionTimestamp="completionTimestamp"
-    :closed="closed"
-    :navigateToQuestion="navigateToQuestion"
-    :navigateToQuestionAttempt="navigateToQuestionAttempt"
-    :questions="questions"
-    :exerciseContentNodes="exerciseContentNodes"
-  />
-  <div v-else class="no-exercise-x">
-    <mat-svg category="navigation" name="close" />
-  </div>
+  <KPageContainer noPadding>
+    <ExamReport
+      v-if="examAttempts"
+      :examAttempts="examAttempts"
+      :exam="exam"
+      :userName="learner.name"
+      :currentAttempt="currentAttempt"
+      :currentInteractionHistory="currentInteractionHistory"
+      :currentInteraction="currentInteraction"
+      :selectedInteractionIndex="selectedInteractionIndex"
+      :questionNumber="questionNumber"
+      :exercise="exercise"
+      :itemId="itemId"
+      :completionTimestamp="completionTimestamp"
+      :closed="closed"
+      :navigateToQuestion="navigateToQuestion"
+      :navigateToQuestionAttempt="navigateToQuestionAttempt"
+      :questions="questions"
+      :exerciseContentNodes="exerciseContentNodes"
+    />
+    <div v-else class="no-exercise-x">
+      <mat-svg category="navigation" name="close" />
+    </div>
+  </KPageContainer>
 
 </template>
 
