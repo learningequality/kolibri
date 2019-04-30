@@ -14,6 +14,9 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.importability_annotation import (
     annotate_importability_from_remote,
 )
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_studio,
+)
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -107,6 +110,8 @@ class Command(AsyncCommand):
                 # Only try to annotate importability if not importing from Studio
                 if baseurl != default_studio_url:
                     annotate_importability_from_remote(channel_id, baseurl)
+                else:
+                    annotate_importability_from_studio(channel_id)
 
         elif method == COPY_METHOD:
             srcpath = paths.get_content_database_file_path(channel_id, datafolder=path)

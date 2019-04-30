@@ -193,6 +193,13 @@ def annotate_importability(channel_id, checksums):
 checksum_regex = re.compile("^([a-f0-9]{32})$")
 
 
+def annotate_importability_from_studio(channel_id):
+    """
+    Dummy method to annotate everything as importable for Studio imports.
+    """
+    annotate_importability(channel_id, None)
+
+
 def annotate_importability_from_remote(channel_id, baseurl):
     response = requests.get(get_file_checksums_url(channel_id, baseurl))
 

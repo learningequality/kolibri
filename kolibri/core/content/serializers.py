@@ -71,7 +71,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             if include_fields:
 
                 # build querysets for the full set of channel nodes, as well as those that are unrenderable
-                channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
+                channel_nodes = ContentNode.objects.filter(channel_id=instance.id, importable=True)
                 unrenderable_nodes = channel_nodes.exclude(
                     renderable_contentnodes_without_topics_q_filter
                 )
