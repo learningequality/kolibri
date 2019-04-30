@@ -23,7 +23,13 @@
             height: `calc(100% - ${caption_height}px)`
           }"
         >
-          <img :src="slide.storage_url" :alt="slide.caption">
+          <img
+            :src="slide.storage_url"
+            :aria-labelledby="slideTextId(slide.id)"
+          >
+        </div>
+        <div :id="slideTextId(slide.id)" class="hidden-descriptive-text">
+          {{ slide.descriptive_text || slide.caption }}
         </div>
         <div :ref="slide.id" class="caption">
           {{ slide.caption }}
@@ -103,6 +109,10 @@
       },
     },
     mounted() {
+      /*
+        Using the manifest file, get the JSON from the manifest, then
+        use the manifest JSON to get all slide images and metadata.
+      */
       fetch(this.defaultFile.storage_url, { method: 'GET' })
         .then(response => {
           return response.status === 200 ? response.json() : {};
@@ -122,6 +132,7 @@
                 caption: image.caption,
                 sort_order: image.sort_order,
                 id: image.checksum,
+                descriptive_text: image.descriptive_text,
               };
             }),
             ['sort_order'],
@@ -132,6 +143,9 @@
     methods: {
       handleSlide(payload) {
         this.currentSlide = this.slides[payload.currentSlide];
+      },
+      slideTextId(id) {
+        return 'descriptive-text-' + id;
       },
     },
   };
@@ -154,6 +168,14 @@
     overflow-x: auto;
     overflow-y: hidden;
     text-align: center;
+  }
+  .hidden-descriptive-text {
+    position: absolute;
+    top: auto;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
   .slideshow-slide-image {
     position: relative;
