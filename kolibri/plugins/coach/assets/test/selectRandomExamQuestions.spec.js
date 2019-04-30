@@ -1,5 +1,7 @@
 import selectQuestions from '../src/modules/examCreation/selectQuestions';
 
+jest.mock('kolibri.lib.logging');
+
 const EXERCISES_IDS = ['A', 'B', 'C'];
 const EXERCISES_TITLES = ['title_x', 'title_y', 'title_z'];
 const QUESTION_IDS = [

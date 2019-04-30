@@ -96,12 +96,12 @@
         <KGridItem sizes="4, 4, 5" class="list-wrapper">
           <KDragContainer
             v-if="fixedOrder"
-            :items="annotatedQuestions"
+            :items="selectedQuestions"
             @sort="handleUserSort"
           >
             <transition-group tag="ol" name="list" class="question-list">
               <KDraggable
-                v-for="(question, questionIndex) in annotatedQuestions"
+                v-for="(question, questionIndex) in selectedQuestions"
                 :key="listKey(question)"
               >
                 <KDragHandle>
@@ -110,9 +110,9 @@
                     :isSelected="isSelected(question)"
                     :exerciseName="question.title"
                     :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-                    :questionNumberOfExercise="question.counterInExercise"
+                    :questionNumberOfExercise="question.counter_in_exercise"
                     :isFirst="questionIndex === 0"
-                    :isLast="questionIndex === annotatedQuestions.length - 1"
+                    :isLast="questionIndex === selectedQuestions.length - 1"
                     @select="currentQuestionIndex = questionIndex"
                     @moveDown="moveQuestionDown(questionIndex)"
                     @moveUp="moveQuestionUp(questionIndex)"
@@ -123,13 +123,13 @@
           </KDragContainer>
           <ul v-else class="question-list">
             <AssessmentQuestionListItem
-              v-for="(question, questionIndex) in annotatedQuestions"
+              v-for="(question, questionIndex) in selectedQuestions"
               :key="listKey(question)"
               :draggable="false"
               :isSelected="isSelected(question)"
               :exerciseName="question.title"
               :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
-              :questionNumberOfExercise="question.counterInExercise"
+              :questionNumberOfExercise="question.counter_in_exercise"
               @select="currentQuestionIndex = questionIndex"
             />
           </ul>
@@ -149,7 +149,7 @@
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
-          <h3 class="question-title">{{ currentQuestion.title }}</h3>
+          <h3 class="question-title">{{ currentQuestionTitle }}</h3>
           <ContentRenderer
             v-if="content && questionId"
             :id="content.id"
@@ -217,6 +217,7 @@
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
+  const AssessmentQuestionListItemStrings = crossComponentTranslator(AssessmentQuestionListItem);
 
   export default {
     name: 'CreateExamPreview',
@@ -265,23 +266,6 @@
         'selectedExercises',
         'availableQuestions',
       ]),
-      annotatedQuestions() {
-        const counts = {};
-        const totals = {};
-        this.selectedQuestions.forEach(question => {
-          if (!totals[question.exercise_id]) {
-            totals[question.exercise_id] = 0;
-          }
-          totals[question.exercise_id] += 1;
-          counts[this.listKey(question)] = totals[question.exercise_id];
-        });
-        return this.selectedQuestions.map(question => {
-          if (totals[question.exercise_id] > 1) {
-            question.counterInExercise = counts[this.listKey(question)];
-          }
-          return question;
-        });
-      },
       maxQs() {
         return MAX_QUESTIONS;
       },
@@ -303,6 +287,12 @@
       },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
+      },
+      currentQuestionTitle() {
+        return AssessmentQuestionListItemStrings.$tr('nthExerciseName', {
+          name: this.currentQuestion.title,
+          number: this.currentQuestion.counter_in_exercise,
+        });
       },
       content() {
         return this.selectedExercises[this.currentQuestion.exercise_id];
