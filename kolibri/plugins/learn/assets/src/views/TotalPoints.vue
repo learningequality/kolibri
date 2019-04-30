@@ -3,7 +3,7 @@
   <div v-if="isUserLoggedIn">
     <div ref="icon" class="points">
       <div class="points-icon-border">
-        <PointsIcon class="icon" :active="true" />
+        <PointsIcon class="icon" />
       </div>
       <div v-show="!windowIsSmall" class="description">
         <div class="description-value">

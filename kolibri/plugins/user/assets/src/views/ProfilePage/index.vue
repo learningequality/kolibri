@@ -4,7 +4,7 @@
 
     <section>
       <h2>{{ $tr('points') }}</h2>
-      <PointsIcon class="points-icon" :active="true" />
+      <PointsIcon class="points-icon" />
       <span class="points-num" :style="{ color: $coreStatusCorrect }">
         {{ $formatNumber(totalPoints) }}
       </span>

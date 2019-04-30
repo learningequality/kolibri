@@ -39,7 +39,6 @@
       },
     },
     computed: {
-      // eslint-disable-next-line
       iconType() {
         if (this.contentType === 'document') {
           return 'doc';
