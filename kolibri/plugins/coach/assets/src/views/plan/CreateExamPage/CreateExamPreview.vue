@@ -149,7 +149,7 @@
           </transition>
         </KGridItem>
         <KGridItem sizes="4, 4, 7">
-          <h3 class="question-title">{{ currentQuestion.title }}</h3>
+          <h3 class="question-title">{{ currentQuestionTitle }}</h3>
           <ContentRenderer
             v-if="content && questionId"
             :id="content.id"
@@ -217,6 +217,7 @@
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
+  const AssessmentQuestionListItemStrings = crossComponentTranslator(AssessmentQuestionListItem);
 
   export default {
     name: 'CreateExamPreview',
@@ -286,6 +287,12 @@
       },
       currentQuestion() {
         return this.selectedQuestions[this.currentQuestionIndex] || {};
+      },
+      currentQuestionTitle() {
+        return AssessmentQuestionListItemStrings.$tr('nthExerciseName', {
+          name: this.currentQuestion.title,
+          number: this.currentQuestion.counter_in_exercise,
+        });
       },
       content() {
         return this.selectedExercises[this.currentQuestion.exercise_id];

@@ -6,6 +6,13 @@ import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
 import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
 
+function exerciseName(name, number) {
+  return crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+    name,
+    number,
+  });
+}
+
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let resource = ExerciseDifficulties;
   const getParams = {
@@ -47,14 +54,10 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
-        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
-          name: source.title,
-          number: source.counter_in_exercise,
-        });
         return {
           ...stat,
           ...source,
-          title,
+          title: exerciseName(source.title, source.counter_in_exercise),
         };
       });
     } else {
@@ -65,15 +68,11 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           1,
           item.assessmentmetadata.assessmentIds.indexOf(stat.item)
         );
-        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
-          name: item.title,
-          number: questionNumber,
-        });
         return {
           ...stat,
           exercise_id: exerciseId,
           question_id: stat.item,
-          title,
+          title: exerciseName(item.title, questionNumber),
         };
       });
     }
