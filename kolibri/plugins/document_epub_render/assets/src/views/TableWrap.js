@@ -2,6 +2,25 @@
  * Known issues: https://caniuse.com/#feat=multicolumn
  */
 const DEFAULT_PADDING = 40;
+const Factory = {
+  /**
+   * @param {HTMLElement} el
+   * @returns {Table}
+   */
+  buildTable(el) {
+    return new Table(el);
+  },
+
+  /**
+   * @param {Document} document
+   * @returns {FixTableWrap}
+   */
+  buildFixer(document) {
+    return new FixTableWrap(document);
+  },
+};
+
+export default Factory;
 
 /**
  * @param {HTMLElement} element
@@ -33,21 +52,16 @@ export const getInnerHeight = function(element, defaultHeight) {
  * Splits tables in one or more pieces if the tables are overflowing in what is assumed to be a
  * CSS column layout, where they would otherwise be wrapping from column to column
  */
-export default class FixTableWrap {
+export class FixTableWrap {
   /**
    * @param {Document} document
+   * @param {Object} [factory]
+   * @param {Function} factory.buildTable
    */
-  constructor(document) {
+  constructor(document, factory) {
     this._document = document;
     this._maxHeight = getInnerHeight(document.body, document.body.clientHeight - DEFAULT_PADDING);
-  }
-
-  /**
-   * @param {Document} document
-   */
-  static doFix(document) {
-    const tableFixer = new FixTableWrap(document);
-    tableFixer.fix();
+    this._factory = factory || Factory;
   }
 
   /**
@@ -61,7 +75,7 @@ export default class FixTableWrap {
         container.insertBefore(newTable.get(), table.get());
 
         if (!newTable.check(this._maxHeight)) {
-          this.makeScrollable(newTable, this._maxHeight);
+          this.makeScrollable(newTable);
         }
       });
 
@@ -74,14 +88,13 @@ export default class FixTableWrap {
    * split by rows, then this table has one row, so we'll scroll the cells.
    *
    * @param {Table} table
-   * @param {Number} maxHeight
    */
-  makeScrollable(table, maxHeight) {
+  makeScrollable(table) {
     table.getElementsByTagName('td').forEach(cell => {
       const diff = table.get().clientHeight - getInnerHeight(cell);
       const div = this._document.createElement('div');
 
-      div.style.maxHeight = `${maxHeight - diff}px`;
+      div.style.maxHeight = `${this._maxHeight - diff}px`;
       div.style.overflowY = 'auto';
 
       // Move cell contents into div
@@ -98,7 +111,7 @@ export default class FixTableWrap {
    */
   getTablesToFix() {
     return Array.from(this._document.getElementsByTagName('table'))
-      .map(tableElement => new Table(tableElement))
+      .map(this._factory.buildTable)
       .filter(table => !table.check(this._maxHeight));
   }
 }
@@ -109,9 +122,12 @@ export default class FixTableWrap {
 export class Table {
   /**
    * @param {HTMLElement|Element} table
+   * @param {Object} [factory]
+   * @param {Function} factory.buildTable
    */
-  constructor(table) {
+  constructor(table, factory) {
     this._table = table;
+    this._factory = factory || Factory;
   }
 
   /**
@@ -133,8 +149,32 @@ export class Table {
    * @returns {Table[]}
    */
   split(maxHeight) {
-    // Chunk all rows into groups that will fit into a table within `maxHeight`
-    const tableSets = this.getElementsByTagName('tr').reduce(
+    // Loop through row chunks and create the replacement tables
+    return this.chunkRows(maxHeight).map(rowChunk => {
+      const newTable = this.emptyClone();
+      const tbody = newTable.getElementsByTagName('tbody').shift();
+
+      // Shouldn't happen :/
+      if (!tbody) {
+        return newTable;
+      }
+
+      rowChunk.forEach(row => {
+        tbody.appendChild(row);
+      });
+
+      return newTable;
+    });
+  }
+
+  /**
+   * Chunk all rows into groups that will fit into a table within `maxHeight`
+   *
+   * @param {Number} maxHeight
+   * @returns {HTMLElement[][]}
+   */
+  chunkRows(maxHeight) {
+    return this.getElementsByTagName('tr').reduce(
       (tableSets, row) => {
         const current = tableSets.pop();
         const currentHeight = current.reduce((h, row) => h + row.clientHeight, 0);
@@ -151,36 +191,27 @@ export class Table {
       },
       [[]]
     );
+  }
 
-    // Loop through row chunks and create the replacement tables
-    return tableSets.map(tableSet => {
-      // Deep clone to maintain as much as possible
-      const newTable = new Table(this._table.cloneNode(true));
+  /**
+   * @returns {Table}
+   */
+  emptyClone() {
+    // Deep clone to maintain as much as possible
+    const newTable = this._factory.buildTable(this._table.cloneNode(true));
 
-      // Then remove all the unnecessary leftovers
-      const toRemove = [
-        ...newTable.getElementsByTagName('thead'),
-        ...newTable.getElementsByTagName('tfoot'),
-        ...newTable.getElementsByTagName('tr'),
-      ];
+    // Then remove all the unnecessary leftovers
+    const toRemove = [
+      ...newTable.getElementsByTagName('thead'),
+      ...newTable.getElementsByTagName('tfoot'),
+      ...newTable.getElementsByTagName('tr'),
+    ];
 
-      toRemove.filter(Boolean).forEach(el => {
-        el.parentElement.removeChild(el);
-      });
-
-      const tbody = newTable.getElementsByTagName('tbody').shift();
-
-      // Shouldn't happen :/
-      if (!tbody) {
-        return newTable;
-      }
-
-      tableSet.forEach(row => {
-        tbody.appendChild(row);
-      });
-
-      return newTable;
+    toRemove.filter(Boolean).forEach(el => {
+      el.parentElement.removeChild(el);
     });
+
+    return newTable;
   }
 
   /**

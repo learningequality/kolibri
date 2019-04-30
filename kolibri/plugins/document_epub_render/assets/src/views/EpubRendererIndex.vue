@@ -180,7 +180,7 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
-  import FixTableWrap from './FixTableWrap';
+  import TableWrapFactory from './TableWrap';
   import { THEMES } from './EpubConstants';
 
   const FONT_SIZE_MIN = 8;
@@ -458,7 +458,7 @@
         // Known issues: https://caniuse.com/#feat=multicolumn
         // Hook into content render, to check tables are breaking properly in column layout
         this.rendition.hooks.content.register(contents => {
-          FixTableWrap.doFix(contents.document);
+          TableWrapFactory.buildFixer(contents.document).fix();
         });
       });
       this.book.on(EVENTS.BOOK.OPEN_FAILED, () => {
