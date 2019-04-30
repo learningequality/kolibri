@@ -1,10 +1,11 @@
-from django.core.management.base import CommandError
-
 from kolibri.core.content.utils.importability_annotation import (
     annotate_importability_from_disk,
 )
 from kolibri.core.content.utils.importability_annotation import (
     annotate_importability_from_remote,
+)
+from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_studio,
 )
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -53,5 +54,7 @@ class Command(AsyncCommand):
                 )
                 progress_update(1, progress_extra_data)
             else:
-                self._parser.print_help()
-                raise CommandError("Please specify either a baseurl or a directory")
+                annotate_importability_from_studio(
+                    options["channel_id"]
+                )
+                progress_update(1, progress_extra_data)

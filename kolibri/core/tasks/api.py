@@ -302,9 +302,6 @@ class TasksViewSet(viewsets.ViewSet):
         drive_id = request.data.get("drive_id", None)
         baseurl = request.data.get("baseurl", None)
 
-        if drive_id is None and baseurl is None:
-            raise serializers.ValidationError("The drive_id field is required.")
-
         job_metadata = {"type": "IMPORTANNOTATION", "started_by": request.user.pk}
 
         if drive_id:

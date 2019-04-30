@@ -27,7 +27,6 @@ export function getRemoteChannelBundleByToken(token) {
  */
 export function readyChannelMetadata(store, download = true) {
   const { transferredChannel, selectedDrive, selectedPeer } = store.state.manageContent.wizard;
-  let skipTaskCheck;
   let promise;
   if (download) {
     if (store.getters['manageContent/wizard/inLocalImportMode']) {
@@ -54,8 +53,9 @@ export function readyChannelMetadata(store, download = true) {
         drive_id: selectedDrive.id,
       });
     } else if (store.getters['manageContent/wizard/inRemoteImportMode']) {
-      promise = Promise.resolve();
-      skipTaskCheck = true;
+      promise = TaskResource.startAnnotateImportability({
+        channel_id: transferredChannel.id,
+      });
     } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
       promise = TaskResource.startAnnotateImportability({
         channel_id: transferredChannel.id,
@@ -69,16 +69,10 @@ export function readyChannelMetadata(store, download = true) {
 
   return promise
     .then(task => {
-      if (skipTaskCheck) {
-        return Promise.resolve();
-      }
       // NOTE: store.watch is not available to dispatched actions
       return waitForTaskToComplete(store, task.entity.id);
     })
     .then(completedTask => {
-      if (skipTaskCheck) {
-        return getChannelWithContentSizes(transferredChannel.id);
-      }
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
         return TaskResource.deleteFinishedTasks().then(() => {
