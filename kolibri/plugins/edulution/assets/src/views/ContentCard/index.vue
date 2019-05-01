@@ -1,46 +1,47 @@
 <template>
 
-  <router-link
-    :to="link"
-    class="card"
-    :class="{ 'mobile-card': isMobile, 'prerequisites-not-done': pendingPrerequisites.length }"
-    :style="{ backgroundColor: $coreBgLight }"
-  >
-    <CardThumbnail
-      class="thumbnail"
-      v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
-    />
-    <div class="text" :style="{ color: $coreTextDefault }">
-      <h3 class="title" dir="auto">
-        <TextTruncator
-          :text="title"
-          :maxHeight="maxTitleHeight"
-        />
-      </h3>
-      <p
-        v-if="subtitle"
-        dir="auto"
-        class="subtitle"
-        :class="{ 'no-footer': !hasFooter }"
-      >
-        {{ subtitle }}
-      </p>
-      <div class="footer">
-        <CoachContentLabel
-          class="coach-content-label"
-          :value="numCoachContents"
-          :isTopic="isTopic"
-        />
-        <KButton
-          v-if="copiesCount > 1"
-          appearance="basic-link"
-          class="copies"
-          :text="$tr('copies', { num: copiesCount })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
-        />
+  <div class="card">
+    <ToggledRouterLink
+      :pendingPrerequisites="pendingPrerequisites"
+      :link="link"
+      :isMobile="isMobile"
+    >
+      <CardThumbnail
+        class="thumbnail"
+        v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+      />
+      <div class="text" :style="{ color: $coreTextDefault }">
+        <h3 class="title" dir="auto">
+          <TextTruncator
+            :text="title"
+            :maxHeight="maxTitleHeight"
+          />
+        </h3>
+        <p
+          v-if="subtitle"
+          dir="auto"
+          class="subtitle"
+          :class="{ 'no-footer': !hasFooter }"
+        >
+          {{ subtitle }}
+        </p>
+        <div class="footer">
+          <CoachContentLabel
+            class="coach-content-label"
+            :value="numCoachContents"
+            :isTopic="isTopic"
+          />
+          <KButton
+            v-if="copiesCount > 1"
+            appearance="basic-link"
+            class="copies"
+            :text="$tr('copies', { num: copiesCount })"
+            @click.prevent="$emit('openCopiesModal', contentId)"
+          />
+        </div>
       </div>
-    </div>
-  </router-link>
+    </ToggledRouterLink>
+  </div>
 
 </template>
 
@@ -53,6 +54,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import ToggledRouterLink from '../ToggledRouterLink';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -65,6 +67,7 @@
       CoachContentLabel,
       TextTruncator,
       KButton,
+      ToggledRouterLink,
     },
     mixins: [themeMixin],
     props: {
@@ -142,6 +145,12 @@
       },
       hasFooter() {
         return this.numCoachContents > 0 || this.copiesCount > 1;
+      },
+    },
+    methods: {
+      showModal() {
+        this.$store.commit('topicsTree/SET_PREREQUISITES', [this.link, this.pendingPrerequisites]);
+        this.$store.commit('topicsTree/SET_PREREQUISITES_MODAL', true);
       },
     },
   };
