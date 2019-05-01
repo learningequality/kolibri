@@ -13,9 +13,12 @@ const logging = {
    * @param {string} msg - The msg to log.
    * @param {Object} color - A function that maps the colour of the string for output.
    */
-  prefix: 'Kolibri: ',
+  prefix: 'Kolibri:',
   write(level, messages, color, prefix = this.prefix) {
-    messages = prefix ? messages.map(msg => this.prefix + msg) : messages;
+    if (prefix) {
+      messages.unshift(prefix);
+    }
+
     messages = color ? messages.map(msg => color(msg)) : messages;
 
     // eslint-disable-next-line no-console
@@ -43,7 +46,7 @@ const logging = {
   },
   getLogger(name) {
     const logger = Object.assign({}, this);
-    logger.prefix = name + ': ';
+    logger.prefix = name + ':';
     return logger;
   },
 };
