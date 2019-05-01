@@ -381,16 +381,6 @@
     },
     mounted() {
       this.setScroll(this.startingScroll);
-
-      // Check if the Demo Banner is available and
-      // set initial bannerClosed state accordingly
-      if (this.demoBannerComponent) {
-        this.$root.$on('demoBannerChanged', data => {
-          this.bannerClosed = data.bannerClosed;
-        });
-      } else {
-        this.bannerClosed = true;
-      }
     },
     methods: {
       handleScroll(e) {
@@ -478,9 +468,6 @@
     font-size: large;
     font-weight: bold;
     line-height: 2em;
-  }
-  .banner-open {
-    margin-top: -5vh;
   }
 
 </style>
