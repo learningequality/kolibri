@@ -21,7 +21,7 @@
         category="navigation"
       />
     </KNavbarLink>
-    <KNavbarLink
+    <!--<KNavbarLink
       :title="$tr('recommended')"
       :link="recommendedLink"
     >
@@ -29,7 +29,7 @@
         name="forum"
         category="communication"
       />
-    </KNavbarLink>
+    </KNavbarLink>-->
   </KNavbar>
 
 </template>
