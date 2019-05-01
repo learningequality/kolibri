@@ -12,9 +12,6 @@ const FixTableWrap = module.FixTableWrap;
 const Table = module.Table;
 const noop = () => {};
 
-// Fix static method
-MockFixTableWrap.doFix = FixTableWrap.doFix;
-
 describe('FixTableWrap', () => {
   beforeEach(() => {
     MockFactory.buildTable.mockClear();
