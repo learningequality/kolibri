@@ -1,5 +1,5 @@
 <template>
 
-  <img src="./kolibri-logo.svg">
+  <img src="./kolibri-logo.svg" alt="">
 
 </template>

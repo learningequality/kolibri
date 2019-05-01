@@ -405,6 +405,9 @@ def get_status():  # noqa: max-complexity=16
 
         if response.status_code != 200:
             # Probably a mis-configured kolibri
+            sys.stderr.write("---Debug information---\n")
+            sys.stderr.write(response.text)
+            sys.stderr.write("\n-----------------------\n")
             raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
 
     else:

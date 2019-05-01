@@ -9,6 +9,11 @@ jest.mock('../lib/apiSpecExportTools', () => ({
 
 jest.mock('../lib/logging', () => ({
   error: () => {},
+  getLogger: () => {
+    return {
+      error: () => {},
+    };
+  },
 }));
 
 const baseData = {

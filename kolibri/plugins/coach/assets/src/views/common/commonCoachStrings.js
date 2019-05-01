@@ -42,6 +42,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   coachLabel: 'Coach',
   coachesLabel: 'Coaches',
   descriptionLabel: 'Description',
+  descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',
   difficultQuestionsLabel: 'Difficult questions',
   entireClassLabel: 'Entire class',

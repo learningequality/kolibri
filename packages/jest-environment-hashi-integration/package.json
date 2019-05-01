@@ -1,6 +1,0 @@
-{
-  "name": "jest-environment-hashi-integration",
-  "version": "0.0.1",
-  "description": "A jest jsdom environment that sets up for full hashi integration testing",
-  "main": "index.js"
-}

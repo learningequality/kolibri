@@ -41,7 +41,6 @@ import KNavbar from '../views/KNavbar';
 import KNavbarLink from '../views/KNavbar/KNavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
-import ImmersiveFullScreen from '../views/ImmersiveFullScreen';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
@@ -150,7 +149,6 @@ export default {
       KNavbar,
       KNavbarLink,
       LanguageSwitcherList,
-      ImmersiveFullScreen,
       ElapsedTime,
       PointsIcon,
       AuthMessage,

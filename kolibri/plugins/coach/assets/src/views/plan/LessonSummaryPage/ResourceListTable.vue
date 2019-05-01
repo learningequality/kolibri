@@ -30,7 +30,10 @@
             <KGridItem size="4">
               <div class="resource-title">
                 <ContentIcon :kind="resourceKind(resourceId)" />
-                {{ resourceTitle(resourceId) }}
+                <KRouterLink
+                  :text="resourceTitle(resourceId)"
+                  :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
+                />
                 <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                   {{ resourceChannelTitle(resourceId) }}
@@ -68,6 +71,7 @@
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -81,6 +85,7 @@
       KDragContainer,
       KDragHandle,
       KDragSortWidget,
+      KRouterLink,
       CoachContentLabel,
       KButton,
       KGrid,

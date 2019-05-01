@@ -126,6 +126,27 @@
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import ScrollingHeader from './ScrollingHeader';
 
+  const scrollPositions = {
+    _scrollPositions: {},
+    getScrollPosition() {
+      // Use key set by Vue Router on the history state.
+      const key = (window.history.state || {}).key;
+      const defaultPos = { x: 0, y: 0 };
+      if (key && this._scrollPositions[key]) {
+        return this._scrollPositions[key];
+      }
+      return defaultPos;
+    },
+    setScrollPosition({ x, y }) {
+      const key = (window.history.state || {}).key;
+      // Only set if we have a vue router key on the state,
+      // otherwise we don't do anything.
+      if (key) {
+        this._scrollPositions[window.history.state.key] = { x, y };
+      }
+    },
+  };
+
   export default {
     name: 'CoreBase',
     metaInfo() {
@@ -255,7 +276,6 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
-        startingScroll: state => state.core.scrollPosition,
       }),
       headerHeight() {
         return this.windowIsSmall ? 56 : 64;
@@ -345,10 +365,10 @@
       },
     },
     watch: {
-      startingScroll(newVal) {
+      $route() {
         // Set a watcher so that if the router sets a new
-        // starting scroll position based on the history, then it gets
-        // set here.
+        // route, we update our scroll position based on the ones
+        // we have tracked in the scrollPosition object above.
         if (this.unwatchScrollHeight) {
           this.unwatchScrollHeight();
         }
@@ -363,27 +383,30 @@
             this.$nextTick(() => {
               // Set the scroll in next tick for safety, to ensure
               // that the child components have finished mounting
-              this.setScroll(newVal);
+              this.setScroll();
             });
           });
         } else {
-          this.setScroll(newVal);
+          this.setScroll();
         }
       },
     },
+    beforeRouteUpdate() {
+      this.recordScroll();
+    },
+    beforeRouteLeave() {
+      this.recordScroll();
+    },
     mounted() {
-      this.setScroll(this.startingScroll);
+      this.setScroll();
     },
     methods: {
-      handleScroll(e) {
-        this.scrollPosition = e.target.scrollTop;
-        // Setting this will not affect the page layout,
-        // but this will then get properly stored in the
-        // browser history.
-        try {
-          // This property can sometimes be readonly in older browsers
-          window.pageYOffset = this.scrollPosition;
-        } catch (e) {} // eslint-disable-line no-empty
+      handleScroll() {
+        this.scrollPosition = this.$el.scrollTop;
+        this.recordScroll();
+      },
+      recordScroll() {
+        scrollPositions.setScrollPosition({ y: this.$el.scrollTop });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -391,12 +414,9 @@
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },
-      setScroll(scrollValue) {
-        this.$el.scrollTop = scrollValue;
-        try {
-          // This property can sometimes be readonly in older browsers
-          window.pageYOffset = scrollValue;
-        } catch (e) {} // eslint-disable-line no-empty
+      setScroll() {
+        this.$el.scrollTop = scrollPositions.getScrollPosition().y;
+        this.scrollPosition = this.$el.scrollTop;
       },
     },
     $trs: {

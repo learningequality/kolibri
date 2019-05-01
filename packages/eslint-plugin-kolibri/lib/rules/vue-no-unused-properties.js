@@ -71,6 +71,13 @@ const create = context => {
         });
       },
     },
+    utils.executeOnDirectiveDynamicArg(node => {
+      const argName = utils.getDirectiveDynamicArgName(node);
+
+      remove(unusedProperties, property => {
+        return argName === property.name;
+      });
+    }),
     utils.executeOnRootTemplateEnd(() => {
       if (unusedProperties.length) {
         utils.reportUnusedProperties(context, unusedProperties);

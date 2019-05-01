@@ -18,6 +18,18 @@ module.exports = {
         jest: true,
       },
     },
+    {
+      files: ['*.int.js'],
+      env: {
+        jest: true,
+      },
+      globals: {
+        page: true,
+        browser: true,
+        context: true,
+        jestPuppeteer: true,
+      },
+    },
   ],
   parserOptions: {
     sourceType: 'module',
