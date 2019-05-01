@@ -3,7 +3,7 @@
   <div dir="auto">
     <h1 class="title">
       <KLabeledIcon>
-        <KIcon slot="icon" :[iconType]="true" />
+        <KIcon v-if="contentType" slot="icon" :[iconType]="true" />
         {{ title }}
       </KLabeledIcon>
       <ProgressIcon class="progress-icon" :progress="progress" />
