@@ -518,14 +518,21 @@ class LocalFileByDisk(TransactionTestCase):
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 0)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_1).available)
 
-    @patch("kolibri.core.content.utils.annotation.compare_checksums", side_effect=[False, True])
+    @patch(
+        "kolibri.core.content.utils.annotation.compare_checksums",
+        side_effect=[False, True],
+    )
     @patch(
         "kolibri.core.content.utils.annotation.get_content_storage_file_path",
         return_value=mock_content_file[1],
     )
     def test_two_files_checksums_one_file_wrong(self, path_mock, checksum_mock):
-        LocalFile.objects.filter(id__in=[self.file_id_1, self.file_id_2]).update(available=False)
-        set_local_file_availability_from_disk(checksums=[self.file_id_1, self.file_id_2])
+        LocalFile.objects.filter(id__in=[self.file_id_1, self.file_id_2]).update(
+            available=False
+        )
+        set_local_file_availability_from_disk(
+            checksums=[self.file_id_1, self.file_id_2]
+        )
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 1)
         self.assertFalse(LocalFile.objects.get(id=self.file_id_1).available)
         self.assertTrue(LocalFile.objects.get(id=self.file_id_2).available)
