@@ -27,7 +27,6 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "css-loader": "^0.28.7",
-    "engine-strict": "^1.0.0",
     "eslint": "^5.7.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.14.0",

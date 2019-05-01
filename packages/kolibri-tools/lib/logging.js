@@ -4,9 +4,9 @@
  * @module logging
  */
 
-var colors = require('colors');
+const colors = require('colors');
 
-var logging = {
+const logging = {
   /**
    * Log a message in a particular colour.
    * N.B. This is only for command line output, not in the browser.
@@ -14,28 +14,32 @@ var logging = {
    * @param {Object} color - A function that maps the colour of the string for output.
    */
   prefix: 'Kolibri: ',
-  log(msg, color, prefixed = true) {
-    /* eslint-disable no-console */
-    if (color && prefixed) {
-      console.log(color(this.prefix + msg));
-    } else if (color) {
-      console.log(color(msg));
-    } else {
-      console.log(msg);
-    }
-    /* eslint-enable no-console */
+  write(level, messages, color, prefix = this.prefix) {
+    messages = prefix ? messages.map(msg => this.prefix + msg) : messages;
+    messages = color ? messages.map(msg => color(msg)) : messages;
+
+    // eslint-disable-next-line no-console
+    console[level](...messages);
   },
-  /** Warn logging. */
-  warn(msg) {
-    this.log(msg, colors.yellow);
+  /** Basic logging. */
+  log(...messages) {
+    this.write('log', messages);
   },
   /** Info logging. */
-  info(msg) {
-    this.log(msg, colors.green);
+  info(...messages) {
+    this.write('info', messages, colors.green);
+  },
+  /** Warn logging. */
+  warn(...messages) {
+    this.write('warn', messages, colors.yellow);
   },
   /** Error logging. */
-  error(msg) {
-    this.log(msg, colors.red);
+  error(...messages) {
+    this.write('error', messages, colors.red);
+  },
+  /** Writes empty line, creating visual whitespace */
+  break() {
+    this.write('log', '', null, false);
   },
   getLogger(name) {
     const logger = Object.assign({}, this);

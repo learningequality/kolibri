@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('colors');
 const os = require('os');
 const path = require('path');
 const program = require('commander');
@@ -334,7 +333,8 @@ program
 const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
 checkVersion(engines, (err, results) => {
   if (err) {
-    console.error(err);
+    cliLogging.break();
+    cliLogging.error(err);
     process.exit(1);
   }
 
@@ -346,12 +346,12 @@ checkVersion(engines, (err, results) => {
   for (const packageName of Object.keys(results.versions)) {
     if (!results.versions[packageName].isSatisfied) {
       let required = engines[packageName];
-      console.error(`\nERROR:`.red, `Incorrect version of ${packageName}.`);
-      console.error(`ERROR:`.red, `${packageName} ${required} is required.`);
+      cliLogging.break();
+      cliLogging.error(`Incorrect version of ${packageName}.`);
+      cliLogging.error(`${packageName} ${required} is required.`);
     }
   }
 
-  console.log(``);
-
+  cliLogging.break();
   process.exit(1);
 });

@@ -4250,13 +4250,6 @@ end-of-stream@^1.0.0, end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-engine-strict@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/engine-strict/-/engine-strict-1.0.0.tgz#67a6a502b36e8b8f6e1d80a042a8d37e4e4f9455"
-  integrity sha1-Z6alArNui49uHYCgQqjTfk5PlFU=
-  dependencies:
-    semver "^5.3.0"
-
 enhanced-resolve@^4.0.0, enhanced-resolve@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-4.1.0.tgz#41c7e0bfdfe74ac1ffe1e57ad6a5c6c9f3742a7f"
