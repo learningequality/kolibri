@@ -3,7 +3,7 @@
   <div>
     <div
       class="banner"
-      :style="{ background: $coreBgLight }"
+      :style="{ background: $coreBgLight, position: bannerClosed ? 'absolute' : 'relative' }"
       :tabindex="0"
       role="dialog"
     >
