@@ -5,9 +5,9 @@ import KolibriModule from 'kolibri_module';
 
 class DemoServerModule extends KolibriModule {
   ready() {
-    const modalDiv = global.document.createElement('div');
-    global.document.body.appendChild(modalDiv);
-    this.rootvue = new Vue(Object.assign({ el: modalDiv, store }, DemoServerIndex));
+    if (!store.getters.isUserLoggedIn) {
+      store.commit('SET_CORE_BANNER_CONTENT', DemoServerIndex);
+    }
   }
 }
 

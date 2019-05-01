@@ -7,8 +7,7 @@
     :appBarTitle="appBarTitle"
     :fullScreen="pageName === PageNames.SIGN_IN"
   >
-    <component :is="currentPage" :style="{ marginTop: bannerClosed ? '0px' : '270px' }" />
-    <div v-if="!bannerClosed" class="mask"></div>
+    <component :is="currentPage" />
   </CoreBase>
 
 </template>
@@ -37,16 +36,6 @@
     components: {
       CoreBase,
     },
-    data() {
-      return {
-        bannerClosed: !Object.keys(kolibriGlobal.kolibri_modules).includes('demo_server_module'),
-      };
-    },
-    mounted() {
-      kolibriGlobal.on('demoBannerChanged', data => {
-        this.bannerClosed = data.bannerClosed;
-      });
-    },
     computed: {
       ...mapState(['pageName']),
       appBarTitle() {
@@ -73,21 +62,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .fh {
-    transition: margin-top 0.1s linear;
-  }
-  .mask {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -79,12 +79,12 @@
       };
     },
     mounted() {
-      kolibriGlobal.emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
+      this.$root.$emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
     },
     methods: {
       toggleBannerState(event) {
         this.bannerClosed = !this.bannerClosed;
-        kolibriGlobal.emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
+        this.$root.$emit('demoBannerChanged', { bannerClosed: this.bannerClosed });
         event.target.blur();
         return false;
       },
@@ -110,7 +110,7 @@
 <style lang="scss" scoped>
 
   .banner {
-    position: absolute;
+    position: relative;
     top: 0%;
     left: 0%;
     z-index: 7500;
