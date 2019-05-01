@@ -18,6 +18,7 @@
 
 </template>
 
+
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';

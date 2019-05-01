@@ -37,6 +37,7 @@
 
 </template>
 
+
 <script>
 
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
