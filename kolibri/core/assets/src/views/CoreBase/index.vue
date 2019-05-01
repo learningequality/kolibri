@@ -65,10 +65,11 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
-      <div v-if="demoBannerComponent">
-        <component :is="demoBannerComponent" :style="{marginBottom: bannerClosed ? '' : '-10vh'}" />
-        <div v-if="!bannerClosed" class="mask"></div>
-      </div>
+      <CoreBanner
+        v-if="demoBannerComponents"
+        :defaultComponent="demoBannerComponents.DemoServerBannerContent"
+        :persistentComponent="demoBannerComponents.DemoServerBannerHeader"
+      />
 
       <div v-if="debug" class="debug">
         <div>{{ contentComponentName }}</div>
@@ -129,6 +130,7 @@
   import ImmersiveToolbar from '../ImmersiveToolbar';
   import UpdateNotification from '../UpdateNotification';
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
+  import CoreBanner from '../CoreBanner';
   import ScrollingHeader from './ScrollingHeader';
 
   export default {
@@ -153,6 +155,7 @@
     components: {
       AppBar,
       AppError,
+      CoreBanner,
       ImmersiveToolbar,
       SideNav,
       AuthMessage,
@@ -250,11 +253,10 @@
         unwatchScrollHeight: undefined,
         notificationModalShown: true,
         languageModalShown: false,
-        bannerClosed: false,
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerComponent']),
+      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerComponents']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
@@ -479,19 +481,6 @@
   }
   .banner-open {
     margin-top: -5vh;
-  }
-  .mask {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 4000;
-    width: 100vw;
-    height: 100vh;
-    padding: 0;
-    margin: 0;
-    background-color: rgba(0, 0, 0, 0.375);
   }
 
 </style>
