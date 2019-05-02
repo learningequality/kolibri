@@ -33,20 +33,15 @@
     </MultiPaneLayout>
     <KBottomAppBar>
       <KGrid>
-        <KGridItem size="25" percentage alignment="left">
+        <KGridItem sizes="50, 50, 25" percentage alignment="left">
           <KButton
             :disabled="questionNumber===0"
             :text="$tr('previousQuestion')"
+            :primary="true"
             @click="goToQuestion(questionNumber - 1)"
           />
         </KGridItem>
-        <KGridItem size="75" percentage alignment="right">
-          <KButton
-            :text="$tr('submitExam')"
-            :primary="false"
-            appearance="flat-button"
-            @click="toggleModal"
-          />
+        <KGridItem v-if="windowIsLarge" size="50" percentage alignment="center">
           <div class="answered">
             {{
               $tr(
@@ -56,8 +51,17 @@
             }}
           </div>
           <KButton
+            :text="$tr('submitExam')"
+            :primary="false"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+        </KGridItem>
+        <KGridItem sizes="50, 50, 25" percentage alignment="right">
+          <KButton
             :disabled="questionNumber===exam.question_count-1"
             :text="$tr('nextQuestion')"
+            :primary="true"
             @click="goToQuestion(questionNumber + 1)"
           />
         </KGridItem>
@@ -101,6 +105,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
 
@@ -125,7 +130,7 @@
       KGridItem,
       KBottomAppBar,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, responsiveWindow],
     data() {
       return {
         submitModalOpen: false,
