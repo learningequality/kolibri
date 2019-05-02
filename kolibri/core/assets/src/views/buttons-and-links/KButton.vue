@@ -43,7 +43,7 @@
        */
       appearance: {
         type: String,
-        default: 'raised-button',
+        default: 'raised-button', // changes default of 'appearance' prop provided by mixin
         validator,
       },
       /**

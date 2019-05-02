@@ -2,27 +2,6 @@
 
   <KPageContainer noPadding>
     <MultiPaneLayout ref="multiPaneLayout">
-      <div slot="header" class="exam-status-container" :style="{ backgroundColor: $coreBgLight }">
-        <h1 class="quiz-icon">
-          <KLabeledIcon>
-            <KIcon slot="icon" quiz />
-            {{ exam.title }}
-          </KLabeledIcon>
-        </h1>
-        <div class="exam-status">
-          <p class="questions-answered">
-            {{
-              $tr(
-                'questionsAnswered',
-                { numAnswered: questionsAnswered, numTotal: exam.question_count }
-              )
-            }}
-          </p>
-          <KButton :text="$tr('submitExam')" :primary="true" @click="toggleModal" />
-        </div>
-        <div :style="{ clear: 'both' }"></div>
-      </div>
-
       <AnswerHistory
         slot="aside"
         :questionNumber="questionNumber"
@@ -51,19 +30,39 @@
         </UiAlert>
       </div>
 
-      <div slot="footer" class="question-navbutton-container">
-        <KButton
-          :disabled="questionNumber===0"
-          :text="$tr('previousQuestion')"
-          @click="goToQuestion(questionNumber - 1)"
-        />
-        <KButton
-          :disabled="questionNumber===exam.question_count-1"
-          :text="$tr('nextQuestion')"
-          @click="goToQuestion(questionNumber + 1)"
-        />
-      </div>
     </MultiPaneLayout>
+    <KBottomAppBar>
+      <KGrid>
+        <KGridItem size="25" percentage alignment="left">
+          <KButton
+            :disabled="questionNumber===0"
+            :text="$tr('previousQuestion')"
+            @click="goToQuestion(questionNumber - 1)"
+          />
+        </KGridItem>
+        <KGridItem size="75" percentage alignment="right">
+          <KButton
+            :text="$tr('submitExam')"
+            :primary="false"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+          <div class="answered">
+            {{
+              $tr(
+                'questionsAnswered',
+                { numAnswered: questionsAnswered, numTotal: exam.question_count }
+              )
+            }}
+          </div>
+          <KButton
+            :disabled="questionNumber===exam.question_count-1"
+            :text="$tr('nextQuestion')"
+            @click="goToQuestion(questionNumber + 1)"
+          />
+        </KGridItem>
+      </KGrid>
+    </KBottomAppBar>
 
     <KModal
       v-if="submitModalOpen"
@@ -92,7 +91,10 @@
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -119,6 +121,9 @@
       KModal,
       UiAlert,
       MultiPaneLayout,
+      KGrid,
+      KGridItem,
+      KBottomAppBar,
     },
     mixins: [themeMixin],
     data() {
@@ -243,8 +248,8 @@
       backToExamList: 'Back to quiz list',
       questionsAnswered:
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
-      previousQuestion: 'Previous question',
-      nextQuestion: 'Next question',
+      previousQuestion: 'Previous',
+      nextQuestion: 'Next',
       goBack: 'Go back',
       areYouSure: 'You cannot change your answers after you submit',
       unanswered:
@@ -258,33 +263,9 @@
 
 <style lang="scss" scoped>
 
-  .exam-status-container {
-    padding: 16px;
-  }
-
-  .exam-status {
-    float: right;
-    width: 50%;
-    max-width: 400px;
-    text-align: right;
-    button {
-      margin: 0 0 0 8px;
-    }
-  }
-
-  .quiz-icon {
+  .answered {
     display: inline-block;
-    margin: 0;
-  }
-
-  .questions-answered {
-    position: relative;
-    display: inline-block;
-    margin-top: 0;
-  }
-
-  .question-navbutton-container {
-    text-align: right;
+    margin-right: 18px;
   }
 
 </style>

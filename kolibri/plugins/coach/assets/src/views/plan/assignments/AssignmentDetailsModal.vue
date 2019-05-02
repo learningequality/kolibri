@@ -71,7 +71,7 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <Bottom v-if="assignmentType !== 'new_lesson'">
+    <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
         :text="coachStrings.$tr('cancelAction')"
         appearance="flat-button"
@@ -85,7 +85,7 @@
         :disabled="disabled"
         @click="submitData"
       />
-    </Bottom>
+    </KBottomAppBar>
   </div>
 
 </template>
@@ -98,14 +98,14 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import Bottom from '../CreateExamPage/Bottom';
   import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      Bottom,
+      KBottomAppBar,
       KButton,
       KRadioButton,
       KTextbox,
