@@ -95,10 +95,6 @@
         centerMode: true,
       },
     }),
-    $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
-    },
     computed: {
       slideshow_images: function() {
         const files = this.files;
@@ -147,6 +143,10 @@
       slideTextId(id) {
         return 'descriptive-text-' + id;
       },
+    },
+    $trs: {
+      exitFullscreen: 'Exit fullscreen',
+      enterFullscreen: 'Enter fullscreen',
     },
   };
 
