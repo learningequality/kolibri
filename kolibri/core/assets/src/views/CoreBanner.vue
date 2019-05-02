@@ -27,19 +27,20 @@
     name: 'CoreBanner',
     mixins: [themeMixin],
     props: {
-      //
       initiallyClosed: {
         type: Boolean,
         required: false,
-        default: false,
+        default: false
       },
+      // The default component is the body of the banner's content.
       defaultComponent: {
         type: Object,
         required: true,
       },
+      // The Persistent Component is shown while closed.
       persistentComponent: {
         type: Object,
-        required: false,
+        required: true,
       },
     },
     data() {
@@ -91,6 +92,7 @@
     float: right;
     margin-top: 0;
   }
+
   .mask {
     position: fixed;
     top: 0;
