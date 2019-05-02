@@ -75,6 +75,7 @@
 
   const settingsList = [
     'learnerCanEditUsername',
+    'learnerCanEditPassword',
     'learnerCanEditName',
     'learnerCanSignUp',
     'learnerCanLoginWithNoPassword',
@@ -165,10 +166,6 @@
 
   .mb {
     margin-bottom: 2rem;
-  }
-
-  .settings {
-    max-width: 35rem;
   }
 
   .settings > label {
