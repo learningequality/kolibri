@@ -30,7 +30,7 @@
       initiallyClosed: {
         type: Boolean,
         required: false,
-        default: false
+        default: false,
       },
       // The default component is the body of the banner's content.
       defaultComponent: {
