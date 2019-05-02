@@ -1,36 +1,55 @@
 <template>
 
-  <KPageContainer noPadding>
-    <MultiPaneLayout ref="multiPaneLayout">
-      <AnswerHistory
-        slot="aside"
-        :questionNumber="questionNumber"
-        @goToQuestion="goToQuestion"
-      />
+  <div>
+    <KGrid :gridStyle="gridStyle">
+      <KGridItem v-if="windowIsLarge" size="4" class="column-pane">
+        <div class="column-contents-wrapper">
+          <KPageContainer>
+            <AnswerHistory
+              :questionNumber="questionNumber"
+              @goToQuestion="goToQuestion"
+            />
+          </KPageContainer>
+        </div>
+      </KGridItem>
+      <KGridItem sizes="4, 8, 8" class="column-pane">
+        <div class="column-contents-wrapper">
+          <KPageContainer>
+            <ContentRenderer
+              v-if="content && itemId"
+              ref="contentRenderer"
+              :kind="content.kind"
+              :files="content.files"
+              :available="content.available"
+              :extraFields="content.extra_fields"
+              :itemId="itemId"
+              :assessment="true"
+              :allowHints="false"
+              :answerState="currentAttempt.answer"
+              @interaction="saveAnswer"
+            />
+            <UiAlert v-else :dismissible="false" type="error">
+              {{ $tr('noItemId') }}
+            </UiAlert>
+          </KPageContainer>
+          <KPageContainer v-if="!windowIsLarge" class="inline-actions">
+            <div class="top-margin">
+              {{ answeredText }}
+            </div>
+            <div>
+              <KButton
+                :text="$tr('submitExam')"
+                :primary="false"
+                appearance="flat-button"
+                @click="toggleModal"
+              />
+            </div>
+          </KPageContainer>
+        </div>
+      </KGridItem>
+    </KGrid>
 
-      <div
-        slot="main"
-        :style="{ background: $coreBgLight }"
-      >
-        <ContentRenderer
-          v-if="content && itemId"
-          ref="contentRenderer"
-          :kind="content.kind"
-          :files="content.files"
-          :available="content.available"
-          :extraFields="content.extra_fields"
-          :itemId="itemId"
-          :assessment="true"
-          :allowHints="false"
-          :answerState="currentAttempt.answer"
-          @interaction="saveAnswer"
-        />
-        <UiAlert v-else :dismissible="false" type="error">
-          {{ $tr('noItemId') }}
-        </UiAlert>
-      </div>
 
-    </MultiPaneLayout>
     <KBottomAppBar>
       <KGrid>
         <KGridItem sizes="50, 50, 25" percentage alignment="left">
@@ -42,13 +61,8 @@
           />
         </KGridItem>
         <KGridItem v-if="windowIsLarge" size="50" percentage alignment="center">
-          <div class="answered">
-            {{
-              $tr(
-                'questionsAnswered',
-                { numAnswered: questionsAnswered, numTotal: exam.question_count }
-              )
-            }}
+          <div class="answered-footer">
+            {{ answeredText }}
           </div>
           <KButton
             :text="$tr('submitExam')"
@@ -81,7 +95,7 @@
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
     </KModal>
-  </KPageContainer>
+  </div>
 
 </template>
 
@@ -145,6 +159,21 @@
         'currentAttempt',
         'questionsAnswered',
       ]),
+      gridStyle() {
+        return {
+          position: 'fixed',
+          top: `${this.windowIsSmall ? 56 : 64}px`,
+          right: '16px',
+          bottom: '72px',
+          left: '16px',
+        };
+      },
+      answeredText() {
+        return this.$tr('questionsAnswered', {
+          numAnswered: this.questionsAnswered,
+          numTotal: this.exam.question_count,
+        });
+      },
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -225,7 +254,6 @@
               questionNumber,
             },
           });
-          this.$refs.multiPaneLayout.scrollMainToTop();
         });
       },
       toggleModal() {
@@ -268,9 +296,28 @@
 
 <style lang="scss" scoped>
 
-  .answered {
+  .answered-footer {
     display: inline-block;
     margin-right: 18px;
+  }
+
+  .column-pane {
+    height: 100%;
+    padding-bottom: 32px;
+    overflow-y: auto;
+  }
+
+  .column-contents-wrapper {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .inline-actions {
+    text-align: center;
+  }
+
+  .top-margin {
+    margin-top: 16px;
   }
 
 </style>
