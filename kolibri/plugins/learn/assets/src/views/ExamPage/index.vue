@@ -13,8 +13,11 @@
         </div>
       </KGridItem>
       <KGridItem sizes="4, 8, 8" class="column-pane">
-        <div class="column-contents-wrapper">
+        <div :class="{'column-contents-wrapper' : !windowIsSmall}">
           <KPageContainer>
+            <h1>
+              {{ $tr('question', { num: questionNumber + 1, total: this.exam.question_count }) }}
+            </h1>
             <ContentRenderer
               v-if="content && itemId"
               ref="contentRenderer"
@@ -160,13 +163,16 @@
         'questionsAnswered',
       ]),
       gridStyle() {
-        return {
-          position: 'fixed',
-          top: `${this.windowIsSmall ? 56 : 64}px`,
-          right: '16px',
-          bottom: '72px',
-          left: '16px',
-        };
+        if (!this.windowIsSmall) {
+          return {
+            position: 'fixed',
+            top: '64px',
+            right: '16px',
+            bottom: '72px',
+            left: '16px',
+          };
+        }
+        return {};
       },
       answeredText() {
         return this.$tr('questionsAnswered', {
@@ -288,6 +294,7 @@
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
+      question: 'Question { num } of { total }',
     },
   };
 
