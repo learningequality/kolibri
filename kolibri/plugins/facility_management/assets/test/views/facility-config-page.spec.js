@@ -35,6 +35,24 @@ describe('facility config page view', () => {
     expect(!confirmResetModal().exists()).toEqual(true);
   }
 
+  it('has all of the settings', () => {
+    const wrapper = makeWrapper();
+    const checkboxes = wrapper.findAll({ name: 'KCheckbox' });
+    expect(checkboxes.length).toEqual(7);
+    const labels = [
+      'Allow learners and coaches to edit their username',
+      'Allow learners and coaches to change their password when signed in',
+      'Allow learners and coaches to edit their full name',
+      'Allow learners to create accounts',
+      'Allow learners to sign in with no password',
+      "Show 'download' button with content",
+      'Allow users to access content without signing in',
+    ];
+    labels.forEach((label, idx) => {
+      expect(checkboxes.at(idx).props().label).toEqual(label);
+    });
+  });
+
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
