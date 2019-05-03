@@ -14,6 +14,7 @@ const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
 const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
+const { getEnvVars } = require('./build');
 
 const buildLogging = logger.getLogger('Kolibri Webpack Dev Server');
 
@@ -111,10 +112,8 @@ function buildWebpack(data, index, startCallback, doneCallback, options) {
   return compiler;
 }
 
-const data = JSON.parse(process.env.data);
-const index = JSON.parse(process.env.index);
-const options = JSON.parse(process.env.options);
-const start = JSON.parse(process.env.start);
+const { data, index, options, start } = getEnvVars();
+
 function build() {
   buildWebpack(
     data,
