@@ -6,13 +6,13 @@ from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
 from iceqube.classes import State
+from iceqube.exceptions import JobNotFound
 from iceqube.exceptions import UserCancelledError
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
-from sqlalchemy.orm.exc import NoResultFound
 
 from .queue import get_queue
 from kolibri.core.content.permissions import CanManageContent
@@ -298,19 +298,19 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
             get_queue().cancel(request.data["task_id"])
-        except NoResultFound:
+            waiting_time = 0
+            job = get_queue().fetch_job(request.data["task_id"])
+            interval = 0.1
+            while job.state != State.CANCELED or waiting_time < 5.0:
+                time.sleep(interval)
+                waiting_time += interval
+                job = get_queue().fetch_job(request.data["task_id"])
+            if job.state != State.CANCELED:
+                return Response(status=408)
+            get_queue().clear_job(request.data["task_id"])
+        except JobNotFound:
             pass
 
-        waiting_time = 0
-        job = get_queue().fetch_job(request.data["task_id"])
-        interval = 0.1
-        while job.state != State.CANCELED or waiting_time < 5.0:
-            time.sleep(interval)
-            waiting_time += interval
-            job = get_queue().fetch_job(request.data["task_id"])
-        if job.state != State.CANCELED:
-            return Response(status=408)
-        get_queue().clear_job(request.data["task_id"])
         return Response({})
 
     @list_route(methods=["post"])
