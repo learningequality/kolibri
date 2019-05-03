@@ -55,7 +55,9 @@ def claim(token, facility, client_ip=None):
     data["signature"] = client_cert.sign(message)
 
     # attempt to claim the facility
-    response = requests.post(urljoin(PORTAL_URL, "portal/api/claim/"), data=data)
+    response = requests.post(
+        urljoin(PORTAL_URL, "portal/api/public/v1/claim/"), data=data
+    )
     Nonce.use_nonce(client_nonce.id)
     response.raise_for_status()
     return response
