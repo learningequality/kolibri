@@ -42,7 +42,6 @@
     },
     mixins: [commonCoach],
     $trs: {
-      viewAll: 'All lessons',
       activeLearners: 'Active Learners',
     },
     computed: {
