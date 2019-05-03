@@ -62,7 +62,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import 'ContentCard/card';
+  @import '../../../../learn/assets/src/views/ContentCard/card';
 
   $margin: 16px;
 
@@ -133,6 +133,7 @@
   }
 
   .prereqs-not-done {
+    position: relative;
     opacity: 0.3;
   }
 

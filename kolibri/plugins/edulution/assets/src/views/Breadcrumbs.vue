@@ -14,7 +14,7 @@
   import { mapState, mapGetters } from 'vuex';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { PageNames, PageModes } from '../constants';
-  import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
+  import classesBreadcrumbItems from '../../../../learn/assets/src/views/classes/classesBreadcrumbItems';
 
   export default {
     name: 'Breadcrumbs',

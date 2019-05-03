@@ -55,10 +55,10 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ToggledRouterLink from '../ToggledRouterLink';
-  import CardThumbnail from './CardThumbnail';
+  import CardThumbnail from '../../../../../learn/assets/src/views/ContentCard/CardThumbnail';
 
   export default {
-    name: 'ContentCard',
+    name: 'EdulutionContentCard',
     $trs: {
       copies: '{ num, number} locations',
     },
@@ -161,7 +161,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import './card';
+  @import '../../../../../learn/assets/src/views/ContentCard/card';
 
   $margin: 16px;
 
