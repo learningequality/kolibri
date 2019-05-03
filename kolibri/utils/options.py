@@ -140,10 +140,8 @@ option_spec = {
         "DATA_PORTAL_SYNCING_BASE_URL": {
             "type": "string",
             "default": "https://kolibridataportal.learningequality.org",
-            "envvars": (
-                "KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL",
-            ),
-        }
+            "envvars": ("KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL",),
+        },
     },
     "Deployment": {
         "HTTP_PORT": {
