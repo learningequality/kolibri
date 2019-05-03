@@ -51,11 +51,12 @@ class Command(BaseCommand):
                                 facility.name
                             )
                         )
+                        self.stdout.write("Syncing has been initiated...")
                         call_command(
                             "sync", facility=facility_id, noninteractive=noninteractive
                         )
                         confirm_or_exit(
-                            "Facility: {} has been pushed. Would you like to retry registering?".format(
+                            "Facility: {} has been synced. Would you like to retry registering?".format(
                                 facility.name
                             )
                         )
