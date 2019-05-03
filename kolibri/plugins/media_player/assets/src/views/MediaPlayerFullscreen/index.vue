@@ -45,6 +45,6 @@
 
 <style lang="scss" scoped>
 
-  @import '../../../../../../../node_modules/kolibri.styles.definitions';
+  @import '~kolibri.styles.definitions';
 
 </style>
