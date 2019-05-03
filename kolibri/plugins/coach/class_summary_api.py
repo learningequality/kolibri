@@ -223,12 +223,12 @@ def get_active_learners(classroom):
     learners_info = []
     try:
         connection.ensure_connection()
-        last_5_minutes = timezone.now() - timedelta(minutes=5)
+        last_20_minutes = timezone.now() - timedelta(minutes=20)
         classroom_members = set(map(lambda member: member.username, classroom.get_members()))
         learners_info = UserSessionLog.objects.filter(user__username__in=classroom_members)\
             .values('user__username').annotate(Max('last_interaction_timestamp')).all()
 
-        session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_5_minutes).all()
+        session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_20_minutes).all()
         active_learners_in_class = \
             filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom)),
                    session_objects)
