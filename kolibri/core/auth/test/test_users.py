@@ -8,8 +8,6 @@ from ..models import Facility
 from ..models import FacilityUser
 from .helpers import create_superuser
 
-# from django.db.utils import IntegrityError
-
 
 class UserSanityTestCase(TestCase):
     """
