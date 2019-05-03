@@ -40,10 +40,8 @@ First, clone your Kolibri fork to your local computer. In command below, replace
 .. code-block:: bash
 
   git clone git@github.com:$USERNAME/kolibri.git
-  cd kolibri  # enter the Kolibri directory
-  git checkout develop
 
-Next, initialize Git LFS:
+Next, `install Git LFS <https://git-lfs.github.com/>`__ and initialize it with:
 
 .. code-block:: bash
 
@@ -55,6 +53,8 @@ Finally, add the Learning Equality repo as a remote. That way you can keep your 
 
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
+  cd kolibri  # Enter the Kolibri directory
+  git checkout develop
 
 
 
@@ -137,9 +137,9 @@ The Python project-specific dependencies installed above will install ``nodeenv`
   npm install -g yarn
 
   # other required project dependencies
+  # omit the --force flag to speed up the process
   yarn install --force
 
-Note that the ``--force`` flag above can also be omitted to speed up the process.
 
 Running the Kolibri server
 --------------------------
