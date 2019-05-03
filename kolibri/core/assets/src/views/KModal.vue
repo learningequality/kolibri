@@ -228,26 +228,16 @@
           this.scrollShadow = this.maxContentHeight < this.$refs.content.scrollHeight;
         }
       }, 50),
-      // Emitted when the cancel button is clicked or the esc key is pressed
       emitCancelEvent() {
         if (!this.cancelDisabled) {
-          // If no @cancel is set on KModal, have the parent emit the event
-          if (this.$listeners.cancel) {
-            this.$emit('cancel');
-          } else {
-            this.$parent.$emit('cancel');
-          }
+          // Emitted when the cancel button is clicked or the esc key is pressed
+          this.$emit('cancel');
         }
       },
-      // Emitted when the submit button or the enter key is pressed
       emitSubmitEvent() {
         if (!this.submitDisabled) {
-          // If no @submit is set on KModal, have the parent emit the event
-          if (this.$listeners.submit) {
-            this.$emit('submit');
-          } else {
-            this.$parent.$emit('submit');
-          }
+          // Emitted when the submit button or the enter key is pressed
+          this.$emit('submit');
         }
       },
       handleEnter() {
