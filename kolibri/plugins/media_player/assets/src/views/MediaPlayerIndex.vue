@@ -9,6 +9,7 @@
       ref="wrapper"
       :class="[
         'wrapper',
+        { 'transcript-visible': isShowingTranscript },
         $computedClass(progressStyle)
       ]"
     >
@@ -40,6 +41,13 @@
             :label="track.lang.lang_name"
             :default="isDefaultTrack(track.lang.id)"
           >
+          <track
+            :key="track.storage_url + '.metadata'"
+            kind="metadata"
+            :src="track.storage_url"
+            :srclang="track.lang.id"
+            :label="track.lang.lang_name"
+          >
         </template>
       </video>
 
@@ -52,6 +60,12 @@
           >
         </template>
       </audio>
+
+      <MediaPlayerTranscript
+        ref="transcript"
+        :defaultLangCode="defaultLangCode"
+        @toggleTranscript="isShowingTranscript = $event"
+      />
     </div>
   </MediaPlayerFullscreen>
 
@@ -64,6 +78,7 @@
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
 
+  import { languageIdToCode } from 'kolibri.utils.i18n';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -71,7 +86,10 @@
 
   import Settings from './settings';
   import { ReplayButton, ForwardButton } from './customButtons';
-  import MediaPlayerFullscreen, { MimicFullscreenToggle } from './MediaPlayerFullscreen';
+  import MediaPlayerFullscreen from './MediaPlayerFullscreen';
+  import MimicFullscreenToggle from './MediaPlayerFullscreen/mimicFullscreenToggle';
+  import MediaPlayerTranscript from './MediaPlayerTranscript';
+  import TranscriptButton from './MediaPlayerTranscript/transcriptButton';
 
   import audioIconPoster from './audio-icon-poster.svg';
 
@@ -100,6 +118,7 @@
         { name: 'PlaybackRateMenuButton' },
         { name: 'CaptionsButton' },
         { name: 'MimicFullscreenToggle' },
+        { name: 'TranscriptButton' },
       ],
     },
     language: GlobalLangCode,
@@ -109,6 +128,7 @@
     MimicFullscreenToggle,
     ReplayButton,
     ForwardButton,
+    TranscriptButton,
   };
 
   Object.entries(componentsToRegister).forEach(([name, component]) =>
@@ -118,7 +138,7 @@
   export default {
     name: 'MediaPlayerIndex',
 
-    components: { KCircularLoader, MediaPlayerFullscreen },
+    components: { KCircularLoader, MediaPlayerFullscreen, MediaPlayerTranscript },
 
     mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
 
@@ -130,9 +150,11 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
+      defaultLangCode: GlobalLangCode,
       videoLangCode: GlobalLangCode,
       updateContentStateInterval: null,
       isFullscreen: false,
+      isShowingTranscript: false,
     }),
 
     computed: {
@@ -206,8 +228,8 @@
     },
     methods: {
       isDefaultTrack(langCode) {
-        const shortLangCode = langCode.split('-')[0];
-        const shortGlobalLangCode = this.videoLangCode.split('-')[0];
+        const shortLangCode = languageIdToCode(langCode);
+        const shortGlobalLangCode = languageIdToCode(this.videoLangCode);
 
         return shortLangCode === shortGlobalLangCode;
       },
@@ -215,6 +237,7 @@
         this.$nextTick(() => {
           this.player = videojs(this.$refs.player, this.getPlayerConfig(), this.handleReadyPlayer);
           this.$refs.fullscreen.setPlayer(this.player);
+          this.$refs.transcript.setPlayer(this.player);
         });
       },
       getPlayerConfig() {
@@ -237,6 +260,8 @@
               'Playback Rate': this.$tr('playbackRate'),
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
+              Transcript: this.$tr('transcript'),
+              'Transcript off': this.$tr('transcriptOff'),
               'Volume Level': this.$tr('volumeLevel'),
               'A network error caused the media download to fail part-way.': this.$tr(
                 'networkError'
@@ -436,6 +461,8 @@
       playbackRate: 'Playback rate',
       captions: 'Captions',
       captionsOff: 'Captions off',
+      transcript: 'Transcript',
+      transcriptOff: 'Transcript off',
       volumeLevel: 'Volume level',
       networkError: 'A network error caused the media download to fail part-way',
       formatError:
@@ -486,6 +513,16 @@
     transform: translate(-50%, -50%);
   }
 
+  .media-player-transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 33.333%;
+    transition: width $core-time ease;
+  }
+
   /***** PLAYER OVERRIDES *****/
 
   /* !!rtl:begin:ignore */
@@ -498,6 +535,15 @@
   $video-player-font-color: white;
 
   $video-player-font-size: 12px;
+
+  .video-js.vjs-fill {
+    z-index: 1;
+    transition: width $core-time ease;
+  }
+
+  .transcript-visible > .video-js.vjs-fill {
+    width: 66.666%;
+  }
 
   /* Hide control bar when playing & inactive */
   /deep/ .vjs-has-started.vjs-playing.vjs-user-inactive {
@@ -608,6 +654,24 @@
 
     .vjs-volume-panel {
       margin-left: auto;
+    }
+
+    /* Transcript button */
+    .vjs-button-transcript img {
+      max-width: 20px;
+    }
+
+    .vjs-transcript-visible > .vjs-transcript {
+      display: block;
+    }
+
+    .vjs-transcript-visible > .vjs-tech,
+    .vjs-transcript-visible > .vjs-modal-dialog,
+    .vjs-transcript-visible > .vjs-text-track-display,
+    .vjs-transcript-visible > .vjs-text-track-settings,
+    .vjs-transcript-visible > .vjs-control-bar {
+      right: auto;
+      width: calc(100% - 330px);
     }
 
     /* Menus */

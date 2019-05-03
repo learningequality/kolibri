@@ -95,9 +95,7 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-function languageIdToCode(id) {
-  return id.split('-')[0].toLowerCase();
-}
+export const languageIdToCode = id => id.split('-')[0].toLowerCase();
 
 function setLanguageDensity(id) {
   const langCode = languageIdToCode(id);

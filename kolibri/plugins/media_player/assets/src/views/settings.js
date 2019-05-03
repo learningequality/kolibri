@@ -31,12 +31,20 @@ class Settings {
     return this.get().playerVolume;
   }
 
-  set showTranscript(showTranscript) {
-    return this.save({ showTranscript });
+  set transcriptShowing(transcriptShowing) {
+    return this.save({ transcriptShowing });
   }
 
-  get showTranscript() {
-    return this.get().showTranscript;
+  get transcriptShowing() {
+    return this.get().transcriptShowing;
+  }
+
+  set transcriptLangCode(transcriptLangCode) {
+    return this.save({ transcriptLangCode });
+  }
+
+  get transcriptLangCode() {
+    return this.get().transcriptLangCode;
   }
 
   set videoLangCode(videoLangCode) {
