@@ -137,8 +137,7 @@ The Python project-specific dependencies installed above will install ``nodeenv`
   npm install -g yarn
 
   # other required project dependencies
-  # omit the --force flag to speed up the process
-  yarn install --force
+  yarn install
 
 
 Running the Kolibri server
@@ -202,7 +201,7 @@ If you need to make the development server available through the LAN, you need t
   # first build the assets
   yarn run build
   # now, run the Django devserver
-  kolibri --debug manage devserver -- 0.0.0.0:8000
+  kolibri --debug manage runserver -- 0.0.0.0:8000
 
 Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
