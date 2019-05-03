@@ -41,7 +41,7 @@ First, clone your Kolibri fork to your local computer. In command below, replace
 
   git clone git@github.com:$USERNAME/kolibri.git
 
-Next, `install Git LFS <https://git-lfs.github.com/>`__ and initialize it with:
+Next, initialize Git LFS:
 
 .. code-block:: bash
 
@@ -51,10 +51,10 @@ Finally, add the Learning Equality repo as a remote. That way you can keep your 
 
 .. code-block:: bash
 
+  cd kolibri  # Enter the Kolibri directory
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
-  cd kolibri  # Enter the Kolibri directory
-  git checkout develop
+  git checkout develop # Checkout the development branch
 
 
 
