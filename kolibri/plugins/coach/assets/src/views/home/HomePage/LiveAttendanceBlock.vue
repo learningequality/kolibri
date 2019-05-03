@@ -5,7 +5,7 @@
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
     <KLabeledIcon slot="title">
-      <KIcon slot="icon" lesson />
+      <KIcon slot="icon" people />
       {{ coachStrings.$tr('liveAttendanceLabel') }}
     </KLabeledIcon>
 
