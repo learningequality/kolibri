@@ -43,7 +43,7 @@ Usage:
   kolibri restart [options]
   kolibri status [options]
   kolibri shell [options]
-  kolibri services [--foreground]
+  kolibri services [--foreground] [options]
   kolibri manage COMMAND [DJANGO_OPTIONS ...]
   kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
@@ -57,6 +57,8 @@ Options:
   -h --help             Show this screen.
   --version             Show version.
   --debug               Output debug messages (for development)
+  --skipupdate          Don't run update logic - useful if running two kolibri
+                        commands in parallel.
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
   DJANGO_OPTIONS        Command options are passed on to the django manage
@@ -140,7 +142,7 @@ def should_back_up(kolibri_version, version_file_contents):
     )
 
 
-def initialize(debug=False):
+def initialize(debug=False, skip_update=False):
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
@@ -152,7 +154,8 @@ def initialize(debug=False):
 
         setup_logging(debug=debug)
 
-        _first_run()
+        if not skip_update:
+            _first_run()
     else:
         # Do this here so that we can fix any issues with our configuration file before
         # we attempt to set up django.
@@ -189,7 +192,8 @@ def initialize(debug=False):
                     old=version, new=kolibri.__version__
                 )
             )
-            update()
+            if not skip_update:
+                update()
 
 
 def _migrate_databases():
@@ -244,17 +248,8 @@ def update():
 
     TODO: We should look at version numbers of external plugins, too!
     """
-    # Can be removed once we stop calling update() from start()
-    # See: https://github.com/learningequality/kolibri/issues/1615
-    if update.called:
-        return
-    update.called = True
 
     logger.info("Running update routines for new version...")
-
-    # Need to do this here, before we run any Django management commands that
-    # import settings. Otherwise the updated configuration will not be used
-    # during this runtime.
 
     call_command("collectstatic", interactive=False)
 
@@ -276,9 +271,6 @@ def update():
     cache.clear()
 
 
-update.called = False
-
-
 def start(port=None, daemon=True):
     """
     Start the server on given port.
@@ -287,10 +279,6 @@ def start(port=None, daemon=True):
     :param: daemon: Fork to background process (default: True)
     """
     run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
-
-    # This is temporarily put in place because of
-    # https://github.com/learningequality/kolibri/issues/1615
-    update()
 
     # In case some tests run start() function only
     if not isinstance(port, int):
@@ -424,9 +412,6 @@ def services(daemon=True):
 
     :param: daemon: Fork to background process (default: True)
     """
-    # This is temporarily put in place because of
-    # https://github.com/learningequality/kolibri/issues/1615
-    update()
 
     logger.info("Starting Kolibri background services")
 
@@ -652,7 +637,7 @@ def main(args=None):  # noqa: max-complexity=13
             check_other_kolibri_running(port)
 
     try:
-        initialize(debug=debug)
+        initialize(debug=debug, skip_update=arguments['--skipupdate'])
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(
