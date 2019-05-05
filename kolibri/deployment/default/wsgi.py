@@ -13,6 +13,8 @@ import time
 from django.core.wsgi import get_wsgi_application
 from django.db.utils import OperationalError
 
+import kolibri
+
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
 )
@@ -23,7 +25,7 @@ tries_remaining = 6
 interval = 10
 while not application and tries_remaining:
     try:
-        logger.info("Starting Kolibri")
+        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
         application = get_wsgi_application()
     except OperationalError:
         # an OperationalError happens when sqlite vacuum is being executed. the db is locked
