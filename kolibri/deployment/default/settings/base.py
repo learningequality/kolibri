@@ -367,6 +367,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "cherrypy": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 
