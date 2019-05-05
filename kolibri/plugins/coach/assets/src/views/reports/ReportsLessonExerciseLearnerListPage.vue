@@ -23,6 +23,13 @@
         <div v-for="group in nonEmptyGroups" :key="group.id">
           <h2>{{ group.name }}</h2>
 
+          <p>
+            <StatusSummary
+              :tally="getGroupTally(group.id)"
+              :verbose="false"
+            />
+          </p>
+
           <ReportsExerciseLearners
             :entries="getTableEntries([group.id])"
             :showGroupsColumn="false"
@@ -104,6 +111,10 @@
         }
 
         return link;
+      },
+      getGroupTally(groupId) {
+        const recipients = this.getLearnersForGroups([groupId]);
+        return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
       },
       // Return table entries for recipients belonging to groups.
       // If no group ids passed in, return entries for all lesson recipients.
