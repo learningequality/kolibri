@@ -73,7 +73,7 @@ def get_version():
         return ""
 
 
-def initialize():
+def initialize(skipupdate=False):
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
@@ -83,7 +83,7 @@ def initialize():
     params = click.get_current_context().find_root().params
 
     debug = params["debug"]
-    skipupdate = params["skipupdate"]
+    skipupdate = skipupdate or params["skipupdate"]
     settings = params["settings"]
     pythonpath = params["pythonpath"]
 
@@ -528,7 +528,10 @@ class ManageGroup(click.MultiCommand):
                     )
                 )
                 call_command(command_name, *args, **kwargs)
-
+            # Have to initialize Django before we do this,
+            # to ensure we get a full list of valid management
+            # commands
+            initialize(skipupdate=True)
             # Load the command object by name.
             try:
                 app_name = get_commands()[command_name]
