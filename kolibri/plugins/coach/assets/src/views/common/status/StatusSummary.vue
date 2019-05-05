@@ -8,7 +8,7 @@
     tuned for readability over consistency. This means that it has a few intentional
     and perhaps a few unintentional edge cases.
 
-    See locahost:8000/coach/#/about/learnerStatusTypes for a parametric overview
+    See localhost:8000/coach/#/about/statuses for a parametric overview
     of the possible behaviors.
    -->
   <div :class="verbose ? 'multi-line' : 'single-line'">
