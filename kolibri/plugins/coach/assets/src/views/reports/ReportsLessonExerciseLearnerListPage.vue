@@ -47,6 +47,7 @@
 
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
+  import { LastPages } from '../../constants/lastPagesConstants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
   import ReportsExerciseLearners from './ReportsExerciseLearners';
 
@@ -99,7 +100,7 @@
         });
 
         if (this.viewByGroups) {
-          link.query = { ...link.query, last: 'exerciselearnerlistbygroups' };
+          link.query = { ...link.query, last: LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS };
         }
 
         return link;

@@ -23,6 +23,7 @@ import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
+import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
@@ -232,19 +233,19 @@ export default {
       const lastPage = query.last;
 
       switch (lastPage) {
-        case 'homepage':
+        case LastPages.HOME_PAGE:
           return this.classRoute('HomePage', {});
-        case 'homeactivity':
+        case LastPages.HOME_ACTIVITY:
           return this.classRoute('HomeActivityPage', {});
-        case 'groupactivity':
+        case LastPages.GROUP_ACTIVITY:
           return this.classRoute('ReportsGroupActivityPage', {
             groupId: this.$route.query.last_id,
           });
-        case 'learneractivity':
+        case LastPages.LEARNER_ACTIVITY:
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
-        case 'exerciselearnerlistbygroups':
+        case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute('ReportsLessonExerciseLearnerListPage', {}, { groups: 'true' });
         default:
           return null;
