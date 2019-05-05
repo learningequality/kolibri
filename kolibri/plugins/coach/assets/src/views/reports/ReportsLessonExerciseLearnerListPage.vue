@@ -158,10 +158,6 @@
 
 <style lang="scss" scoped>
 
-  .stats {
-    margin-right: 16px;
-  }
-
   .group:not(:first-child) {
     margin-top: 42px;
   }
