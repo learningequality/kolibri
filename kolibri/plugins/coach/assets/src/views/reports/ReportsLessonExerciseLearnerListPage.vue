@@ -19,9 +19,15 @@
         @change="toggleGroupsView"
       />
 
-      <template v-if="viewByGroups">
-        <div v-for="group in nonEmptyGroups" :key="group.id">
-          <h2>{{ group.name }}</h2>
+      <div v-if="viewByGroups">
+        <div
+          v-for="group in nonEmptyGroups"
+          :key="group.id"
+          class="group"
+        >
+          <h2 class="group-title">
+            {{ group.name }}
+          </h2>
 
           <p>
             <StatusSummary
@@ -35,15 +41,15 @@
             :showGroupsColumn="false"
           />
         </div>
-      </template>
+      </div>
 
-      <template v-else>
+      <div v-else>
         <p>
           <StatusSummary :tally="summaryTally" />
         </p>
 
         <ReportsExerciseLearners :entries="getTableEntries()" />
-      </template>
+      </div>
     </KPageContainer>
   </CoreBase>
 
@@ -154,6 +160,14 @@
 
   .stats {
     margin-right: 16px;
+  }
+
+  .group:not(:first-child) {
+    margin-top: 42px;
+  }
+
+  .group-title {
+    margin-bottom: 42px;
   }
 
 </style>
