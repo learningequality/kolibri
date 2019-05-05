@@ -59,7 +59,7 @@
     mixins: [commonCoach],
     data() {
       return {
-        viewByGroups: false,
+        viewByGroups: Boolean(this.$route.query && this.$route.query.groups),
       };
     },
     computed: {
@@ -83,6 +83,26 @@
     methods: {
       toggleGroupsView() {
         this.viewByGroups = !this.viewByGroups;
+
+        let query;
+        if (this.viewByGroups) {
+          query = { ...this.$route.query, groups: 'true' };
+        } else {
+          query = { ...this.$route.query, groups: undefined };
+        }
+
+        this.$router.replace({ query });
+      },
+      getExerciseLearnerLink(learnerId) {
+        const link = this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+
+        if (this.viewByGroups) {
+          link.query = { ...link.query, last: 'exerciselearnerlistbygroups' };
+        }
+
+        return link;
       },
       // Return table entries for recipients belonging to groups.
       // If no group ids passed in, return entries for all lesson recipients.
@@ -102,10 +122,9 @@
               this.$route.params.exerciseId,
               learner.id
             ),
-            exerciseLink: this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
-              learnerId: learner.id,
-            }),
+            exerciseLink: this.getExerciseLearnerLink(learner.id),
           };
+
           Object.assign(tableRow, learner);
 
           return tableRow;

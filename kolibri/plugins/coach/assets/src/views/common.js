@@ -220,16 +220,17 @@ export default {
     },
   },
   methods: {
-    classRoute(name, params = {}) {
+    classRoute(name, params = {}, query = {}) {
       if (this.classId) {
         params.classId = this.classId;
       }
-      return router.getRoute(name, params);
+      return router.getRoute(name, params, query);
     },
-    // In ActivityList, set the backLinkQuery to set the correct exit behavior
+    // Set the backLinkQuery to set the correct exit behavior
     // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
     backRouteForQuery(query) {
       const lastPage = query.last;
+
       switch (lastPage) {
         case 'homepage':
           return this.classRoute('HomePage', {});
@@ -243,6 +244,8 @@ export default {
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
+        case 'exerciselearnerlistbygroups':
+          return this.classRoute('ReportsLessonExerciseLearnerListPage', {}, { groups: 'true' });
         default:
           return null;
       }
