@@ -18,7 +18,7 @@
           <KRouterLink
             v-if="showLink(entry)"
             :text="entry.name"
-            :to="entry.exerciseLink"
+            :to="entry.exerciseLearnerLink"
           />
           <template v-else>
             {{ entry.name }}

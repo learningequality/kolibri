@@ -9,7 +9,7 @@ const entries = [
     name: 'learner1',
     username: 'learner1',
     groups: ['group1', 'group2'],
-    exerciseLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+    exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
     statusObj: {
       learner_id: 'd4b',
       content_id: 'a97',
@@ -23,7 +23,7 @@ const entries = [
     name: 'learner2',
     username: 'learner2',
     groups: ['group2'],
-    exerciseLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/a5d',
+    exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/a5d',
     statusObj: {
       learner_id: 'a5d',
       content_id: 'a97',
@@ -96,7 +96,7 @@ describe('ReportsExerciseLearners', () => {
           {
             name: 'learner1',
             groups: [],
-            exerciseLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+            exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
             statusObj: {
               status: STATUSES.completed,
               last_activity: new Date('2019-05-05T08:13:22Z'),
@@ -136,7 +136,7 @@ describe('ReportsExerciseLearners', () => {
           {
             name: 'learner1',
             groups: [],
-            exerciseLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+            exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
             statusObj: {
               status: STATUSES.notStarted,
             },

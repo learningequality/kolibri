@@ -122,7 +122,7 @@
               this.$route.params.exerciseId,
               learner.id
             ),
-            exerciseLink: this.getExerciseLearnerLink(learner.id),
+            exerciseLearnerLink: this.getExerciseLearnerLink(learner.id),
           };
 
           Object.assign(tableRow, learner);
