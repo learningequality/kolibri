@@ -25,7 +25,7 @@
           <StatusSummary :tally="summaryTally" />
         </p>
 
-        <ReportsExerciseLearners :entries="table" />
+        <ReportsExerciseLearners :entries="getTableEntries()" />
       </template>
     </KPageContainer>
   </CoreBase>
@@ -56,14 +56,25 @@
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
-      recipients() {
-        return this.getLearnersForGroups(this.lesson.groups);
-      },
       summaryTally() {
-        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
+        const recipients = this.getLearnersForGroups(this.lesson.groups);
+        return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
       },
-      table() {
-        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+    },
+    methods: {
+      toggleGroupsView() {
+        this.viewByGroups = !this.viewByGroups;
+      },
+      // Return table entries for recipients belonging to groups.
+      // If no group ids passed in, return entries for all lesson recipients.
+      getTableEntries(groupIds) {
+        if (!groupIds || !groupIds.length) {
+          groupIds = this.lesson.groups;
+        }
+
+        const recipients = this.getLearnersForGroups(groupIds);
+        const learners = recipients.map(learnerId => this.learnerMap[learnerId]);
+
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
@@ -77,14 +88,11 @@
             }),
           };
           Object.assign(tableRow, learner);
+
           return tableRow;
         });
+
         return mapped;
-      },
-    },
-    methods: {
-      toggleGroupsView() {
-        this.viewByGroups = !this.viewByGroups;
       },
     },
   };
