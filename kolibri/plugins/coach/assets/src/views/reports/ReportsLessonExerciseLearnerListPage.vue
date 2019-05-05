@@ -13,17 +13,20 @@
 
       <ReportsLessonExerciseHeader />
 
-      <!-- TODO COACH
-      <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-       -->
+      <KCheckbox
+        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :checked="viewByGroups"
+        @change="toggleGroupsView"
+      />
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <template v-if="viewByGroups"></template>
+      <template v-else>
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
 
-      <ReportsExerciseLearners :entries="table" />
-
+        <ReportsExerciseLearners :entries="table" />
+      </template>
     </KPageContainer>
   </CoreBase>
 
@@ -44,6 +47,11 @@
       ReportsExerciseLearners,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        viewByGroups: false,
+      };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -72,6 +80,11 @@
           return tableRow;
         });
         return mapped;
+      },
+    },
+    methods: {
+      toggleGroupsView() {
+        this.viewByGroups = !this.viewByGroups;
       },
     },
   };
