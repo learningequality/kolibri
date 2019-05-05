@@ -19,7 +19,17 @@
         @change="toggleGroupsView"
       />
 
-      <template v-if="viewByGroups"></template>
+      <template v-if="viewByGroups">
+        <div v-for="group in nonEmptyGroups" :key="group.id">
+          <h2>{{ group.name }}</h2>
+
+          <ReportsExerciseLearners
+            :entries="getTableEntries([group.id])"
+            :showGroupsColumn="false"
+          />
+        </div>
+      </template>
+
       <template v-else>
         <p>
           <StatusSummary :tally="summaryTally" />
@@ -59,6 +69,15 @@
       summaryTally() {
         const recipients = this.getLearnersForGroups(this.lesson.groups);
         return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
+      },
+      nonEmptyGroups() {
+        if (!this.groups || !this.groups.length) {
+          return [];
+        }
+
+        return this.groups.filter(group => {
+          return group.member_ids.length > 0;
+        });
       },
     },
     methods: {
