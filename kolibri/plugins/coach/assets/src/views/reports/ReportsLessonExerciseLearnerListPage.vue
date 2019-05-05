@@ -22,7 +22,7 @@
       <template v-if="viewByGroups"></template>
       <template v-else>
         <p>
-          <StatusSummary :tally="tally" />
+          <StatusSummary :tally="summaryTally" />
         </p>
 
         <ReportsExerciseLearners :entries="table" />
@@ -59,7 +59,7 @@
       recipients() {
         return this.getLearnersForGroups(this.lesson.groups);
       },
-      tally() {
+      summaryTally() {
         return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
       },
       table() {
