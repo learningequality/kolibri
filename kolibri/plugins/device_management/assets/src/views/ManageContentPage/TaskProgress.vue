@@ -41,6 +41,7 @@
     <div v-if="showButtons" class="buttons dtc">
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
+        class="btn"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
@@ -205,7 +206,6 @@
     display: table;
     width: 100%;
     height: 5em;
-    padding-right: 1em;
     margin-left: -6px;
     vertical-align: middle;
   }
@@ -236,6 +236,10 @@
   .dtc {
     display: table-cell;
     vertical-align: inherit;
+  }
+
+  .btn {
+    margin: 0;
   }
 
 </style>

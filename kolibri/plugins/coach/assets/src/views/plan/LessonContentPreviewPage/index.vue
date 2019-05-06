@@ -1,57 +1,51 @@
 <template>
 
   <MultiPaneLayout>
-    <div
-      slot="header"
-      class="header"
-    >
-      <div>
-        <KGrid>
-          <KGridItem sizes="100, 50, 50" percentage>
-            <h1>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="content.kind" />
-                {{ content.title }}
-              </KLabeledIcon>
-            </h1>
-          </KGridItem>
-          <KGridItem sizes="100, 50, 50" percentage alignment="right">
-            <SelectOptions
-              v-if="displaySelectOptions"
-              class="select-options ib"
-              :isSelected="isSelected"
-              @addResource="$emit('addResource', content)"
-              @removeResource="$emit('removeResource', content)"
-            />
-          </KGridItem>
-        </KGrid>
-        <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-        <p v-if="completionRequirements">
-          {{ completionRequirements }}
-        </p>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <p v-if="description" dir="auto" v-html="description"></p>
-        <ul class="meta">
-          <li v-if="content.author">
-            {{ $tr('authorDataHeader') }}:
-            {{ content.author }}
-          </li>
-          <li v-if="content.license_name">
-            {{ $tr('licenseDataHeader') }}:
-            {{ content.license_name }}
-            <InfoIcon
-              v-if="content.license_description"
-              :tooltipText="licenseHelpText"
-              :iconAriaLabel="content.license_description"
-            />
-          </li>
-          <li v-if="content.license_owner">
-            {{ $tr('copyrightHolderDataHeader') }}:
-            {{ content.license_owner }}
-          </li>
-        </ul>
-      </div>
-
+    <div slot="header">
+      <KGrid>
+        <KGridItem sizes="100, 50, 50" percentage>
+          <h1>
+            <KLabeledIcon>
+              <KBasicContentIcon slot="icon" :kind="content.kind" />
+              {{ content.title }}
+            </KLabeledIcon>
+          </h1>
+        </KGridItem>
+        <KGridItem sizes="100, 50, 50" percentage alignment="right">
+          <SelectOptions
+            v-if="displaySelectOptions"
+            class="select-options ib"
+            :isSelected="isSelected"
+            @addResource="$emit('addResource', content)"
+            @removeResource="$emit('removeResource', content)"
+          />
+        </KGridItem>
+      </KGrid>
+      <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
+      <p v-if="completionRequirements">
+        {{ completionRequirements }}
+      </p>
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <p v-if="description" dir="auto" v-html="description"></p>
+      <ul class="meta">
+        <li v-if="content.author">
+          {{ $tr('authorDataHeader') }}:
+          {{ content.author }}
+        </li>
+        <li v-if="content.license_name">
+          {{ $tr('licenseDataHeader') }}:
+          {{ content.license_name }}
+          <InfoIcon
+            v-if="content.license_description"
+            :tooltipText="licenseHelpText"
+            :iconAriaLabel="content.license_description"
+          />
+        </li>
+        <li v-if="content.license_owner">
+          {{ $tr('copyrightHolderDataHeader') }}:
+          {{ content.license_owner }}
+        </li>
+      </ul>
     </div>
 
     <QuestionList
@@ -65,6 +59,7 @@
 
     <ContentArea
       slot="main"
+      class="content-area"
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
       :content="content"
@@ -210,6 +205,10 @@
   .meta {
     margin-bottom: 16px;
     font-size: smaller;
+  }
+
+  .content-area {
+    padding: 16px 0;
   }
 
 </style>

@@ -251,7 +251,11 @@ def update():
 
     logger.info("Running update routines for new version...")
 
-    call_command("collectstatic", interactive=False)
+    # Need to do this here, before we run any Django management commands that
+    # import settings. Otherwise the updated configuration will not be used
+    # during this runtime.
+
+    call_command("collectstatic", interactive=False, verbosity=0)
 
     from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 

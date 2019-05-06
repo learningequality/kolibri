@@ -1,6 +1,0 @@
-{
-  "name": "jest-environment-jsdom-script",
-  "version": "0.0.1",
-  "description": "An jest jsdom environment that runs scripts",
-  "main": "index.js"
-}

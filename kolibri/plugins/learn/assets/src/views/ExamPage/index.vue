@@ -1,21 +1,13 @@
 <template>
 
-  <ImmersiveFullScreen
-    v-if="exam"
-    :backPageLink="backPageLink"
-    :backPageText="$tr('backToExamList')"
-  >
+  <KPageContainer noPadding>
     <MultiPaneLayout ref="multiPaneLayout">
       <div slot="header" class="exam-status-container" :style="{ backgroundColor: $coreBgLight }">
-        <mat-svg
-          slot="content-icon"
-          class="exam-icon"
-          :style="{ fill: $coreTextDefault }"
-          category="action"
-          name="assignment_late"
-        />
-        <h1 class="exam-title">
-          {{ exam.title }}
+        <h1 class="quiz-icon">
+          <KLabeledIcon>
+            <KIcon slot="icon" quiz />
+            {{ exam.title }}
+          </KLabeledIcon>
         </h1>
         <div class="exam-status">
           <p class="questions-answered">
@@ -86,7 +78,7 @@
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
     </KModal>
-  </ImmersiveFullScreen>
+  </KPageContainer>
 
 </template>
 
@@ -99,7 +91,9 @@
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
@@ -116,10 +110,12 @@
       };
     },
     components: {
-      ImmersiveFullScreen,
       ContentRenderer,
       KButton,
+      KPageContainer,
       AnswerHistory,
+      KIcon,
+      KLabeledIcon,
       KModal,
       UiAlert,
       MultiPaneLayout,
@@ -276,14 +272,9 @@
     }
   }
 
-  .exam-icon {
-    position: relative;
-    top: 4px;
-    margin-right: 5px;
-  }
-
-  .exam-title {
+  .quiz-icon {
     display: inline-block;
+    margin: 0;
   }
 
   .questions-answered {

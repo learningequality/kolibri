@@ -6,6 +6,7 @@ const os = require('os');
 const webpack = require('webpack');
 const logger = require('./logging');
 const webpackBaseConfig = require('./webpack.config.base');
+const { getEnvVars } = require('./build');
 
 function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData);
@@ -30,9 +31,9 @@ function buildWebpack(data, index, startCallback, doneCallback) {
   return compiler;
 }
 
-if (require.main === module) {
-  const data = JSON.parse(process.env.data);
-  const index = JSON.parse(process.env.index);
+const { data, index, start } = getEnvVars();
+
+function build() {
   buildWebpack(
     data,
     index,
@@ -43,6 +44,24 @@ if (require.main === module) {
       process.send('done');
     }
   );
+}
+
+let waitToBuild;
+
+waitToBuild = msg => {
+  if (msg === 'start') {
+    build();
+  } else {
+    process.once('message', waitToBuild);
+  }
+};
+
+if (require.main === module) {
+  if (start) {
+    build();
+  } else {
+    waitToBuild();
+  }
 }
 
 module.exports = buildWebpack;

@@ -44,7 +44,7 @@ try {
 
 const logger = require('./logging');
 
-const logging = logger.getLogger('Kolibri linter');
+const logging = logger.getLogger('Kolibri Linter');
 
 const esLinter = new ESLintCLIEngine({
   baseConfig: esLintConfig,
