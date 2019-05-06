@@ -53,7 +53,7 @@ class TasksViewSet(viewsets.ViewSet):
         try:
             task = _job_to_response(get_queue().fetch_job(pk))
             return Response(task)
-        except NoResultFound:
+        except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
 
     def destroy(self, request, pk=None):
