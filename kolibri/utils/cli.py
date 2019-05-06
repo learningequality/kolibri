@@ -641,7 +641,7 @@ def main(args=None):  # noqa: max-complexity=13
             check_other_kolibri_running(port)
 
     try:
-        initialize(debug=debug, skip_update=arguments['--skipupdate'])
+        initialize(debug=debug, skip_update=arguments["--skipupdate"])
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(

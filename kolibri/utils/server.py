@@ -88,6 +88,7 @@ def run_services():
 
     # Initialize the iceqube engine to handle scheduled tasks
     from kolibri.core.tasks.queue import initialize_worker
+
     initialize_worker()
 
 
