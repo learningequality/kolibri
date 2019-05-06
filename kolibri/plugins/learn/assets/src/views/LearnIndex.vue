@@ -132,6 +132,15 @@
             };
           }
         }
+        if (this.pageName === PageNames.SEARCH) {
+          return {
+            appBarTitle: this.$tr('learnTitle'),
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
+          };
+        }
 
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
