@@ -203,7 +203,7 @@
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
-        return this.facilityConfig.learnerCanLoginWithNoPassword;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -248,7 +248,7 @@
         return !this.usernameIsInvalid && !this.passwordIsInvalid;
       },
       canSignUp() {
-        return this.facilityConfig.learnerCanSignUp;
+        return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
         return { name: PageNames.SIGN_UP };
@@ -263,7 +263,7 @@
         return !this.simpleSignIn || this.hasServerError;
       },
       allowGuestAccess() {
-        return this.facilityConfig.allowGuestAccess;
+        return this.facilityConfig.allow_guest_access;
       },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
