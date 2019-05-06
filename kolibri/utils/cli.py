@@ -38,8 +38,6 @@ from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
 from kolibri.utils.conf import KOLIBRI_HOME  # noqa
 from kolibri.utils.conf import OPTIONS  # noqa
-from kolibri.utils.conf import autoremove_unavailable_plugins  # noqa
-from kolibri.utils.conf import enable_default_plugins  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -52,15 +50,20 @@ def version_file():
     return os.path.join(KOLIBRI_HOME, ".data_version")
 
 
-def should_reset_plugins(kolibri_version, version_file_contents):
+def version_updated(kolibri_version, version_file_contents):
     return kolibri_version != version_file_contents
 
 
 def should_back_up(kolibri_version, version_file_contents):
     change_version = kolibri_version != version_file_contents
     return (
-        change_version
+        # Only back up if there was a previous version
+        version_file_contents
+        # That version has changed
+        and change_version
+        # The previous version was not a dev version
         and "dev" not in version_file_contents
+        # And the new version is not a dev version
         and "dev" not in kolibri_version
     )
 
@@ -93,15 +96,15 @@ def initialize(skipupdate=False):
 
     # Do this here so that we can fix any issues with our configuration file before
     # we attempt to set up django.
-    autoremove_unavailable_plugins()
+    config.autoremove_unavailable_plugins()
 
     version = get_version()
 
-    if should_reset_plugins(kolibri.__version__, version):
+    if version_updated(kolibri.__version__, version):
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
-        enable_default_plugins()
+        config.enable_default_plugins()
 
     try:
         django.setup()
@@ -122,9 +125,9 @@ def initialize(skipupdate=False):
 
     setup_logging(debug=debug)
 
-    if kolibri.__version__ != version and not skipupdate:
+    if version_updated(kolibri.__version__, version) and not skipupdate:
         if should_back_up(kolibri.__version__, version):
-            # Version changed, make a backup no matter what.
+            # Non-dev version change, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
 
             try:
@@ -528,6 +531,7 @@ class ManageGroup(click.MultiCommand):
                     )
                 )
                 call_command(command_name, *args, **kwargs)
+
             # Have to initialize Django before we do this,
             # to ensure we get a full list of valid management
             # commands

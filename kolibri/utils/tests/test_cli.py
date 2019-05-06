@@ -8,12 +8,11 @@ from __future__ import unicode_literals
 import copy
 import logging
 import os
-from functools import wraps
+import tempfile
 
 import pytest
 from mock import patch
 
-import kolibri
 from kolibri.utils import cli
 from kolibri.utils import options
 
@@ -21,35 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 LOG_LOGGER = []
-
-
-def version_file_restore(func):
-    """
-    Decorator that reads contents of the version file and restores it after
-    calling ``func(orig_version='x.y', version_file='/path')``.
-
-    If a version file doesn't exist, it calls ``func(... version_file=None)``
-
-    This decorator is used for testing functions that trigger during upgrades
-    without mocking more than necessary.
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        version_file = cli.version_file()
-        version_file_existed = os.path.isfile(version_file)
-        orig_version = kolibri.__version__
-        kwargs["orig_version"] = orig_version
-
-        if version_file_existed:
-            kwargs["version_file"] = version_file
-
-        func(*args, **kwargs)
-
-        if version_file_existed:
-            open(version_file, "w").write(orig_version)
-
-    return wrapper
 
 
 def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
@@ -75,10 +45,12 @@ def activate_log_logger(monkeypatch):
 def conf():
     from kolibri.utils import conf
 
-    old_config = copy.deepcopy(conf.config)
+    config_file = tempfile.mkstemp(suffix="json")
+
+    conf = copy.deepcopy(conf)
+    conf.conf_file = config_file
+    conf.config.set_defaults()
     yield conf
-    conf.config.update(old_config)
-    conf.config.save()
 
 
 def test_bogus_plugin_autoremove(conf):
@@ -168,7 +140,7 @@ def test_kolibri_listen_port_env(monkeypatch):
     Checks that the correct fallback port is used from the environment.
     """
 
-    with patch("kolibri.core.content.utils.annotation.update_channel_metadata"):
+    with patch("django.core.management.call_command"):
         from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):
@@ -213,17 +185,14 @@ def test_kolibri_listen_port_env(monkeypatch):
 
 
 @pytest.mark.django_db
-@version_file_restore
+@patch("kolibri.utils.cli.get_version", return_value="")
 @patch("kolibri.utils.cli.update")
 @patch("kolibri.utils.cli.plugin")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=None):
+def test_first_run(dbbackup, plugin, update, get_version):
     """
     Tests that the first_run() function performs as expected
     """
-
-    if version_file:
-        os.unlink(version_file)
 
     cli.initialize()
     update.assert_called_once()
@@ -236,14 +205,12 @@ def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=Non
 
 
 @pytest.mark.django_db
-@version_file_restore
+@patch("kolibri.utils.cli.get_version", return_value="0.0.1")
 @patch("kolibri.utils.cli.update")
-def test_update(update, version_file=None, orig_version=None):
+def test_update(update, get_version):
     """
     Tests that update() function performs as expected
     """
-    version_file = cli.version_file()
-    open(version_file, "w").write(orig_version + "_test")
     cli.initialize()
     update.assert_called_once()
 
@@ -251,28 +218,29 @@ def test_update(update, version_file=None, orig_version=None):
 @pytest.mark.django_db
 def test_version_updated():
     """
-    Tests our db backup logic: skip for dev versions, and backup on change
+    Tests our db backup logic: version_updated gets any change, backup gets only non-dev changes
     """
     assert cli.version_updated("0.10.0", "0.10.1")
     assert not cli.version_updated("0.10.0", "0.10.0")
-    assert not cli.version_updated("0.10.0-dev0", "0.10.0")
-    assert not cli.version_updated("0.10.0", "0.10.0-dev0")
-    assert not cli.version_updated("0.10.0-dev0", "0.10.0-dev0")
+    assert not cli.should_back_up("0.10.0-dev0", "")
+    assert not cli.should_back_up("0.10.0-dev0", "0.10.0")
+    assert not cli.should_back_up("0.10.0", "0.10.0-dev0")
+    assert not cli.should_back_up("0.10.0-dev0", "0.10.0-dev0")
+
+
+THIS_VERSION = "TEST"
 
 
 @pytest.mark.django_db
-@version_file_restore
+@patch("kolibri.utils.cli.kolibri.__version__", THIS_VERSION)
+@patch("kolibri.utils.cli.get_version", return_value=THIS_VERSION)
 @patch("kolibri.utils.cli.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_update_no_version_change(
-    dbbackup, update, version_file=None, orig_version=None
-):
+def test_update_no_version_change(dbbackup, update, old_version, new_version):
     """
     Tests that when the version doesn't change, we are not doing things we
     shouldn't
     """
-    version_file = cli.version_file()
-    open(version_file, "w").write(orig_version)
     cli.initialize()
     update.assert_not_called()
     dbbackup.assert_not_called()
@@ -286,32 +254,3 @@ def test_cli_usage():
     with pytest.raises(SystemExit) as excinfo:
         cli.main("--version")
         assert excinfo.code == 0
-
-
-def test_cli_parsing():
-    test_patterns = (
-        (["start"], {"start": True}, []),
-        (["stop"], {"stop": True}, []),
-        (["shell"], {"shell": True}, []),
-        (["manage", "shell"], {"manage": True, "COMMAND": "shell"}, []),
-        (["manage", "help"], {"manage": True, "COMMAND": "help"}, []),
-        (["manage", "blah"], {"manage": True, "COMMAND": "blah"}, []),
-        (
-            ["manage", "blah", "--debug", "--", "--django-arg"],
-            {"manage": True, "COMMAND": "blah", "--debug": True},
-            ["--django-arg"],
-        ),
-        (
-            ["manage", "blah", "--django-arg"],
-            {"manage": True, "COMMAND": "blah"},
-            ["--django-arg"],
-        ),
-    )
-
-    for p, docopt_expected, django_expected in test_patterns:
-        docopt, django = cli.parse_args(p)
-
-        for k, v in docopt_expected.items():
-            assert docopt[k] == v
-
-        assert django == django_expected

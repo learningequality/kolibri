@@ -92,15 +92,7 @@ class ConfigDict(dict):
     def __init__(self):
         # If the settings file does not exist or does not contain
         # valid JSON then create it
-        self.update(
-            {
-                #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-                # except disabled ones below
-                "INSTALLED_APPS": DEFAULT_PLUGINS,
-                #: Everything in this list is removed from the list above
-                "DISABLED_APPS": [],
-            }
-        )
+        self.set_defaults()
         if os.path.isfile(conf_file):
             try:
                 # Open up the config file and load settings
@@ -114,6 +106,17 @@ class ConfigDict(dict):
                 )
         logger.info("Initialize kolibri_settings.json..")
         self.save()
+
+    def set_defaults(self):
+        self.update(
+            {
+                #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
+                # except disabled ones below
+                "INSTALLED_APPS": DEFAULT_PLUGINS,
+                #: Everything in this list is removed from the list above
+                "DISABLED_APPS": [],
+            }
+        )
 
     @property
     def ACTIVE_PLUGINS(self):
