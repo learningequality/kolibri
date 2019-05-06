@@ -526,10 +526,10 @@ class ManageGroup(click.MultiCommand):
         limit = formatter.width
         commands_dict = defaultdict(lambda: [])
         for subcommand, app in iteritems(self.list_commands(ctx)):
-            if app == 'django.core':
-                app = 'django'
+            if app == "django.core":
+                app = "django"
             else:
-                app = app.rpartition('.')[-1]
+                app = app.rpartition(".")[-1]
             cmd = self.get_command(ctx, subcommand)
             # What is this, the tool lied about a command.  Ignore it
             if cmd is None:
@@ -596,7 +596,9 @@ class ManageGroup(click.MultiCommand):
 
             params = []
             help_text = None
-        command = click.Command(name=command_name, params=params, callback=f, help=help_text)
+        command = click.Command(
+            name=command_name, params=params, callback=f, help=help_text
+        )
         return command
 
 
@@ -609,6 +611,12 @@ def manage():
     :param: args: arguments for the command
     """
     initialize()
+
+
+@main.command()
+@click.pass_context
+def shell(ctx):
+    ctx.forward(manage.get_command(ctx, "shell"))
 
 
 ENABLE = "enable"
