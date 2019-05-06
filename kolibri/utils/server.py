@@ -93,6 +93,10 @@ def run_services():
     initialize_worker()
 
 
+def _rm_pid_file():
+    os.unlink(PID_FILE)
+
+
 def start(port=8080, run_cherrypy=True):
     """
     Starts the server.
@@ -108,14 +112,9 @@ def start(port=8080, run_cherrypy=True):
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
     # ~/.kolibri, or deleting a channel DB on disk
-    from kolibri.core.content.utils.annotation import update_channel_metadata
+    call_command('scanforcontent')
 
-    update_channel_metadata()
-
-    def rm_pid_file():
-        os.unlink(PID_FILE)
-
-    atexit.register(rm_pid_file)
+    atexit.register(_rm_pid_file)
 
     logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
@@ -135,10 +134,7 @@ def services():
     # Write the new PID
     _write_pid_file(PID_FILE)
 
-    def rm_pid_file():
-        os.unlink(PID_FILE)
-
-    atexit.register(rm_pid_file)
+    atexit.register(_rm_pid_file)
 
     block()
 
@@ -221,7 +217,7 @@ def stop(pid=None, force=False):
     # raise an error...
 
     # Finally, remove the PID file
-    os.unlink(PID_FILE)
+    _rm_pid_file()
 
 
 def calculate_cache_size():
