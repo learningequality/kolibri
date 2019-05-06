@@ -7,6 +7,7 @@ import importlib
 import os
 import signal
 import sys
+from collections import defaultdict
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import click
@@ -18,7 +19,9 @@ from django.core.management import ManagementUtility
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.core.management.base import handle_default_options
+from django.core.management.color import color_style
 from django.db.utils import DatabaseError
+from six import iteritems
 
 import kolibri
 from .debian_check import check_debian_user
@@ -512,9 +515,43 @@ class ManageGroup(click.MultiCommand):
     ignore_unknown_options = True
 
     def list_commands(self, ctx):
-        commands = list(get_commands().keys())
-        commands.sort()
+        initialize(skipupdate=True)
+        commands = get_commands()
         return commands
+
+    def format_commands(self, ctx, formatter):
+        """Extra format methods for multi methods that adds all the commands
+        after the options.
+        """
+        limit = formatter.width
+        commands_dict = defaultdict(lambda: [])
+        for subcommand, app in iteritems(self.list_commands(ctx)):
+            if app == 'django.core':
+                app = 'django'
+            else:
+                app = app.rpartition('.')[-1]
+            cmd = self.get_command(ctx, subcommand)
+            # What is this, the tool lied about a command.  Ignore it
+            if cmd is None:
+                continue
+            if cmd.hidden:
+                continue
+            commands_dict[app].append((subcommand, cmd))
+            limit = max(limit, formatter.width - 6 - len(subcommand))
+        style = color_style()
+
+        for app in sorted(commands_dict):
+            commands = commands_dict[app]
+            # allow for 3 times the default spacing
+            if len(commands):
+                rows = []
+                for subcommand, cmd in sorted(commands):
+                    help = cmd.get_short_help_str(limit)
+                    rows.append((subcommand, help))
+
+                if rows:
+                    with formatter.section(style.NOTICE("[%s]" % app)):
+                        formatter.write_dl(rows)
 
     def get_command(self, ctx, command_name):
         try:
@@ -549,6 +586,7 @@ class ManageGroup(click.MultiCommand):
 
             parser = command.create_parser("", command_name)
             params = list(map(make_param, parser._actions))
+            help_text = command.help
         except (AttributeError, ImportError):
             command_name = "help"
 
@@ -557,7 +595,8 @@ class ManageGroup(click.MultiCommand):
                 util.main_help_text()
 
             params = []
-        command = click.Command(name=command_name, params=params, callback=f)
+            help_text = None
+        command = click.Command(name=command_name, params=params, callback=f, help=help_text)
         return command
 
 
