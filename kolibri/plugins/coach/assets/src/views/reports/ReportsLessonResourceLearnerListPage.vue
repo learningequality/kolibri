@@ -67,16 +67,7 @@
       </div>
 
       <template v-else>
-        <HeaderTable v-if="avgTime">
-          <HeaderTableRow>
-            <template slot="key">
-              {{ coachStrings.$tr('avgTimeSpentLabel') }}
-            </template>
-            <template slot="value">
-              <TimeDuration :seconds="avgTime" />
-            </template>
-          </HeaderTableRow>
-        </HeaderTable>
+        <ReportsResourcesStats :avgTime="avgTime" />
 
         <p>
           <StatusSummary :tally="tally" />
@@ -94,11 +85,13 @@
 
   import commonCoach from '../common';
   import ReportsResourceLearners from './ReportsResourceLearners';
+  import ReportsResourcesStats from './ReportsResourcesStats';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
       ReportsResourceLearners,
+      ReportsResourcesStats,
     },
     mixins: [commonCoach],
     data() {
