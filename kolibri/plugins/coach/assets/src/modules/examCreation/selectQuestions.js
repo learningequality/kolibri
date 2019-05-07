@@ -1,3 +1,4 @@
+import find from 'lodash/find';
 import range from 'lodash/range';
 import sumBy from 'lodash/fp/sumBy';
 import sortBy from 'lodash/sortBy';
@@ -13,7 +14,8 @@ const getTotalOfQuestions = sumBy(qArray => qArray.length);
  * @param {number} numQuestions - target number of questions
  * @param {array} exerciseIds - exercise IDs
  * @param {array} exerciseTitle - exercise titles
- * @param {array} questionIdArrays - arrays of question IDs corresponding to the exercise IDs
+ * @param {array} questionIdArrays - arrays of question/assessment IDs
+ *  corresponding to the exercise IDs
  * @param {number} seed - value to seed the random shuffle with
  * @return {array} - objects of the form { exercise_id, question_id, title }
  */
@@ -52,12 +54,17 @@ export default function selectQuestions(
     const ri = randomIndexes[i];
     // check if we've used up all questions in one exercise
     if (shuffledQuestionIdArrays[ri].length > 0) {
-      // if not, add it to the list
-      output.push({
-        exercise_id: exerciseIds[ri],
-        question_id: shuffledQuestionIdArrays[ri].pop(),
-        title: exerciseTitles[ri],
-      });
+      const qId = shuffledQuestionIdArrays[ri].pop();
+
+      // Only add the question/assessment to the list if it is not already there
+      // from another identical exercise with a different exercise/node ID
+      if (!find(output, { question_id: qId })) {
+        output.push({
+          exercise_id: exerciseIds[ri],
+          question_id: qId,
+          title: exerciseTitles[ri],
+        });
+      }
     } else if (getTotalOfQuestions(shuffledQuestionIdArrays) === 0) {
       // If there are not enough questions, then break the loop
       break;
