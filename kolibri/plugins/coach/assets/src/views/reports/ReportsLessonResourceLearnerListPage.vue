@@ -67,7 +67,7 @@
       </div>
 
       <template v-else>
-        <ReportsResourcesStats :avgTime="avgTime" />
+        <ReportsResourcesStats :avgTime="allRecipientsAvgTime" />
 
         <p>
           <StatusSummary :tally="tally" />
@@ -109,7 +109,7 @@
       recipients() {
         return this.getLearnersForGroups(this.lesson.groups);
       },
-      avgTime() {
+      allRecipientsAvgTime() {
         return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
       },
       tally() {
