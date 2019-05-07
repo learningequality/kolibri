@@ -9,6 +9,7 @@ coach-assign-learners-groups.feature
 coach-create-lesson.feature
 coach-activate-lesson.feature
 coach-edit-lesson.feature
+coach-edit-lesson-from-report.feature
 coach-lesson-reorder-resources.feature
 coach-lesson-search-resources.feature
 coach-lesson-remove-resources.feature
@@ -17,6 +18,7 @@ coach-delete-lesson.feature
 coach-create-quiz.feature
 coach-activate-quiz.feature
 coach-edit-quiz.feature
+coach-edit-quiz-from-report.feature
 coach-copy-quiz.feature
 coach-delete-quiz.feature
 coach-class-home-with-interaction.feature
