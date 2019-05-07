@@ -41,6 +41,20 @@
             :showGroupsColumn="false"
           />
         </div>
+
+        <div
+          v-if="ungroupedEntries.length"
+          class="group"
+        >
+          <h2 class="group-title">
+            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+          </h2>
+
+          <ReportsExerciseLearners
+            :entries="ungroupedEntries"
+            :showGroupsColumn="false"
+          />
+        </div>
       </div>
 
       <div v-else>
@@ -113,6 +127,9 @@
         });
 
         return mapped;
+      },
+      ungroupedEntries() {
+        return this.allEntries.filter(entry => !entry.groups || !entry.groups.length);
       },
     },
     methods: {
