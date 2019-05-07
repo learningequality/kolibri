@@ -91,12 +91,20 @@ const getSummaryTally = wrapper => {
   return wrapper.find('[data-test="summary-tally"]');
 };
 
+const getSummaryResourcesStats = wrapper => {
+  return wrapper.find('[data-test="summary-resources-stats"]');
+};
+
 const getGroup = (wrapper, groupId) => {
   return wrapper.find(`[data-test="group-${groupId}"]`);
 };
 
 const getGroupTally = (wrapper, groupId) => {
   return getGroup(wrapper, groupId).find({ name: 'StatusSummary' });
+};
+
+const getGroupResourcesStats = (wrapper, groupId) => {
+  return getGroup(wrapper, groupId).find({ name: 'ReportsResourcesStats' });
 };
 
 const initWrapper = lessonMap => {
@@ -228,6 +236,10 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       it('renders a correct summary tally', () => {
         expect(getSummaryTally(wrapper).html()).toMatchSnapshot();
       });
+
+      it('renders correct resources stats', () => {
+        expect(getSummaryResourcesStats(wrapper).html()).toMatchSnapshot();
+      });
     });
 
     describe('when displaying learners by groups', () => {
@@ -258,6 +270,12 @@ describe('ReportsLessonResourceLearnerListPage', () => {
         expect(getGroupTally(wrapper, GROUP_2.id).html()).toMatchSnapshot();
         expect(getGroupTally(wrapper, GROUP_3.id).html()).toMatchSnapshot();
       });
+
+      it('renders correct group resources stats', () => {
+        expect(getGroupResourcesStats(wrapper, GROUP_1.id).html()).toMatchSnapshot();
+        expect(getGroupResourcesStats(wrapper, GROUP_2.id).html()).toMatchSnapshot();
+        expect(getGroupResourcesStats(wrapper, GROUP_3.id).html()).toMatchSnapshot();
+      });
     });
   });
 
@@ -287,6 +305,10 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       it('renders a correct summary tally', () => {
         expect(getSummaryTally(wrapper).html()).toMatchSnapshot();
       });
+
+      it('renders correct resources stats', () => {
+        expect(getSummaryResourcesStats(wrapper).html()).toMatchSnapshot();
+      });
     });
 
     describe('when displaying learners by groups', () => {
@@ -313,6 +335,11 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       it('renders a correct group tally', () => {
         expect(getGroupTally(wrapper, GROUP_2.id).html()).toMatchSnapshot();
         expect(getGroupTally(wrapper, GROUP_3.id).html()).toMatchSnapshot();
+      });
+
+      it('renders correct group resources stats', () => {
+        expect(getGroupResourcesStats(wrapper, GROUP_2.id).html()).toMatchSnapshot();
+        expect(getGroupResourcesStats(wrapper, GROUP_3.id).html()).toMatchSnapshot();
       });
     });
   });

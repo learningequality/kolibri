@@ -43,13 +43,18 @@
             {{ group.name }}
           </h2>
 
-          <p>
-            <StatusSummary
-              :tally="getGroupTally(group.id)"
-              :showNeedsHelp="false"
-              :verbose="false"
-            />
-          </p>
+          <KGrid cols="2">
+            <KGridItem size="1">
+              <StatusSummary
+                :tally="getGroupTally(group.id)"
+                :showNeedsHelp="false"
+                :verbose="false"
+              />
+            </KGridItem>
+            <KGridItem size="1">
+              <ReportsResourcesStats :avgTime="getGroupRecipientsAvgTime(group.id)" />
+            </KGridItem>
+          </KGrid>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -76,7 +81,10 @@
       </div>
 
       <template v-else>
-        <ReportsResourcesStats :avgTime="allRecipientsAvgTime" />
+        <ReportsResourcesStats
+          :avgTime="allRecipientsAvgTime"
+          data-test="summary-resources-stats"
+        />
 
         <p>
           <StatusSummary
@@ -185,6 +193,10 @@
         const recipients = this.getLearnersForGroups([groupId]);
         return this.getContentStatusTally(this.$route.params.resourceId, recipients);
       },
+      getGroupRecipientsAvgTime(groupId) {
+        const recipients = this.getLearnersForGroups([groupId]);
+        return this.getContentAvgTimeSpent(this.$route.params.resourceId, recipients);
+      },
     },
     $trs: {
       back: "Back to '{lesson}'",
@@ -203,6 +215,13 @@
 
   .group-title {
     margin-bottom: 42px;
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
   }
 
 </style>
