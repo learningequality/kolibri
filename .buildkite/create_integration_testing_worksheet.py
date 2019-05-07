@@ -152,7 +152,7 @@ def fetch_feature_files():
 def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
     """
         REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+        I reuse and modify the gspread function to make this API request.
     """
     body = {
         "requests": [{
@@ -173,7 +173,7 @@ def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
 def rename_worksheet(sheet, wrk_sheet, sheet_name):
     """
         REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+        I reuse and modify the gspread function to make this API request.
     """
     body = {
         "requests": [{
@@ -192,7 +192,7 @@ def rename_worksheet(sheet, wrk_sheet, sheet_name):
 def search_file_name(file_name):
     """
         REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+        I reuse  and modify the gspread function to make this API request.
     """
     self = G_ACCESS
     files = []
@@ -244,7 +244,7 @@ def create_sheet_container(file_id, dir_name):
 def sheet_copy(file_id, dist_id, title=None, copy_permissions=False):
     """
         REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this request.
+        I reuse and modify the gspread function to make this request.
     """
     self = G_ACCESS
 

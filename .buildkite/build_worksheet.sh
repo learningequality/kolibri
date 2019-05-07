@@ -13,4 +13,4 @@ cd "$PARENT_PATH"
 
 make docker-build-sheet
 
-buildkite-agent artifact upload './dist/*.txt'
+buildkite-agent artifact upload './dist/spreadsheet-link.txt'
