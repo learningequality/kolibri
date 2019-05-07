@@ -24,8 +24,12 @@
           v-for="group in lessonGroups"
           :key="group.id"
           class="group"
+          :data-test="`group-${group.id}`"
         >
-          <h2 class="group-title">
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
             {{ group.name }}
           </h2>
 
@@ -46,7 +50,10 @@
           v-if="ungroupedEntries.length"
           class="group"
         >
-          <h2 class="group-title">
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
             {{ coachStrings.$tr('ungroupedLearnersLabel') }}
           </h2>
 
@@ -59,7 +66,10 @@
 
       <div v-else>
         <p>
-          <StatusSummary :tally="summaryTally" />
+          <StatusSummary
+            :tally="summaryTally"
+            data-test="summary-tally"
+          />
         </p>
 
         <ReportsExerciseLearners :entries="allEntries" />
@@ -130,6 +140,11 @@
       },
       ungroupedEntries() {
         return this.allEntries.filter(entry => !entry.groups || !entry.groups.length);
+      },
+    },
+    watch: {
+      $route() {
+        this.viewByGroups = Boolean(this.$route.query && this.$route.query.groups);
       },
     },
     methods: {
