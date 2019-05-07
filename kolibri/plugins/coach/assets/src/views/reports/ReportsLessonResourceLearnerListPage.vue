@@ -41,39 +41,8 @@
       <p>
         <StatusSummary :tally="tally" />
       </p>
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
-                {{ tableRow.name }}
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
-            </td>
-            <td>
-              <TruncatedItemList :items="tableRow.groups" />
-            </td>
-            <td>
-              <ElapsedTime :date="tableRow.statusObj.last_activity" />
-            </td>
-          </tr>
-        </transition-group>
-      </CoreTable>
+
+      <ReportsResourceLearners :entries="table" />
     </KPageContainer>
   </CoreBase>
 
@@ -83,10 +52,13 @@
 <script>
 
   import commonCoach from '../common';
+  import ReportsResourceLearners from './ReportsResourceLearners';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
-    components: {},
+    components: {
+      ReportsResourceLearners,
+    },
     mixins: [commonCoach],
     computed: {
       lesson() {
