@@ -14,7 +14,7 @@ const entries = [
       learner_id: 'd4b',
       content_id: 'a97',
       status: STATUSES.completed,
-      last_activity: new Date('2019-05-05T07:13:22Z'),
+      last_activity: new Date('2019-05-04T07:00:00Z'),
       time_spent: 92.5,
     },
   },
@@ -28,7 +28,7 @@ const entries = [
       learner_id: 'a5d',
       content_id: 'a97',
       status: STATUSES.started,
-      last_activity: new Date('2019-05-05T08:13:22Z'),
+      last_activity: new Date('2019-05-05T08:00:00Z'),
       time_spent: 17.14,
     },
   },
@@ -50,6 +50,12 @@ const getCol = (row, colIndex) => {
   return row.findAll('td').at(colIndex);
 };
 
+jest.mock('kolibri.utils.serverClock', () => {
+  return {
+    now: () => new Date('2019-05-05T11:00:00Z'),
+  };
+});
+
 describe('ReportsExerciseLearners', () => {
   it('smoke test', () => {
     const wrapper = shallowMount(ReportsExerciseLearners);
@@ -62,23 +68,7 @@ describe('ReportsExerciseLearners', () => {
       entries,
     });
 
-    const rows = wrapper.findAll('[data-test="entry"]');
-    expect(rows.length).toBe(2);
-
-    const firstRow = rows.at(0);
-    const secondRow = rows.at(1);
-
-    expect(getCol(firstRow, 0).html()).toContain('learner1');
-    expect(getCol(firstRow, 1).html()).toContain(STATUSES.completed);
-    expect(getCol(firstRow, 2).html()).toContain('92 seconds');
-    expect(getCol(firstRow, 3).html()).toContain('group1, group2');
-    expect(getCol(firstRow, 4).html()).toContain(' hours ago');
-
-    expect(getCol(secondRow, 0).html()).toContain('learner2');
-    expect(getCol(secondRow, 1).html()).toContain(STATUSES.started);
-    expect(getCol(secondRow, 2).html()).toContain('17 seconds');
-    expect(getCol(secondRow, 3).html()).toContain('group2');
-    expect(getCol(secondRow, 4).html()).toContain(' hours ago');
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
   it("doesn't render groups information when show groups set to false", () => {
@@ -87,9 +77,7 @@ describe('ReportsExerciseLearners', () => {
       showGroupsColumn: false,
     });
 
-    expect(wrapper.html()).not.toContain('Groups');
-    expect(wrapper.html()).not.toContain('group1');
-    expect(wrapper.html()).not.toContain('group2');
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
   describe('when an exercise has started', () => {
@@ -115,17 +103,18 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("renders learner's name as a link to an exercise", () => {
+      expect(getCol(row, 0).contains({ name: 'KRouterLink' })).toBe(true);
+
       const link = getCol(row, 0).find({ name: 'KRouterLink' });
       expect(link.props().to).toEqual('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
-      expect(link.props('text')).toEqual('learner1');
     });
 
     it('renders time spent', () => {
-      expect(getCol(row, 2).text()).toBe('17 seconds');
+      expect(getCol(row, 2).text()).not.toBe('—');
     });
 
     it('renders last activity time', () => {
-      expect(getCol(row, 4).text()).toContain(' hours ago');
+      expect(getCol(row, 4).text()).not.toBe('—');
     });
   });
 
@@ -149,16 +138,15 @@ describe('ReportsExerciseLearners', () => {
       row = wrapper.find('[data-test="entry"]');
     });
 
-    it("renders learner's name as a plain value", () => {
-      expect(getCol(row, 0).text()).toBe('learner1');
-      expect(getCol(row, 0).html()).not.toContain('router-link');
+    it("doesn't render learner's as a link", () => {
+      expect(getCol(row, 0).contains({ name: 'KRouterLink' })).toBe(false);
     });
 
     it("doesn't render time spent", () => {
       expect(getCol(row, 2).text()).toBe('—');
     });
 
-    it('renders last activity time', () => {
+    it("doesn't render last activity time", () => {
       expect(getCol(row, 4).text()).toBe('—');
     });
   });
