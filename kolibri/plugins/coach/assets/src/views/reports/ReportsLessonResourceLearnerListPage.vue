@@ -29,7 +29,42 @@
         @change="toggleGroupsView"
       />
 
-      <template v-if="viewByGroups"></template>
+      <div v-if="viewByGroups">
+        <div
+          v-for="group in lessonGroups"
+          :key="group.id"
+          class="group"
+        >
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
+            {{ group.name }}
+          </h2>
+
+          <ReportsResourceLearners
+            :entries="getGroupEntries(group.id)"
+            :showGroupsColumn="false"
+          />
+        </div>
+
+        <div
+          v-if="ungroupedEntries.length"
+          class="group"
+        >
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
+            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+          </h2>
+
+          <ReportsResourceLearners
+            :entries="ungroupedEntries"
+            :showGroupsColumn="false"
+          />
+        </div>
+      </div>
 
       <template v-else>
         <HeaderTable v-if="avgTime">
@@ -110,6 +145,9 @@
         });
         return mapped;
       },
+      ungroupedEntries() {
+        return this.allEntries.filter(entry => !entry.groups || !entry.groups.length);
+      },
     },
     watch: {
       $route() {
@@ -132,6 +170,12 @@
       getLearnerLessonGroups(learnerId) {
         return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
       },
+      getGroupEntries(groupId) {
+        return this.allEntries.filter(entry => {
+          const entryGroupIds = entry.groups.map(group => group.id);
+          return entryGroupIds.includes(groupId);
+        });
+      },
     },
     $trs: {
       back: "Back to '{lesson}'",
@@ -142,4 +186,14 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .group:not(:first-child) {
+    margin-top: 42px;
+  }
+
+  .group-title {
+    margin-bottom: 42px;
+  }
+
+</style>
