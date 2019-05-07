@@ -37,7 +37,7 @@
           </p>
 
           <ReportsExerciseLearners
-            :entries="getTableEntries([group.id])"
+            :entries="getGroupEntries(group.id)"
             :showGroupsColumn="false"
           />
         </div>
@@ -48,7 +48,7 @@
           <StatusSummary :tally="summaryTally" />
         </p>
 
-        <ReportsExerciseLearners :entries="getTableEntries()" />
+        <ReportsExerciseLearners :entries="allEntries" />
       </div>
     </KPageContainer>
   </CoreBase>
@@ -81,8 +81,7 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       summaryTally() {
-        const recipients = this.getLearnersForGroups(this.lesson.groups);
-        return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
+        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
       },
       lessonGroups() {
         if (!this.lesson.groups.length) {
@@ -90,6 +89,30 @@
         }
 
         return this.groups.filter(group => this.lesson.groups.includes(group.id));
+      },
+      recipients() {
+        return this.getLearnersForGroups(this.lesson.groups);
+      },
+      allEntries() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+
+        const sorted = this._.sortBy(learners, ['name']);
+        const mapped = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getLearnerLessonGroups(learner.id),
+            statusObj: this.getContentStatusObjForLearner(
+              this.$route.params.exerciseId,
+              learner.id
+            ),
+            exerciseLearnerLink: this.getExerciseLearnerLink(learner.id),
+          };
+
+          Object.assign(tableRow, learner);
+
+          return tableRow;
+        });
+
+        return mapped;
       },
     },
     methods: {
@@ -120,33 +143,14 @@
         const recipients = this.getLearnersForGroups([groupId]);
         return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
       },
-      // Return table entries for recipients belonging to groups.
-      // If no group ids passed in, return entries for all lesson recipients.
-      getTableEntries(groupIds) {
-        if (!groupIds || !groupIds.length) {
-          groupIds = this.lesson.groups;
-        }
-
-        const recipients = this.getLearnersForGroups(groupIds);
-        const learners = recipients.map(learnerId => this.learnerMap[learnerId]);
-
-        const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
-          const tableRow = {
-            groups: this.getGroupNamesForLearner(learner.id),
-            statusObj: this.getContentStatusObjForLearner(
-              this.$route.params.exerciseId,
-              learner.id
-            ),
-            exerciseLearnerLink: this.getExerciseLearnerLink(learner.id),
-          };
-
-          Object.assign(tableRow, learner);
-
-          return tableRow;
+      getLearnerLessonGroups(learnerId) {
+        return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
+      },
+      getGroupEntries(groupId) {
+        return this.allEntries.filter(entry => {
+          const entryGroupIds = entry.groups.map(group => group.id);
+          return entryGroupIds.includes(groupId);
         });
-
-        return mapped;
       },
     },
   };

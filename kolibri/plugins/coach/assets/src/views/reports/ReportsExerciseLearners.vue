@@ -33,7 +33,7 @@
           />
         </td>
         <td v-if="showGroupsColumn">
-          <TruncatedItemList :items="entry.groups" />
+          <TruncatedItemList :items="getGroupNames(entry)" />
         </td>
         <td>
           <ElapsedTime
@@ -101,6 +101,13 @@
         }
 
         return null;
+      },
+      getGroupNames(entry) {
+        if (!entry || !entry.groups) {
+          return [];
+        }
+
+        return entry.groups.map(group => group.name);
       },
     },
   };
