@@ -37,7 +37,12 @@ const entries = [
 const initWrapper = propsData => {
   return mount(ReportsExerciseLearners, {
     propsData,
-    stubs: ['router-link'],
+    stubs: {
+      KRouterLink: {
+        props: ['to', 'text'],
+        template: '<div>{{ text }}</div>',
+      },
+    },
   });
 };
 
@@ -110,12 +115,9 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("renders learner's name as a link to an exercise", () => {
-      expect(getCol(row, 0).html()).toContain('router-link');
-      expect(
-        getCol(row, 0)
-          .find('router-link-stub')
-          .attributes().to
-      ).toBe('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
+      const link = getCol(row, 0).find({ name: 'KRouterLink' });
+      expect(link.props().to).toEqual('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
+      expect(link.props('text')).toEqual('learner1');
     });
 
     it('renders time spent', () => {
