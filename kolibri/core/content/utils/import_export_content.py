@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db.models import Sum
 from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
@@ -128,3 +130,13 @@ def retry_import(e, **kwargs):
 
     else:
         raise e
+
+
+def compare_checksums(file_name, file_id):
+    hasher = hashlib.md5()
+    with open(file_name, "rb") as f:
+        # Read chunks of 4096 bytes for memory efficiency
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    checksum = hasher.hexdigest()
+    return checksum == file_id
