@@ -27,7 +27,7 @@
           <TimeDuration :seconds="entry.statusObj.time_spent" />
         </td>
         <td v-if="showGroupsColumn">
-          <TruncatedItemList :items="entry.groups" />
+          <TruncatedItemList :items="getGroupNames(entry)" />
         </td>
         <td>
           <ElapsedTime :date="entry.statusObj.last_activity" />
@@ -70,6 +70,15 @@
       showGroupsColumn: {
         type: Boolean,
         default: true,
+      },
+    },
+    methods: {
+      getGroupNames(entry) {
+        if (!entry || !entry.groups) {
+          return [];
+        }
+
+        return entry.groups.map(group => group.name);
       },
     },
   };

@@ -47,7 +47,7 @@
           <StatusSummary :tally="tally" />
         </p>
 
-        <ReportsResourceLearners :entries="table" />
+        <ReportsResourceLearners :entries="allEntries" />
       </template>
     </KPageContainer>
   </CoreBase>
@@ -87,12 +87,19 @@
       tally() {
         return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
       },
-      table() {
+      lessonGroups() {
+        if (!this.lesson.groups.length) {
+          return this.groups;
+        }
+
+        return this.groups.filter(group => this.lesson.groups.includes(group.id));
+      },
+      allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
-            groups: this.getGroupNamesForLearner(learner.id),
+            groups: this.getLearnerLessonGroups(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
               learner.id
@@ -121,6 +128,9 @@
         }
 
         this.$router.replace({ query });
+      },
+      getLearnerLessonGroups(learnerId) {
+        return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
       },
     },
     $trs: {
