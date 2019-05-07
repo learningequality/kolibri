@@ -22,27 +22,33 @@
           {{ resource.title }}
         </KLabeledIcon>
       </h1>
-      <!-- TODO COACH
-      <KButton :text="coachStrings.$tr('previewAction')" />
-      <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-       -->
-      <HeaderTable v-if="avgTime">
-        <HeaderTableRow>
-          <template slot="key">
-            {{ coachStrings.$tr('avgTimeSpentLabel') }}
-          </template>
-          <template slot="value">
-            <TimeDuration :seconds="avgTime" />
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <KCheckbox
+        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :checked="viewByGroups"
+        @change="toggleGroupsView"
+      />
 
-      <ReportsResourceLearners :entries="table" />
+      <template v-if="viewByGroups"></template>
+
+      <template v-else>
+        <HeaderTable v-if="avgTime">
+          <HeaderTableRow>
+            <template slot="key">
+              {{ coachStrings.$tr('avgTimeSpentLabel') }}
+            </template>
+            <template slot="value">
+              <TimeDuration :seconds="avgTime" />
+            </template>
+          </HeaderTableRow>
+        </HeaderTable>
+
+        <p>
+          <StatusSummary :tally="tally" />
+        </p>
+
+        <ReportsResourceLearners :entries="table" />
+      </template>
     </KPageContainer>
   </CoreBase>
 
@@ -60,6 +66,11 @@
       ReportsResourceLearners,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        viewByGroups: Boolean(this.$route.query && this.$route.query.groups),
+      };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -91,6 +102,25 @@
           return tableRow;
         });
         return mapped;
+      },
+    },
+    watch: {
+      $route() {
+        this.viewByGroups = Boolean(this.$route.query && this.$route.query.groups);
+      },
+    },
+    methods: {
+      toggleGroupsView() {
+        this.viewByGroups = !this.viewByGroups;
+
+        let query;
+        if (this.viewByGroups) {
+          query = { ...this.$route.query, groups: 'true' };
+        } else {
+          query = { ...this.$route.query, groups: undefined };
+        }
+
+        this.$router.replace({ query });
       },
     },
     $trs: {
