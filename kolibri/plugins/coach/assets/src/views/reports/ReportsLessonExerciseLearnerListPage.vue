@@ -11,7 +11,7 @@
 
     <KPageContainer>
 
-      <ReportsLessonExerciseHeader />
+      <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
       <KCheckbox
         :label="coachStrings.$tr('viewByGroupsLabel')"
@@ -104,6 +104,9 @@
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
+      exercise() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
       summaryTally() {
         return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
       },
@@ -166,7 +169,11 @@
         });
 
         if (this.viewByGroups) {
-          link.query = { ...link.query, last: LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS };
+          link.query = {
+            ...link.query,
+            last: LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS,
+            exerciseId: this.exercise.content_id,
+          };
         }
 
         return link;
@@ -183,6 +190,25 @@
           const entryGroupIds = entry.groups.map(group => group.id);
           return entryGroupIds.includes(groupId);
         });
+      },
+      onPreviewClick() {
+        let lastPage = LastPages.EXERCISE_LEARNER_LIST;
+        if (this.viewByGroups) {
+          lastPage = LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS;
+        }
+
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.exercise.node_id,
+            },
+            {
+              last: lastPage,
+              exerciseId: this.exercise.content_id,
+            }
+          )
+        );
       },
     },
   };

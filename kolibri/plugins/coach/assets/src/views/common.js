@@ -245,8 +245,34 @@ export default {
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
+        case LastPages.EXERCISE_LEARNER_LIST:
+          return this.classRoute('ReportsLessonExerciseLearnerListPage', {
+            exerciseId: this.$route.query.exerciseId,
+          });
         case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
-          return this.classRoute('ReportsLessonExerciseLearnerListPage', {}, { groups: 'true' });
+          return this.classRoute(
+            'ReportsLessonExerciseLearnerListPage',
+            {
+              exerciseId: this.$route.query.exerciseId,
+            },
+            {
+              groups: 'true',
+            }
+          );
+        case LastPages.RESOURCE_LEARNER_LIST:
+          return this.classRoute('ReportsLessonResourceLearnerListPage', {
+            resourceId: this.$route.query.resourceId,
+          });
+        case LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS:
+          return this.classRoute(
+            'ReportsLessonResourceLearnerListPage',
+            {
+              resourceId: this.$route.query.resourceId,
+            },
+            {
+              groups: 'true',
+            }
+          );
         default:
           return null;
       }

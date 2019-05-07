@@ -8,21 +8,23 @@
         :text="$tr('back', { lesson: lesson.title })"
       />
     </p>
-    <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" exercise />
-        {{ exercise.title }}
-      </KLabeledIcon>
-    </h1>
 
-    <!-- TODO COACH
-    <p>{{ exercise.description }}</p>
-    <p>
-      {{ coachStrings.$tr('masteryModelLabel') }}
-      <MasteryModel model="num_correct_in_a_row_5" />
-    </p>
-    <KButton :text="coachStrings.$tr('previewAction')" />
-     -->
+    <KGrid cols="2">
+      <KGridItem size="1">
+        <h1>
+          <KLabeledIcon>
+            <KIcon slot="icon" exercise />
+            {{ exercise.title }}
+          </KLabeledIcon>
+        </h1>
+      </KGridItem>
+      <KGridItem size="1" alignment="right">
+        <KButton
+          :text="coachStrings.$tr('previewAction')"
+          @click="$emit('previewClick')"
+        />
+      </KGridItem>
+    </KGrid>
 
     <HeaderTabs>
       <HeaderTab

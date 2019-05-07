@@ -16,12 +16,23 @@
           :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
-      <h1>
-        <KLabeledIcon>
-          <KBasicContentIcon slot="icon" :kind="resource.kind" />
-          {{ resource.title }}
-        </KLabeledIcon>
-      </h1>
+
+      <KGrid cols="2">
+        <KGridItem size="1">
+          <h1>
+            <KLabeledIcon>
+              <KBasicContentIcon slot="icon" :kind="resource.kind" />
+              {{ resource.title }}
+            </KLabeledIcon>
+          </h1>
+        </KGridItem>
+        <KGridItem size="1" alignment="right">
+          <KButton
+            :text="coachStrings.$tr('previewAction')"
+            @click="onPreviewClick"
+          />
+        </KGridItem>
+      </KGrid>
 
       <KCheckbox
         :label="coachStrings.$tr('viewByGroupsLabel')"
@@ -103,6 +114,7 @@
 
 <script>
 
+  import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
@@ -196,6 +208,25 @@
       getGroupRecipientsAvgTime(groupId) {
         const recipients = this.getLearnersForGroups([groupId]);
         return this.getContentAvgTimeSpent(this.$route.params.resourceId, recipients);
+      },
+      onPreviewClick() {
+        let lastPage = LastPages.RESOURCE_LEARNER_LIST;
+        if (this.viewByGroups) {
+          lastPage = LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS;
+        }
+
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.resource.node_id,
+            },
+            {
+              last: lastPage,
+              resourceId: this.resource.content_id,
+            }
+          )
+        );
       },
     },
     $trs: {
