@@ -254,8 +254,7 @@ def set_local_file_availability_from_disk(checksums=None):
     checksums_to_set_unavailable = []
     for file in files:
         try:
-            # Update if the file exists, the checksum of the file is the same
-            # as the localfile ID, *and* the localfile is set as unavailable.
+            # Update if the file exists, *and* the localfile is set as unavailable.
             if os.path.exists(
                 get_content_storage_file_path(get_content_file_name(file))
             ):
