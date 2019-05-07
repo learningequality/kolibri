@@ -65,11 +65,11 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
-      <CoreBanner
-        v-if="demoBannerComponents"
-        :defaultComponent="demoBannerComponents.DemoServerBannerContent"
-        :persistentComponent="demoBannerComponents.DemoServerBannerHeader"
-      />
+      <CoreBanner v-if="demoBannerComponents">
+        <template slot-scope="props">
+          <component :is="demoBannerComponents.DemoServerBannerContent" :bannerClosed="props.bannerClosed" />
+        </template>
+      </CoreBanner>
 
       <div v-if="debug" class="debug">
         <div>{{ contentComponentName }}</div>

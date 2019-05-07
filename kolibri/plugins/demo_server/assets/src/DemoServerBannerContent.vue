@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <h1 class='banner-header' v-if="bannerClosed">
+    {{ $tr('demoServerHeader') }}
+  </h1>
+  <div v-else>
     <h1>{{ $tr('demoServerHeader') }}</h1>
     <p>{{ $tr('demoServerP1') }}</p>
     <ul>
@@ -26,13 +29,6 @@
         />
       </li>
     </ul>
-    <KButton
-      class="close-button"
-      :text="'Close'"
-      appearance="flat-button"
-      :primary="true"
-      @click="$root.$emit('toggleBannerState')"
-    />
   </div>
 
 </template>
@@ -41,13 +37,19 @@
 <script>
 
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import KButton from 'kolibri.coreVue.components.KButton';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'DemoServerBannerContent',
-    components: { KExternalLink, KButton },
+    components: { KExternalLink },
     mixins: [themeMixin],
+    props: {
+      bannerClosed: {
+        required: true,
+        type: Boolean,
+        default: false,
+      },
+    },
     $trs: {
       demoServerHeader: 'Welcome to the Kolibri demo site!',
       demoServerP1: 'Explore any of the three primary user types:',
@@ -71,6 +73,13 @@
   .close-button {
     float: right;
     margin-bottom: 24px;
+  }
+  .open-button {
+    float: right;
+    margin-top: 0;
+  }
+  .banner-header {
+    float: left;
   }
 
 </style>

@@ -3,17 +3,34 @@
   <div>
     <div
       class="banner"
-      :style="{ background: $coreBgLight, position: bannerClosed ? 'absolute' : 'relative' }"
+      :style="{ background: $coreBgLight}"
       :tabindex="0"
       role="dialog"
     >
       <div class="banner-inner">
-        <component :is="persistentComponent" v-if="bannerClosed" />
-        <component :is="defaultComponent" v-if="!bannerClosed" />
-      </div>
 
+        <slot :bannerClosed="bannerClosed"></slot>
+
+        <KButton
+          v-if="!bannerClosed"
+          class="close-button"
+          :text="$tr('closeButton')"
+          appearance="flat-button"
+          :primary="true"
+          @click="toggleBanner"
+        />
+
+        <KButton
+          v-else
+          class="open-button"
+          :text="$tr('openButton')"
+          appearance="flat-button"
+          :primary="true"
+          @click="toggleBanner"
+        />
+
+      </div>
     </div>
-    <div v-if="!bannerClosed" class="mask"></div>
   </div>
 
 </template>
@@ -22,37 +39,25 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import KButton from 'kolibri.coreVue.components.KButton';
 
   export default {
     name: 'CoreBanner',
+    components: { KButton },
     mixins: [themeMixin],
-    props: {
-      initiallyClosed: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
-      // The default component is the body of the banner's content.
-      defaultComponent: {
-        type: Object,
-        required: true,
-      },
-      // The Persistent Component is shown while closed.
-      persistentComponent: {
-        type: Object,
-        required: true,
-      },
-    },
     data() {
       return {
-        bannerClosed: this.initiallyClosed,
+        bannerClosed: false,
       };
     },
-    mounted() {
-      this.$root.$on('toggleBannerState', () => {
+    methods: {
+      toggleBanner() {
         this.bannerClosed = !this.bannerClosed;
-        this.$root.$emit('bannerStateChanged', { bannerClosed: this.bannerClosed });
-      });
+      },
+    },
+    $trs: {
+      openButton: 'More Info',
+      closeButton: 'Close',
     },
   };
 
@@ -78,6 +83,7 @@
     padding-right: 12px;
     padding-left: 12px;
     margin: 0 auto;
+
     h1 {
       font-weight: bold;
     }
@@ -90,21 +96,7 @@
 
   .open-button {
     float: right;
-    margin-top: 0;
-  }
-
-  .mask {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 4000;
-    width: 100vw;
-    height: 100vh;
-    padding: 0;
-    margin: 0;
-    background-color: rgba(0, 0, 0, 0.375);
+    margin-top: 14px;
   }
 
 </style>
