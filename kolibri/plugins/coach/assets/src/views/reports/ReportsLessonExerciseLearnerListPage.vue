@@ -21,7 +21,7 @@
 
       <div v-if="viewByGroups">
         <div
-          v-for="group in nonEmptyGroups"
+          v-for="group in lessonGroups"
           :key="group.id"
           class="group"
         >
@@ -84,14 +84,12 @@
         const recipients = this.getLearnersForGroups(this.lesson.groups);
         return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
       },
-      nonEmptyGroups() {
-        if (!this.groups || !this.groups.length) {
-          return [];
+      lessonGroups() {
+        if (!this.lesson.groups.length) {
+          return this.groups;
         }
 
-        return this.groups.filter(group => {
-          return group.member_ids.length > 0;
-        });
+        return this.groups.filter(group => this.lesson.groups.includes(group.id));
       },
     },
     methods: {
