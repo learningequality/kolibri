@@ -80,7 +80,7 @@
 
         <p>
           <StatusSummary
-            :tally="tally"
+            :tally="summaryTally"
             data-test="summary-tally"
           />
         </p>
@@ -124,7 +124,7 @@
       allRecipientsAvgTime() {
         return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
       },
-      tally() {
+      summaryTally() {
         return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
       },
       lessonGroups() {
