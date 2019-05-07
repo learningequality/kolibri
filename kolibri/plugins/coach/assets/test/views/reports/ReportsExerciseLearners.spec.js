@@ -57,7 +57,7 @@ describe('ReportsExerciseLearners', () => {
       entries,
     });
 
-    const rows = wrapper.findAll({ ref: 'entry' });
+    const rows = wrapper.findAll('[data-test="entry"]');
     expect(rows.length).toBe(2);
 
     const firstRow = rows.at(0);
@@ -106,7 +106,7 @@ describe('ReportsExerciseLearners', () => {
         ],
       });
 
-      row = wrapper.find({ ref: 'entry' });
+      row = wrapper.find('[data-test="entry"]');
     });
 
     it("renders learner's name as a link to an exercise", () => {
@@ -144,7 +144,7 @@ describe('ReportsExerciseLearners', () => {
         ],
       });
 
-      row = wrapper.find({ ref: 'entry' });
+      row = wrapper.find('[data-test="entry"]');
     });
 
     it("renders learner's name as a plain value", () => {

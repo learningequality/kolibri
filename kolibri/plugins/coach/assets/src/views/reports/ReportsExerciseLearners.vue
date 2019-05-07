@@ -13,7 +13,7 @@
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">
-      <tr v-for="entry in entries" ref="entry" :key="entry.id">
+      <tr v-for="entry in entries" :key="entry.id" data-test="entry">
         <td>
           <KRouterLink
             v-if="showLink(entry)"
