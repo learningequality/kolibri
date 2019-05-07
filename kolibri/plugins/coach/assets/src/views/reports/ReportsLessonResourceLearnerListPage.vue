@@ -33,6 +33,7 @@
         <div
           v-for="group in lessonGroups"
           :key="group.id"
+          :data-test="`group-${group.id}`"
           class="group"
         >
           <h2
@@ -41,6 +42,14 @@
           >
             {{ group.name }}
           </h2>
+
+          <p>
+            <StatusSummary
+              :tally="getGroupTally(group.id)"
+              :showNeedsHelp="false"
+              :verbose="false"
+            />
+          </p>
 
           <ReportsResourceLearners
             :entries="getGroupEntries(group.id)"
@@ -70,7 +79,10 @@
         <ReportsResourcesStats :avgTime="allRecipientsAvgTime" />
 
         <p>
-          <StatusSummary :tally="tally" />
+          <StatusSummary
+            :tally="tally"
+            data-test="summary-tally"
+          />
         </p>
 
         <ReportsResourceLearners :entries="allEntries" />
@@ -168,6 +180,10 @@
           const entryGroupIds = entry.groups.map(group => group.id);
           return entryGroupIds.includes(groupId);
         });
+      },
+      getGroupTally(groupId) {
+        const recipients = this.getLearnersForGroups([groupId]);
+        return this.getContentStatusTally(this.$route.params.resourceId, recipients);
       },
     },
     $trs: {
