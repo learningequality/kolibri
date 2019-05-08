@@ -63,6 +63,12 @@
         :class="[colorClass]"
       />
       <mat-svg
+        v-if="is(ContentNodeKinds.SLIDESHOW)"
+        category="image"
+        name="photo_library"
+        :class="[colorClass]"
+      />
+      <mat-svg
         v-if="is(USER)"
         category="social"
         name="person"
@@ -160,6 +166,7 @@
       exam: 'Quiz',
       lesson: 'Lesson',
       user: 'User',
+      slideshow: 'Slideshow',
     },
   };
 
