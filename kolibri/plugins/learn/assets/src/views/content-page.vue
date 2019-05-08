@@ -12,15 +12,17 @@
     <div class="kicd-eval">
       <h2>KICD Evaluation</h2>
       <p>
-        <kExternalLink
+        <k-external-link
           text="Submit teacher report"
           appearance="raised-button"
           :primary="true"
+          :href="kicdTeacherUrl"
         />
-        <kExternalLink
+        <k-external-link
           text="Submit chief report"
           appearance="raised-button"
           :primary="false"
+          :href="kicdChiefUrl"
         />
       </p>
     </div>
@@ -183,6 +185,17 @@
       licenceDescriptionIsVisible: false,
     }),
     computed: {
+      kicdBaseUrl() {
+        return global.kicd_form_url
+          .replace('(((content_url_field_value)))', global.escape(window.location.href))
+          .replace('(((content_title_field_value)))', this.content.title);
+      },
+      kicdTeacherUrl() {
+        return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_teacher);
+      },
+      kicdChiefUrl() {
+        return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_chief);
+      },
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
       },

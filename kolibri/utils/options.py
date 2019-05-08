@@ -79,6 +79,23 @@ option_spec = {
             "envvars": ("KOLIBRI_RUN_MODE",),
         }
     },
+    "KICD": {
+        "FORM_URL": {
+            "type": "string",
+            "default": "https://docs.google.com/forms/d/e/1FAIpQLScJpJ2YGR040i4OTyqrLTXruYYlztwRIDVmqWOU9n7OM-H1ZA/viewform?usp=pp_url&entry.1800641905=(((role_field_value)))&entry.1813761048=(((content_url_field_value)))&entry.1748381276=(((content_title_field_value)))",
+            "envvars": ("KOLIBRI_FORM_URL",),
+        },
+        "ROLE_VALUE_CHIEF": {
+            "type": "string",
+            "default": "Chief",
+            "envvars": ("KOLIBRI_ROLE_VALUE_CHIEF",),
+        },
+        "ROLE_VALUE_TEACHER": {
+            "type": "string",
+            "default": "Teacher",
+            "envvars": ("KOLIBRI_ROLE_VALUE_TEACHER",),
+        },
+    },
 }
 
 

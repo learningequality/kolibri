@@ -67,6 +67,23 @@ def kolibri_language_globals(context):
     )
     return mark_safe(js)
 
+@register.simple_tag(takes_context=True)
+def kolibri_kicd_globals(context):
+    from kolibri.utils.conf import OPTIONS
+
+    js = """
+    <script>
+      var kicd_form_url = '{form_url}';
+      var kicd_role_value_chief = '{role_value_chief}';
+      var kicd_role_value_teacher = '{role_value_teacher}';
+    </script>
+    """.format(
+        form_url=OPTIONS["KICD"]['FORM_URL'],
+        role_value_chief=OPTIONS["KICD"]['ROLE_VALUE_CHIEF'],
+        role_value_teacher=OPTIONS["KICD"]['ROLE_VALUE_TEACHER'],
+    )
+    return mark_safe(js)
+
 
 @register.simple_tag()
 def kolibri_main_navigation():
