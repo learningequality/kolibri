@@ -16,6 +16,7 @@ from six import string_types
 
 from .queue import get_queue
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.utils import conf
@@ -142,8 +143,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The drive_id field is required.")
 
         try:
-            drives = get_mounted_drives_with_channel_info()
-            drive = drives[drive_id]
+            drive = get_mounted_drive_by_id(drive_id)
         except KeyError:
             raise serializers.ValidationError(
                 "That drive_id was not found in the list of drives."
@@ -178,8 +178,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The drive_id field is required.")
 
         try:
-            drives = get_mounted_drives_with_channel_info()
-            drive = drives[drive_id]
+            drive = get_mounted_drive_by_id(drive_id)
         except KeyError:
             raise serializers.ValidationError(
                 "That drive_id was not found in the list of drives."
@@ -306,8 +305,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         if drive_id:
             try:
-                drives = get_mounted_drives_with_channel_info()
-                drive = drives[drive_id]
+                drive = get_mounted_drive_by_id(drive_id)
                 directory = drive.datafolder
             except KeyError:
                 raise serializers.ValidationError(
@@ -441,8 +439,7 @@ def _localexport(
     exclude_node_ids=None,
     extra_metadata=None,
 ):
-    drives = get_mounted_drives_with_channel_info()
-    drive = drives[drive_id]
+    drive = get_mounted_drive_by_id(drive_id)
 
     call_command(
         "exportchannel",
