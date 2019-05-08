@@ -2,23 +2,11 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import { ContentNodeFileSizeResource } from 'kolibri.resources';
 
 const pluckIds = map('id');
 
 function isDescendantOrSelf(testNode, selfNode) {
   return testNode.id === selfNode.id || find(testNode.path, { id: selfNode.id });
-}
-
-/**
- * Queries the server for a ContentNode's file sizes
- *
- * @param node {Node} - (sanitized) Node, which has resource, but not file sizes
- * @returns {Promise<{total_file_size, on_device_file_size}>}
- *
- */
-export function getContentNodeFileSize(node) {
-  return ContentNodeFileSizeResource.fetchModel({ id: node.id });
 }
 
 /**
@@ -42,12 +30,20 @@ export function addNodeForTransfer(store, node) {
   if (notToIncluded.length > 0) {
     store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
-  return getContentNodeFileSize(node).then(fileSizes => {
-    store.commit('ADD_NODE_TO_INCLUDE_LIST', {
-      ...node,
-      ...fileSizes,
+  store.commit('ADD_NODE_TO_INCLUDE_LIST', node);
+  if (
+    find(store.state.nodesForTransfer.included, { id: store.state.transferredChannel.root }) &&
+    !store.getters.inExportMode
+  ) {
+    // If the entire channel is being downloaded, we can set the verified content size here.
+    store.commit('SET_VERIFIED_CONTENT_METRICS', {
+      size: store.state.transferredChannel.importable_file_size_deduped,
+      count: store.state.transferredChannel.importable_resources_deduped,
     });
-  });
+  } else {
+    // Otherwise set to null.
+    store.commit('SET_VERIFIED_CONTENT_METRICS');
+  }
 }
 
 /**
@@ -77,43 +73,39 @@ export function removeNodeForTransfer(store, node) {
     if (notToOmit.length > 0) {
       store.commit('REPLACE_OMIT_LIST', toOmit);
     }
-    promise = getContentNodeFileSize(node)
-      .then(fileSizes => {
-        store.commit('ADD_NODE_TO_OMIT_LIST', {
-          ...node,
-          ...fileSizes,
-        });
-      })
-      .then(() => {
-        // loop through the ancestor list and remove any that have been completely un-selected
-        includedAncestors.forEach(ancestor => {
-          let omittedResources;
-          let ancestorResources;
-          const omittedDescendants = omitted.filter(n => pluckIds(n.path).includes(ancestor.id));
-          if (forImport) {
-            // When total_resources === on_device_resources, then that node is not selectable.
-            // So we need to compare the difference (i.e  # of transferrable nodes) when
-            // deciding whether parent is fully omitted.
-            ancestorResources = ancestor.total_resources - ancestor.on_device_resources;
-            omittedResources =
-              sumBy(omittedDescendants, 'total_resources') -
-              sumBy(omittedDescendants, 'on_device_resources');
-          } else {
-            ancestorResources = ancestor.on_device_resources;
-            omittedResources = sumBy(omittedDescendants, 'on_device_resources');
-          }
-          if (ancestorResources === omittedResources) {
-            // remove the ancestor from "include"
-            store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
-            // remove all desceandants from "omit"
-            store.commit(
-              'REPLACE_OMIT_LIST',
-              omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
-            );
-          }
-        });
-      });
+    store.commit('ADD_NODE_TO_OMIT_LIST', node);
+    // loop through the ancestor list and remove any that have been completely un-selected
+    includedAncestors.forEach(ancestor => {
+      let omittedResources;
+      let ancestorResources;
+      const omittedDescendants = omitted.filter(n => pluckIds(n.path).includes(ancestor.id));
+      if (forImport) {
+        // When importable_resources === on_device_resources, then that node is not selectable.
+        // So we need to compare the difference (i.e  # of transferrable nodes) when
+        // deciding whether parent is fully omitted.
+        ancestorResources = ancestor.importable_resources - ancestor.on_device_resources;
+        omittedResources =
+          sumBy(omittedDescendants, 'importable_resources') -
+          sumBy(omittedDescendants, 'on_device_resources');
+      } else {
+        ancestorResources = ancestor.on_device_resources;
+        omittedResources = sumBy(omittedDescendants, 'on_device_resources');
+      }
+      if (ancestorResources === omittedResources) {
+        // remove the ancestor from "include"
+        store.commit('REPLACE_INCLUDE_LIST', included.filter(n => n.id !== ancestor.id));
+        // remove all desceandants from "omit"
+        store.commit(
+          'REPLACE_OMIT_LIST',
+          omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
+        );
+      }
+    });
   }
+
+  // If removing a node, can't be downloading the entire channel, and any verified size we
+  // have previously fetched is out of date.
+  store.commit('SET_VERIFIED_CONTENT_METRICS');
 
   return promise;
 }

@@ -26,6 +26,12 @@ function defaultState() {
       included: [],
       omitted: [],
     },
+    // A value for explicitly calculated,
+    // deduped content import size
+    // for cases where we are estimating the
+    // overall size.
+    verifiedContentSize: null,
+    verifiedResourceCount: null,
   };
 }
 
@@ -125,6 +131,16 @@ export default {
       state.selectedDrive = pageData.selectedDrive;
       state.transferredChannel = pageData.transferredChannel;
       state.transferType = pageData.transferType;
+    },
+    SET_VERIFIED_CONTENT_METRICS(
+      state,
+      { size, count } = {
+        size: null,
+        count: null,
+      }
+    ) {
+      state.verifiedContentSize = size;
+      state.verifiedResourceCount = count;
     },
   },
 };
