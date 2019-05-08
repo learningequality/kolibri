@@ -23,6 +23,7 @@ import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
 import filter from 'lodash/filter';
 import sortBy from 'lodash/sortBy';
 import { PageNames } from '../constants';
+import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
@@ -220,29 +221,58 @@ export default {
     },
   },
   methods: {
-    classRoute(name, params = {}) {
+    classRoute(name, params = {}, query = {}) {
       if (this.classId) {
         params.classId = this.classId;
       }
-      return router.getRoute(name, params);
+      return router.getRoute(name, params, query);
     },
-    // In ActivityList, set the backLinkQuery to set the correct exit behavior
+    // Set the backLinkQuery to set the correct exit behavior
     // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
     backRouteForQuery(query) {
       const lastPage = query.last;
+
       switch (lastPage) {
-        case 'homepage':
+        case LastPages.HOME_PAGE:
           return this.classRoute('HomePage', {});
-        case 'homeactivity':
+        case LastPages.HOME_ACTIVITY:
           return this.classRoute('HomeActivityPage', {});
-        case 'groupactivity':
+        case LastPages.GROUP_ACTIVITY:
           return this.classRoute('ReportsGroupActivityPage', {
             groupId: this.$route.query.last_id,
           });
-        case 'learneractivity':
+        case LastPages.LEARNER_ACTIVITY:
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
+        case LastPages.EXERCISE_LEARNER_LIST:
+          return this.classRoute('ReportsLessonExerciseLearnerListPage', {
+            exerciseId: this.$route.query.exerciseId,
+          });
+        case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
+          return this.classRoute(
+            'ReportsLessonExerciseLearnerListPage',
+            {
+              exerciseId: this.$route.query.exerciseId,
+            },
+            {
+              groups: 'true',
+            }
+          );
+        case LastPages.RESOURCE_LEARNER_LIST:
+          return this.classRoute('ReportsLessonResourceLearnerListPage', {
+            resourceId: this.$route.query.resourceId,
+          });
+        case LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS:
+          return this.classRoute(
+            'ReportsLessonResourceLearnerListPage',
+            {
+              resourceId: this.$route.query.resourceId,
+            },
+            {
+              groups: 'true',
+            }
+          );
         default:
           return null;
       }

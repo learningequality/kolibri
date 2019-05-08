@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders a correct summary tally 1`] = `
+<div class="multi-line" data-test="summary-tally">
+  <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    Completed by 1 of 1
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders correct resources stats 1`] = `
+<table data-test="summary-resources-stats">
+  <tr>
+    <th>
+      Average time spent
+    </th>
+    <td><span>2 minutes</span></td>
+  </tr>
+</table>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 1`] = `
+<div class="single-line">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    1
+  </div></span>
+    <!---->
+  </div>
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    0
+  </div></span>
+    <!---->
+  </div>
+  <!---->
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
+    0
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 2`] = `
+<div class="single-line">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
+    0 of 0
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders correct group resources stats 1`] = `
+<table>
+  <tr>
+    <th>
+      Average time spent
+    </th>
+    <td><span>2 minutes</span></td>
+  </tr>
+</table>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders correct group resources stats 2`] = `undefined`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders a correct summary tally 1`] = `
+<div class="multi-line" data-test="summary-tally">
+  <div showratiointooltip="" debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    Completed by 1 of 3
+  </div></span>
+    <!---->
+  </div>
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    1 started
+  </div></span>
+    <!---->
+  </div>
+  <!---->
+  <!---->
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders correct resources stats 1`] = `
+<table data-test="summary-resources-stats">
+  <tr>
+    <th>
+      Average time spent
+    </th>
+    <td><span>3 minutes</span></td>
+  </tr>
+</table>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 1`] = `
+<div class="single-line">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    1
+  </div></span>
+    <!---->
+  </div>
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    1
+  </div></span>
+    <!---->
+  </div>
+  <!---->
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
+    0
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 2`] = `
+<div class="single-line">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    1
+  </div></span>
+    <!---->
+  </div>
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    0
+  </div></span>
+    <!---->
+  </div>
+  <!---->
+  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
+    0
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 3`] = `
+<div class="single-line">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
+    0 of 0
+  </div></span>
+    <!---->
+  </div>
+</div>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 1`] = `
+<table>
+  <tr>
+    <th>
+      Average time spent
+    </th>
+    <td><span>3 minutes</span></td>
+  </tr>
+</table>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 2`] = `
+<table>
+  <tr>
+    <th>
+      Average time spent
+    </th>
+    <td><span>2 minutes</span></td>
+  </tr>
+</table>
+`;
+
+exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders correct group resources stats 3`] = `undefined`;
