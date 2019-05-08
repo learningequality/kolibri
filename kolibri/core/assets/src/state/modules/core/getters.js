@@ -30,6 +30,6 @@ export function pageSessionId(state) {
   return state.pageSessionId;
 }
 
-export function demoBannerComponents(state) {
-  return state.demoBannerComponents;
+export function demoBannerVisible(state) {
+  return state.demoBannerVisible;
 }

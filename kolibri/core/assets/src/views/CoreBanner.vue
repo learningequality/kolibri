@@ -8,27 +8,37 @@
       role="dialog"
     >
       <div class="banner-inner">
+        <KGrid>
+          <!-- Grid Content -->
+          <KGridItem :sizes="contentGridSizes">
+            <slot :bannerClosed="bannerClosed"></slot>
+          </KGridItem>
 
-        <slot :bannerClosed="bannerClosed"></slot>
-
-        <KButton
-          v-if="!bannerClosed"
-          class="close-button"
-          :text="$tr('closeButton')"
-          appearance="flat-button"
-          :primary="true"
-          @click="toggleBanner"
-        />
-
-        <KButton
-          v-else
-          class="open-button"
-          :text="$tr('openButton')"
-          appearance="flat-button"
-          :primary="true"
-          @click="toggleBanner"
-        />
-
+          <!-- Grid Buttons -->
+          <KGridItem v-if="!bannerClosed" sizes="4, 8, 12">
+            <KButton
+              v-if="!bannerClosed"
+              class="close-button"
+              :text="$tr('closeButton')"
+              appearance="flat-button"
+              :primary="true"
+              @click="toggleBanner"
+            />
+          </KGridItem>
+          <KGridItem
+            v-else
+            sizes="4, 2, 2"
+            alignment="right"
+          >
+            <KButton
+              class="open-button"
+              :text="$tr('openButton')"
+              appearance="flat-button"
+              :primary="true"
+              @click="toggleBanner"
+            />
+          </KGridItem>
+        </KGrid>
       </div>
     </div>
   </div>
@@ -40,15 +50,22 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
   export default {
     name: 'CoreBanner',
-    components: { KButton },
+    components: { KButton, KGrid, KGridItem },
     mixins: [themeMixin],
     data() {
       return {
         bannerClosed: false,
       };
+    },
+    computed: {
+      contentGridSizes() {
+        return this.bannerClosed ? '4, 6, 10' : '4, 8, 12';
+      },
     },
     methods: {
       toggleBanner() {
@@ -95,7 +112,6 @@
   }
 
   .open-button {
-    float: right;
     margin-top: 14px;
   }
 

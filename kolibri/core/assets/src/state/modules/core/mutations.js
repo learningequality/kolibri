@@ -46,7 +46,7 @@ export default {
   CORE_SET_PAGE_VISIBILITY(state, visible) {
     state.pageVisible = visible;
   },
-  SET_CORE_BANNER_CONTENT(state, demoBannerComponents) {
-    state.demoBannerComponents = demoBannerComponents;
+  SET_CORE_BANNER_VISIBLE(state) {
+    state.demoBannerVisible = true;
   },
 };

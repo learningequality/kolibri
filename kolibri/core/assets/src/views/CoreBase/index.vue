@@ -65,9 +65,9 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
-      <CoreBanner v-if="demoBannerComponents">
+      <CoreBanner v-if="demoBannerVisible">
         <template slot-scope="props">
-          <component :is="demoBannerComponents.DemoServerBannerContent" :bannerClosed="props.bannerClosed" />
+          <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
         </template>
       </CoreBanner>
 
@@ -125,6 +125,7 @@
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
+  import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -256,7 +257,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerComponents']),
+      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerVisible']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
@@ -350,6 +351,9 @@
           return this.$router.getRouteDefinition(this.contentComponentName).path;
         }
         return '';
+      },
+      coreBannerComponent() {
+        return coreBannerContent[0];
       },
     },
     watch: {
