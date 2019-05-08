@@ -1,6 +1,6 @@
 <template>
 
-  <h1 class='banner-header' v-if="bannerClosed">
+  <h1 v-if="bannerClosed" class="banner-header">
     {{ $tr('demoServerHeader') }}
   </h1>
   <div v-else>

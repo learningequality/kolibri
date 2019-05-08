@@ -5,7 +5,7 @@ import KolibriModule from 'kolibri_module';
 
 class DemoServerModule extends KolibriModule {
   ready() {
-    coreBannerContent.register(DemoServerBannerContent)
+    coreBannerContent.register(DemoServerBannerContent);
     store.commit('SET_CORE_BANNER_VISIBLE', !store.getters.isUserLoggedIn);
   }
 }
