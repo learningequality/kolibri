@@ -237,7 +237,6 @@
         if (this.searchQuery !== '') {
           const query = {
             searchTerm: this.searchQuery,
-            returnRoute: encodeURI(JSON.stringify(this.$router.history.current)),
           };
           if (filterUpdate === true) {
             if (this.$refs.contentKindFilter.selection.value) {
