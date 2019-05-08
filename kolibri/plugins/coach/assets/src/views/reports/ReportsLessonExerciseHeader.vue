@@ -2,29 +2,26 @@
 
   <div>
 
-    <p>
-      <BackLink
-        :to="classRoute('ReportsLessonReportPage')"
-        :text="$tr('back', { lesson: lesson.title })"
-      />
-    </p>
-
-    <KGrid cols="2">
-      <KGridItem size="1">
-        <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" exercise />
-            {{ exercise.title }}
-          </KLabeledIcon>
-        </h1>
-      </KGridItem>
-      <KGridItem size="1" alignment="right">
+    <section>
+      <BackLinkWithOptions>
+        <BackLink
+          slot="backlink"
+          :to="classRoute('ReportsLessonReportPage')"
+          :text="$tr('back', { lesson: lesson.title })"
+        />
         <KButton
+          slot="options"
           :text="coachStrings.$tr('previewAction')"
           @click="$emit('previewClick')"
         />
-      </KGridItem>
-    </KGrid>
+      </BackLinkWithOptions>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" exercise />
+          {{ exercise.title }}
+        </KLabeledIcon>
+      </h1>
+    </section>
 
     <HeaderTabs>
       <HeaderTab
@@ -45,10 +42,13 @@
 <script>
 
   import commonCoach from '../common';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsLessonExerciseHeader',
-    components: {},
+    components: {
+      BackLinkWithOptions,
+    },
     mixins: [commonCoach],
     computed: {
       lesson() {

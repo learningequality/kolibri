@@ -10,29 +10,26 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <p>
-        <BackLink
-          :to="classRoute('ReportsLessonReportPage', {})"
-          :text="$tr('back', { lesson: lesson.title })"
-        />
-      </p>
-
-      <KGrid cols="2">
-        <KGridItem size="1">
-          <h1>
-            <KLabeledIcon>
-              <KBasicContentIcon slot="icon" :kind="resource.kind" />
-              {{ resource.title }}
-            </KLabeledIcon>
-          </h1>
-        </KGridItem>
-        <KGridItem size="1" alignment="right">
+      <section>
+        <BackLinkWithOptions>
+          <BackLink
+            slot="backlink"
+            :to="classRoute('ReportsLessonReportPage', {})"
+            :text="$tr('back', { lesson: lesson.title })"
+          />
           <KButton
+            slot="options"
             :text="coachStrings.$tr('previewAction')"
             @click="onPreviewClick"
           />
-        </KGridItem>
-      </KGrid>
+        </BackLinkWithOptions>
+        <h1>
+          <KLabeledIcon>
+            <KBasicContentIcon slot="icon" :kind="resource.kind" />
+            {{ resource.title }}
+          </KLabeledIcon>
+        </h1>
+      </section>
 
       <KCheckbox
         :label="coachStrings.$tr('viewByGroupsLabel')"
@@ -119,12 +116,14 @@
 
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
+      BackLinkWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
     },
