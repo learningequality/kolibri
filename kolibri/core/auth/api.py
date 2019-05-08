@@ -246,8 +246,6 @@ class FacilityViewSet(viewsets.ModelViewSet):
 
 @method_decorator(signin_redirect_exempt, name="dispatch")
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = PublicFacilitySerializer
 

@@ -1,13 +1,17 @@
 import json
+import sys
 
+from django.core.management import call_command
 from django.core.management.base import CommandError
 from morango.certificates import Filter
 from morango.controller import MorangoProfileController
 
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
-from kolibri.core.auth.utils import get_facility
+from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
+
+DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
 
 
 class Command(AsyncCommand):
@@ -17,19 +21,44 @@ class Command(AsyncCommand):
         parser.add_argument(
             "--facility", action="store", type=str, help="ID of facility to sync"
         )
+        parser.add_argument(
+            "--baseurl", type=str, default=DATA_PORTAL_SYNCING_BASE_URL, dest="baseurl"
+        )
         parser.add_argument("--noninteractive", action="store_true")
+
+    def _fullfacilitysync(self, baseurl, facility=None):
+        if facility is None:
+            dataset_id = None
+        else:
+            dataset_id = facility.dataset_id
+
+        if baseurl != DATA_PORTAL_SYNCING_BASE_URL:
+            self.stdout.write("Syncing has been initiated (this may take a while)...")
+            call_command("fullfacilitysync", base_url=baseurl, dataset_id=dataset_id)
+            self.stdout.write("Syncing has been completed.")
+            sys.exit(0)
 
     def handle_async(self, *args, **options):
 
+        baseurl = options["baseurl"]
+        facility_id = options["facility"]
+
+        # This handles the case for when we want to pull in facility data for our empty kolibri instance
+        if not facility_id:
+            self._fullfacilitysync(baseurl)
+
         facility = get_facility(
-            facility_id=options["facility"], noninteractive=options["noninteractive"]
+            facility_id=facility_id, noninteractive=options["noninteractive"]
         )
 
+        # if url is not pointing to portal server, do P2P syncing
+        self._fullfacilitysync(baseurl, facility=facility)
+
+        # data portal syncing
+        self.stdout.write("Syncing has been initiated (this may take a while)...")
         controller = MorangoProfileController("facilitydata")
         with self.start_progress(total=5) as progress_update:
-            network_connection = controller.create_network_connection(
-                conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
-            )
+            network_connection = controller.create_network_connection(baseurl)
             progress_update(1)
 
             # get client certificate
@@ -65,3 +94,4 @@ class Command(AsyncCommand):
 
             sync_client.close_sync_session()
             progress_update(1)
+            self.stdout.write("Syncing has been completed.")

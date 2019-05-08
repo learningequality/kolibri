@@ -1,7 +1,6 @@
 import uuid
 
 import mock
-import requests
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -26,13 +25,4 @@ class RegisterFacilityTestCase(TestCase):
         cert.private_key = None
         cert.save()
         with self.assertRaisesRegexp(CommandError, "not own a certificate"):
-            call_command("register", "token")
-
-    @mock.patch("requests.post")
-    def test_no_community(self, post_mock):
-        post_mock.side_effect = requests.exceptions.HTTPError(
-            response=mock.Mock(status_code=404, text="Community")
-        )
-        post_mock.json.return_value = {"status_code": 404, "text": "Community"}
-        with self.assertRaisesRegexp(CommandError, "does not exist"):
-            call_command("register", "token")
+            call_command("registerfacility", "token")
