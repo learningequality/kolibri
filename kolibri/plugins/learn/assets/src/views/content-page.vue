@@ -12,17 +12,28 @@
     <div class="kicd-eval">
       <h2>KICD Evaluation</h2>
       <p>
+        <k-textbox
+          label="Name"
+          :maxlength="50"
+          :invalid="!kicdName"
+          invalidText="Name is required"
+          v-model="kicdName"
+        />
+      </p>
+      <p>
         <k-external-link
           text="Submit teacher report"
           appearance="raised-button"
           :primary="true"
           :href="kicdTeacherUrl"
+          target="_blank"
         />
         <k-external-link
           text="Submit chief report"
           appearance="raised-button"
           :primary="false"
           :href="kicdChiefUrl"
+          target="_blank"
         />
       </p>
     </div>
@@ -150,6 +161,8 @@
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
+  import kTextbox from 'kolibri.coreVue.components.kTextbox';
+  import Lockr from 'lockr';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { pageMode } from '../state/getters';
   import { updateContentNodeProgress } from '../state/actions/main';
@@ -179,16 +192,19 @@
       masteredSnackbars,
       uiIconButton,
       kExternalLink,
+      kTextbox,
     },
     data: () => ({
       wasIncomplete: false,
       licenceDescriptionIsVisible: false,
+      kicdName: '',
     }),
     computed: {
       kicdBaseUrl() {
         return global.kicd_form_url
           .replace('(((content_url_field_value)))', global.escape(window.location.href))
-          .replace('(((content_title_field_value)))', this.content.title);
+          .replace('(((content_title_field_value)))', this.content.title)
+          .replace('(((name_field_value)))', this.kicdName);
       },
       kicdTeacherUrl() {
         return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_teacher);
@@ -245,6 +261,14 @@
           params: { id: this.content.next_content.id },
         };
       },
+    },
+    watch: {
+      kicdName() {
+        Lockr.set('kicd-name', this.kicdName);
+      },
+    },
+    mounted() {
+      this.kicdName = Lockr.get('kicd-name');
     },
     beforeDestroy() {
       this.stopTracking();
@@ -325,5 +349,9 @@
     margin: 8px
     margin-left: 16px
     margin-right: 16px
+
+  // center-align
+  >>>.ui-textbox
+    margin: auto
 
 </style>
