@@ -46,8 +46,8 @@ def get_nodes_to_transfer(
             pk__in=exclude_node_ids
         ).get_descendants(include_self=True)
 
-    nodes_to_include = nodes_to_include.order_by().difference(nodes_to_exclude.order_by())
-    return nodes_to_include
+        nodes_to_include = nodes_to_include.order_by().difference(nodes_to_exclude.order_by())
+    return nodes_to_include.order_by()
 
 
 def get_files_to_transfer(
