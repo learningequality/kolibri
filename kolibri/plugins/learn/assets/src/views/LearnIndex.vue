@@ -225,8 +225,8 @@
     },
     watch: {
       $route: function(newRoute, oldRoute) {
-        // Return if the current route is a search path. Otherwise this method creates
-        // an infinite loop.
+        // Return if the user is searching another query on the same search results
+        // page. Otherwise, the back arrow will infinitely redirect.
         if (newRoute.name === 'SEARCH' && oldRoute.name === 'SEARCH') {
           return;
         }
