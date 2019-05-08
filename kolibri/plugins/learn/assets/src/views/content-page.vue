@@ -9,37 +9,6 @@
       :isTopic="isTopic"
     />
 
-    <div class="kicd-eval">
-      <h2>KICD Evaluation</h2>
-      <p>
-        <k-textbox
-          label="Your name"
-          :invalid="!kicdName"
-          invalidText="Required"
-          v-model="kicdName"
-        />
-      </p>
-      <p>
-        <k-external-link
-          text="Submit teacher report"
-          appearance="raised-button"
-          :primary="true"
-          :href="kicdTeacherUrl"
-          target="_blank"
-        />
-        <k-external-link
-          text="Submit chief report"
-          appearance="raised-button"
-          :primary="false"
-          :href="kicdChiefUrl"
-          target="_blank"
-        />
-      </p>
-      <p class="kicd-explanation">
-        (will open a new tab)
-      </p>
-    </div>
-
     <content-renderer
       v-if="!content.assessment"
       class="content-renderer"
@@ -74,6 +43,37 @@
       :initSession="initSession"
     />
 
+    <div class="kicd-eval">
+      <h2>KICD Evaluation</h2>
+      <p>
+        <k-textbox
+          label="Your name"
+          :invalid="!kicdName"
+          invalidText="Required"
+          v-model="kicdName"
+        />
+      </p>
+      <p>
+        <k-external-link
+          :text="kicdTeacherButtonText"
+          appearance="raised-button"
+          :primary="true"
+          :href="kicdTeacherUrl"
+          target="_blank"
+        />
+        <k-external-link
+          :text="kicdChiefButtonText"
+          appearance="raised-button"
+          :primary="false"
+          :href="kicdChiefUrl"
+          target="_blank"
+        />
+      </p>
+      <p class="kicd-explanation">
+        (will open a new tab)
+      </p>
+    </div>
+
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <p v-html="description" dir="auto"></p>
 
@@ -106,15 +106,12 @@
         {{ $tr('copyrightHolder', {copyrightHolder: content.license_owner}) }}
       </p>
     </section>
-    -->
 
-    <!--
     <download-button
       v-if="canDownload"
       :files="downloadableFiles"
       class="download-button"
     />
-    -->
 
     <slot name="below_content">
       <template v-if="progress >= 1 && content.next_content">
@@ -133,6 +130,7 @@
         />
       </template>
     </slot>
+    -->
 
     <mastered-snackbars
       v-if="progress >= 1 && wasIncomplete"
@@ -211,8 +209,14 @@
       kicdTeacherUrl() {
         return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_teacher);
       },
+      kicdTeacherButtonText() {
+        return `Submit ${global.kicd_role_value_teacher} report`;
+      },
       kicdChiefUrl() {
         return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_chief);
+      },
+      kicdChiefButtonText() {
+        return `Submit ${global.kicd_role_value_chief} report`;
       },
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -348,7 +352,7 @@
     border-radius: 4px
     padding: 8px
     text-align: center
-    margin: 8px
+    margin-top: 40px
     margin-left: 16px
     margin-right: 16px
 
