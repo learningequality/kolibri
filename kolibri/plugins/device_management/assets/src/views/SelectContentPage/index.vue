@@ -83,11 +83,14 @@
           :fileSize="nodeCounts.fileSize"
           :resourceCount="nodeCounts.resources"
           :spaceOnDrive="availableSpace"
-          @clickconfirm="startContentTransfer()"
+          :estimatedQuantities="estimatedQuantities"
+          :loading="initiatingContentTransfer"
+          @clickconfirm="checkContentAndStartTransfer()"
         />
         <ContentTreeViewer
           class="block-item"
           :class="{ small : windowIsSmall }"
+          :estimatedQuantities="estimatedQuantities"
         />
       </template>
     </template>
@@ -136,6 +139,7 @@
         showUpdateProgressBar: false,
         contentTransferError: false,
         pageWillRefresh: false,
+        initiatingContentTransfer: false,
         // need to store ID in component to make sure cancellation works properly
         // in beforeDestroy
         metadataDownloadTaskId: '',
@@ -151,7 +155,16 @@
         'status',
         'transferType',
         'transferredChannel',
+        'verifiedContentSize',
       ]),
+      estimatedQuantities() {
+        // A boolean indicating whether the quantities reported in the dialog are accurate
+        // or estimates, based on whether there are duplicates in the current channel.
+        return (
+          this.transferredChannel.importable_resource_duplication > 1 &&
+          this.verifiedContentSize === null
+        );
+      },
       mode() {
         return this.transferType === 'localexport' ? 'export' : 'import';
       },
@@ -230,7 +243,7 @@
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
-      ...mapActions('manageContent/wizard', ['transferChannelContent']),
+      ...mapActions('manageContent/wizard', ['transferChannelContent', 'setVerifiedResources']),
       readyChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
@@ -255,6 +268,23 @@
             }
           });
       },
+      checkContentAndStartTransfer() {
+        if (!this.initiatingContentTransfer) {
+          this.initiatingContentTransfer = true;
+          if (this.estimatedQuantities) {
+            return this.setVerifiedResources().then(() => {
+              this.$nextTick(() => {
+                // Let the computed prop recompute.
+                if (this.availableSpace > this.nodeCounts.fileSize) {
+                  return this.startContentTransfer();
+                }
+                this.initiatingContentTransfer = false;
+              });
+            });
+          }
+        }
+        return this.startContentTransfer();
+      },
       startContentTransfer() {
         this.contentTransferError = false;
         return this.transferChannelContent()
@@ -263,6 +293,7 @@
           })
           .catch(() => {
             this.contentTransferError = true;
+            this.initiatingContentTransfer = false;
           });
       },
       refreshPage() {

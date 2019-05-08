@@ -24,7 +24,13 @@
               />
             </th>
             <th></th>
-            <th></th>
+            <th
+              v-if="estimatedQuantities"
+              class="estimated"
+            >
+              {{ $tr('estimatedCounts') }}
+            </th>
+            <th v-else></th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -80,6 +86,12 @@
       KCheckbox,
       CoreTable,
     },
+    props: {
+      estimatedQuantities: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data() {
       return {
         disableAll: false,
@@ -92,6 +104,7 @@
         'nodesForTransfer',
         'path',
         'transferType',
+        'transferredChannel',
       ]),
       breadcrumbs() {
         return this.path.map(x => transformBreadrumb(x, this.$route.query));
@@ -117,7 +130,7 @@
       },
       annotatedChildNodes() {
         return this.childNodesWithPath.map(n =>
-          annotateNode(n, this.nodesForTransfer, !this.inExportMode)
+          annotateNode(n, this.nodesForTransfer, !this.inExportMode, this.transferredChannel)
         );
       },
       showableAnnotatedChildNodes() {
@@ -137,7 +150,8 @@
         return annotateNode(
           { ...this.currentTopicNode, path: [...this.path] },
           selections,
-          !this.inExportMode
+          !this.inExportMode,
+          this.transferredChannel
         );
       },
     },
@@ -159,7 +173,7 @@
           return node.available;
         }
         // If there are no resources at all within the node, do not display at all
-        return node.total_resources;
+        return node.importable_resources;
       },
       updateCurrentTopicNode(node) {
         return navigateToTopicUrl.call(this, node, this.$route.query);
@@ -206,6 +220,10 @@
     .k-checkbox-container {
       margin-right: -70px;
     }
+  }
+
+  .estimated {
+    text-align: right;
   }
 
 </style>

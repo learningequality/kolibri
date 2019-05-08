@@ -1,40 +1,37 @@
 <template>
 
-  <KGrid>
-    <KGridItem sizes="100, 75, 75" percentage>
-      <h3 v-if="isInImportMode" class="choose-message">
-        {{ $tr('chooseContentToImport') }}
-      </h3>
-      <h3 v-else class="choose-message">
-        {{ $tr('chooseContentToExport') }}
-      </h3>
-      <p class="available-space">
-        {{ $tr('availableSpace', { space: bytesForHumans(spaceOnDrive) }) }}
-      </p>
-      <p class="resources-selected-message">
-        {{ fileSizeText }}
-      </p>
-    </KGridItem>
-    <KGridItem sizes="100, 25, 25" percentage alignments="left, right, right">
-      <KButton
-        class="confirm-button"
-        :text="buttonText"
-        :primary="true"
-        :disabled="buttonIsDisabled"
-        :style="{ top: buttonOffset }"
-        @click="$emit('clickconfirm')"
-      />
-    </KGridItem>
-    <KGridItem size="100" percentage>
-      <UiAlert
-        v-if="remainingSpaceAfterTransfer <= 0"
-        type="error"
-        :dismissible="false"
-      >
-        {{ $tr('notEnoughSpace') }}
-      </UiAlert>
-    </KGridItem>
-  </KGrid>
+  <div>
+    <h3 v-if="isInImportMode" class="choose-message">
+      {{ $tr('chooseContentToImport') }}
+    </h3>
+    <h3 v-else class="choose-message">
+      {{ $tr('chooseContentToExport') }}
+    </h3>
+    <p class="available-space">
+      {{ $tr('availableSpace', { space: bytesForHumans(spaceOnDrive) }) }}
+    </p>
+    <p class="resources-selected-message">
+      {{ fileSizeText }}
+    </p>
+    <KButton
+      class="confirm-button"
+      :text="buttonText"
+      :primary="true"
+      :disabled="buttonIsDisabled"
+      @click="$emit('clickconfirm')"
+    />
+    <KCircularLoader
+      v-if="loading"
+      class="loader"
+    />
+    <UiAlert
+      v-if="!estimatedQuantities && remainingSpaceAfterTransfer <= 0"
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('notEnoughSpace') }}
+    </UiAlert>
+  </div>
 
 </template>
 
@@ -42,8 +39,7 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KGrid from 'kolibri.coreVue.components.KGrid';
-  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
@@ -54,8 +50,7 @@
     name: 'SelectedResourcesSize',
     components: {
       KButton,
-      KGrid,
-      KGridItem,
+      KCircularLoader,
       UiAlert,
     },
     mixins: [responsiveWindow],
@@ -66,6 +61,14 @@
         validator(val) {
           return val === 'import' || val === 'export';
         },
+      },
+      estimatedQuantities: {
+        type: Boolean,
+        default: false,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
       fileSize: RequiredNumber,
       resourceCount: RequiredNumber,
@@ -79,22 +82,26 @@
         return this.isInImportMode ? this.$tr('import') : this.$tr('export');
       },
       buttonIsDisabled() {
-        return this.resourceCount === 0 || this.remainingSpaceAfterTransfer <= 0;
+        return (
+          this.loading ||
+          this.resourceCount === 0 ||
+          (!this.estimatedQuantities && this.remainingSpaceAfterTransfer <= 0)
+        );
       },
       remainingSpaceAfterTransfer() {
         return Math.max(this.spaceOnDrive - this.fileSize, 0);
       },
       fileSizeText() {
+        if (this.estimatedQuantities) {
+          return this.$tr('estimatedResourcesSelected', {
+            fileSize: bytesForHumans(this.fileSize),
+            resources: this.resourceCount,
+          });
+        }
         return this.$tr('resourcesSelected', {
           fileSize: bytesForHumans(this.fileSize),
           resources: this.resourceCount,
         });
-      },
-      buttonOffset() {
-        if (this.windowIsSmall) {
-          return '0';
-        }
-        return '72px';
       },
     },
     methods: {
@@ -120,8 +127,13 @@
 <style lang="scss" scoped>
 
   .confirm-button {
-    position: relative;
-    margin: 0;
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .loader {
+    display: inline-block;
+    vertical-align: middle;
   }
 
 </style>

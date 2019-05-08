@@ -18,19 +18,50 @@ export function getDriveById(state) {
 export function nodeTransferCounts(state) {
   return function(transferType) {
     const { included, omitted } = state.nodesForTransfer;
+    const transferredChannel = state.transferredChannel;
+    const duplicateResources = transferredChannel.importable_resource_duplication;
+    const duplicateFiles = transferredChannel.importable_file_duplication;
+    const verifiedContentSize = state.verifiedContentSize;
+    const verifiedResourceCount = state.verifiedResourceCount;
+    function approximateCounts(count) {
+      // If we have duplicate resources
+      // then our counts are estimates so we return
+      // a rounded estimate of what the actual count is
+      if (duplicateResources > 1) {
+        return Math.floor(Number.parseFloat(count / duplicateResources).toPrecision(2));
+      } else {
+        return count;
+      }
+    }
+    function approximateFileSize(fileSize) {
+      // If we have duplicate files
+      // then our counts are estimates so we return
+      // a rounded estimate of what the actual count is
+      if (duplicateFiles > 1) {
+        return fileSize / duplicateFiles;
+      } else {
+        return fileSize;
+      }
+    }
     const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
     if (transferType === TransferTypes.LOCALEXPORT) {
       return {
-        resources: getDifference('on_device_resources'),
-        fileSize: getDifference('on_device_file_size'),
+        resources: approximateCounts(getDifference('on_device_resources')),
+        fileSize: approximateFileSize(getDifference('on_device_file_size')),
       };
     } else {
       // For REMOTE/LOCAL/PEERIMPORT
-      // This will overestimate transfer size, since it counts items under topic that may not
-      // be on the USB drive
       return {
-        resources: getDifference('total_resources') - getDifference('on_device_resources'),
-        fileSize: getDifference('total_file_size') - getDifference('on_device_file_size'),
+        resources:
+          verifiedResourceCount ||
+          approximateCounts(
+            getDifference('importable_resources') - getDifference('on_device_resources')
+          ),
+        fileSize:
+          verifiedContentSize ||
+          approximateFileSize(
+            getDifference('importable_file_size') - getDifference('on_device_file_size')
+          ),
       };
     }
   };
