@@ -231,11 +231,13 @@
           return;
         }
 
-        // Destructure the oldRoute into an object with the only four properties.
+        // Destructure the oldRoute into an object with 3 specific properties.
         // Setting this.lastRoute = oldRoute causes issues for some reason.
-        this.lastRoute = (({ name, query, path, params }) => ({ name, query, path, params }))(
-          oldRoute
-        );
+        this.lastRoute = {
+          name: oldRoute.name,
+          query: oldRoute.query,
+          params: oldRoute.params,
+        };
       },
     },
     $trs: {
