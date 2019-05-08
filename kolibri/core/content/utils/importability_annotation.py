@@ -5,13 +5,16 @@ import os
 import re
 
 import requests
-from django.core import cache
+from django.core.cache import cache
+from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
 from sqlalchemy import func
 from sqlalchemy import select
 
+from .annotation import _files_for_nodes
+from .annotation import _total_file_size
 from .paths import get_content_storage_dir_path
 from .paths import get_file_checksums_url
 from .sqlalchemybridge import Bridge
@@ -95,6 +98,17 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
+    contentnode_file_size_statement = (
+        select([func.sum(LocalFileTable.c.file_size)])
+        .select_from(FileTable.join(LocalFileTable))
+        .where(
+            and_(
+                FileTable.c.importable == True,  # noqa
+            )
+        )
+        .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
+    )
+
     logger.info(
         "Setting importability of non-topic ContentNode objects based on File importability"
     )
@@ -107,7 +121,11 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
                 ContentNodeTable.c.channel_id == channel_id,
             )
         )
-        .values(importable=exists(contentnode_statement))
+        .values(
+            importable=exists(contentnode_statement),
+            importable_resources=exists(contentnode_statement),
+            importable_file_size=contentnode_file_size_statement,
+        )
         .execution_options(autocommit=True)
     )
 
@@ -136,11 +154,63 @@ def recurse_importability_up_tree(channel_id):
     # start a transaction
 
     trans = connection.begin()
-    # Go from the deepest level to the shallowest
     start = datetime.datetime.now()
+
+    # Update all leaf ContentNodes to have importable_coach_content to 1 or 0
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                # In this channel
+                ContentNodeTable.c.channel_id == channel_id,
+                # That are not topics
+                ContentNodeTable.c.kind != content_kinds.TOPIC,
+            )
+        )
+        .values(importable_coach_contents=ContentNodeTable.c.coach_content)
+    )
+
+    # Before starting set importability to False on all topics.
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                # In this channel
+                ContentNodeTable.c.channel_id == channel_id,
+                # That are topics
+                ContentNodeTable.c.kind == content_kinds.TOPIC,
+            )
+        )
+        .values(importable=False)
+    )
+
+    # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
 
         importable_nodes = select([child.c.importable]).where(
+            and_(
+                child.c.importable == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+        node_resources = select([func.sum(child.c.importable_resources)]).where(
+            and_(
+                child.c.importable == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+        node_file_size = select([func.sum(child.c.importable_file_size)]).where(
+            and_(
+                child.c.importable == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+        # Expression that sums the total number of importable coach contents for each child node
+        # of a contentnode
+        coach_content_num = select([func.sum(child.c.importable_coach_contents)]).where(
             and_(
                 child.c.importable == True,  # noqa
                 ContentNodeTable.c.id == child.c.parent_id,
@@ -162,7 +232,15 @@ def recurse_importability_up_tree(channel_id):
                     ContentNodeTable.c.kind == content_kinds.TOPIC,
                 )
             )
-            .values(importable=exists(importable_nodes))
+            # Because we have set importability to False on all topics as a starting point
+            # we only need to make updates to topics with importable children.
+            .where(exists(importable_nodes))
+            .values(
+                importable=exists(importable_nodes),
+                importable_resources=node_resources,
+                importable_file_size=node_file_size,
+                importable_coach_contents=coach_content_num,
+            )
         )
 
     # commit the transaction
@@ -172,6 +250,31 @@ def recurse_importability_up_tree(channel_id):
     logger.debug("Importability annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
+
+
+def calculate_importable_file_size(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    channel.importable_file_size = _total_file_size(
+        _files_for_nodes(content_nodes).filter(importable=True)
+    )
+
+
+def calculate_importable_resource_count(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    channel.importable_resources = (
+        content_nodes.filter(importable=True)
+        .exclude(kind=content_kinds.TOPIC)
+        .dedupe_by_content_id()
+        .count()
+    )
+
+
+def calculate_importable_duplication_index(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    duped_resource_count = content_nodes.filter(importable=True).exclude(kind=content_kinds.TOPIC).count()
+    channel.importable_resource_duplication = duped_resource_count / float(channel.importable_resources)
+    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).aggregate(Sum("file_size"))["file_size__sum"] or 0
+    channel.importable_file_duplication = duped_file_size / float(channel.importable_file_size)
 
 
 def annotate_importability(channel_id, checksums):
@@ -185,58 +288,79 @@ def annotate_importability(channel_id, checksums):
         # First clear any existing annotation
         channel_localfiles.update(importable=False)
         mark_local_files_as_importable(checksums)
-    tree_id = ChannelMetadata.objects.get(id=channel_id).root.tree_id
-    ContentNode.objects.filter(tree_id=tree_id).update(importable=False)
     set_leaf_node_importability_from_local_file_importability(channel_id)
     recurse_importability_up_tree(channel_id)
+    channel = ChannelMetadata.objects.get(id=channel_id)
+    calculate_importable_file_size(channel)
+    calculate_importable_resource_count(channel)
+    calculate_importable_duplication_index(channel)
+    channel.save()
 
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
+
+# If we have already done importability annotation for this channel
+# Record this fact so that we avoid doing it repeatedly.
+IMPORTABILITY_ANNOTATION_CACHE_KEY = "importability_annotation_{channel_id}"
 
 
 def annotate_importability_from_studio(channel_id):
     """
     Dummy method to annotate everything as importable for Studio imports.
     """
-    annotate_importability(channel_id, None)
+    CACHE_MARKER = "STUDIO"
+    CACHE_KEY = IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id)
+    if cache.get(CACHE_KEY) != CACHE_MARKER:
+        annotate_importability(channel_id, None)
+        cache.set(CACHE_KEY, CACHE_MARKER, 3600)
 
 
 def annotate_importability_from_remote(channel_id, baseurl):
-    response = requests.get(get_file_checksums_url(channel_id, baseurl))
+    CACHE_MARKER = "PEER_{baseurl}".format(baseurl=baseurl)
+    CACHE_KEY = IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id)
+    if cache.get(CACHE_KEY) != CACHE_MARKER:
+        response = requests.get(get_file_checksums_url(channel_id, baseurl))
 
-    checksums = None
+        checksums = None
 
-    # Do something if we got a successful return
-    if response.status_code == 200:
-        try:
-            checksums = json.loads(response.content)
-            # Filter to avoid passing in bad checksums
-            checksums = [
-                checksum for checksum in checksums if checksum_regex.match(checksum)
-            ]
-        except ValueError:
-            # Bad JSON parsing will throw ValueError
-            # If the result of the json.loads is not iterable, a TypeError will be thrown
-            # If we end up here, just set checksums to None to allow us to cleanly continue
-            pass
-    annotate_importability(channel_id, checksums)
+        # Do something if we got a successful return
+        if response.status_code == 200:
+            try:
+                checksums = json.loads(response.content)
+                # Filter to avoid passing in bad checksums
+                checksums = [
+                    checksum for checksum in checksums if checksum_regex.match(checksum)
+                ]
+            except ValueError:
+                # Bad JSON parsing will throw ValueError
+                # If the result of the json.loads is not iterable, a TypeError will be thrown
+                # If we end up here, just set checksums to None to allow us to cleanly continue
+                pass
+        annotate_importability(channel_id, checksums)
+        cache.set(CACHE_KEY, CACHE_MARKER, 3600)
 
 
 def annotate_importability_from_disk(channel_id, basepath):
-    CACHE_KEY = 'disk_import_checksums_{basepath}'.format(basepath)
-    checksums = cache.get(CACHE_KEY)
-    if not checksums:
-        content_dir = get_content_storage_dir_path(datafolder=basepath)
+    CACHE_MARKER = "DISK_{basepath}".format(basepath=basepath)
+    CACHE_KEY = IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id)
+    if cache.get(CACHE_KEY) != CACHE_MARKER:
+        # Cache the checksums from reading this internal device to use for other
+        # importability annotations for different channels from the same drive.
+        CHECKSUM_CACHE_KEY = 'disk_import_checksums_{basepath}'.format(basepath=basepath)
+        checksums = cache.get(CHECKSUM_CACHE_KEY)
+        if not checksums:
+            content_dir = get_content_storage_dir_path(datafolder=basepath)
 
-        checksums = []
+            checksums = []
 
-        for _, _, files in os.walk(content_dir):
-            for name in files:
-                checksum = os.path.splitext(name)[0]
-                # Only add valid checksums formatted according to our standard filename
-                if checksum_regex.match(checksum):
-                    checksums.append(checksum)
-        # Cache is per device, so a relatively long lived one should
-        # be fine.
-        cache.set(CACHE_KEY, checksums, 1800)
-    annotate_importability(channel_id, checksums)
+            for _, _, files in os.walk(content_dir):
+                for name in files:
+                    checksum = os.path.splitext(name)[0]
+                    # Only add valid checksums formatted according to our standard filename
+                    if checksum_regex.match(checksum):
+                        checksums.append(checksum)
+            # Cache is per device, so a relatively long lived one should
+            # be fine.
+            cache.set(CHECKSUM_CACHE_KEY, checksums, 1800)
+        annotate_importability(channel_id, checksums)
+        cache.set(CACHE_KEY, CACHE_MARKER, 3600)
