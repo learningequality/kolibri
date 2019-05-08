@@ -97,7 +97,7 @@
     mixins: [commonCoach],
     data() {
       return {
-        viewByGroups: Boolean(this.$route.query && this.$route.query.groups),
+        viewByGroups: Boolean(this.$route.query.groups),
       };
     },
     computed: {
@@ -147,7 +147,7 @@
     },
     watch: {
       $route() {
-        this.viewByGroups = Boolean(this.$route.query && this.$route.query.groups);
+        this.viewByGroups = Boolean(this.$route.query.groups);
       },
     },
     methods: {
