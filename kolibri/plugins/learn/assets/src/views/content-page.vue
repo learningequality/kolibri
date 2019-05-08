@@ -47,10 +47,10 @@
       <h2>KICD Evaluation</h2>
       <p>
         <k-textbox
-          label="Your name"
-          :invalid="!kicdName"
+          label="Your email address"
+          :invalid="!kicdEmail"
           invalidText="Required"
-          v-model="kicdName"
+          v-model="kicdEmail"
         />
       </p>
       <p>
@@ -197,14 +197,14 @@
     data: () => ({
       wasIncomplete: false,
       licenceDescriptionIsVisible: false,
-      kicdName: '',
+      kicdEmail: '',
     }),
     computed: {
       kicdBaseUrl() {
         return global.kicd_form_url
           .replace('(((content_url_field_value)))', global.escape(window.location.href))
           .replace('(((content_title_field_value)))', this.content.title)
-          .replace('(((name_field_value)))', this.kicdName);
+          .replace('(((email_field_value)))', this.kicdEmail);
       },
       kicdTeacherUrl() {
         return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_teacher);
@@ -269,12 +269,12 @@
       },
     },
     watch: {
-      kicdName() {
-        Lockr.set('kicd-name', this.kicdName);
+      kicdEmail() {
+        Lockr.set('kicd-name', this.kicdEmail);
       },
     },
     mounted() {
-      this.kicdName = Lockr.get('kicd-name');
+      this.kicdEmail = Lockr.get('kicd-name');
     },
     beforeDestroy() {
       this.stopTracking();
