@@ -252,7 +252,7 @@ class ParamValidator(object):
             return param
 
 
-def query_params_required(**kwargs):
+def query_params_required(**kwargs):  # noqa C901
     """
         Request fn decorator that builds up a list of params and automatically returns a 400 if they are invalid.
         The validated params are passed to the wrapped function as kwargs.
@@ -275,21 +275,45 @@ def query_params_required(**kwargs):
             suffix = parts[-1]
             validator.set_constraints(suffix, value)
 
-    def _params(cls):
+    def _params(view):
+        try:
+            assert issubclass(
+                view, APIView
+            )
 
-        assert issubclass(
-            cls, APIView
-        ), "query_params_required decorator can only be used on subclasses of APIView"
+            class Wrapper(view):
+                def initial(self, request, *args, **kwargs):
 
-        class Wrapper(cls):
-            def initial(self, request, *args, **kwargs):
+                    # Copy this from the default viewset initial behaviour, otherwise it is not set before a
+                    # validation exception would be raised.
+                    self.format_kwarg = self.get_format_suffix(**kwargs)
+                    neg = self.perform_content_negotiation(request)
+                    request.accepted_renderer, request.accepted_media_type = neg
 
-                # Copy this from the default viewset initial behaviour, otherwise it is not set before a
-                # validation exception would be raised.
-                self.format_kwarg = self.get_format_suffix(**kwargs)
-                neg = self.perform_content_negotiation(request)
-                request.accepted_renderer, request.accepted_media_type = neg
+                    # Validate the params
+                    missing_params = []
+                    for arg_name, validator in validators.items():
+                        try:
+                            kwargs[arg_name] = validator.validate(request)
+                        except MissingRequiredParamsException:
+                            missing_params.append(validator.param_name)
 
+                    if missing_params:
+                        raise MissingRequiredParamsException(
+                            "The following parameters were missing and are required: {required}".format(
+                                required=", ".join(missing_params)
+                            )
+                        )
+                    # Update the kwargs on the view itself
+                    self.kwargs = kwargs
+                    super(Wrapper, self).initial(request, *args, **kwargs)
+
+            return Wrapper
+        except TypeError:
+            if not callable(view):
+                raise TypeError("Must either be a function or an APIView subclass")
+
+            def wrapper(request, *args, **kwargs):
                 # Validate the params
                 missing_params = []
                 for arg_name, validator in validators.items():
@@ -304,12 +328,10 @@ def query_params_required(**kwargs):
                             required=", ".join(missing_params)
                         )
                     )
-                # Update the kwargs on the view itself
-                self.kwargs = kwargs
-                super(Wrapper, self).initial(request, *args, **kwargs)
+                return view(request, *args, **kwargs)
 
-        return Wrapper
-
+        except AssertionError:
+            raise TypeError("query_params_required decorator can only be used on classes that are subclasses of APIView")
     return _params
 
 
