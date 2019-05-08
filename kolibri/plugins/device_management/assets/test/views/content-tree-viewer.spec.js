@@ -195,7 +195,7 @@ describe('contentTreeViewer component', () => {
     const sanitizeNode = omit(['message', 'checkboxType', 'disabled', 'children']);
     it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', () => {
       // Selected w/ unselected child scenario
-      setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })]);
+      setIncludedNodes([makeNode('topic_1', { importable_resources: 1000 })]);
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1', title: '' }] })]);
       const wrapper = makeWrapper({ store });
       const { selectAllCheckbox, addNodeForTransferMock } = getElements(wrapper);
@@ -224,7 +224,7 @@ describe('contentTreeViewer component', () => {
     it('clicking a checked child node triggers a "remove node" action', () => {
       const subTopic = makeNode('subtopic_1', {
         path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
-        total_resources: 100,
+        importable_resources: 100,
         on_device_resources: 50,
       });
       setChildren([subTopic]);
@@ -244,12 +244,12 @@ describe('contentTreeViewer component', () => {
       // Need to add at least two children, so clicking subtopic doesn't complete the topic
       const subTopic = makeNode('subtopic_1', {
         path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
-        total_resources: 100,
+        importable_resources: 100,
         on_device_resources: 50,
       });
       const subTopic2 = makeNode('subtopic_2', {
         path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
-        total_resources: 100,
+        importable_resources: 100,
         on_device_resources: 50,
       });
       setChildren([subTopic, subTopic2]);
@@ -266,15 +266,15 @@ describe('contentTreeViewer component', () => {
     it('clicking an indeterminate child node triggers an "add node" action', () => {
       const subTopic = makeNode('subtopic', {
         path: simplePath(['channel_1', 'topic_1']),
-        total_resources: 5,
+        importable_resources: 5,
       });
       const subTopic2 = makeNode('subtopic2', {
         path: simplePath(['channel_1', 'topic_1']),
-        total_resources: 5,
+        importable_resources: 5,
       });
       const subSubTopic = makeNode('subsubtopic', {
         path: simplePath(['channel_1', 'topic_1', 'subtopic']),
-        total_resources: 1,
+        importable_resources: 1,
       });
 
       store.state.manageContent.wizard.path = simplePath(['channel_1']);

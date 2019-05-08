@@ -37,7 +37,7 @@ describe('channelsGrid component', () => {
         name: 'visible channel',
         id: 'visible_channel',
         on_device_resources: 10,
-        total_resources: 1000,
+        importable_resources: 1000,
         available: true,
       },
     ]);
@@ -51,7 +51,7 @@ describe('channelsGrid component', () => {
         id: 'hidden_channel',
         available: false,
         on_device_resources: 0,
-        total_resources: 1000,
+        importable_resources: 1000,
       },
     ]);
     const wrapper = makeWrapper({ store });
@@ -73,14 +73,14 @@ describe('channelsGrid component', () => {
         id: 'beautiful_channel',
         available: true,
         on_device_resources: 10,
-        total_resources: 1000,
+        importable_resources: 1000,
       },
       {
         name: 'awesome channel',
         id: 'awesome_channel',
         available: true,
         on_device_resources: 10,
-        total_resources: 1000,
+        importable_resources: 1000,
       },
     ]);
     const wrapper = makeWrapper({ store });

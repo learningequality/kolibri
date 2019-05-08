@@ -156,7 +156,7 @@
         return this.channel.public === false;
       },
       resourcesSizeText() {
-        return bytesForHumans(this.channel.on_device_file_size);
+        return bytesForHumans(this.channel.published_size);
       },
       thumbnailImg() {
         return this.channel.thumbnail;

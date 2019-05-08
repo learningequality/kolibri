@@ -1,5 +1,6 @@
 //
-import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
+import ContentNodeGranularResource from '../../src/apiResources/contentNodeGranular';
 import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectContentActions';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import ChannelResource from '../../src/apiResources/deviceChannel';

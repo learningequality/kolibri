@@ -43,6 +43,8 @@ export function readyChannelMetadata(store, download = true) {
         channel_id: transferredChannel.id,
         baseurl: selectedPeer.base_url,
       });
+    } else if (store.getters['manageContent/wizard/inExportMode']) {
+      return getChannelWithContentSizes(transferredChannel.id);
     } else {
       return Error('Channel Metadata is only downloaded when importing');
     }
@@ -61,6 +63,8 @@ export function readyChannelMetadata(store, download = true) {
         channel_id: transferredChannel.id,
         baseurl: selectedPeer.base_url,
       });
+    } else if (store.getters['manageContent/wizard/inExportMode']) {
+      return getChannelWithContentSizes(transferredChannel.id);
     } else {
       return Error('Channel Metadata is only downloaded when importing');
     }

@@ -10,8 +10,8 @@ const allChannels = [
     id: 'awesome_channel',
     lang_code: 'en',
     lang_name: 'English',
-    total_resources: 1000,
-    total_file_size: 5000000000,
+    importable_resources: 1000,
+    importable_file_size: 5000000000,
     version: 10,
   },
   {
@@ -19,7 +19,7 @@ const allChannels = [
     id: 'bird_channel',
     desription: '',
     // No language code by design
-    total_resources: 100,
+    importable_resources: 100,
     version: 9,
   },
   {
@@ -28,7 +28,7 @@ const allChannels = [
     desription: '',
     lang_code: 'de',
     lang_name: 'German',
-    total_resources: 100,
+    importable_resources: 100,
     version: 8,
   },
   {
@@ -37,7 +37,7 @@ const allChannels = [
     desription: '',
     lang_code: 'de',
     lang_name: 'German',
-    total_resources: 100,
+    importable_resources: 100,
     version: 7,
   },
 ];

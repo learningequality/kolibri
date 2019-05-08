@@ -15,7 +15,7 @@ export function getAvailableChannelsOnPeerServer(store, addressId) {
             force: true,
           })
             .then(remoteChannels => {
-              resolve(remoteChannels.filter(channel => channel.total_resources > 0));
+              resolve(remoteChannels.filter(channel => channel.importable_resources > 0));
             })
             .catch(() => {
               reject({ error: ContentWizardErrors.NETWORK_LOCATION_DOES_NOT_HAVE_CHANNEL });

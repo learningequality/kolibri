@@ -1,13 +1,10 @@
 //
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import {
-  ContentNodeFileSizeResource,
-  ContentNodeGranularResource,
-  TaskResource,
-} from 'kolibri.resources';
+import { ContentNodeFileSizeResource, TaskResource } from 'kolibri.resources';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
+import ContentNodeGranularResource from '../../src/apiResources/contentNodeGranular';
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
@@ -61,7 +58,7 @@ describe('contentTreeViewer actions', () => {
     // For now, just keep it simple and make the file size result 0/1
     // TODO extend this mock to return arbitrary file sizes
     ContentNodeFileSizeResource.__getModelFetchReturns({
-      total_file_size: 1,
+      importable_file_size: 1,
       on_device_file_size: 0,
     });
     store = makeSelectContentPageStore();
@@ -74,7 +71,7 @@ describe('contentTreeViewer actions', () => {
   function addFileSizes(node) {
     return {
       ...node,
-      total_file_size: 1,
+      importable_file_size: 1,
       on_device_file_size: 0,
     };
   }
@@ -90,7 +87,7 @@ describe('contentTreeViewer actions', () => {
       // ...straightforwardly adds it to `include`
       const node_1 = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
-        total_resources: 200,
+        importable_resources: 200,
         on_device_resources: 50,
       });
       return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
@@ -106,12 +103,12 @@ describe('contentTreeViewer actions', () => {
       // ...straightforwardly adds both to `include`
       const node_1 = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
-        total_resources: 200,
+        importable_resources: 200,
         on_device_resources: 50,
       });
       const node_2 = makeNode('2_2_1', {
         path: simplePath('2', '2_2'),
-        total_resources: 200,
+        importable_resources: 200,
         on_device_resources: 25,
       });
       return store
@@ -133,7 +130,7 @@ describe('contentTreeViewer actions', () => {
       const ancestorNode = makeNode('1_1', {
         path: simplePath('1'),
         on_device_resources: 3,
-        total_resources: 10,
+        importable_resources: 10,
       });
       const descendantNode_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const descendantNode_2 = makeNode('1_1_1_1', { path: simplePath('1', '1_1', '1_1_1') });
@@ -156,7 +153,7 @@ describe('contentTreeViewer actions', () => {
       const node = makeNode('1', {
         path: simplePath(),
         on_device_resources: 518,
-        total_resources: 753,
+        importable_resources: 753,
       });
       const childNode = makeNode('1_1', { path: simplePath('1') });
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
@@ -200,12 +197,12 @@ describe('contentTreeViewer actions', () => {
       // ...adds the descendant to `omit`, but does not remove Node from `include`
       const parentNode = makeNode('1_1', {
         path: simplePath('1'),
-        total_resources: 50,
+        importable_resources: 50,
         on_device_resources: 20,
       });
       const childNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
-        total_resources: 20,
+        importable_resources: 20,
         on_device_resources: 10,
       });
       return store
@@ -226,7 +223,7 @@ describe('contentTreeViewer actions', () => {
       const node_1 = makeNode('1_1', {
         path: simplePath('1'),
         on_device_resources: 525,
-        total_resources: 1222,
+        importable_resources: 1222,
       });
       const node_2 = makeNode('1_2', { path: simplePath('1') });
       return store
@@ -249,17 +246,17 @@ describe('contentTreeViewer actions', () => {
     it('removing a Node removes it and all descendants from `include`', () => {
       const node = makeNode('1', {
         path: simplePath(),
-        total_resources: 15,
+        importable_resources: 15,
         on_device_resources: 10,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
-        total_resources: 10,
+        importable_resources: 10,
         on_device_resources: 5,
       });
       const grandchildNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
-        total_resources: 5,
+        importable_resources: 5,
         on_device_resources: 2,
       });
       // Not sure how this state can happen in practice.
@@ -280,17 +277,17 @@ describe('contentTreeViewer actions', () => {
       const topNode = makeNode('1', {
         path: simplePath(),
         on_device_resources: 7,
-        total_resources: 21,
+        importable_resources: 21,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
         on_device_resources: 2,
-        total_resources: 11,
+        importable_resources: 11,
       });
       const grandchildNode = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
         on_device_resources: 0,
-        total_resources: 5,
+        importable_resources: 5,
       });
       setIncludedNodes([topNode]);
       setOmittedNodes([grandchildNode]);
@@ -313,17 +310,17 @@ describe('contentTreeViewer actions', () => {
       // This keeps the store clean of unnecessary Nodes.
       const topNode = makeNode('1', {
         path: simplePath(),
-        total_resources: 25, // 25-10 = 15 transferrable resources
+        importable_resources: 25, // 25-10 = 15 transferrable resources
         on_device_resources: 10,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
-        total_resources: 15, // 10 transferrable
+        importable_resources: 15, // 10 transferrable
         on_device_resources: 5,
       });
       const siblingNode = makeNode('1_2', {
         path: simplePath('1'),
-        total_resources: 10, // 5 transferrable
+        importable_resources: 10, // 5 transferrable
         on_device_resources: 5,
       });
       setIncludedNodes([topNode]);
@@ -342,17 +339,17 @@ describe('contentTreeViewer actions', () => {
       const topNode = makeNode('1', {
         path: simplePath(),
         // Make it so that not all resources are installed
-        total_resources: 38,
+        importable_resources: 38,
         on_device_resources: 3,
       });
       const childNode = makeNode('1_1', {
         path: simplePath('1'),
-        total_resources: 9,
+        importable_resources: 9,
         on_device_resources: 2,
       });
       const siblingNode = makeNode('1_2', {
         path: simplePath('1'),
-        total_resources: 3,
+        importable_resources: 3,
         on_device_resources: 1,
       });
       setIncludedNodes([topNode]);

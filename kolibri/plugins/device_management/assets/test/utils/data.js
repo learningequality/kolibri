@@ -1,6 +1,6 @@
-const TOTAL_RESOURCES = 'total_resources';
+const TOTAL_RESOURCES = 'importable_resources';
 const ON_DEVICE_RESOURCES = 'on_device_resources';
-const TOTAL_FILE_SIZE = 'total_file_size';
+const TOTAL_FILE_SIZE = 'importable_file_size';
 const ON_DEVICE_FILE_SIZE = 'on_device_file_size';
 
 export const defaultChannel = {
@@ -44,7 +44,7 @@ export function contentNodeGranularPayload() {
     available: false,
     importable: true,
     kind: 'topic',
-    total_resources: 2,
+    importable_resources: 2,
     [ON_DEVICE_RESOURCES]: 0,
     children: [
       {
@@ -53,7 +53,7 @@ export function contentNodeGranularPayload() {
         available: false,
         importable: true,
         kind: 'topic',
-        total_resources: 1,
+        importable_resources: 1,
         [ON_DEVICE_RESOURCES]: 0,
       },
       {
@@ -61,7 +61,7 @@ export function contentNodeGranularPayload() {
         title: 'Addition and subtraction word problems',
         available: false,
         kind: 'video',
-        total_resources: 1,
+        importable_resources: 1,
         [ON_DEVICE_RESOURCES]: 0,
         importable: false,
       },

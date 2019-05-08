@@ -25,7 +25,7 @@ export const CheckboxTypes = {
 // isAncestorOf(a, b) is truthy if a is an ancestor of b
 const isAncestorOf = (a, b) => find(b.path, { id: a.id });
 const isDescedantOf = flip(isAncestorOf);
-const sumTotalResources = sumBy('total_resources');
+const sumTotalResources = sumBy('importable_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
 
 /**
@@ -39,16 +39,30 @@ const sumOnDeviceResources = sumBy('on_device_resources');
  * @returns {AnnotatedNode} - annotations are message, disabled, and checkboxType
  *
  */
-export function annotateNode(node, selectedNodes, forImport = true) {
-  const { on_device_resources, total_resources } = node;
+export function annotateNode(node, selectedNodes, forImport = true, channel) {
+  const { on_device_resources, importable_resources } = node;
   const isIncluded = find(selectedNodes.included, { id: node.id });
   const isOmitted = find(selectedNodes.omitted, { id: node.id });
   const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));
   const ancestorIsOmitted = find(selectedNodes.omitted, oNode => isAncestorOf(oNode, node));
   const nodeIsIncluded = isIncluded || ancestorIsIncluded;
+  // A ratio of the number of duped resources compared to deduped resources.
+  // For most channels this will be 1, but for e.g. Khan Academy English,
+  // this can be greater than 2.
+  const duplicateResources = channel.importable_resource_duplication;
+
+  function approximateCounts(count) {
+    // If we have duplicate resources, then our counts are estimates
+    // return a rounded estimate of what the actual count is
+    if (duplicateResources > 1) {
+      return Math.floor(Number.parseFloat(count / duplicateResources).toPrecision(1));
+    } else {
+      return count;
+    }
+  }
 
   // Completely on device -> DISABLED
-  if (on_device_resources === total_resources) {
+  if (on_device_resources === importable_resources) {
     if (forImport) {
       return {
         ...node,
@@ -76,7 +90,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
         (sumOnDeviceResources(omittedDescendants) || 0);
 
       // All descendants are omitted -> UNCHECKED
-      if (omittedResources === total_resources - on_device_resources) {
+      if (omittedResources === importable_resources - on_device_resources) {
         return {
           ...node,
           message: '',
@@ -89,8 +103,8 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       let selectedCount;
       let totalCount;
       if (forImport) {
-        selectedCount = total_resources - sumTotalResources(omittedDescendants);
-        totalCount = total_resources;
+        selectedCount = importable_resources - sumTotalResources(omittedDescendants);
+        totalCount = importable_resources;
       } else {
         selectedCount = on_device_resources - sumOnDeviceResources(omittedDescendants);
         totalCount = on_device_resources;
@@ -98,8 +112,8 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
-          selected: selectedCount,
-          total: totalCount,
+          selected: approximateCounts(selectedCount),
+          total: approximateCounts(totalCount),
         }),
         disabled: false,
         checkboxType: CheckboxTypes.INDETERMINATE,
@@ -110,7 +124,7 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     return {
       ...node,
       message: translator.$tr('resourcesSelected', {
-        total: forImport ? total_resources : on_device_resources,
+        total: approximateCounts(forImport ? importable_resources : on_device_resources),
       }),
       disabled: false,
       checkboxType: CheckboxTypes.CHECKED,
@@ -127,10 +141,12 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 
     // Node is not selected, has all children selected -> CHECKED
     if (forImport) {
-      if (fullyTotal === total_resources) {
+      if (fullyTotal === importable_resources) {
         return {
           ...node,
-          message: translator.$tr('resourcesSelected', { total: total_resources }),
+          message: translator.$tr('resourcesSelected', {
+            total: approximateCounts(importable_resources),
+          }),
           disabled: false,
           checkboxType: CheckboxTypes.CHECKED,
         };
@@ -139,8 +155,8 @@ export function annotateNode(node, selectedNodes, forImport = true) {
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
-          selected: fullyTotal,
-          total: total_resources,
+          selected: approximateCounts(fullyTotal),
+          total: approximateCounts(importable_resources),
         }),
         disabled: false,
         checkboxType: CheckboxTypes.INDETERMINATE,
@@ -157,8 +173,8 @@ export function annotateNode(node, selectedNodes, forImport = true) {
         return {
           ...node,
           message: translator.$tr('fractionOfResourcesSelected', {
-            selected: fullyOnDevice,
-            total: on_device_resources,
+            selected: approximateCounts(fullyOnDevice),
+            total: approximateCounts(on_device_resources),
           }),
           disabled: false,
           checkboxType: CheckboxTypes.INDETERMINATE,
@@ -173,8 +189,8 @@ export function annotateNode(node, selectedNodes, forImport = true) {
     return {
       ...node,
       message: translator.$tr('fractionOfResourcesOnDevice', {
-        onDevice: on_device_resources,
-        total: total_resources,
+        onDevice: approximateCounts(on_device_resources),
+        total: approximateCounts(importable_resources),
       }),
       disabled: false,
       checkboxType: CheckboxTypes.UNCHECKED,

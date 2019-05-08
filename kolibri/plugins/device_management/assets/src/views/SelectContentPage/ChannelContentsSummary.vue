@@ -34,8 +34,8 @@
       </tr>
       <tr>
         <th>{{ $tr('totalSizeRow') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.total_resources || 0 }) }}</td>
-        <td>{{ bytesForHumans(channel.total_file_size || 0) }}</td>
+        <td>{{ $tr('resourceCount', { count: channel.importable_resources_deduped || 0 }) }}</td>
+        <td>{{ bytesForHumans(channel.importable_file_size_deduped || 0) }}</td>
       </tr>
       <tr>
         <th>{{ $tr('onDeviceRow') }}</th>
