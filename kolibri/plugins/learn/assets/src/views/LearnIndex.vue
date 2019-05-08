@@ -139,12 +139,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('learnTitle'),
+            appBarTitle: this.$tr('searchTitle'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
           };
         }
 
@@ -243,6 +243,7 @@
     $trs: {
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
+      searchTitle: 'Search',
     },
   };
 
