@@ -83,26 +83,6 @@ describe('contentTreeViewer component', () => {
     expect(rows).toHaveLength(2);
   });
 
-  it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
-    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localimport');
-    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
-      id: 'topic',
-      children: [
-        {
-          ...makeNode('1'),
-          importable: true,
-        },
-        {
-          ...makeNode('1'),
-          importable: false,
-        },
-      ],
-    });
-    const wrapper = makeWrapper({ store });
-    const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).toHaveLength(1);
-  });
-
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localexport');
     store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {

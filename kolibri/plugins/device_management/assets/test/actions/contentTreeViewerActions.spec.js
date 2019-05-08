@@ -1,7 +1,7 @@
 //
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import { ContentNodeFileSizeResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
 import ContentNodeGranularResource from '../../src/apiResources/contentNodeGranular';
@@ -11,7 +11,6 @@ import { makeSelectContentPageStore } from '../utils/makeStore';
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
 jestMockResource(ChannelResource);
-jestMockResource(ContentNodeFileSizeResource);
 jestMockResource(ContentNodeGranularResource);
 jestMockResource(TaskResource);
 
@@ -55,17 +54,7 @@ describe('contentTreeViewer actions', () => {
   }
 
   beforeEach(() => {
-    // For now, just keep it simple and make the file size result 0/1
-    // TODO extend this mock to return arbitrary file sizes
-    ContentNodeFileSizeResource.__getModelFetchReturns({
-      importable_file_size: 1,
-      on_device_file_size: 0,
-    });
     store = makeSelectContentPageStore();
-  });
-
-  afterEach(() => {
-    ContentNodeFileSizeResource.__resetMocks();
   });
 
   function addFileSizes(node) {
@@ -382,7 +371,8 @@ describe('updateTreeViewTopic action', () => {
 
   beforeEach(() => {
     store = makeSelectContentPageStore();
-    ContentNodeGranularResource.__getModelFetchReturns(cngPayload);
+    ContentNodeGranularResource.fetchDetailCollection = jest.fn();
+    ContentNodeGranularResource.fetchDetailCollection.mockReturnValue(Promise.resolve(cngPayload));
   });
 
   function assertPathEquals(expected) {

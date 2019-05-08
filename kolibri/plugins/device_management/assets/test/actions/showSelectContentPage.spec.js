@@ -26,6 +26,7 @@ describe('loadChannelMetadata action', () => {
     // Add mock methods not in generic mock Resource
     TaskResource.startRemoteChannelImport = jest.fn();
     TaskResource.startDiskChannelImport = jest.fn();
+    TaskResource.startAnnotateImportability = jest.fn();
   });
 
   beforeEach(() => {
@@ -39,6 +40,7 @@ describe('loadChannelMetadata action', () => {
     TaskResource.cancelTask = jest.fn().mockResolvedValue();
     TaskResource.startDiskChannelImport.mockResolvedValue(taskEntity);
     TaskResource.startRemoteChannelImport.mockResolvedValue(taskEntity);
+    TaskResource.startAnnotateImportability.mockResolvedValue(taskEntity);
     ChannelResource.getModel.mockReturnValue({
       fetch: () => ({
         _promise: Promise.resolve({
@@ -56,6 +58,7 @@ describe('loadChannelMetadata action', () => {
     TaskResource.startRemoteChannelImport.mockReset();
     TaskResource.startDiskChannelImport.mockReset();
     TaskResource.cancelTask.mockReset();
+    TaskResource.startAnnotateImportability.mockReset();
   });
 
   function setUpStateForTransferType(transferType) {

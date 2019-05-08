@@ -12,6 +12,8 @@ const allChannels = [
     lang_name: 'English',
     importable_resources: 1000,
     importable_file_size: 5000000000,
+    importable_resources_deduped: 1000,
+    importable_file_size_deduped: 5000000000,
     version: 10,
   },
   {
@@ -20,6 +22,7 @@ const allChannels = [
     desription: '',
     // No language code by design
     importable_resources: 100,
+    importable_resources_deduped: 100,
     version: 9,
   },
   {
@@ -29,6 +32,7 @@ const allChannels = [
     lang_code: 'de',
     lang_name: 'German',
     importable_resources: 100,
+    importable_resources_deduped: 100,
     version: 8,
   },
   {
@@ -38,6 +42,7 @@ const allChannels = [
     lang_code: 'de',
     lang_name: 'German',
     importable_resources: 100,
+    importable_resources_deduped: 100,
     version: 7,
   },
 ];

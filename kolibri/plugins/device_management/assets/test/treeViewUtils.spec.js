@@ -18,13 +18,17 @@ function makeNodesForTransfer(included, omitted) {
   return { included, omitted };
 }
 
+const channel = {
+  importable_resource_duplication: 1,
+};
+
 describe('annotateNode utility correctly annotates', () => {
   // Simplest cases
   it('nodes that are in the "include" list (100% selected)', () => {
     const node_1 = makeNodeWithResources('1', 100, 10);
     const selected = makeNodesForTransfer([node_1], []);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '100 resources selected',
       disabled: false,
@@ -40,8 +44,8 @@ describe('annotateNode utility correctly annotates', () => {
   it('nodes that are neither selected nor omitted', () => {
     const node_1 = makeNodeWithResources('1', 100, 10);
     const selected = makeNodesForTransfer([], []);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 of 100 resources on your device',
       disabled: false,
@@ -57,8 +61,8 @@ describe('annotateNode utility correctly annotates', () => {
   it('nodes that are in the "omit list"', () => {
     const node_1 = makeNodeWithResources('1', 100, 10);
     const selected = makeNodesForTransfer([], [node_1]);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 of 100 resources on your device',
       disabled: false,
@@ -75,8 +79,8 @@ describe('annotateNode utility correctly annotates', () => {
   it('nodes that have all resources on the device', () => {
     const node_1 = makeNodeWithResources('1', 100, 100);
     const selected = makeNodesForTransfer([], []);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: 'Already on your device',
       disabled: true,
@@ -92,8 +96,8 @@ describe('annotateNode utility correctly annotates', () => {
   it('nodes that are not selected, but have some resources on the device', () => {
     const node_1 = makeNodeWithResources('1', 2000, 10);
     const selected = makeNodesForTransfer([], []);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 of 2,000 resources on your device',
       disabled: false,
@@ -109,8 +113,8 @@ describe('annotateNode utility correctly annotates', () => {
   it('nodes that are in "omit" list, but have some resources on the device', () => {
     const node_1 = makeNodeWithResources('1', 2000, 10);
     const selected = makeNodesForTransfer([], [node_1]);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 of 2,000 resources on your device',
       disabled: false,
@@ -127,8 +131,8 @@ describe('annotateNode utility correctly annotates', () => {
     // ...are annotated as if included as normal (no special message about resources on device)
     const node_1 = makeNodeWithResources('1', 100, 10);
     const selected = makeNodesForTransfer([node_1], []);
-    const annotated = annotateNode(node_1, selected);
-    const exportAnnotated = annotateNode(node_1, selected, false);
+    const annotated = annotateNode(node_1, selected, true, channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '100 resources selected',
       disabled: false,
@@ -149,8 +153,8 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([includedAncestor], []);
-    const annotated = annotateNode(onDeviceDescendant, selected);
-    const exportAnnotated = annotateNode(onDeviceDescendant, selected, false);
+    const annotated = annotateNode(onDeviceDescendant, selected, true, channel);
+    const exportAnnotated = annotateNode(onDeviceDescendant, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: 'Already on your device',
       disabled: true,
@@ -177,8 +181,8 @@ describe('annotateNode utility correctly annotates', () => {
       importable_resources: 10,
     });
     const selected = makeNodesForTransfer([includedAncestor], []);
-    const annotated = annotateNode(notIncludedDescendant, selected);
-    const exportAnnotated = annotateNode(notIncludedDescendant, selected, false);
+    const annotated = annotateNode(notIncludedDescendant, selected, true, channel);
+    const exportAnnotated = annotateNode(notIncludedDescendant, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 resources selected',
       disabled: false,
@@ -208,8 +212,8 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1', '1_1']),
     };
     const selected = makeNodesForTransfer([includedAncestor], [omittedDescendant]);
-    const annotated = annotateNode(partiallySelected, selected);
-    const exportAnnotated = annotateNode(partiallySelected, selected, false);
+    const annotated = annotateNode(partiallySelected, selected, true, channel);
+    const exportAnnotated = annotateNode(partiallySelected, selected, false, channel);
     assertAnnotationsEqual(annotated, {
       message: '10 of 20 resources selected',
       disabled: false,
@@ -235,13 +239,13 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([includedNode], [omittedNode_1, omittedNode_2]);
-    const annotated = annotateNode(includedNode, selected);
+    const annotated = annotateNode(includedNode, selected, true, channel);
     assertAnnotationsEqual(annotated, {
       message: '12 of 20 resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
-    const exportAnnotated = annotateNode(includedNode, selected, false);
+    const exportAnnotated = annotateNode(includedNode, selected, false, channel);
     assertAnnotationsEqual(exportAnnotated, {
       message: '3 of 5 resources selected',
       disabled: false,
@@ -261,14 +265,14 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([childNode_1, childNode_2], []);
-    const annotated = annotateNode(parentNode, selected);
+    const annotated = annotateNode(parentNode, selected, true, channel);
     // Here, assumption is all descendants of included nodes will be imported
     assertAnnotationsEqual(annotated, {
       message: '6 of 10 resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
-    const exportAnnotated = annotateNode(parentNode, selected, false);
+    const exportAnnotated = annotateNode(parentNode, selected, false, channel);
     assertAnnotationsEqual(exportAnnotated, {
       message: '2 of 3 resources selected',
       disabled: false,
@@ -292,7 +296,7 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([childNode_1, childNode_2, childNode_3], []);
-    const annotated = annotateNode(parentNode, selected);
+    const annotated = annotateNode(parentNode, selected, true, channel);
     // Technically not correct, but implication is that they are completing the parentNode.
     // Will really only be transfering 7 resources.
     assertAnnotationsEqual(annotated, {
@@ -300,7 +304,7 @@ describe('annotateNode utility correctly annotates', () => {
       disabled: false,
       checkboxType: 'checked',
     });
-    const exportAnnotated = annotateNode(parentNode, selected, false);
+    const exportAnnotated = annotateNode(parentNode, selected, false, channel);
     assertAnnotationsEqual(exportAnnotated, {
       message: '3 resources selected',
       disabled: false,
@@ -324,13 +328,13 @@ describe('annotateNode utility correctly annotates', () => {
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([parentNode], [childNode_1, childNode_2, childNode_3]);
-    const annotated = annotateNode(parentNode, selected);
+    const annotated = annotateNode(parentNode, selected, true, channel);
     assertAnnotationsEqual(annotated, {
       message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
-    const exportAnnotated = annotateNode(parentNode, selected, false);
+    const exportAnnotated = annotateNode(parentNode, selected, false, channel);
     assertAnnotationsEqual(exportAnnotated, {
       message: '',
       disabled: false,
