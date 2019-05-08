@@ -13,10 +13,9 @@
       <h2>KICD Evaluation</h2>
       <p>
         <k-textbox
-          label="Name"
-          :maxlength="50"
+          label="Your name"
           :invalid="!kicdName"
-          invalidText="Name is required"
+          invalidText="Required"
           v-model="kicdName"
         />
       </p>
@@ -35,6 +34,9 @@
           :href="kicdChiefUrl"
           target="_blank"
         />
+      </p>
+      <p class="kicd-explanation">
+        (will open a new tab)
       </p>
     </div>
 
@@ -353,5 +355,8 @@
   // center-align
   >>>.ui-textbox
     margin: auto
+
+  .kicd-explanation
+    font-size: smaller
 
 </style>
