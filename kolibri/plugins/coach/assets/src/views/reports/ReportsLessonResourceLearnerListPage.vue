@@ -51,7 +51,10 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ group.name }}
+            <KLabeledIcon>
+              <KIcon slot="icon" group />
+              {{ group.name }}
+            </KLabeledIcon>
           </h2>
 
           <KGrid cols="2">
