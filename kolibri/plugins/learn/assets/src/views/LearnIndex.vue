@@ -83,6 +83,11 @@
       KPageContainer,
     },
     mixins: [responsiveWindow],
+    data() {
+      return {
+        lastRoute: null,
+      };
+    },
     computed: {
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
@@ -136,7 +141,8 @@
           return {
             appBarTitle: this.$tr('learnTitle'),
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
+            // Default to the Learn root page if there is no lastRoute to return to.
+            immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
             immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
@@ -215,6 +221,21 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+      },
+    },
+    watch: {
+      $route: function(newRoute, oldRoute) {
+        // Return if the current route is a search path. Otherwise this method creates
+        // an infinite loop.
+        if (newRoute.name === 'SEARCH' && oldRoute.name === 'SEARCH') {
+          return;
+        }
+
+        // Destructure the oldRoute into an object with the only four properties.
+        // Setting this.lastRoute = oldRoute causes issues for some reason.
+        this.lastRoute = (({ name, query, path, params }) => ({ name, query, path, params }))(
+          oldRoute
+        );
       },
     },
     $trs: {
