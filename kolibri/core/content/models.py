@@ -234,8 +234,27 @@ class ContentNode(MPTTModel):
     lang = models.ForeignKey("Language", blank=True, null=True)
     # Fields used only on Kolibri and not imported from a content database
     # importable is used to indicate within a particular import scenario
-    # whether a contentnode is importable or not - not used when importing from Studio
+    # whether a contentnode is importable or not - always true when importing from Studio
     importable = models.NullBooleanField()
+    # For all of these values, annotation is done in a Node local way, so it is specific
+    # to this node within the channel, and also does not dedupe.
+    # If you want true values for the size and number of resources for an entire tree
+    # the channelmetadata has deduped data for the entire channel - but this would be
+    # costly to calculate for every single node.
+    # Total count of importable resources for this node - this will change
+    # depending on import source.
+    importable_resources = models.IntegerField(default=0, null=True, blank=True)
+    # Total importable size for this node - this will change depending on content
+    # source.
+    importable_file_size = models.BigIntegerField(default=0, null=True, blank=True)
+    # Total number of importable coach only resources for this node
+    importable_coach_contents = models.IntegerField(default=0, null=True, blank=True)
+    # Total count of on device resources for this node.
+    on_device_resources = models.IntegerField(default=0, null=True, blank=True)
+    # Total file size on disk for this node
+    on_device_file_size = models.BigIntegerField(default=0, null=True, blank=True)
+    # Total number of coach only resources for this node
+    num_coach_contents = models.IntegerField(default=0, null=True, blank=True)
 
     objects = ContentNodeManager()
 
@@ -448,6 +467,15 @@ class ChannelMetadata(models.Model):
         "Language", related_name="channels", verbose_name="languages", blank=True
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
+    # Total count of importable resources for this channel - this will change
+    # depending on import source.
+    importable_resources = models.IntegerField(default=0, null=True, blank=True)
+    # Total importable size for this channel - this will change depending on content
+    # source.
+    importable_file_size = models.BigIntegerField(default=0, null=True, blank=True)
+    # Ratios representing how duplicated resources and files are in this resource
+    importable_resource_duplication = models.FloatField(default=1, null=True, blank=True)
+    importable_file_duplication = models.FloatField(default=1, null=True, blank=True)
 
     class Admin:
         pass
