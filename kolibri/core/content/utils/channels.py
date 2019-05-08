@@ -2,6 +2,7 @@ import fnmatch
 import logging
 import os
 
+from django.core.cache import cache
 from sqlalchemy.exc import DatabaseError
 
 from .paths import get_content_database_dir_path
@@ -124,10 +125,23 @@ def get_channels_for_data_folder(datafolder):
     return channels
 
 
+# Use this to cache mounted drive information when
+# it has already been fetched for querying by drive id
+MOUNTED_DRIVES_CACHE_KEY = "mounted_drives_cache_key"
+
+
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
         drive.metadata["channels"] = (
             get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
         )
+    cache.set(MOUNTED_DRIVES_CACHE_KEY, drives, 3600)
     return drives
+
+
+def get_mounted_drive_by_id(drive_id):
+    drives = cache.get(MOUNTED_DRIVES_CACHE_KEY)
+    if drives is None or drives.get(drive_id, None) is None:
+        drives = get_mounted_drives_with_channel_info()
+    return drives[drive_id]
