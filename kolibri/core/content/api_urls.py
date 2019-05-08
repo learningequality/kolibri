@@ -3,8 +3,6 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import ChannelMetadataViewSet
-from .api import ContentNodeFileSizeViewSet
-from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
 from .api import ContentNodeSearchViewset
 from .api import ContentNodeSlimViewset
@@ -26,14 +24,6 @@ router.register(r"file", FileViewset, base_name="file")
 router.register(
     r"contentnodeprogress", ContentNodeProgressViewset, base_name="contentnodeprogress"
 )
-router.register(
-    r"contentnode_granular",
-    ContentNodeGranularViewset,
-    base_name="contentnode_granular",
-)
 router.register(r"remotechannel", RemoteChannelViewSet, base_name="remotechannel")
-router.register(
-    r"contentnodefilesize", ContentNodeFileSizeViewSet, base_name="contentnodefilesize"
-)
 
 urlpatterns = [url(r"^", include(router.urls))]

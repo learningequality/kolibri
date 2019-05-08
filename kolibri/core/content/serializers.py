@@ -10,26 +10,8 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
-from kolibri.core.content.models import LocalFile
-from kolibri.core.content.utils.content_types_tools import (
-    renderable_contentnodes_without_topics_q_filter,
-)
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.fields import create_timezonestamp
-
-
-def _files_for_nodes(nodes):
-    return LocalFile.objects.filter(files__contentnode__in=nodes)
-
-
-def _total_file_size(files_or_nodes):
-    if issubclass(files_or_nodes.model, LocalFile):
-        localfiles = files_or_nodes
-    elif issubclass(files_or_nodes.model, ContentNode):
-        localfiles = _files_for_nodes(files_or_nodes)
-    else:
-        raise TypeError("Expected queryset for LocalFile or ContentNode")
-    return localfiles.distinct().aggregate(Sum("file_size"))["file_size__sum"] or 0
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -54,52 +36,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     lang_code = serializers.SerializerMethodField()
     lang_name = serializers.SerializerMethodField()
     available = serializers.SerializerMethodField()
-
-    def to_representation(self, instance):
-        # TODO: rtibbles - cleanup this for device specific serializer.
-        value = super(ChannelMetadataSerializer, self).to_representation(instance)
-
-        value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
-
-        # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if "request" in self.context:
-
-            include_fields = (
-                self.context["request"].GET.get("include_fields", "").split(",")
-            )
-
-            if include_fields:
-
-                # build querysets for the full set of channel nodes, as well as those that are unrenderable
-                channel_nodes = ContentNode.objects.filter(channel_id=instance.id, importable=True)
-                unrenderable_nodes = channel_nodes.exclude(
-                    renderable_contentnodes_without_topics_q_filter
-                )
-
-                if "total_resources" in include_fields:
-                    # count the total number of renderable non-topic resources in the channel
-                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value["total_resources"] = (
-                        channel_nodes.dedupe_by_content_id().count()
-                        - unrenderable_nodes.dedupe_by_content_id().count()
-                    )
-
-                if "total_file_size" in include_fields:
-                    # count the total file size of files associated with renderable content nodes
-                    # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value["total_file_size"] = _total_file_size(
-                        channel_nodes
-                    ) - _total_file_size(unrenderable_nodes)
-
-                if "on_device_resources" in include_fields:
-                    # read the precalculated total number of resources from the channel already available
-                    value["on_device_resources"] = instance.total_resource_count
-
-                if "on_device_file_size" in include_fields:
-                    # read the precalculated total size of available files associated with the channel
-                    value["on_device_file_size"] = instance.published_size
-
-        return value
+    num_coach_contents = serializers.IntegerField(source="root.num_coach_contents")
 
     def get_lang_code(self, instance):
         if instance.root.lang is None:
@@ -130,6 +67,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             "thumbnail",
             "version",
             "available",
+            "num_coach_contents",
         )
 
 
@@ -553,50 +491,6 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
                     value["num_coach_contents"] = get_num_coach_contents(instance)
 
         return value
-
-
-class ContentNodeGranularSerializer(serializers.ModelSerializer):
-    num_coach_contents = serializers.SerializerMethodField()
-    total_resources = serializers.SerializerMethodField()
-    on_device_resources = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ContentNode
-        fields = (
-            "id",
-            "available",
-            "coach_content",
-            "kind",
-            "num_coach_contents",
-            "on_device_resources",
-            "title",
-            "total_resources",
-        )
-
-    def get_total_resources(self, instance):
-        total_resources_query = instance.get_descendants(include_self=True).filter(
-            renderable_contentnodes_without_topics_q_filter
-        )
-
-        if self.context["request"].query_params.get("check_importable", None):
-            total_resources_query = total_resources_query.filter(importable=True)
-
-        return total_resources_query.distinct().count()
-
-    def get_on_device_resources(self, instance):
-        return (
-            instance.get_descendants(include_self=True)
-            .filter(renderable_contentnodes_without_topics_q_filter)
-            .filter(available=True)
-            .distinct()
-            .count()
-        )
-
-    def get_num_coach_contents(self, instance):
-        # If for exporting, only show what is available on server. For importing,
-        # show all of the coach contents in the topic.
-        for_export = self.context["request"].query_params.get("for_export", None)
-        return get_num_coach_contents(instance, filter_available=for_export)
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

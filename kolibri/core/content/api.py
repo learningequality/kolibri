@@ -23,7 +23,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
-from rest_framework import mixins
 from rest_framework import pagination
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -34,9 +33,6 @@ from rest_framework.response import Response
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.utils.content_types_tools import (
-    renderable_contentnodes_q_filter,
-)
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.stopwords import stopwords_set
@@ -111,7 +107,7 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all().select_related("root__lang")
+        return models.ChannelMetadata.objects.all().select_related("root").select_related("root__lang")
 
 
 class IdFilter(FilterSet):
@@ -771,30 +767,6 @@ class ContentNodeSearchViewset(ContentNodeSlimViewset):
         )
 
 
-class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    serializer_class = serializers.ContentNodeGranularSerializer
-
-    def get_queryset(self):
-        return (
-            models.ContentNode.objects.all()
-            .filter(renderable_contentnodes_q_filter)
-            .distinct()
-        )
-
-    def retrieve(self, request, pk):
-        queryset = self.get_queryset()
-        instance = get_object_or_404(queryset, pk=pk)
-        children = queryset.filter(parent=instance)
-        if request.query_params.get("check_importable", None):
-            children = children.filter(importable=True)
-        elif request.query_params.get("for_export", None):
-            children = children.filter(available=True)
-
-        child_serializer = self.get_serializer(children, many=True)
-
-        return Response(child_serializer.data)
-
-
 class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
@@ -931,29 +903,4 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         language = request.GET.get("language", None)
         return self._make_channel_endpoint_request(
             identifier=pk, baseurl=baseurl, keyword=keyword, language=language
-        )
-
-
-class ContentNodeFileSizeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeGranularSerializer
-
-    def get_queryset(self):
-        return models.ContentNode.objects.all()
-
-    def retrieve(self, request, pk):
-        instance = self.get_object()
-        files = models.LocalFile.objects.filter(
-            files__contentnode__in=instance.get_descendants(include_self=True)
-        ).distinct()
-        total_file_size = files.aggregate(Sum("file_size"))["file_size__sum"] or 0
-        on_device_file_size = (
-            files.filter(available=True).aggregate(Sum("file_size"))["file_size__sum"]
-            or 0
-        )
-
-        return Response(
-            {
-                "total_file_size": total_file_size,
-                "on_device_file_size": on_device_file_size,
-            }
         )
