@@ -83,6 +83,11 @@
       KPageContainer,
     },
     mixins: [responsiveWindow],
+    data() {
+      return {
+        lastRoute: null,
+      };
+    },
     computed: {
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
@@ -131,6 +136,16 @@
               immersivePageIcon: 'close',
             };
           }
+        }
+        if (this.pageName === PageNames.SEARCH) {
+          return {
+            appBarTitle: this.$tr('searchTitle'),
+            immersivePage: true,
+            // Default to the Learn root page if there is no lastRoute to return to.
+            immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
         }
 
         if (this.pageName === PageNames.TOPICS_CONTENT) {
@@ -208,9 +223,27 @@
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
     },
+    watch: {
+      $route: function(newRoute, oldRoute) {
+        // Return if the user is searching another query on the same search results
+        // page. Otherwise, the back arrow will infinitely redirect.
+        if (newRoute.name === 'SEARCH' && oldRoute.name === 'SEARCH') {
+          return;
+        }
+
+        // Destructure the oldRoute into an object with 3 specific properties.
+        // Setting this.lastRoute = oldRoute causes issues for some reason.
+        this.lastRoute = {
+          name: oldRoute.name,
+          query: oldRoute.query,
+          params: oldRoute.params,
+        };
+      },
+    },
     $trs: {
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
+      searchTitle: 'Search',
     },
   };
 
