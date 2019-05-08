@@ -109,6 +109,8 @@
       availableSpace: 'Drive space available: {space}',
       resourcesSelected:
         'Content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
+      estimatedResourcesSelected:
+        'Estimated content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
     },
   };
 
