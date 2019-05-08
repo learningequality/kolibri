@@ -9,6 +9,22 @@
       :isTopic="isTopic"
     />
 
+    <div class="kicd-eval">
+      <h2>KICD Evaluation</h2>
+      <p>
+        <kExternalLink
+          text="Submit teacher report"
+          appearance="raised-button"
+          :primary="true"
+        />
+        <kExternalLink
+          text="Submit chief report"
+          appearance="raised-button"
+          :primary="false"
+        />
+      </p>
+    </div>
+
     <content-renderer
       v-if="!content.assessment"
       class="content-renderer"
@@ -77,11 +93,13 @@
     </section>
     -->
 
+    <!--
     <download-button
       v-if="canDownload"
       :files="downloadableFiles"
       class="download-button"
     />
+    -->
 
     <slot name="below_content">
       <template v-if="progress >= 1 && content.next_content">
@@ -129,6 +147,7 @@
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import uiIconButton from 'keen-ui/src/UiIconButton';
   import markdownIt from 'markdown-it';
+  import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { pageMode } from '../state/getters';
   import { updateContentNodeProgress } from '../state/actions/main';
@@ -157,6 +176,7 @@
       assessmentWrapper,
       masteredSnackbars,
       uiIconButton,
+      kExternalLink,
     },
     data: () => ({
       wasIncomplete: false,
@@ -283,5 +303,14 @@
 
   .download-button
     display: block
+
+  .kicd-eval
+    border: 2px solid gray
+    border-radius: 4px
+    padding: 8px
+    text-align: center
+    margin: 8px
+    margin-left: 16px
+    margin-right: 16px
 
 </style>
