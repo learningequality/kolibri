@@ -20,4 +20,4 @@ CMD export BUILDKITE_PULL_REQUEST_BASE_BRANCH=$BUILDKITE_PULL_REQUEST_BASE_BRANC
     pip3 install -r ./kolibri/requirements/testing_sheet.txt && \
     python3 ./kolibri/.buildkite/create_integration_testing_worksheet.py && \
     cd /kolibri/.buildkite && \
-    cp *.txt /kolibridist/
+    mv *.txt /kolibridist/
