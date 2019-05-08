@@ -3,6 +3,7 @@ import logging
 import os
 
 from django.db import connection
+from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import exists
@@ -20,8 +21,6 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.serializers import _files_for_nodes
-from kolibri.core.content.serializers import _total_file_size
 from kolibri.core.content.utils.paths import get_content_database_dir_path
 from kolibri.core.device.models import ContentCacheKey
 
@@ -30,6 +29,20 @@ logger = logging.getLogger(__name__)
 CONTENT_APP_NAME = KolibriContentConfig.label
 
 CHUNKSIZE = 10000
+
+
+def _files_for_nodes(nodes):
+    return LocalFile.objects.filter(files__contentnode__in=nodes)
+
+
+def _total_file_size(files_or_nodes):
+    if issubclass(files_or_nodes.model, LocalFile):
+        localfiles = files_or_nodes
+    elif issubclass(files_or_nodes.model, ContentNode):
+        localfiles = _files_for_nodes(files_or_nodes)
+    else:
+        raise TypeError("Expected queryset for LocalFile or ContentNode")
+    return localfiles.distinct().aggregate(Sum("file_size"))["file_size__sum"] or 0
 
 
 def update_channel_metadata():
@@ -159,6 +172,17 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
+    contentnode_file_size_statement = (
+        select([func.sum(LocalFileTable.c.file_size)])
+        .select_from(FileTable.join(LocalFileTable))
+        .where(
+            and_(
+                FileTable.c.available == True,  # noqa
+            )
+        )
+        .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
+    )
+
     logger.info(
         "Setting availability of non-topic ContentNode objects based on File availability"
     )
@@ -171,7 +195,11 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
                 ContentNodeTable.c.channel_id == channel_id,
             )
         )
-        .values(available=exists(contentnode_statement))
+        .values(
+            available=exists(contentnode_statement),
+            on_device_resources=exists(contentnode_statement),
+            on_device_file_size=contentnode_file_size_statement,
+        )
         .execution_options(autocommit=True)
     )
 
@@ -273,7 +301,7 @@ def set_local_file_availability_from_disk(checksums=None):
     mark_local_files_as_unavailable(checksums_to_set_unavailable)
 
 
-def recurse_availability_up_tree(channel_id):
+def recurse_annotation_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeClass = bridge.get_class(ContentNode)
@@ -285,7 +313,7 @@ def recurse_availability_up_tree(channel_id):
     node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
 
     logger.info(
-        "Setting availability of ContentNode objects with children for {levels} levels".format(
+        "Annotating ContentNode objects with children for {levels} levels".format(
             levels=node_depth
         )
     )
@@ -295,10 +323,40 @@ def recurse_availability_up_tree(channel_id):
     # start a transaction
 
     trans = connection.begin()
-    # Go from the deepest level to the shallowest
     start = datetime.datetime.now()
+
+    # Update all leaf ContentNodes to have num_coach_content to 1 or 0
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                # In this channel
+                ContentNodeTable.c.channel_id == channel_id,
+                # That are not topics
+                ContentNodeTable.c.kind != content_kinds.TOPIC,
+            )
+        )
+        .values(num_coach_contents=ContentNodeTable.c.coach_content)
+    )
+
+    # Before starting set availability to False on all topics.
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                # In this channel
+                ContentNodeTable.c.channel_id == channel_id,
+                # That are topics
+                ContentNodeTable.c.kind == content_kinds.TOPIC,
+            )
+        )
+        .values(available=False)
+    )
+
+    # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
 
+        # Expression to capture all available child nodes of a contentnode
         available_nodes = select([child.c.available]).where(
             and_(
                 child.c.available == True,  # noqa
@@ -306,8 +364,58 @@ def recurse_availability_up_tree(channel_id):
             )
         )
 
+        # Expression to capture a sum of the on_device_resources for all child nodes
+        # of a content node - does not dedupe by content_id
+        node_resources = select([func.sum(child.c.on_device_resources)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+        # Expression to capture a sum of the on_device_file_size for all child nodes
+        # of a content node - does not dedupe when content nodes share files
+        node_file_size = select([func.sum(child.c.on_device_file_size)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+        # Expressions for annotation of coach content
+
+        # Expression that will resolve a boolean value for all the available children
+        # of a content node, whereby if they all have coach_content flagged on them, it will be true,
+        # but otherwise false.
+        # Everything after the select statement should be identical to the available_nodes expression above.
+        if bridge.engine.name == "sqlite":
+            # Use a min function to simulate an AND.
+            coach_content_nodes = select([func.min(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    ContentNodeTable.c.id == child.c.parent_id,
+                )
+            )
+        elif bridge.engine.name == "postgresql":
+            # Use the postgres boolean AND operator
+            coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    ContentNodeTable.c.id == child.c.parent_id,
+                )
+            )
+
+        # Expression that sums the total number of coach contents for each child node
+        # of a contentnode
+        coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
         logger.info(
-            "Setting availability of ContentNode objects with children for level {level}".format(
+            "Annotating ContentNode objects with children for level {level}".format(
                 level=level
             )
         )
@@ -321,108 +429,30 @@ def recurse_availability_up_tree(channel_id):
                     ContentNodeTable.c.kind == content_kinds.TOPIC,
                 )
             )
-            .values(available=exists(available_nodes))
-        )
-
-    # commit the transaction
-    trans.commit()
-
-    elapsed = datetime.datetime.now() - start
-    logger.debug("Availability annotation took {} seconds".format(elapsed.seconds))
-
-    bridge.end()
-
-
-def topic_coach_content_annotation(channel_id):
-    bridge = Bridge(app_name=CONTENT_APP_NAME)
-
-    ContentNodeClass = bridge.get_class(ContentNode)
-
-    ContentNodeTable = bridge.get_table(ContentNode)
-
-    connection = bridge.get_connection()
-
-    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
-
-    logger.info(
-        "Setting totals of coach content ContentNode objects with children for {levels} levels".format(
-            levels=node_depth
-        )
-    )
-
-    child = ContentNodeTable.alias()
-
-    # start a transaction
-
-    trans = connection.begin()
-    # Go from the deepest level to the shallowest
-    start = datetime.datetime.now()
-    for level in range(node_depth, 0, -1):
-
-        available_nodes = select([child.c.available]).where(
-            and_(
-                child.c.available == True,  # noqa
-                ContentNodeTable.c.id == child.c.parent_id,
-            )
-        )
-
-        # Create an expression that will resolve a boolean value for all the available children
-        # of a content node, whereby if they all have coach_content flagged on them, it will be true,
-        # but otherwise false.
-        # Everything after the select statement should be identical to the available_nodes expression above.
-        if bridge.engine.name == "sqlite":
-            coach_content_nodes = select([func.min(child.c.coach_content)]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
-        elif bridge.engine.name == "postgresql":
-            coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
-
-        logger.info(
-            "Setting totals of coach content ContentNode objects with children for level {level}".format(
-                level=level
-            )
-        )
-
-        # Update all ContentNodes
-        connection.execute(
-            ContentNodeTable.update()
-            .where(
-                and_(
-                    # In this level
-                    ContentNodeTable.c.level == level - 1,
-                    # In this channel
-                    ContentNodeTable.c.channel_id == channel_id,
-                    # That are topics, and that have children that are flagged as available, with the coach content expression above
-                    ContentNodeTable.c.kind == content_kinds.TOPIC,
-                )
-            )
+            # Because we have set availability to False on all topics as a starting point
+            # we only need to make updates to topics with available children.
             .where(exists(available_nodes))
-            .values(coach_content=coach_content_nodes)
+            .values(
+                available=exists(available_nodes),
+                on_device_resources=node_resources,
+                on_device_file_size=node_file_size,
+                coach_content=coach_content_nodes,
+                num_coach_contents=coach_content_num,
+            )
         )
 
     # commit the transaction
     trans.commit()
 
     elapsed = datetime.datetime.now() - start
-    logger.debug(
-        "Topic coach content annotation took {} seconds".format(elapsed.seconds)
-    )
+    logger.debug("Recursive topic tree annotation took {} seconds".format(elapsed.seconds))
 
     bridge.end()
 
 
 def update_content_metadata(channel_id):
     set_leaf_node_availability_from_local_file_availability(channel_id)
-    recurse_availability_up_tree(channel_id)
-    topic_coach_content_annotation(channel_id)
+    recurse_annotation_up_tree(channel_id)
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
