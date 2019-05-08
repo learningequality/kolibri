@@ -50,7 +50,9 @@ def get_engine(connection_string):
     engine = create_engine(
         connection_string,
         echo=False,
-        connect_args={"check_same_thread": False}
+        # Set timeout to 60s, as with most of our content import write operations
+        # it is more important to complete, than to do so quickly.
+        connect_args={"check_same_thread": False, "timeout": 60}
         if connection_string.startswith("sqlite")
         else {},
         poolclass=NullPool,
