@@ -225,9 +225,10 @@
     },
     watch: {
       $route: function(newRoute, oldRoute) {
-        // Return if the user is searching another query on the same search results
-        // page. Otherwise, the back arrow will infinitely redirect.
-        if (newRoute.name === 'SEARCH' && oldRoute.name === 'SEARCH') {
+        // Return if the user is leaving or entering the Search page.
+        // This ensures we never set this.lastRoute to be any kind of
+        // SEARCH route and avoids infinite loops.
+        if (newRoute.name === 'SEARCH' || oldRoute.name === 'SEARCH') {
           return;
         }
 
