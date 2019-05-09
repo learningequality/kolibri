@@ -80,7 +80,7 @@ def kolibri_kicd_globals(context):
     """.format(
         form_url=OPTIONS["KICD"]['FORM_URL'],
         role_value_chief=OPTIONS["KICD"]['ROLE_VALUE_CHIEF'],
-        role_value_teacher=OPTIONS["KICD"]['ROLE_VALUE_TEACHER'],
+        role_value_teacher=OPTIONS["KICD"]['ROLE_VALUE_CURATOR'],
     )
     return mark_safe(js)
 

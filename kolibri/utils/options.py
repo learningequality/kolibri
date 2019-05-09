@@ -82,18 +82,23 @@ option_spec = {
     "KICD": {
         "FORM_URL": {
             "type": "string",
-            "default": "https://docs.google.com/forms/d/e/1FAIpQLScJpJ2YGR040i4OTyqrLTXruYYlztwRIDVmqWOU9n7OM-H1ZA/viewform?usp=pp_url&entry.1800641905=(((role_field_value)))&entry.1813761048=(((content_url_field_value)))&entry.1748381276=(((content_title_field_value)))&&entry.485323472=(((email_field_value)))",
+            "default": "https://docs.google.com/forms/d/e/1FAIpQLSfFO_rhNIeSisJbEOmGLvxkN9AiWGoDy2yBN_bMWRl6KD6JOg/viewform?usp=pp_url&entry.336129173=(((fname_field_value)))&entry.53560900=(((lname_field_value)))&entry.2000655884=(((role_field_value)))&entry.888139277=(((content_url_field_value)))&entry.1287515386=(((content_title_field_value)))",
             "envvars": ("KOLIBRI_FORM_URL",),
+        },
+        "ROLE_VALUE_PRINCIPAL": {
+            "type": "string",
+            "default": "Principal Curator",
+            "envvars": ("KOLIBRI_ROLE_VALUE_PRINCIPAL",),
         },
         "ROLE_VALUE_CHIEF": {
             "type": "string",
-            "default": "Chief",
+            "default": "Chief Curator",
             "envvars": ("KOLIBRI_ROLE_VALUE_CHIEF",),
         },
-        "ROLE_VALUE_TEACHER": {
+        "ROLE_VALUE_CURATOR": {
             "type": "string",
-            "default": "Teacher",
-            "envvars": ("KOLIBRI_ROLE_VALUE_TEACHER",),
+            "default": "Curator",
+            "envvars": ("KOLIBRI_ROLE_VALUE_CURATOR",),
         },
     },
 }

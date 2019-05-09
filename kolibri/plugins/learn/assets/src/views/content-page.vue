@@ -43,35 +43,39 @@
       :initSession="initSession"
     />
 
-    <div class="kicd-eval">
-      <h2>KICD Evaluation</h2>
-      <p>
+    <div class="kicd-wrapper">
+      <div class="kicd-eval">
+        <h2>KICD Evaluation</h2>
         <k-textbox
-          label="Your email address"
-          :invalid="!kicdEmail"
-          invalidText="Required"
-          v-model="kicdEmail"
+          label="First name"
+          v-model="kicdFirstName"
         />
-      </p>
-      <p>
-        <k-external-link
-          :text="kicdTeacherButtonText"
-          appearance="raised-button"
-          :primary="true"
-          :href="kicdTeacherUrl"
-          target="_blank"
+        <k-textbox
+          label="Last name"
+          v-model="kicdLastName"
         />
-        <k-external-link
-          :text="kicdChiefButtonText"
-          appearance="raised-button"
-          :primary="false"
-          :href="kicdChiefUrl"
-          target="_blank"
-        />
-      </p>
-      <p class="kicd-explanation">
-        (will open a new tab)
-      </p>
+        <p>
+          <k-select
+            label="Curation role"
+            :options="kicdRoles"
+            :inline="true"
+            v-model="kicdRole"
+          />
+        </p>
+        <p>
+          <k-external-link
+            text="Submit report"
+            appearance="raised-button"
+            :primary="true"
+            :href="kicdUrl"
+            target="_blank"
+            class="btn"
+          />
+          <span class="kicd-explanation">
+            (will open in a new tab)
+          </span>
+        </p>
+      </div>
     </div>
 
     <!-- TODO consolidate this metadata table with coach/lessons -->
@@ -163,6 +167,7 @@
   import kExternalLink from 'kolibri.coreVue.components.kExternalLink';
   import kTextbox from 'kolibri.coreVue.components.kTextbox';
   import Lockr from 'lockr';
+  import kSelect from 'kolibri.coreVue.components.kSelect';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
   import { pageMode } from '../state/getters';
   import { updateContentNodeProgress } from '../state/actions/main';
@@ -193,30 +198,30 @@
       uiIconButton,
       kExternalLink,
       kTextbox,
+      kSelect,
     },
     data: () => ({
       wasIncomplete: false,
       licenceDescriptionIsVisible: false,
-      kicdEmail: '',
+      kicdFirstName: '',
+      kicdLastName: '',
+      kicdRole: { label: 'Curator', value: 'Curator' },
     }),
     computed: {
-      kicdBaseUrl() {
+      kicdUrl() {
         return global.kicd_form_url
           .replace('(((content_url_field_value)))', global.escape(window.location.href))
           .replace('(((content_title_field_value)))', this.content.title)
-          .replace('(((email_field_value)))', this.kicdEmail);
+          .replace('(((fname_field_value)))', this.kicdFirstName)
+          .replace('(((lname_field_value)))', this.kicdLastName)
+          .replace('(((role_field_value)))', this.kicdRole.value);
       },
-      kicdTeacherUrl() {
-        return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_teacher);
-      },
-      kicdTeacherButtonText() {
-        return `Submit ${global.kicd_role_value_teacher} report`;
-      },
-      kicdChiefUrl() {
-        return this.kicdBaseUrl.replace('(((role_field_value)))', global.kicd_role_value_chief);
-      },
-      kicdChiefButtonText() {
-        return `Submit ${global.kicd_role_value_chief} report`;
+      kicdRoles() {
+        return [
+          { label: 'Curator', value: 'Curator' },
+          { label: 'Chief Curator', value: 'Chief Curator' },
+          { label: 'Principal Curator', value: 'Principal Curator' },
+        ];
       },
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
@@ -269,12 +274,20 @@
       },
     },
     watch: {
-      kicdEmail() {
-        Lockr.set('kicd-name', this.kicdEmail);
+      kicdFirstName() {
+        Lockr.set('kicd-fname', this.kicdFirstName);
+      },
+      kicdLastName() {
+        Lockr.set('kicd-lname', this.kicdLastName);
+      },
+      kicdRole() {
+        Lockr.set('kicd-role', this.kicdRole);
       },
     },
     mounted() {
-      this.kicdEmail = Lockr.get('kicd-name');
+      this.kicdFirstName = Lockr.get('kicd-fname');
+      this.kicdLastName = Lockr.get('kicd-lname');
+      this.kicdRole = Lockr.get('kicd-role');
     },
     beforeDestroy() {
       this.stopTracking();
@@ -350,17 +363,21 @@
   .kicd-eval
     border: 2px solid gray
     border-radius: 4px
-    padding: 8px
-    text-align: center
+    padding-top: 16px
+    padding-bottom: 8px
+    padding-left: 32px
+    padding-right: 32px
     margin-top: 40px
-    margin-left: 16px
-    margin-right: 16px
+    display: inline-block
+    text-align: left
 
-  // center-align
-  >>>.ui-textbox
-    margin: auto
+  .kicd-wrapper
+    text-align: center
 
   .kicd-explanation
     font-size: smaller
+
+  .btn
+    margin-left: 0
 
 </style>
