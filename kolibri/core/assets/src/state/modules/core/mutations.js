@@ -43,4 +43,7 @@ export default {
   CORE_SET_PAGE_VISIBILITY(state, visible) {
     state.pageVisible = visible;
   },
+  SET_CORE_BANNER_VISIBLE(state) {
+    state.demoBannerVisible = true;
+  },
 };

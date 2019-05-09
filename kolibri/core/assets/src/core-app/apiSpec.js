@@ -100,6 +100,7 @@ import KCircularLoader from '../views/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
+import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
@@ -215,6 +216,7 @@ export default {
     serverClock,
     i18n,
     navComponents,
+    coreBannerContent,
     samePageCheckGenerator,
     CatchErrors,
     UserType,

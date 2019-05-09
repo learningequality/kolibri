@@ -65,6 +65,12 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
+      <CoreBanner v-if="demoBannerVisible">
+        <template slot-scope="props">
+          <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
+        </template>
+      </CoreBanner>
+
       <div v-if="debug" class="debug">
         <div>{{ contentComponentName }}</div>
         <div>{{ routePath }}</div>
@@ -119,11 +125,13 @@
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
+  import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
   import UpdateNotification from '../UpdateNotification';
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
+  import CoreBanner from '../CoreBanner';
   import ScrollingHeader from './ScrollingHeader';
 
   const scrollPositions = {
@@ -169,6 +177,7 @@
     components: {
       AppBar,
       AppError,
+      CoreBanner,
       ImmersiveToolbar,
       SideNav,
       AuthMessage,
@@ -269,7 +278,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser']),
+      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerVisible']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
@@ -362,6 +371,9 @@
           return this.$router.getRouteDefinition(this.contentComponentName).path;
         }
         return '';
+      },
+      coreBannerComponent() {
+        return coreBannerContent[0];
       },
     },
     watch: {
