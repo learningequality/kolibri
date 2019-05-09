@@ -32,7 +32,12 @@
           :selectAllLabel="$tr('selectAllOnPage')"
           :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
-        />
+          :infoDescriptor="$tr('learnerGroups')"
+        >
+          <template slot="info" slot-scope="userRow">
+            <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
+          </template>
+        </UserTable>
 
         <nav>
           <span>
@@ -99,7 +104,7 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -136,6 +141,7 @@
     },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
+      ...mapGetters('classSummary', ['getGroupNamesForLearner']),
       pageTitle() {
         return this.$tr('pageHeader', { className: this.currentGroup.name });
       },
@@ -208,6 +214,9 @@
       goToPage(page) {
         this.pageNum = page;
       },
+      getGroupsForLearner(learnerId) {
+        return this.getGroupNamesForLearner(learnerId);
+      },
     },
     $trs: {
       pageHeader: "Enroll learners into '{className}'",
@@ -223,6 +232,7 @@
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+      learnerGroups: 'Current groups',
     },
   };
 
