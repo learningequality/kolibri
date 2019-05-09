@@ -1,45 +1,45 @@
 <template>
 
-  <div>
-    <div
-      class="banner"
-      :style="{ background: $coreBgLight}"
-      :tabindex="0"
-      role="dialog"
-    >
-      <div class="banner-inner">
-        <KGrid>
-          <!-- Grid Content -->
-          <KGridItem :sizes="contentGridSizes">
-            <slot :bannerClosed="bannerClosed"></slot>
-          </KGridItem>
+  <div
+    class="banner"
+    :style="{ background: $coreBgLight}"
+  >
+    <div class="banner-inner">
+      <KGrid>
+        <!-- Grid Content -->
+        <KGridItem :sizes="bannerClosed ? [4, 6, 10] : [4, 8, 12]">
+          <slot :bannerClosed="bannerClosed"></slot>
+        </KGridItem>
 
-          <!-- Grid Buttons -->
-          <KGridItem v-if="!bannerClosed" sizes="4, 8, 12">
-            <KButton
-              v-if="!bannerClosed"
-              class="close-button"
-              :text="$tr('closeButton')"
-              appearance="flat-button"
-              :primary="true"
-              @click="toggleBanner"
-            />
-          </KGridItem>
-          <KGridItem
-            v-else
-            sizes="4, 2, 2"
-            alignment="right"
-          >
-            <KButton
-              class="open-button"
-              :text="$tr('openButton')"
-              appearance="flat-button"
-              :primary="true"
-              @click="toggleBanner"
-            />
-          </KGridItem>
-        </KGrid>
-      </div>
+        <!-- Grid Buttons -->
+        <KGridItem
+          v-if="bannerClosed"
+          sizes="4, 2, 2"
+          alignment="right"
+        >
+          <KButton
+            class="open-button"
+            :text="$tr('openButton')"
+            appearance="flat-button"
+            :primary="true"
+            @click="toggleBanner"
+          />
+        </KGridItem>
+        <KGridItem
+          v-else
+          size="100"
+          percentage
+          alignment="right"
+        >
+          <KButton
+            class="close-button"
+            :text="$tr('closeButton')"
+            appearance="flat-button"
+            :primary="true"
+            @click="toggleBanner"
+          />
+        </KGridItem>
+      </KGrid>
     </div>
   </div>
 
@@ -61,11 +61,6 @@
       return {
         bannerClosed: false,
       };
-    },
-    computed: {
-      contentGridSizes() {
-        return this.bannerClosed ? '4, 6, 10' : '4, 8, 12';
-      },
     },
     methods: {
       toggleBanner() {
@@ -107,7 +102,6 @@
   }
 
   .close-button {
-    float: right;
     margin-bottom: 24px;
   }
 
