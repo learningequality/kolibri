@@ -12,7 +12,7 @@ Feature: Coach edits lessons
         And I select *Edit details*
       Then I see the *Edit lesson details* modal
         And the title field should be in-focused by default
-      When I edit the lesson title and leave the field
+      When I edit the lesson <lesson> *Title* and leave the field
         And I click *Save* button
       Then the modal closes
         And I see the title change under the *Lesson* tab
@@ -23,7 +23,7 @@ Feature: Coach edits lessons
       When I click the *Options* button
         And I select *Edit details*
       Then I see the *Edit lesson details* modal
-      When I edit the lesson description
+      When I edit the lesson <lesson> *Description*
         And I click *Save* button
       Then the modal closes
         And I see the description change under the *Lesson* tab
@@ -46,12 +46,12 @@ Feature: Coach edits lessons
       Then I see the <lesson> page
       When I click *Options* button
         And I select *Edit details*
-      Then I see the *Edit lesson details* modal
-      When I change *Visible to* by selecting *Entire class* or one of the groups
-        And I click *Save* button
+      Then I see the *Edit details for '<lesson>'* full-page modal
+      When I change *Recipients* by selecting *Entire class* or one of the groups
+        And I click *Save changes* button
       Then the modal closes
-        And the snackbar notification appears
-        And I see the change under *Visible to*
+        # And the snackbar notification appears: No snackbar anymore?
+        And I see the change under *Recipients*
 
   Scenario: Preview lesson resource
     Given there is a lesson <lesson> created previously
@@ -61,5 +61,5 @@ Feature: Coach edits lessons
       Then I see the resource in a full screen page
 
 Examples:
-| title         | description  |
-| First lesson  | Fractions 1  |
+| lesson        |
+| First lesson  |

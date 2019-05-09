@@ -1,35 +1,37 @@
   # START testing this scenario with a FRESH DB (make a copy of the current if you want to reuse it later), and use the `kolibri manage importusers your-csv-file.csv` command to import a set of users for this case.
 
-Feature: Previewing a quiz from the plan tab
-  Class coaches and normal coaches are able to preview quizzes they create in the plan tab
+
+Feature: Previewing and editing a quiz from the *Report* tab
+  Class and facility coaches need to be able to preview and edit details for quizzes directly from the *Report* tab
 
   Background:
-    Given I have finished creating a '<quiz>' Quiz A
-      And I am signed in to Kolibri as a <class coach> or <coach>
-      And the quiz can be inactive or active and assigned to anyone
+    Given I am signed in to Kolibri as a class or facility coach
+      And I am at *Coach > '<class>' > Reports > Quizzes* tab
+      And there is a <quiz> quiz in a class <class>
+      And the <quiz> quiz is either inactive, or active and assigned to some learner(s)
 
-  Scenario: Preview Quiz A from the plan tab
-    When as as a coach I go to Coach and click into the 'Plan' tab
-    Then I click into Quiz A report
-    Then I should see a a page with the Quiz A's details
-      And I should see a list of Quiz A's questions and a preview of each question
-      And I should see a dropdown button with options 'Edit Quiz', 'Copy Quiz', 'Delete'
+  Scenario: Preview quiz
+    When I click to open the <quiz> report
+    Then I see the *Report* sub-tab with the list of learners
+      And I see the *Difficult questions* sub-tab 
+    When I click the *Options* button
+      And I select the *Preview* option
+    Then I see a full-screen modal *Preview of quiz '<quiz>'*
+      And I see the list of <quiz> quiz questions
+    When I click the *X* button to close the preview
+    Then I see the <quiz> *Report* sub-tab again
 
+  Scenario: Edit quiz
+    When I click to open the <quiz> report
+    Then I see the *Report* sub-tab with the list of learners
+      And I see the *Difficult questions* sub-tab 
+    When I click the *Options* button
+      And I select the *Edit details* option
+    Then I see a full-screen modal *Edit details for '<quiz>'*
+    When I finish editing the details of the quiz
+      And I click *Save changes* button
+    Then I see the <quiz> *Report* sub-tab again
 
-Feature: Quick-edit a quiz from a quiz report page
-  Class coaches and normal coaches are able to preview and edit quizzes via a shortcut in the quiz report. This saves them time navigating back to the Plan tab
-
-  Background:
-    Given I have a created '<quiz>' Quiz A
-      And I am signed in to Kolibri as a <class coach> or <coach>
-      And the quiz can be inactive or active and assigned to anyone
-
-  Scenario: Shortcut edit Quiz A from its report
-    When I click into the Reports tab
-      And I click into the 'Quizzes' sub-tab
-    Then I click into Quiz A report
-      And I should see a dropdown button with options 'Preview' and 'Edit details'
-    When I click 'Preview'
-    Then I should see a list of Quiz A's questions
-    When I click "Edit details"
-    Then I should be redirected to a full-screen modal with editable form fields
+Examples:
+| class      | quiz    |
+| Explorers  | Count 1 |
