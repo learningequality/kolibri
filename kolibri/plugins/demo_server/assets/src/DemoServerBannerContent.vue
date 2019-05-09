@@ -1,6 +1,6 @@
 <template>
 
-  <h1 v-if="bannerClosed" class="banner-header">
+  <h1 v-if="bannerClosed">
     {{ $tr('demoServerHeader') }}
   </h1>
   <div v-else>
@@ -68,18 +68,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .close-button {
-    float: right;
-    margin-bottom: 24px;
-  }
-  .open-button {
-    float: right;
-    margin-top: 0;
-  }
-  .banner-header {
-    float: left;
-  }
-
-</style>
+<style lang="scss" scoped></style>
