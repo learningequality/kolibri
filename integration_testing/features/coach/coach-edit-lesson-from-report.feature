@@ -8,30 +8,27 @@ Feature: Edit lesson details and manage resources from the lesson *Report* tab
       And I have created a <lesson> lesson in a class <class>
       And the <lesson> lesson contains one or more resources
       And the <lesson> lesson is either inactive, or active and assigned to some learner(s)
+      And I am on the report page for <lesson>
 
-  Scenario: Edit lesson details
-    When I go to *Coach > '<class>' > Reports > Lessons* tab
-      And I click to open the <lesson> report
-    Then I see the *Report* sub-tab with <lesson> resources
-      And I see the *Learners* sub-tab with a list of the learners who have taken the lesson
-    When I click the *Options* button
+  Scenario: Lesson details can be edited from the Lesson report page
+    When I click the *Options* dropdown menu
       And I select the *Edit details* option
-    Then I see a full-screen modal *Edit details for '<lesson>'*
-    When I finish editing the details of the lesson
+    Then I see the *Edit details dialogue for '<lesson>'*
+      And I see form fields for editing the title, description, status, and recipients (in that order)
+      And I see a *Resources* section where I can reorder, remove, and preview resources in <lesson>
+    When I edit one or more details of the lesson
       And I click *Save changes* button
-    Then I see the <lesson> *Report* sub-tab again
+    Then I am returned to the report page for <lesson>
+      And the changes I made are reflected in the report
 
-  Scenario: Manage lesson resources
-    When I go to *Coach > '<class>' > Reports > Lessons* tab
-      And I click to open the <lesson> report
-    Then I see the *Report* sub-tab with <lesson> resources
-      And I see the *Learners* sub-tab with a list of the learners who have taken the lesson
-    When I click the *Options* button
+  Scenario: Lesson resources can be managed (added or removed) from the Lesson report page
+    When I click the *Options* dropdown menu
       And I select the *Manage resources* option
-    Then I see a full-screen modal *Manage resources in '<lesson>'*
+    Then I see the *Manage resources in '<lesson>'* dialogue
     When I finish adding to or removing resources from the lesson
       And I click the *Finish* button
-    Then I see the <lesson> *Report* sub-tab again
+    Then I am returned to the report page for <lesson>
+      And the changes to the resources I made are reflected in the report
 
 Examples:
 | class      | lesson  |

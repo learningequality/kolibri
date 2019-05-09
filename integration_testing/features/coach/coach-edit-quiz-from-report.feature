@@ -9,28 +9,26 @@ Feature: Previewing and editing a quiz from the *Report* tab
       And I am at *Coach > '<class>' > Reports > Quizzes* tab
       And there is a <quiz> quiz in a class <class>
       And the <quiz> quiz is either inactive, or active and assigned to some learner(s)
+      And I am on the report page for <quiz>
 
-  Scenario: Preview quiz
-    When I click to open the <quiz> report
-    Then I see the *Report* sub-tab with the list of learners
-      And I see the *Difficult questions* sub-tab 
-    When I click the *Options* button
+  Scenario: Quizzes can be previewed from the report page
+    When I click the *Options* dropdown menu
       And I select the *Preview* option
     Then I see a full-screen modal *Preview of quiz '<quiz>'*
       And I see the list of <quiz> quiz questions
-    When I click the *X* button to close the preview
-    Then I see the <quiz> *Report* sub-tab again
+      And I see a preview for the first quiz question
+    When I click the button for a different quiz question
+      Then I see a preview for that other quiz question
 
-  Scenario: Edit quiz
-    When I click to open the <quiz> report
-    Then I see the *Report* sub-tab with the list of learners
-      And I see the *Difficult questions* sub-tab 
-    When I click the *Options* button
+  Scenario: Quiz details can be edited from the report page
+    When I click the *Options* dropdown menu
       And I select the *Edit details* option
     Then I see a full-screen modal *Edit details for '<quiz>'*
+      And I see form fields for editing the title, status, and recipients (in that order)
     When I finish editing the details of the quiz
       And I click *Save changes* button
-    Then I see the <quiz> *Report* sub-tab again
+    Then I am returned to the report page for <quiz>
+      And I see the changes I made reflected in the report header
 
 Examples:
 | class      | quiz    |
