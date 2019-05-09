@@ -78,22 +78,21 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .banner {
+    @extend %dropshadow-16dp;
+
     position: relative;
-    top: 0%;
-    left: 0%;
-    z-index: 7500;
     width: 100%;
     margin: 0 auto;
-    overflow-y: auto;
-    box-shadow: 0 2px 50px rgba(0, 0, 0, 1);
   }
 
   .banner-inner {
     max-width: 1000px;
     padding-top: 0;
-    padding-right: 12px;
-    padding-left: 12px;
+    padding-right: 16px;
+    padding-left: 16px;
     margin: 0 auto;
 
     h1 {
