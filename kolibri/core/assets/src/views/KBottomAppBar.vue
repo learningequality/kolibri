@@ -1,7 +1,7 @@
 <template>
 
   <div class="bottom" :style="{backgroundColor: $coreBgLight}">
-    <div class="inner-bottom">
+    <div class="inner-bottom" :style="innerStyle">
       <slot></slot>
     </div>
   </div>
@@ -14,8 +14,22 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
-    name: 'Bottom',
+    name: 'KBottomAppBar',
     mixins: [themeMixin],
+    props: {
+      maxWidth: {
+        type: Number,
+        default: 960,
+      },
+    },
+    computed: {
+      innerStyle() {
+        if (this.maxWidth) {
+          return { maxWidth: `${this.maxWidth}px` };
+        }
+        return null;
+      },
+    },
   };
 
 </script>
@@ -42,7 +56,6 @@
   }
 
   .inner-bottom {
-    max-width: 960px;
     margin: auto;
   }
 
