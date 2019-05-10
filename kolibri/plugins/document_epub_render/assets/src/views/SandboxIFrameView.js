@@ -7,6 +7,16 @@ class SandboxIFrameView extends iFrameView {
     return iframe;
   }
 
+  getContents() {
+    return this.contents;
+  }
+
+  focus() {
+    if (this.iframe) {
+      this.iframe.focus();
+    }
+  }
+
   expand(force) {
     if (this.contents && this.layout.props.flow === 'scrolled') {
       const textWidth = this.contents.textWidth();

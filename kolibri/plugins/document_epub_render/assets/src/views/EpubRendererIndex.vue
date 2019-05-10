@@ -268,10 +268,14 @@
           'line-height': `1.4em!important`,
         };
 
-        // Scrolled styles that help calculating true content width in SandboxIFrameView
-        const htmlScrolledStyle = this.scrolled ? { display: 'flex', minWidth: '100vw' } : {};
+        // Display flex helps body size to it's content
+        const htmlScrolledStyle = this.scrolled ? { display: 'flex' } : {};
+
+        // Width style overrides the pixel width added by epub.js, and in conjunction with flex
+        // above, helps SandboxIFrameView size containers according to true content width.
+        // Padding override kills an arbitrary `padding:0 (width / 12)px` set by epub.js
         const bodyScrolledStyle = this.scrolled
-          ? { width: 'auto!important', minWidth: '100vw' }
+          ? { width: 'auto!important', padding: '20px!important' }
           : {};
 
         return {
@@ -283,10 +287,10 @@
           h3: { ...colorStyle },
           h4: { ...colorStyle },
           h5: { ...colorStyle },
-          // override inline table width
-          table: { maxWidth: '100vw!important' },
           'p:first-of-type::first-letter': { ...colorStyle },
+          // help media not overflow their columns
           video: { 'max-width': '100%' },
+          img: { 'max-width': '100%' },
         };
       },
       tocSideBarIsOpen() {
@@ -369,15 +373,6 @@
           }
         });
       },
-      themeStyle(newTheme) {
-        if (this.rendition) {
-          this.updateRenditionTheme(newTheme);
-          Lockr.set(EPUB_RENDERER_SETTINGS_KEY, {
-            theme: this.theme,
-            fontSize: this.fontSize,
-          });
-        }
-      },
     },
     created() {
       // Try to load the appropriate directional CSS for the particular content
@@ -387,10 +382,10 @@
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
 
-      const { savedTheme = THEMES.WHITE, savedFontSize } =
+      const { theme = this.theme, fontSize = this.fontSize } =
         Lockr.get(EPUB_RENDERER_SETTINGS_KEY) || {};
-      this.theme = savedTheme;
-      this.fontSize = savedFontSize;
+      this.theme = theme;
+      this.fontSize = fontSize;
     },
     mounted() {
       Promise.all([this.cssPromise, this.book.ready]).then(() => {
@@ -475,6 +470,15 @@
           this.locations = locations;
           this.$emit('startTracking');
           this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+
+          // Update current location, .currentLocation() can return Promise or value
+          Promise.resolve()
+            .then(() => this.rendition.currentLocation())
+            .then(currentLocation => {
+              if (currentLocation) {
+                this.relocatedHandler(currentLocation);
+              }
+            });
         });
       },
       updateRenditionTheme(newTheme) {
@@ -482,16 +486,27 @@
         this.rendition.themes.register(themeName, newTheme);
         this.rendition.themes.select(themeName);
       },
-      getIframe() {
-        return this.$refs.epubjsContainer.querySelector('iframe');
+      getIFrameView() {
+        return this.rendition
+          .views()
+          .displayed()
+          .filter(view => view instanceof iFrameView)
+          .shift();
       },
       handleKeyUps(event) {
+        const focus = () => {
+          const view = this.getIFrameView();
+          if (view) {
+            view.focus();
+          }
+        };
+
         switch (event.which) {
           case 37:
-            this.goToPreviousPage().then(() => this.getIframe().focus());
+            this.goToPreviousPage().then(focus);
             break;
           case 39:
-            this.goToNextPage().then(() => this.getIframe().focus());
+            this.goToNextPage().then(focus);
             break;
         }
       },
@@ -550,10 +565,10 @@
           });
       },
       getCurrentFontSize() {
-        const iframe = this.getIframe();
-        const iframeBody = iframe.contentWindow.document.body;
-        const fontSize = window.getComputedStyle(iframeBody).getPropertyValue('font-size');
-        return fontSize;
+        const view = this.getIFrameView();
+
+        // Use epub Contents class which will get computed font-size
+        return view ? view.getContents().css('font-size', null) : null;
       },
       increaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
@@ -562,7 +577,7 @@
           fontSizeNumericValue + FONT_SIZE_STEP,
           FONT_SIZE_MAX
         );
-        this.fontSize = `${newFontSizeNumericValue}px`;
+        this.setFontSize(`${newFontSizeNumericValue}px`);
       },
       decreaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
@@ -571,10 +586,35 @@
           fontSizeNumericValue - FONT_SIZE_STEP,
           FONT_SIZE_MIN
         );
-        this.fontSize = `${newFontSizeNumericValue}px`;
+        this.setFontSize(`${newFontSizeNumericValue}px`);
+      },
+      expandIFrameView() {
+        const view = this.getIFrameView();
+
+        if (view) {
+          // TODO: Figure out how to get this trigger the iframe containers to resize
+        }
       },
       setTheme(theme) {
         this.theme = theme;
+        this.persistSettings({ theme });
+        this.updateRenditionTheme(this.themeStyle);
+      },
+      setFontSize(fontSize) {
+        this.fontSize = fontSize;
+        this.persistSettings({ fontSize });
+        this.updateRenditionTheme(this.themeStyle);
+
+        if (this.scrolled) {
+          this.expandIFrameView();
+        }
+      },
+      persistSettings(settings) {
+        const saved = Lockr.get(EPUB_RENDERER_SETTINGS_KEY);
+        Lockr.set(EPUB_RENDERER_SETTINGS_KEY, {
+          ...saved,
+          ...settings,
+        });
       },
       handleNewSearchQuery(searchQuery) {
         this.searchQuery = searchQuery;
@@ -600,8 +640,14 @@
         });
       },
       createMarks(searchQuery) {
+        const view = this.getIFrameView();
+        if (!view) {
+          return Promise.resolve();
+        }
+
         return new Promise(resolve => {
-          this.markInstance = new Mark(this.getIframe().contentDocument.querySelector('body'));
+          const root = view.getContents().root();
+          this.markInstance = new Mark(root.getElementsByTagName('body').item(0));
           this.markInstance.mark(searchQuery, {
             separateWordSearch: false,
             done: () => resolve(),
@@ -794,10 +840,8 @@
       width: 100%;
     }
 
-    /deep/ .epub-container {
-      .epub-view {
-        min-width: 100%;
-      }
+    /deep/ .epub-container .epub-view {
+      min-width: 100%;
     }
   }
 

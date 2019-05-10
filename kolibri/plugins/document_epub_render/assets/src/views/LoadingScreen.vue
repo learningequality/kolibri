@@ -47,7 +47,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 200;
+    z-index: 7;
     display: flex;
     align-items: center;
     justify-content: center;
