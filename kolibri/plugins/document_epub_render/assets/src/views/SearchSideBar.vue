@@ -121,7 +121,7 @@
           };
           spineItem
             .load(book.load.bind(book))
-            .then(spineItem.find.bind(spineItem, searchQuery))
+            .then(() => spineItem.find(searchQuery))
             .then(final, final)
             .then(searchResults => resolve(searchResults));
         }
