@@ -8,7 +8,7 @@
     @changeFullscreen="isInFullscreen = $event"
   >
 
-    <LoadingError v-if="errorLoading" />
+    <LoadingError v-if="errorLoading" :loaded="loaded" />
 
     <LoadingScreen v-else-if="!loaded" />
 

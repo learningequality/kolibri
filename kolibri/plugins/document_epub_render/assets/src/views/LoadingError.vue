@@ -1,6 +1,6 @@
 <template>
 
-  <div class="epub-renderer-error">
+  <div class="epub-renderer-error" :class="{loaded: loaded}">
     <UiAlert
       type="error"
 
@@ -22,6 +22,12 @@
     components: {
       UiAlert,
     },
+    props: {
+      loaded: {
+        type: Boolean,
+        default: false,
+      },
+    },
     $trs: {
       couldNotLoadThisBook: 'Could not load this book',
     },
@@ -40,6 +46,12 @@
     left: 0;
     z-index: 7;
     background: #ffffff;
+  }
+
+  .epub-renderer-error.loaded {
+    top: 36px;
+    bottom: auto;
+    background: transparent;
   }
 
 </style>
