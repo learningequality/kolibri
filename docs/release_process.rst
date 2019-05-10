@@ -232,21 +232,15 @@ Publish the Medium post if necessary.
 Update the demo server
 ----------------------
 
-Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`__ running the latest version:
+Get `kolibridemo.learningequality.org <https://kolibridemo.learningequality.org>`__ running the latest version:
 
- * SSH into ``192.237.248.135``
- * ``sudo su www-data``
- * Upload the new .pex file and update ``/var/www/run_kolibri.sh`` to point at it
-
-Then restart all running instances:
-
-.. code-block:: bash
-
-    killall python
-    run_all
+* SSH into the instance by running ``gcloud compute ssh --project kolibri-demo-servers --zone us-east1-d kolibridemo``. Click `here <https://cloud.google.com/compute/docs/instances/connecting-to-instance#gcetools>`__ for more information about connecting to Google Compute Engine instances.
+* ``sudo su www-data``
+* Upload the new .pex file and update /var/www/run_kolibridemo.sh to point at it
+* ``./var/www/run_kolibridemo.sh restart`` to restart kolibri
 
 
-Verify that `the demo server <kolibridemo.learningequality.org>`__ is running the latest version.
+Verify that `the demo server <https://kolibridemo.learningequality.org>`__ is running the latest version.
 
 
 Wrap-up
@@ -255,4 +249,3 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
-
