@@ -4,9 +4,9 @@ export const THEME_MODULE_NAMESPACE = 'kolibriCoreTheme';
 
 const initialState = {
   '$core-action-light': '#e2d1e0',
-  '$core-action-dark': '#72486f',
+  '$core-action-dark': '#157415',
 
-  '$core-accent-color': '#996189',
+  '$core-accent-color': '#00A546',
 
   '$core-bg-canvas': '#f9f9f9',
 
