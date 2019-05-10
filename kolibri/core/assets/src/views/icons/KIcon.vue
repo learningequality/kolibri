@@ -1,5 +1,7 @@
 <template>
 
+  <!-- eslint-disable max-len -->
+
   <!-- tracking -->
   <mat-svg v-if="correct" name="check_circle" category="action" :style="style" />
   <mat-svg v-else-if="helpNeeded" name="error" category="alert" :style="style" />
@@ -12,13 +14,7 @@
   <!-- coaching -->
   <mat-svg v-else-if="coach" name="local_library" category="maps" :style="style" />
   <mat-svg v-else-if="lesson" name="import_contacts" category="communication" :style="style" />
-  <mat-svg
-    v-else-if="question"
-    name="keyboard_arrow_right"
-    category="hardware"
-    :style="style"
-    class="flip"
-  />
+  <mat-svg v-else-if="question" name="keyboard_arrow_right" category="hardware" :style="style" :class="flip" />
   <mat-svg v-else-if="quiz" name="assignment_late" category="action" :style="style" />
   <!-- content -->
   <mat-svg v-else-if="app" name="widgets" category="device" :style="style" />
@@ -39,12 +35,15 @@
   <mat-svg v-else-if="error" name="error" category="alert" :style="style" />
   <!-- UI -->
   <mat-svg v-else-if="back" name="arrow_back" category="navigation" :style="style" :class="flip" />
+  <mat-svg v-else-if="forward" name="arrow_forward" category="navigation" :style="style" :class="flip" />
   <mat-svg v-else-if="clear" name="clear" category="content" :style="style" />
   <mat-svg v-else-if="dropdown" name="arrow_drop_down" category="navigation" :style="style" />
   <mat-svg v-else-if="language" name="language" category="action" :style="style" />
   <mat-svg v-else-if="logout" name="exit_to_app" category="action" :style="style" :class="flip" />
   <mat-svg v-else-if="menu" name="menu" category="navigation" :style="style" />
   <mat-svg v-else-if="search" name="search" category="action" :style="style" />
+
+  <!--eslint-enable-->
 
 </template>
 
@@ -102,6 +101,7 @@
       error: boolean,
       // UI
       back: boolean,
+      forward: boolean,
       clear: boolean,
       dropdown: boolean,
       language: boolean,
@@ -117,7 +117,7 @@
         return { fill: this.$coreTextDefault };
       },
       flip() {
-        return this.isRtl() ? 'rtl-icon' : null;
+        return this.isRtl ? 'rtl-icon' : null;
       },
     },
   };
