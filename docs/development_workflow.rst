@@ -105,12 +105,11 @@ We have the following release types:
    * Experimental work is OK
 
 
-Within the learning equality repository:
+Within the Learning Equality Kolibri repository:
 
 * The ``develop`` branch is our current development branch, and the default target for PRs
 * Release branches named like ``release-v1.2.x`` (for example). This will track all patch releases within the 1.2.x minor release line. Distinct releases are tracked as tags like ``v1.2.3``
 * We sometimes create feature branches for changes that are long-running, collaborative, and disruptive. These should be kept up-to-date with ``develop`` by merging, not rebasing.
-* The ``master`` branch should be the same as the latest stable release
 
 If a change needs to be introduced to an older release, target the oldest release branch that we want the change made in. Then that change will need to be merged into all subsequent releases, one-at-a-time, until it eventually gets back to ``develop``.
 
