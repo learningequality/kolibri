@@ -16,7 +16,7 @@
         <div :class="{'column-contents-wrapper' : !windowIsSmall}">
           <KPageContainer>
             <h1>
-              {{ $tr('question', { num: questionNumber + 1, total: this.exam.question_count }) }}
+              {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
             <ContentRenderer
               v-if="content && itemId"
@@ -35,15 +35,58 @@
               {{ $tr('noItemId') }}
             </UiAlert>
           </KPageContainer>
-          <KPageContainer v-if="!windowIsLarge" class="inline-actions">
-            <div class="top-margin">
-              {{ answeredText }}
-            </div>
-            <div>
+
+          <!-- contents displayed in reverse-order for semantic ordering -->
+          <KBottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
+            <KButton
+              :disabled="questionNumber===exam.question_count-1"
+              :primary="true"
+              class="footer-button"
+              @click="goToQuestion(questionNumber + 1)"
+            >
+              {{ $tr('nextQuestion') }}
+              <KIcon forward color="white" class="forward-icon" />
+            </KButton>
+            <KButton
+              :disabled="questionNumber===0"
+              :primary="true"
+              class="footer-button"
+              :class="{ 'left-align': windowIsSmall }"
+              @click="goToQuestion(questionNumber - 1)"
+            >
+              <KIcon back color="white" class="back-icon" />
+              {{ $tr('previousQuestion') }}
+            </KButton>
+
+            <!-- below prev/next buttons in tab and DOM order, in footer -->
+            <div v-if="windowIsLarge" class="left-align" dir="auto">
+              <div class="answered">
+                {{ answeredText }}
+              </div>
               <KButton
                 :text="$tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
+                @click="toggleModal"
+              />
+            </div>
+
+          </KBottomAppBar>
+
+          <!-- below prev/next buttons in tab and DOM order, in page -->
+          <KPageContainer v-if="!windowIsLarge">
+            <div
+              class="bottom-block"
+              :class="{ windowIsSmall }"
+            >
+              <div class="answered">
+                {{ answeredText }}
+              </div>
+              <KButton
+                :text="$tr('submitExam')"
+                :primary="false"
+                appearance="flat-button"
+                style="margin-left: 0"
                 @click="toggleModal"
               />
             </div>
@@ -52,38 +95,6 @@
       </KGridItem>
     </KGrid>
 
-
-    <KBottomAppBar>
-      <KGrid>
-        <KGridItem sizes="50, 50, 25" percentage alignment="left">
-          <KButton
-            :disabled="questionNumber===0"
-            :text="$tr('previousQuestion')"
-            :primary="true"
-            @click="goToQuestion(questionNumber - 1)"
-          />
-        </KGridItem>
-        <KGridItem v-if="windowIsLarge" size="50" percentage alignment="center">
-          <div class="answered-footer">
-            {{ answeredText }}
-          </div>
-          <KButton
-            :text="$tr('submitExam')"
-            :primary="false"
-            appearance="flat-button"
-            @click="toggleModal"
-          />
-        </KGridItem>
-        <KGridItem sizes="50, 50, 25" percentage alignment="right">
-          <KButton
-            :disabled="questionNumber===exam.question_count-1"
-            :text="$tr('nextQuestion')"
-            :primary="true"
-            @click="goToQuestion(questionNumber + 1)"
-          />
-        </KGridItem>
-      </KGrid>
-    </KBottomAppBar>
 
     <KModal
       v-if="submitModalOpen"
@@ -114,14 +125,12 @@
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
@@ -139,10 +148,8 @@
       KPageContainer,
       AnswerHistory,
       KIcon,
-      KLabeledIcon,
       KModal,
       UiAlert,
-      MultiPaneLayout,
       KGrid,
       KGridItem,
       KBottomAppBar,
@@ -303,9 +310,11 @@
 
 <style lang="scss" scoped>
 
-  .answered-footer {
+  .answered {
     display: inline-block;
-    margin-right: 18px;
+    margin-right: 8px;
+    margin-left: 8px;
+    white-space: nowrap;
   }
 
   .column-pane {
@@ -319,12 +328,34 @@
     padding-bottom: 16px;
   }
 
-  .inline-actions {
+  .bottom-block {
+    margin-top: 8px;
+  }
+
+  .bottom-block.windowIsSmall {
     text-align: center;
   }
 
-  .top-margin {
-    margin-top: 16px;
+  .back-icon {
+    position: relative;
+    top: 3px;
+    left: -4px;
+  }
+
+  .forward-icon {
+    position: relative;
+    top: 3px;
+    left: 4px;
+  }
+
+  .left-align {
+    position: absolute;
+    left: 16px;
+    display: inline-block;
+  }
+
+  .footer-button {
+    display: inline-block;
   }
 
 </style>
