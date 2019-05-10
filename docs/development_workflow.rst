@@ -90,10 +90,10 @@ Who should merge PRs, and when?
 
 First, all automated checks need to pass before merging. Then...
 
-* If there is just one reviewer and they approve the changes, the reviewer should merge the PR immediately.
+* If there is just one reviewer and they approve the changes, the reviewer should merge the PR immediately
 * If there are multiple reviewers or stakeholders, the last one to approve can merge
-* Stale reviews should be dismissed when their feedback has been addressed
-* The reviewer might approve the PR, but also request minor changes such as a typo fix or variable name update. The submitter can then make the change and merge it themselves, with the understanding that the new changes will be limited in scope.
+* The reviewer might approve the PR, but also request minor changes such as a typo fix or variable name update. The submitter can then make the change and merge it themselves, with the understanding that the new changes will be limited in scope
+* Stale reviews should be dismissed by the PR submitter when the feedback has been addressed
 
 
 Development phases
