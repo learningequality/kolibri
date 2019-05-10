@@ -15,6 +15,17 @@
       <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
       <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
        -->
+      <KSelect
+        v-model="groupFilter"
+        :label="$tr('show')"
+        :options="groupFilterOptions"
+        :inline="true"
+      />
+      <KFilterTextbox
+        v-model="searchFilter"
+        :placeholder="$tr('searchText')"
+        class="learner-filter "
+      />
       <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -49,6 +60,8 @@
 
 <script>
 
+  import { localeCompare } from 'kolibri.utils.i18n';
+  import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -56,11 +69,27 @@
     name: 'ReportsAttendanceListPage',
     components: {
       ReportsHeader,
+      KFilterTextbox,
+    },
+    $trs: {
+      show: 'Show',
+      allGroups: 'All groups',
+      activeLessons: 'Active lessons',
+      inactiveLessons: 'Inactive lessons',
+      searchText: 'Filter by username or full name',
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        groupFilter: 'allGroups',
+        searchFilter: '',
+      };
+    },
     computed: {
       table() {
-        const sorted = this._.sortBy(this.learners, ['name']);
+        const filteredByGroup = this.filterByGroup(this.learners);
+        const filtered = this.filterByUsername(filteredByGroup);
+        const sorted = this._.sortBy(filtered, ['username']);
         const mapped = sorted.map(learner => {
           const augmentedObj = {
             active: this.active(learner),
@@ -71,6 +100,24 @@
         });
         return mapped;
       },
+      groupFilterOptions() {
+        const groupFilterOptions = [
+          {
+            label: this.$tr('allGroups'),
+            value: this.$tr('allGroups'),
+          },
+        ];
+        this.groups.forEach(group => {
+          groupFilterOptions.push({
+            label: group.name,
+            value: group.id,
+          });
+        });
+        return groupFilterOptions;
+      },
+    },
+    beforeMount() {
+      this.groupFilter = this.groupFilterOptions[0];
     },
     methods: {
       active(learner) {
@@ -89,10 +136,40 @@
           return this.coachStrings.$tr('neverLoggedInLabel');
         }
       },
+      filterByGroup(learners) {
+        const groupFilterValue = this.groupFilter.value;
+        if (groupFilterValue === this.$tr('allGroups')) {
+          return learners;
+        } else {
+          const learnerIdsInGroup = this.groups.find(group => {
+            return group.id === groupFilterValue;
+          }).member_ids;
+          return learners.filter(learner => learnerIdsInGroup.includes(learner.id));
+        }
+      },
+      filterByUsername(learners) {
+        const sortByKey = 'username';
+        const predicate = learner => this.learnerMatchesFilter(learner, this.searchFilter);
+        return learners.filter(predicate).sort((a, b) => {
+          return localeCompare(a[sortByKey], b[sortByKey]);
+        });
+      },
+      learnerMatchesFilter(learner, searchFilter) {
+        const searchTerms = searchFilter.split(/\s+/).map(val => val.toLowerCase());
+        const fullName = learner.name.toLowerCase();
+        const username = learner.username.toLowerCase();
+        return searchTerms.every(term => fullName.includes(term) || username.includes(term));
+      },
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .learner-filter {
+    margin-bottom: 14px;
+  }
+
+</style>
