@@ -271,6 +271,11 @@ CSRF_COOKIE_PATH = path_prefix
 # cookies set by other Django apps served from the same domain.
 LANGUAGE_COOKIE_PATH = path_prefix
 
+# https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
+# Ensure that our session cookie does not collidge with other session cookies
+# set by other Django apps served from the same domain.
+SESSION_COOKIE_PATH = path_prefix
+
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
