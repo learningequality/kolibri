@@ -163,7 +163,6 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 * Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
-* Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
 * Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.

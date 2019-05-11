@@ -6,7 +6,7 @@ Distribution build pipeline
 
 The Kolibri Package build pipeline looks like this::
 
-                        Git master branch
+                        Git release branch
                                 |
                                 |
                                / \
