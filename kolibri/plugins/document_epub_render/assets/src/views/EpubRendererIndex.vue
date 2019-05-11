@@ -423,13 +423,34 @@
               height: bounds.height,
             });
 
-            return this.rendition.q.enqueue(() => {
-              this.rendition.resize();
+            const resize = new Promise((resolve, reject) => {
+              this.rendition.once(EVENTS.RENDITION.DISPLAYED, resolve);
+              this.rendition.once(EVENTS.RENDITION.DISPLAY_ERROR, reject);
             });
+
+            return this.rendition.q
+              .enqueue(() => this.rendition.resize())
+              .then(() => resize)
+              .then(
+                () => {},
+                () => {
+                  // In IE 11, EVENTS.RENDITION.DISPLAY_ERROR occurs when calling .resize(),
+                  // so we'll try to redisplay, and if that's successful remove `errorLoading`
+                  return this.rendition.display(this.savedLocation || undefined);
+                }
+              )
+              .then(() => {
+                this.errorLoading = false;
+              });
           })
-          .then(() => {
-            this.handleReadyRendition();
-          });
+          .then(
+            () => {
+              this.handleReadyRendition();
+            },
+            () => {
+              this.errorLoading = true;
+            }
+          );
 
         this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
           this.errorLoading = true;
@@ -475,7 +496,7 @@
           Promise.resolve()
             .then(() => this.rendition.currentLocation())
             .then(currentLocation => {
-              if (currentLocation) {
+              if (currentLocation && currentLocation.start) {
                 this.relocatedHandler(currentLocation);
               }
             });
