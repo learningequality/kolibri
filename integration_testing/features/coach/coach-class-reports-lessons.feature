@@ -72,6 +72,8 @@ Feature: Lessons subtab
       And I see the progress and average time spent columns for the resources
     When I click the <resource> resource
     Then I am on the *<resource>* report page
+      I see *Preview* button
+      And I see *View by groups* unchecked checkbox
       And I see the progress, time spent and last activity column on <resource> for each of the learners lesson <lesson> is assigned to
 
   Scenario: Learner has not started a resource
@@ -91,6 +93,33 @@ Feature: Lessons subtab
       When a learner has ******** <resource> 
       # Clarify conditions for *Needs help*
       Then their *Progress* column states *Needs help*
+
+  Scenario: View the resource report page by groups
+    Given that I am on the <resource> report page
+    When I click *View by groups* checkbox
+    Then I see learners grouped by groups belonging to <lesson> recipients
+    And I see empty groups that are recipients of the <lesson>
+    And I cannot see empty groups that aren't recipients of the <lesson>
+    And if the <lesson> recipient is *Entire class*
+      And there are <lesson> learners who do not have any group assigned
+      I can see *Ungrouped learners* section containing those learners
+
+  Scenario: View resource preview
+    Given that I am on the <resource> report page
+    When I click *Preview* button
+    Then I can see the <resource> preview
+    When I click the back arrow in the immersive toolbar
+    Then I am returned to the <resource> report page
+
+  Scenario: View resource preview when learners grouped by <lesson> groups
+    Given that I am on the <resource> report page
+      And learners are grouped by <lesson> groups
+    When I click *Preview* button
+    Then I can see the <resource> preview
+    When I click the back arrow in the immersive toolbar
+    Then I am returned to the <resource> report page
+      And *View by groups* checkbox stays checked
+      And I can see learners grouped by <lesson> groups
 
 Examples:
 | classroom | lesson  | groups | resource           |
