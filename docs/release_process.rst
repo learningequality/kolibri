@@ -234,9 +234,9 @@ Update the demo server
 
 Get `kolibridemo.learningequality.org <https://kolibridemo.learningequality.org>`__ running the latest version:
 
-* SSH into the instance by running ``gcloud compute ssh --project kolibri-demo-servers --zone us-east1-d kolibridemo``. Click `here <https://cloud.google.com/compute/docs/instances/connecting-to-instance#gcetools>`__ for more information about connecting to Google Compute Engine instances.
+* SSH into the instance by running ``gcloud compute ssh --project kolibri-demo-servers --zone us-east1-d kolibridemo``. Click `here <https://cloud.google.com/compute/docs/instances/connecting-to-instance#gcetools>`__ for more information about connecting to Google Compute Engine instances. (You will need the right permissions of course.)
 * ``sudo su www-data``
-* Upload the new .pex file and update /var/www/run_kolibridemo.sh to point at it
+* Download the new .pex from file from the uploaded assets on github/buildkite using ``wget``. Update /var/www/run_kolibridemo.sh to point at it
 * ``./var/www/run_kolibridemo.sh restart`` to restart kolibri
 
 
