@@ -727,6 +727,8 @@
 
   @import './EpubStyles';
 
+  $top-bar-height: 36px;
+  $bottom-bar-height: 54px;
   $navigation-button-small: 36px;
   $navigation-button-normal: 52px;
 
@@ -740,8 +742,9 @@
     padding-top: calc(100% * 11 / 8.5);
   }
 
-  .epub-renderer.normalize-fullscreen {
-    padding-top: 0 !important;
+  .epub-renderer.normalize-fullscreen,
+  .epub-renderer.small.normalize-fullscreen {
+    padding-top: 0;
   }
 
   .epub-renderer-content {
@@ -757,12 +760,13 @@
     top: 0;
     right: 0;
     left: 0;
+    height: $top-bar-height;
   }
 
   .side-bar {
     position: absolute;
-    top: 36px;
-    bottom: 54px;
+    top: $top-bar-height;
+    bottom: $bottom-bar-height;
   }
 
   .side-bar-left {
@@ -820,10 +824,11 @@
 
   .navigation-and-epubjs {
     position: absolute;
-    top: 36px;
+    top: $top-bar-height;
     right: 0;
-    bottom: 54px;
+    bottom: $bottom-bar-height;
     left: 0;
+    max-height: calc(100vh - #{$top-bar-height + $bottom-bar-height});
     white-space: nowrap;
   }
 
