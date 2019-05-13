@@ -12,7 +12,6 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 import django
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
-from django.db import connections
 from django.db.utils import DatabaseError
 from docopt import docopt
 
@@ -44,6 +43,7 @@ Usage:
   kolibri restart [options]
   kolibri status [options]
   kolibri shell [options]
+  kolibri services [--foreground] [options]
   kolibri manage COMMAND [DJANGO_OPTIONS ...]
   kolibri manage COMMAND [options] [-- DJANGO_OPTIONS ...]
   kolibri diagnose [options]
@@ -57,6 +57,8 @@ Options:
   -h --help             Show this screen.
   --version             Show version.
   --debug               Output debug messages (for development)
+  --skipupdate          Don't run update logic - useful if running two kolibri
+                        commands in parallel.
   COMMAND               The name of any available django manage command. For
                         help, type `kolibri manage help`
   DJANGO_OPTIONS        Command options are passed on to the django manage
@@ -67,6 +69,7 @@ Examples:
   kolibri start             Start Kolibri
   kolibri stop              Stop Kolibri
   kolibri status            How is Kolibri doing?
+  kolibri services          Start Kolibri background services
   kolibri url               Tell me the address of Kolibri
   kolibri shell             Display a Django shell
   kolibri manage help       Show the Django management usage dialogue
@@ -139,7 +142,7 @@ def should_back_up(kolibri_version, version_file_contents):
     )
 
 
-def initialize(debug=False):
+def initialize(debug=False, skip_update=False):
     """
     Currently, always called before running commands. This may change in case
     commands that conflict with this behavior show up.
@@ -151,7 +154,8 @@ def initialize(debug=False):
 
         setup_logging(debug=debug)
 
-        _first_run()
+        if not skip_update:
+            _first_run()
     else:
         # Do this here so that we can fix any issues with our configuration file before
         # we attempt to set up django.
@@ -188,7 +192,8 @@ def initialize(debug=False):
                     old=version, new=kolibri.__version__
                 )
             )
-            update()
+            if not skip_update:
+                update()
 
 
 def _migrate_databases():
@@ -243,11 +248,6 @@ def update():
 
     TODO: We should look at version numbers of external plugins, too!
     """
-    # Can be removed once we stop calling update() from start()
-    # See: https://github.com/learningequality/kolibri/issues/1615
-    if update.called:
-        return
-    update.called = True
 
     logger.info("Running update routines for new version...")
 
@@ -275,9 +275,6 @@ def update():
     cache.clear()
 
 
-update.called = False
-
-
 def start(port=None, daemon=True):
     """
     Start the server on given port.
@@ -286,10 +283,6 @@ def start(port=None, daemon=True):
     :param: daemon: Fork to background process (default: True)
     """
     run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
-
-    # This is temporarily put in place because of
-    # https://github.com/learningequality/kolibri/issues/1615
-    update()
 
     # In case some tests run start() function only
     if not isinstance(port, int):
@@ -329,10 +322,6 @@ def start(port=None, daemon=True):
         logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
         kwargs["out_log"] = server.DAEMON_LOG
         kwargs["err_log"] = server.DAEMON_LOG
-
-        # close all connections before forking, to avoid SQLite corruption:
-        # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
-        connections.close_all()
 
         become_daemon(**kwargs)
 
@@ -419,6 +408,31 @@ status.codes = {
     server.STATUS_PID_FILE_INVALID: "Invalid PID file",
     server.STATUS_UNKNOWN: "Could not determine status",
 }
+
+
+def services(daemon=True):
+    """
+    Start the kolibri background services.
+
+    :param: daemon: Fork to background process (default: True)
+    """
+
+    logger.info("Starting Kolibri background services")
+
+    # Daemonize at this point, no more user output is needed
+    if daemon:
+
+        kwargs = {}
+        # Truncate the file
+        if os.path.isfile(server.DAEMON_LOG):
+            open(server.DAEMON_LOG, "w").truncate()
+        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
+        kwargs["out_log"] = server.DAEMON_LOG
+        kwargs["err_log"] = server.DAEMON_LOG
+
+        become_daemon(**kwargs)
+
+    server.services()
 
 
 def setup_logging(debug=False):
@@ -627,7 +641,7 @@ def main(args=None):  # noqa: max-complexity=13
             check_other_kolibri_running(port)
 
     try:
-        initialize(debug=debug)
+        initialize(debug=debug, skip_update=arguments["--skipupdate"])
     except (DatabaseError, SQLite3DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(
@@ -637,6 +651,12 @@ def main(args=None):  # noqa: max-complexity=13
                 "contact Learning Equality. Thank you!"
             )
         raise
+
+    daemon = not arguments["--foreground"]
+    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+    if sys.platform == "darwin":
+        daemon = False
 
     # Alias
     if arguments["shell"]:
@@ -669,11 +689,6 @@ def main(args=None):  # noqa: max-complexity=13
         # Clear old sessions up
         call_command("clearsessions")
 
-        daemon = not arguments["--foreground"]
-        # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
-        # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-        if sys.platform == "darwin":
-            daemon = False
         start(port, daemon=daemon)
         return
 
@@ -684,6 +699,17 @@ def main(args=None):  # noqa: max-complexity=13
     if arguments["status"]:
         status_code = status()
         sys.exit(status_code)
+        return
+
+    if arguments["services"]:
+        try:
+            server._write_pid_file(server.STARTUP_LOCK, None)
+        except (IOError, OSError):
+            logger.warn(
+                "Impossible to create file lock to communicate starting process"
+            )
+
+        services(daemon=daemon)
         return
 
     if arguments["language"] and arguments["setdefault"]:

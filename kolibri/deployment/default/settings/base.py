@@ -302,7 +302,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {"handlers": ["console", "file"], "propagate": True},
+        "django": {"handlers": ["console", "file"], "propagate": False},
         "django.request": {
             "handlers": ["mail_admins", "file", "request_debug"],
             "level": "ERROR",
@@ -316,12 +316,12 @@ LOGGING = {
         "iceqube": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "morango": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
     },
 }
@@ -345,7 +345,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework_csv.renderers.CSVRenderer",
     ),
-    "EXCEPTION_HANDLER": "kolibri.core.utils.custom_exception_handler",
+    "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 
 # System warnings to disable

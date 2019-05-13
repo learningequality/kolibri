@@ -4,7 +4,7 @@
 
     <section>
       <h2>{{ $tr('points') }}</h2>
-      <PointsIcon class="points-icon" :active="true" />
+      <PointsIcon class="points-icon" />
       <span class="points-num" :style="{ color: $coreStatusCorrect }">
         {{ $formatNumber(totalPoints) }}
       </span>
@@ -220,18 +220,18 @@
       },
       canEditUsername() {
         if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learnerCanEditUsername;
+          return this.facilityConfig.learner_can_edit_username;
         }
         return true;
       },
       canEditName() {
         if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learnerCanEditName;
+          return this.facilityConfig.learner_can_edit_name;
         }
         return true;
       },
       canEditPassword() {
-        return this.isSuperuser || this.facilityConfig.learnerCanEditPassword;
+        return this.isSuperuser || this.facilityConfig.learner_can_edit_password;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {

@@ -54,6 +54,10 @@
     },
     computed: {
       toolbarRoute() {
+        if (this.$route.query && this.$route.query.last) {
+          return this.backRouteForQuery(this.$route.query);
+        }
+
         return (
           this.backRoute || {
             ...this.$store.state.toolbarRoute,

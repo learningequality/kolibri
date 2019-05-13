@@ -57,10 +57,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  p {
-    word-break: keep-all;
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -199,7 +199,7 @@
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
       canDownload() {
-        if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
+        if (this.facilityConfig.show_download_button_in_learn && this.content) {
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
