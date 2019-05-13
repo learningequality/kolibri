@@ -456,6 +456,12 @@ def update_content_metadata(channel_id):
     calculate_channel_fields(channel_id)
     ContentCacheKey.update_cache_key()
 
+    # If we are updating the content metadata, then we will need to rerun
+    # any importability annotation because it depends on the availability
+    # of localfiles.
+    from kolibri.core.content.utils.importability_annotation import clear_importability_cache
+    clear_importability_cache(channel_id)
+
 
 def annotate_content(channel_id, checksums=None):
     if checksums is None:

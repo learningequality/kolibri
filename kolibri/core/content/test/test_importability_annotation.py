@@ -24,6 +24,9 @@ from kolibri.core.content.utils.importability_annotation import (
     annotate_importability_from_remote,
 )
 from kolibri.core.content.utils.importability_annotation import (
+    calculate_importable_duplication_index
+)
+from kolibri.core.content.utils.importability_annotation import (
     calculate_importable_file_size
 )
 from kolibri.core.content.utils.importability_annotation import (
@@ -51,6 +54,10 @@ test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 class AnnotationFromLocalFileImportability(TransactionTestCase):
 
     fixtures = ["content_test.json"]
+
+    def setUp(self):
+        LocalFile.objects.all().update(available=False)
+        File.objects.all().update(available=False)
 
     def test_all_local_files_importable(self):
         LocalFile.objects.all().update(importable=True, file_size=1)
@@ -283,7 +290,7 @@ class LocalFileByChecksum(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileByChecksum, self).setUp()
-        LocalFile.objects.all().update(importable=False)
+        LocalFile.objects.all().update(importable=False, available=False)
 
     def test_set_one_file(self):
         file_id = "6bdfea4a01830fdd4a585181c0b8068c"
@@ -298,6 +305,24 @@ class LocalFileByChecksum(TransactionTestCase):
         self.assertEqual(LocalFile.objects.filter(importable=True).count(), 2)
         self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
         self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    def test_set_two_files_one_available(self):
+        file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+        file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
+        LocalFile.objects.filter(id=file_id_1).update(available=True)
+        mark_local_files_as_importable([file_id_1, file_id_2])
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    def test_set_two_files_both_available(self):
+        file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
+        file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
+        LocalFile.objects.all().update(available=True)
+        mark_local_files_as_importable([file_id_1, file_id_2])
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).importable)
 
     def tearDown(self):
         call_command("flush", interactive=False)
@@ -314,7 +339,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileByDisk, self).setUp()
-        LocalFile.objects.all().update(importable=False)
+        LocalFile.objects.all().update(importable=False, available=False)
         self.mock_home_dir = tempfile.mkdtemp()
         self.mock_storage_dir = os.path.join(self.mock_home_dir, "content", "storage")
         os.makedirs(self.mock_storage_dir)
@@ -353,6 +378,24 @@ class LocalFileByDisk(TransactionTestCase):
         self.assertTrue(LocalFile.objects.get(id=self.file_id_1).importable)
         self.assertTrue(LocalFile.objects.get(id=self.file_id_2).importable)
 
+    def test_set_two_files_in_channel_one_available(self):
+        self.createmock_content_file1()
+        self.createmock_content_file2()
+        LocalFile.objects.filter(id=self.file_id_1).update(available=True)
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=self.file_id_2).importable)
+
+    def test_set_two_files_in_channel_both_available(self):
+        self.createmock_content_file1()
+        self.createmock_content_file2()
+        LocalFile.objects.all().update(available=True)
+        annotate_importability_from_disk(test_channel_id, self.mock_home_dir)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=self.file_id_2).importable)
+
     def test_set_two_files_one_in_channel(self):
         self.createmock_content_file1()
         self.createmock_content_file(uuid.uuid4().hex)
@@ -386,7 +429,7 @@ class LocalFileRemote(TransactionTestCase):
 
     def setUp(self):
         super(LocalFileRemote, self).setUp()
-        LocalFile.objects.all().update(importable=False)
+        LocalFile.objects.all().update(importable=False, available=False)
 
     @patch("kolibri.core.content.utils.importability_annotation.requests")
     def test_set_one_file_in_channel(self, requests_mock):
@@ -414,6 +457,26 @@ class LocalFileRemote(TransactionTestCase):
         self.assertEqual(LocalFile.objects.filter(importable=True).count(), 2)
         self.assertTrue(LocalFile.objects.get(id=file_id_1).importable)
         self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_two_files_in_channel_one_available(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps([file_id_1, file_id_2])
+        LocalFile.objects.filter(id=file_id_1).update(available=True)
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 1)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    @patch("kolibri.core.content.utils.importability_annotation.requests")
+    def test_set_two_files_in_channel_both_available(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.content = json.dumps([file_id_1, file_id_2])
+        LocalFile.objects.all().update(available=True)
+        annotate_importability_from_remote(test_channel_id, "test")
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).importable)
 
     @patch("kolibri.core.content.utils.importability_annotation.requests")
     def test_set_two_files_one_in_channel(self, requests_mock):
@@ -482,6 +545,22 @@ class CalculateChannelFieldsTestCase(TestCase):
         self.channel = ChannelMetadata.objects.create(
             id=self.node.channel_id, name="channel", root=self.node
         )
+
+    def test_calculate_importable_resource_duplication_no_error(self):
+        self.channel.importable_resources = 0
+        self.channel.importable_file_size = 10
+        try:
+            calculate_importable_duplication_index(self.channel)
+        except ZeroDivisionError:
+            self.fail('Failed to catch a division by zero.')
+
+    def test_calculate_importable_file_size_duplication_no_error(self):
+        self.channel.importable_resources = 10
+        self.channel.importable_file_size = 0
+        try:
+            calculate_importable_duplication_index(self.channel)
+        except ZeroDivisionError:
+            self.fail('Failed to catch a division by zero.')
 
     def test_calculate_importable_resources(self):
         local_file = LocalFile.objects.create(

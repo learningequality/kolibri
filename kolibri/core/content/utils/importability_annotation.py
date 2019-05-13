@@ -1,3 +1,23 @@
+"""
+The functions in this file are for setting somewhat transitory state in the content database
+that is used during the content import process - the starting point for annotation is the
+concept of 'importability' - the implementation here is differently defined from an
+historic use of 'importable' heretofore used, previously 'importable' signified only
+that the particular file in question was available to be imported (it was either assumed
+to be the case in the case of any remote import - or if the file was present on disk when
+importing from USB or an external hard drive).
+
+Henceforth, 'importable' is better understood in a more contextual light, relative to the
+current import operation that is being enacted by the user. Importable means precisely:
+A file is importable if and only if it exists to be imported on the remote server or external
+drive from which importing is taking place, and also if it is not currently available on the
+local server into which we are importing the content.
+
+This AND condition is an important change, that also simplifies how we calculate the amount
+of space that potentially imported content will use, as we can treat 'available'
+and 'importable' as mutually exclusive categories (but not simple boolean inverses, as there
+can still be content that is neither currently available nor importable.)
+"""
 import datetime
 import json
 import logging
@@ -47,13 +67,15 @@ def mark_local_files_as_importable(checksums):
             number=len(checksums)
         )
     )
-
     connection.execute(
         LocalFileTable.update()
         .where(
-            # This seems relatively performant, and was twice as fast as doing the
-            # same query but also filtering by channel_id
-            LocalFileTable.c.id.in_(checksums)
+            and_(
+                # This seems relatively performant, and was twice as fast as doing the
+                # same query but also filtering by channel_id
+                LocalFileTable.c.id.in_(checksums),
+                LocalFileTable.c.available == False,  # noqa
+            )
         )
         .values(importable=True)
         .execution_options(autocommit=True)
@@ -110,9 +132,10 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
     )
 
     logger.info(
-        "Setting importability of non-topic ContentNode objects based on File importability"
+        "Setting importability of ContentNode objects based on File importability"
     )
 
+    # Update all importability attributes on leaf (non-topic) nodes.
     connection.execute(
         ContentNodeTable.update()
         .where(
@@ -124,6 +147,24 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
         .values(
             importable=exists(contentnode_statement),
             importable_resources=exists(contentnode_statement),
+            importable_file_size=contentnode_file_size_statement,
+        )
+        .execution_options(autocommit=True)
+    )
+
+    # Update importable file_size attribute on topic nodes.
+    # This will capture file size for files associated with the
+    # topics themselves, which can then be used as a base for addition
+    # of descendant file sizes in the recursive annotation step.
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.kind == content_kinds.TOPIC,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .values(
             importable_file_size=contentnode_file_size_statement,
         )
         .execution_options(autocommit=True)
@@ -238,7 +279,7 @@ def recurse_importability_up_tree(channel_id):
             .values(
                 importable=exists(importable_nodes),
                 importable_resources=node_resources,
-                importable_file_size=node_file_size,
+                importable_file_size=ContentNodeTable.c.importable_file_size + node_file_size,
                 importable_coach_contents=coach_content_num,
             )
         )
@@ -272,9 +313,15 @@ def calculate_importable_resource_count(channel):
 def calculate_importable_duplication_index(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
     duped_resource_count = content_nodes.filter(importable=True).exclude(kind=content_kinds.TOPIC).count()
-    channel.importable_resource_duplication = duped_resource_count / float(channel.importable_resources)
+    try:
+        channel.importable_resource_duplication = duped_resource_count / float(channel.importable_resources)
+    except ZeroDivisionError:
+        channel.importable_resource_duplication = 1
     duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).aggregate(Sum("file_size"))["file_size__sum"] or 0
-    channel.importable_file_duplication = duped_file_size / float(channel.importable_file_size)
+    try:
+        channel.importable_file_duplication = duped_file_size / float(channel.importable_file_size)
+    except ZeroDivisionError:
+        channel.importable_file_duplication = 1
 
 
 def annotate_importability(channel_id, checksums):
@@ -302,6 +349,10 @@ checksum_regex = re.compile("^([a-f0-9]{32})$")
 # If we have already done importability annotation for this channel
 # Record this fact so that we avoid doing it repeatedly.
 IMPORTABILITY_ANNOTATION_CACHE_KEY = "importability_annotation_{channel_id}"
+
+
+def clear_importability_cache(channel_id):
+    cache.clear(IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id))
 
 
 def annotate_importability_from_studio(channel_id):

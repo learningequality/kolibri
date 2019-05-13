@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models import Sum
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_GET
@@ -110,7 +111,9 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         instance = get_object_or_404(queryset, pk=pk)
         children = queryset.filter(parent=instance)
         if request.query_params.get("check_importable", None):
-            children = children.filter(importable=True)
+            # When we are checking for importability, also show things that are
+            # currently available, as the user may want to unselect them.
+            children = children.filter(Q(importable=True) | Q(available=True))
         elif request.query_params.get("for_export", None):
             children = children.filter(available=True)
 
