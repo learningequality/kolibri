@@ -100,7 +100,7 @@
       upgradeMessageImportant:
         'We have released an important update with fixes to this version of Kolibri.',
       upgradeMessage0124:
-        'Kolibri version 0.12.4 is now available! It contains important bug fixes fixes and new Coach features.',
+        'Kolibri version 0.12.4 is now available! It contains important bug fixes and new Coach features.',
       upgradeDownload: 'Download it here',
       upgradeLearnAndDownload: 'Learn more and download it here',
     },
