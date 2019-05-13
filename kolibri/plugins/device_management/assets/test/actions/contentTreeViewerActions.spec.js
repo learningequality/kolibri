@@ -2,7 +2,7 @@
 import omit from 'lodash/fp/omit';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import { TaskResource } from 'kolibri.resources';
-import { makeNode, contentNodeGranularPayload } from '../utils/data';
+import { makeNode, contentNodeGranularPayload, defaultChannel, dupedChannel } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
 import ContentNodeGranularResource from '../../src/apiResources/contentNodeGranular';
 import ChannelResource from '../../src/apiResources/deviceChannel';
@@ -72,23 +72,30 @@ describe('contentTreeViewer actions', () => {
    *
    */
   describe('addNodeForTransfer action', () => {
-    it('adding a single Node to empty list', () => {
+    describe('adding a single Node to empty list', () => {
       // ...straightforwardly adds it to `include`
       const node_1 = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
         importable_resources: 200,
         on_device_resources: 50,
       });
-      return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
-        assertIncludeEquals([node_1]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 150, 'remoteimport');
-        assertFilesResourcesEqual(0, 50, 'localexport');
-        assertFilesResourcesEqual(1, 150, 'localimport');
+      beforeEach(() => {
+        return store.dispatch(ADD_NODE_ACTION, node_1);
       });
+      it('should include the added node', () => {
+        assertIncludeEquals([node_1]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[1, 200, 'remoteimport'], [0, 50, 'localexport'], [1, 200, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('adding Nodes that are not parent/child to each other', () => {
+    describe('adding Nodes that are not parent/child to each other', () => {
       // ...straightforwardly adds both to `include`
       const node_1 = makeNode('1_1_1', {
         path: simplePath('1', '1_1'),
@@ -100,21 +107,25 @@ describe('contentTreeViewer actions', () => {
         importable_resources: 200,
         on_device_resources: 25,
       });
-      return store
-        .dispatch(ADD_NODE_ACTION, node_1)
-        .then(() => {
+      beforeEach(() => {
+        return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
           return store.dispatch(ADD_NODE_ACTION, node_2);
-        })
-        .then(() => {
-          assertIncludeEquals([node_1, node_2]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(2, 325, 'remoteimport');
-          assertFilesResourcesEqual(0, 75, 'localexport');
-          assertFilesResourcesEqual(2, 325, 'localimport');
         });
+      });
+      it('should include the added nodes', () => {
+        assertIncludeEquals([node_1, node_2]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[2, 400, 'remoteimport'], [0, 75, 'localexport'], [2, 400, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('when a Node with descendants in `include` is added', () => {
+    describe('when a Node with descendants in `include` is added', () => {
       // ...the descendants are removed from `include`, because they are made redundant by the Node
       const ancestorNode = makeNode('1_1', {
         path: simplePath('1'),
@@ -123,21 +134,26 @@ describe('contentTreeViewer actions', () => {
       });
       const descendantNode_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
       const descendantNode_2 = makeNode('1_1_1_1', { path: simplePath('1', '1_1', '1_1_1') });
-      return store
-        .dispatch(ADD_NODE_ACTION, descendantNode_1)
-        .then(() => store.dispatch(ADD_NODE_ACTION, descendantNode_2))
-        .then(() => store.dispatch(ADD_NODE_ACTION, ancestorNode))
-        .then(() => {
-          assertIncludeEquals([ancestorNode]);
-          assertOmitEquals([]);
-          // files/resources are not double counted
-          assertFilesResourcesEqual(1, 7, 'remoteimport');
-          assertFilesResourcesEqual(0, 3, 'localexport');
-          assertFilesResourcesEqual(1, 7, 'localimport');
-        });
+      beforeEach(() => {
+        return store
+          .dispatch(ADD_NODE_ACTION, descendantNode_1)
+          .then(() => store.dispatch(ADD_NODE_ACTION, descendantNode_2))
+          .then(() => store.dispatch(ADD_NODE_ACTION, ancestorNode));
+      });
+      it('should include the ancestor nodes', () => {
+        assertIncludeEquals([ancestorNode]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[1, 10, 'remoteimport'], [0, 3, 'localexport'], [1, 10, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('when a Node in `omit` is re-added', () => {
+    describe('when a Node in `omit` is re-added', () => {
       // ...it and all its descendants are removed from "omit"
       const node = makeNode('1', {
         path: simplePath(),
@@ -146,15 +162,100 @@ describe('contentTreeViewer actions', () => {
       });
       const childNode = makeNode('1_1', { path: simplePath('1') });
       const siblingNode = makeNode('1_2', { path: simplePath('1') });
-      setIncludedNodes([]);
-      setOmittedNodes([node, childNode, siblingNode]);
-      return store.dispatch(ADD_NODE_ACTION, node).then(() => {
-        assertIncludeEquals([node]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(1, 235, 'remoteimport');
-        assertFilesResourcesEqual(0, 518, 'localexport');
-        assertFilesResourcesEqual(1, 235, 'localimport');
+      beforeEach(() => {
+        setIncludedNodes([]);
+        setOmittedNodes([node, childNode, siblingNode]);
+        return store.dispatch(ADD_NODE_ACTION, node);
       });
+      it('should include the added node', () => {
+        assertIncludeEquals([node]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[1, 753, 'remoteimport'], [0, 518, 'localexport'], [1, 753, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
+    });
+
+    describe('when the channel root node is added', () => {
+      const node = makeNode(defaultChannel.root, {
+        path: simplePath(),
+        on_device_resources: 518,
+        importable_resources: 753,
+      });
+      it.each(
+        [
+          [
+            defaultChannel.importable_file_size_deduped,
+            defaultChannel.importable_resources_deduped,
+            'remoteimport',
+          ],
+          [defaultChannel.published_size, defaultChannel.total_resource_count, 'localexport'],
+          [
+            defaultChannel.importable_file_size_deduped,
+            defaultChannel.importable_resources_deduped,
+            'localimport',
+          ],
+        ],
+        'should properly set resources: %d and size: %d for %s',
+        (fileSize, resourceCount, transferType) => {
+          Object.assign(store.state.manageContent.wizard, {
+            transferredChannel: {
+              ...defaultChannel,
+            },
+            transferType: transferType[2],
+          });
+          store.dispatch(ADD_NODE_ACTION, node).then(() => {
+            assertFilesResourcesEqual(fileSize, resourceCount, transferType);
+          });
+        }
+      );
+    });
+
+    describe('when the channel root node is added and it has duplicates', () => {
+      // This test confirms that when a channel has duplicate files and resources
+      // then we use the verified counts from the overall channel metadata, iff
+      // we have added the entire channel.
+      const node = makeNode(dupedChannel.root, {
+        path: simplePath(),
+        on_device_resources: 518,
+        importable_resources: 753,
+      });
+      it.each(
+        [
+          [
+            dupedChannel.importable_file_size_deduped,
+            dupedChannel.importable_resources_deduped,
+            'remoteimport',
+          ],
+          [dupedChannel.published_size, dupedChannel.total_resource_count, 'localexport'],
+          [
+            dupedChannel.importable_file_size_deduped,
+            dupedChannel.importable_resources_deduped,
+            'localimport',
+          ],
+          [
+            dupedChannel.importable_file_size_deduped,
+            dupedChannel.importable_resources_deduped,
+            'peerimport',
+          ],
+        ],
+        'should properly set resources: %d and size: %d for %s',
+        (fileSize, resourceCount, transferType) => {
+          Object.assign(store.state.manageContent.wizard, {
+            transferredChannel: {
+              ...dupedChannel,
+            },
+            transferType: transferType[2],
+          });
+          store.dispatch(ADD_NODE_ACTION, node).then(() => {
+            assertFilesResourcesEqual(fileSize, resourceCount, transferType);
+          });
+        }
+      );
     });
 
     // The case where all descendants of a node are selected is handled at select-content-page,
@@ -163,26 +264,28 @@ describe('contentTreeViewer actions', () => {
   });
 
   describe('removeNodeForTransfer action', () => {
-    it('removing a single Node that was originally in `include`', () => {
+    describe('removing a single Node that was originally in `include`', () => {
       // ...straightforwardly removes it from `include`
       const node_1 = makeNode('1_1_1', { path: simplePath('1', '1_1') });
-      return store
-        .dispatch(ADD_NODE_ACTION, node_1)
-        .then(() => {
-          assertIncludeEquals([node_1]);
-          assertOmitEquals([]);
+      beforeEach(() => {
+        return store.dispatch(ADD_NODE_ACTION, node_1).then(() => {
           return store.dispatch(REMOVE_NODE_ACTION, node_1);
-        })
-        .then(() => {
-          assertIncludeEquals([]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(0, 0, 'remoteimport');
-          assertFilesResourcesEqual(0, 0, 'localexport');
-          assertFilesResourcesEqual(0, 0, 'localimport');
         });
+      });
+      it('should not have any includes nodes', () => {
+        assertIncludeEquals([]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[0, 0, 'remoteimport'], [0, 0, 'localexport'], [0, 0, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('removing a descendant of an included Node', () => {
+    describe('removing a descendant of an included Node', () => {
       // ...adds the descendant to `omit`, but does not remove Node from `include`
       const parentNode = makeNode('1_1', {
         path: simplePath('1'),
@@ -194,45 +297,55 @@ describe('contentTreeViewer actions', () => {
         importable_resources: 20,
         on_device_resources: 10,
       });
-      return store
-        .dispatch(ADD_NODE_ACTION, parentNode)
-        .then(() => {
+      beforeEach(() => {
+        return store.dispatch(ADD_NODE_ACTION, parentNode).then(() => {
           return store.dispatch(REMOVE_NODE_ACTION, childNode);
-        })
-        .then(() => {
-          assertIncludeEquals([parentNode]);
-          assertOmitEquals([childNode]);
-          assertFilesResourcesEqual(0, 20, 'remoteimport');
-          assertFilesResourcesEqual(0, 10, 'localexport');
-          assertFilesResourcesEqual(0, 20, 'localimport');
         });
+      });
+      it('should include the parent node', () => {
+        assertIncludeEquals([parentNode]);
+      });
+      it('should omit the child node', () => {
+        assertOmitEquals([childNode]);
+      });
+      it.each(
+        [[0, 30, 'remoteimport'], [0, 10, 'localexport'], [0, 30, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('removing a sibling is same as removing single Node', () => {
+    describe('removing a sibling is same as removing single Node', () => {
       const node_1 = makeNode('1_1', {
         path: simplePath('1'),
         on_device_resources: 525,
         importable_resources: 1222,
       });
       const node_2 = makeNode('1_2', { path: simplePath('1') });
-      return store
-        .dispatch(ADD_NODE_ACTION, node_1)
-        .then(() => {
-          return store.dispatch(ADD_NODE_ACTION, node_2);
-        })
-        .then(() => {
-          store.dispatch(REMOVE_NODE_ACTION, node_2);
-        })
-        .then(() => {
-          assertIncludeEquals([node_1]);
-          assertOmitEquals([]);
-          assertFilesResourcesEqual(1, 697, 'remoteimport');
-          assertFilesResourcesEqual(0, 525, 'localexport');
-          assertFilesResourcesEqual(1, 697, 'localimport');
-        });
+      beforeEach(() => {
+        return store
+          .dispatch(ADD_NODE_ACTION, node_1)
+          .then(() => {
+            return store.dispatch(ADD_NODE_ACTION, node_2);
+          })
+          .then(() => {
+            store.dispatch(REMOVE_NODE_ACTION, node_2);
+          });
+      });
+      it('should include the added node', () => {
+        assertIncludeEquals([node_1]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[1, 1222, 'remoteimport'], [0, 525, 'localexport'], [1, 1222, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('removing a Node removes it and all descendants from `include`', () => {
+    describe('removing a Node removes it and all descendants from `include`', () => {
       const node = makeNode('1', {
         path: simplePath(),
         importable_resources: 15,
@@ -248,20 +361,27 @@ describe('contentTreeViewer actions', () => {
         importable_resources: 5,
         on_device_resources: 2,
       });
-      // Not sure how this state can happen in practice.
-      // May need to remove or rewrite this test.
-      setIncludedNodes([node, childNode, grandchildNode]);
-      setOmittedNodes([]);
-      return store.dispatch(REMOVE_NODE_ACTION, node).then(() => {
-        assertIncludeEquals([]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
+      beforeEach(() => {
+        // Not sure how this state can happen in practice.
+        // May need to remove or rewrite this test.
+        setIncludedNodes([node, childNode, grandchildNode]);
+        setOmittedNodes([]);
+        return store.dispatch(REMOVE_NODE_ACTION, node);
       });
+      it('should not have any includes nodes', () => {
+        assertIncludeEquals([]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[0, 0, 'remoteimport'], [0, 0, 'localexport'], [0, 0, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('removing a Node removes its descendants from `omit`', () => {
+    describe('removing a Node removes its descendants from `omit`', () => {
       // ...since they are redundant
       const topNode = makeNode('1', {
         path: simplePath(),
@@ -278,21 +398,104 @@ describe('contentTreeViewer actions', () => {
         on_device_resources: 0,
         importable_resources: 5,
       });
-      setIncludedNodes([topNode]);
-      setOmittedNodes([grandchildNode]);
-      // Not sure this is possible in practice. On UI, childNode will
-      // be indeterminate, so user will need to click it once, making it selected
-      // which will then remove grandchildNode. After then, they can de-select it.
-      return store.dispatch(REMOVE_NODE_ACTION, childNode).then(() => {
-        assertIncludeEquals([topNode]);
-        assertOmitEquals([childNode]);
-        assertFilesResourcesEqual(0, 5, 'remoteimport');
-        assertFilesResourcesEqual(0, 5, 'localexport');
-        assertFilesResourcesEqual(0, 5, 'localimport');
+      beforeEach(() => {
+        setIncludedNodes([topNode]);
+        setOmittedNodes([grandchildNode]);
+        // Not sure this is possible in practice. On UI, childNode will
+        // be indeterminate, so user will need to click it once, making it selected
+        // which will then remove grandchildNode. After then, they can de-select it.
+        return store.dispatch(REMOVE_NODE_ACTION, childNode);
       });
+      it('should include the top node', () => {
+        assertIncludeEquals([topNode]);
+      });
+      it('should omit the child node', () => {
+        assertOmitEquals([childNode]);
+      });
+      it.each(
+        [[0, 10, 'remoteimport'], [0, 5, 'localexport'], [0, 10, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('(IMPORT) when removing a Node leads to an included parent Node being un-selected', () => {
+    describe('when the a child is removed after the channel root node is added and it has duplicates', () => {
+      // This test confirms that when we are not using the entire channel, then we do not
+      // use the deduplicated verified content sizes and resource counts that are part of the
+      // overall channel metadata, and instead revert to the estimates based on the top level topic
+      // node and the omitted nodes.
+      const node = makeNode(dupedChannel.root, {
+        path: simplePath(dupedChannel.root),
+        on_device_resources: 518,
+        importable_resources: 753,
+        importable_file_size: 100000000,
+        on_device_file_size: 50000000,
+      });
+      const childNode = makeNode('1_1_1', {
+        path: simplePath(dupedChannel.root, '1_1'),
+        importable_resources: 20,
+        on_device_resources: 10,
+        importable_file_size: 10000000,
+        on_device_file_size: 5000000,
+      });
+      beforeEach(() => {
+        Object.assign(store.state.manageContent.wizard, {
+          transferredChannel: {
+            ...dupedChannel,
+          },
+        });
+        return store.dispatch(ADD_NODE_ACTION, node).then(() => {
+          return store.dispatch(REMOVE_NODE_ACTION, childNode);
+        });
+      });
+      it('should include the added node', () => {
+        expect(store.state.manageContent.wizard.nodesForTransfer.included).toEqual([node]);
+      });
+      it('should omit the child node', () => {
+        expect(store.state.manageContent.wizard.nodesForTransfer.omitted).toEqual([childNode]);
+      });
+      it.each(
+        [
+          [
+            (node.importable_file_size - childNode.importable_file_size) /
+              dupedChannel.importable_file_duplication,
+            Math.floor(
+              Number.parseFloat(
+                (node.importable_resources - childNode.importable_resources) /
+                  dupedChannel.importable_resource_duplication
+              ).toPrecision(2)
+            ),
+            'remoteimport',
+          ],
+          [
+            (node.on_device_file_size - childNode.on_device_file_size) /
+              dupedChannel.importable_file_duplication,
+            Math.floor(
+              Number.parseFloat(
+                (node.on_device_resources - childNode.on_device_resources) /
+                  dupedChannel.importable_resource_duplication
+              ).toPrecision(2)
+            ),
+            'localexport',
+          ],
+          [
+            (node.importable_file_size - childNode.importable_file_size) /
+              dupedChannel.importable_file_duplication,
+            Math.floor(
+              Number.parseFloat(
+                (node.importable_resources - childNode.importable_resources) /
+                  dupedChannel.importable_resource_duplication
+              ).toPrecision(2)
+            ),
+            'localimport',
+          ],
+        ],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
+    });
+
+    describe('(IMPORT) when removing a Node leads to an included parent Node being un-selected', () => {
       // i.e. all of the parent's resources are omitted.
       // Then that parent node will be removed from `include`.
       // Then all of the parent node's descendants will be removed from `omit`.
@@ -312,19 +515,25 @@ describe('contentTreeViewer actions', () => {
         importable_resources: 10, // 5 transferrable
         on_device_resources: 5,
       });
-      setIncludedNodes([topNode]);
-      setOmittedNodes([childNode]);
-      return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
-        assertIncludeEquals([]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
+      beforeEach(() => {
+        setIncludedNodes([topNode]);
+        setOmittedNodes([childNode]);
+        return store.dispatch(REMOVE_NODE_ACTION, siblingNode);
       });
+      it('should not have any includes nodes', () => {
+        assertIncludeEquals([]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[0, 0, 'remoteimport'], [0, 0, 'localexport'], [0, 0, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
 
-    it('(EXPORT) when removing a Node leads to an included parent Node being un-selected', () => {
-      store.state.manageContent.wizard.transferType = 'localexport';
+    describe('(EXPORT) when removing a Node leads to an included parent Node being un-selected', () => {
       const topNode = makeNode('1', {
         path: simplePath(),
         // Make it so that not all resources are installed
@@ -341,15 +550,23 @@ describe('contentTreeViewer actions', () => {
         importable_resources: 3,
         on_device_resources: 1,
       });
-      setIncludedNodes([topNode]);
-      setOmittedNodes([childNode]);
-      return store.dispatch(REMOVE_NODE_ACTION, siblingNode).then(() => {
-        assertIncludeEquals([]);
-        assertOmitEquals([]);
-        assertFilesResourcesEqual(0, 0, 'remoteimport');
-        assertFilesResourcesEqual(0, 0, 'localexport');
-        assertFilesResourcesEqual(0, 0, 'localimport');
+      beforeEach(() => {
+        store.state.manageContent.wizard.transferType = 'localexport';
+        setIncludedNodes([topNode]);
+        setOmittedNodes([childNode]);
+        return store.dispatch(REMOVE_NODE_ACTION, siblingNode);
       });
+      it('should not have any includes nodes', () => {
+        assertIncludeEquals([]);
+      });
+      it('should not have any ommited nodes', () => {
+        assertOmitEquals([]);
+      });
+      it.each(
+        [[0, 0, 'remoteimport'], [0, 0, 'localexport'], [0, 0, 'localimport']],
+        'should properly set resources: %d and size: %d for %s',
+        assertFilesResourcesEqual
+      );
     });
   });
 });

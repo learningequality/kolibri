@@ -33,13 +33,21 @@ export function addNodeForTransfer(store, node) {
   store.commit('ADD_NODE_TO_INCLUDE_LIST', node);
   if (
     find(store.state.nodesForTransfer.included, { id: store.state.transferredChannel.root }) &&
-    !store.getters.inExportMode
+    !store.state.nodesForTransfer.omitted.length
   ) {
-    // If the entire channel is being downloaded, we can set the verified content size here.
-    store.commit('SET_VERIFIED_CONTENT_METRICS', {
-      size: store.state.transferredChannel.importable_file_size_deduped,
-      count: store.state.transferredChannel.importable_resources_deduped,
-    });
+    if (store.getters.inExportMode) {
+      // If the entire channel is being exported, we can set the verified content size here.
+      store.commit('SET_VERIFIED_CONTENT_METRICS', {
+        size: store.state.transferredChannel.published_size,
+        count: store.state.transferredChannel.total_resource_count,
+      });
+    } else {
+      // If the entire channel is being downloaded, we can set the verified content size here.
+      store.commit('SET_VERIFIED_CONTENT_METRICS', {
+        size: store.state.transferredChannel.importable_file_size_deduped,
+        count: store.state.transferredChannel.importable_resources_deduped,
+      });
+    }
   } else {
     // Otherwise set to null.
     store.commit('SET_VERIFIED_CONTENT_METRICS');

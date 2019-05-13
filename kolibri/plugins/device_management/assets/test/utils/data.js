@@ -1,6 +1,6 @@
-const TOTAL_RESOURCES = 'importable_resources';
+const IMPORTABLE_RESOURCES = 'importable_resources';
 const ON_DEVICE_RESOURCES = 'on_device_resources';
-const TOTAL_FILE_SIZE = 'importable_file_size';
+const IMPORTABLE_FILE_SIZE = 'importable_file_size';
 const ON_DEVICE_FILE_SIZE = 'on_device_file_size';
 
 export const defaultChannel = {
@@ -14,11 +14,32 @@ export const defaultChannel = {
   published_size: 95189556,
   total_resource_count: 52,
   thumbnail: '',
-  [TOTAL_FILE_SIZE]: 5000000000,
-  [TOTAL_RESOURCES]: 5000,
-  [TOTAL_FILE_SIZE + '_deduped']: 5000000000,
-  [TOTAL_RESOURCES + '_deduped']: 5000,
+  [IMPORTABLE_FILE_SIZE]: 5000000000,
+  [IMPORTABLE_RESOURCES]: 5000,
+  [IMPORTABLE_FILE_SIZE + '_deduped']: 5000000000,
+  [IMPORTABLE_RESOURCES + '_deduped']: 5000,
   version: 20,
+};
+
+export const dupedChannel = {
+  description: 'A duped channel',
+  id: 'duped_channel',
+  language: 'English',
+  language_code: 'en',
+  name: 'Channel Title',
+  [ON_DEVICE_FILE_SIZE]: 1000000000,
+  [ON_DEVICE_RESOURCES]: 1000,
+  published_size: 95189556,
+  total_resource_count: 52,
+  thumbnail: '',
+  [IMPORTABLE_FILE_SIZE]: 5000000000,
+  [IMPORTABLE_RESOURCES]: 5000,
+  [IMPORTABLE_FILE_SIZE + '_deduped']: 1000000000,
+  [IMPORTABLE_RESOURCES + '_deduped']: 1000,
+  importable_resource_duplication: 5,
+  importable_file_duplication: 5,
+  version: 20,
+  root: 'duped_topic_id',
 };
 
 const defaultNode = {
@@ -26,8 +47,8 @@ const defaultNode = {
   [ON_DEVICE_FILE_SIZE]: 0,
   [ON_DEVICE_RESOURCES]: 1,
   path: [],
-  [TOTAL_FILE_SIZE]: 1,
-  [TOTAL_RESOURCES]: 1,
+  [IMPORTABLE_FILE_SIZE]: 1,
+  [IMPORTABLE_RESOURCES]: 1,
   available: true,
   importable: true,
 };

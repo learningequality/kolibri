@@ -46,22 +46,15 @@ export function nodeTransferCounts(state) {
     const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
     if (transferType === TransferTypes.LOCALEXPORT) {
       return {
-        resources: approximateCounts(getDifference('on_device_resources')),
-        fileSize: approximateFileSize(getDifference('on_device_file_size')),
+        resources: verifiedResourceCount || approximateCounts(getDifference('on_device_resources')),
+        fileSize: verifiedContentSize || approximateFileSize(getDifference('on_device_file_size')),
       };
     } else {
       // For REMOTE/LOCAL/PEERIMPORT
       return {
         resources:
-          verifiedResourceCount ||
-          approximateCounts(
-            getDifference('importable_resources') - getDifference('on_device_resources')
-          ),
-        fileSize:
-          verifiedContentSize ||
-          approximateFileSize(
-            getDifference('importable_file_size') - getDifference('on_device_file_size')
-          ),
+          verifiedResourceCount || approximateCounts(getDifference('importable_resources')),
+        fileSize: verifiedContentSize || approximateFileSize(getDifference('importable_file_size')),
       };
     }
   };
