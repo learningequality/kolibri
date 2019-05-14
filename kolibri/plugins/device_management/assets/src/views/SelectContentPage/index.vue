@@ -147,7 +147,7 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
+      ...mapGetters('manageContent/wizard', ['nodeTransferCounts', 'inExportMode']),
       ...mapState('manageContent', ['taskList']),
       ...mapState('manageContent/wizard', [
         'availableSpace',
@@ -161,7 +161,9 @@
         // A boolean indicating whether the quantities reported in the dialog are accurate
         // or estimates, based on whether there are duplicates in the current channel.
         return (
-          this.transferredChannel.importable_resource_duplication > 1 &&
+          (this.inExportMode
+            ? this.transferredChannel.total_resource_duplication
+            : this.transferredChannel.importable_resource_duplication) > 1 &&
           this.verifiedContentSize === null
         );
       },

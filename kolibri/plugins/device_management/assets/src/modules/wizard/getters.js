@@ -1,7 +1,9 @@
 import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
+import partial from 'lodash/partial';
 import sumBy from 'lodash/sumBy';
 import { ApplicationTypes, TransferTypes } from '../../constants';
+import { calculateApproximateCounts, calculateApproximateFileSize } from './utils';
 
 export function cachedTopicPath(state) {
   return function getPath(id) {
@@ -19,32 +21,19 @@ export function nodeTransferCounts(state) {
   return function(transferType) {
     const { included, omitted } = state.nodesForTransfer;
     const transferredChannel = state.transferredChannel;
-    const duplicateResources = transferredChannel.importable_resource_duplication;
-    const duplicateFiles = transferredChannel.importable_file_duplication;
+    const forImport = transferType !== TransferTypes.LOCALEXPORT;
+    const duplicateResources = forImport
+      ? transferredChannel.importable_resource_duplication
+      : transferredChannel.total_resource_duplication;
+    const duplicateFiles = forImport
+      ? transferredChannel.importable_file_duplication
+      : transferredChannel.total_file_duplication;
     const verifiedContentSize = state.verifiedContentSize;
     const verifiedResourceCount = state.verifiedResourceCount;
-    function approximateCounts(count) {
-      // If we have duplicate resources
-      // then our counts are estimates so we return
-      // a rounded estimate of what the actual count is
-      if (duplicateResources > 1) {
-        return Math.floor(Number.parseFloat(count / duplicateResources).toPrecision(2));
-      } else {
-        return count;
-      }
-    }
-    function approximateFileSize(fileSize) {
-      // If we have duplicate files
-      // then our counts are estimates so we return
-      // a rounded estimate of what the actual count is
-      if (duplicateFiles > 1) {
-        return fileSize / duplicateFiles;
-      } else {
-        return fileSize;
-      }
-    }
+    const approximateCounts = partial(calculateApproximateCounts, duplicateResources);
+    const approximateFileSize = partial(calculateApproximateFileSize, duplicateFiles);
     const getDifference = key => (sumBy(included, key) || 0) - (sumBy(omitted, key) || 0);
-    if (transferType === TransferTypes.LOCALEXPORT) {
+    if (!forImport) {
       return {
         resources: verifiedResourceCount || approximateCounts(getDifference('on_device_resources')),
         fileSize: verifiedContentSize || approximateFileSize(getDifference('on_device_file_size')),

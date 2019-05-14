@@ -1,8 +1,10 @@
 import find from 'lodash/find';
 import flip from 'lodash/flip';
+import partial from 'lodash/partial';
 import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
+import { calculateApproximateCounts } from './../../modules/wizard/utils';
 
 const translator = createTranslator('TreeViewRowMessages', {
   alreadyOnYourDevice: 'Already on your device',
@@ -25,8 +27,8 @@ export const CheckboxTypes = {
 // isAncestorOf(a, b) is truthy if a is an ancestor of b
 const isAncestorOf = (a, b) => find(b.path, { id: a.id });
 const isDescedantOf = flip(isAncestorOf);
-const sumTotalResources = sumBy('importable_resources');
-const sumOnDeviceResources = sumBy('on_device_resources');
+const sumImportableResources = sumBy(o => o.importable_resources || 0);
+const sumOnDeviceResources = sumBy(o => o.on_device_resources || 0);
 
 /**
  * Takes a Node, plus contextual data from store, then annotates them with info
@@ -40,29 +42,25 @@ const sumOnDeviceResources = sumBy('on_device_resources');
  *
  */
 export function annotateNode(node, selectedNodes, forImport = true, channel) {
-  const { on_device_resources, importable_resources } = node;
+  const on_device_resources = node.on_device_resources || 0;
+  const importable_resources = node.importable_resources || 0;
   const isIncluded = find(selectedNodes.included, { id: node.id });
   const isOmitted = find(selectedNodes.omitted, { id: node.id });
   const ancestorIsIncluded = find(selectedNodes.included, iNode => isAncestorOf(iNode, node));
   const ancestorIsOmitted = find(selectedNodes.omitted, oNode => isAncestorOf(oNode, node));
   const nodeIsIncluded = isIncluded || ancestorIsIncluded;
+  const nodeSelected = !(isOmitted || ancestorIsOmitted) && nodeIsIncluded;
+  const totalResources = on_device_resources + importable_resources;
   // A ratio of the number of duped resources compared to deduped resources.
   // For most channels this will be 1, but for e.g. Khan Academy English,
   // this can be greater than 2.
-  const duplicateResources = channel.importable_resource_duplication;
+  const duplicateResources = forImport
+    ? channel.importable_resource_duplication
+    : channel.total_resource_duplication;
 
-  function approximateCounts(count) {
-    // If we have duplicate resources, then our counts are estimates
-    // return a rounded estimate of what the actual count is
-    if (duplicateResources > 1) {
-      return Math.floor(Number.parseFloat(count / duplicateResources).toPrecision(1));
-    } else {
-      return count;
-    }
-  }
-
+  const approximateCounts = partial(calculateApproximateCounts, duplicateResources);
   // Completely on device -> DISABLED
-  if (on_device_resources === importable_resources) {
+  if (totalResources === on_device_resources) {
     if (forImport) {
       return {
         ...node,
@@ -73,24 +71,26 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
     } else {
       return {
         ...node,
-        message: '',
+        message: nodeSelected
+          ? translator.$tr('resourcesSelected', {
+              total: approximateCounts(forImport ? totalResources : on_device_resources),
+            })
+          : '',
         disabled: false,
-        checkboxType: nodeIsIncluded ? CheckboxTypes.CHECKED : CheckboxTypes.UNCHECKED,
+        checkboxType: nodeSelected ? CheckboxTypes.CHECKED : CheckboxTypes.UNCHECKED,
       };
     }
   }
 
-  if (!(isOmitted || ancestorIsOmitted) && nodeIsIncluded) {
+  if (nodeSelected) {
     const omittedDescendants = selectedNodes.omitted.filter(oNode => isDescedantOf(oNode, node));
 
     // If any descendants are omitted -> UNCHECKED or INDETERMINATE
     if (omittedDescendants.length > 0) {
-      const omittedResources =
-        (sumTotalResources(omittedDescendants) || 0) -
-        (sumOnDeviceResources(omittedDescendants) || 0);
+      const omittedResources = sumImportableResources(omittedDescendants) || 0;
 
       // All descendants are omitted -> UNCHECKED
-      if (omittedResources === importable_resources - on_device_resources) {
+      if (omittedResources === importable_resources) {
         return {
           ...node,
           message: '',
@@ -103,8 +103,9 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
       let selectedCount;
       let totalCount;
       if (forImport) {
-        selectedCount = importable_resources - sumTotalResources(omittedDescendants);
-        totalCount = importable_resources;
+        selectedCount =
+          importable_resources - sumImportableResources(omittedDescendants) + on_device_resources;
+        totalCount = totalResources;
       } else {
         selectedCount = on_device_resources - sumOnDeviceResources(omittedDescendants);
         totalCount = on_device_resources;
@@ -124,7 +125,7 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
     return {
       ...node,
       message: translator.$tr('resourcesSelected', {
-        total: approximateCounts(forImport ? importable_resources : on_device_resources),
+        total: approximateCounts(forImport ? totalResources : on_device_resources),
       }),
       disabled: false,
       checkboxType: CheckboxTypes.CHECKED,
@@ -136,16 +137,16 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
     .filter(iNode => !selectedNodes.omitted.find(oNode => isDescedantOf(oNode, iNode)));
 
   if (fullyIncludedDescendants.length > 0) {
-    const fullyTotal = sumTotalResources(fullyIncludedDescendants);
+    const fullyImportable = sumImportableResources(fullyIncludedDescendants);
     const fullyOnDevice = sumOnDeviceResources(fullyIncludedDescendants);
 
     // Node is not selected, has all children selected -> CHECKED
     if (forImport) {
-      if (fullyTotal === importable_resources) {
+      if (fullyImportable === importable_resources) {
         return {
           ...node,
           message: translator.$tr('resourcesSelected', {
-            total: approximateCounts(importable_resources),
+            total: approximateCounts(totalResources),
           }),
           disabled: false,
           checkboxType: CheckboxTypes.CHECKED,
@@ -155,8 +156,8 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
       return {
         ...node,
         message: translator.$tr('fractionOfResourcesSelected', {
-          selected: approximateCounts(fullyTotal),
-          total: approximateCounts(importable_resources),
+          selected: approximateCounts(fullyImportable + fullyOnDevice),
+          total: approximateCounts(totalResources),
         }),
         disabled: false,
         checkboxType: CheckboxTypes.INDETERMINATE,
@@ -186,15 +187,28 @@ export function annotateNode(node, selectedNodes, forImport = true, channel) {
   if (on_device_resources > 0) {
     // Node has some (but not all) resources on device -> UNCHECKED (w/ message).
     // Node with all resources on device handled at top of this function.
-    return {
-      ...node,
-      message: translator.$tr('fractionOfResourcesOnDevice', {
-        onDevice: approximateCounts(on_device_resources),
-        total: approximateCounts(importable_resources),
-      }),
-      disabled: false,
-      checkboxType: CheckboxTypes.UNCHECKED,
-    };
+    if (forImport) {
+      return {
+        ...node,
+        message: translator.$tr('fractionOfResourcesOnDevice', {
+          onDevice: approximateCounts(on_device_resources),
+          total: approximateCounts(totalResources),
+        }),
+        disabled: false,
+        checkboxType: CheckboxTypes.UNCHECKED,
+      };
+    } else {
+      return {
+        ...node,
+        message: nodeIsIncluded
+          ? translator.$tr('resourcesSelected', {
+              total: approximateCounts(on_device_resources),
+            })
+          : '',
+        disabled: false,
+        checkboxType: nodeIsIncluded ? CheckboxTypes.CHECKED : CheckboxTypes.UNCHECKED,
+      };
+    }
   }
 
   // Node is not selected, has no children, is not on device -> UNCHECKED

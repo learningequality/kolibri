@@ -20,6 +20,12 @@ function makeNodesForTransfer(included, omitted) {
 
 const channel = {
   importable_resource_duplication: 1,
+  total_resource_duplication: 1,
+};
+
+const duped_channel = {
+  importable_resource_duplication: 2,
+  total_resource_duplication: 2,
 };
 
 describe('annotateNode utility correctly annotates', () => {
@@ -30,7 +36,7 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '100 resources selected',
+      message: '110 resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -47,12 +53,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 100 resources on your device',
+      message: '10 of 110 resources on your device',
       disabled: false,
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 100 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -64,12 +70,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 100 resources on your device',
+      message: '10 of 110 resources on your device',
       disabled: false,
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 100 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -77,7 +83,7 @@ describe('annotateNode utility correctly annotates', () => {
 
   // Nodes with resources on the device
   it('nodes that have all resources on the device', () => {
-    const node_1 = makeNodeWithResources('1', 100, 100);
+    const node_1 = makeNodeWithResources('1', 0, 100);
     const selected = makeNodesForTransfer([], []);
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
@@ -99,12 +105,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '10 of 2,010 resources on your device',
       disabled: false,
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -116,12 +122,12 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '10 of 2,010 resources on your device',
       disabled: false,
       checkboxType: 'unchecked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '10 of 2,000 resources on your device',
+      message: '',
       disabled: false,
       checkboxType: 'unchecked',
     });
@@ -134,7 +140,7 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(node_1, selected, true, channel);
     const exportAnnotated = annotateNode(node_1, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '100 resources selected',
+      message: '110 resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -149,7 +155,7 @@ describe('annotateNode utility correctly annotates', () => {
     // ...are disabled
     const includedAncestor = makeNodeWithResources('1', 50, 20);
     const onDeviceDescendant = {
-      ...makeNodeWithResources('1_1', 1, 1),
+      ...makeNodeWithResources('1_1', 0, 1),
       path: simplePath(['1']),
     };
     const selected = makeNodesForTransfer([includedAncestor], []);
@@ -161,7 +167,7 @@ describe('annotateNode utility correctly annotates', () => {
       checkboxType: 'checked',
     });
     assertAnnotationsEqual(exportAnnotated, {
-      message: '',
+      message: '1 resource selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -184,7 +190,7 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(notIncludedDescendant, selected, true, channel);
     const exportAnnotated = annotateNode(notIncludedDescendant, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 resources selected',
+      message: '15 resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -215,7 +221,7 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(partiallySelected, selected, true, channel);
     const exportAnnotated = annotateNode(partiallySelected, selected, false, channel);
     assertAnnotationsEqual(annotated, {
-      message: '10 of 20 resources selected',
+      message: '13 of 23 resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -241,7 +247,7 @@ describe('annotateNode utility correctly annotates', () => {
     const selected = makeNodesForTransfer([includedNode], [omittedNode_1, omittedNode_2]);
     const annotated = annotateNode(includedNode, selected, true, channel);
     assertAnnotationsEqual(annotated, {
-      message: '12 of 20 resources selected',
+      message: '17 of 25 resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -268,7 +274,7 @@ describe('annotateNode utility correctly annotates', () => {
     const annotated = annotateNode(parentNode, selected, true, channel);
     // Here, assumption is all descendants of included nodes will be imported
     assertAnnotationsEqual(annotated, {
-      message: '6 of 10 resources selected',
+      message: '8 of 13 resources selected',
       disabled: false,
       checkboxType: 'indeterminate',
     });
@@ -300,7 +306,7 @@ describe('annotateNode utility correctly annotates', () => {
     // Technically not correct, but implication is that they are completing the parentNode.
     // Will really only be transfering 7 resources.
     assertAnnotationsEqual(annotated, {
-      message: '10 resources selected',
+      message: '13 resources selected',
       disabled: false,
       checkboxType: 'checked',
     });
@@ -337,6 +343,52 @@ describe('annotateNode utility correctly annotates', () => {
     const exportAnnotated = annotateNode(parentNode, selected, false, channel);
     assertAnnotationsEqual(exportAnnotated, {
       message: '',
+      disabled: false,
+      checkboxType: 'unchecked',
+    });
+  });
+  it('nodes that are in the "include" list (100% selected) of a duped channel', () => {
+    const node_1 = makeNodeWithResources('1', 100, 10);
+    const selected = makeNodesForTransfer([node_1], []);
+    const annotated = annotateNode(node_1, selected, true, duped_channel);
+    const exportAnnotated = annotateNode(node_1, selected, false, duped_channel);
+    assertAnnotationsEqual(annotated, {
+      message: '55 resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+    assertAnnotationsEqual(exportAnnotated, {
+      message: '5 resources selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+  it('nodes that are in the "include" list (100% selected) of a duped channel and have 1 resource for import', () => {
+    const node_1 = makeNodeWithResources('1', 1, 0);
+    const selected = makeNodesForTransfer([node_1], []);
+    const annotated = annotateNode(node_1, selected, true, duped_channel);
+    assertAnnotationsEqual(annotated, {
+      message: '1 resource selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+  it('nodes that are in the "include" list (100% selected) of a duped channel and have 1 resource on device', () => {
+    const node_1 = makeNodeWithResources('1', 10, 1);
+    const selected = makeNodesForTransfer([node_1], []);
+    const exportAnnotated = annotateNode(node_1, selected, false, duped_channel);
+    assertAnnotationsEqual(exportAnnotated, {
+      message: '1 resource selected',
+      disabled: false,
+      checkboxType: 'checked',
+    });
+  });
+  it('nodes that are not included from a duped channel and have 1 resource on device', () => {
+    const node_1 = makeNodeWithResources('1', 10, 1);
+    const selected = makeNodesForTransfer([], []);
+    const annotated = annotateNode(node_1, selected, true, duped_channel);
+    assertAnnotationsEqual(annotated, {
+      message: '1 of 6 resources on your device',
       disabled: false,
       checkboxType: 'unchecked',
     });

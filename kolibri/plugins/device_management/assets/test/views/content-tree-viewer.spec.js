@@ -60,51 +60,6 @@ describe('contentTreeViewer component', () => {
     store = makeSelectContentPageStore();
   });
 
-  it('in REMOTEIMPORT, all nodes are shown', () => {
-    // API does annotate them as being importable, though...
-    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
-    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
-      id: 'topic',
-      children: [
-        {
-          ...makeNode('1'),
-          available: false,
-          importable: true,
-        },
-        {
-          ...makeNode('1'),
-          available: true,
-          importable: true,
-        },
-      ],
-    });
-    const wrapper = makeWrapper({ store });
-    const rows = wrapper.findAll({ name: 'ContentNodeRow' });
-    expect(rows).toHaveLength(2);
-  });
-
-  it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
-    store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'localexport');
-    store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', {
-      id: 'topic',
-      children: [
-        {
-          ...makeNode('1'),
-          available: true,
-          importable: true,
-        },
-        {
-          ...makeNode('1'),
-          available: false,
-          importable: false,
-        },
-      ],
-    });
-    const wrapper = makeWrapper({ store });
-    const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).toHaveLength(1);
-  });
-
   it('it shows an empty state if the topic has no children', () => {
     setChildren([]);
     const wrapper = makeWrapper({ store });

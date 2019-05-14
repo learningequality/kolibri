@@ -38,6 +38,8 @@ export const dupedChannel = {
   [IMPORTABLE_RESOURCES + '_deduped']: 1000,
   importable_resource_duplication: 5,
   importable_file_duplication: 5,
+  total_resource_duplication: 5,
+  total_file_duplication: 5,
   version: 20,
   root: 'duped_topic_id',
 };

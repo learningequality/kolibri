@@ -35,7 +35,7 @@
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <ContentNodeRow
-            v-for="node in showableAnnotatedChildNodes"
+            v-for="node in annotatedChildNodes"
             :key="node.id"
             :checked="nodeIsChecked(node)"
             :disabled="disableAll || node.disabled"
@@ -69,7 +69,6 @@
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
-  import { TransferTypes } from '../../constants';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import ContentNodeRow from './ContentNodeRow';
 
@@ -103,7 +102,6 @@
         'currentTopicNode',
         'nodesForTransfer',
         'path',
-        'transferType',
         'transferredChannel',
       ]),
       breadcrumbs() {
@@ -132,9 +130,6 @@
         return this.childNodesWithPath.map(n =>
           annotateNode(n, this.nodesForTransfer, !this.inExportMode, this.transferredChannel)
         );
-      },
-      showableAnnotatedChildNodes() {
-        return this.annotatedChildNodes.filter(this.showNode);
       },
       annotatedTopicNode() {
         // For the purposes of annotating the parent topic node, we need to add
@@ -167,13 +162,6 @@
         // Get sibling nodes and check if every one is either checked or disabled
         const siblings = this.annotatedChildNodes.filter(({ id }) => id !== node.id);
         return every(siblings, node => this.nodeIsChecked(node) || node.disabled);
-      },
-      showNode(node) {
-        if (this.transferType === TransferTypes.LOCALEXPORT) {
-          return node.available;
-        }
-        // If there are no resources at all within the node, do not display at all
-        return node.importable_resources;
       },
       updateCurrentTopicNode(node) {
         return navigateToTopicUrl.call(this, node, this.$route.query);

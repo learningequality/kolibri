@@ -86,3 +86,28 @@ export function readyChannelMetadata(store, download = true) {
       return Promise.reject({ errorType: ErrorTypes.CHANNEL_TASK_ERROR });
     });
 }
+
+export function calculateApproximateCounts(duplicateResources, count) {
+  // If we have duplicate resources
+  // then our counts are estimates so we return
+  // a rounded estimate of what the actual count is
+  if (duplicateResources > 1) {
+    // Round the counts to a precision of 2 significant figures.
+    // Round up any non-integer part - round up to ensure that we never
+    // return a value of zero if the input was greater than zero.
+    return Math.ceil(Number.parseFloat(count / duplicateResources).toPrecision(2));
+  } else {
+    return count;
+  }
+}
+
+export function calculateApproximateFileSize(duplicateFiles, fileSize) {
+  // If we have duplicate files
+  // then our file sizes are estimates so we return
+  // an estimate of what the actual file size is
+  if (duplicateFiles > 1) {
+    return fileSize / duplicateFiles;
+  } else {
+    return fileSize;
+  }
+}
