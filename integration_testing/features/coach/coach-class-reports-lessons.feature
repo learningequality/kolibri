@@ -94,15 +94,46 @@ Feature: Lessons subtab
       # Clarify conditions for *Needs help*
       Then their *Progress* column states *Needs help*
 
-  Scenario: View the resource report page by groups
+  Scenario: The resource report page viewed by groups when no groups available
     Given that I am on the <resource> report page
+      And the <classroom> has no learner groups
+      And the <lesson> has been assigned to the entire <classroom>
+      And there is at least one <classroom> learner
     When I click *View by groups* checkbox
-    Then I see learners grouped by groups belonging to <lesson> recipients
-    And I see empty groups that are recipients of the <lesson>
-    And I cannot see empty groups that aren't recipients of the <lesson>
-    And if the <lesson> recipient is *Entire class*
-      And there are <lesson> learners who do not have any group assigned
-      I can see *Ungrouped learners* section containing those learners
+    Then I can see *Ungrouped learners* section containing all <lesson> learners
+
+  Scenario: The resource report page viewed by groups when the <lesson> assigned to the entire <classroom>
+    Given that I am on the <resource> report page
+      And the <classroom> has at least one learner group
+      And there is at least one <classroom> learner in this group and at least one <classroom> learner with no group assigned
+      And the <lesson> has been assigned to the entire <classroom>
+    When I click *View by groups* checkbox
+    Then I see <classroom> learners grouped by <lesson> groups
+      And I see <classroom> learners with no groups assigned in *Ungrouped learners* section
+
+  Scenario: Empty groups on the resource report page viewed by groups when the <lesson> assigned to the entire <classroom>
+    Given that I am on the <resource> report page
+      And the <classroom> has at least one empty learners group
+      And the <lesson> has been assigned to the entire <classroom>
+    When I click *View by groups* checkbox
+    Then I see the empty group 
+
+  Scenario: The resource report page viewed by groups when the <lesson> assigned to a group
+    Given that I am on the <resource> report page
+      And the <classroom> has at least one learner group
+      And there is at least one <classroom> learner in this group and at least one <classroom> learner with no groups assigned
+      And the <lesson> has been assigned to this group
+    When I click *View by groups* checkbox
+    Then I see <classroom> learners grouped by <lesson> groups
+      And I cannot see <classroom> learners with no groups assigned
+
+  Scenario: Empty groups on the resource report page viewed by groups when the <lesson> assigned to a group
+    Given that I am on the <resource> report page
+      And the <classroom> has at least two empty learners groups
+      And the <lesson> has been assigned to one of them
+    When I click *View by groups* checkbox
+    Then I see the empty group which has been assigned to the <lesson>
+      And I cannot see the empty group which has not been assigned to the <lesson>
 
   Scenario: View resource preview
     Given that I am on the <resource> report page
@@ -111,7 +142,7 @@ Feature: Lessons subtab
     When I click the back arrow in the immersive toolbar
     Then I am returned to the <resource> report page
 
-  Scenario: View resource preview when learners grouped by <lesson> groups
+  Scenario: View resource preview when <classroom> learners grouped by <lesson> groups
     Given that I am on the <resource> report page
       And learners are grouped by <lesson> groups
     When I click *Preview* button
