@@ -84,7 +84,7 @@
       buttonIsDisabled() {
         return (
           this.loading ||
-          this.resourceCount === 0 ||
+          this.fileSize === 0 ||
           (!this.estimatedQuantities && this.remainingSpaceAfterTransfer <= 0)
         );
       },
