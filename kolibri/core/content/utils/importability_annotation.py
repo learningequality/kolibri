@@ -352,7 +352,7 @@ IMPORTABILITY_ANNOTATION_CACHE_KEY = "importability_annotation_{channel_id}"
 
 
 def clear_importability_cache(channel_id):
-    cache.clear(IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id))
+    cache.delete(IMPORTABILITY_ANNOTATION_CACHE_KEY.format(channel_id=channel_id))
 
 
 def annotate_importability_from_studio(channel_id):

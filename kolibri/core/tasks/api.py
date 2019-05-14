@@ -314,7 +314,7 @@ class TasksViewSet(viewsets.ViewSet):
         else:
             directory = None
 
-        task_id = get_client().schedule(
+        task_id = get_queue().enqueue(
             call_command,
             "annotateimportable",
             channel_id,
@@ -326,7 +326,7 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
+        resp = _job_to_response(get_queue().fetch_job(task_id))
 
         return Response(resp)
 

@@ -330,6 +330,8 @@ def query_params_required(**kwargs):  # noqa C901
                     )
                 return view(request, *args, **kwargs)
 
+            return wrapper
+
         except AssertionError:
             raise TypeError("query_params_required decorator can only be used on classes that are subclasses of APIView")
     return _params
