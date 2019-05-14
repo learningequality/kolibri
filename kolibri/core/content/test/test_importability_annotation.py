@@ -24,6 +24,9 @@ from kolibri.core.content.utils.importability_annotation import (
     annotate_importability_from_remote,
 )
 from kolibri.core.content.utils.importability_annotation import (
+    annotate_importability_from_studio,
+)
+from kolibri.core.content.utils.importability_annotation import (
     calculate_importable_duplication_index
 )
 from kolibri.core.content.utils.importability_annotation import (
@@ -531,6 +534,34 @@ class LocalFileRemote(TransactionTestCase):
     def tearDown(self):
         call_command("flush", interactive=False)
         super(LocalFileRemote, self).tearDown()
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class LocalFileStudio(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super(LocalFileStudio, self).setUp()
+        LocalFile.objects.all().update(importable=False, available=False)
+
+    def test_files_in_channel_one_available(self):
+        LocalFile.objects.filter(id=file_id_1).update(available=True)
+        annotate_importability_from_studio(test_channel_id)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 4)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertTrue(LocalFile.objects.get(id=file_id_2).importable)
+
+    def test_files_in_channel_all_available(self):
+        LocalFile.objects.all().update(available=True)
+        annotate_importability_from_studio(test_channel_id)
+        self.assertEqual(LocalFile.objects.filter(importable=True).count(), 0)
+        self.assertFalse(LocalFile.objects.get(id=file_id_1).importable)
+        self.assertFalse(LocalFile.objects.get(id=file_id_2).importable)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(LocalFileStudio, self).tearDown()
 
 
 class CalculateChannelFieldsTestCase(TestCase):

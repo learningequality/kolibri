@@ -328,12 +328,12 @@ def annotate_importability(channel_id, checksums):
     channel_localfiles = LocalFile.objects.filter(
         files__contentnode__channel_id=channel_id
     )
+    # First clear any existing annotation
+    channel_localfiles.update(importable=False)
     if checksums is None:
-        # If None just say everything is importable as we have no better info
-        channel_localfiles.update(importable=True)
+        # If None just say everything not available is importable as we have no better info
+        channel_localfiles.filter(available=False).update(importable=True)
     else:
-        # First clear any existing annotation
-        channel_localfiles.update(importable=False)
         mark_local_files_as_importable(checksums)
     set_leaf_node_importability_from_local_file_importability(channel_id)
     recurse_importability_up_tree(channel_id)
