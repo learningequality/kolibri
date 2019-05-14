@@ -1,9 +1,8 @@
 <template>
 
-  <div class="epub-renderer-error" :class="{loaded: loaded}">
+  <div class="epub-renderer-error" :class="{loaded}">
     <UiAlert
       type="error"
-
       :dismissible="false"
     >
       {{ $tr('couldNotLoadThisBook') }}
@@ -44,13 +43,14 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 7;
+    z-index: 24;
     background: #ffffff;
   }
 
   .epub-renderer-error.loaded {
     top: 36px;
     bottom: auto;
+    z-index: 4;
     background: transparent;
   }
 
