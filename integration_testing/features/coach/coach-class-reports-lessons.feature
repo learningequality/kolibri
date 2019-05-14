@@ -72,7 +72,7 @@ Feature: Lessons subtab
       And I see the progress and average time spent columns for the resources
     When I click the <resource> resource
     Then I am on the *<resource>* report page
-      I see *Preview* button
+      And I see *Preview* button
       And I see *View by groups* unchecked checkbox
       And I see the progress, time spent and last activity column on <resource> for each of the learners lesson <lesson> is assigned to
 
