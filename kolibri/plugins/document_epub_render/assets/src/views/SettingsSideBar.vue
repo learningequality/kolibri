@@ -63,12 +63,9 @@
           :percentage="false"
         >
           <KButton
-            :class="[
-              'settings-button',
-              'theme-button',
-              $computedClass(generateStyle(value.backgroundColor))
-            ]"
+            class="settings-button theme-button"
             :aria-label="generateThemeAriaLabel(key)"
+            :appearanceOverrides="generateStyle(value.backgroundColor)"
             @click="$emit('setTheme', value)"
           >
             <mat-svg
