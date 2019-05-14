@@ -15,7 +15,6 @@
             ref="decreaseFontSizeButton"
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
             :disabled="decreaseFontSizeDisabled"
-            :ariaLabel="$tr('decreaseTextSize')"
             @click="$emit('decreaseFontSize')"
           >
             <mat-svg
@@ -35,7 +34,6 @@
             ref="increaseFontSizeButton"
             :disabled="increaseFontSizeDisabled"
             :class="['settings-button', $computedClass(settingsButtonFocus)]"
-            :ariaLabel="$tr('increaseTextSize')"
             @click="$emit('increaseFontSize')"
           >
             <mat-svg
@@ -149,10 +147,6 @@
             return this.$tr('setGreyTheme');
           case 'BLACK':
             return this.$tr('setBlackTheme');
-          case 'YELLOW':
-            return this.$tr('setHighContrastBlackTheme');
-          case 'BLUE':
-            return this.$tr('setHighContrastWhiteTheme');
           default:
             return '';
         }
@@ -177,15 +171,11 @@
       textSize: 'Text size',
       decrease: 'Decrease',
       increase: 'Increase',
-      decreaseTextSize: 'Decrease text size',
-      increaseTextSize: 'Increase text size',
       theme: 'Theme',
       setWhiteTheme: 'Set white theme',
       setBeigeTheme: 'Set beige theme',
       setGreyTheme: 'Set grey theme',
       setBlackTheme: 'Set black theme',
-      setHighContrastBlackTheme: 'Set high contrast black theme',
-      setHighContrastWhiteTheme: 'Set high contrast white theme',
     },
   };
 
