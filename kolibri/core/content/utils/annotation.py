@@ -478,6 +478,8 @@ def calculate_channel_fields(channel_id):
     calculate_total_resource_count(channel)
     calculate_included_languages(channel)
     calculate_next_order(channel)
+    calculate_duplication_index(channel)
+    channel.save()
 
 
 def calculate_published_size(channel):
@@ -485,7 +487,6 @@ def calculate_published_size(channel):
     channel.published_size = _total_file_size(
         _files_for_nodes(content_nodes).filter(available=True)
     )
-    channel.save()
 
 
 def calculate_total_resource_count(channel):
@@ -496,7 +497,6 @@ def calculate_total_resource_count(channel):
         .dedupe_by_content_id()
         .count()
     )
-    channel.save()
 
 
 def calculate_included_languages(channel):
@@ -513,4 +513,17 @@ def calculate_next_order(channel):
         channel.order = 1
     else:
         channel.order = latest_order + 1
-    channel.save()
+
+
+def calculate_duplication_index(channel):
+    content_nodes = ContentNode.objects.filter(channel_id=channel.id)
+    duped_resource_count = content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+    try:
+        channel.total_resource_duplication = duped_resource_count / float(channel.total_resource_count)
+    except ZeroDivisionError:
+        channel.total_resource_duplication = 1
+    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).filter(available=True).aggregate(Sum("file_size"))["file_size__sum"] or 0
+    try:
+        channel.total_file_duplication = duped_file_size / float(channel.published_size)
+    except ZeroDivisionError:
+        channel.total_file_duplication = 1

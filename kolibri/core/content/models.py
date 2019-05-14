@@ -476,6 +476,8 @@ class ChannelMetadata(models.Model):
     # Ratios representing how duplicated resources and files are in this resource
     importable_resource_duplication = models.FloatField(default=1, null=True, blank=True)
     importable_file_duplication = models.FloatField(default=1, null=True, blank=True)
+    total_resource_duplication = models.FloatField(default=1, null=True, blank=True)
+    total_file_duplication = models.FloatField(default=1, null=True, blank=True)
 
     class Admin:
         pass

@@ -17,6 +17,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import calculate_duplication_index
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_published_size
 from kolibri.core.content.utils.annotation import calculate_total_resource_count
@@ -755,3 +756,62 @@ class CalculateChannelFieldsTestCase(TestCase):
             self.channel.save()
         except DataError:
             self.fail("DataError: integer out of range")
+
+    def test_calculate_resource_duplication(self):
+        self.channel.total_resource_count = 1
+        self.channel.published_size = 10
+        ContentNode.objects.create(
+            title="test",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            available=False,
+        )
+        calculate_duplication_index(self.channel)
+        self.assertEqual(self.channel.total_resource_duplication, 1.0)
+
+    def test_calculate_resource_duplication_no_error(self):
+        self.channel.total_resource_count = 0
+        self.channel.published_size = 10
+        try:
+            calculate_duplication_index(self.channel)
+        except ZeroDivisionError:
+            self.fail('Failed to catch a division by zero.')
+
+    def test_calculate_file_size_duplication(self):
+        self.channel.total_resource_count = 1
+        self.channel.published_size = 10
+        local_file1 = LocalFile.objects.create(
+            id=uuid.uuid4().hex,
+            extension="mp4",
+            available=True,
+            file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file1,
+            available=True,
+            contentnode=self.node,
+        )
+        local_file2 = LocalFile.objects.create(
+            id=uuid.uuid4().hex,
+            extension="mp4",
+            available=False,
+            file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file2,
+            available=False,
+            contentnode=self.node,
+        )
+        calculate_duplication_index(self.channel)
+        self.assertEqual(self.channel.total_file_duplication, 1.0)
+
+    def test_calculate_file_size_duplication_no_error(self):
+        self.channel.total_resource_count = 10
+        self.channel.published_size = 0
+        try:
+            calculate_duplication_index(self.channel)
+        except ZeroDivisionError:
+            self.fail('Failed to catch a division by zero.')

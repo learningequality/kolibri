@@ -54,6 +54,8 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
             # resources and total file size on the device.
             "total_resource_count",
             "published_size",
+            "total_file_duplication",
+            "total_resource_duplication",
             "importable_file_size",
             "importable_file_size_deduped",
             "importable_resources",

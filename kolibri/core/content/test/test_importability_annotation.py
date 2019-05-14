@@ -546,6 +546,19 @@ class CalculateChannelFieldsTestCase(TestCase):
             id=self.node.channel_id, name="channel", root=self.node
         )
 
+    def test_calculate_importable_resource_duplication(self):
+        self.channel.importable_resources = 1
+        self.channel.importable_file_size = 10
+        ContentNode.objects.create(
+            title="test",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            importable=False,
+        )
+        calculate_importable_duplication_index(self.channel)
+        self.assertEqual(self.channel.importable_resource_duplication, 1.0)
+
     def test_calculate_importable_resource_duplication_no_error(self):
         self.channel.importable_resources = 0
         self.channel.importable_file_size = 10
@@ -553,6 +566,38 @@ class CalculateChannelFieldsTestCase(TestCase):
             calculate_importable_duplication_index(self.channel)
         except ZeroDivisionError:
             self.fail('Failed to catch a division by zero.')
+
+    def test_calculate_importable_file_size_duplication(self):
+        self.channel.importable_resources = 10
+        self.channel.importable_file_size = 10
+        local_file1 = LocalFile.objects.create(
+            id=uuid.uuid4().hex,
+            extension="mp4",
+            importable=True,
+            file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file1,
+            importable=True,
+            contentnode=self.node,
+        )
+        local_file2 = LocalFile.objects.create(
+            id=uuid.uuid4().hex,
+            extension="mp4",
+            importable=False,
+            file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file2,
+            importable=False,
+            contentnode=self.node,
+        )
+        calculate_importable_duplication_index(self.channel)
+        self.assertEqual(
+            self.channel.importable_file_duplication, 1.0
+        )
 
     def test_calculate_importable_file_size_duplication_no_error(self):
         self.channel.importable_resources = 10

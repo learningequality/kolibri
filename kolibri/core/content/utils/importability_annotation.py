@@ -317,7 +317,7 @@ def calculate_importable_duplication_index(channel):
         channel.importable_resource_duplication = duped_resource_count / float(channel.importable_resources)
     except ZeroDivisionError:
         channel.importable_resource_duplication = 1
-    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).aggregate(Sum("file_size"))["file_size__sum"] or 0
+    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).filter(importable=True).aggregate(Sum("file_size"))["file_size__sum"] or 0
     try:
         channel.importable_file_duplication = duped_file_size / float(channel.importable_file_size)
     except ZeroDivisionError:
