@@ -2,6 +2,8 @@
 
   <aside
     :class="['media-player-transcript', { showing }]"
+    :aria-hidden="(!showing).toString()"
+    :aria-label="$tr('label')"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
@@ -12,6 +14,12 @@
       />
     </div>
 
+    <div
+      class="transcript-cap"
+      :style="capStyle"
+    >
+      {{ $tr('transcriptBeginning') }}
+    </div>
     <template v-for="cue in cues">
       <TranscriptCue
         :key="cue.id"
@@ -23,6 +31,12 @@
         @seek="handleSeekEvent"
       />
     </template>
+    <div
+      class="transcript-cap"
+      :style="capStyle"
+    >
+      {{ $tr('transcriptEnd') }}
+    </div>
   </aside>
 
 </template>
@@ -30,6 +44,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
 
   import Settings from '../settings';
@@ -40,6 +55,8 @@
     name: 'MediaPlayerTranscript',
 
     components: { TranscriptCue, KCircularLoader },
+
+    mixins: [themeMixin],
 
     props: {
       defaultLangCode: {
@@ -60,6 +77,10 @@
     computed: {
       mediaDuration() {
         return this.player ? this.player.duration() : 0;
+      },
+
+      capStyle() {
+        return { color: this.$coreTextAnnotation };
       },
     },
 
@@ -216,7 +237,11 @@
         this.$el.scrollTo(0, Math.min(scrollMax, scrollTo));
       },
     },
-    $trs: {},
+    $trs: {
+      label: 'Transcript',
+      transcriptBeginning: 'Beginning of transcript',
+      transcriptEnd: 'End of transcript',
+    },
   };
 
 </script>
@@ -230,6 +255,12 @@
     overflow-x: hidden;
     overflow-y: auto;
     background: #ffffff;
+  }
+
+  .transcript-cap {
+    padding: 20px;
+    font-size: 0.9rem;
+    text-align: center;
   }
 
 </style>

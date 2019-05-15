@@ -5,16 +5,17 @@
     tabindex="0"
     :class="[
       'transcript-cue',
-      {'active': active},
+      { active },
       $computedClass(style)
     ]"
     :dir="dir"
     :title="$tr('title', { startTime })"
+    :aria-current="active.toString()"
     @click="triggerSeekEvent"
     @keypress.enter="triggerSeekEvent"
   >
-    <span class="transcript-cue-time">{{ startTime }}</span>
-    <span class="transcript-cue-text">
+    <span class="transcript-cue-time" :aria-label="$tr('timeLabel')">{{ startTime }}</span>
+    <span class="transcript-cue-text" :aria-label="$tr('textLabel')">
       <strong v-if="speaker">{{ speaker }}</strong>
       {{ text }}
     </span>
@@ -84,8 +85,6 @@
       },
     },
 
-    created() {},
-
     methods: {
       triggerSeekEvent() {
         this.$emit('seek', this.cue.startTime);
@@ -109,7 +108,9 @@
       },
     },
     $trs: {
-      title: ' Seek to {startTime}',
+      title: 'Seek to {startTime}',
+      timeLabel: 'Transcript cue start time',
+      textLabel: 'Transcript cue caption text',
     },
   };
 

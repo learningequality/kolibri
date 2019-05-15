@@ -11,7 +11,7 @@
         'wrapper',
         {
           'transcript-visible': isShowingTranscript,
-          'transcript-wrap': windowIsPortrait || windowIsSmall,
+          'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
         },
         $computedClass(progressStyle)
       ]"
