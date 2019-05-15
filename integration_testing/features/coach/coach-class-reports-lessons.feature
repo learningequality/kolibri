@@ -96,13 +96,13 @@ Feature: Lessons subtab
 		    	And I see *Ungrouped learners* section with those learners
 
   Scenario: View resource preview
-    	Given that *View by groups* checkbox is checked
-		    When I click *Preview* button
-		    Then I can see the <resource> preview
-		    When I click the back arrow button in top left corner
-		    Then I am on the <resource> resource page again
-		    	And I see separate tables for each group
-		    	And the *View by groups* checkbox is still checked
+  	Given that *View by groups* checkbox is checked
+	    When I click *Preview* button
+	    Then I can see the <resource> preview
+	    When I click the back arrow button in top left corner
+	    Then I am on the <resource> resource page again
+	    	And I see separate tables for each group
+	    	And the *View by groups* checkbox is still checked
 
 Examples:
 | class    | lesson             | resource           |
