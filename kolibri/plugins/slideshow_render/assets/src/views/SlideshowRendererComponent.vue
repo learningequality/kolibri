@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="slideshowRenderer"
     class="slideshow-renderer"
+    :style="{ height: contentHeight }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <UiIconButton
@@ -20,7 +21,7 @@
         <div
           class="slideshow-slide-image"
           :style="{
-            height: `calc(100% - ${caption_height}px)`
+            height: `calc(100% - ${captionHeight}px)`
           }"
         >
           <img
@@ -48,7 +49,7 @@
 
 <script>
 
-  import _ from 'lodash';
+  import orderBy from 'lodash/orderBy';
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -93,13 +94,16 @@
       currentSlide: null,
     }),
     computed: {
-      slideshow_images: function() {
+      slideshowImages: function() {
         const files = this.files;
         return files.filter(file => file.preset != 'Slideshow Manifest');
       },
-      caption_height: function() {
+      captionHeight: function() {
         return 30 + (this.currentSlide ? this.$refs[this.currentSlide.id][0].clientHeight : 0);
       },
+      contentHeight: function() {
+        return (window.innerHeight * 0.70) + 'px';
+      }
     },
     mounted() {
       /*
@@ -113,10 +117,10 @@
         .then(manifest_data => {
           this.manifest = manifest_data.slideshow_data;
 
-          this.slides = _.orderBy(
+          this.slides = orderBy(
             this.manifest.map(image => {
               return {
-                storage_url: this.slideshow_images.find(
+                storage_url: this.slideshowImages.find(
                   sFile =>
                     sFile.storage_url
                       .split('/')
@@ -151,7 +155,9 @@
             .getElementsByClassName('hooper-list')[0]
             .setAttribute('style', `width: calc(100% * ${this.slides.length});`);
         } catch (err) {
-          console.error('Hooper Startup Error: No .hooper-list instantiated. Cannot set styles.');
+          // If we don't explicitly set an error, the renderer will display broken giving worse
+          // UX than getting an error message.
+          this.$store.commit('CORE_SET_ERROR', err);
         }
       },
     },
@@ -170,15 +176,16 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 100;
+    z-index: 12;
     fill: white;
   }
+
   .slideshow-renderer {
     position: relative;
-    height: 70vh;
     overflow: hidden;
     text-align: center;
   }
+
   .hidden-descriptive-text {
     position: absolute;
     top: auto;
@@ -187,14 +194,12 @@
     height: 1px;
     overflow: hidden;
   }
+
   .slideshow-slide-image {
     position: relative;
     box-sizing: content-box;
     width: calc(100% - 100px);
-    height: calc(
-      100% - 50px
-    );
-
+    height: calc(100% - 50px);
     margin: 0 auto;
     background-repeat: no-repeat;
     background-position: center center;
@@ -206,13 +211,16 @@
       height: 100%;
     }
   }
+
   .hooper {
     height: 100%;
   }
+
   .hooper-pagination {
     width: 100%;
     background: #efefef;
   }
+
   .caption {
     position: absolute;
     bottom: 30px;
