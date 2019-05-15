@@ -1,7 +1,7 @@
 <template>
 
   <div class="loading-screen" :style="backgroundStyle">
-    <div>
+    <div class="loading-status">
       <KCircularLoader
         type="indeterminate"
         :delay="false"
@@ -48,9 +48,13 @@
     bottom: 0;
     left: 0;
     z-index: 24;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  }
+
+  .loading-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
 </style>
