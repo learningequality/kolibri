@@ -51,7 +51,7 @@ class TrackHandler extends EventEmitter {
    */
   processCues(cues) {
     return toArray(cues).map((cue, i) => {
-      cue.id = `${this._track.id}-cue-${i}`;
+      cue.id = `${this._track.id}_cue_${i}`;
       return cue;
     });
   }
@@ -67,7 +67,7 @@ class TrackHandler extends EventEmitter {
    * @returns {string[]}
    */
   getActiveCueIds() {
-    return this._activeCues.map(cue => cue.id);
+    return this._activeCues.map(cue => cue.id).filter(Boolean);
   }
 
   /**

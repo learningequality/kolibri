@@ -1,7 +1,9 @@
 <template>
 
   <aside
-    :class="['media-player-transcript', {'showing': showing}]"
+    :class="['media-player-transcript', { showing }]"
+    @mouseenter="hovering = true"
+    @mouseleave="hovering = false"
   >
     <div v-show="!cues.length" class="loading-space fill-space">
       <KCircularLoader
@@ -13,6 +15,7 @@
     <template v-for="cue in cues">
       <TranscriptCue
         :key="cue.id"
+        :ref="cue.id"
         :cue="cue"
         :langCode="langCode"
         :active="activeCueIds.indexOf(cue.id) >= 0"
@@ -48,6 +51,8 @@
     data: () => ({
       langCode: null,
       showing: false,
+      hovering: false,
+      nextScroll: null,
       cues: [],
       activeCueIds: [],
     }),
@@ -55,6 +60,33 @@
     computed: {
       mediaDuration() {
         return this.player ? this.player.duration() : 0;
+      },
+    },
+
+    watch: {
+      activeCueIds(newActiveCueIds) {
+        if (!newActiveCueIds || !newActiveCueIds.length) {
+          return;
+        }
+
+        const offsetTop = newActiveCueIds.reduce((offsetTop, cueId) => {
+          const [cue] = this.$refs[cueId];
+          return Math.min(offsetTop, cue.offsetTop());
+        }, this.$el.scrollHeight);
+
+        const offsetBottom = newActiveCueIds.reduce((offsetBottom, cueId) => {
+          const [cue] = this.$refs[cueId];
+          return Math.max(offsetBottom, cue.offsetTop() + cue.height());
+        }, 0);
+
+        this.scrollTo(offsetTop, offsetBottom);
+      },
+
+      hovering(isHovering) {
+        if (!isHovering && this.nextScroll) {
+          this.scrollTo(...this.nextScroll);
+          this.nextScroll = null;
+        }
       },
     },
 
@@ -156,6 +188,32 @@
         if (doToggle) {
           this.toggle(true);
         }
+      },
+
+      scrollTo(offsetTop, offsetBottom) {
+        if (this.hovering) {
+          this.nextScroll = [offsetTop, offsetBottom];
+          return;
+        }
+
+        const height = this.$el.offsetHeight;
+        const offsetMiddle = offsetTop + Math.min(offsetBottom - offsetTop, height) / 2;
+
+        const currentScrollTop = this.$el.scrollTop;
+        const currentScrollMiddle = currentScrollTop + height / 2;
+        const scrollMax = this.$el.scrollHeight - height;
+
+        if (offsetTop > currentScrollTop && offsetTop < currentScrollMiddle) {
+          return;
+        }
+
+        if (offsetTop < currentScrollTop) {
+          this.$el.scrollTo(0, offsetTop);
+          return;
+        }
+
+        const scrollTo = currentScrollTop + (offsetMiddle - currentScrollMiddle);
+        this.$el.scrollTo(0, Math.min(scrollMax, scrollTo));
       },
     },
     $trs: {},

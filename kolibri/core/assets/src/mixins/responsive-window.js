@@ -125,15 +125,19 @@ export default {
       windowBreakpoint: undefined,
       windowGutter: 16,
       windowIsShort: false,
+      windowIsPortrait: false,
+      windowIsLandscape: false,
     };
   },
   watch: {
     windowWidth() {
       this._updateBreakpoint();
       this._updateGutter();
+      this._updateOrientation();
     },
     windowHeight() {
       this._updateGutter();
+      this._updateOrientation();
       this.windowIsShort = this.windowHeight < 600;
     },
   },
@@ -195,6 +199,10 @@ export default {
       } else {
         this.windowGutter = 24;
       }
+    },
+    _updateOrientation() {
+      this.windowIsPortrait = this.windowWidth < this.windowHeight;
+      this.windowIsLandscape = !this.windowIsPortrait;
     },
   },
   mounted() {

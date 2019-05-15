@@ -93,6 +93,20 @@
           preventScroll: true,
         });
       },
+
+      /**
+       * @public
+       */
+      offsetTop() {
+        return this.$el.offsetTop;
+      },
+
+      /**
+       * @public
+       */
+      height() {
+        return this.$el.offsetHeight;
+      },
     },
     $trs: {
       title: ' Seek to {startTime}',

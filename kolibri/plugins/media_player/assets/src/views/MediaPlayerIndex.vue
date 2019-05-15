@@ -9,7 +9,10 @@
       ref="wrapper"
       :class="[
         'wrapper',
-        { 'transcript-visible': isShowingTranscript },
+        {
+          'transcript-visible': isShowingTranscript,
+          'transcript-wrap': windowIsPortrait || windowIsSmall,
+        },
         $computedClass(progressStyle)
       ]"
     >
@@ -82,6 +85,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import ResponsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
   import Settings from './settings';
@@ -140,7 +144,7 @@
 
     components: { KCircularLoader, MediaPlayerFullscreen, MediaPlayerTranscript },
 
-    mixins: [ResponsiveElement, contentRendererMixin, themeMixin],
+    mixins: [ResponsiveWindow, ResponsiveElement, contentRendererMixin, themeMixin],
 
     data: () => ({
       dummyTime: 0,
@@ -485,14 +489,22 @@
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import '~kolibri.styles.definitions';
 
+  $transcript-wrap-height: 250px;
+
   .wrapper {
+    box-sizing: content-box;
     max-width: 100%;
     max-height: 562px;
+    transition: padding-bottom $core-time ease;
   }
 
   .normalize-fullscreen .wrapper,
   .mimic-fullscreen .wrapper {
     max-height: none;
+  }
+
+  .wrapper.transcript-visible.transcript-wrap {
+    padding-bottom: $transcript-wrap-height;
   }
 
   .fill-space {
@@ -515,12 +527,20 @@
 
   .media-player-transcript {
     position: absolute;
-    top: 0;
     right: 0;
     bottom: 0;
     z-index: 0;
+    box-sizing: border-box;
+  }
+
+  .wrapper:not(.transcript-wrap) .media-player-transcript {
+    top: 0;
     width: 33.333%;
-    transition: width $core-time ease;
+  }
+
+  .wrapper.transcript-wrap .media-player-transcript {
+    left: 0;
+    height: $transcript-wrap-height;
   }
 
   /***** PLAYER OVERRIDES *****/
@@ -541,7 +561,7 @@
     transition: width $core-time ease;
   }
 
-  .transcript-visible > .video-js.vjs-fill {
+  .transcript-visible:not(.transcript-wrap) > .video-js.vjs-fill {
     width: 66.666%;
   }
 
