@@ -10,7 +10,6 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
-from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.fields import create_timezonestamp
 
 
@@ -383,7 +382,6 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(DynamicFieldsModelSerializer):
-    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(
@@ -440,19 +438,6 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
         value["progress_fraction"] = progress_fraction
         return value
 
-    def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # exclude anon users
-            # cache the user roles query on the instance
-            if getattr(self, "user_roles_exists", None) is None:
-                self.user_roles_exists = user.roles.exists()
-            if (
-                self.user_roles_exists or user.is_superuser
-            ):  # must have coach role or higher
-                return get_num_coach_contents(instance)
-        # all other conditions return 0
-        return 0
-
 
 class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     """
@@ -474,23 +459,8 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
             "kind",
             "files",
             "title",
+            "num_coach_contents",
         )
-
-    def to_representation(self, instance):
-        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
-        # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if "request" in self.context:
-
-            include_fields = (
-                self.context["request"].GET.get("include_fields", "").split(",")
-            )
-
-            if include_fields:
-
-                if "num_coach_contents" in include_fields:
-                    value["num_coach_contents"] = get_num_coach_contents(instance)
-
-        return value
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
