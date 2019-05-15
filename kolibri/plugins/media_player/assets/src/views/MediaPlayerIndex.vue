@@ -489,6 +489,8 @@
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import '~kolibri.styles.definitions';
 
+  /* 16:10 ratio gives video a little breathing remove, even though using it's 16:9 */
+  $transcript-wrap-fill-height: 100vw * 10 / 16;
   $transcript-wrap-height: 250px;
 
   .wrapper {
@@ -496,11 +498,6 @@
     max-width: 100%;
     max-height: 562px;
     transition: padding-bottom $core-time ease;
-  }
-
-  .normalize-fullscreen .wrapper,
-  .mimic-fullscreen .wrapper {
-    max-height: none;
   }
 
   .wrapper.transcript-visible.transcript-wrap {
@@ -541,6 +538,21 @@
   .wrapper.transcript-wrap .media-player-transcript {
     left: 0;
     height: $transcript-wrap-height;
+  }
+
+  .normalize-fullscreen,
+  .mimic-fullscreen {
+    .wrapper {
+      max-height: none;
+    }
+
+    .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
+      height: calc(100% - (#{$transcript-wrap-fill-height}));
+    }
+
+    .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
+      height: calc(#{$transcript-wrap-fill-height});
+    }
   }
 
   /***** PLAYER OVERRIDES *****/
