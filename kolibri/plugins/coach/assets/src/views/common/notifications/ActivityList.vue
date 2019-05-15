@@ -61,6 +61,7 @@
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { LastPages } from '../../../constants/lastPagesConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import { coachStrings } from '../../common/commonCoachStrings';
   import NotificationCard from './NotificationCard';
@@ -140,11 +141,11 @@
       backLinkQuery() {
         switch (this.embeddedPageName) {
           case 'HomeActivityPage':
-            return { last: 'homeactivity' };
+            return { last: LastPages.HOME_ACTIVITY };
           case 'ReportsLearnerActivityPage':
-            return { last: 'learneractivity', last_id: this.$route.params.learnerId };
+            return { last: LastPages.LEARNER_ACTIVITY, last_id: this.$route.params.learnerId };
           case 'ReportsGroupActivityPage':
-            return { last: 'groupactivity', last_id: this.$route.params.groupId };
+            return { last: LastPages.GROUP_ACTIVITY, last_id: this.$route.params.groupId };
           default:
             return {};
         }

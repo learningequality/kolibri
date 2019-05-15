@@ -20,6 +20,7 @@ import os
 import sys
 
 import six
+from django.db import connections
 
 from .conf import KOLIBRI_HOME
 from kolibri.utils.android import on_android
@@ -189,12 +190,22 @@ def get_free_space(path=KOLIBRI_HOME):
     return result
 
 
+_become_daemon_function = None
+
+
+def become_daemon(**kwargs):
+    # close all connections before forking, to avoid SQLite corruption:
+    # https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
+    connections.close_all()
+    _become_daemon_function(**kwargs)
+
+
 # Utility functions for pinging or killing PIDs
 if os.name == "posix":
     pid_exists = _posix_pid_exists
     kill_pid = _posix_kill_pid
-    become_daemon = _posix_become_daemon
+    _become_daemon_function = _posix_become_daemon
 else:
     pid_exists = _windows_pid_exists
     kill_pid = _windows_kill_pid
-    become_daemon = _windows_become_daemon
+    _become_daemon_function = _windows_become_daemon

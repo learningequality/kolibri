@@ -40,8 +40,6 @@ First, clone your Kolibri fork to your local computer. In command below, replace
 .. code-block:: bash
 
   git clone git@github.com:$USERNAME/kolibri.git
-  cd kolibri  # enter the Kolibri directory
-  git checkout develop
 
 Next, initialize Git LFS:
 
@@ -53,8 +51,10 @@ Finally, add the Learning Equality repo as a remote. That way you can keep your 
 
 .. code-block:: bash
 
+  cd kolibri  # Enter the Kolibri directory
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
+  git checkout develop # Checkout the development branch
 
 
 
@@ -102,26 +102,8 @@ Now, any commands run with will target your virtual environment rather than the 
 .. warning::
   Never install project dependencies using ``sudo pip install ...``
 
-
-Install Node and Yarn
-~~~~~~~~~~~~~~~~~~~~~
-
-#. Install Node (version 10 is required)
-#. Install `Yarn <https://yarnpkg.com/>`__ according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__
-
-We recommend `installing Node using NVM <https://github.com/creationix/nvm>`__ on Mac and Linux, which makes it easy to maintain multiple versions of Node on the same system.
-
-Alternatively, you can use your system's package manager, e.g. `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian. For example on Ubuntu/Debian you might do something like:
-
-.. code-block:: bash
-
-  curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-  sudo apt install nodejs=10.15.3-1nodesource1
-  sudo apt-mark hold nodejs  # make sure it doesn't get upgraded later
-
-
-Install project dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Python dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and your Python virtual environment is active. Then run:
 
@@ -131,14 +113,31 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
   pip install -r requirements.txt --upgrade
   pip install -r requirements/dev.txt --upgrade
   pip install -e .
-  yarn install --force
 
   # optional
   pip install -r requirements/build.txt --upgrade
   pip install -r requirements/test.txt --upgrade
   pip install -r requirements/docs.txt --upgrade
 
-Note that the ``--upgrade`` and ``--force`` flags above can usually be omitted to speed up the process.
+Note that the ``--upgrade`` flags above can usually be omitted to speed up the process.
+
+Install Node.js, Yarn and other dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Install Node.js (version 10 is required)
+#. Install `Yarn <https://yarnpkg.com/>`__
+#. Install non-python project-specific dependencies
+
+The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
+
+.. code-block:: bash
+
+  # node.js, npm, and yarn
+  nodeenv -p --node=10.15.3
+  npm install -g yarn
+
+  # other required project dependencies
+  yarn install
 
 
 Running the Kolibri server
@@ -202,7 +201,7 @@ If you need to make the development server available through the LAN, you need t
   # first build the assets
   yarn run build
   # now, run the Django devserver
-  kolibri --debug manage devserver -- 0.0.0.0:8000
+  kolibri --debug manage runserver -- 0.0.0.0:8000
 
 Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 

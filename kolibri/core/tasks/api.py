@@ -1,19 +1,20 @@
 import os
+import time
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
-from iceqube.common.classes import State
+from iceqube.classes import State
+from iceqube.exceptions import JobNotFound
 from iceqube.exceptions import UserCancelledError
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
-from sqlalchemy.orm.exc import NoResultFound
 
-from .client import get_client
+from .queue import get_queue
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
@@ -40,7 +41,7 @@ class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
+        jobs_response = [_job_to_response(j) for j in get_queue().jobs]
 
         return Response(jobs_response)
 
@@ -50,9 +51,9 @@ class TasksViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
-            task = _job_to_response(get_client().status(pk))
+            task = _job_to_response(get_queue().fetch_job(pk))
             return Response(task)
-        except NoResultFound:
+        except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
 
     def destroy(self, request, pk=None):
@@ -73,7 +74,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "network",
@@ -82,7 +83,7 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=job_metadata,
             cancellable=True,
         )
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
@@ -109,7 +110,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "network",
@@ -122,7 +123,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
@@ -150,7 +151,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "DISKCHANNELIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "disk",
@@ -160,7 +161,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
         return Response(resp)
 
     @list_route(methods=["post"])
@@ -196,7 +197,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "DISKCONTENTIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "disk",
@@ -209,7 +210,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
@@ -226,7 +227,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "DELETECHANNEL", "started_by": request.user.pk}
 
-        task_id = get_client().schedule(
+        task_id = get_queue().enqueue(
             call_command,
             "deletechannel",
             channel_id,
@@ -235,7 +236,7 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
+        resp = _job_to_response(get_queue().fetch_job(task_id))
 
         return Response(resp)
 
@@ -269,7 +270,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": "DISKEXPORT", "started_by": request.user.pk}
 
-        task_id = get_client().schedule(
+        task_id = get_queue().enqueue(
             _localexport,
             channel_id,
             drive_id,
@@ -281,7 +282,7 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
+        resp = _job_to_response(get_queue().fetch_job(task_id))
 
         return Response(resp)
 
@@ -296,10 +297,20 @@ class TasksViewSet(viewsets.ViewSet):
         if not isinstance(request.data["task_id"], string_types):
             raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
-            get_client().cancel(request.data["task_id"])
-        except NoResultFound:
+            get_queue().cancel(request.data["task_id"])
+            waiting_time = 0
+            job = get_queue().fetch_job(request.data["task_id"])
+            interval = 0.1
+            while job.state != State.CANCELED or waiting_time < 5.0:
+                time.sleep(interval)
+                waiting_time += interval
+                job = get_queue().fetch_job(request.data["task_id"])
+            if job.state != State.CANCELED:
+                return Response(status=408)
+            get_queue().clear_job(request.data["task_id"])
+        except JobNotFound:
             pass
-        get_client().clear(force=True)
+
         return Response({})
 
     @list_route(methods=["post"])
@@ -308,15 +319,15 @@ class TasksViewSet(viewsets.ViewSet):
         Cancels all running tasks.
         """
 
-        get_client().clear(force=True)
+        get_queue().empty()
         return Response({})
 
     @list_route(methods=["post"])
     def deletefinishedtasks(self, request):
         """
-        Delete all tasks that have succeeded or failed.
+        Delete all tasks that have succeeded, failed, or been cancelled.
         """
-        get_client().clear()
+        get_queue().clear()
         return Response({})
 
     @list_route(methods=["get"])
@@ -360,7 +371,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         job_metadata = {"type": job_type, "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "exportlogs",
             log_type=log_type,
@@ -370,7 +381,7 @@ class TasksViewSet(viewsets.ViewSet):
             track_progress=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 

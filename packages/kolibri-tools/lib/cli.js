@@ -3,13 +3,11 @@
 const os = require('os');
 const path = require('path');
 const program = require('commander');
-const version = require('../package.json').version;
+const checkVersion = require('check-node-version');
+const version = require('../package.json');
 const logger = require('./logging');
-const readWebpackJson = require('./read_webpack_json');
 
-// ensure the correct version of node is being used
-// (specified in package.json)
-require('engine-strict').check();
+const readWebpackJson = require('./read_webpack_json');
 
 const cliLogging = logger.getLogger('Kolibri CLI');
 
@@ -331,4 +329,29 @@ program
     require('jest-cli/build/cli').run();
   });
 
-program.parse(process.argv);
+// Check engines, then process args
+const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
+checkVersion(engines, (err, results) => {
+  if (err) {
+    cliLogging.break();
+    cliLogging.error(err);
+    process.exit(1);
+  }
+
+  if (results.isSatisfied) {
+    program.parse(process.argv);
+    return;
+  }
+
+  for (const packageName of Object.keys(results.versions)) {
+    if (!results.versions[packageName].isSatisfied) {
+      let required = engines[packageName];
+      cliLogging.break();
+      cliLogging.error(`Incorrect version of ${packageName}.`);
+      cliLogging.error(`${packageName} ${required} is required.`);
+    }
+  }
+
+  cliLogging.break();
+  process.exit(1);
+});

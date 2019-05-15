@@ -1,11 +1,12 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <PageHeader
       :title="content.title"
       :progress="progress"
       dir="auto"
+      :contentType="content.kind"
     />
     <CoachContentLabel
       class="coach-content-label"
@@ -123,7 +124,7 @@
       @close="markAsComplete"
     />
 
-  </div>
+  </KPageContainer>
 
 </template>
 
@@ -137,6 +138,7 @@
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import markdownIt from 'markdown-it';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
@@ -167,6 +169,7 @@
       ContentCardGroupCarousel,
       ContentRenderer,
       DownloadButton,
+      KPageContainer,
       AssessmentWrapper,
       MasteredSnackbars,
       UiIconButton,
@@ -196,7 +199,7 @@
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
       canDownload() {
-        if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
+        if (this.facilityConfig.show_download_button_in_learn && this.content) {
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&

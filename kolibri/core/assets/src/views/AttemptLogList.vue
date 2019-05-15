@@ -11,7 +11,6 @@
           :key="index"
           class="clickable attempt-item"
           :style="{
-            borderBottom: `2px solid ${$coreTextDisabled}`,
             backgroundColor: isSelected(index) ? $coreTextDisabled : '',
           }"
           @click="setSelectedAttemptLog(index)"
@@ -52,9 +51,9 @@
               category="action"
               name="lightbulb_outline"
             />
-            <h3 class="item">
+            <p class="item">
               {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
-            </h3>
+            </p>
           </div>
           <CoachContentLabel
             class="coach-content-label"
@@ -156,9 +155,10 @@
   }
 
   .svg-item {
-    width: 32px;
+    width: 24px;
     height: auto;
-    margin-right: 8px;
+    margin-top: -4px;
+    margin-right: 12px;
     vertical-align: middle;
   }
 

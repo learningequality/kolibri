@@ -2,7 +2,7 @@
 
   <div
     class="page-container"
-    :class="{small : windowIsSmall }"
+    :class="classes"
   >
     <slot></slot>
   </div>
@@ -17,6 +17,21 @@
   export default {
     name: 'KPageContainer',
     mixins: [responsiveWindow],
+    props: {
+      // If true, removes the padding inside the container
+      noPadding: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    computed: {
+      classes() {
+        return {
+          small: this.windowIsSmall,
+          'no-padding': this.noPadding,
+        };
+      },
+    },
   };
 
 </script>
@@ -33,6 +48,10 @@
     margin-top: 24px;
     background-color: white;
     border-radius: 4px;
+  }
+
+  .no-padding {
+    padding: 0;
   }
 
   .page-container.small {

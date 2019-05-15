@@ -513,6 +513,38 @@ tester.run('vue-no-unused-vuex-properties', rule, {
         </script>
       `,
     },
+
+    // a getter used as a dynamic directive argument
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <a :[attributeName]="url"> ... </a>
+        </template>
+
+        <script>
+          export default {
+            computed: mapGetters(['attributeName']),
+          };
+        </script>
+      `,
+    },
+
+    // state used as a dynamic directive argument
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <a :[attributeName]="url"> ... </a>
+        </template>
+
+        <script>
+          export default {
+            computed: mapState(['attributeName']),
+          };
+        </script>
+      `,
+    },
   ],
 
   invalid: [
@@ -727,6 +759,50 @@ tester.run('vue-no-unused-vuex-properties', rule, {
       errors: [
         {
           message: 'Unused Vuex state found: "count"',
+          line: 8,
+        },
+      ],
+    },
+
+    // unused getter - dynamic directive argument
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <a :[attributeNam]="url"> ... </a>
+        </template>
+
+        <script>
+          export default {
+            computed: mapGetters(['attributeName']),
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex getter found: "attributeName"',
+          line: 8,
+        },
+      ],
+    },
+
+    // unused state - dynamic directive argument
+    {
+      filename: 'test.vue',
+      code: `
+        <template>
+          <a :[attributeNam]="url"> ... </a>
+        </template>
+
+        <script>
+          export default {
+            computed: mapState(['attributeName']),
+          };
+        </script>
+      `,
+      errors: [
+        {
+          message: 'Unused Vuex state found: "attributeName"',
           line: 8,
         },
       ],

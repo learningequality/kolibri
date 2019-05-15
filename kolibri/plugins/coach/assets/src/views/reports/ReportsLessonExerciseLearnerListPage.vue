@@ -11,58 +11,72 @@
 
     <KPageContainer>
 
-      <ReportsLessonExerciseHeader />
+      <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
-      <!-- TODO COACH
-      <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-       -->
+      <KCheckbox
+        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :checked="viewByGroups"
+        @change="toggleGroupsView"
+      />
 
-      <p>
-        <StatusSummary :tally="tally" />
-      </p>
+      <div v-if="viewByGroups">
+        <div
+          v-for="group in lessonGroups"
+          :key="group.id"
+          class="group"
+          :data-test="`group-${group.id}`"
+        >
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
+            <KLabeledIcon>
+              <KIcon slot="icon" group />
+              {{ group.name }}
+            </KLabeledIcon>
+          </h2>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KRouterLink
-                v-if="showLink(tableRow)"
-                :text="tableRow.name"
-                :to="link(tableRow.id)"
-              />
-              <template v-else>
-                {{ tableRow.name }}
-              </template>
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration
-                :seconds="showTimeDuration(tableRow)"
-              />
-            </td>
-            <td>
-              <TruncatedItemList :items="tableRow.groups" />
-            </td>
-            <td>
-              <ElapsedTime
-                :date="showElapsedTime(tableRow)"
-              />
-            </td>
-          </tr>
-        </transition-group>
-      </CoreTable>
+          <p>
+            <StatusSummary
+              :tally="getGroupTally(group.id)"
+              :verbose="false"
+            />
+          </p>
+
+          <ReportsExerciseLearners
+            :entries="getGroupEntries(group.id)"
+            :showGroupsColumn="false"
+          />
+        </div>
+
+        <div
+          v-if="ungroupedEntries.length"
+          class="group"
+        >
+          <h2
+            class="group-title"
+            data-test="group-title"
+          >
+            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+          </h2>
+
+          <ReportsExerciseLearners
+            :entries="ungroupedEntries"
+            :showGroupsColumn="false"
+          />
+        </div>
+      </div>
+
+      <div v-else>
+        <p>
+          <StatusSummary
+            :tally="summaryTally"
+            data-test="summary-tally"
+          />
+        </p>
+
+        <ReportsExerciseLearners :entries="allEntries" />
+      </div>
     </KPageContainer>
   </CoreBase>
 
@@ -73,59 +87,131 @@
 
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
+  import { LastPages } from '../../constants/lastPagesConstants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import ReportsExerciseLearners from './ReportsExerciseLearners';
 
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
       ReportsLessonExerciseHeader,
+      ReportsExerciseLearners,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        viewByGroups: Boolean(this.$route.query.groups),
+      };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
+      exercise() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
+      summaryTally() {
+        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
+      },
+      lessonGroups() {
+        if (!this.lesson.groups.length) {
+          return this.groups;
+        }
+
+        return this.groups.filter(group => this.lesson.groups.includes(group.id));
+      },
       recipients() {
         return this.getLearnersForGroups(this.lesson.groups);
       },
-      tally() {
-        return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
-      },
-      table() {
+      allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
-            groups: this.getGroupNamesForLearner(learner.id),
+            groups: this.getLearnerLessonGroups(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.exerciseId,
               learner.id
             ),
+            exerciseLearnerLink: this.getExerciseLearnerLink(learner.id),
           };
+
           Object.assign(tableRow, learner);
+
           return tableRow;
         });
+
         return mapped;
+      },
+      ungroupedEntries() {
+        return this.allEntries.filter(entry => !entry.groups || !entry.groups.length);
+      },
+    },
+    watch: {
+      $route() {
+        this.viewByGroups = Boolean(this.$route.query.groups);
       },
     },
     methods: {
-      link(learnerId) {
-        return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, { learnerId });
-      },
-      showLink(tableRow) {
-        return tableRow.statusObj.status !== this.STATUSES.notStarted;
-      },
-      showTimeDuration(tableRow) {
-        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
-          return tableRow.statusObj.time_spent;
+      toggleGroupsView() {
+        this.viewByGroups = !this.viewByGroups;
+
+        let query;
+        if (this.viewByGroups) {
+          query = { ...this.$route.query, groups: 'true' };
+        } else {
+          query = { ...this.$route.query, groups: undefined };
         }
-        return undefined;
+
+        this.$router.replace({ query });
       },
-      showElapsedTime(tableRow) {
-        if (tableRow.statusObj.status !== this.STATUSES.notStarted) {
-          return tableRow.statusObj.last_activity;
+      getExerciseLearnerLink(learnerId) {
+        const link = this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+
+        if (this.viewByGroups) {
+          link.query = {
+            ...link.query,
+            last: LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS,
+            exerciseId: this.exercise.content_id,
+          };
         }
-        return undefined;
+
+        return link;
+      },
+      getGroupTally(groupId) {
+        const recipients = this.getLearnersForGroups([groupId]);
+        return this.getContentStatusTally(this.$route.params.exerciseId, recipients);
+      },
+      getLearnerLessonGroups(learnerId) {
+        return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
+      },
+      getGroupEntries(groupId) {
+        return this.allEntries.filter(entry => {
+          const entryGroupIds = entry.groups.map(group => group.id);
+          return entryGroupIds.includes(groupId);
+        });
+      },
+      onPreviewClick() {
+        let lastPage = LastPages.EXERCISE_LEARNER_LIST;
+        if (this.viewByGroups) {
+          lastPage = LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS;
+        }
+
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.exercise.node_id,
+            },
+            {
+              last: lastPage,
+              exerciseId: this.exercise.content_id,
+            }
+          )
+        );
       },
     },
   };
@@ -135,8 +221,12 @@
 
 <style lang="scss" scoped>
 
-  .stats {
-    margin-right: 16px;
+  .group:not(:first-child) {
+    margin-top: 42px;
+  }
+
+  .group-title {
+    margin-bottom: 42px;
   }
 
 </style>

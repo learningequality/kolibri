@@ -1,77 +1,100 @@
 <template>
 
-  <ImmersiveFullScreen
-    v-if="exam"
-    :backPageLink="backPageLink"
-    :backPageText="$tr('backToExamList')"
-  >
-    <MultiPaneLayout ref="multiPaneLayout">
-      <div slot="header" class="exam-status-container" :style="{ backgroundColor: $coreBgLight }">
-        <mat-svg
-          slot="content-icon"
-          class="exam-icon"
-          :style="{ fill: $coreTextDefault }"
-          category="action"
-          name="assignment_late"
-        />
-        <h1 class="exam-title">
-          {{ exam.title }}
-        </h1>
-        <div class="exam-status">
-          <p class="questions-answered">
-            {{
-              $tr(
-                'questionsAnswered',
-                { numAnswered: questionsAnswered, numTotal: exam.question_count }
-              )
-            }}
-          </p>
-          <KButton :text="$tr('submitExam')" :primary="true" @click="toggleModal" />
+  <div>
+    <KGrid :gridStyle="gridStyle">
+      <KGridItem v-if="windowIsLarge" size="4" class="column-pane">
+        <div class="column-contents-wrapper">
+          <KPageContainer>
+            <AnswerHistory
+              :questionNumber="questionNumber"
+              @goToQuestion="goToQuestion"
+            />
+          </KPageContainer>
         </div>
-        <div :style="{ clear: 'both' }"></div>
-      </div>
+      </KGridItem>
+      <KGridItem sizes="4, 8, 8" class="column-pane">
+        <div :class="{'column-contents-wrapper' : !windowIsSmall}">
+          <KPageContainer>
+            <h1>
+              {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
+            </h1>
+            <ContentRenderer
+              v-if="content && itemId"
+              ref="contentRenderer"
+              :kind="content.kind"
+              :files="content.files"
+              :available="content.available"
+              :extraFields="content.extra_fields"
+              :itemId="itemId"
+              :assessment="true"
+              :allowHints="false"
+              :answerState="currentAttempt.answer"
+              @interaction="saveAnswer"
+            />
+            <UiAlert v-else :dismissible="false" type="error">
+              {{ $tr('noItemId') }}
+            </UiAlert>
+          </KPageContainer>
 
-      <AnswerHistory
-        slot="aside"
-        :questionNumber="questionNumber"
-        @goToQuestion="goToQuestion"
-      />
+          <!-- contents displayed in reverse-order for semantic ordering -->
+          <KBottomAppBar :dir="isRtl ? 'ltr' : 'rtl'" :maxWidth="null">
+            <KButton
+              :disabled="questionNumber===exam.question_count-1"
+              :primary="true"
+              class="footer-button"
+              @click="goToQuestion(questionNumber + 1)"
+            >
+              {{ $tr('nextQuestion') }}
+              <KIcon forward color="white" class="forward-icon" />
+            </KButton>
+            <KButton
+              :disabled="questionNumber===0"
+              :primary="true"
+              class="footer-button"
+              :class="{ 'left-align': windowIsSmall }"
+              @click="goToQuestion(questionNumber - 1)"
+            >
+              <KIcon back color="white" class="back-icon" />
+              {{ $tr('previousQuestion') }}
+            </KButton>
 
-      <div
-        slot="main"
-        :style="{ background: $coreBgLight }"
-      >
-        <ContentRenderer
-          v-if="content && itemId"
-          ref="contentRenderer"
-          :kind="content.kind"
-          :files="content.files"
-          :available="content.available"
-          :extraFields="content.extra_fields"
-          :itemId="itemId"
-          :assessment="true"
-          :allowHints="false"
-          :answerState="currentAttempt.answer"
-          @interaction="saveAnswer"
-        />
-        <UiAlert v-else :dismissible="false" type="error">
-          {{ $tr('noItemId') }}
-        </UiAlert>
-      </div>
+            <!-- below prev/next buttons in tab and DOM order, in footer -->
+            <div v-if="windowIsLarge" class="left-align" dir="auto">
+              <div class="answered">
+                {{ answeredText }}
+              </div>
+              <KButton
+                :text="$tr('submitExam')"
+                :primary="false"
+                appearance="flat-button"
+                @click="toggleModal"
+              />
+            </div>
 
-      <div slot="footer" class="question-navbutton-container">
-        <KButton
-          :disabled="questionNumber===0"
-          :text="$tr('previousQuestion')"
-          @click="goToQuestion(questionNumber - 1)"
-        />
-        <KButton
-          :disabled="questionNumber===exam.question_count-1"
-          :text="$tr('nextQuestion')"
-          @click="goToQuestion(questionNumber + 1)"
-        />
-      </div>
-    </MultiPaneLayout>
+          </KBottomAppBar>
+
+          <!-- below prev/next buttons in tab and DOM order, in page -->
+          <KPageContainer v-if="!windowIsLarge">
+            <div
+              class="bottom-block"
+              :class="{ windowIsSmall }"
+            >
+              <div class="answered">
+                {{ answeredText }}
+              </div>
+              <KButton
+                :text="$tr('submitExam')"
+                :primary="false"
+                appearance="flat-button"
+                style="margin-left: 0"
+                @click="toggleModal"
+              />
+            </div>
+          </KPageContainer>
+        </div>
+      </KGridItem>
+    </KGrid>
+
 
     <KModal
       v-if="submitModalOpen"
@@ -86,7 +109,7 @@
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
     </KModal>
-  </ImmersiveFullScreen>
+  </div>
 
 </template>
 
@@ -99,12 +122,16 @@
   import isEqual from 'lodash/isEqual';
   import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
-  import ImmersiveFullScreen from 'kolibri.coreVue.components.ImmersiveFullScreen';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import ContentRenderer from 'kolibri.coreVue.components.ContentRenderer';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
-  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ClassesPageNames } from '../../constants';
   import AnswerHistory from './AnswerHistory';
 
@@ -116,15 +143,18 @@
       };
     },
     components: {
-      ImmersiveFullScreen,
       ContentRenderer,
       KButton,
+      KPageContainer,
       AnswerHistory,
+      KIcon,
       KModal,
       UiAlert,
-      MultiPaneLayout,
+      KGrid,
+      KGridItem,
+      KBottomAppBar,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, responsiveWindow],
     data() {
       return {
         submitModalOpen: false,
@@ -139,6 +169,24 @@
         'currentAttempt',
         'questionsAnswered',
       ]),
+      gridStyle() {
+        if (!this.windowIsSmall) {
+          return {
+            position: 'fixed',
+            top: '64px',
+            right: '16px',
+            bottom: '72px',
+            left: '16px',
+          };
+        }
+        return {};
+      },
+      answeredText() {
+        return this.$tr('questionsAnswered', {
+          numAnswered: this.questionsAnswered,
+          numTotal: this.exam.question_count,
+        });
+      },
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -219,7 +267,6 @@
               questionNumber,
             },
           });
-          this.$refs.multiPaneLayout.scrollMainToTop();
         });
       },
       toggleModal() {
@@ -247,13 +294,14 @@
       backToExamList: 'Back to quiz list',
       questionsAnswered:
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
-      previousQuestion: 'Previous question',
-      nextQuestion: 'Next question',
+      previousQuestion: 'Previous',
+      nextQuestion: 'Next',
       goBack: 'Go back',
       areYouSure: 'You cannot change your answers after you submit',
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
+      question: 'Question { num } of { total }',
     },
   };
 
@@ -262,38 +310,52 @@
 
 <style lang="scss" scoped>
 
-  .exam-status-container {
-    padding: 16px;
+  .answered {
+    display: inline-block;
+    margin-right: 8px;
+    margin-left: 8px;
+    white-space: nowrap;
   }
 
-  .exam-status {
-    float: right;
-    width: 50%;
-    max-width: 400px;
-    text-align: right;
-    button {
-      margin: 0 0 0 8px;
-    }
+  .column-pane {
+    height: 100%;
+    padding-bottom: 32px;
+    overflow-y: auto;
   }
 
-  .exam-icon {
+  .column-contents-wrapper {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .bottom-block {
+    margin-top: 8px;
+  }
+
+  .bottom-block.windowIsSmall {
+    text-align: center;
+  }
+
+  .back-icon {
     position: relative;
-    top: 4px;
-    margin-right: 5px;
+    top: 3px;
+    left: -4px;
   }
 
-  .exam-title {
+  .forward-icon {
+    position: relative;
+    top: 3px;
+    left: 4px;
+  }
+
+  .left-align {
+    position: absolute;
+    left: 16px;
     display: inline-block;
   }
 
-  .questions-answered {
-    position: relative;
+  .footer-button {
     display: inline-block;
-    margin-top: 0;
-  }
-
-  .question-navbutton-container {
-    text-align: right;
   }
 
 </style>

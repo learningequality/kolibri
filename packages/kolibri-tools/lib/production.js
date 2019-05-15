@@ -5,6 +5,7 @@
 const webpack = require('webpack');
 const webpackBaseConfig = require('./webpack.config.base');
 const logger = require('./logging');
+const { getEnvVars } = require('./build');
 
 function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData, {
@@ -40,9 +41,8 @@ function buildWebpack(data, index, startCallback, doneCallback) {
   return compiler;
 }
 
-const data = JSON.parse(process.env.data);
-const index = JSON.parse(process.env.index);
-const start = JSON.parse(process.env.start);
+const { data, index, start } = getEnvVars();
+
 function build() {
   buildWebpack(
     data,

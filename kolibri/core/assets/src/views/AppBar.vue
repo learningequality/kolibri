@@ -12,6 +12,7 @@
       <UiIconButton
         slot="icon"
         type="secondary"
+        :aria-label="$tr('openNav')"
         @click="$emit('toggleSideNav')"
       >
         <mat-svg
@@ -168,6 +169,7 @@
       },
     },
     $trs: {
+      openNav: 'Open site navigation',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',

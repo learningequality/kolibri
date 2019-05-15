@@ -252,13 +252,18 @@ def test_should_back_up():
 
 
 @pytest.mark.django_db
+@version_file_restore
 @patch("kolibri.utils.cli.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_update_no_version_change(dbbackup, update, orig_version=None):
+def test_update_no_version_change(
+    dbbackup, update, version_file=None, orig_version=None
+):
     """
     Tests that when the version doesn't change, we are not doing things we
     shouldn't
     """
+    version_file = cli.version_file()
+    open(version_file, "w").write(orig_version)
     cli.initialize()
     update.assert_not_called()
     dbbackup.assert_not_called()

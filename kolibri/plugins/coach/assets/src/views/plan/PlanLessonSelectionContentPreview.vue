@@ -8,15 +8,17 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <LessonContentPreviewPage
-      :currentContentNode="currentContentNode"
-      :isSelected="isSelected"
-      :questions="preview.questions"
-      :displaySelectOptions="showSelectOptions"
-      :completionData="preview.completionData"
-      @addResource="handleAddResource"
-      @removeResource="handleRemoveResource"
-    />
+    <KPageContainer noPadding>
+      <LessonContentPreviewPage
+        :currentContentNode="currentContentNode"
+        :isSelected="isSelected"
+        :questions="preview.questions"
+        :displaySelectOptions="showSelectOptions"
+        :completionData="preview.completionData"
+        @addResource="handleAddResource"
+        @removeResource="handleRemoveResource"
+      />
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -52,6 +54,10 @@
     },
     computed: {
       toolbarRoute() {
+        if (this.$route.query && this.$route.query.last) {
+          return this.backRouteForQuery(this.$route.query);
+        }
+
         return (
           this.backRoute || {
             ...this.$store.state.toolbarRoute,

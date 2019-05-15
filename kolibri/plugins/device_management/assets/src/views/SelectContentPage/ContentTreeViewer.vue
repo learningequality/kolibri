@@ -206,6 +206,7 @@
     $trs: {
       selectAll: 'Select all',
       topicHasNoContents: 'This topic has no sub-topics or resources',
+      estimatedCounts: 'Estimated number of resources',
     },
   };
 
