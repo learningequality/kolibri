@@ -15,7 +15,7 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <Hooper v-if="slides" @slide="handleSlide">
+    <Hooper v-if="slides" @slide="handleSlide" @loaded="setHooperListWidth">
       <Slide v-for="slide in slides" :key="slide.id">
         <div
           class="slideshow-slide-image"
@@ -91,9 +91,6 @@
       manifest: {},
       slides: null,
       currentSlide: null,
-      hooperSettings: {
-        centerMode: true,
-      },
     }),
     computed: {
       slideshow_images: function() {
@@ -143,6 +140,20 @@
       slideTextId(id) {
         return 'descriptive-text-' + id;
       },
+      setHooperListWidth() {
+        /*
+          Hooper generates a wrapper with the .hooper-list class, which originally uses flexbox.
+          In order to implement the same functionality without flexbox, we must use some vanilla JS
+          to adjust the width of that element.
+        */
+        try {
+          window.document
+            .getElementsByClassName('hooper-list')[0]
+            .setAttribute('style', `width: calc(100% * ${this.slides.length});`);
+        } catch (err) {
+          console.error('Hooper Startup Error: No .hooper-list instantiated. Cannot set styles.');
+        }
+      },
     },
     $trs: {
       exitFullscreen: 'Exit fullscreen',
@@ -165,8 +176,7 @@
   .slideshow-renderer {
     position: relative;
     height: 70vh;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     text-align: center;
   }
   .hidden-descriptive-text {
@@ -183,7 +193,7 @@
     width: calc(100% - 100px);
     height: calc(
       100% - 50px
-    ); // Very much not going to be this way once the caption positioning is figured out
+    );
 
     margin: 0 auto;
     background-repeat: no-repeat;
