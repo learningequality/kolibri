@@ -132,6 +132,8 @@ def get_file_size_and_count(request, channel_id):
 
     for_export = bool(request.GET.get('for_export', False) == "true")
     contentnodes = get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, for_export, renderable_only=not for_export)
+    if not for_export:
+        contentnodes = contentnodes.filter(importable=True)
     files = LocalFile.objects.filter(
         files__contentnode__in=contentnodes,
         available=for_export,
