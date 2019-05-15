@@ -228,6 +228,10 @@ Update the following variables:
 
 Publish the Medium post if necessary.
 
+* Android
+
+  An Android APK is automatically generated and signed whenever the release pipeline is unblocked past the per-PR "cleanup" phase. These, however, are not publicly distributed to Pantry or the learningequality.org/download page at the moment.
+
 
 Update the demo server
 ----------------------
@@ -255,4 +259,3 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
-
