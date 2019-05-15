@@ -173,7 +173,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
     )
 
     contentnode_file_size_statement = (
-        select([func.sum(LocalFileTable.c.file_size)])
+        select([func.coalesce(func.sum(LocalFileTable.c.file_size), 0)])
         .select_from(FileTable.join(LocalFileTable))
         .where(
             and_(
@@ -198,6 +198,24 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
         .values(
             available=exists(contentnode_statement),
             on_device_resources=exists(contentnode_statement),
+            on_device_file_size=contentnode_file_size_statement,
+        )
+        .execution_options(autocommit=True)
+    )
+
+    # Update on device file_size attribute on topic nodes.
+    # This will capture file size for files associated with the
+    # topics themselves, which can then be used as a base for addition
+    # of descendant file sizes in the recursive annotation step.
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.kind == content_kinds.TOPIC,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .values(
             on_device_file_size=contentnode_file_size_statement,
         )
         .execution_options(autocommit=True)
@@ -340,6 +358,10 @@ def recurse_annotation_up_tree(channel_id):
     )
 
     # Before starting set availability to False on all topics.
+    # Set on device resources to 0
+    # Set num coach contents to 0
+    # No need to set file size as that has been set already, but do a
+    # coalesce to set it to 0 instead of None if needed.
     connection.execute(
         ContentNodeTable.update()
         .where(
@@ -350,7 +372,12 @@ def recurse_annotation_up_tree(channel_id):
                 ContentNodeTable.c.kind == content_kinds.TOPIC,
             )
         )
-        .values(available=False)
+        .values(
+            available=False,
+            on_device_resources=0,
+            num_coach_contents=0,
+            on_device_file_size=func.coalesce(ContentNodeTable.c.on_device_file_size, 0),
+        )
     )
 
     # Go from the deepest level to the shallowest

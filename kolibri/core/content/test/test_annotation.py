@@ -79,6 +79,11 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
             0,
         )
 
+    def test_no_local_files_available_file_size(self):
+        LocalFile.objects.all().update(available=False)
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
+        self.assertEqual(ContentNode.objects.first().on_device_file_size, 0)
+
     def test_one_local_file_available(self):
         LocalFile.objects.all().update(available=False)
         LocalFile.objects.filter(id="6bdfea4a01830fdd4a585181c0b8068c").update(
@@ -145,6 +150,11 @@ class AnnotationTreeRecursion(TransactionTestCase):
             .count(),
             0,
         )
+
+    def test_no_content_nodes_available_file_size(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        self.assertEqual(ContentNode.objects.all().first().on_device_file_size, 0)
 
     def test_one_content_node_available(self):
         ContentNode.objects.filter(id="32a941fb77c2576e8f6b294cde4c3b0c").update(

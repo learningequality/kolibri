@@ -121,7 +121,7 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
     )
 
     contentnode_file_size_statement = (
-        select([func.sum(LocalFileTable.c.file_size)])
+        select([func.coalesce(func.sum(LocalFileTable.c.file_size), 0)])
         .select_from(FileTable.join(LocalFileTable))
         .where(
             and_(
@@ -212,6 +212,10 @@ def recurse_importability_up_tree(channel_id):
     )
 
     # Before starting set importability to False on all topics.
+    # Set importable resources to 0
+    # Set importable coach contents to 0
+    # No need to set file size as that has been set already, but do a
+    # coalesce to set it to 0 instead of None if needed.
     connection.execute(
         ContentNodeTable.update()
         .where(
@@ -222,7 +226,12 @@ def recurse_importability_up_tree(channel_id):
                 ContentNodeTable.c.kind == content_kinds.TOPIC,
             )
         )
-        .values(importable=False)
+        .values(
+            importable=False,
+            importable_resources=0,
+            importable_coach_contents=0,
+            importable_file_size=func.coalesce(ContentNodeTable.c.importable_file_size, 0),
+        )
     )
 
     # Go from the deepest level to the shallowest
@@ -234,7 +243,8 @@ def recurse_importability_up_tree(channel_id):
                 ContentNodeTable.c.id == child.c.parent_id,
             )
         )
-
+        # We don't use coalesce on these sums, because the values should be appropriately
+        # set by now to non-null values.
         node_resources = select([func.sum(child.c.importable_resources)]).where(
             and_(
                 child.c.importable == True,  # noqa

@@ -98,6 +98,11 @@ class AnnotationFromLocalFileImportability(TransactionTestCase):
             0,
         )
 
+    def test_no_local_files_importable_file_size(self):
+        LocalFile.objects.all().update(importable=False)
+        set_leaf_node_importability_from_local_file_importability(test_channel_id)
+        self.assertEqual(ContentNode.objects.first().importable_file_size, 0)
+
     def test_one_local_file_importable(self):
         LocalFile.objects.all().update(importable=False)
         LocalFile.objects.filter(id="6bdfea4a01830fdd4a585181c0b8068c").update(
@@ -153,6 +158,14 @@ class AnnotationTreeRecursion(TransactionTestCase):
             .count(),
             0,
         )
+
+    def test_no_content_nodes_importable_file_size(self):
+        ContentNode.objects.filter(kind=content_kinds.TOPIC).update(importable=True)
+        ContentNode.objects.all().update(importable_file_size=None)
+        recurse_importability_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+        # 0, as although there are three childless topics in the fixture, these cannot exist in real databases
+        # and we reset the importability of topics before recursing.
+        self.assertEqual(ContentNode.objects.filter(kind=content_kinds.TOPIC).first().importable_file_size, 0)
 
     def test_one_content_node_importable(self):
         ContentNode.objects.filter(id="32a941fb77c2576e8f6b294cde4c3b0c").update(
