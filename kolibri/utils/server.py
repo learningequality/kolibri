@@ -107,9 +107,7 @@ def start(port=8080, run_cherrypy=True):
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
     # ~/.kolibri, or deleting a channel DB on disk
-    from kolibri.core.content.utils.annotation import update_channel_metadata
-
-    update_channel_metadata()
+    call_command("scanforcontent")
 
     def rm_pid_file():
         os.unlink(PID_FILE)
