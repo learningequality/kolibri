@@ -1,80 +1,51 @@
 Feature: Lessons subtab
-  Coach needs to be able to see the lesson report details with the progress and score for each learner 
+  Coach needs to be able to see the lesson report details, edit details and manage resources from there
 
   Background:
     Given I am logged in as a coach
-      And I am on *Coach > Reports > Lessons* subtab
+      And there are several groups in the <class> class
+      And there is a <lesson> lesson created
+      And I am on *Coach > '<class>'> Reports > Lessons* subtab
 
 # WIP
 
+  Scenario: Open a lesson page
+    When I click the <lesson> lesson
+    Then I am on the <lesson> lesson page
+      And in the *Report* subtab I see the table with lesson resources
+      And I see the *Progress* and *Average time spent* columns for each resource
 
-    Scenario: User clicks on a lesson’s REPORT tab
-        Given that I have clicked into a particular lesson
-        When I click the REPORT tab
-        Then I should see a table with each lesson resource
-        And I should also see progress And avg time spent per
-        resource
-        
-    Scenario: User clicks into a lesson item
-        When I click into a particular lesson resource
-        Then I should be able to see a table list of learners
-        And data for their engagement with the resource
-        And I should also be able to see summary icons for learners
-        Who have completed, started, not started,And are struggling
+  Scenario: Edit lesson details from reports
+    When I click the *Options* button
+      And I select the *Edit details* option
+    Then I see the *Edit lesson details for '<lesson>'* page
+    	And I see editable fields for lesson title, status, and recipients
+    	And I see the list of *Resources*
 
-    Scenario: User clicks into a learner’s attempt report
-        Given that I am on the lesson resource report page
-        When I click into a particular learner’s name
-        Then I should be able to see their attempts at the exercise
-        or resource
+  Scenario: Save lesson details changes 
+    Given that I made some changes to the lesson details
+      When I click the *Save changes* button
+      Then see the <lesson> lesson page again
+      	And I see the snackbar notification *Lesson changes saved*
+      	# Notifications missing
 
-    Scenario: User clicks on a lesson’s LEARNERS tab
-        Given that I am on a lesson’s details page
-        When I click the LEARNERS subtab
-        Then I should be navigated to a list of learners who are
-        assigned that lesson
-        And I should also be able to see a column for progress on
-        the overall lesson resources
+  Scenario: Manage lesson resources from reports
+    When I click the *Options* button
+      And I select the *Manage resources* option
+		Then I see the *Manage resources* page
+    When I finish adding to or removing resources from the lesson
+      And I click the *Finish* button
+    Then see the <lesson> lesson page again
+      And I see the changes to the resources I made in the *Report* subtab
 
-    Scenario: User clicks on a learner’s name in the LEARNERS tab
-        Given that I am on a lesson’s details page
-        When I click into a particular learner’s name
-        Then I should be navigated to a page with that learner’s 
-        engagement/progress with all the lesson’s resources
-
-    Scenario: User edits the lesson details from the OPTIONS button
-        Given that I am on a lesson’s details page
-        When I click the OPTIONS dropdown button
-        Then When I click the EDIT DETAILS option
-        Then I should see a form appear that will allow me to edit 
-        the lesson title, status, recipients, And resource order
-
-    Scenario: User confirms lesson edits from the OPTIONS button
-        Given that I have made some changes to the lesson details
-        When I click the SAVE button
-        Then the form should disappear And I should be navigated
-        Back to the lesson details page
-        And I should see a snackbar appear saying CHANGES SAVED
-
-    Scenario: User manages lesson resources from the OPTIONS button
-        Given That I am on a lesson’s details page
-        When I click the OPTIONS dropdown button
-        Then When I click the MANAGE RESOURCES option
-        Then I should see lesson resource selection interface modal
-        appear
-
-
-
-  Scenario: View the lesson report details
-    When I click the lesson <lesson>
-    Then I am on the <lesson> page
-      And I see the list of lesson resources
-      And I see the progress and average time spent columns for the resources
-    When I click the <resource> resource
-    Then I am on the *<resource>* report page
-      I see *Preview* button
-      And I see *View by groups* unchecked checkbox
-      And I see the progress, time spent and last activity column on <resource> for each of the learners lesson <lesson> is assigned to
+  Scenario: Open resource report
+  	Given that I am on the *'<lesson>' > Report* subtab
+	    When I click the <resource> resource
+	    Then I am on the <resource> resource page
+	      And I see *Preview* button
+	      And I see *View by groups* unchecked checkbox
+	      And I see the summary icons for learners who have completed, started, and are struggling
+	      And in the *Report* subtab I see the table with learners, with the *Progress*, *Time spent* and *Last activity* columns on <resource> for each of the learners lesson <lesson> is assigned to
 
   Scenario: Learner has not started a resource
     When a learner has not started <resource>
@@ -94,34 +65,46 @@ Feature: Lessons subtab
       # Clarify conditions for *Needs help*
       Then their *Progress* column states *Needs help*
 
+	Scenario: Review exercise attempt report
+    Given that I am on the *'<resource>' > Report* subtab
+    	And <resource> is an exercise
+	      When I click the <learner> learner name
+	      Then I see their attempts for each question in the exercise
+
+  Scenario: Open the Learners tab
+    Given that I am on the *'<lesson>' > Report* subtab
+      When I click to open the *Learners* subtab
+      Then I see a table with learners to whom the <lesson> is assigned 
+      	And I see the *Progress* and *Groups* columns
+
+  Scenario: View report for all resources for a learner
+    Given that I am on the *'<lesson>' > Learners* subtab
+      When I click the <learner> learner name
+      Then I am on *'<lesson>' > '<learner>'* page
+      	And I see a table with all the resources <learner> has engaged with
+      	And I see the *Progress* and *Time spent* columns for each <resource>
+
   Scenario: View the resource report page by groups
-    Given that I am on the <resource> report page
-    When I click *View by groups* checkbox
-    Then I see learners grouped by groups belonging to <lesson> recipients
-    And I see empty groups that are recipients of the <lesson>
-    And I cannot see empty groups that aren't recipients of the <lesson>
-    And if the <lesson> recipient is *Entire class*
-      And there are <lesson> learners who do not have any group assigned
-      I can see *Ungrouped learners* section containing those learners
+    Given that I am on the *'<resource>' > Report* subtab
+    	And the <resource> is assigned to entire class
+    	And some groups are empty
+    	And some learners are ungroped
+		    When I click the *View by groups* checkbox
+		    Then I see separate tables for each group
+		    	And I see empty groups that are recipients of the <lesson>
+		    		But I don't see empty groups that aren't recipients of the <lesson>
+		    	And I see *Ungrouped learners* section with those learners
 
   Scenario: View resource preview
-    Given that I am on the <resource> report page
-    When I click *Preview* button
-    Then I can see the <resource> preview
-    When I click the back arrow in the immersive toolbar
-    Then I am returned to the <resource> report page
-
-  Scenario: View resource preview when learners grouped by <lesson> groups
-    Given that I am on the <resource> report page
-      And learners are grouped by <lesson> groups
-    When I click *Preview* button
-    Then I can see the <resource> preview
-    When I click the back arrow in the immersive toolbar
-    Then I am returned to the <resource> report page
-      And *View by groups* checkbox stays checked
-      And I can see learners grouped by <lesson> groups
+    	Given that *View by groups* checkbox is checked
+		    When I click *Preview* button
+		    Then I can see the <resource> preview
+		    When I click the back arrow button in top left corner
+		    Then I am on the <resource> resource page again
+		    	And I see separate tables for each group
+		    	And the *View by groups* checkbox is still checked
 
 Examples:
-| classroom | lesson  | groups | resource           |
-| My class  | My quiz | group1 | One digit division |
+| class    | lesson             | resource           |
+| First A  | Jump into division | One digit division |
 
