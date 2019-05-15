@@ -25,7 +25,9 @@ class TrackHandler extends EventEmitter {
    * Ensure track mode is `hidden`, which triggers cue events
    */
   activate() {
-    this._track.mode = 'hidden';
+    if (this._track.mode !== 'hidden') {
+      this._track.mode = 'hidden';
+    }
   }
 
   /**
