@@ -277,9 +277,7 @@ def query_params_required(**kwargs):  # noqa C901
 
     def _params(view):
         try:
-            assert issubclass(
-                view, APIView
-            )
+            assert issubclass(view, APIView)
 
             class Wrapper(view):
                 def initial(self, request, *args, **kwargs):
@@ -333,7 +331,10 @@ def query_params_required(**kwargs):  # noqa C901
             return wrapper
 
         except AssertionError:
-            raise TypeError("query_params_required decorator can only be used on classes that are subclasses of APIView")
+            raise TypeError(
+                "query_params_required decorator can only be used on classes that are subclasses of APIView"
+            )
+
     return _params
 
 

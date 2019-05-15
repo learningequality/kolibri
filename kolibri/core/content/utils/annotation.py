@@ -175,11 +175,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
     contentnode_file_size_statement = (
         select([func.coalesce(func.sum(LocalFileTable.c.file_size), 0)])
         .select_from(FileTable.join(LocalFileTable))
-        .where(
-            and_(
-                FileTable.c.available == True,  # noqa
-            )
-        )
+        .where(and_(FileTable.c.available == True))  # noqa
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
@@ -215,9 +211,7 @@ def set_leaf_node_availability_from_local_file_availability(channel_id):
                 ContentNodeTable.c.channel_id == channel_id,
             )
         )
-        .values(
-            on_device_file_size=contentnode_file_size_statement,
-        )
+        .values(on_device_file_size=contentnode_file_size_statement)
         .execution_options(autocommit=True)
     )
 
@@ -376,7 +370,9 @@ def recurse_annotation_up_tree(channel_id):
             available=False,
             on_device_resources=0,
             num_coach_contents=0,
-            on_device_file_size=func.coalesce(ContentNodeTable.c.on_device_file_size, 0),
+            on_device_file_size=func.coalesce(
+                ContentNodeTable.c.on_device_file_size, 0
+            ),
         )
     )
 
@@ -472,7 +468,9 @@ def recurse_annotation_up_tree(channel_id):
     trans.commit()
 
     elapsed = datetime.datetime.now() - start
-    logger.debug("Recursive topic tree annotation took {} seconds".format(elapsed.seconds))
+    logger.debug(
+        "Recursive topic tree annotation took {} seconds".format(elapsed.seconds)
+    )
 
     bridge.end()
 
@@ -486,7 +484,10 @@ def update_content_metadata(channel_id):
     # If we are updating the content metadata, then we will need to rerun
     # any importability annotation because it depends on the availability
     # of localfiles.
-    from kolibri.core.content.utils.importability_annotation import clear_importability_cache
+    from kolibri.core.content.utils.importability_annotation import (
+        clear_importability_cache,
+    )
+
     clear_importability_cache(channel_id)
 
 
@@ -544,12 +545,21 @@ def calculate_next_order(channel):
 
 def calculate_duplication_index(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
-    duped_resource_count = content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+    duped_resource_count = (
+        content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+    )
     try:
-        channel.total_resource_duplication = duped_resource_count / float(channel.total_resource_count)
+        channel.total_resource_duplication = duped_resource_count / float(
+            channel.total_resource_count
+        )
     except ZeroDivisionError:
         channel.total_resource_duplication = 1
-    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).filter(available=True).aggregate(Sum("file_size"))["file_size__sum"] or 0
+    duped_file_size = (
+        LocalFile.objects.filter(files__contentnode__in=content_nodes)
+        .filter(available=True)
+        .aggregate(Sum("file_size"))["file_size__sum"]
+        or 0
+    )
     try:
         channel.total_file_duplication = duped_file_size / float(channel.published_size)
     except ZeroDivisionError:

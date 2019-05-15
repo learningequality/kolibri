@@ -474,7 +474,9 @@ class ChannelMetadata(models.Model):
     # source.
     importable_file_size = models.BigIntegerField(default=0, null=True, blank=True)
     # Ratios representing how duplicated resources and files are in this resource
-    importable_resource_duplication = models.FloatField(default=1, null=True, blank=True)
+    importable_resource_duplication = models.FloatField(
+        default=1, null=True, blank=True
+    )
     importable_file_duplication = models.FloatField(default=1, null=True, blank=True)
     total_resource_duplication = models.FloatField(default=1, null=True, blank=True)
     total_file_duplication = models.FloatField(default=1, null=True, blank=True)

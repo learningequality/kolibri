@@ -58,14 +58,25 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
     def test_all_local_files_available_file_size(self):
         LocalFile.objects.all().update(available=True, file_size=1)
         set_leaf_node_availability_from_local_file_availability(test_channel_id)
-        node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).exclude(files=None).first()
+        node = (
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+            .exclude(files=None)
+            .first()
+        )
         local_files = LocalFile.objects.filter(files__contentnode=node)
-        self.assertEqual(node.on_device_file_size, local_files.distinct().aggregate(Sum("file_size"))["file_size__sum"])
+        self.assertEqual(
+            node.on_device_file_size,
+            local_files.distinct().aggregate(Sum("file_size"))["file_size__sum"],
+        )
 
     def test_all_local_files_available_resources(self):
         LocalFile.objects.all().update(available=True)
         set_leaf_node_availability_from_local_file_availability(test_channel_id)
-        node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).exclude(files=None).first()
+        node = (
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC)
+            .exclude(files=None)
+            .first()
+        )
         self.assertEqual(node.on_device_resources, 1)
 
     def test_no_local_files_available(self):
@@ -127,7 +138,9 @@ class AnnotationTreeRecursion(TransactionTestCase):
         ContentNode.objects.all().update(available=False)
 
     def test_all_content_nodes_available(self):
-        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(available=True, on_device_file_size=2, on_device_resources=1)
+        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(
+            available=True, on_device_file_size=2, on_device_resources=1
+        )
         recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
         self.assertTrue(
             ContentNode.objects.get(id="da7ecc42e62553eebc8121242746e88a").available
@@ -136,8 +149,14 @@ class AnnotationTreeRecursion(TransactionTestCase):
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").available
         )
         root = ChannelMetadata.objects.get(id=test_channel_id).root
-        self.assertEqual(root.on_device_resources, ContentNode.objects.exclude(kind=content_kinds.TOPIC).count())
-        self.assertEqual(root.on_device_file_size, 2 * ContentNode.objects.exclude(kind=content_kinds.TOPIC).count())
+        self.assertEqual(
+            root.on_device_resources,
+            ContentNode.objects.exclude(kind=content_kinds.TOPIC).count(),
+        )
+        self.assertEqual(
+            root.on_device_file_size,
+            2 * ContentNode.objects.exclude(kind=content_kinds.TOPIC).count(),
+        )
 
     def test_no_content_nodes_available(self):
         ContentNode.objects.filter(kind=content_kinds.TOPIC).update(available=True)
@@ -158,9 +177,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
     def test_one_content_node_available(self):
         ContentNode.objects.filter(id="32a941fb77c2576e8f6b294cde4c3b0c").update(
-            available=True,
-            on_device_file_size=2,
-            on_device_resources=1,
+            available=True, on_device_file_size=2, on_device_resources=1
         )
         recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
         # Check parent is available
@@ -724,10 +741,7 @@ class CalculateChannelFieldsTestCase(TestCase):
 
     def test_calculate_total_resources(self):
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=True,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -736,16 +750,11 @@ class CalculateChannelFieldsTestCase(TestCase):
             contentnode=self.node,
         )
         calculate_total_resource_count(self.channel)
-        self.assertEqual(
-            self.channel.total_resource_count, 1
-        )
+        self.assertEqual(self.channel.total_resource_count, 1)
 
     def test_calculate_published_size(self):
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=True,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -754,9 +763,7 @@ class CalculateChannelFieldsTestCase(TestCase):
             contentnode=self.node,
         )
         calculate_published_size(self.channel)
-        self.assertEqual(
-            self.channel.published_size, 10
-        )
+        self.assertEqual(self.channel.published_size, 10)
 
     def test_published_size_big_integer_field(self):
         self.channel.published_size = (
@@ -786,16 +793,13 @@ class CalculateChannelFieldsTestCase(TestCase):
         try:
             calculate_duplication_index(self.channel)
         except ZeroDivisionError:
-            self.fail('Failed to catch a division by zero.')
+            self.fail("Failed to catch a division by zero.")
 
     def test_calculate_file_size_duplication(self):
         self.channel.total_resource_count = 1
         self.channel.published_size = 10
         local_file1 = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=True,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -804,10 +808,7 @@ class CalculateChannelFieldsTestCase(TestCase):
             contentnode=self.node,
         )
         local_file2 = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=False,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -824,4 +825,4 @@ class CalculateChannelFieldsTestCase(TestCase):
         try:
             calculate_duplication_index(self.channel)
         except ZeroDivisionError:
-            self.fail('Failed to catch a division by zero.')
+            self.fail("Failed to catch a division by zero.")

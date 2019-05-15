@@ -54,7 +54,5 @@ class Command(AsyncCommand):
                 )
                 progress_update(1, progress_extra_data)
             else:
-                annotate_importability_from_studio(
-                    options["channel_id"]
-                )
+                annotate_importability_from_studio(options["channel_id"])
                 progress_update(1, progress_extra_data)

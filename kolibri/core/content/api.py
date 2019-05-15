@@ -107,7 +107,11 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all().select_related("root").select_related("root__lang")
+        return (
+            models.ChannelMetadata.objects.all()
+            .select_related("root")
+            .select_related("root__lang")
+        )
 
 
 class IdFilter(FilterSet):

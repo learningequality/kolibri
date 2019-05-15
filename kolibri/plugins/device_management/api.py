@@ -25,11 +25,17 @@ from kolibri.core.decorators import query_params_required
 class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
     on_device_resources = serializers.IntegerField(source="root.on_device_resources")
     on_device_file_size = serializers.IntegerField(source="root.on_device_file_size")
-    importable_coach_contents = serializers.IntegerField(source="root.importable_coach_contents")
+    importable_coach_contents = serializers.IntegerField(
+        source="root.importable_coach_contents"
+    )
     importable_file_size = serializers.IntegerField(source="root.importable_file_size")
     importable_resources = serializers.IntegerField(source="root.importable_resources")
-    importable_file_size_deduped = serializers.IntegerField(source="importable_file_size")
-    importable_resources_deduped = serializers.IntegerField(source="importable_resources")
+    importable_file_size_deduped = serializers.IntegerField(
+        source="importable_file_size"
+    )
+    importable_resources_deduped = serializers.IntegerField(
+        source="importable_resources"
+    )
 
     class Meta:
         model = ChannelMetadata
@@ -80,7 +86,6 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ContentNode
         fields = (
@@ -127,26 +132,37 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 @require_GET
 @query_params_required(channel_id=str)
 def get_file_size_and_count(request, channel_id):
-    node_ids = [node_id for node_id in request.GET.get("node_ids", "").split(",") if node_id]
-    exclude_node_ids = [node_id for node_id in request.GET.get("exclude_node_ids", "").split(",") if node_id]
+    node_ids = [
+        node_id for node_id in request.GET.get("node_ids", "").split(",") if node_id
+    ]
+    exclude_node_ids = [
+        node_id
+        for node_id in request.GET.get("exclude_node_ids", "").split(",")
+        if node_id
+    ]
 
-    for_export = bool(request.GET.get('for_export', False) == "true")
-    contentnodes = get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, for_export, renderable_only=not for_export)
+    for_export = bool(request.GET.get("for_export", False) == "true")
+    contentnodes = get_nodes_to_transfer(
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        for_export,
+        renderable_only=not for_export,
+    )
     if not for_export:
         contentnodes = contentnodes.filter(importable=True)
     files = LocalFile.objects.filter(
-        files__contentnode__in=contentnodes,
-        available=for_export,
+        files__contentnode__in=contentnodes, available=for_export
     )
     if not for_export:
         files = files.filter(importable=True)
     files = files.distinct()
     file_size = files.aggregate(Sum("file_size"))["file_size__sum"] or 0
-    resources = contentnodes.exclude(kind=content_kinds.TOPIC).values("content_id").distinct().count()
-
-    return JsonResponse(
-        {
-            "size": file_size,
-            "count": resources,
-        }
+    resources = (
+        contentnodes.exclude(kind=content_kinds.TOPIC)
+        .values("content_id")
+        .distinct()
+        .count()
     )
+
+    return JsonResponse({"size": file_size, "count": resources})

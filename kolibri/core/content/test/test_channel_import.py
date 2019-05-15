@@ -27,7 +27,7 @@ from kolibri.core.content.models import NO_VERSION
 from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
-from kolibri.core.content.utils.annotation import recurse_file_annotation_up_tree
+from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
@@ -545,7 +545,7 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
 
             # propagate availability up the tree
             set_leaf_node_availability_from_local_file_availability(channel_id)
-            recurse_file_annotation_up_tree(channel_id=channel_id)
+            recurse_annotation_up_tree(channel_id=channel_id)
 
             # after reloading, channel should now be available
             channel.root.refresh_from_db()

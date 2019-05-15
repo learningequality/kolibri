@@ -123,11 +123,7 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
     contentnode_file_size_statement = (
         select([func.coalesce(func.sum(LocalFileTable.c.file_size), 0)])
         .select_from(FileTable.join(LocalFileTable))
-        .where(
-            and_(
-                FileTable.c.importable == True,  # noqa
-            )
-        )
+        .where(and_(FileTable.c.importable == True))  # noqa
         .where(ContentNodeTable.c.id == FileTable.c.contentnode_id)
     )
 
@@ -164,9 +160,7 @@ def set_leaf_node_importability_from_local_file_importability(channel_id):
                 ContentNodeTable.c.channel_id == channel_id,
             )
         )
-        .values(
-            importable_file_size=contentnode_file_size_statement,
-        )
+        .values(importable_file_size=contentnode_file_size_statement)
         .execution_options(autocommit=True)
     )
 
@@ -230,7 +224,9 @@ def recurse_importability_up_tree(channel_id):
             importable=False,
             importable_resources=0,
             importable_coach_contents=0,
-            importable_file_size=func.coalesce(ContentNodeTable.c.importable_file_size, 0),
+            importable_file_size=func.coalesce(
+                ContentNodeTable.c.importable_file_size, 0
+            ),
         )
     )
 
@@ -289,7 +285,8 @@ def recurse_importability_up_tree(channel_id):
             .values(
                 importable=exists(importable_nodes),
                 importable_resources=node_resources,
-                importable_file_size=ContentNodeTable.c.importable_file_size + node_file_size,
+                importable_file_size=ContentNodeTable.c.importable_file_size
+                + node_file_size,
                 importable_coach_contents=coach_content_num,
             )
         )
@@ -322,14 +319,25 @@ def calculate_importable_resource_count(channel):
 
 def calculate_importable_duplication_index(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
-    duped_resource_count = content_nodes.filter(importable=True).exclude(kind=content_kinds.TOPIC).count()
+    duped_resource_count = (
+        content_nodes.filter(importable=True).exclude(kind=content_kinds.TOPIC).count()
+    )
     try:
-        channel.importable_resource_duplication = duped_resource_count / float(channel.importable_resources)
+        channel.importable_resource_duplication = duped_resource_count / float(
+            channel.importable_resources
+        )
     except ZeroDivisionError:
         channel.importable_resource_duplication = 1
-    duped_file_size = LocalFile.objects.filter(files__contentnode__in=content_nodes).filter(importable=True).aggregate(Sum("file_size"))["file_size__sum"] or 0
+    duped_file_size = (
+        LocalFile.objects.filter(files__contentnode__in=content_nodes)
+        .filter(importable=True)
+        .aggregate(Sum("file_size"))["file_size__sum"]
+        or 0
+    )
     try:
-        channel.importable_file_duplication = duped_file_size / float(channel.importable_file_size)
+        channel.importable_file_duplication = duped_file_size / float(
+            channel.importable_file_size
+        )
     except ZeroDivisionError:
         channel.importable_file_duplication = 1
 
@@ -407,7 +415,9 @@ def annotate_importability_from_disk(channel_id, basepath):
     if cache.get(CACHE_KEY) != CACHE_MARKER:
         # Cache the checksums from reading this internal device to use for other
         # importability annotations for different channels from the same drive.
-        CHECKSUM_CACHE_KEY = 'disk_import_checksums_{basepath}'.format(basepath=basepath)
+        CHECKSUM_CACHE_KEY = "disk_import_checksums_{basepath}".format(
+            basepath=basepath
+        )
         checksums = cache.get(CHECKSUM_CACHE_KEY)
         if not checksums:
             content_dir = get_content_storage_dir_path(datafolder=basepath)

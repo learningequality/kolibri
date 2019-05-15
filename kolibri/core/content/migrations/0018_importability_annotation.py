@@ -8,84 +8,76 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0017_auto_20190415_1855'),
-    ]
+    dependencies = [("content", "0017_auto_20190415_1855")]
 
     operations = [
         migrations.AddField(
-            model_name='channelmetadata',
-            name='importable_file_duplication',
+            model_name="channelmetadata",
+            name="importable_file_duplication",
             field=models.FloatField(blank=True, default=1, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='importable_file_size',
+            model_name="channelmetadata",
+            name="importable_file_size",
             field=models.BigIntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='importable_resource_duplication',
+            model_name="channelmetadata",
+            name="importable_resource_duplication",
             field=models.FloatField(blank=True, default=1, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='importable_resources',
+            model_name="channelmetadata",
+            name="importable_resources",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='total_file_duplication',
+            model_name="channelmetadata",
+            name="total_file_duplication",
             field=models.FloatField(blank=True, default=1, null=True),
         ),
         migrations.AddField(
-            model_name='channelmetadata',
-            name='total_resource_duplication',
+            model_name="channelmetadata",
+            name="total_resource_duplication",
             field=models.FloatField(blank=True, default=1, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='importable',
-            field=models.NullBooleanField(),
+            model_name="contentnode", name="importable", field=models.NullBooleanField()
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='importable_coach_contents',
+            model_name="contentnode",
+            name="importable_coach_contents",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='importable_file_size',
+            model_name="contentnode",
+            name="importable_file_size",
             field=models.BigIntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='importable_resources',
+            model_name="contentnode",
+            name="importable_resources",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='num_coach_contents',
+            model_name="contentnode",
+            name="num_coach_contents",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='on_device_file_size',
+            model_name="contentnode",
+            name="on_device_file_size",
             field=models.BigIntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='contentnode',
-            name='on_device_resources',
+            model_name="contentnode",
+            name="on_device_resources",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AddField(
-            model_name='file',
-            name='importable',
-            field=models.NullBooleanField(),
+            model_name="file", name="importable", field=models.NullBooleanField()
         ),
         migrations.AddField(
-            model_name='localfile',
-            name='importable',
-            field=models.NullBooleanField(),
+            model_name="localfile", name="importable", field=models.NullBooleanField()
         ),
     ]

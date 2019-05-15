@@ -206,7 +206,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_file_annotation_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
@@ -252,7 +252,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_file_annotation_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.import_export_content.compare_checksums",
@@ -320,7 +320,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_file_annotation_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
@@ -772,10 +772,7 @@ class TestFilesToTransfer(TestCase):
             available=False,
         )
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=False,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -789,5 +786,7 @@ class TestFilesToTransfer(TestCase):
             available=False,
             contentnode=node2,
         )
-        files_to_transfer, _ = get_files_to_transfer(root_node.channel_id, [node1.id], [node2.id], False, False)
+        files_to_transfer, _ = get_files_to_transfer(
+            root_node.channel_id, [node1.id], [node2.id], False, False
+        )
         self.assertEqual(files_to_transfer.filter(id=local_file.id).count(), 1)
