@@ -16,8 +16,12 @@
         class="page-description"
       />
     </div>
-    <ExpandableContentCardGroupGrid v-for="child in contents" 
-    v-if="contents[0].children.length" :key="child" :child="child" />
+    <ExpandableContentCardGroupGrid 
+      v-for="child in contents" 
+      v-if="contents[0].children.length" 
+      :key="child" 
+      :child="child"
+    />
     <ContentCardGroupGrid
       v-if="!contents[0].children.length"
       :contents="contents"
