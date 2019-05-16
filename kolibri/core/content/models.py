@@ -232,6 +232,9 @@ class ContentNode(MPTTModel):
         max_length=1800, blank=True
     )  # for fuzzy search in title and description
     lang = models.ForeignKey("Language", blank=True, null=True)
+    # Fields used only on Kolibri and not imported from a content database
+    # Total number of coach only resources for this node
+    num_coach_contents = models.IntegerField(default=0, null=True, blank=True)
 
     objects = ContentNodeManager()
 
