@@ -404,7 +404,9 @@ def recurse_annotation_up_tree(channel_id):
     trans.commit()
 
     elapsed = datetime.datetime.now() - start
-    logger.debug("Recursive topic tree annotation took {} seconds".format(elapsed.seconds))
+    logger.debug(
+        "Recursive topic tree annotation took {} seconds".format(elapsed.seconds)
+    )
 
     bridge.end()
 

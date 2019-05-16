@@ -772,10 +772,7 @@ class TestFilesToTransfer(TestCase):
             available=False,
         )
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=False,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -789,5 +786,7 @@ class TestFilesToTransfer(TestCase):
             available=False,
             contentnode=node2,
         )
-        files_to_transfer, _ = get_files_to_transfer(root_node.channel_id, [node1.id], [node2.id], False, False)
+        files_to_transfer, _ = get_files_to_transfer(
+            root_node.channel_id, [node1.id], [node2.id], False, False
+        )
         self.assertEqual(files_to_transfer.filter(id=local_file.id).count(), 1)

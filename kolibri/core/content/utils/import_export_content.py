@@ -46,16 +46,22 @@ def get_nodes_to_transfer(
             pk__in=exclude_node_ids
         ).get_descendants(include_self=True)
 
-        nodes_to_include = nodes_to_include.order_by().difference(nodes_to_exclude.order_by())
+        nodes_to_include = nodes_to_include.order_by().difference(
+            nodes_to_exclude.order_by()
+        )
     return nodes_to_include.order_by()
 
 
 def get_files_to_transfer(
     channel_id, node_ids, exclude_node_ids, available, renderable_only=True
 ):
-    nodes_to_include = get_nodes_to_transfer(channel_id, node_ids, exclude_node_ids, available, renderable_only)
+    nodes_to_include = get_nodes_to_transfer(
+        channel_id, node_ids, exclude_node_ids, available, renderable_only
+    )
 
-    files_to_transfer = LocalFile.objects.filter(available=available, files__contentnode__in=nodes_to_include)
+    files_to_transfer = LocalFile.objects.filter(
+        available=available, files__contentnode__in=nodes_to_include
+    )
 
     # Make sure the files are unique, to avoid duplicating downloads
     files_to_transfer = files_to_transfer.distinct()

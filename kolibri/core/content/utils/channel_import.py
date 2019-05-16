@@ -112,7 +112,9 @@ class ChannelImport(object):
 
         # Explicitly set the destination schema version to our latest published schema version
         # Not the current schema of the DB, as we do our mapping to the published versions.
-        self.destination = Bridge(schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME)
+        self.destination = Bridge(
+            schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
+        )
 
         content_app = apps.get_app_config(CONTENT_APP_NAME)
 

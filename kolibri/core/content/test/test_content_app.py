@@ -990,7 +990,8 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_filtering_coach_content_anon(self):
         response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"user_kind": user_kinds.ANONYMOUS}
+            reverse("kolibri:core:contentnode-list"),
+            data={"user_kind": user_kinds.ANONYMOUS},
         )
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
         self.assertEqual(len(response.data), 7)
@@ -998,7 +999,8 @@ class ContentNodeAPITestCase(APITestCase):
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"user_kind": user_kinds.ADMIN}
+            reverse("kolibri:core:contentnode-list"),
+            data={"user_kind": user_kinds.ADMIN},
         )
         expected_output = content.ContentNode.objects.exclude(
             available=False

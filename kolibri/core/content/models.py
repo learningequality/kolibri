@@ -104,7 +104,7 @@ CONTENT_SCHEMA_VERSION = VERSION_2
 
 # The version name for the current content schema,
 # which may have schema modifications not present in the export schema
-CURRENT_SCHEMA_VERSION = 'current'
+CURRENT_SCHEMA_VERSION = "current"
 
 
 class UUIDField(models.CharField):

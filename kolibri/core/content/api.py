@@ -140,10 +140,7 @@ class ContentNodeFilter(IdFilter):
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Content")),)),
     )
-    user_kind = ChoiceFilter(
-        method="filter_user_kind",
-        choices=user_kinds.choices,
-    )
+    user_kind = ChoiceFilter(method="filter_user_kind", choices=user_kinds.choices)
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
@@ -201,7 +198,12 @@ class ContentNodeFilter(IdFilter):
         :param value: user_kind
         :return: content nodes filtered by coach_content if appropiate
         """
-        if value not in [user_kinds.ADMIN, user_kinds.SUPERUSER, user_kinds.COACH, user_kinds.ASSIGNABLE_COACH]:
+        if value not in [
+            user_kinds.ADMIN,
+            user_kinds.SUPERUSER,
+            user_kinds.COACH,
+            user_kinds.ASSIGNABLE_COACH,
+        ]:
             # Exclude nodes that are coach content
             queryset = queryset.exclude(coach_content=True)
         return queryset

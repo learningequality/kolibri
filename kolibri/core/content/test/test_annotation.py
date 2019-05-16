@@ -693,10 +693,7 @@ class CalculateChannelFieldsTestCase(TestCase):
 
     def test_calculate_total_resources(self):
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=True,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -705,16 +702,11 @@ class CalculateChannelFieldsTestCase(TestCase):
             contentnode=self.node,
         )
         calculate_total_resource_count(self.channel)
-        self.assertEqual(
-            self.channel.total_resource_count, 1
-        )
+        self.assertEqual(self.channel.total_resource_count, 1)
 
     def test_calculate_published_size(self):
         local_file = LocalFile.objects.create(
-            id=uuid.uuid4().hex,
-            extension="mp4",
-            available=True,
-            file_size=10
+            id=uuid.uuid4().hex, extension="mp4", available=True, file_size=10
         )
         File.objects.create(
             id=uuid.uuid4().hex,
@@ -723,9 +715,7 @@ class CalculateChannelFieldsTestCase(TestCase):
             contentnode=self.node,
         )
         calculate_published_size(self.channel)
-        self.assertEqual(
-            self.channel.published_size, 10
-        )
+        self.assertEqual(self.channel.published_size, 10)
 
     def test_published_size_big_integer_field(self):
         self.channel.published_size = (
