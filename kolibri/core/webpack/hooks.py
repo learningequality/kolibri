@@ -36,7 +36,7 @@ from kolibri.plugins import hooks
 from kolibri.utils import conf
 
 # Use the cache specifically for built files
-cache = caches['built_files']
+cache = caches["built_files"]
 
 
 class BundleNotFound(Exception):
@@ -51,12 +51,12 @@ logger = logging.getLogger(__name__)
 
 
 def filter_by_bidi(bidi, chunk):
-    if chunk['name'].split('.')[-1] != 'css':
+    if chunk["name"].split(".")[-1] != "css":
         return True
     if bidi:
-        return chunk['name'].split('.')[-2] == 'rtl'
+        return chunk["name"].split(".")[-2] == "rtl"
     else:
-        return chunk['name'].split('.')[-2] != 'rtl'
+        return chunk["name"].split(".")[-2] != "rtl"
 
 
 class WebpackBundleHook(hooks.KolibriHook):
@@ -85,9 +85,10 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         # Verify the uniqueness of the slug
         # It can be '0' in the parent class constructor
-        assert \
-            len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug]) <= 1, \
-            "Non-unique slug found: '{}'".format(self.unique_slug)
+        assert (
+            len([x for x in self.registered_hooks if x.unique_slug == self.unique_slug])
+            <= 1
+        ), "Non-unique slug found: '{}'".format(self.unique_slug)
         if not self._meta.abstract:
             assert self.src_file, "No source JS defined"
 
@@ -108,23 +109,25 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = 'json_stats_file_cache_{slug}'.format(slug=self.unique_slug)
+        cache_key = "json_stats_file_cache_{slug}".format(slug=self.unique_slug)
         try:
             stats_file_content = cache.get(cache_key)
-            if not stats_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
-                with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
+            if not stats_file_content or getattr(
+                django_settings, "DEVELOPER_MODE", False
+            ):
+                with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
                     stats = json.load(f)
-                if getattr(django_settings, 'DEVELOPER_MODE', False):
+                if getattr(django_settings, "DEVELOPER_MODE", False):
                     timeout = 0
-                    while stats['status'] == 'compiling':
+                    while stats["status"] == "compiling":
                         time.sleep(0.1)
                         timeout += 0.1
-                        with io.open(self._stats_file, mode='r', encoding='utf-8') as f:
+                        with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
                             stats = json.load(f)
                         if timeout >= 5:
-                            raise WebpackError('Webpack compilation still in progress')
-                    if stats['status'] == 'error':
-                        raise WebpackError('Webpack compilation has errored')
+                            raise WebpackError("Webpack compilation still in progress")
+                    if stats["status"] == "error":
+                        raise WebpackError("Webpack compilation has errored")
                 stats_file_content = {
                     "files": stats.get("chunks", {}).get(self.unique_slug, []),
                     "hasMessages": stats.get("messages", False),
@@ -139,7 +142,9 @@ class WebpackBundleHook(hooks.KolibriHook):
             else:
                 problem = "Not file-related."
             raise WebpackError(
-                'Webpack build file missing, front-end assets cannot be loaded. {problem}'.format(problem=problem)
+                "Webpack build file missing, front-end assets cannot be loaded. {problem}".format(
+                    problem=problem
+                )
             )
 
     @property
@@ -150,18 +155,20 @@ class WebpackBundleHook(hooks.KolibriHook):
           asset, most notably its URL.
         """
         for f in self._stats_file_content["files"]:
-            filename = f['name']
-            if not getattr(django_settings, 'DEVELOPER_MODE', False):
-                if any(list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)):
+            filename = f["name"]
+            if not getattr(django_settings, "DEVELOPER_MODE", False):
+                if any(
+                    list(regex.match(filename) for regex in settings.IGNORE_PATTERNS)
+                ):
                     continue
-            relpath = '{0}/{1}'.format(self.unique_slug, filename)
-            if getattr(django_settings, 'DEVELOPER_MODE', False):
+            relpath = "{0}/{1}".format(self.unique_slug, filename)
+            if getattr(django_settings, "DEVELOPER_MODE", False):
                 try:
-                    f['url'] = f['publicPath']
+                    f["url"] = f["publicPath"]
                 except KeyError:
-                    f['url'] = staticfiles_storage.url(relpath)
+                    f["url"] = staticfiles_storage.url(relpath)
             else:
-                f['url'] = staticfiles_storage.url(relpath)
+                f["url"] = staticfiles_storage.url(relpath)
             yield f
 
     @property
@@ -176,7 +183,9 @@ class WebpackBundleHook(hooks.KolibriHook):
             or None if the src_file does not exist.
 
         """
-        if os.path.exists(os.path.join(os.path.dirname(self._build_path), self.src_file)):
+        if os.path.exists(
+            os.path.join(os.path.dirname(self._build_path), self.src_file)
+        ):
             return {
                 "name": self.unique_slug,
                 "src_file": self.src_file,
@@ -187,21 +196,30 @@ class WebpackBundleHook(hooks.KolibriHook):
                 "version": self.version,
             }
         else:
-            logger.warn("{src_file} not found for plugin {name}.".format(src_file=self.src_file, name=self.unique_slug))
+            logger.warn(
+                "{src_file} not found for plugin {name}.".format(
+                    src_file=self.src_file, name=self.unique_slug
+                )
+            )
 
     @property
     def locale_data_folder(self):
-        if self._module_path.startswith('kolibri.'):
-            return os.path.join(getattr(django_settings, 'LOCALE_PATHS')[0], 'en', 'LC_MESSAGES')
+        if self._module_path.startswith("kolibri."):
+            return os.path.join(
+                getattr(django_settings, "LOCALE_PATHS")[0], "en", "LC_MESSAGES"
+            )
         # Is an external plugin, do otherwise!
         else:
             return os.path.join(
                 os.path.dirname(self._build_path),
-                getattr(self, 'locale_path', 'locale'), 'en', 'LC_MESSAGES')
+                getattr(self, "locale_path", "locale"),
+                "en",
+                "LC_MESSAGES",
+            )
 
     @property
     def _module_path(self):
-        return '.'.join(self.__module__.split('.')[:-1])
+        return ".".join(self.__module__.split(".")[:-1])
 
     @property
     def _build_path(self):
@@ -209,11 +227,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return resource_filename(self._module_path, 'build')
+        return resource_filename(self._module_path, "build")
 
     @property
     def _static_dir(self):
-        return resource_filename(self._module_path, 'static')
+        return resource_filename(self._module_path, "static")
 
     @property
     def _stats_file(self):
@@ -222,8 +240,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         containing information about the built bundles.
         """
         return os.path.join(
-            self._build_path,
-            '{plugin}_stats.json'.format(plugin=self.unique_slug)
+            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_slug)
         )
 
     @property
@@ -235,45 +252,52 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_slug)
-        for path in getattr(django_settings, 'LOCALE_PATHS', []):
+        for path in getattr(django_settings, "LOCALE_PATHS", []):
             file_path = os.path.join(
-                path,
-                to_locale(lang_code),
-                "LC_MESSAGES",
-                message_file_name)
+                path, to_locale(lang_code), "LC_MESSAGES", message_file_name
+            )
             if os.path.exists(file_path):
                 return file_path
 
     def frontend_messages(self):
         lang_code = get_language()
-        cache_key = 'json_stats_file_cache_{slug}_{lang}'.format(slug=self.unique_slug, lang=lang_code)
+        cache_key = "json_stats_file_cache_{slug}_{lang}".format(
+            slug=self.unique_slug, lang=lang_code
+        )
         message_file_content = cache.get(cache_key)
-        if not message_file_content or getattr(django_settings, 'DEVELOPER_MODE', False):
+        if not message_file_content or getattr(
+            django_settings, "DEVELOPER_MODE", False
+        ):
             frontend_message_file = self.frontend_message_file(lang_code)
             if frontend_message_file:
-                with io.open(frontend_message_file, mode='r', encoding='utf-8') as f:
+                with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
                     # Load JSON file, then immediately convert it to a string in minified form.
-                    message_file_content = json.dumps(json.load(f), separators=(',', ':'))
+                    message_file_content = json.dumps(
+                        json.load(f), separators=(",", ":")
+                    )
                 cache.set(cache_key, message_file_content, None)
         return message_file_content
 
     def sorted_chunks(self):
-        bidi = get_language_info(get_language())['bidi']
-        return sorted(filter(partial(filter_by_bidi, bidi), self.bundle), key=lambda x: x['name'].split('.')[-1])
+        bidi = get_language_info(get_language())["bidi"]
+        return sorted(
+            filter(partial(filter_by_bidi, bidi), self.bundle),
+            key=lambda x: x["name"].split(".")[-1],
+        )
 
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
         inline_js_tag = '<script type="text/javascript">{src}</script>'
-        inline_css_tag = '<style>{src}</style>'
+        inline_css_tag = "<style>{src}</style>"
         # Sorted to load css before js
         for chunk in self.sorted_chunks():
             src = None
-            if chunk['name'].endswith('.js'):
+            if chunk["name"].endswith(".js"):
                 if self.inline:
                     # During development, we do not write built files to disk
                     # Because of this, this call might return None
-                    src = self.get_filecontent(chunk['url'])
+                    src = self.get_filecontent(chunk["url"])
                 if src is not None:
                     # If it is not None, then we can inline it
                     yield inline_js_tag.format(src=src)
@@ -281,12 +305,12 @@ class WebpackBundleHook(hooks.KolibriHook):
                     # If src is None, either this is not something we should be inlining
                     # or we are in development mode and need to fetch the file from the
                     # development server, not the disk
-                    yield js_tag.format(url=chunk['url'])
-            elif chunk['name'].endswith('.css'):
+                    yield js_tag.format(url=chunk["url"])
+            elif chunk["name"].endswith(".css"):
                 if self.inline:
                     # During development, we do not write built files to disk
                     # Because of this, this call might return None
-                    src = self.get_filecontent(chunk['url'])
+                    src = self.get_filecontent(chunk["url"])
                 if src is not None:
                     # If it is not None, then we can inline it
                     yield inline_css_tag.format(src=src)
@@ -294,16 +318,18 @@ class WebpackBundleHook(hooks.KolibriHook):
                     # If src is None, either this is not something we should be inlining
                     # or we are in development mode and need to fetch the file from the
                     # development server, not the disk
-                    yield css_tag.format(url=chunk['url'])
+                    yield css_tag.format(url=chunk["url"])
 
     def frontend_message_tag(self):
         if self.frontend_messages():
-            return ['<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
-                kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
-                bundle=self.unique_slug,
-                lang_code=get_language(),
-                messages=self.frontend_messages(),
-            )]
+            return [
+                '<script>{kolibri_name}.registerLanguageAssets("{bundle}", "{lang_code}", {messages});</script>'.format(
+                    kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
+                    bundle=self.unique_slug,
+                    lang_code=get_language(),
+                    messages=self.frontend_messages(),
+                )
+            ]
         else:
             return []
 
@@ -337,7 +363,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         # First try finding the file using the storage class.
         # This is skipped in DEVELOPER_MODE mode as files might be outdated
         # Or may not even be on disk.
-        if not getattr(django_settings, 'DEVELOPER_MODE', False):
+        if not getattr(django_settings, "DEVELOPER_MODE", False):
             filename = staticfiles_storage.path(basename)
             if not staticfiles_storage.exists(basename):
                 filename = None
@@ -350,11 +376,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         Reads file contents using given `charset` and returns it as text.
         """
-        cache_key = 'inline_static_file_content_{url}'.format(url=url)
+        cache_key = "inline_static_file_content_{url}".format(url=url)
         content = cache.get(cache_key)
         if content is None:
             # Removes Byte Oorder Mark
-            charset = 'utf-8-sig'
+            charset = "utf-8-sig"
             basename = self.get_basename(url)
 
             if basename is None:
@@ -365,7 +391,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             if filename is None:
                 return None
 
-            with codecs.open(filename, 'r', charset) as fd:
+            with codecs.open(filename, "r", charset) as fd:
                 content = fd.read()
             # Cache this forever, as URLs will update for new files
             cache.set(cache_key, content, None)
@@ -381,7 +407,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         tags = self.frontend_message_tag() + list(self.js_and_css_tags())
 
-        return mark_safe('\n'.join(tags))
+        return mark_safe("\n".join(tags))
 
     def render_to_page_load_async_html(self):
         """
@@ -398,14 +424,15 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         :returns: HTML of a script tag to insert into a page.
         """
-        urls = [chunk['url'] for chunk in self.sorted_chunks()]
-        tags = self.frontend_message_tag() +\
-            ['<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
+        urls = [chunk["url"] for chunk in self.sorted_chunks()]
+        tags = self.frontend_message_tag() + [
+            '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
-            )]
-        return mark_safe('\n'.join(tags))
+            )
+        ]
+        return mark_safe("\n".join(tags))
 
     class Meta:
         abstract = True
@@ -428,12 +455,11 @@ class WebpackInclusionHook(hooks.KolibriHook):
     def __init__(self, *args, **kwargs):
         super(WebpackInclusionHook, self).__init__(*args, **kwargs)
         if not self._meta.abstract:
-            assert \
-                self.bundle_class is not None,\
-                "Must specify bundle_class property, this one did not: {} ({})".format(
-                    type(self),
-                    type(self.bundle_class)
-                )
+            assert (
+                self.bundle_class is not None
+            ), "Must specify bundle_class property, this one did not: {} ({})".format(
+                type(self), type(self.bundle_class)
+            )
 
     def render_to_page_load_sync_html(self):
         html = ""
@@ -460,7 +486,6 @@ class WebpackInclusionHook(hooks.KolibriHook):
 
 
 class FrontEndCoreAssetHook(WebpackBundleHook):
-
     def render_to_page_load_sync_html(self):
         """
         Generates the appropriate script tags for the core bundle, be they JS or CSS
@@ -470,12 +495,15 @@ class FrontEndCoreAssetHook(WebpackBundleHook):
         """
         tags = []
         if self.frontend_messages():
-            tags = ['<script>var coreLanguageMessages = {messages};</script>'.format(
-                messages=self.frontend_messages())]
+            tags = [
+                "<script>var coreLanguageMessages = {messages};</script>".format(
+                    messages=self.frontend_messages()
+                )
+            ]
 
         tags += list(self.js_and_css_tags())
 
-        return mark_safe('\n'.join(tags))
+        return mark_safe("\n".join(tags))
 
     class Meta:
         abstract = True
@@ -494,9 +522,9 @@ class FrontEndCoreHook(WebpackInclusionHook):
     def __init__(self, *args, **kwargs):
         super(FrontEndCoreHook, self).__init__(*args, **kwargs)
         assert len(list(self.registered_hooks)) <= 1, "Only one core asset allowed"
-        assert \
-            isinstance(self.bundle, FrontEndCoreAssetHook),\
-            "Only allows a FrontEndCoreAssetHook instance as bundle"
+        assert isinstance(
+            self.bundle, FrontEndCoreAssetHook
+        ), "Only allows a FrontEndCoreAssetHook instance as bundle"
 
     class Meta:
         abstract = True

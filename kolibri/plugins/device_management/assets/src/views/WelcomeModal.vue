@@ -24,14 +24,6 @@
 
   export default {
     name: 'WelcomeModal',
-    $trs: {
-      welcomeModalHeader: 'Welcome to Kolibri!',
-      welcomeModalContentDescription:
-        'The first thing you should do is import some content from the Channel tab.',
-      welcomeModalPermissionsDescription:
-        'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
-      welcomeButtonDismissText: 'OK',
-    },
     components: {
       KModal,
     },
@@ -41,6 +33,14 @@
       },
     },
     render: createElement => window.setTimeout(createElement, 750),
+    $trs: {
+      welcomeModalHeader: 'Welcome to Kolibri!',
+      welcomeModalContentDescription:
+        'The first thing you should do is import some content from the Channel tab.',
+      welcomeModalPermissionsDescription:
+        'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
+      welcomeButtonDismissText: 'OK',
+    },
   };
 
 </script>

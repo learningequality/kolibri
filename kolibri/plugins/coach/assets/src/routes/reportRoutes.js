@@ -11,6 +11,8 @@ import {
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
+import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
+import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId/reports';
@@ -314,12 +316,13 @@ export default [
     },
   },
   {
+    name: 'LessonReportEditDetailsPage',
     path: path(CLASS, LESSON, '/edit'),
-    component: pages.ReportsLessonEditorPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['editDetailsAction', 'LESSON_NAME', 'CLASS_NAME'],
+    component: LessonEditDetailsPage,
+    props: {
+      showResourcesTable: true,
     },
+    handler: defaultHandler,
   },
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNERS),
@@ -451,12 +454,10 @@ export default [
     },
   },
   {
+    name: 'QuizReportEditDetailsPage',
     path: path(CLASS, QUIZ, '/edit'),
-    component: pages.ReportsQuizEditorPage,
+    component: QuizEditDetailsPage,
     handler: defaultHandler,
-    meta: {
-      titleParts: ['editDetailsAction', 'QUIZ_NAME', 'CLASS_NAME'],
-    },
   },
   {
     path: path(CLASS, QUIZ, LEARNERS),
@@ -499,6 +500,7 @@ export default [
     },
   },
   {
+    name: pages.ReportsQuizPreviewPage.name,
     path: path(CLASS, QUIZ, '/preview'),
     component: pages.ReportsQuizPreviewPage,
     handler: defaultHandler,

@@ -41,7 +41,9 @@
                   :text="tableRow.title"
                   :to="exerciseLink(tableRow.content_id)"
                 />
-                <template v-else>{{ tableRow.title }}</template>
+                <template v-else>
+                  {{ tableRow.title }}
+                </template>
               </KLabeledIcon>
             </td>
             <td>

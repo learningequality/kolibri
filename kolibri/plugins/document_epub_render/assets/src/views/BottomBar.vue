@@ -2,7 +2,9 @@
 
   <div class="bottom-bar" :style="{ backgroundColor: $coreGrey200 }">
     <div class="bottom-bar-heading">
-      <h3 v-if="heading">{{ heading }}</h3>
+      <h3 v-if="heading">
+        {{ heading }}
+      </h3>
     </div>
     <transition mode="in-out">
       <div v-if="locationsAreReady">
@@ -52,11 +54,6 @@
 
   export default {
     name: 'BottomBar',
-    $trs: {
-      progress: `{progress, number, percent}`,
-      jumpToPositionInBook: 'Jump to position in book',
-      preparingSlider: 'Preparing slider',
-    },
     components: {
       KLinearLoader,
     },
@@ -83,6 +80,11 @@
       handleChange(newValue) {
         this.$emit('sliderChanged', Number(newValue));
       },
+    },
+    $trs: {
+      progress: `{progress, number, percent}`,
+      jumpToPositionInBook: 'Jump to position in book',
+      preparingSlider: 'Preparing slider',
     },
   };
 

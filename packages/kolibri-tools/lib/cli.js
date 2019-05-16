@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
+const os = require('os');
 const path = require('path');
 const program = require('commander');
-const version = require('../package.json').version;
+const checkVersion = require('check-node-version');
+const version = require('../package.json');
 const logger = require('./logging');
-const readWebpackJson = require('./read_webpack_json');
 
-// ensure the correct version of node is being used
-// (specified in package.json)
-require('engine-strict').check();
+const readWebpackJson = require('./read_webpack_json');
 
 const cliLogging = logger.getLogger('Kolibri CLI');
 
@@ -116,7 +115,12 @@ program
       program.help();
       process.exit(1);
     }
-    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE;
+    // Use one less than the number of cpus to allow other
+    // processes to carry on.
+    const numberOfCPUs = Math.max(1, os.cpus().length - 1);
+    // Don't bother using multiprocessor mode if there is only one processor that we can
+    // use without bogging down the system.
+    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE && numberOfCPUs > 1;
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
@@ -147,6 +151,8 @@ program
     function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
       const numberOfBundles = bundleData.length;
       let currentlyCompiling = numberOfBundles;
+      let firstRun = true;
+      const start = new Date();
       // The way we are binding this callback to the webpack compilation hooks
       // it seems to miss this on first compilation, so we will only use this for
       // watched builds where rebuilds are possible.
@@ -156,7 +162,12 @@ program
       function doneCallback() {
         currentlyCompiling -= 1;
         if (currentlyCompiling === 0) {
-          buildLogging.info('All builds complete!');
+          if (firstRun) {
+            firstRun = false;
+            buildLogging.info(`Initial build complete in ${(new Date() - start) / 1000} seconds`);
+          } else {
+            buildLogging.info('All builds complete!');
+          }
           if (completionCallback) {
             completionCallback(bundleData, buildOptions);
           }
@@ -173,6 +184,9 @@ program
               ...process.env,
               data,
               index,
+              // Only start a number of processes equal to the number of
+              // available CPUs.
+              start: Math.floor(index / numberOfCPUs) === 0,
               options: options_data,
             },
             stdio: 'inherit',
@@ -191,6 +205,10 @@ program
               startCallback();
             } else if (msg === 'done') {
               doneCallback();
+              const nextIndex = index + numberOfCPUs;
+              if (children[nextIndex]) {
+                children[nextIndex].send('start');
+              }
             }
           });
         } else {
@@ -311,4 +329,29 @@ program
     require('jest-cli/build/cli').run();
   });
 
-program.parse(process.argv);
+// Check engines, then process args
+const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
+checkVersion(engines, (err, results) => {
+  if (err) {
+    cliLogging.break();
+    cliLogging.error(err);
+    process.exit(1);
+  }
+
+  if (results.isSatisfied) {
+    program.parse(process.argv);
+    return;
+  }
+
+  for (const packageName of Object.keys(results.versions)) {
+    if (!results.versions[packageName].isSatisfied) {
+      let required = engines[packageName];
+      cliLogging.break();
+      cliLogging.error(`Incorrect version of ${packageName}.`);
+      cliLogging.error(`${packageName} ${required} is required.`);
+    }
+  }
+
+  cliLogging.break();
+  process.exit(1);
+});

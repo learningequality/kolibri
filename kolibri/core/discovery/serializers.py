@@ -11,15 +11,36 @@ from .utils.network.client import NetworkClient
 
 
 class NetworkLocationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = NetworkLocation
-        fields = ('id', 'available', 'base_url', 'device_name', 'instance_id', 'added', 'last_accessed', 'operating_system', 'application', 'kolibri_version')
-        read_only_fields = ('available', 'instance_id', 'added', 'last_accessed', 'operating_system', 'application', 'kolibri_version')
+        fields = (
+            "id",
+            "available",
+            "base_url",
+            "device_name",
+            "instance_id",
+            "added",
+            "last_accessed",
+            "operating_system",
+            "application",
+            "kolibri_version",
+        )
+        read_only_fields = (
+            "available",
+            "instance_id",
+            "added",
+            "last_accessed",
+            "operating_system",
+            "application",
+            "kolibri_version",
+        )
 
     def validate_base_url(self, value):
         try:
             client = NetworkClient(address=value)
         except errors.NetworkError as e:
-            raise ValidationError("Error with address {} ({})".format(value, e.__class__.__name__), code=e.code)
+            raise ValidationError(
+                "Error with address {} ({})".format(value, e.__class__.__name__),
+                code=e.code,
+            )
         return client.base_url

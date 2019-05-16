@@ -26,13 +26,13 @@
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      signOut: 'Sign out',
-    },
     computed: {
       url() {
         return urls['kolibri:core:logout']();
       },
+    },
+    $trs: {
+      signOut: 'Sign out',
     },
     role: UserKinds.LEARNER,
     priority: 100,

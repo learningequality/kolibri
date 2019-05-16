@@ -26,7 +26,7 @@ describe('AssignmentDeleteModal', () => {
     // Again, clicking the submit button does not propagate to form, so doing a hack
     // els.submitButton().trigger('click');
     els.form().trigger('submit');
-    expect(wrapper.emitted().delete.length).toEqual(1);
+    expect(wrapper.emitted().submit.length).toEqual(1);
   });
 
   it('clicking cancel causes a "cancel" event to be emitted', () => {

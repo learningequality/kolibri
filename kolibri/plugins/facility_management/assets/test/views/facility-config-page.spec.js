@@ -6,7 +6,7 @@ function makeWrapper(propsData = {}) {
   const store = makeStore();
   store.commit('facilityConfig/SET_STATE', {
     settings: {
-      learnerCanEditUsername: false,
+      learner_can_edit_username: false,
     },
   });
   return mount(ConfigPage, { propsData, store });
@@ -35,19 +35,38 @@ describe('facility config page view', () => {
     expect(!confirmResetModal().exists()).toEqual(true);
   }
 
+  it('has all of the settings', () => {
+    const wrapper = makeWrapper();
+    const checkboxes = wrapper.findAll({ name: 'KCheckbox' });
+    expect(checkboxes.length).toEqual(7);
+    const labels = [
+      'Allow learners and coaches to edit their username',
+      'Allow learners and coaches to change their password when signed in',
+      'Allow learners and coaches to edit their full name',
+      'Allow learners to create accounts',
+      'Allow learners to sign in with no password',
+      "Show 'download' button with content",
+      'Allow users to access content without signing in',
+    ];
+    labels.forEach((label, idx) => {
+      expect(checkboxes.at(idx).props().label).toEqual(label);
+    });
+  });
+
   it('clicking checkboxes dispatches a modify action', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    expect(wrapper.vm.$store.state.facilityConfig.settings.learnerCanEditUsername).toEqual(true);
+    expect(wrapper.vm.$store.state.facilityConfig.settings.learner_can_edit_username).toEqual(true);
   });
 
   it('clicking save button dispatches a save action', async () => {
     const wrapper = makeWrapper();
-    const { mock } = (wrapper.vm.saveFacilityConfig = jest.fn().mockResolvedValue());
+    const mock = (wrapper.vm.$store.dispatch = jest.fn().mockResolvedValue());
     const { saveButton } = getElements(wrapper);
     saveButton().trigger('click');
-    expect(mock.calls).toHaveLength(1);
+    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledWith('facilityConfig/saveFacilityConfig');
   });
 
   it('clicking reset button brings up the confirmation modal', () => {
@@ -71,11 +90,12 @@ describe('facility config page view', () => {
   it('confirming reset calls the reset action and closes modal', () => {
     const wrapper = makeWrapper();
     const { resetButton, confirmResetModal } = getElements(wrapper);
-    const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn().mockResolvedValue());
+    const mock = (wrapper.vm.$store.dispatch = jest.fn().mockResolvedValue());
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');
-    expect(mock.calls).toHaveLength(1);
+    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
     assertModalIsDown(wrapper);
   });
   // not tested: notifications

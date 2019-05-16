@@ -5,7 +5,6 @@ from ..tasks import AsyncNotificationQueue
 
 
 class TaskQueueTest(TestCase):
-
     def test_run_queue_executes_running(self):
         log_queue = AsyncNotificationQueue()
         fn = MagicMock()
@@ -24,7 +23,8 @@ class TaskQueueTest(TestCase):
         log_queue = AsyncNotificationQueue()
 
         def exception_fn():
-            raise Exception('Just because!')
+            raise Exception("Just because!")
+
         log_queue.running.append(exception_fn)
         fn = MagicMock()
         log_queue.running.append(fn)

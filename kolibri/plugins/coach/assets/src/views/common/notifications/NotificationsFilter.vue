@@ -32,21 +32,6 @@
   export default {
     name: 'NotificationsFilter',
     mixins: [commonCoach],
-    $trs: {
-      allLabel: 'All',
-      appsLabel: 'Apps',
-      audioLabel: 'Audio',
-      bookLabel: 'Book',
-      eventTypeLabel: 'Event type',
-      dateLabel: 'Date',
-      documentsLabel: 'Documents',
-      exercisesLabel: 'Exercises',
-      needsHelpOnlyToggle: "Show only 'Needs help'",
-      progressTypeLabel: 'Progress type',
-      resourceTypeLabel: 'Resource type',
-      typeLabel: 'Type',
-      videosLabel: 'Videos',
-    },
     props: {
       enabledFilters: {
         type: Object,
@@ -138,6 +123,21 @@
       progressIsDisabled(value) {
         return !this.enabledFilters.progress.includes(value);
       },
+    },
+    $trs: {
+      allLabel: 'All',
+      appsLabel: 'Apps',
+      audioLabel: 'Audio',
+      bookLabel: 'Book',
+      eventTypeLabel: 'Event type',
+      dateLabel: 'Date',
+      documentsLabel: 'Documents',
+      exercisesLabel: 'Exercises',
+      needsHelpOnlyToggle: "Show only 'Needs help'",
+      progressTypeLabel: 'Progress type',
+      resourceTypeLabel: 'Resource type',
+      typeLabel: 'Type',
+      videosLabel: 'Videos',
     },
   };
 

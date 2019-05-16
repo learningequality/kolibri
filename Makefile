@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
 
 help:
 	@echo "Usage:"
@@ -37,6 +37,8 @@ help:
 	@echo ""
 	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
 	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
+	@echo "i18n-pretranslate branch=<crowdin-branch>: pretranslate on Crowdin"
+	@echo "i18n-pretranslate-approve branch=<crowdin-branch>: pretranslate and pre-approve on Crowdin"
 	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
 	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
 	@echo "i18n-regenerate-fonts: regenerate font files"
@@ -60,7 +62,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	rm -r kolibri/dist/* || true # remove everything
+	rm -f SQLITE_MAX_VARIABLE_NUMBER.cache
+	rm -fr kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
@@ -179,14 +182,19 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 i18n-upload: i18n-extract
-	python build_tools/i18n/crowdin.py upload ${branch}
-	python build_tools/i18n/crowdin.py pre-translate ${branch}
-	python build_tools/i18n/crowdin.py stats ${branch}
+	python build_tools/i18n/crowdin.py upload-sources ${branch}
+	python build_tools/i18n/crowdin.py upload-translations ${branch}
+
+i18n-pretranslate:
+	python build_tools/i18n/crowdin.py pretranslate ${branch}
+
+i18n-pretranslate-approve-all:
+	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
-	yarn run generate-locale-data
+	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
 
 i18n-download-source-fonts:
@@ -210,7 +218,11 @@ docker-clean:
 
 docker-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
+	docker run \
+		--env-file ./docker/env.list \
+		-v $$PWD/dist:/kolibridist \
+		-v yarn_cache:/yarn_cache \
+		"learningequality/kolibri-whl"
 
 docker-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"

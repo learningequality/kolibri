@@ -47,12 +47,12 @@ const filterableUserKinds = [
 describe('side nav component', () => {
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
-    expect(wrapper.html()).toMatchSnapshot();
+    expect(wrapper.find('.side-nav').isVisible()).toBe(false);
   });
   it('should show nothing if no components are added and user is not logged in', () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
-    expect(wrapper.html()).toMatchSnapshot();
+    expect(wrapper.contains('a.ui-menu-option:not(.is-divider)')).toBe(false);
   });
   it('should show logout if no components are added and user is logged in', () => {
     expect(navComponents).toHaveLength(0);

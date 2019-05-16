@@ -159,7 +159,10 @@ export function createTranslator(nameSpace, defaultMessages) {
 
 /**
  * Returns a Translator instance that can grab strings from another component.
- * Use sparingly, e.g. to bypass string freeze. Try to remove post-string-freeze.
+ * WARNINGS:
+ *  - Cannot be used across plugin boundaries
+ *  - Use sparingly, e.g. to bypass string freeze
+ *  - Try to remove post-string-freeze
  * @param {Component} Component - An imported component.
  */
 export function crossComponentTranslator(Component) {

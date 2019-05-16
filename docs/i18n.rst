@@ -121,6 +121,8 @@ Note that you have to specify branch names for most commands.
 
 .. note:: These notes are only for the Kolibri application. For translation of user documentation, please see the `kolibri-docs repository <https://github.com/learningequality/kolibri-docs/>`__.
 
+.. note:: The Kolibri Crowdin workflow relies on the project having the "Duplicate strings" setting set to "Show – translators will translate each instance separately". If this is not set, the workflow will not function as expected!
+
 
 Prerequisites
 ~~~~~~~~~~~~~
@@ -131,27 +133,29 @@ First, you'll need to have GNU ``gettext`` available on your path. You may be ab
 
 Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
 
+Finally, you'll need to install the Perseus Plugin (``kolibri_exercise_perseus_plugin`` Python package) in development mode. This is done by `checking out the repo <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ and then installing it to Kolibri by running:
 
-.. _i18n-perseus:
+.. code-block:: bash
 
-Updating the Perseus plugin
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  pip install -e [local_path_to_perseus_repo]
 
-The `perseus exercise plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__ has its own translated files that also need to be updated.
-
-To do this, you'll need to install the Perseus Plugin in development mode (using ``pip install -e``). This will allow the scripts to properly upload sources and download translations from and to the Perseus plugin, which may then need to be released.
+This will allow the scripts to properly upload sources and download translations from and to the Perseus plugin, which may then need to be released if any strings have changed or if new languages were added.
 
 See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ for more information on setup and publication.
 
+When uploading or downloading strings, ensure that your Perseus repo is in a clean checkout state with the correct Perseus branch.
 
-Exporting and uploading
-~~~~~~~~~~~~~~~~~~~~~~~
 
-Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases.
+Extracting and uploading sources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases. (See :ref:`release_process`.)
 
 Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`__.
 
-This command will extract front- and backend strings and upload them to Crowdin:
+.. warning:: You *must* have the Perseus plugin installed for development as described above, or not all strings will be extracted!
+
+This command will extract front- and backend strings and upload them to Crowdin, and may take a while:
 
 .. code-block:: bash
 
@@ -159,7 +163,26 @@ This command will extract front- and backend strings and upload them to Crowdin:
 
 The branch name will typically look something like: ``release-v0.8.x``
 
-After uploading, this will also apply 'pre-translation' (which can take some time). This copies over translations for strings that have the same text but different IDs.
+Pre-translation
+~~~~~~~~~~~~~~~
+
+After running the ``i18n-upload`` command above, the newly created branch should have some percentage of strings in supported languages shown as both translated and approved. These strings are the *exact* matches from the previous release, meaning that both the string IDs and the English text is exactly the same.
+
+At this point, it is often desirable to apply some form of pre-translation to the remaining strings using Crowdin's "translation memory" functionality. There are two ways to do this: with and without auto-approval.
+
+To run pre-translation without auto-approval **(recommended)**:
+
+.. code-block:: bash
+
+  make i18n-pretranslate branch=[release-branch-name]
+
+Or to run pre-translation with auto-approval:
+
+.. code-block:: bash
+
+  make i18n-pretranslate-approve-all branch=[release-branch-name]
+
+.. warning:: The exact behavior of Crowdin's translation memory is not specified. Given some English phrase, it is not always possible to predict what suggested translation it will make. Therefore, auto-approval be used with caution.
 
 
 Displaying stats
@@ -197,10 +220,12 @@ This will give you some output like this:
 This information can be provided to translators; it's also available on the Crowdin website.
 
 
-Updating i18n files
-~~~~~~~~~~~~~~~~~~~
+Downloading translations to Kolibri
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before fetching and building the internationalization files, you need to download source fonts from Google. In order to do this, run:
+As translators work on Crowdin, we will periodically retrieve the latest updates and commit them to Kolibri's codebase. In the process, we'll also update the custom fonts that are generated based on the translated application text.
+
+First, you need to download source fonts from Google. In order to do this, run:
 
 .. code-block:: bash
 
@@ -222,7 +247,7 @@ This will do a number of things for you:
 
 Check in all the updated files to git and submit them in a PR to the release branch.
 
-.. note:: This may also require submitting a separate PR for the Perseus plugin, releasing a new version of it, and referencing the new version in Kolibri's base.txt Pip requirements file.
+.. note:: Remember about Perseus! Check if files in that repo have changed too, and submit a separate PR. It will be necessary to release a new version and referencing it in Kolibri's ``base.txt`` requirements file.
 
 
 .. _new_language:

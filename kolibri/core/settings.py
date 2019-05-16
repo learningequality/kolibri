@@ -17,15 +17,9 @@ from django.conf import settings
 #: Kolibri. After that, they are not searched for automatically since that would
 #: require explicitly disabling them in case they were to be removed on purpose
 #: from INSTALLED_APPS.
-DEFAULT_PLUGINS = getattr(
-    settings,
-    'KOLIBRI_DEFAULT_PLUGINS',
-    []
-)
+DEFAULT_PLUGINS = getattr(settings, "KOLIBRI_DEFAULT_PLUGINS", [])
 
 #: Skips automatically migrating the database when running kolibri commands
 SKIP_AUTO_DATABASE_MIGRATION = getattr(
-    settings,
-    'KOLIBRI_SKIP_AUTO_DATABASE_MIGRATION',
-    False
+    settings, "KOLIBRI_SKIP_AUTO_DATABASE_MIGRATION", False
 )

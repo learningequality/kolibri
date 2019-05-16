@@ -1,7 +1,9 @@
 <template>
 
   <div class="wrapper">
-    <div id="progress-bar-label" class="visuallyhidden">{{ $tr('label') }}</div>
+    <div id="progress-bar-label" class="visuallyhidden">
+      {{ $tr('label') }}
+    </div>
     <div
       class="progress-bar-wrapper"
       :style="{ backgroundColor: $coreGrey }"
@@ -20,7 +22,9 @@
       >
       </div>
     </div>
-    <div v-if="showPercentage" class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
+    <div v-if="showPercentage" class="progress-bar-text">
+      {{ $tr('pct', [progress]) }}
+    </div>
   </div>
 
 </template>
@@ -32,10 +36,6 @@
 
   export default {
     name: 'ProgressBar',
-    $trs: {
-      label: 'Progress',
-      pct: '{0, number, percent}',
-    },
     mixins: [themeMixin],
     props: {
       progress: {
@@ -56,6 +56,10 @@
       percent() {
         return Math.max(Math.min(this.progress * 100, 100), 0);
       },
+    },
+    $trs: {
+      label: 'Progress',
+      pct: '{0, number, percent}',
     },
   };
 

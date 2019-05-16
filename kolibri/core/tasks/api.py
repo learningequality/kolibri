@@ -1,19 +1,20 @@
 import os
+import time
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
-from iceqube.common.classes import State
+from iceqube.classes import State
+from iceqube.exceptions import JobNotFound
 from iceqube.exceptions import UserCancelledError
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from six import string_types
-from sqlalchemy.orm.exc import NoResultFound
 
-from .client import get_client
+from .queue import get_queue
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
@@ -40,7 +41,7 @@ class TasksViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
 
     def list(self, request):
-        jobs_response = [_job_to_response(j) for j in get_client().all_jobs()]
+        jobs_response = [_job_to_response(j) for j in get_queue().jobs]
 
         return Response(jobs_response)
 
@@ -50,10 +51,10 @@ class TasksViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
-            task = _job_to_response(get_client().status(pk))
+            task = _job_to_response(get_queue().fetch_job(pk))
             return Response(task)
-        except NoResultFound:
-            raise Http404('Task with {pk} not found'.format(pk=pk))
+        except JobNotFound:
+            raise Http404("Task with {pk} not found".format(pk=pk))
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
@@ -67,14 +68,13 @@ class TasksViewSet(viewsets.ViewSet):
         except KeyError:
             raise serializers.ValidationError("The channel_id field is required.")
 
-        baseurl = request.data.get("baseurl", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
+        baseurl = request.data.get(
+            "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        )
 
-        job_metadata = {
-            "type": "REMOTECHANNELIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "REMOTECHANNELIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "network",
@@ -83,7 +83,7 @@ class TasksViewSet(viewsets.ViewSet):
             extra_metadata=job_metadata,
             cancellable=True,
         )
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
@@ -96,7 +96,9 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The channel_id field is required.")
 
         # optional arguments
-        baseurl = request.data.get("baseurl", conf.OPTIONS['Urls']['CENTRAL_CONTENT_BASE_URL'])
+        baseurl = request.data.get(
+            "baseurl", conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+        )
         node_ids = request.data.get("node_ids", None)
         exclude_node_ids = request.data.get("exclude_node_ids", None)
 
@@ -106,12 +108,9 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {
-            "type": "REMOTECONTENTIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "REMOTECONTENTIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "network",
@@ -124,7 +123,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
@@ -146,14 +145,13 @@ class TasksViewSet(viewsets.ViewSet):
             drives = get_mounted_drives_with_channel_info()
             drive = drives[drive_id]
         except KeyError:
-            raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+            raise serializers.ValidationError(
+                "That drive_id was not found in the list of drives."
+            )
 
-        job_metadata = {
-            "type": "DISKCHANNELIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "DISKCHANNELIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importchannel",
             "disk",
@@ -163,7 +161,7 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
         return Response(resp)
 
     @list_route(methods=["post"])
@@ -183,7 +181,9 @@ class TasksViewSet(viewsets.ViewSet):
             drives = get_mounted_drives_with_channel_info()
             drive = drives[drive_id]
         except KeyError:
-            raise serializers.ValidationError("That drive_id was not found in the list of drives.")
+            raise serializers.ValidationError(
+                "That drive_id was not found in the list of drives."
+            )
 
         # optional arguments
         node_ids = request.data.get("node_ids", None)
@@ -195,12 +195,9 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {
-            "type": "DISKCONTENTIMPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "DISKCONTENTIMPORT", "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "importcontent",
             "disk",
@@ -213,28 +210,24 @@ class TasksViewSet(viewsets.ViewSet):
             cancellable=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
-    @list_route(methods=['post'])
+    @list_route(methods=["post"])
     def startdeletechannel(self, request):
-        '''
+        """
         Delete a channel and all its associated content from the server
-        '''
+        """
 
         if "channel_id" not in request.data:
-            raise serializers.ValidationError(
-                "The 'channel_id' field is required.")
+            raise serializers.ValidationError("The 'channel_id' field is required.")
 
-        channel_id = request.data['channel_id']
+        channel_id = request.data["channel_id"]
 
-        job_metadata = {
-            "type": "DELETECHANNEL",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "DELETECHANNEL", "started_by": request.user.pk}
 
-        task_id = get_client().schedule(
+        task_id = get_queue().enqueue(
             call_command,
             "deletechannel",
             channel_id,
@@ -243,16 +236,16 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
+        resp = _job_to_response(get_queue().fetch_job(task_id))
 
         return Response(resp)
 
-    @list_route(methods=['post'])
+    @list_route(methods=["post"])
     def startdiskexport(self, request):
-        '''
+        """
         Export a channel to a local drive, and copy content to the drive.
 
-        '''
+        """
 
         # Load the required parameters
         try:
@@ -275,12 +268,9 @@ class TasksViewSet(viewsets.ViewSet):
         if exclude_node_ids and not isinstance(exclude_node_ids, list):
             raise serializers.ValidationError("exclude_node_ids must be a list.")
 
-        job_metadata = {
-            "type": "DISKEXPORT",
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": "DISKEXPORT", "started_by": request.user.pk}
 
-        task_id = get_client().schedule(
+        task_id = get_queue().enqueue(
             _localexport,
             channel_id,
             drive_id,
@@ -292,47 +282,55 @@ class TasksViewSet(viewsets.ViewSet):
         )
 
         # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(get_client().status(task_id))
+        resp = _job_to_response(get_queue().fetch_job(task_id))
 
         return Response(resp)
 
-    @list_route(methods=['post'])
+    @list_route(methods=["post"])
     def canceltask(self, request):
-        '''
+        """
         Cancel a task with its task id given in the task_id parameter.
-        '''
+        """
 
-        if 'task_id' not in request.data:
-            raise serializers.ValidationError(
-                "The 'task_id' field is required.")
-        if not isinstance(request.data['task_id'], string_types):
-            raise serializers.ValidationError(
-                "The 'task_id' should be a string.")
+        if "task_id" not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+        if not isinstance(request.data["task_id"], string_types):
+            raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
-            get_client().cancel(request.data['task_id'])
-        except NoResultFound:
+            get_queue().cancel(request.data["task_id"])
+            waiting_time = 0
+            job = get_queue().fetch_job(request.data["task_id"])
+            interval = 0.1
+            while job.state != State.CANCELED or waiting_time < 5.0:
+                time.sleep(interval)
+                waiting_time += interval
+                job = get_queue().fetch_job(request.data["task_id"])
+            if job.state != State.CANCELED:
+                return Response(status=408)
+            get_queue().clear_job(request.data["task_id"])
+        except JobNotFound:
             pass
-        get_client().clear(force=True)
+
         return Response({})
 
-    @list_route(methods=['post'])
+    @list_route(methods=["post"])
     def cleartasks(self, request):
-        '''
+        """
         Cancels all running tasks.
-        '''
+        """
 
-        get_client().clear(force=True)
+        get_queue().empty()
         return Response({})
 
-    @list_route(methods=['post'])
+    @list_route(methods=["post"])
     def deletefinishedtasks(self, request):
-        '''
-        Delete all tasks that have succeeded or failed.
-        '''
-        get_client().clear()
+        """
+        Delete all tasks that have succeeded, failed, or been cancelled.
+        """
+        get_queue().clear()
         return Response({})
 
-    @list_route(methods=['get'])
+    @list_route(methods=["get"])
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
 
@@ -344,35 +342,36 @@ class TasksViewSet(viewsets.ViewSet):
 
     @list_route(methods=["post"])
     def startexportlogcsv(self, request):
-        '''
+        """
         Dumps in csv format the required logs.
         By default it will be dump contentsummarylog.
 
         :param: logtype: Kind of log to dump, summary or session
         :returns: An object with the job information
 
-        '''
+        """
         csv_export_filenames = {
-            'session': 'content_session_logs.csv',
-            'summary': 'content_summary_logs.csv'
+            "session": "content_session_logs.csv",
+            "summary": "content_summary_logs.csv",
         }
-        log_type = request.data.get('logtype', 'summary')
+        log_type = request.data.get("logtype", "summary")
         if log_type in csv_export_filenames.keys():
-            logs_dir = os.path.join(conf.KOLIBRI_HOME, 'log_export')
+            logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
             filepath = os.path.join(logs_dir, csv_export_filenames[log_type])
         else:
-            raise Http404('Impossible to create a csv export file for {}'.format(log_type))
+            raise Http404(
+                "Impossible to create a csv export file for {}".format(log_type)
+            )
         if not os.path.isdir(logs_dir):
             os.mkdir(logs_dir)
 
-        job_type = "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
+        job_type = (
+            "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
+        )
 
-        job_metadata = {
-            "type": job_type,
-            "started_by": request.user.pk,
-        }
+        job_metadata = {"type": job_type, "started_by": request.user.pk}
 
-        job_id = get_client().schedule(
+        job_id = get_queue().enqueue(
             call_command,
             "exportlogs",
             log_type=log_type,
@@ -382,13 +381,20 @@ class TasksViewSet(viewsets.ViewSet):
             track_progress=True,
         )
 
-        resp = _job_to_response(get_client().status(job_id))
+        resp = _job_to_response(get_queue().fetch_job(job_id))
 
         return Response(resp)
 
 
-def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=None, node_ids=None, exclude_node_ids=None,
-                 extra_metadata=None):
+def _localexport(
+    channel_id,
+    drive_id,
+    update_progress=None,
+    check_for_cancel=None,
+    node_ids=None,
+    exclude_node_ids=None,
+    extra_metadata=None,
+):
     drives = get_mounted_drives_with_channel_info()
     drive = drives[drive_id]
 
@@ -397,7 +403,8 @@ def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=No
         channel_id,
         drive.datafolder,
         update_progress=update_progress,
-        check_for_cancel=check_for_cancel)
+        check_for_cancel=check_for_cancel,
+    )
     try:
         call_command(
             "exportcontent",
@@ -406,10 +413,13 @@ def _localexport(channel_id, drive_id, update_progress=None, check_for_cancel=No
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             update_progress=update_progress,
-            check_for_cancel=check_for_cancel)
+            check_for_cancel=check_for_cancel,
+        )
     except UserCancelledError:
         try:
-            os.remove(get_content_database_file_path(channel_id, datafolder=drive.datafolder))
+            os.remove(
+                get_content_database_file_path(channel_id, datafolder=drive.datafolder)
+            )
         except OSError:
             pass
         raise

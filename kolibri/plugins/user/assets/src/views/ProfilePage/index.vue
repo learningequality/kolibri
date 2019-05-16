@@ -1,10 +1,10 @@
 <template>
 
-  <div class="content">
+  <KPageContainer class="content">
 
     <section>
       <h2>{{ $tr('points') }}</h2>
-      <PointsIcon class="points-icon" :active="true" />
+      <PointsIcon class="points-icon" />
       <span class="points-num" :style="{ color: $coreStatusCorrect }">
         {{ $formatNumber(totalPoints) }}
       </span>
@@ -32,7 +32,9 @@
       <p>
         {{ $tr('youCan') }}
         <ul class="permissions-list">
-          <li v-if="isSuperuser">{{ $tr('manageDevicePermissions') }}</li>
+          <li v-if="isSuperuser">
+            {{ $tr('manageDevicePermissions') }}
+          </li>
           <li v-for="(value, key) in userPermissions" :key="key">
             {{ getPermissionString(key) }}
           </li>
@@ -110,7 +112,7 @@
       v-if="passwordModalVisible"
       @cancel="setPasswordModalVisible(false)"
     />
-  </div>
+  </KPageContainer>
 
 </template>
 
@@ -127,6 +129,7 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
@@ -139,25 +142,6 @@
 
   export default {
     name: 'ProfilePage',
-    $trs: {
-      success: 'Profile details updated',
-      username: 'Username',
-      name: 'Full name',
-      updateProfile: 'Save changes',
-      isSuperuser: 'Super admin permissions ',
-      manageContent: 'Manage content',
-      manageDevicePermissions: 'Manage device permissions',
-      points: 'Points',
-      userType: 'User type',
-      devicePermissions: 'Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      required: 'This field is required',
-      limitedPermissions: 'Limited permissions',
-      youCan: 'You can',
-      changePasswordPrompt: 'Change password',
-      usernameAlreadyExists: 'An account with that username already exists',
-      documentTitle: 'User Profile',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -167,6 +151,7 @@
       KButton,
       KTextbox,
       KLabeledIcon,
+      KPageContainer,
       UiAlert,
       PointsIcon,
       PermissionsIcon,
@@ -175,9 +160,10 @@
     },
     mixins: [responsiveWindow, themeMixin],
     data() {
+      const { username, full_name } = this.$store.state.core.session;
       return {
-        username: this.$store.state.core.session.username,
-        name: this.$store.state.core.session.full_name,
+        username: username,
+        name: full_name,
         usernameBlurred: false,
         nameBlurred: false,
         formSubmitted: false,
@@ -197,7 +183,7 @@
       ...mapState({
         session: state => state.core.session,
       }),
-      ...mapState('profile', ['busy', 'errorCode', 'passwordState', 'success']),
+      ...mapState('profile', ['busy', 'passwordState', 'success']),
       ...mapState('profile', {
         profileErrors: 'errors',
       }),
@@ -234,18 +220,18 @@
       },
       canEditUsername() {
         if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learnerCanEditUsername;
+          return this.facilityConfig.learner_can_edit_username;
         }
         return true;
       },
       canEditName() {
         if (this.isCoach || this.isLearner) {
-          return this.facilityConfig.learnerCanEditName;
+          return this.facilityConfig.learner_can_edit_name;
         }
         return true;
       },
       canEditPassword() {
-        return this.isSuperuser || this.facilityConfig.learnerCanEditPassword;
+        return this.isSuperuser || this.facilityConfig.learner_can_edit_password;
       },
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
@@ -318,6 +304,25 @@
         return permission;
       },
     },
+    $trs: {
+      success: 'Profile details updated',
+      username: 'Username',
+      name: 'Full name',
+      updateProfile: 'Save changes',
+      isSuperuser: 'Super admin permissions ',
+      manageContent: 'Manage content',
+      manageDevicePermissions: 'Manage device permissions',
+      points: 'Points',
+      userType: 'User type',
+      devicePermissions: 'Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      required: 'This field is required',
+      limitedPermissions: 'Limited permissions',
+      youCan: 'You can',
+      changePasswordPrompt: 'Change password',
+      usernameAlreadyExists: 'An account with that username already exists',
+      documentTitle: 'User Profile',
+    },
   };
 
 </script>
@@ -325,13 +330,8 @@
 
 <style lang="scss" scoped>
 
-  // taken from docs, assumes 1rem = 16px
-  $vertical-page-margin: 50px;
-  $iphone-width: 320px;
-
   .content {
-    width: $iphone-width - 20px;
-    padding-top: $vertical-page-margin;
+    max-width: 500px;
     margin-right: auto;
     margin-left: auto;
   }

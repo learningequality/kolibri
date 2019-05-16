@@ -5,7 +5,7 @@ import Cookie from './cookie';
 import { events, nameSpace } from './hashiBase';
 import patchXMLHttpRequest from './monkeyPatchXMLHttpRequest';
 import patchCrossOrigin from './monkeyPatchCORSMediaElements';
-import loadCurrentPage from './loadCurrentPage';
+import { executePage } from './replaceScript';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -16,6 +16,10 @@ import loadCurrentPage from './loadCurrentPage';
  */
 export default class SandboxEnvironment {
   constructor() {
+    if (window.name !== nameSpace) {
+      throw new ReferenceError('Running Hashi outside of a managed iframe');
+    }
+
     // Initialize the Mediator to listen to send messages on the parent of
     // this window (i.e. the iframe parent)
     this.mediator = new Mediator(window.parent);
@@ -23,21 +27,15 @@ export default class SandboxEnvironment {
     this.localStorage = new LocalStorage(this.mediator);
 
     // Initialize the local storage
-    try {
-      this.localStorage.iframeInitialize();
-    } catch (e) {} // eslint-disable-line no-empty
+    this.localStorage.iframeInitialize();
 
     this.sessionStorage = new SessionStorage(this.mediator);
 
-    try {
-      this.sessionStorage.iframeInitialize();
-    } catch (e) {} // eslint-disable-line no-empty
+    this.sessionStorage.iframeInitialize();
 
     this.cookie = new Cookie(this.mediator);
 
-    try {
-      this.cookie.iframeInitialize();
-    } catch (e) {} // eslint-disable-line no-empty
+    this.cookie.iframeInitialize();
 
     patchXMLHttpRequest();
 
@@ -46,7 +44,11 @@ export default class SandboxEnvironment {
     this.mediator.registerMessageHandler({
       nameSpace,
       event: events.READY,
-      callback: loadCurrentPage,
+      // Get all script tags that have been wrapped in templates
+      // by the backend, and then execute them in order.
+      // This causes any script execution to be deferred until Hashi has
+      // initalized the local environment.
+      callback: executePage,
     });
 
     // Send a ready message in case the outer Hashi has already initialized

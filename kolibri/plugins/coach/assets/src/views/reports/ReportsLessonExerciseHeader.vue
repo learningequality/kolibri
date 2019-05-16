@@ -2,27 +2,26 @@
 
   <div>
 
-    <p>
-      <BackLink
-        :to="classRoute('ReportsLessonReportPage')"
-        :text="$tr('back', { lesson: lesson.title })"
-      />
-    </p>
-    <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" exercise />
-        {{ exercise.title }}
-      </KLabeledIcon>
-    </h1>
-
-    <!-- TODO COACH
-    <p>{{ exercise.description }}</p>
-    <p>
-      {{ coachStrings.$tr('masteryModelLabel') }}
-      <MasteryModel model="num_correct_in_a_row_5" />
-    </p>
-    <KButton :text="coachStrings.$tr('previewAction')" />
-     -->
+    <section>
+      <BackLinkWithOptions>
+        <BackLink
+          slot="backlink"
+          :to="classRoute('ReportsLessonReportPage')"
+          :text="$tr('back', { lesson: lesson.title })"
+        />
+        <KButton
+          slot="options"
+          :text="coachStrings.$tr('previewAction')"
+          @click="$emit('previewClick')"
+        />
+      </BackLinkWithOptions>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" exercise />
+          {{ exercise.title }}
+        </KLabeledIcon>
+      </h1>
+    </section>
 
     <HeaderTabs>
       <HeaderTab
@@ -43,14 +42,14 @@
 <script>
 
   import commonCoach from '../common';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsLessonExerciseHeader',
-    components: {},
-    mixins: [commonCoach],
-    $trs: {
-      back: "Back to '{lesson}'",
+    components: {
+      BackLinkWithOptions,
     },
+    mixins: [commonCoach],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -58,6 +57,9 @@
       exercise() {
         return this.contentMap[this.$route.params.exerciseId];
       },
+    },
+    $trs: {
+      back: "Back to '{lesson}'",
     },
   };
 

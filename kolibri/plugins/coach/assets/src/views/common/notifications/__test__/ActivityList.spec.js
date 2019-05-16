@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import makeStore from '../../../../../test/makeStore';
 import ActivityList from '../ActivityList';
 import notificationsResource from '../../../../apiResources/notifications';
+import { LastPages } from '../../../../constants/lastPagesConstants';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -215,7 +216,7 @@ describe('ActivityList component', () => {
     });
     await reloadNotifications();
     expect(notificationCard().props().targetPage.query).toEqual({
-      last: 'homeactivity',
+      last: LastPages.HOME_ACTIVITY,
     });
 
     // Embed in Learner Activity Page
@@ -224,7 +225,7 @@ describe('ActivityList component', () => {
     });
     await reloadNotifications();
     expect(notificationCard().props().targetPage.query).toEqual({
-      last: 'learneractivity',
+      last: LastPages.LEARNER_ACTIVITY,
       last_id: 'learner_001',
     });
 
@@ -234,7 +235,7 @@ describe('ActivityList component', () => {
     });
     await reloadNotifications();
     expect(notificationCard().props().targetPage.query).toEqual({
-      last: 'groupactivity',
+      last: LastPages.GROUP_ACTIVITY,
       last_id: 'group_001',
     });
   });

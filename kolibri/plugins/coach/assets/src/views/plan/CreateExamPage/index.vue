@@ -24,7 +24,7 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ detailsString }}</h2>
+      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -43,8 +43,8 @@
             type="number"
             :min="1"
             :max="maxQs"
-            :invalidText="$tr('numQuestionsBetween')"
-            :invalid="numQuestionsInvalid"
+            :invalid="Boolean(showError && numQuestIsInvalidText)"
+            :invalidText="numQuestIsInvalidText"
             :label="$tr('numQuestions')"
             class="number-field"
             @blur="numQuestionsBlurred = true"
@@ -124,7 +124,7 @@
           :to="toolbarRoute"
         />
         <KButton
-          :text="$tr('continueButtonlabel')"
+          :text="coachStrings.$tr('continueAction')"
           primary
           @click="continueProcess"
         />
@@ -140,7 +140,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -158,11 +157,8 @@
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
-  import QuizDetailEditor from '../../common/QuizDetailEditor';
   import commonCoach from '../../common';
   import Bottom from './Bottom';
-
-  const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -182,31 +178,6 @@
       Bottom,
     },
     mixins: [responsiveWindow, commonCoach],
-    $trs: {
-      createNewExam: 'Create new quiz',
-      chooseExercises: 'Select topics or exercises',
-      title: 'Title',
-      duplicateTitle: 'A quiz with that name already exists',
-      numQuestions: 'Number of questions',
-      examRequiresTitle: 'This field is required',
-      numQuestionsBetween: 'Enter a number between 1 and 50',
-      numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
-      noneSelected: 'No exercises are selected',
-      preview: 'Preview',
-      continueButtonlabel: 'Continue',
-      // TODO: Interpolate strings correctly
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
-      exitSearchButtonLabel: 'Exit search',
-      // TODO: Handle singular/plural
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
-    },
     data() {
       return {
         showError: false,
@@ -222,25 +193,17 @@
     },
     computed: {
       ...mapState(['pageName', 'toolbarRoute']),
-      ...mapGetters({
-        channels: 'getChannels',
-      }),
       ...mapGetters('examCreation', ['numRemainingSearchResults']),
       ...mapState('examCreation', [
-        'title',
         'numberOfQuestions',
         'contentList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
         'ancestors',
-        'examsModalSet',
       ]),
       maxQs() {
         return MAX_QUESTIONS;
-      },
-      detailsString() {
-        return quizDetailStrings.$tr('details');
       },
       examTitle: {
         get() {
@@ -252,7 +215,7 @@
       },
       numQuestions: {
         get() {
-          return this.$store.state.examCreation.numberOfQuestions;
+          return this.numberOfQuestions;
         },
         set(value) {
           // If it is cleared out, then set vuex state to null so it can be caught during
@@ -347,11 +310,23 @@
         }
         return this.ancestors[this.ancestors.length - 1].description;
       },
-      numQuestionsInvalid() {
-        return (
-          this.numQuestionsBlurred &&
-          (this.numQuestions === null || this.numQuestions < 0 || this.numQuestions > this.maxQs)
-        );
+      numQuestIsInvalidText() {
+        if (this.numQuestions === '') {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions < 1 || this.numQuestions > 50) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (!Number.isInteger(this.numQuestions)) {
+          return this.$tr('numQuestionsBetween');
+        }
+        if (this.numQuestions > this.availableQuestions) {
+          return this.$tr('numQuestionsExceed', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: this.availableQuestions,
+          });
+        }
+        return null;
       },
     },
     watch: {
@@ -366,7 +341,6 @@
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
-        'setSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
       contentLink(content) {
@@ -517,6 +491,28 @@
         };
       },
     },
+    $trs: {
+      createNewExam: 'Create new quiz',
+      chooseExercises: 'Select topics or exercises',
+      title: 'Title',
+      numQuestions: 'Number of questions',
+      examRequiresTitle: 'This field is required',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsNotMet:
+        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
+      noneSelected: 'No exercises are selected',
+      // TODO: Interpolate strings correctly
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      selected: '{count, number, integer} total selected',
+      documentTitle: 'Create new quiz',
+      exitSearchButtonLabel: 'Exit search',
+      // TODO: Handle singular/plural
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} resources selected',
+    },
   };
 
 </script>
@@ -548,6 +544,7 @@
 
   .number-field {
     display: inline-block;
+    max-width: 250px;
     margin-right: 8px;
   }
 

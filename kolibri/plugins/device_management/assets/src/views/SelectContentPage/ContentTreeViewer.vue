@@ -61,7 +61,6 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
@@ -157,11 +156,6 @@
           !this.inExportMode
         );
       },
-      breadcrumbItems() {
-        const items = [...this.breadcrumbs];
-        delete last(items).link;
-        return items;
-      },
     },
     methods: {
       ...mapActions('manageContent/wizard', ['addNodeForTransfer', 'removeNodeForTransfer']),
@@ -212,6 +206,7 @@
     $trs: {
       selectAll: 'Select all',
       topicHasNoContents: 'This topic has no sub-topics or resources',
+      estimatedCounts: 'Estimated number of resources',
     },
   };
 

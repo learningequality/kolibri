@@ -6,9 +6,9 @@ from django.apps import AppConfig
 
 
 class KolibriAuthConfig(AppConfig):
-    name = 'kolibri.core.auth'
-    label = 'kolibriauth'
-    verbose_name = 'Kolibri Auth'
+    name = "kolibri.core.auth"
+    label = "kolibriauth"
+    verbose_name = "Kolibri Auth"
 
     def ready(self):
         from .signals import cascade_delete_membership  # noqa: F401

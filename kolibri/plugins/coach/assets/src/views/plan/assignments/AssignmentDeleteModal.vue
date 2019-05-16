@@ -2,13 +2,15 @@
 
   <KModal
     :title="modalTitle"
-    :submitText="$tr('delete')"
-    :cancelText="$tr('cancel')"
-    @submit="$emit('delete')"
-    @cancel="closeModal"
+    :submitText="coachStrings.$tr('deleteAction')"
+    :cancelText="coachStrings.$tr('cancelAction')"
+    @submit="$emit('submit')"
+    @cancel="$emit('cancel')"
   >
     <p>{{ modalDescription }}</p>
-    <p v-if="modalConfirmation">{{ modalConfirmation }}</p>
+    <p v-if="modalConfirmation">
+      {{ modalConfirmation }}
+    </p>
   </KModal>
 
 </template>
@@ -17,12 +19,14 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssignmentDeleteModal',
     components: {
       KModal,
     },
+    mixins: [coachStringsMixin],
     props: {
       modalTitle: {
         type: String,
@@ -36,15 +40,6 @@
         type: String,
         required: false,
       },
-    },
-    methods: {
-      closeModal() {
-        return this.$emit('cancel');
-      },
-    },
-    $trs: {
-      cancel: 'Cancel',
-      delete: 'Delete',
     },
   };
 

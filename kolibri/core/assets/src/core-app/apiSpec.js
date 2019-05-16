@@ -41,7 +41,6 @@ import KNavbar from '../views/KNavbar';
 import KNavbarLink from '../views/KNavbar/KNavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
-import ImmersiveFullScreen from '../views/ImmersiveFullScreen';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
@@ -101,6 +100,7 @@ import KCircularLoader from '../views/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
+import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
@@ -150,7 +150,6 @@ export default {
       KNavbar,
       KNavbarLink,
       LanguageSwitcherList,
-      ImmersiveFullScreen,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
@@ -217,6 +216,7 @@ export default {
     serverClock,
     i18n,
     navComponents,
+    coreBannerContent,
     samePageCheckGenerator,
     CatchErrors,
     UserType,

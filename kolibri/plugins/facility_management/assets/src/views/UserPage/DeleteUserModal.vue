@@ -22,22 +22,11 @@
 
   export default {
     name: 'DeleteUserModal',
-    $trs: {
-      deleteUser: 'Delete user',
-      confirmation: "Are you sure you want to delete the user '{ username }'?",
-      warning: 'All data and logs for this user will be lost.',
-      cancel: 'Cancel',
-      delete: 'Delete',
-    },
     components: {
       KModal,
     },
     props: {
       id: {
-        type: String,
-        required: true,
-      },
-      name: {
         type: String,
         required: true,
       },
@@ -60,6 +49,13 @@
       closeModal() {
         this.displayModal(false);
       },
+    },
+    $trs: {
+      deleteUser: 'Delete user',
+      confirmation: "Are you sure you want to delete the user '{ username }'?",
+      warning: 'All data and logs for this user will be lost.',
+      cancel: 'Cancel',
+      delete: 'Delete',
     },
   };
 

@@ -39,7 +39,7 @@ class ClassNotFoundError(Exception):
 
 def sqlite_connection_string(db_path):
     # Call normpath to ensure that Windows paths are properly formatted
-    return 'sqlite:///{db_path}'.format(db_path=os.path.normpath(db_path))
+    return "sqlite:///{db_path}".format(db_path=os.path.normpath(db_path))
 
 
 def get_engine(connection_string):
@@ -50,11 +50,15 @@ def get_engine(connection_string):
     engine = create_engine(
         connection_string,
         echo=False,
-        connect_args={'check_same_thread': False} if connection_string.startswith('sqlite') else {},
+        connect_args={"check_same_thread": False}
+        if connection_string.startswith("sqlite")
+        else {},
         poolclass=NullPool,
         convert_unicode=True,
     )
-    if connection_string == get_default_db_string() and connection_string.startswith('sqlite'):
+    if connection_string == get_default_db_string() and connection_string.startswith(
+        "sqlite"
+    ):
         event.listen(engine, "connect", set_sqlite_connection_pragma)
         connection = engine.connect()
         connection.execute(START_PRAGMAS)
@@ -86,7 +90,9 @@ def get_class(DjangoModel, Base):
         # Use the DjangoModel's _meta db_table attribute to look up the class
         return Base.classes[DjangoModel._meta.db_table]
     except KeyError:
-        raise ClassNotFoundError('No SQL Alchemy ORM Mapping for this Django model found in this database')
+        raise ClassNotFoundError(
+            "No SQL Alchemy ORM Mapping for this Django model found in this database"
+        )
 
 
 def set_all_class_defaults(Base):
@@ -123,21 +129,32 @@ def set_all_class_defaults(Base):
             pass
 
 
-SCHEMA_PATH_TEMPLATE = os.path.join(os.path.dirname(__file__), '../fixtures/{name}_content_schema')
+SCHEMA_PATH_TEMPLATE = os.path.join(
+    os.path.dirname(__file__), "../fixtures/{name}_content_schema"
+)
 
 
 def prepare_bases():
 
     for name in CONTENT_DB_SCHEMA_VERSIONS:
 
-        with open(SCHEMA_PATH_TEMPLATE.format(name=name), 'rb') as f:
+        with open(SCHEMA_PATH_TEMPLATE.format(name=name), "rb") as f:
             metadata = pickle.load(f)
         cascade_relationships = name == CONTENT_SCHEMA_VERSION
-        BASES[name] = prepare_base(metadata, cascade_relationships=cascade_relationships)
+        BASES[name] = prepare_base(
+            metadata, cascade_relationships=cascade_relationships
+        )
 
 
 def get_model_from_cls(cls):
-    return next((m for m in apps.get_models(include_auto_created=True) if m._meta.db_table == cls.__table__.name), None)
+    return next(
+        (
+            m
+            for m in apps.get_models(include_auto_created=True)
+            if m._meta.db_table == cls.__table__.name
+        ),
+        None,
+    )
 
 
 def get_field_from_model_by_column(model, column):
@@ -158,13 +175,16 @@ def prepare_base(metadata, cascade_relationships=False):
     # Calling Base.prepare() means that Base now has SQLALchemy ORM classes corresponding to
     # every database table that we need
 
-    def _gen_relationship(base, direction, return_fn,
-                          attrname, local_cls, referred_cls, **kw):
+    def _gen_relationship(
+        base, direction, return_fn, attrname, local_cls, referred_cls, **kw
+    ):
         if direction is interfaces.ONETOMANY:
-            kw['cascade'] = 'all, delete-orphan'
+            kw["cascade"] = "all, delete-orphan"
         # Add cascade behaviour on deletion
-        return generate_relationship(base, direction, return_fn,
-                                     attrname, local_cls, referred_cls, **kw)
+        return generate_relationship(
+            base, direction, return_fn, attrname, local_cls, referred_cls, **kw
+        )
+
     if cascade_relationships:
         Base.prepare(generate_relationship=_gen_relationship)
     else:
@@ -179,17 +199,17 @@ def get_default_db_string():
     Function to construct a SQLAlchemy database connection string from Django DATABASE settings
     for the default database
     """
-    destination_db = settings.DATABASES.get('default')
-    if 'sqlite' in destination_db['ENGINE']:
-        return sqlite_connection_string(destination_db['NAME'])
+    destination_db = settings.DATABASES.get("default")
+    if "sqlite" in destination_db["ENGINE"]:
+        return sqlite_connection_string(destination_db["NAME"])
     else:
-        return '{dialect}://{user}:{password}@{host}{port}/{dbname}'.format(
-            dialect=destination_db['ENGINE'].split('.')[-1],
-            user=destination_db['USER'],
-            password=destination_db['PASSWORD'],
-            host=destination_db.get('HOST', 'localhost'),
-            port=':' + destination_db.get('PORT') if destination_db.get('PORT') else '',
-            dbname=destination_db['NAME'],
+        return "{dialect}://{user}:{password}@{host}{port}/{dbname}".format(
+            dialect=destination_db["ENGINE"].split(".")[-1],
+            user=destination_db["USER"],
+            password=destination_db["PASSWORD"],
+            host=destination_db.get("HOST", "localhost"),
+            port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
+            dbname=destination_db["NAME"],
         )
 
 
@@ -198,7 +218,6 @@ class SchemaNotFoundError(Exception):
 
 
 class Bridge(object):
-
     def __init__(self, sqlite_file_path=None, app_name=None):
         if sqlite_file_path is None:
             # If sqlite_file_path is None, we are referencing the Django default database
@@ -219,7 +238,7 @@ class Bridge(object):
                 except DBSchemaError as e:
                     logging.debug(e)
             else:
-                raise SchemaNotFoundError('No matching schema found for this database')
+                raise SchemaNotFoundError("No matching schema found for this database")
         # We are using scoped sessions, so should always return the same session
         # in the same thread
         self.session, self.engine = make_session(self.connection_string)

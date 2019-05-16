@@ -27,7 +27,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import UserGrid from './UserGrid';
@@ -51,7 +51,6 @@
     },
     computed: {
       ...mapGetters(['isSuperuser']),
-      ...mapState('managePermissions', ['facilityUsers']),
     },
     $trs: {
       devicePermissionsHeader: 'Device permissions',

@@ -41,16 +41,16 @@
       </div>
 
       <div
-        v-show="roleFilterOptions.length > 0"
+        v-if="coachContentInResults"
         class="ib"
       >
         <mat-svg
-          category="social"
-          name="person"
+          name="local_library"
+          category="maps"
           class="filter-icon"
         />
         <KSelect
-          :label="$tr('roleFilterLabel')"
+          :label="$tr('coachResourcesLabel')"
           :options="roleFilterOptions"
           :inline="true"
           :disabled="!roleFilterOptions.length"
@@ -146,20 +146,15 @@
       roleValue() {
         return find(this.roleFilterOptions, { value: this.value.role }) || {};
       },
+      coachContentInResults() {
+        return Boolean(find(this.searchResults.results, result => result.num_coach_contents > 0));
+      },
       roleFilterOptions() {
-        if (this.searchResults.results.length === 0) {
-          return [];
-        }
-        const hasCoachContents = find(
-          this.searchResults.results,
-          result => result.num_coach_contents > 0
-        );
-        const options = [this.allFilter];
-        if (hasCoachContents) {
-          options.push({ label: this.$tr('coach'), value: 'coach' });
-        }
-        options.push({ label: this.$tr('nonCoach'), value: 'nonCoach' });
-        return options;
+        return [
+          // 'Show' is synonymous with 'All'
+          { label: this.$tr('showAction'), value: null },
+          { label: this.$tr('hideAction'), value: 'nonCoach' },
+        ];
       },
     },
     methods: {
@@ -174,15 +169,15 @@
       all: 'All',
       audio: 'Audio',
       channelFilterLabel: 'Channel:',
-      coach: 'Coach',
       contentKindFilterLabel: 'Type:',
       documents: 'Documents',
       exercises: 'Exercises',
       html5: 'Apps',
-      nonCoach: 'Non-coach',
-      roleFilterLabel: 'Show:',
+      coachResourcesLabel: 'Coach resources:',
       topics: 'Topics',
       videos: 'Videos',
+      showAction: 'Show',
+      hideAction: 'Hide',
       searchResultsMessage: `Results for '{searchTerm}'`,
       noSearchResultsMessage: `No results for '{searchTerm}'`,
     },

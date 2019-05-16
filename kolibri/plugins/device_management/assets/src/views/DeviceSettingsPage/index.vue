@@ -65,15 +65,15 @@
 
   export default {
     name: 'DeviceSettingsPage',
-    components: {
-      KButton,
-      KSelect,
-      UiAlert,
-    },
     metaInfo() {
       return {
         title: this.$tr('pageHeader'),
       };
+    },
+    components: {
+      KButton,
+      KSelect,
+      UiAlert,
     },
     data() {
       return {

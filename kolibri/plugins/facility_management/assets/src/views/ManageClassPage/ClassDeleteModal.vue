@@ -22,14 +22,6 @@
 
   export default {
     name: 'ClassDeleteModal',
-    $trs: {
-      modalTitle: 'Delete class',
-      deleteClassButtonLabel: 'Delete',
-      cancel: 'Cancel',
-      confirmation: "Are you sure you want to delete '{ classname }'?",
-      description:
-        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
-    },
     components: {
       KModal,
     },
@@ -52,15 +44,17 @@
         this.displayModal(false);
       },
     },
+    $trs: {
+      modalTitle: 'Delete class',
+      deleteClassButtonLabel: 'Delete',
+      cancel: 'Cancel',
+      confirmation: "Are you sure you want to delete '{ classname }'?",
+      description:
+        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
+    },
   };
 
 </script>
 
 
-<style lang="scss" scoped>
-
-  p {
-    word-break: keep-all;
-  }
-
-</style>
+<style lang="scss" scoped></style>

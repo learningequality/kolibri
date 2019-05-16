@@ -11,12 +11,7 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class User(KolibriPluginBase):
-    def url_module(self):
-        from . import urls
-        return urls
-
-    def url_slug(self):
-        return "^user/"
+    pass
 
 
 class UserAsset(webpack_hooks.WebpackBundleHook):
@@ -33,7 +28,7 @@ class LogInRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(User, 'user')
+        return self.plugin_url(User, "user")
 
 
 class LogInNavAction(NavigationHook, webpack_hooks.WebpackBundleHook):

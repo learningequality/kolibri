@@ -18,10 +18,12 @@ from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
 
 # Remove NotificationsRouter if sqlite is not being used:
-if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
-    ROUTER_ID = 'kolibri.core.notifications.models.NotificationsRouter'
+if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
+    ROUTER_ID = "kolibri.core.notifications.models.NotificationsRouter"
     if ROUTER_ID in settings.DATABASE_ROUTERS:
-        settings.DATABASE_ROUTERS = tuple(filter(lambda x: x != ROUTER_ID, settings.DATABASE_ROUTERS))
+        settings.DATABASE_ROUTERS = tuple(
+            filter(lambda x: x != ROUTER_ID, settings.DATABASE_ROUTERS)
+        )
 
 
 class NotificationsRouter(object):
@@ -35,24 +37,27 @@ class NotificationsRouter(object):
 
     def db_for_read(self, model, **hints):
         """Send all read operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications':
-            return 'notifications_db'
+        if model._meta.app_label == "notifications":
+            return "notifications_db"
         return None
 
     def db_for_write(self, model, **hints):
         """Send all write operations on Notifications app models to `notifications_db`."""
-        if model._meta.app_label == 'notifications':
-            return 'notifications_db'
+        if model._meta.app_label == "notifications":
+            return "notifications_db"
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
         """Determine if relationship is allowed between two objects."""
 
         # Allow any relation between two models that are both in the Notifications app.
-        if obj1._meta.app_label == 'notifications' and obj2._meta.app_label == 'notifications':
+        if (
+            obj1._meta.app_label == "notifications"
+            and obj2._meta.app_label == "notifications"
+        ):
             return True
         # No opinion if neither object is in the Notifications app (defer to default or other routers).
-        elif 'notifications' not in [obj1._meta.app_label, obj2._meta.app_label]:
+        elif "notifications" not in [obj1._meta.app_label, obj2._meta.app_label]:
             return None
 
         # Block relationship if one object is in the Notifications app and the other isn't.
@@ -60,10 +65,10 @@ class NotificationsRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the Notifications app's models get created on the right database."""
-        if app_label == 'notifications':
+        if app_label == "notifications":
             # The Notifications app should be migrated only on the notifications_db database.
-            return db == 'notifications_db'
-        elif db == 'notifications_db':
+            return db == "notifications_db"
+        elif db == "notifications_db":
             # Ensure that all other apps don't get migrated on the notifications_db database.
             return False
 
@@ -72,36 +77,44 @@ class NotificationsRouter(object):
 
 
 class myEnum(object):
-
     @classmethod
     def choices(cls):
-        choices_list = [(u'{}'.format(m),
-                         getattr(cls, m)) for m in cls.__dict__ if m[0] != '_']
+        choices_list = [
+            ("{}".format(m), getattr(cls, m)) for m in cls.__dict__ if m[0] != "_"
+        ]
         return tuple(sorted(choices_list))
 
 
 class NotificationObjectType(myEnum):
-    Resource = 'Resource'
-    Quiz = 'Quiz'
-    Help = 'Help'
-    Lesson = 'Lesson'
+    Resource = "Resource"
+    Quiz = "Quiz"
+    Help = "Help"
+    Lesson = "Lesson"
 
 
 class NotificationEventType(myEnum):
-    Started = 'Started'
-    Completed = 'Completed'
-    Help = 'HelpNeeded'
+    Started = "Started"
+    Completed = "Completed"
+    Help = "HelpNeeded"
 
 
 class HelpReason(myEnum):
-    Multiple = 'MultipleUnsuccessfulAttempts'
+    Multiple = "MultipleUnsuccessfulAttempts"
 
 
 @python_2_unicode_compatible
 class LearnerProgressNotification(models.Model):
-    id = models.AutoField(auto_created=True, primary_key=True, serialize=True, verbose_name='ID'),
-    notification_object = models.CharField(max_length=200, choices=NotificationObjectType.choices(), blank=True)
-    notification_event = models.CharField(max_length=200, choices=NotificationEventType.choices(), blank=True)
+    id = (
+        models.AutoField(
+            auto_created=True, primary_key=True, serialize=True, verbose_name="ID"
+        ),
+    )
+    notification_object = models.CharField(
+        max_length=200, choices=NotificationObjectType.choices(), blank=True
+    )
+    notification_event = models.CharField(
+        max_length=200, choices=NotificationEventType.choices(), blank=True
+    )
     user_id = UUIDField()
     classroom_id = UUIDField()  # This can be either a Classroom or a LearnerGroup id
     contentnode_id = UUIDField(null=True)
@@ -112,15 +125,21 @@ class LearnerProgressNotification(models.Model):
     timestamp = DateTimeTzField(default=local_now)
 
     def __str__(self):
-        return '{object} - {event}'.format(object=self.notification_object, event=self.notification_event)
+        return "{object} - {event}".format(
+            object=self.notification_object, event=self.notification_event
+        )
 
     class Meta:
-        app_label = 'notifications'
+        app_label = "notifications"
 
 
 @python_2_unicode_compatible
 class NotificationsLog(models.Model):
-    id = models.AutoField(auto_created=True, primary_key=True, serialize=True, verbose_name='ID'),
+    id = (
+        models.AutoField(
+            auto_created=True, primary_key=True, serialize=True, verbose_name="ID"
+        ),
+    )
     coach_id = UUIDField()
     timestamp = DateTimeTzField(default=local_now)
 
@@ -128,4 +147,4 @@ class NotificationsLog(models.Model):
         return self.coach_id
 
     class Meta:
-        app_label = 'notifications'
+        app_label = "notifications"

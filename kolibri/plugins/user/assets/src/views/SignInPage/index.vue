@@ -158,22 +158,6 @@
 
   export default {
     name: 'SignInPage',
-    $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      username: 'Username',
-      password: 'Password',
-      enterPassword: 'Enter password',
-      createAccount: 'Create an account',
-      accessAsGuest: 'Explore without account',
-      signInError: 'Incorrect username or password',
-      poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
-      requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -219,7 +203,7 @@
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
-        return this.facilityConfig.learnerCanLoginWithNoPassword;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -264,7 +248,7 @@
         return !this.usernameIsInvalid && !this.passwordIsInvalid;
       },
       canSignUp() {
-        return this.facilityConfig.learnerCanSignUp;
+        return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
         return { name: PageNames.SIGN_UP };
@@ -279,7 +263,7 @@
         return !this.simpleSignIn || this.hasServerError;
       },
       allowGuestAccess() {
-        return this.facilityConfig.allowGuestAccess;
+        return this.facilityConfig.allow_guest_access;
       },
       logoHeight() {
         const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
@@ -302,7 +286,9 @@
       },
     },
     watch: {
-      username: 'setSuggestionTerm',
+      username() {
+        this.setSuggestionTerm();
+      },
     },
     mounted() {
       /*
@@ -430,6 +416,22 @@
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
       },
+    },
+    $trs: {
+      kolibri: 'Kolibri',
+      signIn: 'Sign in',
+      username: 'Username',
+      password: 'Password',
+      enterPassword: 'Enter password',
+      createAccount: 'Create an account',
+      accessAsGuest: 'Explore without account',
+      signInError: 'Incorrect username or password',
+      poweredBy: 'Kolibri {version}',
+      required: 'This field is required',
+      requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      documentTitle: 'User Sign In',
+      privacyLink: 'Usage and privacy',
     },
   };
 

@@ -70,16 +70,23 @@ class ContentRendererHook(WebpackBundleHook):
         global _JSON_CONTENT_TYPES_CACHE
         if not _JSON_CONTENT_TYPES_CACHE.get(self.unique_slug):
             try:
-                file_path = os.path.join(self._module_file_path, self.content_types_file)
-                with io.open(file_path, mode='r', encoding='utf-8') as f:
+                file_path = os.path.join(
+                    self._module_file_path, self.content_types_file
+                )
+                with io.open(file_path, mode="r", encoding="utf-8") as f:
                     content_types = json.load(f)
-                    for kind_data in content_types.get('kinds', []):
+                    for kind_data in content_types.get("kinds", []):
                         if kind_data.get("name") not in dict(content_kinds.choices):
-                            logger.debug("{kind} not found in valid content kinds for plugin {name}".format(
-                                kind=kind_data.get("name"), name=self.unique_slug))
+                            logger.debug(
+                                "{kind} not found in valid content kinds for plugin {name}".format(
+                                    kind=kind_data.get("name"), name=self.unique_slug
+                                )
+                            )
                     _JSON_CONTENT_TYPES_CACHE[self.unique_slug] = content_types
             except IOError:
-                raise IOError("Content types file not found at {}".format(self.content_types_file))
+                raise IOError(
+                    "Content types file not found at {}".format(self.content_types_file)
+                )
         return _JSON_CONTENT_TYPES_CACHE.get(self.unique_slug, {})
 
     def render_to_page_load_async_html(self):
@@ -91,12 +98,13 @@ class ContentRendererHook(WebpackBundleHook):
         # Note, while most plugins use sorted chunks to filter by text direction
         # content renderers do not, as they may need to have styling for a different
         # text direction than the interface due to the text direction of content
-        urls = [chunk['url'] for chunk in self.bundle]
-        tags = self.frontend_message_tag() +\
-            ['<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
+        urls = [chunk["url"] for chunk in self.bundle]
+        tags = self.frontend_message_tag() + [
+            '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {content_types});</script>'.format(
                 kolibri_name=conf.KOLIBRI_CORE_JS_NAME,
                 bundle=self.unique_slug,
                 urls='","'.join(urls),
                 content_types=json.dumps(self.content_types),
-            )]
-        return mark_safe('\n'.join(tags))
+            )
+        ]
+        return mark_safe("\n".join(tags))

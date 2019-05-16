@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import time
 from datetime import datetime
 
@@ -24,6 +23,7 @@ from ...utils import extract_facility_statistics
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.server import vacuum_db_lock
 
@@ -38,14 +38,30 @@ class Command(BaseCommand):
     help = "Pings a central server to check for updates/messages and track stats."
 
     def add_arguments(self, parser):
-        parser.add_argument('--interval', action='store', dest='interval',
-                            help='Number of minutes to wait after a successful ping before the next ping.')
-        parser.add_argument('--checkrate', action='store', dest='checkrate',
-                            help='Number of minutes to wait between failed ping attempts.')
-        parser.add_argument('--server', action='store', dest='server',
-                            help='Base URL of the server to connect to.')
-        parser.add_argument('--once', action='store_true', dest='once',
-                            help='Only try to ping once, then exit')
+        parser.add_argument(
+            "--interval",
+            action="store",
+            dest="interval",
+            help="Number of minutes to wait after a successful ping before the next ping.",
+        )
+        parser.add_argument(
+            "--checkrate",
+            action="store",
+            dest="checkrate",
+            help="Number of minutes to wait between failed ping attempts.",
+        )
+        parser.add_argument(
+            "--server",
+            action="store",
+            dest="server",
+            help="Base URL of the server to connect to.",
+        )
+        parser.add_argument(
+            "--once",
+            action="store_true",
+            dest="once",
+            help="Only try to ping once, then exit",
+        )
 
     def handle(self, *args, **options):
 
@@ -65,7 +81,9 @@ class Command(BaseCommand):
                     create_and_update_notifications(data, nutrition_endpoints.PINGBACK)
                     if "id" in data:
                         stat_data = self.perform_statistics(server, data["id"])
-                        create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+                        create_and_update_notifications(
+                            stat_data, nutrition_endpoints.STATISTICS
+                        )
                     connection.close()
                 if once:
                     break
@@ -73,11 +91,21 @@ class Command(BaseCommand):
                 time.sleep(interval * 60)
                 continue
             except ConnectionError:
-                logger.warn("Ping failed (could not connect). Trying again in {} minutes.".format(checkrate))
+                logger.warn(
+                    "Ping failed (could not connect). Trying again in {} minutes.".format(
+                        checkrate
+                    )
+                )
             except Timeout:
-                logger.warn("Ping failed (connection timed out). Trying again in {} minutes.".format(checkrate))
+                logger.warn(
+                    "Ping failed (connection timed out). Trying again in {} minutes.".format(
+                        checkrate
+                    )
+                )
             except RequestException as e:
-                logger.warn("Ping failed ({})! Trying again in {} minutes.".format(e, checkrate))
+                logger.warn(
+                    "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
+                )
             if once:
                 break
             time.sleep(checkrate * 60)
@@ -99,7 +127,7 @@ class Command(BaseCommand):
         data = {
             "instance_id": instance.id,
             "version": kolibri.__version__,
-            "mode": os.environ.get("KOLIBRI_RUN_MODE", ""),
+            "mode": conf.OPTIONS["Deployment"]["RUN_MODE"],
             "platform": instance.platform,
             "sysversion": instance.sysversion,
             "database_id": instance.database.id,
@@ -113,34 +141,20 @@ class Command(BaseCommand):
         }
 
         logger.debug("Pingback data: {}".format(data))
-
         jsondata = dump_zipped_json(data)
-
         response = requests.post(url, data=jsondata, timeout=60)
-
         response.raise_for_status()
-
         return json.loads(response.content.decode() or "{}")
 
     def perform_statistics(self, server, pingback_id):
-
         url = urljoin(server, "/api/v1/statistics")
-
-        channels = [extract_channel_statistics(c) for c in ChannelMetadata.objects.all()]
+        channels = [
+            extract_channel_statistics(c) for c in ChannelMetadata.objects.all()
+        ]
         facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
-
-        data = {
-            "pi": pingback_id,
-            "c": channels,
-            "f": facilities,
-        }
-
+        data = {"pi": pingback_id, "c": channels, "f": facilities}
         logger.debug("Statistics data: {}".format(data))
-
         jsondata = dump_zipped_json(data)
-
         response = requests.post(url, data=jsondata, timeout=60)
-
         response.raise_for_status()
-
         return json.loads(response.content.decode() or "{}")

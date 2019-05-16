@@ -115,9 +115,14 @@ If using options.ini, under a ``Debug`` header you can use these options:
 
  * ``SENTRY_BACKEND_DSN``
  * ``SENTRY_FRONTEND_DSN``
+ * ``SENTRY_ENVIRONMENT`` (optional)
 
 Or if using environment variables:
 
  * ``KOLIBRI_DEBUG_SENTRY_BACKEND_DSN``
  * ``KOLIBRI_DEBUG_SENTRY_FRONTEND_DSN``
+ * ``KOLIBRI_DEBUG_SENTRY_ENVIRONMENT`` (optional)
 
+The 'environment' corresponds to a particular installation of Kolibri that we want to track over time - for example, ``demo-server``, ``beta-server``, or ``i18n-server``.
+
+Other information is provided automatically such as the current user, browser info, and locale.

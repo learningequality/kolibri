@@ -8,14 +8,12 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0010_auto_20180320_1320'),
-    ]
+    dependencies = [("kolibriauth", "0010_auto_20180320_1320")]
 
     operations = [
         migrations.AddField(
-            model_name='facilitydataset',
-            name='show_download_button_in_learn',
+            model_name="facilitydataset",
+            name="show_download_button_in_learn",
             field=models.BooleanField(default=True),
-        ),
+        )
     ]

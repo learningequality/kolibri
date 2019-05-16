@@ -3,7 +3,9 @@
   <router-link class="link" :style="{color: $coreTextDefault}" :to="to">
     <KGrid class="wrapper">
       <KGridItem size="75" percentage>
-        <h3 class="title">{{ name }}</h3>
+        <h3 class="title">
+          {{ name }}
+        </h3>
       </KGridItem>
 
       <KGridItem size="25" percentage alignment="right">
@@ -55,10 +57,6 @@
       tally: {
         type: Object,
         required: true,
-      },
-      isLast: {
-        type: Boolean,
-        default: false,
       },
       to: {
         type: Object,

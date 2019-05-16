@@ -10,6 +10,7 @@ from django.conf import settings
 
 import kolibri
 from kolibri.utils.conf import KOLIBRI_HOME
+
 # Import db instead of db.connections because we want to use an instance of
 # connections that might be updated from outside.
 
@@ -18,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 # Use encoded text for Python 3 (doesn't work in Python 2!)
-KWARGS_IO_READ = {'mode': 'r', 'encoding': 'utf-8'}
-KWARGS_IO_WRITE = {'mode': 'w', 'encoding': 'utf-8'}
+KWARGS_IO_READ = {"mode": "r", "encoding": "utf-8"}
+KWARGS_IO_WRITE = {"mode": "w", "encoding": "utf-8"}
 
 # Use binary file mode for Python 2 (doesn't work in Python 3!)
 if sys.version_info < (3,):
-    KWARGS_IO_READ = {'mode': 'rb'}
-    KWARGS_IO_WRITE = {'mode': 'wb'}
+    KWARGS_IO_READ = {"mode": "rb"}
+    KWARGS_IO_WRITE = {"mode": "wb"}
 
 
 class IncompatibleDatabase(Exception):
@@ -32,7 +33,7 @@ class IncompatibleDatabase(Exception):
 
 
 def default_backup_folder():
-    return os.path.join(KOLIBRI_HOME, 'backups')
+    return os.path.join(KOLIBRI_HOME, "backups")
 
 
 def get_dtm_from_backup_name(fname):
@@ -57,9 +58,7 @@ def is_full_version(fname):
     """
     # Can contain suffixes denoting alpha, beta, post, dev etc.
     full_version = kolibri.__version__
-    return fname.startswith(
-        "db-v{}_".format(full_version)
-    )
+    return fname.startswith("db-v{}_".format(full_version))
 
 
 def dbbackup(old_version, dest_folder=None):
@@ -79,7 +78,7 @@ def dbbackup(old_version, dest_folder=None):
     :returns: Path of new backup file
     """
 
-    if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
+    if "sqlite3" not in settings.DATABASES["default"]["ENGINE"]:
         raise IncompatibleDatabase()
 
     if not dest_folder:
@@ -88,8 +87,7 @@ def dbbackup(old_version, dest_folder=None):
     # This file name is a convention, used to figure out the latest backup
     # that was made (by the dbrestore command)
     fname = "db-v{version}_{dtm}.dump".format(
-        version=old_version,
-        dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        version=old_version, dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     )
 
     if not os.path.exists(dest_folder):
@@ -101,9 +99,9 @@ def dbbackup(old_version, dest_folder=None):
     # See: https://github.com/learningequality/kolibri/issues/2875
     with io.open(backup_path, **KWARGS_IO_WRITE) as f:
         # If the connection hasn't been opened yet, then open it
-        if not db.connections['default'].connection:
-            db.connections['default'].connect()
-        for line in db.connections['default'].connection.iterdump():
+        if not db.connections["default"].connection:
+            db.connections["default"].connect()
+        for line in db.connections["default"].connection.iterdump():
             f.write(line)
 
     return backup_path
@@ -117,16 +115,16 @@ def dbrestore(from_file):
     statements.
     """
 
-    if 'sqlite3' not in settings.DATABASES['default']['ENGINE']:
+    if "sqlite3" not in settings.DATABASES["default"]["ENGINE"]:
         raise IncompatibleDatabase()
 
-    dst_file = settings.DATABASES['default']['NAME']
+    dst_file = settings.DATABASES["default"]["NAME"]
 
     # Close connections
     db.connections.close_all()
 
     # Wipe current database file
-    if not db.connections['default'].is_in_memory_db():
+    if not db.connections["default"].is_in_memory_db():
         with open(dst_file, "w") as f:
             f.truncate()
     else:
@@ -135,24 +133,23 @@ def dbrestore(from_file):
     # Setting encoding=utf-8: io.open() is Python 2 compatible
     # See: https://github.com/learningequality/kolibri/issues/2875
     with open(from_file, **KWARGS_IO_READ) as f:
-        db.connections['default'].connect()
-        db.connections['default'].connection.executescript(
-            f.read()
-        )
+        db.connections["default"].connect()
+        db.connections["default"].connection.executescript(f.read())
 
     # Finally, it's okay to import models and open database connections.
     # We need this to avoid generating records with identical 'Instance ID'
     # and conflicting counters, in case the database we're overwriting had
     # already been synced with other devices.:
     from morango.models import DatabaseIDModel
+
     DatabaseIDModel.objects.create()
 
 
 def search_latest(search_root, fallback_version):
     logger.info("Searching latest backup in {}...".format(search_root))
 
-    newest = None  # Should be a path/filename.sqlite3
-    newest_dtm = None
+    newest = ""  # Should be a path/filename.sqlite3
+    newest_dtm = ""
 
     # All file names have to be according to the fall back version.
     prefix = "db-v{}".format(fallback_version)

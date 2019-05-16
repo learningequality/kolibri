@@ -47,7 +47,6 @@
           <CoreMenu
             role="navigation"
             :style="{ backgroundColor: $coreBgLight }"
-            :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
@@ -97,7 +96,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -133,13 +131,6 @@
       PrivacyInfoModal,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
-    $trs: {
-      kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation',
-      closeNav: 'Close navigation',
-      poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
-    },
     props: {
       navShown: {
         type: Boolean,
@@ -163,10 +154,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
-      ...mapState({
-        session: state => state.core.session,
-      }),
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
@@ -231,6 +218,13 @@
         }
         return event;
       },
+    },
+    $trs: {
+      kolibri: 'Kolibri',
+      navigationLabel: 'Main user navigation',
+      closeNav: 'Close navigation',
+      poweredBy: 'Kolibri {version}',
+      privacyLink: 'Usage and privacy',
     },
   };
 

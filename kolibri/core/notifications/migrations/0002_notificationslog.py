@@ -12,17 +12,28 @@ import kolibri.utils.time_utils
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('notifications', '0001_initial'),
-    ]
+    dependencies = [("notifications", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='NotificationsLog',
+            name="NotificationsLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('coach_id', kolibri.core.content.models.UUIDField()),
-                ('timestamp', kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("coach_id", kolibri.core.content.models.UUIDField()),
+                (
+                    "timestamp",
+                    kolibri.core.fields.DateTimeTzField(
+                        default=kolibri.utils.time_utils.local_now
+                    ),
+                ),
             ],
-        ),
+        )
     ]

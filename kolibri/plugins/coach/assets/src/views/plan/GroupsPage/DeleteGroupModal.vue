@@ -20,12 +20,6 @@
 
   export default {
     name: 'DeleteGroupModal',
-    $trs: {
-      deleteLearnerGroup: 'Delete group',
-      areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      cancel: 'Cancel',
-      deleteGroup: 'Delete',
-    },
     components: {
       KModal,
     },
@@ -49,6 +43,12 @@
       close() {
         this.displayModal(false);
       },
+    },
+    $trs: {
+      deleteLearnerGroup: 'Delete group',
+      areYouSure: "Are you sure you want to delete '{ groupName }'?",
+      cancel: 'Cancel',
+      deleteGroup: 'Delete',
     },
   };
 

@@ -2,7 +2,7 @@
 
   <KModal
     size="large"
-    :submitText="$tr('okButtonLabel')"
+    :submitText="$tr('closeButtonLabel')"
     :title="title"
     @submit="submit"
   >
@@ -14,7 +14,9 @@
         :text="linkText || linkUrl"
       />
     </p>
-    <p v-if="!isSuperuser">{{ $tr('adminMessage') }}</p>
+    <p v-if="!isSuperuser">
+      {{ $tr('adminMessage') }}
+    </p>
     <p>
       <KCheckbox
         :label="$tr('hideNotificationLabel')"
@@ -68,12 +70,6 @@
         dontShowNotificationAgain: false,
       };
     },
-    $trs: {
-      updateModalHeader: 'Upgrade available',
-      adminMessage: 'Please contact the device administrator for this server.',
-      okButtonLabel: 'OK',
-      hideNotificationLabel: "Don't show this message again",
-    },
     computed: {
       ...mapGetters(['isSuperuser']),
     },
@@ -90,6 +86,12 @@
         this.removeNotification(this.id);
         this.$emit('closeModal');
       },
+    },
+    $trs: {
+      updateModalHeader: 'Upgrade available',
+      adminMessage: 'Please contact the device administrator for this server',
+      closeButtonLabel: 'Close',
+      hideNotificationLabel: "Don't show this message again",
     },
   };
 

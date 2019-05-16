@@ -33,14 +33,6 @@
 
   export default {
     name: 'CreateGroupModal',
-    $trs: {
-      newLearnerGroup: 'Create new group',
-      learnerGroupName: 'Group name',
-      cancel: 'Cancel',
-      save: 'Save',
-      duplicateName: 'A group with that name already exists',
-      required: 'This field is required',
-    },
     components: {
       KModal,
       KTextbox,
@@ -105,6 +97,14 @@
       close() {
         this.displayModal(false);
       },
+    },
+    $trs: {
+      newLearnerGroup: 'Create new group',
+      learnerGroupName: 'Group name',
+      cancel: 'Cancel',
+      save: 'Save',
+      duplicateName: 'A group with that name already exists',
+      required: 'This field is required',
     },
   };
 

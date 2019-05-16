@@ -8,38 +8,57 @@
   >
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer>
-      <p>
+    <KPageContainer v-if="!loading">
+
+      <BackLinkWithOptions>
         <BackLink
+          slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
           :text="backLinkString"
         />
+        <LessonOptionsDropdownMenu
+          slot="options"
+          optionsFor="plan"
+          @select="handleSelectOption"
+        />
+      </BackLinkWithOptions>
 
-      </p>
       <div class="lesson-summary">
 
-        <AssignmentSummary
-          :kind="lessonKind"
-          :title="lessonTitle"
-          :active="lessonActive"
-          :description="lessonDescription"
-          :recipients="lessonAssignments"
-          :groups="learnerGroups"
-          @changeStatus="setLessonsModal(AssignmentActions.CHANGE_STATUS)"
-        >
-          <KDropdownMenu
-            slot="optionsDropdown"
-            :text="$tr('options')"
-            :options="lessonOptions"
-            @select="handleSelectOption"
-          />
-        </AssignmentSummary>
+        <div>
+          <h1 dir="auto">
+            <KLabeledIcon>
+              <KIcon slot="icon" lesson />
+              {{ currentLesson.title }}
+            </KLabeledIcon>
+          </h1>
+
+          <HeaderTable>
+            <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+              <LessonActive slot="value" :active="currentLesson.is_active" />
+            </HeaderTableRow>
+            <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+              <template slot="value">
+                <template v-if="currentLesson.lesson_assignments.length === 0">
+                  {{ this.$tr('noOne') }}
+                </template>
+                <Recipients v-else :groupNames="groupNames" />
+              </template>
+            </HeaderTableRow>
+            <HeaderTableRow
+              :keyText="coachStrings.$tr('descriptionLabel')"
+              :valueText="currentLesson.description || coachStrings.$tr('descriptionMissingLabel')"
+            />
+          </HeaderTable>
+        </div>
 
         <div>
           <div class="resource-list">
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
-                <h2 class="resource-list-header-title">{{ $tr('resources') }}</h2>
+                <h2 class="resource-list-header-title">
+                  {{ $tr('resources') }}
+                </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
@@ -58,7 +77,10 @@
             {{ $tr('noResourcesInLesson') }}
           </p>
 
-          <ManageLessonModals />
+          <ManageLessonModals
+            :currentAction="currentAction"
+            @cancel="currentAction = ''"
+          />
         </div>
 
       </div>
@@ -72,20 +94,22 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+  import { mapState } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import map from 'lodash/map';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoach from '../../common';
-  import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
-  import AssignmentSummary from '../../plan/assignments/AssignmentSummary';
+  import HeaderTable from '../../common/HeaderTable';
+  import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
+  import Recipients from '../../common/Recipients';
+  import LessonActive from '../../common/LessonActive';
   import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
+  import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
+  import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
 
   const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
@@ -93,85 +117,68 @@
     name: 'LessonSummaryPage',
     metaInfo() {
       return {
-        title: this.lessonTitle,
+        title: this.currentLesson.title,
       };
     },
     components: {
-      KDropdownMenu,
+      KIcon,
+      KLabeledIcon,
+      HeaderTable,
+      HeaderTableRow,
+      Recipients,
+      LessonActive,
+      BackLinkWithOptions,
       ResourceListTable,
       ManageLessonModals,
       KRouterLink,
-      AssignmentSummary,
+      LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        currentAction: '',
+      };
+    },
     computed: {
       backLinkString() {
         return ReportsLessonHeaderStrings.$tr('back');
       },
-      ...mapState(['reportRefreshInterval']),
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonSummary', {
-        // IDEA refactor, make actions get all this information themselves.
-        lessonId: state => state.currentLesson.id,
-        lessonTitle: state => state.currentLesson.title,
-        lessonActive: state => state.currentLesson.is_active,
-        lessonDescription: state => state.currentLesson.description,
-        lessonAssignments: state => state.currentLesson.lesson_assignments,
-        lessonResources: state => state.currentLesson.resources,
-        learnerGroups: state => state.learnerGroups,
-        workingResources: state => state.workingResources,
-      }),
-      lessonOptions() {
-        return map(this.actionsToLabelMap, (label, action) => ({
-          label: this.$tr(label),
-          action,
-        }));
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
+      loading() {
+        return this.$store.state.core.loading;
       },
-      actionsToLabelMap() {
-        return {
-          [AssignmentActions.EDIT_DETAILS]: 'editLessonDetails',
-          [AssignmentActions.COPY]: 'copyLesson',
-          [AssignmentActions.DELETE]: 'deleteLesson',
-        };
-      },
-      AssignmentActions() {
-        return AssignmentActions;
+      lessonId() {
+        return this.$route.params.lessonId;
       },
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
       },
-      lessonKind() {
-        return ContentNodeKinds.LESSON;
+      groupNames() {
+        const names = [];
+        this.currentLesson.lesson_assignments.forEach(r => {
+          const match = this.groups.find(({ id }) => id === r.collection);
+          if (match) {
+            names.push(match.name);
+          }
+        });
+        return names;
       },
-    },
-    mounted() {
-      this.intervalId = setInterval(this.refreshReportData, this.reportRefreshInterval);
-    },
-    beforeDestroy() {
-      this.intervalId = clearInterval(this.intervalId);
     },
     methods: {
-      ...mapActions('lessonSummary', ['setLessonsModal', 'setLessonReportTableData']),
-      // Data to do a proper refresh. See showLessonSummaryPage for details.
-      refreshReportData() {
-        return this.setLessonReportTableData({
-          lessonId: this.lessonId,
-          isSamePage: samePageCheckGenerator(this.$store),
-        });
-      },
-      handleSelectOption({ action }) {
-        this.setLessonsModal(action);
+      handleSelectOption(action) {
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
+        } else {
+          this.currentAction = action;
+        }
       },
     },
     $trs: {
-      // TODO make labels more semantic
-      copyLesson: 'Copy lesson',
-      deleteLesson: 'Delete',
-      editLessonDetails: 'Edit details',
       noResourcesInLesson: 'No resources in this lesson',
-      options: 'Options',
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
+      noOne: 'No one',
     },
   };
 

@@ -46,16 +46,21 @@ class ExamActivePermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
         from kolibri.core.logger.models import ExamAttemptLog
+
         # as `has_object_permission` isn't called for POST/create, we need to check here
         examlog = None
         if request.data:
             if request.method == "POST":
-                validated_data = view.serializer_class().to_internal_value(_ensure_raw_dict(request.data))
-                examlog = validated_data['examlog']
+                validated_data = view.serializer_class().to_internal_value(
+                    _ensure_raw_dict(request.data)
+                )
+                examlog = validated_data["examlog"]
             elif request.method == "PATCH":
                 try:
                     lookup_url_kwarg = view.lookup_url_kwarg or view.lookup_field
-                    examattemptlog = ExamAttemptLog.objects.get(id=view.kwargs[lookup_url_kwarg])
+                    examattemptlog = ExamAttemptLog.objects.get(
+                        id=view.kwargs[lookup_url_kwarg]
+                    )
                     examlog = examattemptlog.examlog
                 except (ValueError, ObjectDoesNotExist):
                     pass

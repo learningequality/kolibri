@@ -1,55 +1,132 @@
+export function getScripts() {
+  const $scripts = document.querySelectorAll('template[hashi-script="true"]');
+  return [].map.call($scripts, $template => {
+    const parentNode = $template.parentNode;
+    const node = $template.content.children[0];
+    if ($template.hasAttribute('async')) {
+      node.setAttribute('async', node.getAttribute('async') || true);
+    } else {
+      node.removeAttribute('async');
+    }
+    parentNode.removeChild($template);
+    // Keep a record of the parent node for later
+    // reattaching.
+    node._parentNode = parentNode;
+    return node;
+  });
+}
+
 /*
  * Modified from https://ghinda.net/article/script-tags/
  */
+export function replaceScript($script, callback) {
+  if ($script) {
+    if (!$script.loaded) {
+      $script.loaded = true;
+      if ($script.src && !$script.hasAttribute('async')) {
+        $script.onload = callback;
+        $script.onerror = callback;
+      }
 
-// https://html.spec.whatwg.org/multipage/scripting.html
-export const runScriptTypes = [
-  'application/javascript',
-  'application/ecmascript',
-  'application/x-ecmascript',
-  'application/x-javascript',
-  'text/ecmascript',
-  'text/javascript',
-  'text/javascript1.0',
-  'text/javascript1.1',
-  'text/javascript1.2',
-  'text/javascript1.3',
-  'text/javascript1.4',
-  'text/javascript1.5',
-  'text/jscript',
-  'text/livescript',
-  'text/x-ecmascript',
-  'text/x-javascript',
-];
+      const parentNode = $script._parentNode;
 
-export default function replaceScript($script, callback) {
-  const s = document.createElement('script');
-  s.type = 'text/javascript';
-  if ($script.src) {
-    s.onload = callback;
-    s.onerror = callback;
-    s.src = $script.src;
+      document.write = function(domString) {
+        const template = document.createElement('template');
+        template.innerHTML = domString;
+        parentNode.appendChild(template.content.firstChild);
+      };
+
+      parentNode.appendChild($script);
+
+      // run the callback immediately for inline scripts
+      // and for async loading scripts.
+      if (!$script.src || $script.hasAttribute('async')) {
+        callback();
+      }
+    }
   } else {
-    s.innerHTML = $script.innerHTML;
-  }
-
-  const parentNode = $script.parentNode;
-
-  // Remove the element so that we don't clutter the DOM
-  // with duplicates.
-  parentNode.removeChild($script);
-
-  const typeAttr = $script.getAttribute('type');
-
-  // only run script tags without the type attribute
-  // or with a javascript mime attribute value
-  if (!typeAttr || runScriptTypes.indexOf(typeAttr) !== -1) {
-    // re-insert the script tag so it executes.
-    parentNode.appendChild(s);
-  }
-
-  // run the callback immediately for inline scripts
-  if (!$script.src) {
     callback();
+  }
+}
+
+/*
+ * runs an array of async functions in sequential order
+ */
+export function seq(arr, index) {
+  // first call, without an index
+  if (typeof index === 'undefined') {
+    index = 0;
+  }
+
+  function callback() {
+    index++;
+    if (index < arr.length) {
+      seq(arr, index);
+    } else {
+      // If finished trigger the DOM Content Loaded event and the load event
+      // Normally DOMContentLoaded would be triggered before the load event
+      // but we have already waited for the DOM to be inserted here, and
+      // then executed all the scripts, so we have a slightly less efficient
+      // rendering path, but we can be sure that both are appropriate to
+      // trigger at this point.
+      const DOMContentLoadedEvent = document.createEvent('Event');
+      DOMContentLoadedEvent.initEvent('DOMContentLoaded', true, true);
+      const loadEvent = document.createEvent('Event');
+      loadEvent.initEvent('load', true, true);
+      document.dispatchEvent(DOMContentLoadedEvent);
+      document.dispatchEvent(loadEvent);
+      window.dispatchEvent(loadEvent);
+      const elements = document.querySelectorAll(':not(script)');
+      Array.prototype.forEach.call(elements, element => {
+        element.dispatchEvent(loadEvent);
+      });
+    }
+  }
+
+  if (arr.length) {
+    const fn = arr[index];
+
+    fn(callback);
+  } else {
+    callback();
+  }
+}
+
+export function setScripts($scripts) {
+  // First generate the callbacks for all script tags.
+  // This will create insertion operations for all script tags
+
+  const $nonDeferredScripts = [].filter.call($scripts, script => !script.hasAttribute('defer'));
+  const $deferredScripts = [].filter.call($scripts, script => script.hasAttribute('defer'));
+
+  const runList = $nonDeferredScripts.concat($deferredScripts).map(function($script) {
+    return function(callback) {
+      window.onerror = callback;
+      try {
+        replaceScript($script, callback);
+      } catch (e) {
+        callback();
+      }
+    };
+  });
+
+  // insert the script tags sequentially
+  // to preserve execution order
+  seq(runList);
+}
+
+function supportsTemplate() {
+  return 'content' in document.createElement('template');
+}
+
+export function executePage() {
+  // If the browser we are in does not support templates,
+  // then the foregoing script tags inside template tags
+  // have already been executed.
+  if (supportsTemplate()) {
+    const scripts = getScripts();
+    const documentWriteOriginal = document.write;
+    setScripts(scripts);
+    document.write = documentWriteOriginal;
   }
 }

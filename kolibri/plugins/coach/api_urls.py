@@ -10,12 +10,18 @@ from .class_summary_api import ClassSummaryViewSet
 
 router = routers.DefaultRouter()
 
-router.register(r'lessonreport', LessonReportViewset, base_name='lessonreport')
-router.register(r'classsummary', ClassSummaryViewSet, base_name='classsummary')
-router.register(r'notifications', ClassroomNotificationsViewset, base_name='notifications')
-router.register(r'exercisedifficulties', ExerciseDifficultQuestionsViewset, base_name='exercisedifficulties')
-router.register(r'quizdifficulties', QuizDifficultQuestionsViewset, base_name='quizdifficulties')
+router.register(r"lessonreport", LessonReportViewset, base_name="lessonreport")
+router.register(r"classsummary", ClassSummaryViewSet, base_name="classsummary")
+router.register(
+    r"notifications", ClassroomNotificationsViewset, base_name="notifications"
+)
+router.register(
+    r"exercisedifficulties",
+    ExerciseDifficultQuestionsViewset,
+    base_name="exercisedifficulties",
+)
+router.register(
+    r"quizdifficulties", QuizDifficultQuestionsViewset, base_name="quizdifficulties"
+)
 
-urlpatterns = [
-    url(r'^', include(router.urls))
-]
+urlpatterns = [url(r"^", include(router.urls))]

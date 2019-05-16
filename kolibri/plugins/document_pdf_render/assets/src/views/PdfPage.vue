@@ -83,9 +83,15 @@
       },
     },
     watch: {
-      scale: 'renderPage',
-      pdfPage: 'renderPage',
-      pageReady: 'renderPage',
+      scale(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
+      pdfPage(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
+      pageReady(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
     },
     mounted() {
       this.renderPage();

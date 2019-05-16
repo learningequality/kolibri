@@ -7,7 +7,4 @@ from __future__ import unicode_literals
 PINGBACK = "pingback"
 STATISTICS = "statistics"
 
-choices = (
-    (PINGBACK, "Pingback"),
-    (STATISTICS, "Statistics"),
-)
+choices = ((PINGBACK, "Pingback"), (STATISTICS, "Statistics"))

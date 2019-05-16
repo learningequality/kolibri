@@ -15,6 +15,11 @@ export default class MainClient {
   constructor({ iframe, now } = {}) {
     this.events = events;
     this.iframe = iframe;
+    if (this.iframe.name !== nameSpace) {
+      throw ReferenceError(
+        `Iframe passed to Hashi must have been initialized with name attribute ${nameSpace}`
+      );
+    }
     this.mediator = new Mediator(this.iframe.contentWindow);
     this.storage = {
       localStorage: new LocalStorage(this.mediator),

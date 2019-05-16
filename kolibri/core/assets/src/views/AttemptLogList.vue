@@ -1,7 +1,9 @@
 <template>
 
   <div :style="{ backgroundColor: $coreBgLight }">
-    <h3 class="header">{{ $tr('header') }}</h3>
+    <h3 class="header">
+      {{ $tr('header') }}
+    </h3>
 
     <ul ref="attemptList" class="history-list">
       <template v-for="(attemptLog, index) in attemptLogs">
@@ -9,7 +11,6 @@
           :key="index"
           class="clickable attempt-item"
           :style="{
-            borderBottom: `2px solid ${$coreTextDisabled}`,
             backgroundColor: isSelected(index) ? $coreTextDisabled : '',
           }"
           @click="setSelectedAttemptLog(index)"
@@ -50,9 +51,9 @@
               category="action"
               name="lightbulb_outline"
             />
-            <h3 class="item">
+            <p class="item">
               {{ $tr('question', {questionNumber: attemptLog.questionNumber}) }}
-            </h3>
+            </p>
           </div>
           <CoachContentLabel
             class="coach-content-label"
@@ -78,13 +79,6 @@
       CoachContentLabel,
     },
     mixins: [themeMixin],
-    $trs: {
-      header: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: '{ daysElapsed } days ago',
-      question: 'Question { questionNumber, number }',
-    },
     props: {
       attemptLogs: {
         type: Array,
@@ -116,6 +110,13 @@
             selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
         }
       },
+    },
+    $trs: {
+      header: 'Answer history',
+      today: 'Today',
+      yesterday: 'Yesterday',
+      daysAgo: '{ daysElapsed } days ago',
+      question: 'Question { questionNumber, number }',
     },
   };
 
@@ -154,9 +155,10 @@
   }
 
   .svg-item {
-    width: 32px;
+    width: 24px;
     height: auto;
-    margin-right: 8px;
+    margin-top: -4px;
+    margin-right: 12px;
     vertical-align: middle;
   }
 

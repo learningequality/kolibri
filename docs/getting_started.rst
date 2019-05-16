@@ -5,202 +5,210 @@ Getting started
 
 First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
-.. _dev_env_intro:
-
 Setting up Kolibri for development
 ----------------------------------
 
-Most of the steps below require entering commands into your Terminal (Linux, Mac) or command prompt (``cmd.exe`` on Windows) that you will learn how to use and become more comfortable with.
+Most of the steps below require entering commands into your Terminal, so you should expect to become comfortable with this if you're not already.
 
-.. tip::
-  In case you run into any problems during these steps, searching online is usually the fastest way out: whatever error you are seeing, chances are good that somebody already had it in the past and posted a solution somewhere... ;)
+If you encounter issues:
 
-Git & GitHub
-~~~~~~~~~~~~
+* Searching online is often effective: chances are high that someone else encountered similar issues in the past
+* Please let us know if our docs can be improved, either by filing an issue or submitting a PR!
+
+.. note::
+  Theoretically Windows can be used to develop Kolibri, but we haven't tested this lately. If you're running Windows you are likely to encounter issues with this guide. That said, we'd appreciate any help improving these docs for Windows developers!
+
+
+Git and GitHub
+~~~~~~~~~~~~~~
 
 #. Install and set up `Git <https://help.github.com/articles/set-up-git/>`__ on your computer. Try this `tutorial <http://learngitbranching.js.org/>`__ if you need more practice with Git!
 #. `Sign up and configure your GitHub account <https://github.com/join>`__ if you don't have one already.
 #. `Fork the main Kolibri repository <https://github.com/learningequality/kolibri>`__. This will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`__. Read more details `about forking <https://help.github.com/articles/fork-a-repo/>`__ from GitHub.
+#. **Important**: Install and set up the `Git LFS extension <https://git-lfs.github.com/>`__.
 
 
-Install environment dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#. Install `Python <https://www.python.org/downloads/windows/>`__ if you are on Windows, on Linux and OSX Python is preinstalled (recommended versions 2.7+ or 3.4+).
-#. Install `pip <https://pypi.python.org/pypi/pip>`__ package installer.
-#. Install `Node.js <https://nodejs.org/en/>`__ (version 10 is required).
-#. Install `Yarn <https://yarnpkg.com/>`__ according the `instructions specific for your OS <https://yarnpkg.com/en/docs/install/>`__.
-#. Install and set up the `Git LFS extension <https://git-lfs.github.com/>`__. Remember to initialize with ``git lfs install`` after installing.
-
-.. note::
-  Installing Node.js version 10.x:
-
-  * On a Mac, you can use the `Homebrew <http://brew.sh/>`__ package manager.
-  * On Ubuntu/Debian, either install Node.js via `nvm <https://github.com/creationix/nvm>`__ or use the `apt` package manager to install a system-wide version and block upgrades:
-
-   .. code-block:: bash
-
-     # Add apt sources from nodesource.com
-     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-     # Install latest version 10 nodejs
-     sudo apt install nodejs
-     # Make sure it doesn't get upgrade to later versions available in
-     # the official repos.
-     sudo apt-mark hold nodejs
-
-Ready for the fun part in the Terminal? Here we go!
+.. tip::
+  `Register your SSH keys <https://help.github.com/en/articles/connecting-to-github-with-ssh>`__ on GitHub to avoid having to repeatedly enter your password
 
 
 Checking out the code
 ~~~~~~~~~~~~~~~~~~~~~
 
-#. Make sure you `registered your SSH keys on GitHub <https://help.github.com/articles/generating-ssh-keys>`__.
-#. **Clone** your Kolibri fork to your local computer. In the following commands replace ``$USERNAME`` with your own GitHub username:
+First, clone your Kolibri fork to your local computer. In command below, replace ``$USERNAME`` with your own GitHub username:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      # using SSH
-      git clone git@github.com:$USERNAME/kolibri.git
-      # using HTTPS
-      git clone https://github.com/$USERNAME/kolibri.git
+  git clone git@github.com:$USERNAME/kolibri.git
 
-#. Enable syncing your local repository with **upstream**,  which refers to the Kolibri source from where you cloned your fork. That way you can keep it updated with the changes from the rest of Kolibri team contributors:
+Next, initialize Git LFS:
 
-  .. code-block:: bash
+.. code-block:: bash
 
-    cd kolibri  # Change into the newly cloned directory
-    git remote add upstream git@github.com:learningequality/kolibri.git  # Add the upstream
-    git fetch upstream # Check if there are changes upstream
-    git checkout develop
+  git lfs install
+
+Finally, add the Learning Equality repo as a remote. That way you can keep your local checkout updated with the most recent changes:
+
+.. code-block:: bash
+
+  cd kolibri  # Enter the Kolibri directory
+  git remote add upstream git@github.com:learningequality/kolibri.git
+  git fetch --all  # Check if there are changes upstream
+  git checkout develop # Checkout the development branch
+
+
+
+Python and Pip
+~~~~~~~~~~~~~~
+
+To develop on Kolibri, you'll need:
+
+* Python 3.4+ or Python 2.7+
+* `pip <https://pypi.python.org/pypi/pip>`__
+
+Managing Python installations can be quite tricky. We *highly* recommend using package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
 
 .. warning::
-  ``develop`` is the active development branch - do not target the ``master`` branch.
+  Never modify your system's built-in version of Python
 
+Python virtual environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Virtual environment
-~~~~~~~~~~~~~~~~~~~
-
-It is best practice to use `Python virtual environment <https://virtualenv.pypa.io/en/latest/>`__ to isolate the dependencies of your Python projects from each other. This also allows you to avoid using ``sudo`` with ``pip``, which is not recommended.
-
-You can learn more about using `virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, or follow these basic instructions:
-
-Initial setup, performed once:
-
-.. code-block:: bash
-
-  $ sudo pip install virtualenv  # install virtualenv globally
-  $ mkdir ~/.venvs               # create a common directory for multiple virtual environments
-  $ virtualenv ~/.venvs/kolibri  # create a new virtualenv for Kolibri dependencies
-
+You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation. There are many ways to set up Python virtual environments, including Virtualenv which has been around for quite some time. Learn more about `using Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__.
 
 .. note::
+  Many virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
 
-  We create the virtualenv `outside` of the Kolibri project folder. You can choose another location than ``~/.venvs/kolibri`` if desired.
 
-To activate the virtualenv in a standard Bash shell:
+As an alternative to Virtualenv, we recommend installing and using `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__.
+
+Once Pipenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
+
 
 .. code-block:: bash
 
-  $ source ~/.venvs/kolibri/bin/activate  # activate the venv
+  pipenv --python 3  # can also make a python 2 environment
+  pipenv shell  # activates the virtual environment
 
-Now, any commands run with ``pip`` will target your virtualenv rather than the global Python installation.
+Now, any commands run with will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
 
-To deactivate the virtualenv, run the command below. Note, you'll want to leave it activated for the remainder of project setup!
 
 .. code-block:: bash
 
-  $ deactivate
+  exit
 
+(Note that you'll want to leave it activated for the remainder of project setup)
 
-.. tip::
+.. warning::
+  Never install project dependencies using ``sudo pip install ...``
 
-  * Users of Windows and other shells such as Fish should read the `guide <https://virtualenv.pypa.io/en/stable/userguide/>`__ for instructions on activating.
-  * If you set the ``PIP_REQUIRE_VIRTUALENV`` environment variable to ``true``, pip will only install packages when a virtualenv is active. This can help prevent mistakes.
-  * Bash users might also consider using `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/en/latest/index.html>`__, which simplifies the process somewhat.
+Install Python dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and your Python virtual environment is active. Then run:
 
+.. code-block:: bash
 
-Install project dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # required
+  pip install -r requirements.txt --upgrade
+  pip install -r requirements/dev.txt --upgrade
+  pip install -e .
 
-.. note::
+  # optional
+  pip install -r requirements/build.txt --upgrade
+  pip install -r requirements/test.txt --upgrade
+  pip install -r requirements/docs.txt --upgrade
 
-  Make sure your virtualenv is active!
+Note that the ``--upgrade`` flags above can usually be omitted to speed up the process.
 
-To install Kolibri project-specific dependencies make sure you're in the ``kolibri`` directory and run:
+Install Node.js, Yarn and other dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  .. code-block:: bash
+#. Install Node.js (version 10 is required)
+#. Install `Yarn <https://yarnpkg.com/>`__
+#. Install non-python project-specific dependencies
 
-    # Python requirements
-    (kolibri)$ pip install -r requirements.txt
-    (kolibri)$ pip install -r requirements/dev.txt
+The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
 
-    # Kolibri Python package in 'editable' mode, so your installation points to your git checkout:
-    (kolibri)$ pip install -e .
+.. code-block:: bash
 
-    # Javascript dependencies
-    (kolibri)$ yarn install
+  # node.js, npm, and yarn
+  nodeenv -p --node=10.15.3
+  npm install -g yarn
 
-
-.. tip::
-
-  * We've adopted this concatenated version with added cleanup: ``pip install -r requirements/dev.txt --upgrade && make clean && pip install -e . && yarn install``.
-  * In case you get webpack compilation error with Node modules build failures, add the flag ``--force`` at the end, to ensure binaries get installed.
+  # other required project dependencies
+  yarn install
 
 
 Running the Kolibri server
 --------------------------
 
-Development
-~~~~~~~~~~~
+Development server
+~~~~~~~~~~~~~~~~~~
 
 To start up the development server and build the client-side dependencies, use the following command:
 
 .. code-block:: bash
 
-  (kolibri)$ yarn run devserver
+  yarn run devserver
+
+This will take some time to build the front-end assets, after which you should be able to access the server at ``http://127.0.0.1:8000/``.
 
 Alternatively, you can run the devserver with `hot reload <https://vue-loader.vuejs.org/guide/hot-reload.html>`__ enabled using:
 
 .. code-block:: bash
 
-  (kolibri)$ yarn run devserver-hot
+  yarn run devserver-hot
 
-If this does not work, you should run the commands it is invoking in two separate terminal windows, the first runs the django development server:
-
-.. code-block:: bash
-
-  (kolibri)$ kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
-
-The second runs the webpack build process for frontend assets in 'watch' mode, meaning they will be automatically rebuilt if you modify them.
+Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them. If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit), then it is best to use the following commands, whereby linting and formatting errors will generate warnings, but not be fixed on the fly:
 
 .. code-block:: bash
 
-  (kolibri)$ yarn run watch
+  yarn run devserver-warn
 
-Wait for the build process to complete. This takes a while the first time, will complete faster as you make edits and the assets are automatically re-built.
+Or:
 
-Now you should be able to access the server at ``http://127.0.0.1:8000/``.
+.. code-block:: bash
+
+  yarn run devserver-hot-warn
+
+.. warning::
+
+  Some functionality such as right-to-left language support is broken when hot-reload is enabled
+
+
+Development server - advanced
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The commands above will start multiple concurrent processes: one for the Django web server, and at least one more for the webpack devserver. If you'd like to start these processes separately, you can do it in two separate terminal windows.
+
+In the first terminal you can start the django development server with this command:
+
+.. code-block:: bash
+
+  kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
+
+In the second terminal you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
+
+.. code-block:: bash
+
+  yarn run watch
+
+If you need to make the development server available through the LAN, you need to do a production build of the assets, so use the following commands:
+
+.. code-block:: bash
+
+  # first build the assets
+  yarn run build
+  # now, run the Django devserver
+  kolibri --debug manage runserver -- 0.0.0.0:8000
+
+Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
+
 
 .. tip::
 
-  If you need to make the development server available through the LAN, you need to do a production build of the assets, so use the following command:
-
-  .. code-block:: bash
-
-    (kolibri)$ yarn run build
-    (kolibri)$ kolibri --debug manage devserver -- 0.0.0.0:8000
-
-  Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
-
-
-.. tip::
-
-  If get an error similar to ``Node Sass could not find a binding for your current environment`` try running:
-
-  .. code-block:: bash
-
-    (kolibri)$ npm rebuild node-sass
+  If get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
 
 
 
@@ -211,7 +219,9 @@ In production, content is served through CherryPy. Static assets must be pre-bui
 
 .. code-block:: bash
 
+  # first build the assets
   yarn run build
+  # now, run the Django production server
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
@@ -219,16 +229,18 @@ Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
 
-Running Kolibri inside docker
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Developing on Kolibri inside Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+  The Docker workflows below have not been fully tested
 
 Users who are familiar with Docker can spin up a Kolibri instance quickly without setting up
 the full JavaScript and Python development environments. We provide docker images that contain
 all the necessary prerequisites for running Kolibri.
 
-
-
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
+
  * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
  * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
  * ``docker/build_debian.dockerfile``: used to build Kolibri ``.deb`` package, and additionally
@@ -258,8 +270,8 @@ The ``docker/`` directory contains the docker files and startup scripts needed f
     * ``CHANNELS_TO_IMPORT``: comma-separated list of channel IDs (not set by default)
 
 
-Building a pex file
-^^^^^^^^^^^^^^^^^^^
+**Building a pex file:**
+
 When simply testing things out or reviewing a pull request, the easiest way to
 obtain a pex file is to get the link from the buildkite assets link that is present
 for every git branch and every pull request. This is the approach we recommend in
@@ -277,8 +289,8 @@ The pex file will be generated in the ``dist/`` directory. You can run this pex
 file using the ``demoserver`` approach described below.
 
 
-Starting a demoserver
-^^^^^^^^^^^^^^^^^^^^^
+**Starting a demo server:**
+
 You can start a Kolibri instance running any pex file by setting the appropriate
 environment variables in your local copy of `docker/env.list` then running the commands:
 
@@ -296,15 +308,13 @@ file ``docker/env.list``:
 
 
 
-Starting a devserver
-^^^^^^^^^^^^^^^^^^^^
-
-Use these commands to start the Kolibri devserver running inside a container:
+**Starting a devserver:**
 
 .. code-block:: bash
 
-  make docker-build-base      # only needed first time
-  make docker-devserver      # takes a few mins to run pip install -e + webpcak build
+  # start the Kolibri devserver running inside a container
+  make docker-build-base  # only needed first time
+  make docker-devserver   # takes a few mins to run pip install -e + webpack build
 
 
 Additional Recommended Setup
@@ -339,77 +349,54 @@ You can initialize the server using:
   kolibri manage migrate
 
 
-Pre-Commit
-~~~~~~~~~~
+.. _workflow_intro:
 
-We use `pre-commit <http://pre-commit.com/>`__ to help ensure consistent, clean code. The pip package should already be installed from a prior setup step, but you need to install the git hooks using this command.
+Development workflows
+---------------------
+
+Linting and auto-formatting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by default when you run the dev server.  It is a good to monitor for linting errors in the build process: while the build may complete, it will also issue warnings to the terminal.
+
+Linting and auto-formatting can also be run by the pre-commit hooks (installed earlier). If those are bypassed or not triggered, our Travis CI builds will also fail for unformatted code.
+
+You can manually run the auto-formatters using:
+
+.. code-block:: bash
+
+  yarn run lint-frontend:format
+  yarn run fmt-backend
+
+Or to check the formatting without writing changes, run:
+
+.. code-block:: bash
+
+  yarn run lint-frontend
+  yarn run fmt-backend:check
+
+To have code automatically formatted and checked for linting upon commit, you may use `pre-commit <http://pre-commit.com/>`__ this can help ensure clean, consistent code, and will prevent automated build checks due to linting errors. The pip package should already be installed from the Python dev dependency installation, but you need to install the git hooks using this command:
 
 .. code-block:: bash
 
   pre-commit install
 
 
-
-
-.. _workflow_intro:
-
-Development workflows
----------------------
-
-Linting
-~~~~~~~
-
-Javascript linting is always run when you run the dev server. In addition, all frontend assets that are bundled will be linted by our Travis CI builds. It is a good idea, therefore, to monitor for linting errors in the webpack build process, while the build will complete in watch mode, it will issue warnings to the terminal.
-
-
 Automated testing
 ~~~~~~~~~~~~~~~~~
 
-First, install some additional dependencies related to running tests:
 
-.. code-block:: bash
-
-  pip install -r requirements/test.txt
-
-Kolibri comes with a Python test suite based on ``py.test``. To run tests in your current environment:
-
-.. code-block:: bash
-
-  pytest  # alternatively, "make test" does the same
-
-You can also use ``tox`` to setup a clean and disposable environment:
-
-.. code-block:: bash
-
-  tox -e py3.4  # Runs tests with Python 3.4
-
-To run Python tests for all environments, lint and documentation tests, use simply ``tox``. This simulates what our CI also does.
-
-To run Python linting tests (pep8 and static code analysis), use ``tox -e lint`` or
-``make lint``.
-
-Note that tox reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment.
-
-We strive for 100% code coverage in Kolibri. When you open a Pull Request, code coverage (and your impact on coverage) will be reported. To test code coverage locally, so that you can work to improve it, you can run the following:
-
-.. code-block:: bash
-
-  tox -e py3.4
-  coverage html
-
-Then, open the generated ./htmlcov/index.html file in your browser.
-
-Kolibri comes with a Javascript test suite based on ``jest``. To run all tests:
-
-.. code-block:: bash
-
-  yarn test-jest
-
-This includes tests of the bundling functions that are used in creating front end assets. To do continuous unit testing for Javascript code:
+Kolibri comes with a Javascript test suite based on `Jest <https://facebook.github.io/jest/>`__. To run all front-end tests:
 
 .. code-block:: bash
 
   yarn run test
+
+Kolibri comes with a Python test suite based on `pytest <https://docs.pytest.org/en/latest/>`__. To run all back-end tests:
+
+.. code-block:: bash
+
+  pytest
 
 To run specific tests only, you can add the filepath of the file. To further filter either by TestClass name or test method name, you can add `-k` followed by a string to filter classes or methods by. For example, to only run a test named ``test_admin_can_delete_membership`` in kolibri/auth/test/test_permissions.py:
 
@@ -428,6 +415,18 @@ For more advanced usage, logical operators can also be used in wrapped strings, 
 .. code-block:: bash
 
   pytest kolibri/auth/test/test_permissions -k "MembershipPermissionsTestCase and test_admin_can_delete_membership"
+
+You can also use ``tox`` to setup a clean and disposable environment:
+
+.. code-block:: bash
+
+  tox -e py3.4  # Runs tests with Python 3.4
+
+To run Python tests for all environments, use simply ``tox``. This simulates what our CI also does on GitHub PRs.
+
+.. note::
+
+  ``tox`` reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment
 
 
 Updating documentation
@@ -471,21 +470,28 @@ For more information, see the next section on :doc:`/manual_testing`.
 Submitting a pull request
 -------------------------
 
-The most common situation is working off of ``develop`` branch so we'll take it as an example:
+Here's a very simple scenario. Below, your remote is called ``origin``, and Learning Equality is ``le``.
+
+First, create a new local working branch:
 
 .. code-block:: bash
 
-  $ git checkout upstream/develop
-  $ git checkout -b name-of-your-bugfix-or-feature
+  # checkout the upstream develop branch
+  git checkout le/develop
+  # make a new feature branch
+  git checkout -b my-awesome-changes
 
-After making changes to the code, commit and push them to a branch on your fork:
+After making changes to the code and committing them locally, push your working branch to your fork on GitHub:
 
 .. code-block:: bash
 
-  $ git add -A  # Add all changed and new files to the commit
-  $ git commit -m "Write here the commit message"
-  $ git push origin name-of-your-bugfix-or-feature
+  git push origin my-awesome-changes
 
-Go to `Kolibri GitHub page <https://github.com/learningequality/kolibri>`__, and if you are logged-in you will see the link to compare your branch and and create the new pull request. **Please fill in all the applicable sections in the PR template and DELETE unecessary headings**. Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
+Go to Kolibri's `GitHub page <https://github.com/learningequality/kolibri>`__, and create a the new pull request.
+
+.. note::
+  Please fill in all the applicable sections in the PR template and DELETE unecessary headings
+
+Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
 Learn more about our :ref:`dev_workflow` and :ref:`release_process`

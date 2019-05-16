@@ -57,9 +57,6 @@
 
   export default {
     name: 'ContentCard',
-    $trs: {
-      copies: '{ num, number} locations',
-    },
     components: {
       CardThumbnail,
       CoachContentLabel,
@@ -138,6 +135,9 @@
         return this.numCoachContents > 0 || this.copiesCount > 1;
       },
     },
+    $trs: {
+      copies: '{ num, number} locations',
+    },
   };
 
 </script>
@@ -160,8 +160,6 @@
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
-    word-break: break-all; // fallback
-    word-break: break-word;
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;

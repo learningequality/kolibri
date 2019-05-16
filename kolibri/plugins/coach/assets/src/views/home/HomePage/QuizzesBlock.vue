@@ -50,9 +50,6 @@
       BlockItem,
     },
     mixins: [commonCoach],
-    $trs: {
-      viewAll: 'All quizzes',
-    },
     computed: {
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
@@ -85,6 +82,9 @@
         });
         return last;
       },
+    },
+    $trs: {
+      viewAll: 'All quizzes',
     },
   };
 

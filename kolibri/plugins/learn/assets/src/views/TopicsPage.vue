@@ -5,6 +5,7 @@
     <PageHeader
       :title="topic.title"
       :progress="calculateProgress"
+      contentType="topic"
     />
 
     <TextTruncator
@@ -39,17 +40,6 @@
 
   export default {
     name: 'TopicsPage',
-    $trs: {
-      topics: 'Topics',
-      navigate: 'Navigate content using headings',
-      documentTitleForChannel: 'Topics - { channelTitle }',
-      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
-    },
-    components: {
-      PageHeader,
-      ContentCardGroupGrid,
-      TextTruncator,
-    },
     metaInfo() {
       let title;
       if (this.isRoot) {
@@ -64,11 +54,13 @@
       }
       return { title };
     },
+    components: {
+      PageHeader,
+      ContentCardGroupGrid,
+      TextTruncator,
+    },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      channelId() {
-        return this.channel.id;
-      },
       channelTitle() {
         return this.channel.title;
       },
@@ -81,21 +73,25 @@
             contentsLength;
           return computedSum !== 0 ? computedSum : undefined;
         }
+
+        return undefined;
       },
     },
     methods: {
       genContentLink(id, kind) {
-        if (kind === ContentNodeKinds.TOPIC) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: { channel_id: this.channelId, id },
-          };
-        }
+        const routeName =
+          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
         return {
-          name: PageNames.TOPICS_CONTENT,
-          params: { channel_id: this.channelId, id },
+          name: routeName,
+          params: { id },
         };
       },
+    },
+    $trs: {
+      topics: 'Topics',
+      navigate: 'Navigate content using headings',
+      documentTitleForChannel: 'Topics - { channelTitle }',
+      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
     },
   };
 

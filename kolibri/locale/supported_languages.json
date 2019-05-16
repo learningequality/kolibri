@@ -56,6 +56,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "gu-IN",
+    "intl_code": "gu-in",
+    "language_name": "ગુજરાતી",
+    "english_name": "Gujarati",
+    "default_font": "NotoSansGujarati"
+  },
+  {
     "crowdin_code": "hi",
     "intl_code": "hi-in",
     "language_name": "हिंदी (भारत)",

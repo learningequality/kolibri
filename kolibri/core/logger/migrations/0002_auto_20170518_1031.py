@@ -19,101 +19,115 @@ def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('logger', '0001_initial'),
-    ]
+    dependencies = [("logger", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='attemptlog',
-            name='completion_timestamp',
+            model_name="attemptlog",
+            name="completion_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='attemptlog',
-            name='end_timestamp',
+            model_name="attemptlog",
+            name="end_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
         migrations.AlterField(
-            model_name='attemptlog',
-            name='start_timestamp',
+            model_name="attemptlog",
+            name="start_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="AttemptLog")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="AttemptLog")
+        ),
         migrations.AlterField(
-            model_name='contentsessionlog',
-            name='end_timestamp',
+            model_name="contentsessionlog",
+            name="end_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='contentsessionlog',
-            name='start_timestamp',
+            model_name="contentsessionlog",
+            name="start_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="ContentSessionLog")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="ContentSessionLog")
+        ),
         migrations.AlterField(
-            model_name='contentsummarylog',
-            name='completion_timestamp',
+            model_name="contentsummarylog",
+            name="completion_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='contentsummarylog',
-            name='end_timestamp',
+            model_name="contentsummarylog",
+            name="end_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='contentsummarylog',
-            name='start_timestamp',
+            model_name="contentsummarylog",
+            name="start_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="ContentSummaryLog")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="ContentSummaryLog")
+        ),
         migrations.AlterField(
-            model_name='examattemptlog',
-            name='completion_timestamp',
+            model_name="examattemptlog",
+            name="completion_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='examattemptlog',
-            name='end_timestamp',
+            model_name="examattemptlog",
+            name="end_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
         migrations.AlterField(
-            model_name='examattemptlog',
-            name='start_timestamp',
+            model_name="examattemptlog",
+            name="start_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="ExamAttemptLog")),
-        migrations.AlterField(
-            model_name='examlog',
-            name='completion_timestamp',
-            field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
-        ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="ExamLog")),
-        migrations.AlterField(
-            model_name='masterylog',
-            name='completion_timestamp',
-            field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="ExamAttemptLog")
         ),
         migrations.AlterField(
-            model_name='masterylog',
-            name='end_timestamp',
+            model_name="examlog",
+            name="completion_timestamp",
+            field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
+        ),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="ExamLog")
+        ),
+        migrations.AlterField(
+            model_name="masterylog",
+            name="completion_timestamp",
             field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='masterylog',
-            name='start_timestamp',
+            model_name="masterylog",
+            name="end_timestamp",
+            field=kolibri.core.fields.DateTimeTzField(blank=True, null=True),
+        ),
+        migrations.AlterField(
+            model_name="masterylog",
+            name="start_timestamp",
             field=kolibri.core.fields.DateTimeTzField(),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="MasteryLog")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="MasteryLog")
+        ),
         migrations.AlterField(
-            model_name='usersessionlog',
-            name='last_interaction_timestamp',
+            model_name="usersessionlog",
+            name="last_interaction_timestamp",
             field=kolibri.core.fields.DateTimeTzField(null=True),
         ),
         migrations.AlterField(
-            model_name='usersessionlog',
-            name='start_timestamp',
-            field=kolibri.core.fields.DateTimeTzField(default=kolibri.utils.time_utils.local_now),
+            model_name="usersessionlog",
+            name="start_timestamp",
+            field=kolibri.core.fields.DateTimeTzField(
+                default=kolibri.utils.time_utils.local_now
+            ),
         ),
-        migrations.RunPython(partial(convert_datetime_to_datetimetz, model_name="UserSessionLog")),
+        migrations.RunPython(
+            partial(convert_datetime_to_datetimetz, model_name="UserSessionLog")
+        ),
     ]

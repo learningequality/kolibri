@@ -11,7 +11,6 @@
       <div
         v-if="$slots.header"
         class="ui-menu-header"
-        :class="{'ui-menu-header-lp': hasIcons}"
         :style="{ color: $coreTextDefault }"
       >
         <slot name="header"></slot>
@@ -40,9 +39,10 @@
     name: 'CoreMenu',
     mixins: [themeMixin],
     props: {
-      hasIcons: {
+      // Whether to show if links are currently active
+      showActive: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       hasSecondaryText: {
         type: Boolean,
@@ -57,30 +57,21 @@
         default: false,
       },
     },
-
+    provide() {
+      return {
+        showActive: this.showActive,
+      };
+    },
     computed: {
       classes() {
         return {
           'is-raised': this.raised,
-          'has-icons': this.hasIcons,
           'has-secondary-text': this.hasSecondaryText,
         };
       },
     },
 
     methods: {
-      selectOption(option) {
-        if (option.disabled || option.type === 'divider') {
-          return;
-        }
-        this.$emit('select', option);
-        this.closeMenu();
-      },
-
-      closeMenu() {
-        this.$emit('close');
-      },
-
       redirectFocus(e) {
         e.stopPropagation();
         this.$el.querySelector('.ui-menu-option').focus();
@@ -130,12 +121,9 @@
 
   .ui-menu-header {
     padding: 1rem;
+    padding-left: 50px; // TODO make a variable?
     font-size: $ui-dropdown-item-font-size;
     border-bottom: solid 1px rgba(black, 0.08);
-  }
-
-  .ui-menu-header-lp {
-    padding-left: 50px; // TODO make a variable?
   }
 
   /* stylelint-enable */

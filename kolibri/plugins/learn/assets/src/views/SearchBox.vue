@@ -127,20 +127,6 @@
 
   export default {
     name: 'SearchBox',
-    $trs: {
-      searchBoxLabel: 'Search',
-      clearButtonLabel: 'Clear',
-      startSearchButtonLabel: 'Start search',
-      resourceType: 'Type',
-      all: 'All',
-      topics: 'Topics',
-      exercises: 'Exercises',
-      videos: 'Videos',
-      audio: 'Audio',
-      documents: 'Documents',
-      html5: 'Apps',
-      channels: 'Channels',
-    },
     components: {
       UiIconButton,
       KSelect,
@@ -164,7 +150,6 @@
         searchQuery: this.$store.state.search.searchTerm,
         contentKindFilterSelection: {},
         channelFilterSelection: {},
-        test: 10,
       };
     },
     computed: {
@@ -267,6 +252,20 @@
           });
         }
       },
+    },
+    $trs: {
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
+      resourceType: 'Type',
+      all: 'All',
+      topics: 'Topics',
+      exercises: 'Exercises',
+      videos: 'Videos',
+      audio: 'Audio',
+      documents: 'Documents',
+      html5: 'Apps',
+      channels: 'Channels',
     },
   };
 

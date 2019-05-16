@@ -115,29 +115,10 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames } from '../constants';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
     name: 'SignUpPage',
-    $trs: {
-      createAccount: 'Create an account',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
-      reEnterPassword: 'Re-enter password',
-      passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during sign up',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
-      usernameAlreadyExistsError: 'An account with that username already exists',
-      logIn: 'Sign in',
-      kolibri: 'Kolibri',
-      finish: 'Finish',
-      facility: 'Facility',
-      required: 'This field is required',
-      documentTitle: 'User Sign Up',
-      privacyLink: 'Usage and privacy in Kolibri',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -165,11 +146,8 @@
       privacyModalVisible: false,
     }),
     computed: {
-      ...mapGetters(['facilities', 'session']),
+      ...mapGetters(['facilities']),
       ...mapState('signUp', ['errors', 'busy']),
-      signInPage() {
-        return { name: PageNames.SIGN_IN };
-      },
       facilityList() {
         return this.facilities.map(facility => ({
           label: facility.name,
@@ -294,6 +272,24 @@
           this.$refs.confirmedPassword.focus();
         }
       },
+    },
+    $trs: {
+      createAccount: 'Create an account',
+      name: 'Full name',
+      username: 'Username',
+      password: 'Password',
+      reEnterPassword: 'Re-enter password',
+      passwordMatchError: 'Passwords do not match',
+      genericError: 'Something went wrong during sign up',
+      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
+      usernameAlreadyExistsError: 'An account with that username already exists',
+      logIn: 'Sign in',
+      kolibri: 'Kolibri',
+      finish: 'Finish',
+      facility: 'Facility',
+      required: 'This field is required',
+      documentTitle: 'User Sign Up',
+      privacyLink: 'Usage and privacy in Kolibri',
     },
   };
 

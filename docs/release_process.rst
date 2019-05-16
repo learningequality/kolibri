@@ -35,7 +35,7 @@ Each minor release (``N.N.*``) is maintained in a CrowdIn Version Branch, follow
 
 On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. You can run ``make i18n-stats branch=<release-vN.N.x>`` to get figures on the translation work. Send the stats to the i18n team, whom can use them for communication with translators to measure the translation efforts needed.
 
-Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`i18n-perseus`.
+Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
 
 Before the translation start date, provide time to do one final review of all user-facing strings. This can be done e.g. in the course of doing a preliminary translation into Spanish.
 

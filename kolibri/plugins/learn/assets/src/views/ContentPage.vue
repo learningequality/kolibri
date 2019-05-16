@@ -1,11 +1,12 @@
 <template>
 
-  <div>
+  <KPageContainer>
 
     <PageHeader
       :title="content.title"
       :progress="progress"
       dir="auto"
+      :contentType="content.kind"
     />
     <CoachContentLabel
       class="coach-content-label"
@@ -15,13 +16,10 @@
 
     <ContentRenderer
       v-if="!content.assessment"
-      :id="content.id"
       class="content-renderer"
       :kind="content.kind"
       :lang="content.lang"
       :files="content.files"
-      :contentId="contentId"
-      :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
       :initSession="initSession"
@@ -42,7 +40,6 @@
       :randomize="content.randomize"
       :masteryModel="content.masteryModel"
       :assessmentIds="content.assessmentIds"
-      :contentId="contentId"
       :channelId="channelId"
       :available="content.available"
       :extraFields="extraFields"
@@ -79,10 +76,14 @@
           </UiIconButton>
           <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
             <template v-if="translatedLicense">
-              <p class="license-details-name">{{ licenseName }}</p>
+              <p class="license-details-name">
+                {{ licenseName }}
+              </p>
               <p>{{ licenseDescription }}</p>
             </template>
-            <p v-else>{{ content.license_description }}</p>
+            <p v-else>
+              {{ content.license_description }}
+            </p>
           </div>
         </template>
       </p>
@@ -99,7 +100,7 @@
     />
 
     <slot name="below_content">
-      <template v-if="progress >= 1 && content.next_content">
+      <template v-if="content.next_content">
         <h2>{{ $tr('nextResource') }}</h2>
         <ContentCardGroupCarousel
           :genContentLink="genContentLink"
@@ -123,7 +124,7 @@
       @close="markAsComplete"
     />
 
-  </div>
+  </KPageContainer>
 
 </template>
 
@@ -137,6 +138,7 @@
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isAndroidWebView } from 'kolibri.utils.browser';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import markdownIt from 'markdown-it';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import { PageNames, PageModes, ClassesPageNames } from '../constants';
@@ -149,25 +151,6 @@
 
   export default {
     name: 'ContentPage',
-    $trs: {
-      recommended: 'Recommended',
-      author: 'Author: {author}',
-      license: 'License: {license}',
-      toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder: {copyrightHolder}',
-      nextResource: 'Next resource',
-      documentTitle: '{ contentTitle } - { channelTitle }',
-    },
-    components: {
-      CoachContentLabel,
-      PageHeader,
-      ContentCardGroupCarousel,
-      ContentRenderer,
-      DownloadButton,
-      AssessmentWrapper,
-      MasteredSnackbars,
-      UiIconButton,
-    },
     metaInfo() {
       // Do not overwrite metaInfo of LessonResourceViewer
       if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -180,6 +163,17 @@
         }),
       };
     },
+    components: {
+      CoachContentLabel,
+      PageHeader,
+      ContentCardGroupCarousel,
+      ContentRenderer,
+      DownloadButton,
+      KPageContainer,
+      AssessmentWrapper,
+      MasteredSnackbars,
+      UiIconButton,
+    },
     data() {
       return {
         wasIncomplete: false,
@@ -187,7 +181,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'contentPoints', 'pageMode']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -205,7 +199,7 @@
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
       canDownload() {
-        if (this.facilityConfig.showDownloadButtonInLearn && this.content) {
+        if (this.facilityConfig.show_download_button_in_learn && this.content) {
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
@@ -319,6 +313,15 @@
           params: { id },
         };
       },
+    },
+    $trs: {
+      recommended: 'Recommended',
+      author: 'Author: {author}',
+      license: 'License: {license}',
+      toggleLicenseDescription: 'Toggle license description',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      nextResource: 'Next resource',
+      documentTitle: '{ contentTitle } - { channelTitle }',
     },
   };
 

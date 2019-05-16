@@ -30,10 +30,6 @@
     name: 'InteractionList',
     components: { InteractionItem },
     mixins: [responsiveElement],
-    $trs: {
-      currAnswer: 'Attempt {value, number, integer}',
-      noInteractions: 'No attempts made on this question',
-    },
     props: {
       interactions: {
         type: Array,
@@ -63,6 +59,10 @@
       isSelected(index) {
         return Number(this.selectedInteractionIndex) === index;
       },
+    },
+    $trs: {
+      currAnswer: 'Attempt {value, number, integer}',
+      noInteractions: 'No attempts made on this question',
     },
   };
 

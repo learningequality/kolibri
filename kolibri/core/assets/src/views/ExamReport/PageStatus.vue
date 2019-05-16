@@ -3,26 +3,43 @@
   <KGrid class="page-status" :style="{ backgroundColor: $coreBgLight }">
     <KGridItem size="75" percentage>
       <div>
-        <h1 class="title">{{ userName }}</h1>
+        <h1 class="title">
+          {{ userName }}
+        </h1>
         <KLabeledIcon>
           <KIcon slot="icon" quiz />
           {{ $tr('title', { name: contentName }) }}
         </KLabeledIcon>
       </div>
-      <div class="questions">
-        {{ $tr('overallScore', {score: score}) }}
-      </div>
-      <div class="questions">
-        {{ $tr('questionsCorrect', { correct: questionsCorrect, total: questions.length }) }}
-      </div>
+
+      <table class="scores">
+        <tr>
+          <th>
+            {{ $tr('overallScore') }}
+          </th>
+          <td>
+            <strong>
+              {{ $formatNumber(score, { style: 'percent' }) }}
+            </strong>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{ $tr('questionsCorrectLabel') }}
+          </th>
+          <td>
+            {{ $tr('questionsCorrectValue', {
+              correct: questionsCorrect, total: questions.length
+            }) }}
+          </td>
+        </tr>
+      </table>
     </KGridItem>
     <KGridItem size="25" percentage align="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
-          <template v-if="completed">{{ $tr('completed') }}</template>
-          <template v-else-if="completed !== null">{{ $tr('inProgress') }}</template>
-          <template v-else>{{ $tr('notStarted') }}</template>
+          {{ progressIconLabel }}
         </strong>
       </div>
       <div v-if="completed">
@@ -41,20 +58,11 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
 
   export default {
     name: 'PageStatus',
-    $trs: {
-      title: '{name} - Quiz performance',
-      overallScore: 'Overall score: { score, number, percent }',
-      questionsCorrect: 'Questions correct: {correct, number} of {total, number}',
-      completed: 'Completed',
-      inProgress: 'In progress',
-      notStarted: 'Not started',
-    },
     components: {
       KGrid,
       KGridItem,
@@ -94,9 +102,24 @@
         // Either return in completed or in progress
         return this.completed ? 1 : 0.1;
       },
-      kind() {
-        return ContentNodeKinds.EXAM;
+      progressIconLabel() {
+        if (this.completed) {
+          return this.$tr('completed');
+        } else if (this.completed !== null) {
+          return this.$tr('inProgress');
+        } else {
+          return this.$tr('notStarted');
+        }
       },
+    },
+    $trs: {
+      title: `'{name}' performance`,
+      overallScore: 'Overall score',
+      questionsCorrectLabel: 'Questions correct',
+      questionsCorrectValue: '{correct, number} out of {total, number}',
+      completed: 'Completed',
+      inProgress: 'In progress',
+      notStarted: 'Not started',
     },
   };
 
@@ -130,7 +153,23 @@
   }
 
   .title {
-    margin: 0;
+    margin-top: 0;
+  }
+
+  .scores {
+    min-width: 200px;
+    margin-top: 24px;
+
+    th {
+      text-align: left;
+    }
+
+    th,
+    td {
+      height: 2em;
+      padding-right: 24px;
+      font-size: 14px;
+    }
   }
 
 </style>

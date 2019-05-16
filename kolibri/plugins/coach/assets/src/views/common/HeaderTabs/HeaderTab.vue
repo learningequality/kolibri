@@ -33,11 +33,6 @@
         required: true,
       },
     },
-    data() {
-      return {
-        active: null,
-      };
-    },
     computed: {
       activeClasses() {
         // return both fixed and dynamic classes

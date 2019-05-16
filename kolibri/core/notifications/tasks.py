@@ -8,8 +8,7 @@ from django.db import transaction
 logging = logger.getLogger(__name__)
 
 
-class AsyncNotificationQueue():
-
+class AsyncNotificationQueue:
     def __init__(self):
 
         # Value in seconds to determine the sleep time between log saving batches
@@ -63,7 +62,10 @@ class AsyncNotificationQueue():
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.warn("Exception raised during background notification calculation: ", e)
+                        logging.warn(
+                            "Exception raised during background notification calculation: ",
+                            e,
+                        )
             connection.close()
 
     def start(self):
@@ -85,11 +87,11 @@ def add_to_save_queue(fn):
 def wrap_to_save_queue(fn, *args):
     def wrapper():
         fn(*args)
+
     log_queue.append(wrapper)
 
 
 class AsyncNotificationsThread(threading.Thread):
-
     @classmethod
     def start_command(cls):
         thread = cls()

@@ -9,14 +9,12 @@ import kolibri.core.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0001_initial'),
-    ]
+    dependencies = [("content", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='channelmetadatacache',
-            name='last_updated',
+            model_name="channelmetadatacache",
+            name="last_updated",
             field=kolibri.core.fields.DateTimeTzField(null=True),
-        ),
+        )
     ]

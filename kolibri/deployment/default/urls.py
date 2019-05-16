@@ -28,16 +28,16 @@ from morango import urls as morango_urls
 
 from kolibri.utils.conf import OPTIONS
 
-path_prefix = OPTIONS['Deployment']['URL_PATH_PREFIX']
+path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
-if path_prefix == '/':
-    path_prefix = ''
+if path_prefix == "/":
+    path_prefix = ""
 
 url_patterns_prefixed = [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'', include(morango_urls)),
-    url(r'', include('kolibri.core.urls')),
+    url(r"^admin/", include(admin.site.urls)),
+    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    url(r"", include(morango_urls)),
+    url(r"", include("kolibri.core.urls")),
 ]
 
 urlpatterns = [url(path_prefix, include(url_patterns_prefixed))]

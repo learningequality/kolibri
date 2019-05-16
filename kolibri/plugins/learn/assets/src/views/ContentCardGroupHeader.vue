@@ -27,14 +27,14 @@
   export default {
     name: 'ContentCardGroupHeader',
     components: { KRouterLink },
-    $trs: {
-      viewMoreFromSectionButton: 'View more',
-    },
     mixins: [themeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },
       showViewMore: { type: Boolean },
+    },
+    $trs: {
+      viewMoreFromSectionButton: 'View more',
     },
   };
 

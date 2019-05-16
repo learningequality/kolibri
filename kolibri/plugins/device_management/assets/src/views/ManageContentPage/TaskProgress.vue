@@ -41,6 +41,7 @@
     <div v-if="showButtons" class="buttons dtc">
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
+        class="btn"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
@@ -55,7 +56,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -82,7 +82,6 @@
         type: Number,
         required: true,
       },
-      id: RequiredString,
       cancellable: {
         type: Boolean,
         required: true,
@@ -108,7 +107,7 @@
           return this.$tr('downloadingChannelContents');
         }
 
-        if (this.status === TaskStatuses.RUNNING) {
+        if (this.status === this.TaskStatuses.RUNNING) {
           switch (this.type) {
             case TaskTypes.REMOTE_IMPORT:
             case TaskTypes.LOCAL_IMPORT:
@@ -135,15 +134,19 @@
         if (this.taskIsPreparing) {
           return this.$tr('preparingTask');
         }
+
+        return '';
       },
       taskHasFailed() {
-        return this.status === TaskStatuses.FAILED;
+        return this.status === this.TaskStatuses.FAILED;
       },
       taskHasCompleted() {
-        return this.status === TaskStatuses.COMPLETED;
+        return this.status === this.TaskStatuses.COMPLETED;
       },
       taskIsPreparing() {
-        return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
+        return (
+          this.status === this.TaskStatuses.QUEUED || this.status === this.TaskStatuses.SCHEDULED
+        );
       },
       formattedPercentage() {
         return this.percentage * 100;
@@ -156,12 +159,19 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList']),
       endTask() {
         this.uiBlocked = true;
-        this.$emit('cleartask', () => {
+        if (this.taskHasCompleted || this.taskHasFailed) {
+          this.$emit('cleartask', () => {
+            this.uiBlocked = false;
+          });
+        } else if (this.cancellable) {
+          this.$emit('canceltask', () => {
+            this.uiBlocked = false;
+          });
+        } else {
           this.uiBlocked = false;
-        });
+        }
       },
     },
     $trs: {
@@ -196,7 +206,6 @@
     display: table;
     width: 100%;
     height: 5em;
-    padding-right: 1em;
     margin-left: -6px;
     vertical-align: middle;
   }
@@ -227,6 +236,10 @@
   .dtc {
     display: table-cell;
     vertical-align: inherit;
+  }
+
+  .btn {
+    margin: 0;
   }
 
 </style>

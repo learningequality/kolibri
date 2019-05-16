@@ -8,7 +8,8 @@
         <TaskProgress
           v-if="firstTask"
           v-bind="firstTask"
-          @cleartask="clearFirstTask"
+          @cleartask="clearCompletedTasks"
+          @canceltask="cb => cancelRunningTask(firstTask.id, cb)"
         />
 
         <KGrid>
@@ -57,20 +58,13 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import { TaskResource } from 'kolibri.resources';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
 
   export default {
     name: 'ManageContentPage',
-    $trs: {
-      title: 'Channels',
-      import: 'Import',
-      export: 'Export',
-      noAccessDetails:
-        'You must be signed in as a superuser or have content management permissions to view this page',
-      documentTitle: 'Manage Device Channels',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -110,14 +104,25 @@
         'startImportWorkflow',
         'startExportWorkflow',
       ]),
-      clearFirstTask(unblockCb) {
-        this.cancelTask(this.firstTask.id)
+      cancelRunningTask(taskId, unblockCb) {
+        this.cancelTask(taskId)
           // Handle failures silently in case of near-simultaneous cancels.
           .catch(() => {})
           .then(() => {
             unblockCb();
           });
       },
+      clearCompletedTasks() {
+        return TaskResource.deleteFinishedTasks();
+      },
+    },
+    $trs: {
+      title: 'Channels',
+      import: 'Import',
+      export: 'Export',
+      noAccessDetails:
+        'You must be signed in as a superuser or have content management permissions to view this page',
+      documentTitle: 'Manage Device Channels',
     },
   };
 

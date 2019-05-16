@@ -49,6 +49,8 @@
         if (this.icon === ICONS.nothing) {
           return this.$coreGrey300;
         }
+
+        return undefined;
       },
     },
   };

@@ -14,6 +14,7 @@
               :showLabel="true"
               :checked="allAreSelected"
               class="overflow-label"
+              :disabled="users.length === 0"
               @change="selectAll($event)"
             />
           </th>
@@ -29,6 +30,9 @@
             </span>
           </th>
           <th>{{ $tr('username') }}</th>
+          <th v-if="$scopedSlots.info">
+            {{ infoDescriptor }}
+          </th>
           <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">
               {{ $tr('userActionsColumnHeader') }}
@@ -37,7 +41,7 @@
         </tr>
       </thead>
 
-      <transition-group slot="tbody" tag="tbody" name="list">
+      <tbody slot="tbody">
         <tr
           v-for="user in users"
           :key="user.id"
@@ -80,11 +84,14 @@
               {{ user.username }}
             </span>
           </td>
+          <td v-if="$scopedSlots.info">
+            <slot name="info" :user="user"></slot>
+          </td>
           <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
           </td>
         </tr>
-      </transition-group>
+      </tbody>
     </CoreTable>
 
     <p
@@ -124,9 +131,6 @@
         type: Array,
         required: true,
       },
-      title: {
-        type: String,
-      },
       emptyMessage: {
         type: String,
       },
@@ -150,6 +154,10 @@
       isCoach: {
         type: Boolean,
         default: false,
+      },
+      infoDescriptor: {
+        type: String,
+        default: '',
       },
     },
     computed: {
@@ -200,7 +208,6 @@
     // Overrides overflow-x: hidden rule for CoreTable th's
     overflow-x: visible;
 
-    // white-space: nowrap;
     .k-checkbox-container {
       margin-right: -70px;
     }

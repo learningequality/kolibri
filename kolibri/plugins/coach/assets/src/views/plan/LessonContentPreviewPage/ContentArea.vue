@@ -5,15 +5,12 @@
       {{ header }}
     </h2>
     <ContentRenderer
-      :id="content.id"
       :class="{ hof: isExercise}"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
       :kind="content.kind"
       :files="content.files"
-      :contentId="content.content_id"
-      :channelId="content.channel_id"
       :available="content.available"
       :extraFields="content.extra_fields"
       :interactive="false"
@@ -55,11 +52,6 @@
         default: '',
       },
     },
-    computed: {
-      hasHeader() {
-        return Boolean(this.header);
-      },
-    },
   };
 
 </script>
@@ -78,6 +70,11 @@
   .header {
     margin: 0;
     font-size: 16px; // same as question-list
+  }
+
+  // Centers the video inside the main slot
+  /deep/ .wrapper {
+    margin: auto;
   }
 
 </style>

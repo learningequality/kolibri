@@ -42,9 +42,7 @@ class _FrontEndASyncAssetHook(TestHookMixin, hooks.WebpackBundleHook):
 
     src_file = "im_a_source_file"
 
-    events = {
-        'some_weird_event_we_are_going_to_look_for': 'value'
-    }
+    events = {"some_weird_event_we_are_going_to_look_for": "value"}
 
 
 class _FrontEndASyncInclusionTargetHook(hooks.FrontEndBaseASyncHook):
@@ -52,7 +50,6 @@ class _FrontEndASyncInclusionTargetHook(hooks.FrontEndBaseASyncHook):
 
 
 class WebpackBundleHookTestCase(TestCase):
-
     def test_replacement(self):
         """
         Test that the parent of ``_WebpackBundleHookInheritor`` is no longer in
@@ -63,14 +60,8 @@ class WebpackBundleHookTestCase(TestCase):
         ]
 
         # Assert that
-        self.assertNotIn(
-            _WebpackBundleHookSwappedOut,
-            registered_types
-        )
-        self.assertIn(
-            _WebpackBundleHookInheritor,
-            registered_types
-        )
+        self.assertNotIn(_WebpackBundleHookSwappedOut, registered_types)
+        self.assertIn(_WebpackBundleHookInheritor, registered_types)
 
     def test_sync_hook(self):
 

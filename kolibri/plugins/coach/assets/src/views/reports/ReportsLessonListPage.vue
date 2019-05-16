@@ -88,6 +88,8 @@
         if (this.filter.value === 'inactiveLessons') {
           return LessonsRootPageStrings.$tr('noInactiveLessons');
         }
+
+        return '';
       },
       filterOptions() {
         return [

@@ -65,7 +65,6 @@ describe('app bar component', () => {
     it('should show the language modal link if no components are added and user is not logged in', () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
-      expect(wrapper.html()).toMatchSnapshot();
       expect(wrapper.contains(CoreMenuOption)).toBe(true);
     });
     it('should show logout if no components are added and user is logged in', () => {
