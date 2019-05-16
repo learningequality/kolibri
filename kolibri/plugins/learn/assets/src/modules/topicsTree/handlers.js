@@ -56,7 +56,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       ContentNodeSlimResource.fetchCollection({
         getParams: {
           parent: id,
-          by_role: true,
+          user_kind: store.getters.getUserKind,
         },
       }), // the topic's children
       ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors

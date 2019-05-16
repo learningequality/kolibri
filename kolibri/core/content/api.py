@@ -31,6 +31,7 @@ from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
@@ -139,7 +140,10 @@ class ContentNodeFilter(IdFilter):
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Content")),)),
     )
-    by_role = BooleanFilter(method="filter_by_role")
+    user_kind = ChoiceFilter(
+        method="filter_user_kind",
+        choices=user_kinds.choices,
+    )
     in_lesson = CharFilter(method="filter_in_lesson")
     in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
@@ -161,7 +165,7 @@ class ContentNodeFilter(IdFilter):
             "content_id",
             "channel_id",
             "kind",
-            "by_role",
+            "user_kind",
             "kind_in",
         ]
 
@@ -188,23 +192,19 @@ class ContentNodeFilter(IdFilter):
         kinds = value.split(",")
         return queryset.filter(kind__in=kinds).order_by("lft")
 
-    def filter_by_role(self, queryset, name, value):
+    def filter_user_kind(self, queryset, name, value):
         """
         Show coach_content if they have coach role or higher.
+        This could be extended if we add other 'content role' types
 
-        :param queryset: all content nodes for this channel
-        :param value: 'boolean'
+        :param queryset: content nodes
+        :param value: user_kind
         :return: content nodes filtered by coach_content if appropiate
         """
-        user = self.request.user
-        if user.is_facility_user:  # exclude anon users
-            if (
-                user.roles.exists() or user.is_superuser
-            ):  # must have coach role or higher
-                return queryset
-
-        # In all other cases, exclude nodes that are coach content
-        return queryset.exclude(coach_content=True)
+        if value not in [user_kinds.ADMIN, user_kinds.SUPERUSER, user_kinds.COACH, user_kinds.ASSIGNABLE_COACH]:
+            # Exclude nodes that are coach content
+            queryset = queryset.exclude(coach_content=True)
+        return queryset
 
     def filter_exclude_content_ids(self, queryset, name, value):
         return queryset.exclude(content_id__in=value.split(","))

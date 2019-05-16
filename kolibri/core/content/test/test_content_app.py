@@ -16,6 +16,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 import kolibri.core.content.serializers
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
@@ -661,7 +662,7 @@ class ContentNodeAPITestCase(APITestCase):
         children = parent.get_children()
         response = self.client.get(
             reverse("kolibri:core:contentnode_slim-list"),
-            data={"parent": parent.id, "by_role": True},
+            data={"parent": parent.id, "user_kind": user_kinds.LEARNER},
         )
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
@@ -694,7 +695,7 @@ class ContentNodeAPITestCase(APITestCase):
         children = parent.get_children()
         response = self.client.get(
             reverse("kolibri:core:contentnode_slim-list"),
-            data={"parent": parent.id, "by_role": True},
+            data={"parent": parent.id, "user_kind": user_kinds.LEARNER},
         )
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
@@ -989,7 +990,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_filtering_coach_content_anon(self):
         response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"by_role": True}
+            reverse("kolibri:core:contentnode-list"), data={"user_kind": user_kinds.ANONYMOUS}
         )
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
         self.assertEqual(len(response.data), 7)
@@ -997,7 +998,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_filtering_coach_content_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"by_role": True}
+            reverse("kolibri:core:contentnode-list"), data={"user_kind": user_kinds.ADMIN}
         )
         expected_output = content.ContentNode.objects.exclude(
             available=False

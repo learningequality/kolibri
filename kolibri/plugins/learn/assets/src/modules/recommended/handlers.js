@@ -7,9 +7,9 @@ import { PageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 
 // User-agnostic recommendations
-function _getPopular() {
+function _getPopular(store) {
   return ContentNodeSlimResource.fetchPopular({
-    by_role: true,
+    user_kind: store.getters.getUserKind,
   });
 }
 
@@ -17,7 +17,7 @@ function _getPopular() {
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchNextSteps({
-      by_role: true,
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);
@@ -26,7 +26,7 @@ function _getNextSteps(store) {
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchResume({
-      by_role: true,
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);

@@ -13,7 +13,7 @@ export function showChannels(store) {
       }
       const channelRootIds = channels.map(channel => channel.root);
       ContentNodeSlimResource.fetchCollection({
-        getParams: { ids: channelRootIds, by_role: true },
+        getParams: { ids: channelRootIds, user_kind: store.getters.getUserKind },
       }).then(channelCollection => {
         // we want them to be in the same order as the channels list
         const rootNodes = channels
