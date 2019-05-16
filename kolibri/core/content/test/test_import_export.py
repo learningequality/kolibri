@@ -251,6 +251,10 @@ class ImportContentTestCase(TestCase):
         annotation_mock.recurse_availability_up_tree.assert_not_called()
 
     @patch(
+        "kolibri.core.content.management.commands.importcontent.import_export_content.compare_checksums",
+        return_value=True,
+    )
+    @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
     )
     @patch(
@@ -271,6 +275,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock,
         local_path_mock,
         remote_path_mock,
+        checksum_mock,
         annotation_mock,
     ):
         # If transfer is cancelled after transfer of first file
@@ -601,6 +606,36 @@ class ImportContentTestCase(TestCase):
                 node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
             )
             mock_overall_progress.assert_called_with(expected_file_size - src_file_size)
+
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_source_corrupted(
+        self, is_cancelled_mock, path_mock, finalize_dest_mock, annotation_mock
+    ):
+        dest_path_1 = tempfile.mkstemp()[1]
+        dest_path_2 = tempfile.mkstemp()[1]
+        path_mock.side_effect = [dest_path_1, dest_path_2]
+        LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
+            file_size=2201062
+        )
+        LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
+            file_size=336974
+        )
+        call_command(
+            "importcontent",
+            "network",
+            self.the_channel_id,
+            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+        )
+        annotation_mock.annotate_content.assert_called_with(self.the_channel_id, [])
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())

@@ -109,15 +109,15 @@
         @moreresults="handleMoreResults"
       />
 
-      <Bottom v-if="inSearchMode">
+      <KBottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
           :to="toolbarRoute"
         />
-      </Bottom>
-      <Bottom v-else>
+      </KBottomAppBar>
+      <KBottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
           :text="coachStrings.$tr('goBackAction')"
@@ -128,7 +128,7 @@
           primary
           @click="continueProcess"
         />
-      </Bottom>
+      </KBottomAppBar>
 
     </KPageContainer>
 
@@ -151,6 +151,7 @@
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -158,7 +159,6 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
-  import Bottom from './Bottom';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -175,7 +175,7 @@
       KGrid,
       KGridItem,
       UiIconButton,
-      Bottom,
+      KBottomAppBar,
     },
     mixins: [responsiveWindow, commonCoach],
     data() {
