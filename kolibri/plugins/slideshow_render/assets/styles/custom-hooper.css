@@ -103,7 +103,7 @@
 .hooper-prev {
   position: absolute;
   top: 50%;
-  z-index: 5000;
+  z-index: 24;
   padding: 1em;
   cursor: pointer;
   background-color: transparent;

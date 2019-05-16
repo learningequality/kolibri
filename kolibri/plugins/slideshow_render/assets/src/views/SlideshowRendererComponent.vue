@@ -64,6 +64,7 @@
     Navigation as HooperNavigation,
     Pagination as HooperPagination,
   } from 'hooper';
+  import { checksumFromFile } from '../utils.js';
   import '../../styles/custom-hooper.css';
 
   export default {
@@ -102,8 +103,8 @@
         return 30 + (this.currentSlide ? this.$refs[this.currentSlide.id][0].clientHeight : 0);
       },
       contentHeight: function() {
-        return (window.innerHeight * 0.70) + 'px';
-      }
+        return window.innerHeight * 0.7 + 'px';
+      },
     },
     mounted() {
       /*
@@ -121,10 +122,7 @@
             this.manifest.map(image => {
               return {
                 storage_url: this.slideshowImages.find(
-                  sFile =>
-                    sFile.storage_url
-                      .split('/')
-                      [sFile.storage_url.split('/').length - 1].split('.')[0] == image.checksum
+                  sFile => checksumFromFile(sFile) == image.checksum
                 ).storage_url,
                 caption: image.caption,
                 sort_order: image.sort_order,
@@ -218,14 +216,14 @@
 
   .hooper-pagination {
     width: 100%;
-    background: #efefef;
+    background: #cccccc;
   }
 
   .caption {
     position: absolute;
     bottom: 30px;
     width: 100%;
-    padding: 0.25em;
+    padding: 12px;
     background: #efefef;
   }
 
