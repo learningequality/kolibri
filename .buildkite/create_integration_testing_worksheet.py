@@ -101,7 +101,7 @@ def create_artifact(str_arg):
     file = open(txt_path, 'w')
     file.write(str_arg)
     file.close()
-    os.chmod(txt_path, 0o777)
+    os.chmod(txt_path, 0o666)
 
 
 def fetch_feature_files():

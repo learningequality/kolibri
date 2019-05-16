@@ -12,12 +12,10 @@ COPY ./integration_testing /kolibri/integration_testing
 COPY ./requirements /kolibri/requirements
 COPY ./.buildkite /kolibri/.buildkite
 
-VOLUME /kolibridist/
-
 CMD export BUILDKITE_PULL_REQUEST_BASE_BRANCH=$BUILDKITE_PULL_REQUEST_BASE_BRANCH && \
     export BUILDKITE_BRANCH=$BUILDKITE_BRANCH && \
     export BUILDKITE_TAG=$BUILDKITE_TAG && \
     pip3 install -r ./kolibri/requirements/testing_sheet.txt && \
     python3 ./kolibri/.buildkite/create_integration_testing_worksheet.py && \
     cd /kolibri/.buildkite && \
-    mv *.txt /kolibridist/
+    cp *.txt /dist/

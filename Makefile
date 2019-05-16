@@ -233,14 +233,14 @@ docker-windows: writeversion
 	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
 	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
 
-docker-build-sheet:
+docker-sheet:
 	cp $$GOOGLE_SPREADSHEET_CREDENTIALS ./.buildkite
 	docker image build -t "learningequality/build-testing-sheet" -f docker/build_testing_sheet.dockerfile .
 	docker run --env-file ./docker/env.list \
 		--env BUILDKITE_BRANCH=$$BUILDKITE_BRANCH \
 		--env BUILDKITE_TAG=$$BUILDKITE_TAG \
 		--env BUILDKITE_PULL_REQUEST_BASE_BRANCH=$$BUILDKITE_PULL_REQUEST_BASE_BRANCH \
-		-v $$PWD/dist:/kolibridist "learningequality/build-testing-sheet"
+		--mount type=bind,source=$$PWD/dist,target=/dist "learningequality/build-testing-sheet"
 
 docker-build-base: writeversion
 	docker image build . \

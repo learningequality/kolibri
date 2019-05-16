@@ -125,3 +125,6 @@ build_tools/crowdin-cli.jar
 *.ttf
 *.ttc
 *.otf
+
+# Ignore Google api credential
+.buildkite/integration-testing-google-api-credential.json
