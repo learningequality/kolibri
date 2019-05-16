@@ -140,7 +140,7 @@
       */
       fetch(this.defaultFile.storage_url, { method: 'GET' })
         .then(response => {
-          return response.status === 200 ? response.json() : {};
+          return response.json();
         })
         .then(manifest_data => {
           this.manifest = manifest_data.slideshow_data;
@@ -160,6 +160,9 @@
             ['sort_order'],
             ['asc']
           );
+        })
+        .catch(error => {
+          this.$store.dispatch('handleApiError', error);
         });
     },
     methods: {
