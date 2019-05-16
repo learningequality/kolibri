@@ -67,6 +67,10 @@
   import { checksumFromFile } from '../utils.js';
   import '../../styles/custom-hooper.css';
 
+  const presets = {
+    slideshow_manifest: 'Slideshow Manifest',
+  };
+
   export default {
     name: 'SlideshowRendererComponent',
     components: {
@@ -121,7 +125,7 @@
     computed: {
       slideshowImages: function() {
         const files = this.files;
-        return files.filter(file => file.preset != 'Slideshow Manifest');
+        return files.filter(file => file.preset != presets.slideshow_manifest);
       },
       captionHeight: function() {
         return 30 + (this.currentSlide ? this.$refs[this.currentSlide.id][0].clientHeight : 0);
