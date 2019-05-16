@@ -1,6 +1,6 @@
 <template>
 
-  <div dir="auto">
+  <div dir="auto" class="topic-tab">
     <h1 class="title">
       {{ title }}
     </h1>
@@ -29,6 +29,10 @@
 
   .title {
     display: inline-block;
+  }
+
+  .topic-tab{
+    padding-left:5%;
   }
 
 </style>
