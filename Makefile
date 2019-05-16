@@ -247,6 +247,7 @@ docker-windows: writeversion
 
 docker-sheet:
 	cp $$GOOGLE_SPREADSHEET_CREDENTIALS ./.buildkite
+	mkdir -p $$PWD/dist
 	docker image build -t "learningequality/build-testing-sheet" -f docker/build_testing_sheet.dockerfile .
 	docker run --env-file ./docker/env.list \
 		--env BUILDKITE_BRANCH=$$BUILDKITE_BRANCH \
