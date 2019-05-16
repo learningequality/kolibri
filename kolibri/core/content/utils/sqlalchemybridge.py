@@ -17,7 +17,7 @@ from sqlalchemy.pool import NullPool
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
 from kolibri.core.content.models import CONTENT_DB_SCHEMA_VERSIONS
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.models import CURRENT_SCHEMA_VERSION
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -136,11 +136,11 @@ SCHEMA_PATH_TEMPLATE = os.path.join(
 
 def prepare_bases():
 
-    for name in CONTENT_DB_SCHEMA_VERSIONS:
+    for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=name), "rb") as f:
             metadata = pickle.load(f)
-        cascade_relationships = name == CONTENT_SCHEMA_VERSION
+        cascade_relationships = name == CURRENT_SCHEMA_VERSION
         BASES[name] = prepare_base(
             metadata, cascade_relationships=cascade_relationships
         )
@@ -222,7 +222,7 @@ class Bridge(object):
         if sqlite_file_path is None:
             # If sqlite_file_path is None, we are referencing the Django default database
             self.connection_string = get_default_db_string()
-            self.Base = BASES[CONTENT_SCHEMA_VERSION]
+            self.Base = BASES[CURRENT_SCHEMA_VERSION]
         else:
             # Otherwise, we are accessing an external content database.
             # So we try each of our historical database schema in order to see
