@@ -35,6 +35,7 @@ export const PageNames = {
 // modal names
 export const Modals = {
   COACH_CREATE_USER: 'COACH_CREATE_USER',
+  PREREQUISITES: 'PREREQUISITES',
 };
 
 export const GroupModals = {

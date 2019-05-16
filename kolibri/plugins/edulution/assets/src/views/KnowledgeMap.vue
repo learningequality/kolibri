@@ -4,7 +4,6 @@
     <div style="padding-left: 16px; margin: 32px 0 8px 0">
       <h1 class="page-header">
         {{ topic.title }}
-        <ProgressIcon :progress="progress" />
       </h1>
       <TextTruncator
         v-if="topic.description"
@@ -16,18 +15,20 @@
         class="page-description"
       />
     </div>
-    <ExpandableContentCardGroupGrid 
-      v-for="child in contents" 
-      v-if="contents[0].children.length" 
-      :key="child" 
-      :child="child"
-    />
+    <div v-if="contents[0].children.length">
+      <ExpandableContentCardGroupGrid
+        v-for="child in contents"
+        :key="child.id"
+        :child="child"
+      />
+    </div>
     <ContentCardGroupGrid
       v-if="!contents[0].children.length"
       :contents="contents"
       :genContentLink="genContentLink"
       style="padding-left: 16px; padding-top: 16px"
     />
+    <PrerequisitesModal v-if="modalShown" />
   </div>
 
 </template>
@@ -42,6 +43,7 @@
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ExpandableContentCardGroupGrid from './ExpandableContentCardGroupGrid';
+  import PrerequisitesModal from './PrerequisitesModal';
 
   export default {
     name: 'KnowledgeMap',
@@ -56,6 +58,7 @@
       ContentCardGroupGrid,
       TextTruncator,
       ProgressIcon,
+      PrerequisitesModal,
     },
     metaInfo() {
       let title;
@@ -77,7 +80,14 @@
       };
     },
     computed: {
-      ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic', 'progress']),
+      ...mapState('topicsTree', [
+        'channel',
+        'contents',
+        'isRoot',
+        'topic',
+        'progress',
+        'modalShown',
+      ]),
       channelId() {
         return this.channel.id;
       },

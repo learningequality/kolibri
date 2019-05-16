@@ -1,7 +1,7 @@
 <template>
 
   <div class="collapsible-grid">
-    <div 
+    <div
       class="clickable-header"
       :style="{ backgroundColor: $coreActionNormal }"
       :class="{'expanded-header': !hidden}"
@@ -12,6 +12,21 @@
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
+      <div
+        v-if="child.progress !== undefined"
+        class="progress-bar-wrapper"
+        :style="{ backgroundColor: $coreGrey }"
+      >
+        <div
+          class="progress-bar"
+          :style="{
+            width: `${child.progress * 100}%`,
+            backgroundColor: isMastered ?
+              $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+          }"
+        >
+        </div>
+      </div>
     </div>
     <div :class="{'hidden-grid': hidden}">
       <ContentCardGroupGrid
@@ -46,8 +61,16 @@
     props: { child: Object },
     data() {
       return {
-        hidden: false,
+        hidden: true,
       };
+    },
+    computed: {
+      isMastered() {
+        return this.child.progress === 1;
+      },
+      isInProgress() {
+        return this.child.progress > 0 && this.child.progress < 1;
+      },
     },
     methods: {
       genContentLink(id, kind) {
@@ -79,7 +102,6 @@
   }
 
   .clickable-header {
-    padding-left: 16px;
     color: white;
     border-radius: 8px;
   }
@@ -95,6 +117,16 @@
   .topic-arrow {
     float: right;
     margin: 8px 8px 0 0;
+  }
+
+  .progress-bar-wrapper {
+    width: 100%;
+    height: 8px;
+    opacity: 0.9;
+  }
+
+  .progress-bar {
+    height: 100%;
   }
 
 </style>

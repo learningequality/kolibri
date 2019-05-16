@@ -11,6 +11,9 @@ function defaultState() {
     // used in RECOMMENDED_CONTENT
     recommended: [],
     progress: null,
+    modalShown: false,
+    prerequisites: [],
+    link: {},
   };
 }
 
@@ -37,6 +40,14 @@ export default {
           Vue.set(contentNode, 'progress', progress.progress_fraction);
         }
       });
+    },
+    SET_PREREQUISITES_MODAL(state, modalShown) {
+      state.modalShown = modalShown;
+    },
+
+    SET_PREREQUISITES(state, arr = [{}, []]) {
+      state.link = arr[0];
+      state.prerequisites = arr[1];
     },
   },
 };
