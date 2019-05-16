@@ -3,6 +3,20 @@ Release Notes
 
 List of the most important changes for each release.
 
+0.12.3
+------
+
+Changed or fixed
+~~~~~~~~~~~~~~~~
+
+- Improved handling of partially-download or otherwise corrupted content databases
+- Fixed regression where users could not change their passwords in the Profile page
+- Improved PostgreSQL support
+- Added fixes related to coach tools
+
+See a `full list <https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3>`__ of changes on Github
+
+
 0.12.2
 ------
 
