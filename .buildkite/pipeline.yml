@@ -29,7 +29,8 @@ steps:
 
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
-    command: make docker-sheet
+    command:
+      - make docker-sheet
       - buildkite-agent artifact upload './dist/spreadsheet-link.txt'
 
   - wait
