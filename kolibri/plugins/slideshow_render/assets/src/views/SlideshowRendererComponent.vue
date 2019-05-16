@@ -29,7 +29,7 @@
             :aria-labelledby="slideTextId(slide.id)"
           >
         </div>
-        <div :id="slideTextId(slide.id)" class="hidden-descriptive-text">
+        <div :id="slideTextId(slide.id)" class="visuallyhidden">
           {{ slide.descriptive_text || slide.caption }}
         </div>
         <div :ref="slide.id" class="caption">
@@ -65,7 +65,6 @@
     Pagination as HooperPagination,
   } from 'hooper';
   import { checksumFromFile } from '../utils.js';
-  import '../../styles/custom-hooper.css';
 
   const presets = {
     slideshow_manifest: 'Slideshow Manifest',
@@ -198,6 +197,8 @@
 
 <style lang="scss" scoped>
 
+  @import './custom-hooper.css';
+
   .btn {
     position: absolute;
     top: 8px;
@@ -210,15 +211,6 @@
     position: relative;
     overflow: hidden;
     text-align: center;
-  }
-
-  .hidden-descriptive-text {
-    position: absolute;
-    top: auto;
-    left: -10000px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
   }
 
   .slideshow-slide-image {
