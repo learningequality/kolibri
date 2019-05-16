@@ -82,10 +82,34 @@
       defaultFile: {
         type: Object,
         default: () => {},
+        validator(file) {
+          // File must have a storage_url
+          if (file.hasOwnProperty('storage_url')) {
+            // Ensure the file is a JSON file because the defaultFile is the manifest.
+            return /json$/.test(file.storage_url);
+          } else {
+            return false;
+          }
+        },
       },
       files: {
         type: Array,
         default: () => [],
+        validator(files) {
+          let isValid = true;
+          // Ensure we receive a non-empty array.
+          if (files.length === 0) {
+            return false;
+          } else {
+            // Check each file to have a storage_url
+            files.forEach(file => {
+              if (!file.hasOwnProperty('storage_url')) {
+                isValid = false;
+              }
+            });
+          }
+          return isValid;
+        },
       },
     },
     data: () => ({
