@@ -793,7 +793,7 @@
   .search-button {
     position: absolute;
     top: 0;
-    z-index: 2;
+    z-index: 6;
   }
   .settings-button {
     right: 72px;
