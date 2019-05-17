@@ -2,7 +2,7 @@
 
   <Block
     :allLinkText="viewAllString"
-    :allLinkRoute="classRoute('ReportsLessonListPage', {})"
+    :allLinkRoute="classRoute('ReportsAttendanceListPage')"
   >
     <KLabeledIcon slot="title">
       <KIcon slot="icon" people />
@@ -10,7 +10,7 @@
     </KLabeledIcon>
 
     <BlockItem class="block-item">
-      <ItemProgressDisplay
+      <LiveAttendanceProgressDisplay
         :name="$tr('activeLearners')"
         :tally="liveAttendance.tally"
         :groupNames="liveAttendance.groups"
@@ -28,7 +28,7 @@
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
-  import ItemProgressDisplay from './ItemProgressDisplay';
+  import LiveAttendanceProgressDisplay from './LiveAttendanceProgressDisplay';
   import ActivityBlock from './ActivityBlock';
 
   const translator = crossComponentTranslator(ActivityBlock);
@@ -36,7 +36,7 @@
   export default {
     name: 'LiveAttendanceBlock',
     components: {
-      ItemProgressDisplay,
+      LiveAttendanceProgressDisplay,
       Block,
       BlockItem,
     },

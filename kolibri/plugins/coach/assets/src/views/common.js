@@ -40,6 +40,7 @@ import HeaderTableRow from './common/HeaderTable/HeaderTableRow';
 import HeaderTabs from './common/HeaderTabs';
 import HeaderTab from './common/HeaderTabs/HeaderTab';
 import StatusSummary from './common/status/StatusSummary';
+import StatusSummaryActiveLearners from './common/status/StatusSummaryActiveLearners';
 import StatusSimple from './common/status/StatusSimple';
 import HelpNeeded from './common/status/HelpNeeded';
 import Placeholder from './common/Placeholder';
@@ -146,6 +147,7 @@ export default {
     HeaderTabs,
     HeaderTab,
     StatusSummary,
+    StatusSummaryActiveLearners,
     StatusSimple,
     HelpNeeded,
     Placeholder,
