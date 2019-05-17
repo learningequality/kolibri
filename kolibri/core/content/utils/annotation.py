@@ -5,8 +5,10 @@ import os
 from django.db import connection
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
+from sqlalchemy import cast
 from sqlalchemy import exists
 from sqlalchemy import func
+from sqlalchemy import Integer
 from sqlalchemy import select
 from sqlalchemy.exc import DatabaseError
 
@@ -315,7 +317,7 @@ def recurse_annotation_up_tree(channel_id):
                 ContentNodeTable.c.kind != content_kinds.TOPIC,
             )
         )
-        .values(num_coach_contents=ContentNodeTable.c.coach_content)
+        .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
     )
 
     # Before starting set availability to False on all topics.
