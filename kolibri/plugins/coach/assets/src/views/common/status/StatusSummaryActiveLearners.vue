@@ -12,124 +12,66 @@
     of the possible behaviors.
    -->
   <div :class="verbose ? 'multi-line' : 'single-line'">
-    <!-- special cases when total is 0 -->
+    <!-- special cases when total active is 0 -->
     <component
       :is="ratio || verbose ? ActiveLearnerRatio : ActiveLearnerCount"
       v-if="total === 0"
       class="item"
-      :verb="VERBS.started"
+      :verb="VERBS.active"
       :icon="ICONS.nothing"
       :total="total"
-      :count="started"
+      :count="active"
       :verbosity="verbosity"
-      debug="no learners"
+      debug="no learners are active"
     />
-    <!-- special case when everyone has finished -->
-    <component
-      :is="ratio || verbose ? ActiveLearnerRatio : ActiveLearnerCount"
-      v-else-if="total === completed && !showAll"
-      class="item"
-      :verb="VERBS.completed"
-      :icon="ICONS.star"
-      :total="total"
-      :count="completed"
-      :verbosity="verbosity"
-      debug="everyone finished"
-    />
-    <!-- special case when no one has started -->
+    <!-- special case when no one is active -->
     <ActiveLearnerCount
-      v-else-if="total === notStarted && !showAll"
+      v-else-if="total === notActive && !showAll"
       class="item"
       :style="{ color: $coreGrey300 }"
-      :verb="VERBS.notStarted"
+      :verb="VERBS.notActive"
       :icon="ICONS.nothing"
       :total="total"
-      :count="notStarted"
+      :count="notActive"
       :verbosity="verbosity"
-      debug="no one started"
+      debug="no one is active"
     />
     <template v-else-if="ratio">
-      <!-- for ratios we only want to display the ratio on the first displayed item -->
       <component
-        :is="!verbose ? ActiveLearnerCount : ActiveLearnerRatio"
-        v-if="showItem(completed)"
+        :is="!verbose || ActiveLearnerRatio"
+        v-if="showItem(active)"
         class="item"
-        :verb="VERBS.completed"
-        :icon="ICONS.star"
-        :total="total"
-        :count="completed"
-        :verbosity="verbosity"
-        showRatioInTooltip
-        debug="ratio; has some completed"
-      />
-      <component
-        :is="!verbose || completed ? ActiveLearnerCount : ActiveLearnerRatio"
-        v-if="showItem(started)"
-        class="item"
-        :verb="VERBS.started"
+        :verb="VERBS.active"
         :icon="ICONS.clock"
         :total="total"
-        :count="started"
+        :count="active"
         :verbosity="verbosity"
         showRatioInTooltip
-        debug="ratio; has some started"
-      />
-      <component
-        :is="!verbose || started || completed ? ActiveLearnerCount : ActiveLearnerRatio"
-        v-if="showItem(helpNeeded) && showNeedsHelp"
-        class="item"
-        :verb="VERBS.needHelp"
-        :icon="ICONS.help"
-        :total="total"
-        :count="helpNeeded"
-        :verbosity="verbosity"
-        showRatioInTooltip
-        debug="ratio; has some needing help"
+        debug="ratio; has some active"
       />
       <ActiveLearnerCount
         v-if="showItem(!verbose)"
         class="item"
         :style="{ color: $coreGrey300 }"
-        :verb="VERBS.notStarted"
+        :verb="VERBS.notActive"
         :icon="ICONS.nothing"
         :total="total"
-        :count="notStarted"
+        :count="notActive"
         :verbosity="verbosity"
         showRatioInTooltip
         debug="ratio; not verbose"
       />
     </template>
     <template v-else>
-      <!-- for counts -->
       <ActiveLearnerCount
-        v-if="showItem(completed)"
+        v-if="showItem(active)"
         class="item"
-        :verb="VERBS.completed"
-        :icon="ICONS.star"
-        :total="total"
-        :count="completed"
-        :verbosity="verbosity"
-        debug="count; has some completed"
-      />
-      <ActiveLearnerCount
-        v-if="showItem(started)"
-        class="item"
-        :verb="VERBS.started"
+        :verb="VERBS.active"
         :icon="ICONS.clock"
         :total="total"
-        :count="started"
+        :count="active"
         :verbosity="verbosity"
-        debug="count; has some started"
-      />
-      <ActiveLearnerCount
-        v-if="showItem(helpNeeded) && showNeedsHelp"
-        class="item"
-        :verb="VERBS.needHelp"
-        :icon="ICONS.help"
-        :total="total"
-        :count="helpNeeded"
-        :verbosity="verbosity"
-        debug="count; has some needing help"
+        debug="count; has some active"
       />
     </template>
   </div>
@@ -143,7 +85,7 @@
   import { VERBS, ICONS } from './constants';
   import ActiveLearnerCount from './ActiveLearnerCount';
   import ActiveLearnerRatio from './ActiveLearnerRatio';
-  import tallyMixin from './tallyMixin';
+  import activeLearnersTallyMixin from './activeLearnersTallyMixin';
 
   export default {
     name: 'StatusSummaryActiveLearners',
@@ -152,7 +94,7 @@
       // eslint-disable-next-line vue/no-unused-components
       ActiveLearnerRatio, // it is used, it's just referenced dynamically
     },
-    mixins: [tallyMixin, themeMixin],
+    mixins: [activeLearnersTallyMixin, themeMixin],
     props: {
       verbose: {
         type: Boolean,

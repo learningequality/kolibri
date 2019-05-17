@@ -354,7 +354,7 @@ const translations = {
     }),
   },
   attendance: {
-    started: createTranslator('LearnersActive', {
+    active: createTranslator('LearnersActive', {
       abel: '{count, plural, one {Learner is active} other {Learners are active}}',
       labelShort: '{count, plural, other {Active}}',
       count: 'Active: {count, number, integer} {count, plural, one {learner} other {learners}}',
@@ -366,7 +366,7 @@ const translations = {
       ratioShort:
         '{count, number, integer} of {total, number, integer} {count, plural, one {is active} other {are active}}',
     }),
-    notStarted: createTranslator('LearnersNotActive', {
+    notActive: createTranslator('LearnersNotActive', {
       abel: '{count, plural, one {Learner is active} other {Learners are not active}}',
       labelShort: '{count, plural, other {Not active}}',
       count: 'Not active: {count, number, integer} {count, plural, one {learner} other {learners}}',

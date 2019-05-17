@@ -47,10 +47,8 @@
     computed: {
       liveAttendance() {
         const tallies = {
-          started: this.activeLearners.length,
-          notStarted: this.learners.length - this.activeLearners.length,
-          completed: 0,
-          helpNeeded: 0,
+          active: this.activeLearners.length,
+          notActive: this.learners.length - this.activeLearners.length,
         };
         return {
           tally: tallies,

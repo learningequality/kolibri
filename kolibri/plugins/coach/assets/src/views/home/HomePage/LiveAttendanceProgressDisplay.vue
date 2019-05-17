@@ -13,7 +13,7 @@
       </KGridItem>
 
       <KGridItem size="100" percentage>
-        <ProgressSummaryBar
+        <ActiveLearnerSummaryBar
           :tally="tally"
           class="dashboard-bar"
         />
@@ -35,12 +35,12 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoach from '../../common';
-  import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
+  import ActiveLearnerSummaryBar from '../../common/status/ActiveLearnerSummaryBar';
 
   export default {
     name: 'LiveAttendanceProgressDisplay',
     components: {
-      ProgressSummaryBar,
+      ActiveLearnerSummaryBar,
     },
     mixins: [commonCoach, themeMixin],
     props: {
