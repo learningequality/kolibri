@@ -55,7 +55,7 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
         db_path_mock.return_value = "test"
         ChannelImport("test")
         BridgeMock.assert_has_calls(
-            [call(sqlite_file_path="test"), call(app_name="content")]
+            [call(sqlite_file_path="test"), call(app_name="content", schema_version=CONTENT_SCHEMA_VERSION)]
         )
 
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
