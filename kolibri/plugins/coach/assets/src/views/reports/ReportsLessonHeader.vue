@@ -36,7 +36,7 @@
       </HeaderTableRow>
       <HeaderTableRow
         :keyText="coachStrings.$tr('descriptionLabel')"
-        :valueText="lesson.description || $tr('noDescription')"
+        :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
       />
     </HeaderTable>
 
@@ -94,7 +94,6 @@
     },
     $trs: {
       back: 'All lessons',
-      noDescription: 'No description',
     },
   };
 

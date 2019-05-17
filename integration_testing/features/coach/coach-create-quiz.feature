@@ -30,7 +30,6 @@ Feature: Coach creates quizzes
     When I don't input anything into the number field
       And I leave the input field or attempt to continue or finish the quiz
     Then an input validation error appears
-    # This is not working right, quiz is saved even if the number of questions is left empty
     When I input a valid number
     Then I don't see the validation error anymore
 
@@ -185,9 +184,10 @@ Feature: Coach creates quizzes
     Given I am on *Create new quiz* page
       And there are no validation errors
     When I click “Continue”
-    Then I see a *Preview quiz* page with a question list pulled randomly from each exercise
-    When I click on *Randomize questions* button
-    Then I see the modal is refreshed with reordered randomized question list
+    Then I see a *Preview quiz* page 
+      And I see the *Question order* is by default *Randomized*, with a questions displayed as a list pulled randomly from selected exercises
+    When I select *Fixed* radio button
+    Then I see the order of questions is refreshed, and questions are displayed as a numbered list.
 
   Scenario: Check validation for the title field
     When I try to enter a name with more than 100 characters
@@ -203,7 +203,7 @@ Feature: Coach creates quizzes
       And I see the quiz on the list at *Coach > Plan > Quizzes* tab 
 
   Scenario: Save quiz
-    Given I am on *Create new quiz* page
+    Given I am on *Preview quiz* page
       And there are no validation errors
     When I click “Finish”
     Then I am redirected to the *Coach > Plan > Quizzes* page

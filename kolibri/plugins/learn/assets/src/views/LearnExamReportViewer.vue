@@ -1,32 +1,34 @@
 <template>
 
-  <div v-if="examAttempts">
-    <ExamReport
-      :examAttempts="examAttempts"
-      :exam="exam"
-      :userName="userName"
-      :userId="userId"
-      :currentAttempt="currentAttempt"
-      :currentInteractionHistory="currentInteractionHistory"
-      :currentInteraction="currentInteraction"
-      :selectedInteractionIndex="selectedInteractionIndex"
-      :questionNumber="questionNumber"
-      :exercise="exercise"
-      :itemId="itemId"
-      :completionTimestamp="completionTimestamp"
-      :closed="closed"
-      :backPageLink="backPageLink"
-      :navigateToQuestion="navigateToQuestion"
-      :navigateToQuestionAttempt="navigateToQuestionAttempt"
-      :questions="questions"
-      :exerciseContentNodes="exerciseContentNodes"
-    />
-  </div>
-  <div v-else>
-    <p class="no-exercise">
-      {{ $tr('missingContent') }}
-    </p>
-  </div>
+  <KPageContainer noPadding>
+    <div v-if="examAttempts">
+      <ExamReport
+        :examAttempts="examAttempts"
+        :exam="exam"
+        :userName="userName"
+        :userId="userId"
+        :currentAttempt="currentAttempt"
+        :currentInteractionHistory="currentInteractionHistory"
+        :currentInteraction="currentInteraction"
+        :selectedInteractionIndex="selectedInteractionIndex"
+        :questionNumber="questionNumber"
+        :exercise="exercise"
+        :itemId="itemId"
+        :completionTimestamp="completionTimestamp"
+        :closed="closed"
+        :backPageLink="backPageLink"
+        :navigateToQuestion="navigateToQuestion"
+        :navigateToQuestionAttempt="navigateToQuestionAttempt"
+        :questions="questions"
+        :exerciseContentNodes="exerciseContentNodes"
+      />
+    </div>
+    <div v-else>
+      <p class="no-exercise">
+        {{ $tr('missingContent') }}
+      </p>
+    </div>
+  </KPageContainer>
 
 </template>
 
@@ -35,6 +37,7 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { ClassesPageNames } from '../constants';
 
   export default {
@@ -46,6 +49,7 @@
     },
     components: {
       ExamReport,
+      KPageContainer,
     },
     computed: {
       ...mapState('examReportViewer', [

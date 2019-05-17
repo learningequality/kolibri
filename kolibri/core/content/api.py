@@ -119,7 +119,9 @@ class IdFilter(FilterSet):
 
     def filter_ids(self, queryset, name, value):
         try:
-            return queryset.filter(pk__in=value.split(","))
+            # SQLITE_MAX_VARIABLE_NUMBER is 999 by default.
+            # It means 999 is the max number of params for a query
+            return queryset.filter(pk__in=value.split(",")[:900])
         except ValueError:
             # Catch in case of a poorly formed UUID
             return queryset.none()
@@ -565,48 +567,50 @@ class ContentNodeSlimViewset(viewsets.ReadOnlyModelViewSet):
                 cache_key = "popular_content_coach"
                 coach_content = True
 
+        if cache.get(cache_key) is not None:
+            return Response(cache.get(cache_key))
+
         queryset = self.get_queryset(prefetch=True)
 
-        if not cache.get(cache_key):
-            if ContentSessionLog.objects.count() < 50:
-                # return 25 random content nodes if not enough session logs
-                pks = queryset.values_list("pk", flat=True).exclude(
-                    kind=content_kinds.TOPIC
+        if ContentSessionLog.objects.count() < 50:
+            # return 25 random content nodes if not enough session logs
+            pks = queryset.values_list("pk", flat=True).exclude(
+                kind=content_kinds.TOPIC
+            )
+            # .count scales with table size, so can get slow on larger channels
+            count_cache_key = "content_count_for_popular"
+            count = cache.get(count_cache_key) or min(pks.count(), 25)
+            queryset = queryset.filter(pk__in=sample(list(pks), count))
+            if not coach_content:
+                queryset = queryset.exclude(coach_content=True)
+        else:
+            # get the most accessed content nodes
+            # search for content nodes that currently exist in the database
+            content_nodes = models.ContentNode.objects.filter(available=True)
+            if not coach_content:
+                content_nodes = content_nodes.exclude(coach_content=True)
+            content_counts_sorted = (
+                ContentSessionLog.objects.filter(
+                    content_id__in=content_nodes.values_list(
+                        "content_id", flat=True
+                    ).distinct()
                 )
-                # .count scales with table size, so can get slow on larger channels
-                count_cache_key = "content_count_for_popular"
-                count = cache.get(count_cache_key) or min(pks.count(), 25)
-                queryset = queryset.filter(pk__in=sample(list(pks), count))
-                if not coach_content:
-                    queryset = queryset.exclude(coach_content=True)
-            else:
-                # get the most accessed content nodes
-                # search for content nodes that currently exist in the database
-                content_nodes = models.ContentNode.objects.filter(available=True)
-                if not coach_content:
-                    content_nodes = content_nodes.exclude(coach_content=True)
-                content_counts_sorted = (
-                    ContentSessionLog.objects.filter(
-                        content_id__in=content_nodes.values_list(
-                            "content_id", flat=True
-                        ).distinct()
-                    )
-                    .values_list("content_id", flat=True)
-                    .annotate(Count("content_id"))
-                    .order_by("-content_id__count")
-                )
+                .values_list("content_id", flat=True)
+                .annotate(Count("content_id"))
+                .order_by("-content_id__count")
+            )
 
-                most_popular = queryset.filter(
-                    content_id__in=list(content_counts_sorted[:20])
-                )
-                queryset = most_popular.dedupe_by_content_id()
+            most_popular = queryset.filter(
+                content_id__in=list(content_counts_sorted[:20])
+            )
+            queryset = most_popular.dedupe_by_content_id()
 
-            serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
 
-            # cache the popular results queryset for 10 minutes, for efficiency
-            cache.set(cache_key, serializer.data, 60 * 10)
+        # cache the popular results queryset for 10 minutes, for efficiency
+        cache.set(cache_key, serializer.data, 60 * 10)
 
-        return Response(cache.get(cache_key))
+        return Response(serializer.data)
 
     @detail_route(methods=["get"])
     def resume(self, request, **kwargs):

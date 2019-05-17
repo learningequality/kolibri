@@ -97,7 +97,9 @@ class DeviceInfoView(views.APIView):
         info["device_id"] = instance_model.id
         info["os"] = instance_model.platform
 
-        info["content_storage_free_space"] = get_free_space()
+        info["content_storage_free_space"] = get_free_space(
+            OPTIONS["Paths"]["CONTENT_DIR"]
+        )
 
         # This returns the localized time for the server
         info["server_time"] = local_now()

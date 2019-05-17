@@ -1,56 +1,58 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout">
-    <div slot="header">
-      <h1 class="title item-detail-section">
-        <ContentIcon
-          class="item-detail-icons"
-          :kind="kind"
-          :showTooltip="false"
-        />
-        {{ title }}
-        <CoachContentLabel
-          class="item-detail-icons"
-          :value="exercise.num_coach_contents || 0"
-          :isTopic="false"
-        />
-      </h1>
-    </div>
-    <template v-if="learners.length > 0">
-      <QuestionDetailLearnerList
-        slot="aside"
-        :learners="learners"
-        :selectedLearnerNumber="learnerIndex"
-        @select="navigateToNewAttempt($event)"
-      />
-      <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
-        <KCheckbox
-          :label="coachStrings.$tr('showCorrectAnswerLabel')"
-          :checked="showCorrectAnswer"
-          @change="toggleShowCorrectAnswer"
-        />
-        <InteractionList
-          v-if="!showCorrectAnswer"
-          :interactions="currentInteractionHistory"
-          :selectedInteractionIndex="interactionIndex"
-          @select="navigateToNewInteraction($event)"
-        />
-        <ContentRenderer
-          v-if="currentInteraction"
-          :itemId="currentLearner.item"
-          :assessment="true"
-          :allowHints="false"
-          :kind="exercise.kind"
-          :files="exercise.files"
-          :available="exercise.available"
-          :answerState="answerState"
-          :showCorrectAnswer="showCorrectAnswer"
-          :interactive="false"
-          :extraFields="exercise.extra_fields"
-        />
+  <KPageContainer noPadding>
+    <MultiPaneLayout ref="multiPaneLayout">
+      <div slot="header">
+        <h1 class="title item-detail-section">
+          <ContentIcon
+            class="item-detail-icons"
+            :kind="kind"
+            :showTooltip="false"
+          />
+          {{ title }}
+          <CoachContentLabel
+            class="item-detail-icons"
+            :value="exercise.num_coach_contents || 0"
+            :isTopic="false"
+          />
+        </h1>
       </div>
-    </template>
-  </MultiPaneLayout>
+      <template v-if="learners.length > 0">
+        <QuestionDetailLearnerList
+          slot="aside"
+          :learners="learners"
+          :selectedLearnerNumber="learnerIndex"
+          @select="navigateToNewAttempt($event)"
+        />
+        <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
+          <KCheckbox
+            :label="coachStrings.$tr('showCorrectAnswerLabel')"
+            :checked="showCorrectAnswer"
+            @change="toggleShowCorrectAnswer"
+          />
+          <InteractionList
+            v-if="!showCorrectAnswer"
+            :interactions="currentInteractionHistory"
+            :selectedInteractionIndex="interactionIndex"
+            @select="navigateToNewInteraction($event)"
+          />
+          <ContentRenderer
+            v-if="currentInteraction"
+            :itemId="currentLearner.item"
+            :assessment="true"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :available="exercise.available"
+            :answerState="answerState"
+            :showCorrectAnswer="showCorrectAnswer"
+            :interactive="false"
+            :extraFields="exercise.extra_fields"
+          />
+        </div>
+      </template>
+    </MultiPaneLayout>
+  </KPageContainer>
 
 </template>
 

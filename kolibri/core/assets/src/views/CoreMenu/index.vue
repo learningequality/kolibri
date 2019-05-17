@@ -11,7 +11,6 @@
       <div
         v-if="$slots.header"
         class="ui-menu-header"
-        :class="{'ui-menu-header-lp': showActive}"
         :style="{ color: $coreTextDefault }"
       >
         <slot name="header"></slot>
@@ -122,12 +121,9 @@
 
   .ui-menu-header {
     padding: 1rem;
+    padding-left: 50px; // TODO make a variable?
     font-size: $ui-dropdown-item-font-size;
     border-bottom: solid 1px rgba(black, 0.08);
-  }
-
-  .ui-menu-header-lp {
-    padding-left: 50px; // TODO make a variable?
   }
 
   /* stylelint-enable */

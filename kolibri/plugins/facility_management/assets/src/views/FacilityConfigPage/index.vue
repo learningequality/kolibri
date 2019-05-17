@@ -77,6 +77,7 @@
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
     'learner_can_edit_username',
+    'learner_can_edit_password',
     'learner_can_edit_name',
     'learner_can_sign_up',
     'learner_can_login_with_no_password',
@@ -163,10 +164,6 @@
 
   .mb {
     margin-bottom: 2rem;
-  }
-
-  .settings {
-    max-width: 35rem;
   }
 
   .settings > label {

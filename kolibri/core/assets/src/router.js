@@ -1,6 +1,5 @@
 import VueRouter from 'vue-router';
 import logger from 'kolibri.lib.logging';
-import store from 'kolibri.coreVue.vuex.store';
 
 const logging = logger.getLogger(__filename);
 
@@ -13,27 +12,12 @@ class Router {
    * Create a Router instance.
    */
   constructor() {
-    this._vueRouter = new VueRouter({
-      scrollBehavior(to, from, savedPosition) {
-        let y = 0;
-        if (savedPosition) {
-          y = savedPosition.y;
-        }
-        // Set the scroll position in the vuex store
-        // CoreBase is watching for this value to change
-        // to set its initial scroll position.
-        store.commit('SET_SCROLL_POSITION', y);
-      },
-    });
+    this._vueRouter = new VueRouter();
     this._actions = {};
     this._routes = {};
   }
 
   _hook(toRoute, fromRoute, next) {
-    // Set scroll position to 0 by default
-    // Can be updated by the scroll behaviour
-    // hook above.
-    store.commit('SET_SCROLL_POSITION', 0);
     if (this._actions[toRoute.name]) {
       this._actions[toRoute.name](toRoute, fromRoute);
     }

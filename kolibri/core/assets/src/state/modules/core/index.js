@@ -15,7 +15,6 @@ export default {
     loginError: null,
     signInBusy: false,
     totalProgress: null,
-    scrollPosition: 0,
     notifications: [],
     channels: {
       list: [],

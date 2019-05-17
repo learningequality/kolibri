@@ -47,7 +47,6 @@
           <CoreMenu
             role="navigation"
             :style="{ backgroundColor: $coreBgLight }"
-            :hasIcons="true"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">

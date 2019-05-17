@@ -41,6 +41,7 @@
     <div v-if="showButtons" class="buttons dtc">
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
+        class="btn"
         :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
@@ -160,9 +161,17 @@
     methods: {
       endTask() {
         this.uiBlocked = true;
-        this.$emit('cleartask', () => {
+        if (this.taskHasCompleted || this.taskHasFailed) {
+          this.$emit('cleartask', () => {
+            this.uiBlocked = false;
+          });
+        } else if (this.cancellable) {
+          this.$emit('canceltask', () => {
+            this.uiBlocked = false;
+          });
+        } else {
           this.uiBlocked = false;
-        });
+        }
       },
     },
     $trs: {
@@ -197,7 +206,6 @@
     display: table;
     width: 100%;
     height: 5em;
-    padding-right: 1em;
     margin-left: -6px;
     vertical-align: middle;
   }
@@ -228,6 +236,10 @@
   .dtc {
     display: table-cell;
     vertical-align: inherit;
+  }
+
+  .btn {
+    margin: 0;
   }
 
 </style>

@@ -241,6 +241,21 @@ if path_prefix != "/":
 STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
+# https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
+# Ensure that our CSRF cookie does not collide with other CSRF cookies
+# set by other Django apps served from the same domain.
+CSRF_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#language-cookie-path
+# Ensure that our language cookie does not collide with other language
+# cookies set by other Django apps served from the same domain.
+LANGUAGE_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
+# Ensure that our session cookie does not collidge with other session cookies
+# set by other Django apps served from the same domain.
+SESSION_COOKIE_PATH = path_prefix
+
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
@@ -302,7 +317,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {"handlers": ["console", "file"], "propagate": True},
+        "django": {"handlers": ["console", "file"], "propagate": False},
         "django.request": {
             "handlers": ["mail_admins", "file", "request_debug"],
             "level": "ERROR",
@@ -316,12 +331,12 @@ LOGGING = {
         "iceqube": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "morango": {
             "handlers": ["file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
     },
 }
@@ -345,7 +360,7 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework_csv.renderers.CSVRenderer",
     ),
-    "EXCEPTION_HANDLER": "kolibri.core.utils.custom_exception_handler",
+    "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
 
 # System warnings to disable

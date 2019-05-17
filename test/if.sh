@@ -44,8 +44,6 @@ LABEL="$1"
 
 FORCE_RUN="$2"
 
-branches_to_always_test=( "master" "releases/*" )
-
 # Set by Travis CI
 commit="$TRAVIS_COMMIT"
 current_branch="$TRAVIS_BRANCH"
@@ -80,7 +78,7 @@ function match_changes {
     # if branch should always be tested
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]
     then
-        for branch in "${branches_to_always_test[@]}"
+        for branch in releases/*
         do
             if echo "$current_branch" | grep -q "$branch"
             then

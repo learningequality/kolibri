@@ -15,10 +15,7 @@
         </template>
 
         <template slot="content">
-          <PointsIcon
-            class="points-icon"
-            :active="true"
-          />
+          <PointsIcon class="points-icon" />
           <div
             class="points-amount"
             :style="{ color: $coreStatusCorrect }"

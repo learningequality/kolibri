@@ -30,6 +30,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
@@ -48,12 +49,9 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
+  import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
 
   const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
-
-  // Bottom toolbar is 111px high on mobile, 113px normally.
-  // We reserve the smaller number so there is no gap on either screen size.
-  const BOTTOM_SPACED_RESERVED = 111;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -79,8 +77,14 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      KPageContainer,
     },
     mixins: [responsiveWindow],
+    data() {
+      return {
+        lastRoute: null,
+      };
+    },
     computed: {
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
@@ -99,13 +103,22 @@
         return pageNameToComponentMap[this.pageName] || null;
       },
       immersivePageProps() {
+        if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
+          return {
+            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
+        }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           return {
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: false,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -117,9 +130,19 @@
               immersivePage: true,
               immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
               immersivePagePrimary: false,
-              immersivePageIcon: 'arrow_back',
+              immersivePageIcon: 'close',
             };
           }
+        }
+        if (this.pageName === PageNames.SEARCH) {
+          return {
+            appBarTitle: this.$tr('searchTitle'),
+            immersivePage: true,
+            // Default to the Learn root page if there is no lastRoute to return to.
+            immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
         }
 
         if (this.pageName === PageNames.TOPICS_CONTENT) {
@@ -183,6 +206,9 @@
         );
       },
       bottomSpaceReserved() {
+        if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
+          return QUIZ_FOOTER;
+        }
         let content;
         if (
           this.pageName === PageNames.TOPICS_CONTENT ||
@@ -194,12 +220,31 @@
         }
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
-        return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+        return isAssessment ? ASSESSMENT_FOOTER : 0;
+      },
+    },
+    watch: {
+      $route: function(newRoute, oldRoute) {
+        // Return if the user is leaving or entering the Search page.
+        // This ensures we never set this.lastRoute to be any kind of
+        // SEARCH route and avoids infinite loops.
+        if (newRoute.name === 'SEARCH' || oldRoute.name === 'SEARCH') {
+          return;
+        }
+
+        // Destructure the oldRoute into an object with 3 specific properties.
+        // Setting this.lastRoute = oldRoute causes issues for some reason.
+        this.lastRoute = {
+          name: oldRoute.name,
+          query: oldRoute.query,
+          params: oldRoute.params,
+        };
       },
     },
     $trs: {
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
+      searchTitle: 'Search',
     },
   };
 
