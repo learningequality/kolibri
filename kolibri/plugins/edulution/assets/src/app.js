@@ -1,7 +1,10 @@
 import router from 'kolibri.coreVue.router';
+import {
+  setFacilitiesAndConfig,
+  prepareLearnApp,
+} from '../../../learn/assets/src/modules/coreLearn/actions';
 import RootVue from './views/EdulutionIndex';
 import routes from './routes';
-import { setFacilitiesAndConfig, prepareLearnApp } from './modules/coreLearn/actions';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
 
