@@ -47,15 +47,23 @@
         required: true,
       },
     },
+    data() {
+      return {
+        thisCollectionId: this.collectionId,
+      };
+    },
     computed: {
       ...mapGetters({
         channels: 'getChannels',
       }),
     },
     methods: {
-      ...mapActions('subscriptions', ['displayModal']),
+      ...mapActions('subscriptions', ['displayModal', 'saveSubscription']),
       saveSubscriptions() {
-        this.displayModal(false);
+        this.saveSubscription({
+          subscriptions: "{'channels' : ['123','456']}",
+          id: this.thisCollectionId,
+        });
       },
       close() {
         this.displayModal(false);

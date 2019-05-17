@@ -36,6 +36,7 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
+from jsonfield import JSONField
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
@@ -759,6 +760,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
+    subscriptions = JSONField(default='{}')
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
