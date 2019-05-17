@@ -16,10 +16,10 @@
       <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
       <mat-svg v-else name="fullscreen" category="navigation" />
     </UiIconButton>
-    <Hooper v-if="slides" @slide="handleSlide" @loaded="setHooperListWidth">
+    <Hooper v-if="slides" @slide="handleSlide" @loaded="initializeHooper">
       <Slide v-for="slide in slides" :key="slide.id">
         <div
-          class="slideshow-slide-image"
+          class="slideshow-slide-image-wrapper"
           :style="{
             height: `calc(100% - ${captionHeight}px)`
           }"
@@ -27,6 +27,7 @@
           <img
             :src="slide.storage_url"
             :aria-labelledby="slideTextId(slide.id)"
+            class="slideshow-slide-image"
           >
         </div>
         <div :id="slideTextId(slide.id)" class="visuallyhidden">
@@ -50,6 +51,7 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
+  import objectFitImages from 'object-fit-images';
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -138,6 +140,37 @@
         Using the manifest file, get the JSON from the manifest, then
         use the manifest JSON to get all slide images and metadata.
       */
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', this.defaultFile.storage_url);
+      xhr.send(null);
+      xhr.onreadystatechange = () => {
+        let DONE = 4;
+        let OK = 200;
+        if (xhr.readyState === DONE) {
+          if (xhr.status === OK) {
+            const manifest_data = JSON.parse(xhr.responseText);
+            this.manifest = manifest_data.slideshow_data;
+
+            this.slides = orderBy(
+              this.manifest.map(image => {
+                return {
+                  storage_url: this.slideshowImages.find(
+                    sFile => checksumFromFile(sFile) == image.checksum
+                  ).storage_url,
+                  caption: image.caption,
+                  sort_order: image.sort_order,
+                  id: image.checksum,
+                  descriptive_text: image.descriptive_text,
+                };
+              }),
+              ['sort_order'],
+              ['asc']
+            );
+          }
+        }
+      };
+
+      /*
       fetch(this.defaultFile.storage_url, { method: 'GET' })
         .then(response => {
           return response.json();
@@ -164,6 +197,7 @@
         .catch(error => {
           this.$store.dispatch('handleApiError', error);
         });
+        */
     },
     methods: {
       handleSlide(payload) {
@@ -187,6 +221,19 @@
           // UX than getting an error message.
           this.$store.commit('CORE_SET_ERROR', err);
         }
+      },
+      polyfillSlideObjectFit() {
+        /* Instantiate polyfill for object-fit: contain */
+        const slideImages = global.window.document.getElementsByClassName('slideshow-slide-image');
+        objectFitImages(slideImages);
+      },
+      initializeHooper() {
+        /*
+          Hooper emits a "loaded" event. We initialize the object-fit polyfill and set the width of
+          the wrapping container for the slides
+        */
+        this.polyfillSlideObjectFit();
+        this.setHooperListWidth();
       },
     },
     $trs: {
@@ -216,21 +263,20 @@
     text-align: center;
   }
 
-  .slideshow-slide-image {
+  .slideshow-slide-image-wrapper {
     position: relative;
     box-sizing: content-box;
     width: calc(100% - 100px);
     height: calc(100% - 50px);
     margin: 0 auto;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
+  }
 
-    img {
-      object-fit: contain;
-      width: 100%;
-      height: 100%;
-    }
+  .slideshow-slide-image {
+    width: 100%;
+    height: 100%;
+    // Adds support for object-fit-images polyfill.
+    font-family: 'object-fit: contain;';
+    object-fit: contain;
   }
 
   .hooper {
