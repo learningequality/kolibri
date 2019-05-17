@@ -35,9 +35,9 @@ if SHEET_PARENT_CONTAINER_ID == "" or SHEET_PARENT_CONTAINER_ID is None:
     SHEET_PARENT_CONTAINER_ID = "10bMsasxKvpi_9U1NU9rq7YBnFBiCkYrc"
 
 if SHEET_TAG == "" or SHEET_TAG is None:
-    buildkite_base_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    if buildkite_base_branch != "" or buildkite_base_branch is not None:
-        SHEET_TAG = buildkite_base_branch
+    buildkite_branch = os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    if buildkite_branch != "" or buildkite_branch is not None:
+        SHEET_TAG = buildkite_branch
     else:
         SHEET_TAG = "develop"
 
@@ -106,7 +106,6 @@ def create_artifact(str_arg):
     file = open(txt_path, "w")
     file.write(str_arg)
     file.close()
-    os.chmod(txt_path, 0o666)
 
 
 def fetch_feature_files():
@@ -160,7 +159,7 @@ def fetch_feature_files():
 def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
     """
         REF: https://github.com/burnash/gspread
-        I reuse and modify the gspread function to make this API request.
+        I reuse the gspread function to make this API request.
     """
     body = {
         "requests": [
@@ -182,7 +181,7 @@ def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
 def rename_worksheet(sheet, wrk_sheet, sheet_name):
     """
         REF: https://github.com/burnash/gspread
-        I reuse and modify the gspread function to make this API request.
+        I reuse the gspread function to make this API request.
     """
     body = {
         "requests": [
@@ -200,7 +199,7 @@ def rename_worksheet(sheet, wrk_sheet, sheet_name):
 def search_file_name(file_name):
     """
         REF: https://github.com/burnash/gspread
-        I reuse  and modify the gspread function to make this API request.
+        I reuse the gspread function to make this API request.
     """
     self = G_ACCESS
     files = []
@@ -242,7 +241,7 @@ def create_sheet_container(file_id, dir_name):
 def sheet_copy(file_id, dist_id, title=None, copy_permissions=False):
     """
         REF: https://github.com/burnash/gspread
-        I reuse and modify the gspread function to make this request.
+        I reuse the gspread function to make this request.
     """
     self = G_ACCESS
 
