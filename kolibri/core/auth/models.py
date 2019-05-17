@@ -97,8 +97,8 @@ class FacilityDataset(FacilityDataSyncableModel):
     """
 
     permissions = (
-        AllCanReadFacilityDataset() |
-        FacilityAdminCanEditForOwnFacilityDataset()
+        AllCanReadFacilityDataset()
+        | FacilityAdminCanEditForOwnFacilityDataset()
     )
 
     # Morango syncing settings
@@ -537,10 +537,10 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     morango_model_name = "facilityuser"
 
     permissions = (
-        IsSelf() |  # FacilityUser can be read and written by itself
-        IsAdminForOwnFacility() |  # FacilityUser can be read and written by a facility admin
-        AllowCoach() |
-        RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
+        IsSelf()  # FacilityUser can be read and written by itself
+        | IsAdminForOwnFacility()  # FacilityUser can be read and written by a facility admin
+        | AllowCoach()
+        | RoleBasedPermissions(  # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
             target_field=".",
             can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
@@ -751,10 +751,10 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True) |
-        CollectionSpecificRoleBasedPermissions() |
-        AnonUserCanReadFacilities() |
-        CoachesCanManageGroupsForTheirClasses()
+        IsFromSameFacility(read_only=True)
+        | CollectionSpecificRoleBasedPermissions()
+        | AnonUserCanReadFacilities()
+        | CoachesCanManageGroupsForTheirClasses()
     )
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
@@ -921,16 +921,15 @@ class Membership(AbstractFacilityDataModel):
     morango_model_name = "membership"
 
     permissions = (
-        AllowCoach() |
-        IsOwn(read_only=True) |  # users can read their own Memberships
-        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
+        AllowCoach()
+        | IsOwn(read_only=True)   # users can read their own Memberships
+        | RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the member user
             target_field="user",
             can_be_created_by=(role_kinds.ADMIN,),
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(),  # Membership objects shouldn't be updated; they should be deleted and recreated as needed
-            can_be_deleted_by=(role_kinds.ADMIN,),
-        ) |
-        CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
+            can_be_deleted_by=(role_kinds.ADMIN,),)
+        | CoachesCanManageMembershipsForTheirGroups()  # Membership can be written by coaches under the coaches' group
     )
 
     user = models.ForeignKey('FacilityUser', related_name='memberships', blank=False, null=False)
@@ -973,8 +972,8 @@ class Role(AbstractFacilityDataModel):
     morango_model_name = "role"
 
     permissions = (
-        IsOwn(read_only=True) |  # users can read their own Roles
-        RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
+        IsOwn(read_only=True)   # users can read their own Roles
+        | RoleBasedPermissions(  # Memberships can be read and written by admins, and read by coaches, for the role collection
             target_field="collection",
             can_be_created_by=(role_kinds.ADMIN,),
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
