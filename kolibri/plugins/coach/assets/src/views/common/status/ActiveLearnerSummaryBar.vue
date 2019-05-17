@@ -20,8 +20,17 @@
         const widthRatio = this.active / this.total;
         return {
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$coreStatusProgress,
+          backgroundColor: this.backgroundColor(),
         };
+      },
+    },
+    methods: {
+      backgroundColor() {
+        if (this.active == this.total) {
+          return this.$coreStatusCorrect;
+        } else {
+          return this.$coreStatusProgress;
+        }
       },
     },
   };
