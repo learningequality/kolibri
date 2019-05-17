@@ -21,7 +21,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 
@@ -53,11 +53,12 @@
       }),
     },
     methods: {
+      ...mapActions('subscriptions', ['displayModal']),
       saveSubscriptions() {
-        this.modalShown = null;
+        this.displayModal(false);
       },
       close() {
-        this.modalShown = null;
+        this.displayModal(false);
       },
     },
   };
