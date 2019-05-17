@@ -21,6 +21,9 @@ export function showKnowledgeMap(store, id) {
     return ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([topic, { progress, results }, ancestors]) => {
+        results.forEach(r => {
+          r.children = _collectionState(r.children);
+        });
         const currentChannel = store.getters.getChannelObject(topic.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });

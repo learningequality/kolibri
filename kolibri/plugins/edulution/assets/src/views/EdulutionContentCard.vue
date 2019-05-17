@@ -41,6 +41,7 @@
         </div>
       </div>
     </ToggledRouterLink>
+    thumbnail: {{ thumbnail }}
   </div>
 
 </template>
@@ -54,8 +55,8 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import ToggledRouterLink from '../ToggledRouterLink';
-  import CardThumbnail from '../../../../../learn/assets/src/views/ContentCard/CardThumbnail';
+  import CardThumbnail from '../../../../learn/assets/src/views/ContentCard/CardThumbnail';
+  import ToggledRouterLink from './ToggledRouterLink';
 
   export default {
     name: 'EdulutionContentCard',
@@ -161,7 +162,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri.styles.definitions';
-  @import '../../../../../learn/assets/src/views/ContentCard/card';
+  @import '../../../../learn/assets/src/views/ContentCard/card';
 
   $margin: 16px;
 

@@ -75,7 +75,7 @@
       lastTopicBreadcrumb() {
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           return { text: this.contentTitle };
-        } else if (this.pageName === PageNames.KNOWLEDGE_MAP) {
+        } else {
           return { text: this.topicTitle };
         }
       },

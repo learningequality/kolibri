@@ -29,7 +29,7 @@ class KnowledgeMapViewset(ReadOnlyModelViewSet):
             children = ContentNode.objects.filter(parent=parent_id, available=True)
             serialized = ContentNodeSlimSerializer(children, many=True).data
             for c, s in zip(children, serialized):
-                s['progress' if grand else 'progress_fraction'] = get_progress(c)
+                s['progress_fraction'] = get_progress(c)
                 s['pendingPrerequisites'] = filter_pending(info(c.has_prerequisite.all()))
             return serialized
 

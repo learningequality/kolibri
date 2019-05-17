@@ -4,12 +4,12 @@ import { PageNames } from '../constants';
 import routes from '../../../../learn/assets/src/routes';
 
 export default [
-  ...routes,
   {
     name: PageNames.KNOWLEDGE_MAP,
-    path: '/topics/km/:id',
+    path: '/topics/t/:id',
     handler: toRoute => {
       showKnowledgeMap(store, toRoute.params.id);
     },
   },
+  ...routes,
 ];
