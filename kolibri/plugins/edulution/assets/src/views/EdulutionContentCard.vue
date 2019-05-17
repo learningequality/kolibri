@@ -41,7 +41,6 @@
         </div>
       </div>
     </ToggledRouterLink>
-    thumbnail: {{ thumbnail }}
   </div>
 
 </template>
