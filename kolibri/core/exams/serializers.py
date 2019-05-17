@@ -116,12 +116,17 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def validate_question_sources(self, value):
         for question in value:
-            if "exercise_id" not in question:
-                raise serializers.ValidationError("Question missing 'exercise_id'")
-            if "question_id" not in question:
-                raise serializers.ValidationError("Question missing 'question_id'")
-            if "title" not in question:
-                raise serializers.ValidationError("Question missing 'title'")
+            required_fields = [
+                "exercise_id",
+                "question_id",
+                "title",
+                "counter_in_exercise",
+            ]
+            for field in required_fields:
+                if field not in question:
+                    raise serializers.ValidationError(
+                        "Question missing '{}'".format(field)
+                    )
         return value
 
     def to_internal_value(self, data):
@@ -136,8 +141,7 @@ class ExamSerializer(serializers.ModelSerializer):
         return super(ExamSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
-        assignees = validated_data.pop("assignments")
-        validated_data["data_model_version"] = 1
+        assignees = validated_data.pop('assignments')
         new_exam = Exam.objects.create(**validated_data)
         # Create all of the new ExamAssignment
         for assignee in assignees:

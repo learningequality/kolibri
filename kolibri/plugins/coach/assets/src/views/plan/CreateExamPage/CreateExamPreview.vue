@@ -93,6 +93,83 @@
           :value="true"
         />
       </div>
+      <h2 class="header-margin">{{ $tr('questions') }}</h2>
+      <KGrid v-if="!loadingNewQuestions">
+        <KGridItem sizes="4, 4, 5" class="list-wrapper">
+          <KDragContainer
+            v-if="fixedOrder"
+            :items="selectedQuestions"
+            @sort="handleUserSort"
+          >
+            <transition-group tag="ol" name="list" class="question-list">
+              <KDraggable
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="listKey(question)"
+              >
+                <KDragHandle>
+                  <AssessmentQuestionListItem
+                    :draggable="true"
+                    :isSelected="isSelected(question)"
+                    :exerciseName="question.title"
+                    :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+                    :questionNumberOfExercise="question.counter_in_exercise"
+                    :isFirst="questionIndex === 0"
+                    :isLast="questionIndex === selectedQuestions.length - 1"
+                    @select="currentQuestionIndex = questionIndex"
+                    @moveDown="moveQuestionDown(questionIndex)"
+                    @moveUp="moveQuestionUp(questionIndex)"
+                  />
+                </KDragHandle>
+              </KDraggable>
+            </transition-group>
+          </KDragContainer>
+          <ul v-else class="question-list">
+            <AssessmentQuestionListItem
+              v-for="(question, questionIndex) in selectedQuestions"
+              :key="listKey(question)"
+              :draggable="false"
+              :isSelected="isSelected(question)"
+              :exerciseName="question.title"
+              :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+              :questionNumberOfExercise="question.counter_in_exercise"
+              @select="currentQuestionIndex = questionIndex"
+            />
+          </ul>
+          <transition name="fade-numbers">
+            <ol v-if="fixedOrder" class="list-labels" aria-hidden>
+              <li
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+              ></li>
+            </ol>
+            <ul v-else class="list-labels" aria-hidden>
+              <li
+                v-for="(question, questionIndex) in selectedQuestions"
+                :key="questionIndex"
+              ></li>
+            </ul>
+          </transition>
+        </KGridItem>
+        <KGridItem sizes="4, 4, 7">
+          <h3 class="question-title">{{ currentQuestionTitle }}</h3>
+          <ContentRenderer
+            v-if="content && questionId"
+            :id="content.id"
+            ref="contentRenderer"
+            :kind="content.kind"
+            :files="content.files"
+            :contentId="content.content_id"
+            :available="content.available"
+            :extraFields="content.extra_fields"
+            :itemId="questionId"
+            :assessment="true"
+            :allowHints="false"
+            :showCorrectAnswer="true"
+            :interactive="false"
+          />
+        </KGridItem>
+      </KGrid>
+      <Bottom>
       <h2 class="header-margin">
         {{ $tr('questions') }}
       </h2>
@@ -146,6 +223,8 @@
   import CreateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
+  const previewQuizStrings = crossComponentTranslator(ExamPreview);
+  const AssessmentQuestionListItemStrings = crossComponentTranslator(AssessmentQuestionListItem);
 
   export default {
     name: 'CreateExamPreview',
@@ -185,6 +264,31 @@
       },
       moreStrings() {
         return createExamPageStrings;
+      },
+      previewQuizStrings() {
+        return previewQuizStrings;
+      },
+      draggableOptions() {
+        return {
+          animation: 150,
+          touchStartThreshold: 3,
+          direction: 'vertical',
+        };
+      },
+      currentQuestion() {
+        return this.selectedQuestions[this.currentQuestionIndex] || {};
+      },
+      currentQuestionTitle() {
+        return AssessmentQuestionListItemStrings.$tr('nthExerciseName', {
+          name: this.currentQuestion.title,
+          number: this.currentQuestion.counter_in_exercise,
+        });
+      },
+      content() {
+        return this.selectedExercises[this.currentQuestion.exercise_id];
+      },
+      questionId() {
+        return this.currentQuestion.question_id;
       },
       examTitle: {
         get() {
