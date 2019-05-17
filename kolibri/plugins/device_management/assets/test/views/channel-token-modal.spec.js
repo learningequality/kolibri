@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils';
 import store from 'kolibri.coreVue.vuex.store';
 import ChannelTokenModal from '../../src/views/AvailableChannelsPage/ChannelTokenModal';
 
-function makeWrapper() {
-  return mount(ChannelTokenModal, { store });
+function makeWrapper(options = {}) {
+  return mount(ChannelTokenModal, { store, ...options });
 }
 
 function getElements(wrapper) {
@@ -26,20 +26,23 @@ describe('channelTokenModal component', () => {
   });
 
   it('pressing "cancel" emits a "cancel" event', () => {
+    const cancelListener = jest.fn();
+    wrapper = makeWrapper({
+      listeners: {
+        cancel: cancelListener,
+      }
+    })
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
-    return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.emitted().cancel.length).toEqual(1);
-    });
+    expect(cancelListener).toHaveBeenCalled();
   });
 
   describe('submitting a token', () => {
-    function inputToken(wrapper, token) {
+    async function inputToken(wrapper, token) {
       const textbox = getElements(wrapper).tokenTextbox();
       textbox.vm.$emit('input', token);
-      return wrapper.vm.$nextTick().then(() => {
-        expect(textbox.props().value).toEqual(token.trim());
-      });
+      await wrapper.vm.$nextTick();
+      expect(textbox.props().value).toEqual(token.trim());
     }
 
     function assertTextboxInvalid(wrapper) {
@@ -99,51 +102,39 @@ describe('channelTokenModal component', () => {
         });
     });
 
-    it('on blur, shows a validation message when token code is empty', () => {
+    it('on blur, shows a validation message when token code is empty', async () => {
       const textbox = getElements(wrapper).tokenTextbox();
-      return inputToken(wrapper, '    ')
-        .then(() => {
-          // Reaching into ui-textbox's blur to trigger it on k-textbox
-          textbox.vm.$refs.textbox.$emit('blur');
-          return wrapper.vm.$nextTick();
-        })
-        .then(() => {
-          assertTextboxInvalid(wrapper);
-        });
+      await inputToken(wrapper, '    ')
+      // Reaching into ui-textbox's blur to trigger it on k-textbox
+      textbox.vm.$refs.textbox.$emit('blur');
+      await wrapper.vm.$nextTick();
+      assertTextboxInvalid(wrapper);
     });
 
-    it('if the token does not point to a channel (404 code), shows a validation message', () => {
+    it('if the token does not point to a channel (404 code), shows a validation message', async () => {
       const tokenPayload = { status: { code: 404 } };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          return wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emittedByOrder().length).toEqual(0);
-          assertTextboxInvalid(wrapper);
-        });
+      await inputToken(wrapper, 'toka-toka-token')
+      await wrapper.vm.submitForm();
+      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
+      expect(wrapper.emittedByOrder().length).toEqual(0);
+      assertTextboxInvalid(wrapper);
     });
 
-    it('shows an ui-alert error if there is a generic network error (other error code)', () => {
+    it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
       const tokenPayload = { status: { code: 500 } };
       const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          return wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emittedByOrder().length).toEqual(0);
-          expect(textbox.props().invalid).toEqual(false);
-          expect(networkErrorAlert().isVueInstance()).toEqual(true);
-        });
+      await inputToken(wrapper, 'toka-toka-token')
+      await wrapper.vm.submitForm();
+      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
+      expect(wrapper.emittedByOrder().length).toEqual(0);
+      expect(textbox.props().invalid).toEqual(false);
+      expect(networkErrorAlert().isVueInstance()).toEqual(true);
     });
   });
 });
