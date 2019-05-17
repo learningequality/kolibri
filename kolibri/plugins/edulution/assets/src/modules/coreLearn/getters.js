@@ -1,23 +1,7 @@
 import { PageNames, PageModes } from '../../constants';
+import { pageMode as learnPageMode } from '../../../../../learn/assets/src/modules/coreLearn/getters';
 
 export function pageMode(state) {
-  const topicsPages = [
-    PageNames.TOPICS_ROOT,
-    PageNames.TOPICS_CHANNEL,
-    PageNames.TOPICS_TOPIC,
-    PageNames.TOPICS_CONTENT,
-    PageNames.KNOWLEDGE_MAP,
-  ];
-  const examPages = [PageNames.EXAM_LIST, PageNames.EXAM];
-  const pageNameMatches = page => page === state.pageName;
-  if (topicsPages.some(pageNameMatches)) {
-    return PageModes.TOPICS;
-  } else if (PageNames.RECOMMENDED === state.pageName) {
-    return PageModes.RECOMMENDED;
-  } else if (PageNames.SEARCH === state.pageName) {
-    return PageModes.SEARCH;
-  } else if (examPages.some(pageNameMatches)) {
-    return PageModes.EXAM;
-  }
-  return undefined;
+  const mode = learnPageMode(state);
+  return mode === undefined && state.pageName === PageNames.KNOWLEDGE_MAP ? PageModes.TOPICS : mode;
 }
