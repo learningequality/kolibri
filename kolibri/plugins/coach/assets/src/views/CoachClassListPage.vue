@@ -31,6 +31,7 @@
             <th>{{ $tr('classNameLabel') }}</th>
             <th>{{ coachStrings.$tr('coachesLabel') }}</th>
             <th>{{ coachStrings.$tr('learnersLabel') }}</th>
+            <th>{{ $tr('channelsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -50,9 +51,26 @@
             <td>
               {{ coachStrings.$tr('integer', { value: classObj.learner_count }) }}
             </td>
+            <td>
+              <div class="button">
+                <KButton
+                  :primary="false"
+                  :text="$tr('subscribeChannelsButton')"
+                  @click="openSubscribeModal(classObj)"
+                />
+              </div>
+            </td>
           </tr>
         </transition-group>
       </CoreTable>
+
+      <SubscribeModal
+        v-if="modalShown===Modals.CHOOSE_SUBSCRIPTIONS"
+        :collectionId="currentClass.id"
+        :collectionName="currentClass.name"
+        :collectionKind="currentClass.kind"
+      />
+
     </KPageContainer>
 
   </CoreBase>
@@ -65,17 +83,27 @@
   import { mapGetters, mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
+  import { Modals } from '../constants/subscriptionsConstants';
   import commonCoach from './common';
+  import SubscribeModal from './SubscribeModal';
 
   export default {
     name: 'CoachClassListPage',
     components: {
+      SubscribeModal,
       KExternalLink,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        modalShown: null,
+        currentClass: null,
+      };
+    },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
+      Modals: () => Modals,
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
         if (this.isClassCoach) {
@@ -95,6 +123,12 @@
         }
       },
     },
+    methods: {
+      openSubscribeModal(classModel) {
+        this.currentClass = classModel;
+        this.modalShown = Modals.CHOOSE_SUBSCRIPTIONS;
+      },
+    },
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
       classNameLabel: 'Class name',
@@ -104,6 +138,8 @@
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
       noClassesInFacility: 'There are no classes yet',
+      subscribeChannelsButton: 'SUBSCRIBE CHANNELS',
+      channelsLabel: 'Channels',
     },
   };
 
