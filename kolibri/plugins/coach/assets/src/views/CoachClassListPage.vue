@@ -65,7 +65,7 @@
       </CoreTable>
 
       <SubscribeModal
-        v-if="modalShown===Modals.CHOOSE_SUBSCRIPTIONS"
+        v-if="subscriptionModalShown===Modals.CHOOSE_SUBSCRIPTIONS"
         :collectionId="currentClass.id"
         :collectionName="currentClass.name"
         :collectionKind="currentClass.kind"
@@ -80,7 +80,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
   import { Modals } from '../constants/subscriptionsConstants';
@@ -96,13 +96,14 @@
     mixins: [commonCoach],
     data() {
       return {
-        modalShown: null,
+        // modalShown: null,
         currentClass: null,
       };
     },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
+      ...mapState('subscriptions', ['subscriptionModalShown']),
       Modals: () => Modals,
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
@@ -124,9 +125,10 @@
       },
     },
     methods: {
+      ...mapActions('subscriptions', ['displayModal']),
       openSubscribeModal(classModel) {
         this.currentClass = classModel;
-        this.modalShown = Modals.CHOOSE_SUBSCRIPTIONS;
+        this.displayModal(Modals.CHOOSE_SUBSCRIPTIONS);
       },
     },
     $trs: {
