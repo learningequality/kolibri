@@ -36,7 +36,7 @@
     priority: 10,
   };
 
-  // navComponents.register(component);
+  navComponents.register(component);
 
   export default component;
 
