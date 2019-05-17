@@ -15,9 +15,9 @@ Feature: Learner sign-in
 
   Scenario: Simplified sign-in
     Given that simplified sign-in facility setting is on
-    When I fill out my username <username>
-      And I click the *Sign in* button 
-    Then I am signed in and I can see the *Learn > Classes* page
+      When I fill out my username <username>
+        And I click the *Sign in* button 
+      Then I am signed in and I can see the *Learn > Classes* page
 
   Examples:
   | username | password |
