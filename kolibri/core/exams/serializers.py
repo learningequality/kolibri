@@ -141,7 +141,7 @@ class ExamSerializer(serializers.ModelSerializer):
         return super(ExamSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
-        assignees = validated_data.pop('assignments')
+        assignees = validated_data.pop("assignments")
         new_exam = Exam.objects.create(**validated_data)
         # Create all of the new ExamAssignment
         for assignee in assignees:

@@ -50,7 +50,11 @@ class ExamAPITestCase(APITestCase):
         return self.client.post(reverse("kolibri:core:exam-list"), exam, format="json")
 
     def put_updated_exam(self, exam_id, update):
-        return self.client.put(reverse("kolibri:core:exam-detail", kwargs={'pk': exam_id}), update, format="json")
+        return self.client.put(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": exam_id}),
+            update,
+            format="json",
+        )
 
     def login_as_admin(self):
         return self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -63,12 +67,16 @@ class ExamAPITestCase(APITestCase):
 
     def test_logged_in_user_exam_no_delete(self):
         self.login_as_learner()
-        response = self.client.delete(reverse("kolibri:core:exam-detail", kwargs={'pk': self.exam.id}))
+        response = self.client.delete(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id})
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_exam_delete(self):
         self.login_as_admin()
-        response = self.client.delete(reverse("kolibri:core:exam-detail", kwargs={'pk': self.exam.id}))
+        response = self.client.delete(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id})
+        )
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_exam_create(self):
@@ -86,7 +94,7 @@ class ExamAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(
             models.ExamAssignment.objects.get(collection=self.facility).exam,
-            models.Exam.objects.get(id=exam_id)
+            models.Exam.objects.get(id=exam_id),
         )
 
     def test_logged_in_admin_exam_update_no_assignments(self):
@@ -136,19 +144,19 @@ class ExamAPITestCase(APITestCase):
 
     def test_logged_in_admin_exam_update(self):
         self.login_as_admin()
-        response = self.put_updated_exam(self.exam.id, {
-            "title": "updated title",
-            "active": True,
-        })
+        response = self.put_updated_exam(
+            self.exam.id, {"title": "updated title", "active": True}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(models.Exam.objects.get(id=self.exam.id).title, "updated title")
+        self.assertEqual(
+            models.Exam.objects.get(id=self.exam.id).title, "updated title"
+        )
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()
-        response = self.put_updated_exam(self.exam.id, {
-            "title": "updated title",
-            "active": True,
-        })
+        response = self.put_updated_exam(
+            self.exam.id, {"title": "updated title", "active": True}
+        )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(models.Exam.objects.get(id=self.exam.id).title, "title")
 
@@ -166,12 +174,14 @@ class ExamAPITestCase(APITestCase):
         exam = self.make_basic_exam()
         title = "invalid_question_sources"
         exam["title"] = title
-        exam["question_sources"].append({
-            "exercise_id": "e1",
-            "question_id": "q1",
-            "title": "Title",
-            # missing 'counter_in_exercise'
-        })
+        exam["question_sources"].append(
+            {
+                "exercise_id": "e1",
+                "question_id": "q1",
+                "title": "Title",
+                # missing 'counter_in_exercise'
+            }
+        )
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
         self.assertFalse(models.Exam.objects.filter(title=title).exists())
@@ -179,12 +189,14 @@ class ExamAPITestCase(APITestCase):
     def test_exam_with_valid_question_sources_succeeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["question_sources"].append({
-            "exercise_id": "e1",
-            "question_id": "q1",
-            "title": "Title",
-            "counter_in_exercise": 1,
-        })
+        exam["question_sources"].append(
+            {
+                "exercise_id": "e1",
+                "question_id": "q1",
+                "title": "Title",
+                "counter_in_exercise": 1,
+            }
+        )
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)
 

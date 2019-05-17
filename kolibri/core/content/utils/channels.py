@@ -95,11 +95,17 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
 def get_channels_for_data_folder(datafolder):
     channels = []
-    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
+    for path in enumerate_content_database_file_paths(
+        get_content_database_dir_path(datafolder)
+    ):
         try:
             channel = read_channel_metadata_from_db_file(path)
         except DatabaseError:
-            logger.warning("Tried to import channel from database file {}, but the file was corrupted.".format(path))
+            logger.warning(
+                "Tried to import channel from database file {}, but the file was corrupted.".format(
+                    path
+                )
+            )
             continue
         channel_data = {
             "path": path,

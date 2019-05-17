@@ -15,6 +15,7 @@ class EnumerateChannelTestCase(TestCase):
     Testcase for enumerating channel database files to find if they are corrupted
     or have broken symbolic links.
     """
+
     def test_broken_symlink_database_file(self):
         src_dir = tempfile.mkdtemp()
         dst_dir = get_content_database_dir_path()
@@ -35,7 +36,7 @@ class EnumerateChannelTestCase(TestCase):
             f.write("test corrupted database file")
         return db_file
 
-    @patch('kolibri.core.content.utils.annotation.logger.warning')
+    @patch("kolibri.core.content.utils.annotation.logger.warning")
     def test_corrupted_database_file_server_start(self, logger_mock):
         db_file = self.create_corrupted_database_file(get_content_database_dir_path())
         update_channel_metadata()
@@ -46,7 +47,9 @@ class EnumerateChannelTestCase(TestCase):
 
     def test_corrupted_database_file_local_import(self):
         datafolder = tempfile.mkdtemp()
-        db_file = self.create_corrupted_database_file(get_content_database_dir_path(datafolder))
+        db_file = self.create_corrupted_database_file(
+            get_content_database_dir_path(datafolder)
+        )
         channels = get_channels_for_data_folder(datafolder)
 
         # Make sure that the corrupted database file is not going to be listed

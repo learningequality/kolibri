@@ -56,9 +56,17 @@ def update_channel_metadata():
                 import_channel_from_local_db(channel_id)
                 annotate_content(channel_id)
             except (InvalidSchemaVersionError, FutureSchemaError):
-                logger.warning("Tried to import channel {channel_id}, but database file was incompatible".format(channel_id=channel_id))
+                logger.warning(
+                    "Tried to import channel {channel_id}, but database file was incompatible".format(
+                        channel_id=channel_id
+                    )
+                )
             except DatabaseError:
-                logger.warning("Tried to import channel {channel_id}, but database file was corrupted.".format(channel_id=channel_id))
+                logger.warning(
+                    "Tried to import channel {channel_id}, but database file was corrupted.".format(
+                        channel_id=channel_id
+                    )
+                )
     fix_multiple_trees_with_id_one()
     connection.close()
 
