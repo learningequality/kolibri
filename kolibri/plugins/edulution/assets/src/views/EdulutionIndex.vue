@@ -32,23 +32,23 @@
   import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import ContentPage from '../../../../learn/assets/src/views/ContentPage';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import LessonResourceViewer from '../../../../learn/assets/src/views/classes/LessonResourceViewer';
+  import RecommendedPage from '../../../../learn/assets/src/views/RecommendedPage';
+  import TotalPoints from '../../../../learn/assets/src/views/TotalPoints';
+  import TopicsPage from '../../../../learn/assets/src/views/TopicsPage';
+  import SearchPage from '../../../../learn/assets/src/views/SearchPage';
+  import ActionBarSearchBox from '../../../../learn/assets/src/views/ActionBarSearchBox';
+  import RecommendedSubpage from '../../../../learn/assets/src/views/RecommendedSubpage';
+  import ExamReportViewer from '../../../../learn/assets/src/views/LearnExamReportViewer';
+  import ExamPage from '../../../../learn/assets/src/views/ExamPage';
+  import AllClassesPage from '../../../../learn/assets/src/views/classes/AllClassesPage';
+  import ClassAssignmentsPage from '../../../../learn/assets/src/views/classes/ClassAssignmentsPage';
+  import LessonPlaylistPage from '../../../../learn/assets/src/views/classes/LessonPlaylistPage';
+  import ContentUnavailablePage from '../../../../learn/assets/src/views/ContentUnavailablePage';
   import ChannelsPage from './ChannelsPage';
-  import TopicsPage from './TopicsPage';
-  import ContentPage from './ContentPage';
-  import RecommendedPage from './RecommendedPage';
-  import RecommendedSubpage from './RecommendedSubpage';
-  import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
-  import SearchPage from './SearchPage';
-  import ExamPage from './ExamPage';
-  import ExamReportViewer from './LearnExamReportViewer';
-  import TotalPoints from './TotalPoints';
-  import AllClassesPage from './classes/AllClassesPage';
-  import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
-  import LessonPlaylistPage from './classes/LessonPlaylistPage';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
-  import ActionBarSearchBox from './ActionBarSearchBox';
   import EdulutionTopNav from './EdulutionTopNav';
   import KnowledgeMap from './KnowledgeMap';
 
@@ -183,9 +183,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import './learn';
-  @import '~kolibri.styles.definitions';
 
   .content {
     margin: auto;

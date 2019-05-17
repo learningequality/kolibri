@@ -20,7 +20,7 @@
 
   import { mapState } from 'vuex';
   import { PageNames } from '../constants';
-  import PageHeader from './PageHeader';
+  import PageHeader from '../../../../learn/assets/src/views/PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
