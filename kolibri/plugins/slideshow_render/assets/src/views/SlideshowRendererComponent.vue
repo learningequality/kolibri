@@ -52,6 +52,7 @@
 
   import orderBy from 'lodash/orderBy';
   import objectFitImages from 'object-fit-images';
+  import client from 'kolibri.client';
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
@@ -140,64 +141,27 @@
         Using the manifest file, get the JSON from the manifest, then
         use the manifest JSON to get all slide images and metadata.
       */
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', this.defaultFile.storage_url);
-      xhr.send(null);
-      xhr.onreadystatechange = () => {
-        let DONE = 4;
-        let OK = 200;
-        if (xhr.readyState === DONE) {
-          if (xhr.status === OK) {
-            const manifest_data = JSON.parse(xhr.responseText);
-            this.manifest = manifest_data.slideshow_data;
+      const path = this.defaultFile.storage_url;
+      const method = 'GET';
+      client({ path, method }).then(({ entity }) => {
+        this.manifest = entity.slideshow_data;
 
-            this.slides = orderBy(
-              this.manifest.map(image => {
-                return {
-                  storage_url: this.slideshowImages.find(
-                    sFile => checksumFromFile(sFile) == image.checksum
-                  ).storage_url,
-                  caption: image.caption,
-                  sort_order: image.sort_order,
-                  id: image.checksum,
-                  descriptive_text: image.descriptive_text,
-                };
-              }),
-              ['sort_order'],
-              ['asc']
-            );
-          }
-        }
-      };
-
-      /*
-      fetch(this.defaultFile.storage_url, { method: 'GET' })
-        .then(response => {
-          return response.json();
-        })
-        .then(manifest_data => {
-          this.manifest = manifest_data.slideshow_data;
-
-          this.slides = orderBy(
-            this.manifest.map(image => {
-              return {
-                storage_url: this.slideshowImages.find(
-                  sFile => checksumFromFile(sFile) == image.checksum
-                ).storage_url,
-                caption: image.caption,
-                sort_order: image.sort_order,
-                id: image.checksum,
-                descriptive_text: image.descriptive_text,
-              };
-            }),
-            ['sort_order'],
-            ['asc']
-          );
-        })
-        .catch(error => {
-          this.$store.dispatch('handleApiError', error);
-        });
-        */
+        this.slides = orderBy(
+          this.manifest.map(image => {
+            return {
+              storage_url: this.slideshowImages.find(
+                sFile => checksumFromFile(sFile) == image.checksum
+              ).storage_url,
+              caption: image.caption,
+              sort_order: image.sort_order,
+              id: image.checksum,
+              descriptive_text: image.descriptive_text,
+            };
+          }),
+          ['sort_order'],
+          ['asc']
+        );
+      });
     },
     methods: {
       handleSlide(payload) {
