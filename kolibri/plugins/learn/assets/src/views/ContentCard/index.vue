@@ -160,8 +160,6 @@
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
-    word-break: break-all; // fallback
-    word-break: break-word;
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;

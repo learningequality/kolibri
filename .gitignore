@@ -132,3 +132,6 @@ SQLITE_MAX_VARIABLE_NUMBER.cache
 
 # don't ignore the TTF font for H5P
 !h5p-core-18.ttf
+
+# Ignore Google api credential
+.buildkite/integration-testing-google-api-credential.json
