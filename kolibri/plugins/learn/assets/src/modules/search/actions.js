@@ -37,7 +37,6 @@ export function triggerSearch(
     search: searchTerm,
     kind: kindFilter,
     channel_id: channelFilter,
-    include_fields: ['num_coach_contents'],
   };
 
   return ContentNodeSearchResource.getCollection(getParams)
@@ -71,7 +70,6 @@ export function loadMore(store) {
     kind,
     channel_id,
     exclude_content_ids,
-    include_fields: ['num_coach_contents'],
   };
   return ContentNodeSearchResource.getCollection(getParams)
     .fetch()

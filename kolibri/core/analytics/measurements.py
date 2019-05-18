@@ -121,7 +121,7 @@ def get_requests_info():
             requests.get(base_url).elapsed.total_seconds()
         )
         recommended_url = format_url(
-            "/api/content/contentnode_slim/popular/?by_role=true", base_url
+            "/api/content/contentnode_slim/popular/?user_kind=learner", base_url
         )
         recommended_time = "{:.2f} s".format(
             requests.get(recommended_url).elapsed.total_seconds()

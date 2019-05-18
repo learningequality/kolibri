@@ -11,17 +11,12 @@ export function showLessonPlaylist(store, { lessonId }) {
   return store.dispatch('loading').then(() => {
     return LearnerLessonResource.fetchModel({ id: lessonId })
       .then(lesson => {
-        const include_fields = [];
-        if (store.getters.isCoach || store.getters.isAdmin) {
-          include_fields.push('num_coach_contents');
-        }
         store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
         store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);
         if (lesson.resources.length) {
           return ContentNodeSlimResource.fetchCollection({
             getParams: {
               ids: lesson.resources.map(resource => resource.contentnode_id),
-              include_fields,
             },
           });
         }

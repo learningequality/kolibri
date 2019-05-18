@@ -27,7 +27,7 @@ from kolibri.core.content.models import NO_VERSION
 from kolibri.core.content.models import V020BETA1
 from kolibri.core.content.models import V040BETA3
 from kolibri.core.content.models import VERSION_1
-from kolibri.core.content.utils.annotation import recurse_availability_up_tree
+from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
@@ -55,7 +55,10 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
         db_path_mock.return_value = "test"
         ChannelImport("test")
         BridgeMock.assert_has_calls(
-            [call(sqlite_file_path="test"), call(app_name="content")]
+            [
+                call(sqlite_file_path="test"),
+                call(app_name="content", schema_version=CONTENT_SCHEMA_VERSION),
+            ]
         )
 
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
@@ -545,7 +548,7 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
 
             # propagate availability up the tree
             set_leaf_node_availability_from_local_file_availability(channel_id)
-            recurse_availability_up_tree(channel_id=channel_id)
+            recurse_annotation_up_tree(channel_id=channel_id)
 
             # after reloading, channel should now be available
             channel.root.refresh_from_db()

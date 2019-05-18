@@ -6,18 +6,10 @@ import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 
-function _setIncludedFieldsByRole(store) {
-  if (store.getters.isCoach || store.getters.isAdmin) {
-    return ['num_coach_contents'];
-  }
-  return [];
-}
-
 // User-agnostic recommendations
 function _getPopular(store) {
   return ContentNodeSlimResource.fetchPopular({
-    by_role: true,
-    include_fields: _setIncludedFieldsByRole(store),
+    user_kind: store.getters.getUserKind,
   });
 }
 
@@ -25,8 +17,7 @@ function _getPopular(store) {
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchNextSteps({
-      by_role: true,
-      include_fields: _setIncludedFieldsByRole(store),
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);
@@ -35,8 +26,7 @@ function _getNextSteps(store) {
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchResume({
-      by_role: true,
-      include_fields: _setIncludedFieldsByRole(store),
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);
