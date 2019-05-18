@@ -415,3 +415,61 @@ def get_version(version=None):
         sub = ".post{}".format(version[4])
 
     return str(major + sub)
+
+
+def get_version_and_operator_from_range(version_range):
+    # extract and normalize version strings
+    operator, range_version = re.match(r"([<>=!]*)(\d.*)", version_range).groups()
+    return operator, normalize_version_to_semver(range_version)
+
+
+#  Copied from https://github.com/learningequality/nutritionfacts/commit/b33e19400ae639cbcf2b2e9b312d37493eb1e566#diff-5b7513e7bc7d64d348fd8d3f2222b573
+#  TODO: move to le-utils package
+def version_matches_range(version, version_range):
+    # Import semver here to allow other functions in the module to be imported in a lower
+    # dependency environment.
+    import semver
+    # if no version range is provided, assume we don't have opinions about the version
+    if not version_range or version_range == "*":
+        return True
+
+    # support having multiple comma-delimited version criteria
+    if "," in version_range:
+        return all(
+            [
+                version_matches_range(version, vrange)
+                for vrange in version_range.split(",")
+            ]
+        )
+
+    # extract and normalize version strings
+    operator, range_version = get_version_and_operator_from_range(version_range)
+    version = normalize_version_to_semver(version)
+
+    # check whether the version is in the range
+    return semver.match(version, operator + range_version)
+
+
+def normalize_version_to_semver(version):
+
+    _, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
+
+    # extract the numeric semver component and the stuff that comes after
+    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", version).groups()
+
+    # clean up the different variations of the post-numeric component to ease checking
+    after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
+
+    # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
+    after_pieces = re.match(r"([a-z])(\d+)", after)
+    if after_pieces:
+        after = ".".join([piece for piece in after_pieces.groups() if piece])
+
+    # position final releases between alphas, betas, and further dev
+    if not dev:
+        after = (after + ".c").strip(".")
+
+    # make sure dev versions are sorted nicely relative to one another
+    dev = (dev or "").replace("+", ".").replace("-", ".")
+
+    return "{}-{}{}".format(numeric, after, dev).strip("-")
