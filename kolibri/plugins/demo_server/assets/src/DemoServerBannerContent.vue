@@ -51,13 +51,13 @@
       },
     },
     $trs: {
-      demoServerHeader: 'Welcome to the Kolibri demo site!',
+      demoServerHeader: 'Welcome to the Kolibri demo site',
       demoServerP1: 'Explore any of the three primary user types:',
       demoServerL1: 'Learner ({user}/{pass} or access as a guest)',
       demoServerL2: 'Coach ({user}/{pass})',
       demoServerL3: 'Admin ({user}/{pass})',
       demoServerP2:
-        'This online demo is intended for demonstration purposes and any user may be periodically cleared. This demo has features of the latest Kolibri version and all resources found are samples.',
+        'This online version of Kolibri is intended for demonstration purposes only. Users and data will be periodically deleted. The demo shows features of the latest Kolibri version, and all resources found are samples.',
       demoServerP3:
         'To learn more about using Kolibri in an offline context and better understand the platform:',
       demoServerA1: 'Read the documentation',

@@ -8,6 +8,7 @@ from sqlalchemy import and_
 from sqlalchemy import exists
 from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy.exc import DatabaseError
 
 from .channels import get_channel_ids_for_content_database_dir
 from .paths import get_content_database_file_path
@@ -57,6 +58,12 @@ def update_channel_metadata():
             except (InvalidSchemaVersionError, FutureSchemaError):
                 logger.warning(
                     "Tried to import channel {channel_id}, but database file was incompatible".format(
+                        channel_id=channel_id
+                    )
+                )
+            except DatabaseError:
+                logger.warning(
+                    "Tried to import channel {channel_id}, but database file was corrupted.".format(
                         channel_id=channel_id
                     )
                 )

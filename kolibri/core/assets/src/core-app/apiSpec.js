@@ -87,6 +87,7 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBasicContentIcon from '../views/icons/KBasicContentIcon';
+import KBottomAppBar from '../views/KBottomAppBar';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -192,6 +193,7 @@ export default {
       KIcon,
       KLabeledIcon,
       KBasicContentIcon,
+      KBottomAppBar,
     },
     router,
     mixins: {
