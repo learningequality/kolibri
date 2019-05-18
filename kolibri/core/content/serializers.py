@@ -64,7 +64,7 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         # TODO: rtibbles - cleanup this for device specific serializer.
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
-        value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
+        value.update({"num_coach_contents": instance.root.num_coach_contents})
 
         # if the request includes a GET param 'include_fields', add the requested calculated fields
         if "request" in self.context:
@@ -450,7 +450,6 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(DynamicFieldsModelSerializer):
-    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
     assessmentmetadata = AssessmentMetaDataSerializer(
@@ -507,19 +506,6 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
         value["progress_fraction"] = progress_fraction
         return value
 
-    def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # exclude anon users
-            # cache the user roles query on the instance
-            if getattr(self, "user_roles_exists", None) is None:
-                self.user_roles_exists = user.roles.exists()
-            if (
-                self.user_roles_exists or user.is_superuser
-            ):  # must have coach role or higher
-                return get_num_coach_contents(instance)
-        # all other conditions return 0
-        return 0
-
 
 class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     """
@@ -541,23 +527,8 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
             "kind",
             "files",
             "title",
+            "num_coach_contents",
         )
-
-    def to_representation(self, instance):
-        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
-        # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if "request" in self.context:
-
-            include_fields = (
-                self.context["request"].GET.get("include_fields", "").split(",")
-            )
-
-            if include_fields:
-
-                if "num_coach_contents" in include_fields:
-                    value["num_coach_contents"] = get_num_coach_contents(instance)
-
-        return value
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):

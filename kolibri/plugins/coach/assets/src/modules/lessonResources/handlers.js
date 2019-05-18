@@ -245,7 +245,6 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
           kind: query.kind,
           channel_id: query.channel,
         }),
-        include_fields: ['num_coach_contents'],
       },
     }).then(results => {
       return showResourceSelectionPage(store, {

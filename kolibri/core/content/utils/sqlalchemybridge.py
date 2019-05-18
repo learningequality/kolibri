@@ -17,7 +17,7 @@ from sqlalchemy.pool import NullPool
 from .check_schema_db import db_matches_schema
 from .check_schema_db import DBSchemaError
 from kolibri.core.content.models import CONTENT_DB_SCHEMA_VERSIONS
-from kolibri.core.content.models import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.models import CURRENT_SCHEMA_VERSION
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 
@@ -50,7 +50,9 @@ def get_engine(connection_string):
     engine = create_engine(
         connection_string,
         echo=False,
-        connect_args={"check_same_thread": False}
+        # Set timeout to 60s, as with most of our content import write operations
+        # it is more important to complete, than to do so quickly.
+        connect_args={"check_same_thread": False, "timeout": 60}
         if connection_string.startswith("sqlite")
         else {},
         poolclass=NullPool,
@@ -136,11 +138,11 @@ SCHEMA_PATH_TEMPLATE = os.path.join(
 
 def prepare_bases():
 
-    for name in CONTENT_DB_SCHEMA_VERSIONS:
+    for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
 
         with open(SCHEMA_PATH_TEMPLATE.format(name=name), "rb") as f:
             metadata = pickle.load(f)
-        cascade_relationships = name == CONTENT_SCHEMA_VERSION
+        cascade_relationships = name == CURRENT_SCHEMA_VERSION
         BASES[name] = prepare_base(
             metadata, cascade_relationships=cascade_relationships
         )
@@ -218,27 +220,28 @@ class SchemaNotFoundError(Exception):
 
 
 class Bridge(object):
-    def __init__(self, sqlite_file_path=None, app_name=None):
+    def __init__(self, sqlite_file_path=None, schema_version=None, app_name=None):
         if sqlite_file_path is None:
             # If sqlite_file_path is None, we are referencing the Django default database
             self.connection_string = get_default_db_string()
-            self.Base = BASES[CONTENT_SCHEMA_VERSION]
+            self.schema_version = schema_version or CURRENT_SCHEMA_VERSION
         else:
             # Otherwise, we are accessing an external content database.
             # So we try each of our historical database schema in order to see
             # which glass slipper fits! If none do, just turn into a pumpkin.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
             for version in CONTENT_DB_SCHEMA_VERSIONS:
-                self.Base = BASES[version]
+                self.schema_version = version
                 self.session, self.engine = make_session(self.connection_string)
                 try:
-                    db_matches_schema(self.Base, self.session)
-                    self.schema_version = version
+                    db_matches_schema(BASES[self.schema_version], self.session)
                     break
                 except DBSchemaError as e:
                     logging.debug(e)
             else:
                 raise SchemaNotFoundError("No matching schema found for this database")
+
+        self.Base = BASES[self.schema_version]
         # We are using scoped sessions, so should always return the same session
         # in the same thread
         self.session, self.engine = make_session(self.connection_string)
