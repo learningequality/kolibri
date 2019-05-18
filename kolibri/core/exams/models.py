@@ -35,7 +35,19 @@ class Exam(AbstractFacilityDataModel):
     question_count = models.IntegerField()
 
     """
-    This field contains different values depending on the 'data_model_version' field.
+    The `question_sources` field contains different values depending on the 'data_model_version' field.
+
+    V2:
+        Similar to V1, but with a `counter_in_exercise` field
+        [
+            {
+                "exercise_id": <exercise_pk>,
+                "question_id": <item_id_within_exercise>,
+                "title": <exercise_title>,
+                "counter_in_exercise": <unique_count_for_question>
+            },
+            ...
+        ]
 
     V1:
         JSON array describing the questions in this exam and the exercises they come from:
@@ -69,7 +81,7 @@ class Exam(AbstractFacilityDataModel):
 
     V0:
         Used to decide which questions are in an exam at runtime.
-        See convertExamQuestionSourcesV0V1 in exams/utils.js for details.
+        See convertExamQuestionSourcesV0V2 in exams/utils.js for details.
     """
     seed = models.IntegerField(default=1)
 
@@ -109,7 +121,7 @@ class Exam(AbstractFacilityDataModel):
     Certain fields that are only relevant for older model versions get prefixed
     with their version numbers.
     """
-    data_model_version = models.SmallIntegerField(default=0)
+    data_model_version = models.SmallIntegerField(default=2)
 
     def infer_dataset(self, *args, **kwargs):
         return self.creator.dataset_id

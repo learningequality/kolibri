@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db.models import Sum
 from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
@@ -23,12 +25,9 @@ except ImportError:
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
-def get_files_to_transfer(
+def get_nodes_to_transfer(
     channel_id, node_ids, exclude_node_ids, available, renderable_only=True
 ):
-
-    # build initial file and node querysets, which will be further filtered below
-    files_to_transfer = LocalFile.objects.filter(available=available)
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
     # if requested, filter down to only include particular topics/nodes
@@ -41,19 +40,28 @@ def get_files_to_transfer(
     if renderable_only:
         nodes_to_include = nodes_to_include.filter(renderable_contentnodes_q_filter)
 
-    # filter down the files query to only include files associated with the nodes we care about
-    files_to_transfer = files_to_transfer.filter(
-        files__contentnode__in=nodes_to_include
-    )
-
     # filter down the query to remove files associated with nodes we've specifically been asked to exclude
     if exclude_node_ids:
         nodes_to_exclude = ContentNode.objects.filter(
             pk__in=exclude_node_ids
         ).get_descendants(include_self=True)
-        files_to_transfer = files_to_transfer.exclude(
-            files__contentnode__in=nodes_to_exclude
+
+        nodes_to_include = nodes_to_include.order_by().difference(
+            nodes_to_exclude.order_by()
         )
+    return nodes_to_include.order_by()
+
+
+def get_files_to_transfer(
+    channel_id, node_ids, exclude_node_ids, available, renderable_only=True
+):
+    nodes_to_include = get_nodes_to_transfer(
+        channel_id, node_ids, exclude_node_ids, available, renderable_only
+    )
+
+    files_to_transfer = LocalFile.objects.filter(
+        available=available, files__contentnode__in=nodes_to_include
+    )
 
     # Make sure the files are unique, to avoid duplicating downloads
     files_to_transfer = files_to_transfer.distinct()
@@ -128,3 +136,13 @@ def retry_import(e, **kwargs):
 
     else:
         raise e
+
+
+def compare_checksums(file_name, file_id):
+    hasher = hashlib.md5()
+    with open(file_name, "rb") as f:
+        # Read chunks of 4096 bytes for memory efficiency
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    checksum = hasher.hexdigest()
+    return checksum == file_id

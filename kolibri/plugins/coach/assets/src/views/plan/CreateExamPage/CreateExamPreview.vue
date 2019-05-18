@@ -93,6 +93,7 @@
           :value="true"
         />
       </div>
+
       <h2 class="header-margin">
         {{ $tr('questions') }}
       </h2>
@@ -104,7 +105,7 @@
         :selectedExercises="selectedExercises"
       />
 
-      <Bottom>
+      <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
           :text="coachStrings.$tr('goBackAction')"
@@ -116,7 +117,7 @@
           primary
           @click="submit"
         />
-      </Bottom>
+      </KBottomAppBar>
     </KPageContainer>
 
   </CoreBase>
@@ -135,6 +136,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -142,7 +144,6 @@
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
-  import Bottom from './Bottom';
   import CreateExamPage from './index';
 
   const createExamPageStrings = crossComponentTranslator(CreateExamPage);
@@ -161,7 +162,7 @@
       KRadioButton,
       KGrid,
       KGridItem,
-      Bottom,
+      KBottomAppBar,
       KTextbox,
       QuestionListPreview,
     },

@@ -67,7 +67,7 @@ function showQuestionDetailView(params) {
           );
           title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
             name: question.title,
-            number: question.counterInExercise,
+            number: question.counter_in_exercise,
           });
         } else {
           const questionNumber = Math.max(

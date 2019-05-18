@@ -241,6 +241,21 @@ if path_prefix != "/":
 STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
+# https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
+# Ensure that our CSRF cookie does not collide with other CSRF cookies
+# set by other Django apps served from the same domain.
+CSRF_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#language-cookie-path
+# Ensure that our language cookie does not collide with other language
+# cookies set by other Django apps served from the same domain.
+LANGUAGE_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
+# Ensure that our session cookie does not collidge with other session cookies
+# set by other Django apps served from the same domain.
+SESSION_COOKIE_PATH = path_prefix
+
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 

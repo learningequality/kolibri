@@ -49,12 +49,9 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
+  import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
 
   const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
-
-  // Bottom toolbar is 111px high on mobile, 113px normally.
-  // We reserve the smaller number so there is no gap on either screen size.
-  const BOTTOM_SPACED_RESERVED = 111;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -209,6 +206,9 @@
         );
       },
       bottomSpaceReserved() {
+        if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
+          return QUIZ_FOOTER;
+        }
         let content;
         if (
           this.pageName === PageNames.TOPICS_CONTENT ||
@@ -220,7 +220,7 @@
         }
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
-        return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+        return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
     },
     watch: {
