@@ -70,6 +70,7 @@ def update_channel_metadata():
                     )
                 )
     fix_multiple_trees_with_id_one()
+    update_num_coach_contents()
     connection.close()
 
 
@@ -132,6 +133,91 @@ def fix_multiple_trees_with_id_one():
                     count=failed_count
                 )
             )
+
+
+def update_num_coach_contents():
+    """
+    Function to set num_coach_content on topic trees that were imported before
+    the annotation would have been run.
+    """
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeClass = bridge.get_class(ContentNode)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    child = ContentNodeTable.alias()
+
+    logger.info(
+        "Updating num_coach_content on existing channels"
+    )
+
+    # start a transaction
+
+    trans = connection.begin()
+
+    for channel_id in ChannelMetadata.objects.all().values_list('id', flat=True):
+
+        node_depth = bridge.session.query(func.max(ContentNodeClass.level)).filter_by(channel_id=channel_id).scalar()
+
+        # Update all leaf ContentNodes to have num_coach_content to 1 or 0
+        connection.execute(
+            ContentNodeTable.update()
+            .where(
+                and_(
+                    # In this channel
+                    ContentNodeTable.c.channel_id == channel_id,
+                    # That are not topics
+                    ContentNodeTable.c.kind != content_kinds.TOPIC,
+                )
+            )
+            .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
+        )
+
+        # Go from the deepest level to the shallowest
+        for level in range(node_depth, 0, -1):
+
+            # Expression to capture all available child nodes of a contentnode
+            available_nodes = select([child.c.available]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    ContentNodeTable.c.id == child.c.parent_id,
+                )
+            )
+
+            # Expression that sums the total number of coach contents for each child node
+            # of a contentnode
+            coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+                and_(
+                    child.c.available == True,  # noqa
+                    ContentNodeTable.c.id == child.c.parent_id,
+                )
+            )
+
+            # Only modify topic availability here
+            connection.execute(
+                ContentNodeTable.update()
+                .where(
+                    and_(
+                        ContentNodeTable.c.level == level - 1,
+                        ContentNodeTable.c.channel_id == channel_id,
+                        ContentNodeTable.c.kind == content_kinds.TOPIC,
+                    )
+                )
+                # Because we have set availability to False on all topics as a starting point
+                # we only need to make updates to topics with available children.
+                .where(exists(available_nodes))
+                .values(
+                    num_coach_contents=coach_content_num,
+                )
+            )
+
+    # commit the transaction
+    trans.commit()
+
+    bridge.end()
 
 
 def set_leaf_node_availability_from_local_file_availability(channel_id):
