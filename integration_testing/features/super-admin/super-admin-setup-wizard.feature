@@ -64,7 +64,7 @@ Feature: Super admin goes through the setup wizard
     Scenario: Responsibility of the admin regarding privacy
       Given that I am on the *Step 7 of 7* of the setup wizard
         And I see *Responsabilities as an administrator*
-      When I click the *View statement* link
+      When I click the *More information* link
       Then I see the *Usage and privacy* modal
         And I see the text of the privacy statement
       When I click *Close*
@@ -75,3 +75,4 @@ Feature: Super admin goes through the setup wizard
       When I click *OK*
       Then the modal closes
         And I see the *Device > Channels* page
+        And I see the *Welcome to Kolibri!* modal
