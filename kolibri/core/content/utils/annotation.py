@@ -150,17 +150,19 @@ def update_num_coach_contents():
 
     child = ContentNodeTable.alias()
 
-    logger.info(
-        "Updating num_coach_content on existing channels"
-    )
+    logger.info("Updating num_coach_content on existing channels")
 
     # start a transaction
 
     trans = connection.begin()
 
-    for channel_id in ChannelMetadata.objects.all().values_list('id', flat=True):
+    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
 
-        node_depth = bridge.session.query(func.max(ContentNodeClass.level)).filter_by(channel_id=channel_id).scalar()
+        node_depth = (
+            bridge.session.query(func.max(ContentNodeClass.level))
+            .filter_by(channel_id=channel_id)
+            .scalar()
+        )
 
         # Update all leaf ContentNodes to have num_coach_content to 1 or 0
         connection.execute(
@@ -173,7 +175,9 @@ def update_num_coach_contents():
                     ContentNodeTable.c.kind != content_kinds.TOPIC,
                 )
             )
-            .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
+            .values(
+                num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer())
+            )
         )
 
         # Go from the deepest level to the shallowest
@@ -209,9 +213,7 @@ def update_num_coach_contents():
                 # Because we have set availability to False on all topics as a starting point
                 # we only need to make updates to topics with available children.
                 .where(exists(available_nodes))
-                .values(
-                    num_coach_contents=coach_content_num,
-                )
+                .values(num_coach_contents=coach_content_num)
             )
 
     # commit the transaction
@@ -377,7 +379,11 @@ def recurse_annotation_up_tree(channel_id):
 
     connection = bridge.get_connection()
 
-    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).filter_by(channel_id=channel_id).scalar()
+    node_depth = (
+        bridge.session.query(func.max(ContentNodeClass.level))
+        .filter_by(channel_id=channel_id)
+        .scalar()
+    )
 
     logger.info(
         "Annotating ContentNode objects with children for {levels} levels".format(
