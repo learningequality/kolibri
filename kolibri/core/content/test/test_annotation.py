@@ -27,6 +27,7 @@ from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
+from kolibri.core.content.utils.annotation import update_num_coach_contents
 
 
 def get_engine(connection_string):
@@ -664,6 +665,125 @@ class FixMultipleTreesWithIdOneTestCase(TransactionTestCase):
         with self.assertRaises(AssertionError):
             import_mock.assert_called_with(root_node_1.channel_id)
         import_mock.assert_called_with(root_node_2.channel_id)
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class UpdateNumCoachContents(TransactionTestCase):
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super(UpdateNumCoachContents, self).setUp()
+        ContentNode.objects.all().update(available=False)
+
+    def test_no_content_nodes_coach_content(self):
+        ContentNode.objects.all().update(available=True)
+        ContentNode.objects.all().update(coach_content=False)
+        update_num_coach_contents()
+        root = ChannelMetadata.objects.get(id=test_channel_id).root
+        self.assertEqual(root.num_coach_contents, 0)
+
+    def test_all_root_content_nodes_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        ContentNode.objects.filter(parent=root_node).exclude(
+            kind=content_kinds.TOPIC
+        ).update(coach_content=True)
+        update_num_coach_contents()
+        root_node.refresh_from_db()
+        self.assertEqual(root_node.num_coach_contents, 2)
+
+    def test_one_root_content_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = (
+            ContentNode.objects.filter(parent=root_node)
+            .exclude(kind=content_kinds.TOPIC)
+            .first()
+        )
+        node.coach_content = True
+        node.save()
+        update_num_coach_contents()
+        root_node.refresh_from_db()
+        self.assertEqual(root_node.num_coach_contents, 1)
+
+    def test_one_root_topic_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        node.coach_content = True
+        node.save()
+        update_num_coach_contents()
+        root_node.refresh_from_db()
+        self.assertEqual(root_node.num_coach_contents, 0)
+
+    def test_one_child_node_coach_content(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        update_num_coach_contents()
+        root_node.refresh_from_db()
+        node.refresh_from_db()
+        self.assertEqual(root_node.num_coach_contents, 1)
+        self.assertEqual(node.num_coach_contents, 1)
+
+    def test_one_child_coach_content_parent_no_siblings(self):
+        ContentNode.objects.all().update(available=True, coach_content=False)
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        topic_node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        parent_node = ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=topic_node,
+            kind=content_kinds.TOPIC,
+            available=True,
+            coach_content=False,
+        )
+        ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=True,
+        )
+        ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            coach_content=False,
+        )
+        update_num_coach_contents()
+        parent_node.refresh_from_db()
+        self.assertEqual(parent_node.num_coach_contents, 1)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super(UpdateNumCoachContents, self).tearDown()
 
 
 class CalculateChannelFieldsTestCase(TestCase):
