@@ -33,6 +33,7 @@ from .sanity_checks import check_other_kolibri_running  # noqa
 from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+from kolibri.core.upgrade import run_upgrades  # noqa
 from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
@@ -144,7 +145,7 @@ def initialize(skipupdate=False):
                 old=version, new=kolibri.__version__
             )
         )
-        update()
+        update(version, kolibri.__version__)
 
 
 def _migrate_databases():
@@ -161,7 +162,7 @@ def _migrate_databases():
     call_command("loaddata", "scopedefinitions")
 
 
-def update():
+def update(old_version, new_version):
     """
     Called whenever a version change in kolibri is detected
 
@@ -181,12 +182,10 @@ def update():
     if not SKIP_AUTO_DATABASE_MIGRATION:
         _migrate_databases()
 
+    run_upgrades(old_version, new_version)
+
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
-
-    from kolibri.core.content.utils.annotation import update_channel_metadata
-
-    update_channel_metadata()
 
     from django.core.cache import caches
 

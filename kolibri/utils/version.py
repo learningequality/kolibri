@@ -419,8 +419,11 @@ def get_version(version=None):
 
 def get_version_and_operator_from_range(version_range):
     # extract and normalize version strings
-    operator, range_version = re.match(r"([<>=!]*)(\d.*)", version_range).groups()
-    return operator, normalize_version_to_semver(range_version)
+    match = re.match(r"([<>=!]*)(\d.*)", version_range)
+    if match is not None:
+        operator, range_version = match.groups()
+        return operator, normalize_version_to_semver(range_version)
+    raise TypeError("Invalid semver value or range value")
 
 
 #  Copied from https://github.com/learningequality/nutritionfacts/commit/b33e19400ae639cbcf2b2e9b312d37493eb1e566#diff-5b7513e7bc7d64d348fd8d3f2222b573
