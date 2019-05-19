@@ -291,7 +291,7 @@ def recurse_annotation_up_tree(channel_id):
 
     connection = bridge.get_connection()
 
-    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).scalar()
+    node_depth = bridge.session.query(func.max(ContentNodeClass.level)).filter_by(channel_id=channel_id).scalar()
 
     logger.info(
         "Annotating ContentNode objects with children for {levels} levels".format(
