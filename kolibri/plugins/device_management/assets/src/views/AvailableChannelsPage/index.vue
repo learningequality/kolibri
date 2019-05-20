@@ -43,8 +43,8 @@
     >
       <ChannelTokenModal
         v-if="showTokenModal"
-        @closemodal="showTokenModal=false"
-        @channelfound="goToSelectContentPageForChannel"
+        @cancel="showTokenModal=false"
+        @submit="goToSelectContentPageForChannel"
       />
       <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 

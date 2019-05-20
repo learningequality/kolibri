@@ -5,8 +5,8 @@
     :hasError="false"
     :submitText="$tr('remove')"
     :cancelText="$tr('cancel')"
-    @submit="confirmRemoval"
-    @cancel="close"
+    @submit="$emit('submit')"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { username: username, classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
@@ -17,7 +17,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
 
   export default {
@@ -33,15 +32,6 @@
       username: {
         type: String,
         required: true,
-      },
-    },
-    methods: {
-      ...mapActions('classEditManagement', ['displayModal']),
-      confirmRemoval() {
-        this.$emit('confirm');
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

@@ -14,7 +14,7 @@
     <transition name="delay-entry">
       <WelcomeModal
         v-if="welcomeModalVisible"
-        @closeModal="hideWelcomeModal"
+        @submit="hideWelcomeModal"
       />
     </transition>
 

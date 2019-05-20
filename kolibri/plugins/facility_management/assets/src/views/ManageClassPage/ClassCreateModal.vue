@@ -6,8 +6,8 @@
     :submitText="$tr('saveClassButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
-    @cancel="close"
     @submit="createNewClass"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"
@@ -80,7 +80,7 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['createClass', 'displayModal']),
+      ...mapActions('classManagement', ['createClass']),
       createNewClass() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -89,9 +89,6 @@
         } else {
           this.$refs.name.focus();
         }
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

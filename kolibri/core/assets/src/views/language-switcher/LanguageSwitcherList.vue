@@ -36,7 +36,7 @@
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
-      @close="showLanguageModal = false"
+      @cancel="showLanguageModal = false"
     />
   </div>
 

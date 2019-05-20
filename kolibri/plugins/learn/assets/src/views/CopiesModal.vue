@@ -3,8 +3,7 @@
   <KModal
     :title="$tr('copies')"
     :submitText="$tr('close')"
-    @submit="closeModal"
-    @cancel="closeModal"
+    @submit="$emit('submit')"
   >
     <transition mode="out-in">
 
@@ -87,9 +86,6 @@
     },
     methods: {
       ...mapActions(['getCopies']),
-      closeModal() {
-        return this.$emit('cancel');
-      },
       generateCopyLink(id) {
         return {
           name: PageNames.TOPICS_CONTENT,
