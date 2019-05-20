@@ -128,7 +128,7 @@
   @import './EpubStyles';
 
   .top-bar {
-    z-index: 2;
+    z-index: 4;
     box-shadow: $epub-box-shadow;
   }
 

@@ -1,4 +1,5 @@
 import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+import merge from 'lodash/merge';
 import { FLAT_BUTTON, RAISED_BUTTON, BASIC_LINK, validator } from './appearances.js';
 
 const $primaryRaisedColor = 'white';
@@ -30,6 +31,13 @@ export default {
       validator,
     },
     /**
+     * Overrides that will modify the styles sent to `$computedClass` based on `appearance` prop
+     */
+    appearanceOverrides: {
+      type: Object,
+      default: () => ({}),
+    },
+    /**
      * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
      */
     primary: {
@@ -43,15 +51,15 @@ export default {
       const linkClass = 'link';
       const raisedClass = 'raised';
       if (this.appearance === BASIC_LINK) {
-        return [this.$computedClass(this.linkStyle), linkClass];
+        return [this.buttonComputedClass(this.linkStyle), linkClass];
       } else if (this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryRaisedStyle), raisedClass];
+        return [buttonClass, this.buttonComputedClass(this.primaryRaisedStyle), raisedClass];
       } else if (this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryFlatStyle)];
+        return [buttonClass, this.buttonComputedClass(this.primaryFlatStyle)];
       } else if (!this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryRaisedStyle), raisedClass];
+        return [buttonClass, this.buttonComputedClass(this.secondaryRaisedStyle), raisedClass];
       } else if (!this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryFlatStyle)];
+        return [buttonClass, this.buttonComputedClass(this.secondaryFlatStyle)];
       }
     },
     linkStyle() {
@@ -121,6 +129,11 @@ export default {
           fill: this.$coreTextDefault,
         },
       };
+    },
+  },
+  methods: {
+    buttonComputedClass(styles) {
+      return this.$computedClass(merge({}, styles, this.appearanceOverrides));
     },
   },
 };
