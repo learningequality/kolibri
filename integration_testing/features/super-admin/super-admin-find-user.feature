@@ -12,6 +12,12 @@ Feature: Super admin searches for users
     When I write enough characters for all other users to be excluded
     Then I see just the user I was searching for
 
+  Scenario: Clear search 
+    Given that I wrote user's <username> in the seach field
+      And I see the filtered results
+      When I click the clear *X* button, OR tab to focus it and press Enter, OR I delete what I wrote
+      Then I see the full (unfiltered) list of users
+
   Scenario: Search for and find user using the role dropdown filter
     When I click to open the *User type* filter
       And I select the role <role>

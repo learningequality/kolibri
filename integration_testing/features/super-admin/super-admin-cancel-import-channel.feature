@@ -27,7 +27,7 @@ Feature: Super admin cancels import content
       And I see the *Cancel* button
     When I click the *Cancel* button
     Then I see the *Content* page is reloaded
-      And I don't see the content whose import has been cancelled
+      And I don't see the content channel whose import has been cancelled
 
   Scenario: Cancel import content channel from attached drive
     Given there is a <drive> local drive attached to the device
@@ -54,7 +54,7 @@ Feature: Super admin cancels import content
       And I see the *Cancel* button
     When I click the *Cancel* button
     Then I see the *Content* page is reloaded
-      And I don't see the content whose import has been cancelled
+      And I don't see the content channel whose import has been cancelled
       
 Examples:
 | channel      | topic   | drive       |

@@ -5,7 +5,7 @@ Background:
     And I am on the *Device > Permissions* page
     And there is super admin user <username> on the device
 
-  Scenario: Super admin can see what happens if they change another super admin's permissions to content import permission
+  Scenario: Change another super admin's permissions to content import permission
     When I click on *Edit permissions* button for <username> user
       And I uncheck the *Make super admin* checkbox
     Then I see that all checkboxes are unchecked and active
