@@ -5,7 +5,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import copy
 import logging
 import os
 import tempfile
@@ -13,6 +12,7 @@ import tempfile
 import pytest
 from mock import patch
 
+import kolibri
 from kolibri.utils import cli
 from kolibri.utils import options
 
@@ -45,12 +45,14 @@ def activate_log_logger(monkeypatch):
 def conf():
     from kolibri.utils import conf
 
-    config_file = tempfile.mkstemp(suffix="json")
-
-    conf = copy.deepcopy(conf)
+    _, config_file = tempfile.mkstemp(suffix="json")
+    old_config_file = conf.conf_file
     conf.conf_file = config_file
     conf.config.set_defaults()
     yield conf
+    conf.conf_file = old_config_file
+    conf.set_defaults()
+    conf.save()
 
 
 def test_bogus_plugin_autoremove(conf):
@@ -78,7 +80,7 @@ def test_bogus_plugin_autoremove_no_path(conf):
 def test_bogus_plugin_disable(conf):
     installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     disabled_apps_before = conf.config["DISABLED_APPS"].copy()
-    cli.plugin("i_do_not_exist", disable=True)
+    cli.plugin.callback("i_do_not_exist", cli.DISABLE)
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
     assert disabled_apps_before == conf.config["DISABLED_APPS"]
 
@@ -90,7 +92,7 @@ def test_plugin_cannot_be_imported_disable(conf):
     plugin_name = "giraffe.horse"
     conf.config["INSTALLED_APPS"].add(plugin_name)
     conf.config.save()
-    cli.plugin(plugin_name, disable=True)
+    cli.plugin.callback(plugin_name, cli.DISABLE)
     assert plugin_name not in conf.config["INSTALLED_APPS"]
     # We also don't want to endlessly add cruft to the disabled apps
     assert plugin_name not in conf.config["DISABLED_APPS"]
@@ -101,8 +103,7 @@ def test_real_plugin_disable(conf):
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
-    cli.plugin(test_plugin, disable=True)
-    assert test_plugin not in conf.config.ACTIVE_PLUGINS
+    cli.plugin.callback(test_plugin, cli.DISABLE)
     assert test_plugin not in conf.config["INSTALLED_APPS"]
     assert test_plugin in conf.config["DISABLED_APPS"]
 
@@ -111,12 +112,12 @@ def test_real_plugin_disable_twice(conf):
     installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
-    cli.plugin(test_plugin, disable=True)
+    cli.plugin.callback(test_plugin, cli.DISABLE)
     assert test_plugin not in conf.config.ACTIVE_PLUGINS
     assert test_plugin not in conf.config["INSTALLED_APPS"]
     assert test_plugin in conf.config["DISABLED_APPS"]
     installed_apps_before = conf.config["INSTALLED_APPS"].copy()
-    cli.plugin(test_plugin, disable=True)
+    cli.plugin.callback(test_plugin, cli.DISABLE)
     assert test_plugin not in conf.config.ACTIVE_PLUGINS
     assert test_plugin not in conf.config["INSTALLED_APPS"]
     assert test_plugin in conf.config["DISABLED_APPS"]
@@ -129,7 +130,7 @@ def test_plugin_with_no_plugin_class(conf):
     """
     # For fun, we pass in a system library
     installed_apps_before = conf.config["INSTALLED_APPS"].copy()
-    cli.plugin("os.path")
+    cli.plugin.callback("os.path", cli.ENABLE)
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 
 
@@ -140,14 +141,20 @@ def test_kolibri_listen_port_env(monkeypatch):
     Checks that the correct fallback port is used from the environment.
     """
 
-    with patch("django.core.management.call_command"):
+    with patch("django.core.management.call_command"), patch(
+        "kolibri.utils.server.start"
+    ) as start:
         from kolibri.utils import server
 
         def start_mock(port, *args, **kwargs):
             assert port == test_port
+            try:
+                os.remove(server.STARTUP_LOCK)
+            except OSError:
+                pass
 
         activate_log_logger(monkeypatch)
-        monkeypatch.setattr(server, "start", start_mock)
+        start.side_effect = start_mock
 
         test_port = 1234
 
@@ -158,17 +165,16 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
-        server.start = start_mock
-        cli.start(daemon=False)
+        cli.start.callback(test_port, False)
         with pytest.raises(SystemExit) as excinfo:
-            cli.stop()
+            cli.stop.callback()
             assert excinfo.code == 0
 
         # Stop the server AGAIN, asserting that we can call the stop command
         # on an already stopped server and will be gracefully informed about
         # it.
         with pytest.raises(SystemExit) as excinfo:
-            cli.stop()
+            cli.stop.callback()
             assert excinfo.code == 0
         assert "Already stopped" in LOG_LOGGER[-1][1]
 
@@ -179,7 +185,7 @@ def test_kolibri_listen_port_env(monkeypatch):
         # get killed while doing that.
         monkeypatch.setattr(server, "get_status", status_starting_up)
         with pytest.raises(SystemExit) as excinfo:
-            cli.stop()
+            cli.stop.callback()
             assert excinfo.code == server.STATUS_STARTING_UP
         assert "Not stopped" in LOG_LOGGER[-1][1]
 
@@ -187,7 +193,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 @pytest.mark.django_db
 @patch("kolibri.utils.cli.get_version", return_value="")
 @patch("kolibri.utils.cli.update")
-@patch("kolibri.utils.cli.plugin")
+@patch("kolibri.utils.cli.plugin.callback")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
 def test_first_run(dbbackup, plugin, update, get_version):
     """

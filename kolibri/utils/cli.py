@@ -80,6 +80,13 @@ def get_version():
         return ""
 
 
+def get_root_params():
+    try:
+        return click.get_current_context().find_root().params
+    except RuntimeError:
+        return {param.name: param.default for param in main.params}
+
+
 def initialize(skipupdate=False):
     """
     Currently, always called before running commands. This may change in case
@@ -87,7 +94,7 @@ def initialize(skipupdate=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
-    params = click.get_current_context().find_root().params
+    params = get_root_params()
 
     debug = params["debug"]
     skipupdate = skipupdate or params["skipupdate"]
@@ -338,7 +345,11 @@ def stop():
     Stop Kolibri
     Stops the server unless it isn't running
     """
-    debug = click.get_current_context().find_root().params["debug"]
+    try:
+        debug = click.get_current_context().find_root().params["debug"]
+    except RuntimeError:
+        debug = False
+
     setup_logging(debug=debug)
     try:
         pid, __, __ = server.get_status()
@@ -630,7 +641,7 @@ def plugin(plugin_name, command):
     """
     Allows a Kolibri plugin to be either enabled or disabled.
     """
-    debug = click.get_current_context().find_root().params["debug"]
+    debug = get_root_params()["debug"]
     setup_logging(debug=debug)
 
     if command == ENABLE:
