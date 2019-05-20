@@ -1,125 +1,99 @@
-Feature: Learner engages EPUB content
-  Learner engages with EPUB content from Channels tab and EPUB reader capabilities
+Feature: Learner engages ePUB content
+  Learner needs to be able to engage with ePUB content and use all the ePUB reader features
 
   Background:
     Given I am signed in to Kolibri as a Learner user
-      And there are one or more channels imported on the device with EPUB content
-      And I am on the *Topics* page for a channel with EPUB content
+      And there are one or more channels imported on the device with ePUB content
+      And I am on the *Channels* page for a channel with ePUB content
 
-  Scenario Outline: Opens and engages with EPUB paginated content
-    When I am on the *Topics* page for <channel>
-    Then I see the *Channels > '<channel>'* breadcrumb
-      And I see all the topics for the channel <channel>
-    When I click the topic <topic>
-    Then I see the *Channels > '<channel>' > '<topic>'* breadcrumb
-      And I see all the the subtopics and content items of the topic <topic>
-      And I see <content_item> content item having a red dog-ear in the top left corner indicating it's a document
-    When I click the <content_item> content item
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content
-    But I shouldn't be able to scroll in the <content_item> content
-    When I click the button to *Go to next page*
-    Then I see the <content_item> content change to the next page
-    When I click the button to *Go to previous page*
-    Then I see the <content_item> content change to the previous page
-      And I see the <content_item> content that I saw before clicking the button to *Go to next page*
-    Examples:
-      | channel              | topic            | content_item                      |
-      | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes |
+    Scenario: Browse and find ePUB content
+      When I am on the *Channels* page for <channel>
+      Then I see the *Channels > '<channel>'* breadcrumb
+        And I see all the topics for the channel <channel>
+      When I click the topic <topic>
+      Then I see the *Channels > '<channel>' > '<topic>'* breadcrumb
+        And I see all the the subtopics and resources of the topic <topic>
+        And I recognize <resource> resource as an ePUB document by the content type icon in the upper left corner
 
-  Scenario Outline: Opens and engages with EPUB scrolled content
-    When I am on the *Topics* page for <channel>
-    Then I see the *Channels > '<channel>'* breadcrumb
-      And I see all the topics for the channel <channel>
-    When I click the topic <topic>
-    Then I see the *Channels > '<channel>' > '<topic>'* breadcrumb
-      And I see all the the subtopics and content items of the topic <topic>
-      And I see <content_item> content item having a red dog-ear in the top left corner indicating it's a document
-    When I click the <content_item> content item
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content
-      And I am able to scroll the <content_item> content
-    But I do not see buttons to *Go to next page* or *Go to previous page*
-    Examples:
-      | channel              | topic          | content_item      |
-      | EPub Testing Channel | Blaine's EPubs | Epub with Tables! |
+    Scenario: Open paginated ePUB
+      Given that <resource> resource does not contain tables
+        When I click the <resource> resource
+        Then I see the *Channels > '<channel>' > '<topic>' > '<resource>'* breadcrumb
+          And I see the <resource> content
+            But I cannot scroll vertically to see the next page
+        When I click the right arrow button to go to next page
+        Then I see the next page of the <resource>
+        When I click the left arrow button to go to previous page
+        Then I see the previous page of the <resource>
 
-  Scenario Outline: Engages with EPUB table of contents
-    When I am on the page for the <content_item> content item
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content
-    When I click the button to *Toggle table of contents side bar*
-    Then I see the book's table of contents overlaid on the left side of the content
-    When I click the button to *Toggle table of contents side bar* again
-    Then I see the book's table of contents disappear
-    When I click the button to *Toggle table of contents side bar*
-    Then I see the book's table of contents overlaid on the left side of the content again
-    When I click on the <section> section of the table of contents
-    Then I see the table of contents side bar disappear
-      And I see the <content_item> content change to the section <section>
-    Examples:
-      | channel              | topic            | content_item                      |
-      | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes |
+    Scenario: Open ePUB with tables
+      Given that <resource> resource contains tables
+        When I click the <resource> resource
+        Then I see the *Channels > '<channel>' > '<topic>' > '<resource>'* breadcrumb
+          And I see the <resource> content
+          And I am able to scroll vertically the <resource> content
+            But I do not see left and right arrow buttons to go to next and previous page
 
-  Scenario Outline: Engages with EPUB settings
-    When I am on the page for the <content_item> content item
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content
-    When I click the button to *Toggle settings side bar*
-    Then I see settings for *Text Size* and *Theme* overlaid on the right side of the content
-    When I click the button to *Increase text size*
-    Then I see the text size of <content_item> become larger
-    When I click the button to *Decrease text size*
-    Then I see the text size of <content_item> become smaller
-      And I see the text size as it was originally
-    When I click the button to *Set beige theme*
-    Then I see the background of <content_item> become beige
-      And I see the text color of <content_item> become brown
-    When I click the button to *Set grey theme*
-    Then I see the background of <content_item> become grey
-      And I see the text color of <content_item> become white
-    When I click the button to *Set black theme*
-    Then I see the background of <content_item> become black
-      And I see the text color of <content_item> become white
-    When I click the button to *Set high contrast black theme*
-    Then I see the background of <content_item> become black
-      And I see the text color of <content_item> become yellow
-    When I click the button to *Set high contrast white theme*
-    Then I see the background of <content_item> become white
-      And I see the text color of <content_item> become blue
-    When I click the button to *Set white theme*
-    Then I see the background of <content_item> become white
-      And I see the text color of <content_item> become black
-    When I click the button to *Toggle settings side bar* again
-    Then I see the settings side bar disappear
-    Examples:
-      | channel              | topic            | content_item                      |
-      | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes |
+    Scenario: Engage with ePUB table of contents
+      When I click the table of content button in the upper left corner 
+      Then I see the book's table of contents overlaid on the left side
+      When I click table of content button again
+      Then I see the book's table of contents disappear
+      When I click the button to *Toggle table of contents side bar*
+      Then I see the book's table of contents overlaid on the left side of the content again
+      When I click on a heading inside the table of contents
+      Then I see the table of contents side bar disappear
+        And I see the <resource> content change to the chosen heading
 
-  Scenario Outline: Engages with EPUB search
-    When I am on the page for the <content_item> content item and section <section> of the content
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content and <section> in the content
-    When I click the button to *Toggle search side bar*
-    Then I see the search side bar overlaid on the right side of the content
-    When I type <search> into the input to *Enter search query* and click the button to *Submit search query*
-    Then I see search results below the input
-      And I see <search> highlighted in the EPUB content
-    When I click the button to *Toggle search side bar* again
-    Then I see the search side bar disappear
-      And I see the <search> no longer highlighted in the EPUB content
-    Examples:
-      | channel              | topic            | content_item                      | section   | search    |
-      | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes | Chapter 1 | Chapter I |
+    Scenario: Engage with EPUB settings
+      When I click the settings button
+      Then I see the settings sidebar overlaid on the right side of the content
+        And options for *Text Size* and *Theme* 
+      When I click the button to *Increase text size*
+      Then I see the text size of <resource> become larger
+      When I click the button to *Decrease text size*
+      Then I see the text size of <resource> become smaller
+        And I see the text size as it was originally
+      When I click the button to *Set beige theme*
+      Then I see the background of <resource> become beige
+        And I see the text color of <resource> become brown
+      When I click the button to *Set grey theme*
+      Then I see the background of <resource> become grey
+        And I see the text color of <resource> become white
+      When I click the button to *Set black theme*
+      Then I see the background of <resource> become black
+        And I see the text color of <resource> become white
+      When I click the button to *Set high contrast black theme*
+      Then I see the background of <resource> become black
+        And I see the text color of <resource> become yellow
+      When I click the button to *Set high contrast white theme*
+      Then I see the background of <resource> become white
+        And I see the text color of <resource> become blue
+      When I click the button to *Set white theme*
+      Then I see the background of <resource> become white
+        And I see the text color of <resource> become black
+      When I click the settings button again
+      Then I see the settings sidebar disappear
 
-  Scenario Outline: Engages with EPUB fullscreen mode
-    When I am on the page for the <content_item> content item
-    Then I see the *Channels > '<channel>' > '<topic>' > '<content_item>'* breadcrumb
-      And I see the <content_item> content
-    When I click the button to *Toggle fullscreen*
-    Then I see <content_item> content go fullscreen
-    When I click the button to *Toggle fullscreen* again
-    Then I see the page as it was in the beginning
-    Examples:
-      | channel              | topic            | content_item                      |
-      | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes |
+    Scenario: Engages with EPUB search
+      When I click the search button
+      Then I see the search sidebar overlaid on the right side of the content
+      When I type my <search> term into the field
+        And press Enter key or click the button after the field
+      Then I see search results below the field
+        And I see <search> term highlighted in the ePUB content
+      When I click the search button again
+      Then I see the search sidebar disappear
+        And I see the <search> term is no longer highlighted in the ePUB content
+
+    Scenario: Engages with EPUB fullscreen mode
+      When I click the button for fullscreen 
+      Then I see ePUB viewer expands fullscreen
+      When I click the button to exit fullscreen or I press the Esc key
+      Then I see ePUB viewer as before
+
+
+Examples:
+  | channel              | topic            | resource                          | search |
+  | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes | home   |
+  | EPub Testing Channel | Blaine's EPubs   | Epub with Tables!                 | street |
