@@ -7,6 +7,7 @@
     size="medium"
     :submitDisabled="attemptingToConnect"
     @submit="handleSubmit"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('addressDesc') }}</p>
     <div>

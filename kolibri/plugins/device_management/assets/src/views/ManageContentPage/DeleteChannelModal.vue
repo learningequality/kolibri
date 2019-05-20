@@ -4,6 +4,8 @@
     :title="$tr('title')"
     :submitText="$tr('confirmButtonLabel')"
     :cancelText="$tr('cancelButtonLabel')"
+    @submit="$emit('submit')"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmationQuestion', { channelTitle }) }}</p>
   </KModal>

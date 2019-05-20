@@ -30,8 +30,8 @@ describe('channelTokenModal component', () => {
     wrapper = makeWrapper({
       listeners: {
         cancel: cancelListener,
-      }
-    })
+      },
+    });
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
     expect(cancelListener).toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe('channelTokenModal component', () => {
 
     it('on blur, shows a validation message when token code is empty', async () => {
       const textbox = getElements(wrapper).tokenTextbox();
-      await inputToken(wrapper, '    ')
+      await inputToken(wrapper, '    ');
       // Reaching into ui-textbox's blur to trigger it on k-textbox
       textbox.vm.$refs.textbox.$emit('blur');
       await wrapper.vm.$nextTick();
@@ -116,7 +116,7 @@ describe('channelTokenModal component', () => {
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token')
+      await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
       expect(wrapper.emittedByOrder().length).toEqual(0);
@@ -129,7 +129,7 @@ describe('channelTokenModal component', () => {
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token')
+      await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
       expect(wrapper.emittedByOrder().length).toEqual(0);

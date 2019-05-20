@@ -6,6 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>

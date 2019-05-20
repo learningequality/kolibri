@@ -4,6 +4,7 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
+    @cancel="$emit('cancel')"
     @submit="setLang"
   >
     <KGrid>

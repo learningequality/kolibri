@@ -24,7 +24,7 @@ describe('AssignmentDeleteModal', () => {
       store,
       listeners: {
         submit: submitListener,
-      }
+      },
     });
     els.form().trigger('submit');
     expect(submitListener).toHaveBeenCalled();
@@ -37,7 +37,7 @@ describe('AssignmentDeleteModal', () => {
       store,
       listeners: {
         cancel: cancelListener,
-      }
+      },
     });
     els.cancelButton().trigger('click');
     expect(cancelListener).toHaveBeenCalled();

@@ -5,6 +5,7 @@
     :cancelText="$tr('closeErrorModalButtomPrompt')"
     class="error-detail-modal"
     size="large"
+    @cancel="$emit('cancel')"
   >
 
     <section>

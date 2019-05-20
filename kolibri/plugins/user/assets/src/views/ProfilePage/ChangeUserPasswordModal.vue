@@ -7,6 +7,7 @@
     :cancelText="$tr('cancelButtonLabel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="newPassword"

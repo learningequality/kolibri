@@ -6,6 +6,7 @@
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
+    @cancel="$emit('cancel')"
     @submit="callCreateGroup"
   >
     <KTextbox

@@ -6,6 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="createNewUser"
+    @cancel="$emit('cancel')"
   >
     <section>
       <KTextbox

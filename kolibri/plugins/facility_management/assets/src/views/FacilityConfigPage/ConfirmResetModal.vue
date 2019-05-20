@@ -4,6 +4,8 @@
     :title="$tr('title')"
     :submitText="$tr('reset')"
     :cancelText="$tr('cancel')"
+    @submit="$emit('submit')"
+    @cancel="$emit('cancel')"
   >
     <div>
       <p>{{ $tr('confirmationQuestion') }}</p>

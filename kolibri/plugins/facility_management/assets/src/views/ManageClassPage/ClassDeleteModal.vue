@@ -6,6 +6,7 @@
     :cancelText="$tr('cancel')"
     :hasError="false"
     @submit="classDelete"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>

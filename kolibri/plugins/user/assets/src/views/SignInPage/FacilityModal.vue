@@ -5,6 +5,7 @@
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
     :cancelText="$tr('close')"
     @submit="submitAndClose"
+    @cancel="$emit('cancel')"
   >
     {{ $tr('facilitySelectionPrompt') }}
 

@@ -5,6 +5,7 @@
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
     @submit="handleSubmit"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
   </KModal>

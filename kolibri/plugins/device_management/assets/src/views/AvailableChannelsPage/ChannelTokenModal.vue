@@ -7,6 +7,7 @@
     :submitDisabled="formIsDisabled"
     :cancelDisabled="formIsDisabled"
     @submit="submitForm"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('tokenExplanation') }}</p>
 

@@ -7,6 +7,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="updateName"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"

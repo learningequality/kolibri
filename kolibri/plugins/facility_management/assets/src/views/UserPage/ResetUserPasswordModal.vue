@@ -6,6 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
 

@@ -3,6 +3,7 @@
   <KModal
     :title="$tr('copies')"
     :submitText="$tr('close')"
+    @submit="$emit('submit')"
   >
     <transition mode="out-in">
 
