@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeColors.white }">
     <h3 class="header">
       {{ $tr('header') }}
     </h3>

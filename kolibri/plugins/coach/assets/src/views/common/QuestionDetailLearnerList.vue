@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeColors.white }">
     <h3 class="header">
       {{ coachStrings.$tr('learnersLabel') }}
     </h3>

@@ -16,7 +16,7 @@
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="[ modalSizeStyles, { background: $coreBgLight } ]"
+        :style="[ modalSizeStyles, { background: $themeColors.white } ]"
       >
 
         <!-- Modal Title -->

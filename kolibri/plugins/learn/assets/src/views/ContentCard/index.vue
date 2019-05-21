@@ -4,7 +4,7 @@
     :to="link"
     class="card"
     :class="{ 'mobile-card': isMobile }"
-    :style="{ backgroundColor: $coreBgLight }"
+    :style="{ backgroundColor: $themeColors.white }"
   >
     <CardThumbnail
       class="thumbnail"

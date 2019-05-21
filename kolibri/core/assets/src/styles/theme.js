@@ -113,9 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreBgLight() {
-    return lighten(dynamicState['$core-bg-canvas'], 0.025);
-  },
   $coreBgCanvas() {
     return dynamicState['$core-bg-canvas'];
   },

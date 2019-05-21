@@ -21,7 +21,7 @@
       v-if="exercise"
       slot="main"
       class="exercise-container"
-      :style="{ backgroundColor: $coreBgLight }"
+      :style="{ backgroundColor: $themeColors.white }"
     >
       <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 

@@ -71,7 +71,7 @@
               :omitLearner="true"
               class="role-badge"
               :style="{
-                color: $coreBgLight,
+                color: $themeColors.white,
                 backgroundColor: $coreTextAnnotation,
               }"
             />

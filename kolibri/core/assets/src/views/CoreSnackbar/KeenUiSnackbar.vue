@@ -19,7 +19,7 @@
         <button
           v-if="action"
           class="ui-snackbar-action-button"
-          :style="{ color: $coreBgLight }"
+          :style="{ color: $themeColors.white }"
           @click.stop="onActionClick"
         >
           {{ action }}

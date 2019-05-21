@@ -11,7 +11,7 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $coreBgLight }">
+          <div class="box" :style="{ backgroundColor: $themeColors.white }">
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"
@@ -109,7 +109,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeColors.white }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">

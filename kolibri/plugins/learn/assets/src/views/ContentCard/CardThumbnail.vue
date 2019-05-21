@@ -114,7 +114,7 @@
       },
       thumbnailBackground() {
         return {
-          backgroundColor: this.$coreBgLight,
+          backgroundColor: this.$themeColors.white,
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },

@@ -2,7 +2,7 @@
 
   <div
     class="banner"
-    :style="{ background: $coreBgLight}"
+    :style="{ background: $themeColors.white}"
   >
     <div class="banner-inner">
       <KGrid>

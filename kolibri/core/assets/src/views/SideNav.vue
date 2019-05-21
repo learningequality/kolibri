@@ -8,7 +8,7 @@
         :style="{
           width: `${width}px`,
           color: $coreTextDefault,
-          backgroundColor: $coreBgLight,
+          backgroundColor: $themeColors.white,
         }"
       >
         <div
@@ -36,7 +36,7 @@
           </UiIconButton>
           <span
             class="side-nav-header-name"
-            :style="{ color: $coreBgLight }"
+            :style="{ color: $themeColors.white }"
           >{{ $tr('kolibri') }}</span>
         </div>
 
@@ -46,7 +46,7 @@
         >
           <CoreMenu
             role="navigation"
-            :style="{ backgroundColor: $coreBgLight }"
+            :style="{ backgroundColor: $themeColors.white }"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">

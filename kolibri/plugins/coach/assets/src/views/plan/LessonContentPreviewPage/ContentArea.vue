@@ -1,6 +1,6 @@
 <template>
 
-  <section :style="{backgroundColor: isExercise ? $coreBgLight : ''}">
+  <section :style="{backgroundColor: isExercise ? $themeColors.white : ''}">
     <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
