@@ -123,7 +123,7 @@
       linkStyle() {
         const hoverAndFocus = {
           backgroundColor: this.primary
-            ? this.$coreActionDark
+            ? this.$themeTokens.primaryDark
             : darken(this.$coreTextDefault, '25%'),
         };
         return {

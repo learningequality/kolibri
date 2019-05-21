@@ -65,7 +65,7 @@ export default {
     linkStyle() {
       return {
         color: this.$themeTokens.primary,
-        ':hover': { color: this.$coreActionDark },
+        ':hover': { color: this.$themeTokens.primaryDark },
         ':focus': this.$coreOutline,
         ':disabled': { opacity: 0.5 },
       };
@@ -74,7 +74,7 @@ export default {
       return {
         color: $primaryRaisedColor,
         backgroundColor: this.$themeTokens.primary,
-        ':hover': { backgroundColor: this.$coreActionDark },
+        ':hover': { backgroundColor: this.$themeTokens.primaryDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {

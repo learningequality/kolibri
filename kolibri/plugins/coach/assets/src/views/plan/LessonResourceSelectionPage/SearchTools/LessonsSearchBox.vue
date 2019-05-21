@@ -40,7 +40,7 @@
           />
         </UiIconButton>
 
-        <div class="submit-button-wrapper" :style="{ backgroundColor: $coreActionDark }">
+        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primaryDark }">
           <UiIconButton
             type="secondary"
             color="white"

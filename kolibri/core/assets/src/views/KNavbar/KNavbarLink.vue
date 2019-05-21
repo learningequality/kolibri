@@ -60,7 +60,7 @@
         return {
           color: this.$coreBgCanvas,
           ':hover': {
-            'background-color': this.$coreActionDark,
+            'background-color': this.$themeTokens.primaryDark,
           },
           ':focus': {
             ...this.$coreOutline,

@@ -113,9 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreActionDark() {
-    return dynamicState['$core-action-dark'];
-  },
   $coreBgLight() {
     return lighten(dynamicState['$core-bg-canvas'], 0.025);
   },
