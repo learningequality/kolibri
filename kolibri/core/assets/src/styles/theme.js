@@ -35,13 +35,28 @@ const initialState = {
 
   theme: {
     colors: {
+      black: 'black',
+      white: 'white',
       palette: materialColors,
       brand: brandColors,
     },
     tokenMapping: {
-      canvas: 'palette.grey.v_200',
+      // brand shortcuts
+      primary: 'brand.primary.v_400',
+      primaryLight: 'brand.primary.v_100',
+      primaryDark: 'brand.primary.v_700',
+      secondary: 'brand.secondary.v_400',
+      secondaryLight: 'brand.secondary.v_100',
+      secondaryDark: 'brand.secondary.v_700',
+
+      // UI colors
       text: 'palette.grey.v_800',
+      textDisabled: 'palette.grey.v_800',
       annotation: 'palette.grey.v_700',
+      loading: 'brand.secondary.v_200',
+      focusOutline: 'brand.secondary.v_500',
+
+      // semantic colors
       error: 'palette.red.v_800',
       progress: 'palette.lightblue.v_500',
       mastered: 'palette.amber.v_500',
