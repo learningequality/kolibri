@@ -22,6 +22,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :hasAssignments="tableRow.hasAssignments"
         :to="classRoute('ReportsLessonLearnerListPage', { lessonId: tableRow.key })"
       />
     </BlockItem>
@@ -62,6 +63,7 @@
             name: lesson.title,
             tally: this.getLessonStatusTally(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
+            hasAssignments: lesson.assignments.length > 0,
           };
         });
       },

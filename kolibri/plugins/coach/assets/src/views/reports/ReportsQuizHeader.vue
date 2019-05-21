@@ -32,6 +32,7 @@
         <Recipients
           slot="value"
           :groupNames="getGroupNames(exam.groups)"
+          :hasAssignments="exam.assignments.length > 0"
         />
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachStrings.$tr('avgScoreLabel')">

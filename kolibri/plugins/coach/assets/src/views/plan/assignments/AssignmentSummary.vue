@@ -14,10 +14,10 @@
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
         <template slot="value">
-          <template v-if="!recipients.length">
-            {{ this.$tr('noOne') }}
-          </template>
-          <Recipients v-else :groupNames="groupNames" />
+          <Recipients
+            :groupNames="groupNames"
+            :hasAssignments="recipients.length > 0"
+          />
         </template>
       </HeaderTableRow>
       <HeaderTableRow

@@ -47,7 +47,12 @@
                 :verbose="true"
               />
             </td>
-            <td><Recipients :groupNames="tableRow.groupNames" /></td>
+            <td>
+              <Recipients
+                :groupNames="tableRow.groupNames"
+                :hasAssignments="tableRow.hasAssignments"
+              />
+            </td>
             <td>
               <QuizActive :active="tableRow.active" />
             </td>
@@ -128,6 +133,7 @@
             tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
             avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
+            hasAssignments: exam.assignments.length > 0,
           };
           Object.assign(tableRow, exam);
           return tableRow;

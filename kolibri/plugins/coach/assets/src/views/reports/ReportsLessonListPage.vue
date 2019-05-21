@@ -45,6 +45,7 @@
             <td>
               <Recipients
                 :groupNames="tableRow.groupNames"
+                :hasAssignments="tableRow.hasAssignments"
               />
             </td>
             <td><LessonActive :active="tableRow.active" /></td>
@@ -124,6 +125,7 @@
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
+            hasAssignments: lesson.assignments.length > 0,
           };
           Object.assign(tableRow, lesson);
           return tableRow;
