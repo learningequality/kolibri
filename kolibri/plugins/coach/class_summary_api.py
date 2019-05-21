@@ -192,7 +192,15 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "assignments", "groups", "description")
+        fields = (
+            "id",
+            "title",
+            "active",
+            "node_ids",
+            "assignments",
+            "groups",
+            "description",
+        )
 
     def get_node_ids(self, obj):
         return [resource["contentnode_id"] for resource in obj.resources]
