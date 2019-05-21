@@ -3,8 +3,8 @@ Feature: Learner finds content item
 
   Background:
     Given I am signed in to Kolibri as a Learner user
-      And There is a channel <channel> imported on the device
-      And I am on any of the *Learn* tabs
+      And there is a channel <channel> imported on the device
+      And I am on any of the tabs inside *Learn*
 
   Scenario: Find a specific content item using the search bar
     When I enter the <search_term> in the search field
@@ -26,7 +26,7 @@ Feature: Learner finds content item
     When I click the *X* (clear) button
     Then the search field is empty
       And I can write the new search term
-      But I can still see the results of the previous search
+        But I can still see the results of the previous search
 
   Scenario: Browse locations for the multiple search results
     Given there is a search result item that is present in various channels and/or locations

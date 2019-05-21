@@ -1,8 +1,8 @@
 Feature: Super admin imports more content
-    Admin needs to be able to update channels on their device and import new or changed resources when the channel is republished on Studio
+    Super admin needs to be able to update channels on their device and import new or changed resources when the channel is republished on Studio
 
   Background:
-    Given there is the <channel> channel on the device, which has been updated and repubished on Studio since the original import
+    Given there is the <channel> channel on the device, which has been updated and republished on Studio since the original import
       And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Channels* page
 
@@ -30,7 +30,6 @@ Feature: Super admin imports more content
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
     Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 
@@ -71,7 +70,6 @@ Feature: Super admin imports more content
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
     Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 

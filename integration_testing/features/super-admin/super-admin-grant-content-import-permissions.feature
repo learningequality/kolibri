@@ -1,8 +1,8 @@
-Feature: Super admin grants and revokes the device permissions
+Feature: Super admin grants and revokes the content import permissions
     Super admin needs to be able to grant and revoke the device permissions to other users to import content channels on the device
 
   Background:
-    Given I am signed in to Kolibri as Super admin
+    Given I am signed in to Kolibri as super admin
       And I am on *Device > Permissions* page
 
   Scenario: Grant import content device permissions

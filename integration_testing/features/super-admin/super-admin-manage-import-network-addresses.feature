@@ -15,7 +15,7 @@ Feature: Super admin manages import network locations
     Given I have not saved any addresses
       And I am on the *Select network address* modal
     Then I see an alert *There are no addresses yet*
-      And The *Continue* button is disabled
+      And the *Continue* button is disabled
 
   Scenario: Adding an address
     Given I am on the *Select network address* modal
@@ -28,13 +28,13 @@ Feature: Super admin manages import network locations
       And I see the *Select network address*
       And I see a snackbar alert *Successfully added address*
       And I see a radio button with <network_name> as the label
-      And That radio button has <network_address> as the description
+      And the radio button has <network_address> as the description
 
   Scenario: Removing an address
     Given I am on the *Select network address* modal
       And I have saved a network location for <network_name>
     When I click the *Forget* link next to the radio button for <network_name>
-    Then The radio button for <network_name> disappears from the list
+    Then the radio button for <network_name> disappears from the list
       And I see a snackbar alert saying *Successfully removed address*
 
   Scenario: A saved address is available to import from
