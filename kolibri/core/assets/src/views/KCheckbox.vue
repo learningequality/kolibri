@@ -123,7 +123,7 @@
       },
       notBlank() {
         return {
-          fill: this.disabled ? this.$coreGrey300 : this.$coreActionNormal,
+          fill: this.disabled ? this.$coreGrey300 : this.$themeTokens.primary,
         };
       },
       activeOutline() {

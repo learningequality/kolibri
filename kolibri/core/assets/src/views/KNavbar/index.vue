@@ -3,7 +3,7 @@
   <div
     class="wrapper"
     :class="wrapperClass"
-    :style="{ backgroundColor: $coreActionNormal }"
+    :style="{ backgroundColor: $themeTokens.primary }"
   >
     <nav>
       <button

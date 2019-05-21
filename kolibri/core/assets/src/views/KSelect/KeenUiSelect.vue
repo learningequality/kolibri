@@ -69,7 +69,7 @@
             v-show="showDropdown"
             ref="dropdown"
             class="ui-select-dropdown"
-            :style="{ color: $coreActionNormal }"
+            :style="{ color: $themeTokens.primary }"
 
             tabindex="-1"
             @keydown.enter.prevent.stop="selectHighlighted"
@@ -425,7 +425,7 @@
       activeColorStyle() {
         if (this.isActive) {
           return {
-            color: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
           };
         }
 
@@ -434,7 +434,7 @@
       activeBorderStyle() {
         if (this.isActive) {
           return {
-            borderBottomColor: this.$coreActionNormal,
+            borderBottomColor: this.$themeTokens.primary,
           };
         }
 

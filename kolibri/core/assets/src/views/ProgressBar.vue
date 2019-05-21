@@ -17,7 +17,7 @@
         class="progress-bar-complete"
         :style="{
           width: percent + '%',
-          backgroundColor: color || $coreActionNormal
+          backgroundColor: color || $themeTokens.primary
         }"
       >
       </div>

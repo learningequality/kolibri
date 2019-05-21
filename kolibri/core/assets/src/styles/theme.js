@@ -113,17 +113,8 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreActionNormal() {
-    return dynamicState['$core-accent-color'];
-  },
-  $coreActionLight() {
-    return dynamicState['$core-action-light'];
-  },
   $coreActionDark() {
     return dynamicState['$core-action-dark'];
-  },
-  $coreAccentColor() {
-    return dynamicState['$core-accent-color'];
   },
   $coreBgLight() {
     return lighten(dynamicState['$core-bg-canvas'], 0.025);

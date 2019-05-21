@@ -8,7 +8,7 @@
     :style="{ color: $coreTextAnnotation }"
     :class="defaultStyles"
   >
-    <div class="inner" :style="{ borderColor: this.$coreActionNormal }">
+    <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
       {{ text }}
     </div>
   </router-link>
@@ -36,7 +36,7 @@
     computed: {
       activeClasses() {
         // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({ color: this.$coreActionNormal })}`;
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
       },
       defaultStyles() {
         return this.$computedClass({

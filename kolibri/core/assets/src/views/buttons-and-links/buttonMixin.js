@@ -64,7 +64,7 @@ export default {
     },
     linkStyle() {
       return {
-        color: this.$coreActionNormal,
+        color: this.$themeTokens.primary,
         ':hover': { color: this.$coreActionDark },
         ':focus': this.$coreOutline,
         ':disabled': { opacity: 0.5 },
@@ -73,7 +73,7 @@ export default {
     primaryRaisedStyle() {
       return {
         color: $primaryRaisedColor,
-        backgroundColor: this.$coreActionNormal,
+        backgroundColor: this.$themeTokens.primary,
         ':hover': { backgroundColor: this.$coreActionDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
@@ -92,14 +92,14 @@ export default {
     },
     primaryFlatStyle() {
       return {
-        color: this.$coreActionNormal,
+        color: this.$themeTokens.primary,
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreActionNormal,
+          fill: this.$themeTokens.primary,
         },
       };
     },

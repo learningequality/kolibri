@@ -27,7 +27,7 @@
       category="toggle"
       name="radio_button_checked"
       class="checked"
-      :style="[{ fill: $coreActionNormal }, disabledStyle, activeStyle ]"
+      :style="[{ fill: $themeTokens.primary }, disabledStyle, activeStyle ]"
     />
     <mat-svg
       v-else

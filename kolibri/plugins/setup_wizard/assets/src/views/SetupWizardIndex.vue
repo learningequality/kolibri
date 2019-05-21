@@ -18,7 +18,7 @@
       <ProgressToolbar
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
-        :style="{ backgroundColor: $coreActionNormal }"
+        :style="{ backgroundColor: $themeTokens.primary }"
         @backButtonClicked="goToPreviousStep"
       />
 

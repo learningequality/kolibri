@@ -84,7 +84,7 @@
         let color = '';
         if (!this.isDivider) {
           if (this.active) {
-            color = this.$coreAccentColor;
+            color = this.$themeTokens.primary;
           } else if (this.disabled) {
             color = this.$coreTextAnnotation;
           } else {

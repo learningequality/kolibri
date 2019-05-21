@@ -23,7 +23,7 @@
       v-if="icon || $slots.default"
       class="keen-ui-icon-button-icon"
       :style="{
-        color: !primaryType ? $coreActionNormal : ''
+        color: !primaryType ? $themeTokens.primary : ''
       }"
     >
       <slot>
@@ -162,18 +162,18 @@
       buttonColor() {
         if (this.primaryColor && this.primaryType) {
           const style = {
-            backgroundColor: this.$coreActionNormal,
+            backgroundColor: this.$themeTokens.primary,
           };
           if (this.dropdownOpen) {
             style[':hover:not(.is-disabled)'] = {
-              backgroundColor: darken(this.$coreActionNormal, '10%'),
+              backgroundColor: darken(this.$themeTokens.primary, '10%'),
             };
           }
           return style;
         } else if (this.primaryColor && !this.primaryType) {
           return {
-            color: this.$coreActionNormal,
-            fill: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
+            fill: this.$themeTokens.primary,
           };
         }
 

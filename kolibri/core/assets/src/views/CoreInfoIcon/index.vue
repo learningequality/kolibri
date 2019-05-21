@@ -4,7 +4,7 @@
     <UiIcon
       ref="icon"
       class="info-icon"
-      :style="{ color: $coreAccentColor }"
+      :style="{ color: $themeTokens.primary }"
       :iconAriaLabel="iconAriaLabel"
     >
       <mat-svg name="info" category="action" />
