@@ -434,7 +434,7 @@ describe('Collection', function() {
             response = {};
             client = jest.fn().mockResolvedValue(response);
             resource.client = client;
-            logstub = jest.spyOn(Resources.logging, 'debug').mockImplementation(() => {});
+            logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
           });
           afterEach(function() {
             logstub.mockRestore();
@@ -446,7 +446,7 @@ describe('Collection', function() {
               done();
             });
           });
-          it('should call logging.debug once', function(done) {
+          it('should call logging.error once', function(done) {
             collection.synced = false;
             collection.fetch().catch(() => {
               expect(logstub).toHaveBeenCalledTimes(1);
