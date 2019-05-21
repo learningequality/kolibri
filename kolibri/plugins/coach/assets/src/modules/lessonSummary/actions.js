@@ -43,7 +43,6 @@ export function getResourceCache(store, resourceIds) {
     return ContentNodeSlimResource.fetchCollection({
       getParams: {
         ids: nonCachedResourceIds,
-        include_fields: ['num_coach_contents'],
       },
     }).then(contentNodes => {
       contentNodes.forEach(contentNode =>

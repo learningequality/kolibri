@@ -1,11 +1,13 @@
 <template>
 
-  <UiAlert
-    type="error"
-    :dismissible="false"
-  >
-    {{ $tr('couldNotLoadThisBook') }}
-  </UiAlert>
+  <div class="epub-renderer-error" :class="{loaded}">
+    <UiAlert
+      type="error"
+      :dismissible="false"
+    >
+      {{ $tr('couldNotLoadThisBook') }}
+    </UiAlert>
+  </div>
 
 </template>
 
@@ -19,6 +21,12 @@
     components: {
       UiAlert,
     },
+    props: {
+      loaded: {
+        type: Boolean,
+        default: false,
+      },
+    },
     $trs: {
       couldNotLoadThisBook: 'Could not load this book',
     },
@@ -27,4 +35,23 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .epub-renderer-error {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 24;
+    background: #ffffff;
+  }
+
+  .epub-renderer-error.loaded {
+    top: 36px;
+    bottom: auto;
+    z-index: 4;
+    background: transparent;
+  }
+
+</style>

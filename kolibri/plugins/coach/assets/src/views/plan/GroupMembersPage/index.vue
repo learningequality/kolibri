@@ -93,7 +93,7 @@
           :groupName="currentGroup.name"
           :username="userForRemoval.full_name"
           @cancel="userForRemoval = null"
-          @confirm="removeSelectedUserFromGroup"
+          @submit="removeSelectedUserFromGroup"
         />
       </div>
     </KPageContainer>

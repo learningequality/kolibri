@@ -10,7 +10,6 @@ const defaultProps = {
 function makeWrapper(options) {
   const wrapper = mount(AssignmentDeleteModal, options);
   const els = {
-    submitButton: () => wrapper.find('button[type="submit"]'),
     cancelButton: () => wrapper.find('button[type="button"]'),
     form: () => wrapper.find('form'),
   };
@@ -18,23 +17,29 @@ function makeWrapper(options) {
 }
 
 describe('AssignmentDeleteModal', () => {
-  it('clicking delete causes a "delete" event to be emitted', () => {
-    const { wrapper, els } = makeWrapper({
+  it('clicking delete causes a "submit" event to be emitted', () => {
+    const submitListener = jest.fn();
+    const { els } = makeWrapper({
       propsData: { ...defaultProps },
       store,
+      listeners: {
+        submit: submitListener,
+      },
     });
-    // Again, clicking the submit button does not propagate to form, so doing a hack
-    // els.submitButton().trigger('click');
     els.form().trigger('submit');
-    expect(wrapper.emitted().submit.length).toEqual(1);
+    expect(submitListener).toHaveBeenCalled();
   });
 
   it('clicking cancel causes a "cancel" event to be emitted', () => {
-    const { wrapper, els } = makeWrapper({
+    const cancelListener = jest.fn();
+    const { els } = makeWrapper({
       propsData: { ...defaultProps },
       store,
+      listeners: {
+        cancel: cancelListener,
+      },
     });
     els.cancelButton().trigger('click');
-    expect(wrapper.emitted().cancel.length).toEqual(1);
+    expect(cancelListener).toHaveBeenCalled();
   });
 });

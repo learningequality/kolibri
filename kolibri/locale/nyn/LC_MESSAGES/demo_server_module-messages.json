@@ -1,11 +1,11 @@
 {
-  "DemoServerIndex.demoServerA1": "Werengani malangizo",
-  "DemoServerIndex.demoServerA2": "Pangani dawunilodi ndi kupanga insto pulogalamu yatsopano",
-  "DemoServerIndex.demoServerHeader": "Takulandira ku webusaiti ya Kolibri demo!",
-  "DemoServerIndex.demoServerL1": "Wophunzira (username: '{user}', pasiwedi: '{pass}') kapena lowani ngati mlendo",
-  "DemoServerIndex.demoServerL2": "Kochi (username: '{user}', pasiwedi: '{pass}')",
-  "DemoServerIndex.demoServerL3": "Adimini (username: '{user}', pasiwedi: '{pass}')",
-  "DemoServerIndex.demoServerP1": "Mungathe kugwiritsa ntchito njira zitatu zolowera pa webusaiti iyi:",
-  "DemoServerIndex.demoServerP2": "Webusaiti ya demo ino ili ndi zinthu zonse za pulogalamu yatsopano, komabe ili ndi sampulo ya zinthu zimene mungazigwiritse ntchito popanda intaneti mu Kolibri. Cholinga chake ndi kungokusonyezani m'mene wabusaitiyi imagwirira ntchito ndipo zinthu zokhudza munthu zidzichotsedwa pa webusaiti ino nthawi ndi nthawi.",
-  "DemoServerIndex.demoServerP3": "Kuti mudziwe zambiri za m'mene mungawiritsire ntchito Kolibri popanda intaneti komanso kuti mumvetse bwino kagwiritsidwe ntchito ka Kolibri:"
+  "DemoServerBannerContent.demoServerA1": "Werengani malangizo",
+  "DemoServerBannerContent.demoServerA2": "Pangani dawunilodi ndi kuiika pulogalamu yatsopano",
+  "DemoServerBannerContent.demoServerHeader": "Takulandira ku webusaiti ya Kolibri demo",
+  "DemoServerBannerContent.demoServerL1": "Wophunzira ({user}/{pass} kapena lowani ngati mlendo)",
+  "DemoServerBannerContent.demoServerL2": "Kochi ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "Adimini ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Onani lililonse mwa magulu atatu a anthu ogwiritsa ntchito:",
+  "DemoServerBannerContent.demoServerP2": "Pulogalamu ino ya Kolibri yakonzedwa kuti izigwiritsidwa ntchito monga yongoyeserera. Zinthu zimene anthu akuchita pa pulogalamuyi zizifufutidwa nthawi ndi nthawi. Pulogalamu yoyesererayi izikhala ndi zinthu zatsopano zimene zaikidwa mu pulogalamu yeniyeni ya Kolibri yatsopano, ndipo zonse zimene zili m'pulogalamu ino ndi zongoyeserera.",
+  "DemoServerBannerContent.demoServerP3": "Kuti mudziwe zambiri za m'mene mungawiritsire ntchito Kolibri popanda intaneti komanso kuti mumvetse bwino kagwiritsidwe ntchito ka Kolibri:"
 }

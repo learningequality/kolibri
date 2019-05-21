@@ -4,13 +4,13 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: yo\n"
-"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"X-Crowdin-File: /release-v0.12.y/django.po\n"
 "Project-Id-Version: kolibri\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Last-Translator: learningequality\n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
-"PO-Revision-Date: 2019-03-25 17:17\n"
+"PO-Revision-Date: 2019-05-18 01:15\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,54 +24,56 @@ msgstr "Kíláásì"
 msgid "Learner group"
 msgstr "Ẹgbẹ́ akẹ́kọ̀ọ́"
 
-#: kolibri/core/content/api.py:130
+#: kolibri/core/content/api.py:138
 msgid "Content"
 msgstr "Àkóónú"
 
-#: kolibri/core/content/api.py:702
+#: kolibri/core/content/api.py:836
 msgid "The requested channel does not exist on the content server"
 msgstr "Ìkànnì yìí kò sí lóri íntánẹ́ẹ̀tì"
 
-#: kolibri/core/content/models.py:283
+#: kolibri/core/content/models.py:296
 msgid "Unknown format"
 msgstr "Fọ́máàtì yìí kò sí"
 
-#: kolibri/core/device/serializers.py:53
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "Kò sí èdè yìí lorí Kolibri"
 
-#: kolibri/core/tasks/api.py:32
+#: kolibri/core/tasks/api.py:33
 msgid "There was a network error."
 msgstr "Ìńtánẹ́ẹ̀tì ń ṣe ségesège."
 
-#: kolibri/core/tasks/api.py:34
+#: kolibri/core/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "Àṣìṣe ìráàyèsì dísíkì wáyé."
 
-#: kolibri/core/tasks/api.py:36
+#: kolibri/core/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "Àṣìṣe wáyé."
 
 #: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
 msgstr "Ìlujá ìwádìí yìí kò lè ṣiṣẹ́"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
 msgstr "Má bínú, ìlujá ìwádìí tí ò ń lò kò lè ṣiṣẹ́."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
 msgstr "Láti lo Kolibri, a dàbá pé kó o lo Firefox tàbí Chrome."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
 msgstr "O tún lè gbìyànjú láti lo ìlujá ìwádìí tuntun."
 
-#: kolibri/core/views.py:131
+#: kolibri/core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Kò sí àwọn ojú ewé tí ò ń wá. Ó ṣeé ṣe kó jẹ́ pé ìkànnì Kolibri kò ṣiṣẹ́ bó ṣe yẹ"
+

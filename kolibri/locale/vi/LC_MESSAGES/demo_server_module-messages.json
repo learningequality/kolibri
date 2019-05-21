@@ -1,11 +1,11 @@
 {
-  "DemoServerIndex.demoServerA1": "Hãy đọc tài liệu này",
-  "DemoServerIndex.demoServerA2": "Tải và cài đặt bản mới nhất",
-  "DemoServerIndex.demoServerHeader": "Chào mừng bạn đến với trang thử nghiệm của Kolibri!",
-  "DemoServerIndex.demoServerL1": "Học viên (tên người dùng: '{user}', mật khẩu: '{pass}') hoặc là khách truy cập",
-  "DemoServerIndex.demoServerL2": "Giáo viên (tên người dùng: '{user}', mật khẩu: '{pass}')",
-  "DemoServerIndex.demoServerL3": "Quản trị viên (tên người dùng: '{user}', mật khẩu: '{pass}')",
-  "DemoServerIndex.demoServerP1": "Bạn có thể tự do khám phá bằng một trong ba loại người dùng chủ yếu sau:",
-  "DemoServerIndex.demoServerP2": "Trang thử nghiệm trực tuyến này bao gồm những tính năng và chức năng của phiên bản mới nhất, nhưng chỉ chứa một mẫu nội dung có sẵn cho sử dụng ngoại tuyến trong Kolibri. Trang này có mục đích thử nghiệm và bất kỳ dữ liệu người dùng nào ở đây đều có thể bị xóa định kỳ.",
-  "DemoServerIndex.demoServerP3": "Để tìm hiểu thêm về việc sử dụng Kolibri ngoại tuyến và hiểu rõ hơn về nền tảng:"
+  "DemoServerBannerContent.demoServerA1": "Hãy đọc tài liệu này",
+  "DemoServerBannerContent.demoServerA2": "Tải và cài đặt bản mới nhất",
+  "DemoServerBannerContent.demoServerHeader": "Chào mừng bạn đến với trang thử nghiệm của Kolibri",
+  "DemoServerBannerContent.demoServerL1": "Người học ({user}/{pass} hoặc truy cập như là khách)",
+  "DemoServerBannerContent.demoServerL2": "Giáo viên ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "Quản trị viên ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Khám phá một trong ba loại người dùng chính:",
+  "DemoServerBannerContent.demoServerP2": "Phiên bản Kolibri trực tuyến này chỉ có mục đích thử nghiệm. Người dùng và dữ liệu sẽ bị xóa định kỳ. Bản thử nghiệm này trình bày các tính năng của phiên bản Kolibri mới nhất và tất cả tài liệu trong bản đều là mẫu tiêu biểu.",
+  "DemoServerBannerContent.demoServerP3": "Để tìm hiểu thêm về việc sử dụng Kolibri ngoại tuyến và hiểu sâu thêm về nền tảng:"
 }

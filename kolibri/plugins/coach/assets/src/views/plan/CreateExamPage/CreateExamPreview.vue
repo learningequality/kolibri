@@ -93,6 +93,7 @@
           :value="true"
         />
       </div>
+
       <h2 class="header-margin">
         {{ $tr('questions') }}
       </h2>

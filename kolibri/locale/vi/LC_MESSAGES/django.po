@@ -4,13 +4,13 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: vi\n"
-"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"X-Crowdin-File: /release-v0.12.y/django.po\n"
 "Project-Id-Version: kolibri\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Last-Translator: learningequality\n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
-"PO-Revision-Date: 2019-03-25 17:15\n"
+"PO-Revision-Date: 2019-05-18 01:11\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,54 +24,56 @@ msgstr "Lớp học"
 msgid "Learner group"
 msgstr "Nhóm học viên"
 
-#: kolibri/core/content/api.py:130
+#: kolibri/core/content/api.py:138
 msgid "Content"
 msgstr "Nội dung"
 
-#: kolibri/core/content/api.py:702
+#: kolibri/core/content/api.py:836
 msgid "The requested channel does not exist on the content server"
 msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung"
 
-#: kolibri/core/content/models.py:283
+#: kolibri/core/content/models.py:296
 msgid "Unknown format"
 msgstr "Không xác định được định dạng"
 
-#: kolibri/core/device/serializers.py:53
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 
-#: kolibri/core/tasks/api.py:32
+#: kolibri/core/tasks/api.py:33
 msgid "There was a network error."
 msgstr "Đã xảy ra lỗi mạng."
 
-#: kolibri/core/tasks/api.py:34
+#: kolibri/core/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "Đã xảy ra lỗi truy cập đĩa."
 
-#: kolibri/core/tasks/api.py:36
+#: kolibri/core/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "Đã xảy ra lỗi không xác định."
 
 #: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
 msgstr "Trình duyệt không được hỗ trợ"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
 msgstr "Rất tiếc, phiên bản trình duyệt của bạn không được hỗ trợ."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
 msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để truy cập Kolibri."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
 msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 
-#: kolibri/core/views.py:131
+#: kolibri/core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
+

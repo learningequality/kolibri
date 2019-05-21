@@ -1,11 +1,11 @@
 {
-  "DemoServerIndex.demoServerA1": "دستاویزات کا مطالعہ کریں",
-  "DemoServerIndex.demoServerA2": "تازہ ترین ریلیز کو ڈاون لوڈ اور انسٹال کریں",
-  "DemoServerIndex.demoServerHeader": "کولیبری ڈیمو سائٹ پر خوشامدید!",
-  "DemoServerIndex.demoServerL1": "طالب علم (یوزر کا نام: '{user}'، پاس ورڈ: '{pass}') یا مہمان کے طور پر رسائی حاصل کریں",
-  "DemoServerIndex.demoServerL2": "معلم ( یوزر کا نام: '{user}'، پاس ورڈ: '{pass}')",
-  "DemoServerIndex.demoServerL3": "منتظم ( یوزر کا نام: '{user}'، پاس ورڈ: '{pass}')",
-  "DemoServerIndex.demoServerP1": "آپ تین اقسام کے مرکزی یوزر کے طور پر استعمال کرسکتے ہیں:",
-  "DemoServerIndex.demoServerP2": "اس آن لائن ڈیمو سائٹ میں تازہ ترین ورژن کی خصوصیات اور فعالیتیں شامل ہیں، لیکن اس میں صرف اس مواد کا نمونہ موجود ہے جس کو کولیبری میں آف لائن استعمال کے لئے دستیاب کیا گیا ہے۔ یہ ڈیمو مقاصد کے لئے ہے اور یہاں پر کسی بھی صارف کے ڈیٹا کو وقفے وقفے سے حزف کیا جا سکتا ہے.",
-  "DemoServerIndex.demoServerP3": "آف لائن سیاق و سباق میں کولیبری کو استعمال کرنے اور پلیٹ فارم کو بہتر سمجھنے کے بارے میں مزید جاننے کے لئے:"
+  "DemoServerBannerContent.demoServerA1": "دستاویزات کا مطالعہ کریں",
+  "DemoServerBannerContent.demoServerA2": "تازہ ترین ریلیز کو ڈاون لوڈ اور انسٹال کریں",
+  "DemoServerBannerContent.demoServerHeader": "کولیبری ڈیمو سائٹ میں خوشامدید",
+  "DemoServerBannerContent.demoServerL1": "لرنر ({user}/{pass} یا مہمان کے طور پر رسائی کریں)",
+  "DemoServerBannerContent.demoServerL2": "کوچ ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "ایڈمن ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "تین بنیادی صارف کی اقسام میں سے کسی کی بھی چھان بین کریں:",
+  "DemoServerBannerContent.demoServerP2": "کولیبری کے اس آن لائن ورژن کا مقاصد صرف دکهانا کے لئے ہے. صارفین اور ڈیٹا کو وقفے سے ڈیلیٹ کر دیا جائے گا. ڈیمو تازہ ترین کولیبری ورژن کی خصوصیات کو ظاہر کرتا ہے، اور یہاں پائے گئے تمام وسائل نمونے ہیں.",
+  "DemoServerBannerContent.demoServerP3": "آف لائن سیاق و سباق میں کولیبری کو استعمال کرنے اور پلیٹ فارم کو بہتر سمجھنے کے بارے میں مزید جاننے کے لئے:"
 }

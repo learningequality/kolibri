@@ -3,6 +3,7 @@ import range from 'lodash/range';
 import sumBy from 'lodash/fp/sumBy';
 import sortBy from 'lodash/sortBy';
 import shuffled from 'kolibri.utils.shuffled';
+import { annotateQuestionSourcesWithCounter } from 'kolibri.utils.exams';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -48,7 +49,7 @@ export default function selectQuestions(
   const shuffledQuestionIdArrays = questionIdArrays.map(shuffleWithSeed);
 
   // fill up the output list
-  const output = [];
+  let output = [];
   let i = 0;
   while (output.length < numQuestions) {
     const ri = randomIndexes[i];
@@ -72,6 +73,9 @@ export default function selectQuestions(
     // cycle through questions
     i = (i + 1) % exerciseIds.length;
   }
+
+  // Add the counter_in_exercise field to make it match the V2 Exam specification
+  output = annotateQuestionSourcesWithCounter(output);
 
   // sort the resulting questions by exercise title
   return sortBy(output, 'title');

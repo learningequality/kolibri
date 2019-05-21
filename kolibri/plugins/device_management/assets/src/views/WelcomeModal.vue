@@ -3,8 +3,6 @@
   <KModal
     :title="$tr('welcomeModalHeader')"
     :submitText="$tr('welcomeButtonDismissText')"
-    @submit="emitCloseModal"
-    @cancel="emitCloseModal"
   >
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalContentDescription') }}
@@ -26,11 +24,6 @@
     name: 'WelcomeModal',
     components: {
       KModal,
-    },
-    methods: {
-      emitCloseModal() {
-        this.$emit('closeModal');
-      },
     },
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
