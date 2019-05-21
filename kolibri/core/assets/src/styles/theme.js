@@ -1,5 +1,11 @@
 import Vue from 'vue';
+import logger from 'kolibri.lib.logging';
 import { lighten, darken } from 'kolibri.utils.colour';
+
+import materialColors from './materialColors.js';
+import brandColors from './brandColors.js';
+
+const logging = logger.getLogger(__filename);
 
 const initialState = {
   '$core-action-light': '#e2d1e0',
@@ -26,6 +32,23 @@ const initialState = {
 
   '$core-loading': '#03a9f4',
   modality: null,
+
+  theme: {
+    colors: {
+      palette: materialColors,
+      brand: brandColors,
+    },
+    tokenMapping: {
+      canvas: 'palette.grey.v_200',
+      text: 'palette.grey.v_800',
+      annotation: 'palette.grey.v_700',
+      error: 'palette.red.v_800',
+      progress: 'palette.lightblue.v_500',
+      mastered: 'palette.amber.v_500',
+      correct: 'palette.green.v_500',
+      incorrect: 'palette.red.v_800',
+    },
+  },
 };
 
 export const dynamicState = Vue.observable(initialState);
@@ -34,7 +57,47 @@ export function resetThemeValue(value) {
   dynamicState[value] = initialState[value];
 }
 
+function throwThemeError(tokenName, mapString) {
+  throw `Theme issue: '${tokenName}' has invalid mapping '${mapString}'`;
+}
+
+const hexcolor = RegExp('#[0-9a-fA-F]{6}');
+
 export default {
+  $themeTokens() {
+    const tokens = {};
+    // look at each token map
+    Object.keys(dynamicState.theme.tokenMapping).forEach(function(tokenName) {
+      const mapString = dynamicState.theme.tokenMapping[tokenName];
+      const refs = mapString.split('.');
+      // try to use the dot notation to navigate down the color tree
+      let obj = dynamicState.theme.colors;
+      while (refs.length) {
+        const key = refs.shift();
+        if (!obj[key]) {
+          throwThemeError(tokenName, mapString);
+        }
+        obj = obj[key];
+      }
+      if (typeof obj !== 'string') {
+        throwThemeError(tokenName, mapString);
+      }
+      if (!hexcolor.test(obj)) {
+        logging.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
+      }
+      // if we end up at a valid string, use it
+      tokens[tokenName] = obj;
+    });
+    return tokens;
+  },
+  $themeColors() {
+    return dynamicState.theme.colors;
+  },
+
+  /*
+    TODO - deprecate functions below
+  */
+
   $coreActionNormal() {
     return dynamicState['$core-accent-color'];
   },
