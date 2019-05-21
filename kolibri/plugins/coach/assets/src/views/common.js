@@ -93,7 +93,7 @@ export const CoachCoreBase = {
     appBarTitle: {
       type: String,
       default() {
-        const coachLabel = coachStrings.$tr('coachLabel');
+        const coachLabel = this.common$tr('coachLabel');
         const classroomName = this.$store.state.classSummary.name;
         if (!classroomName) {
           return coachLabel;

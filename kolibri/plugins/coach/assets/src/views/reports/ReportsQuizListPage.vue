@@ -20,11 +20,11 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ common$tr('titleLabel') }}</th>
+            <th>{{ common$tr('avgScoreLabel') }}</th>
+            <th>{{ common$tr('progressLabel') }}</th>
+            <th>{{ common$tr('recipientsLabel') }}</th>
+            <th>{{ common$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -88,7 +88,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachStrings.$tr('quizListEmptyState');
+          return this.common$tr('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
           return CoachExamsPageStrings.$tr('noActiveExams');

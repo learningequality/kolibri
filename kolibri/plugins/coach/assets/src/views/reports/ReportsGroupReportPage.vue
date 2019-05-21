@@ -15,7 +15,7 @@
 
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
+          <h2>{{ common$tr('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
               <KLabeledIcon>
@@ -28,11 +28,11 @@
             </li>
           </ul>
           <p v-if="lessonsList.length === 0">
-            {{ coachStrings.$tr('lessonListEmptyState') }}
+            {{ common$tr('lessonListEmptyState') }}
           </p>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
+          <h2>{{ common$tr('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
               <KLabeledIcon>
@@ -45,7 +45,7 @@
             </li>
           </ul>
           <p v-if="examsList.length === 0">
-            {{ coachStrings.$tr('quizListEmptyState') }}
+            {{ common$tr('quizListEmptyState') }}
           </p>
         </KGridItem>
       </KGrid>

@@ -16,7 +16,7 @@
     <td class="core-table-button-col">
       <KDropdownMenu
         appearance="flat-button"
-        :text="coachStrings.$tr('optionsLabel')"
+        :text="common$tr('optionsLabel')"
         :options="menuOptions"
         @select="handleSelection"
       />
@@ -55,15 +55,15 @@
     },
     computed: {
       menuOptions() {
-        return [this.coachStrings.$tr('renameAction'), this.coachStrings.$tr('deleteAction')];
+        return [this.common$tr('renameAction'), this.common$tr('deleteAction')];
       },
     },
     methods: {
       handleSelection(selectedOption) {
         let emitted;
-        if (selectedOption === this.coachStrings.$tr('renameAction')) {
+        if (selectedOption === this.common$tr('renameAction')) {
           emitted = 'rename';
-        } else if (selectedOption === this.coachStrings.$tr('deleteAction')) {
+        } else if (selectedOption === this.common$tr('deleteAction')) {
           emitted = 'delete';
         }
         this.$emit(emitted, this.group.name, this.group.id);

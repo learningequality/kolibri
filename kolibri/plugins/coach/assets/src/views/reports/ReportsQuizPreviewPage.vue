@@ -63,8 +63,8 @@
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomDescription')
-          : this.coachStrings.$tr('orderFixedDescription');
+          ? this.common$tr('orderRandomDescription')
+          : this.common$tr('orderFixedDescription');
       },
       immersivePageProps() {
         const title = this.$tr('pageTitle', { title: this.quiz.title });

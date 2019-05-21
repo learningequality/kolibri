@@ -34,10 +34,10 @@
           </h1>
 
           <HeaderTable>
-            <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+            <HeaderTableRow :keyText="common$tr('statusLabel')">
               <LessonActive slot="value" :active="currentLesson.is_active" />
             </HeaderTableRow>
-            <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+            <HeaderTableRow :keyText="common$tr('recipientsLabel')">
               <template slot="value">
                 <Recipients
                   :groupNames="groupNames"
@@ -46,8 +46,8 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="coachStrings.$tr('descriptionLabel')"
-              :valueText="currentLesson.description || coachStrings.$tr('descriptionMissingLabel')"
+              :keyText="common$tr('descriptionLabel')"
+              :valueText="currentLesson.description || common$tr('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>

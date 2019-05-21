@@ -33,10 +33,10 @@
 
       <section>
         <HeaderTable>
-          <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+          <HeaderTableRow :keyText="common$tr('statusLabel')">
             <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
-          <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+          <HeaderTableRow :keyText="common$tr('recipientsLabel')">
             <Recipients
               slot="value"
               :groupNames="learnerGroupNames"
@@ -44,7 +44,7 @@
             />
           </HeaderTableRow>
           <HeaderTableRow
-            :keyText="coachStrings.$tr('questionOrderLabel')"
+            :keyText="common$tr('questionOrderLabel')"
             :valueText="questionOrderValueString"
           />
         </HeaderTable>
@@ -52,7 +52,7 @@
 
       <section v-if="selectedQuestions">
         <h2>
-          {{ coachStrings.$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+          {{ common$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
         </h2>
 
         <p>
@@ -153,13 +153,13 @@
       },
       questionOrderValueString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomLabel')
-          : this.coachStrings.$tr('orderFixedLabel');
+          ? this.common$tr('orderRandomLabel')
+          : this.common$tr('orderFixedLabel');
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomDescription')
-          : this.coachStrings.$tr('orderFixedDescription');
+          ? this.common$tr('orderRandomDescription')
+          : this.common$tr('orderFixedDescription');
       },
       classId() {
         return this.$route.params.classId;
@@ -255,7 +255,7 @@
                   className,
                 }),
                 autoDismiss: false,
-                actionText: this.coachStrings.$tr('closeAction'),
+                actionText: this.common$tr('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

@@ -6,8 +6,8 @@
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
-      :submitText="coachStrings.$tr('continueAction')"
-      :cancelText="coachStrings.$tr('cancelAction')"
+      :submitText="common$tr('continueAction')"
+      :cancelText="common$tr('cancelAction')"
       @submit="goToAvailableGroups"
       @cancel="$emit('cancel')"
     >
@@ -25,8 +25,8 @@
       v-else
       id="select-learnergroup"
       :title="modalTitle"
-      :submitText="coachStrings.$tr('copyAction')"
-      :cancelText="coachStrings.$tr('cancelAction')"
+      :submitText="common$tr('copyAction')"
+      :cancelText="common$tr('cancelAction')"
       @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
       @cancel="$emit('cancel')"
     >

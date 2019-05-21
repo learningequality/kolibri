@@ -149,9 +149,9 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 });
 
 const coachStringsMixin = {
-  computed: {
-    coachStrings() {
-      return coachStrings;
+  methods: {
+    common$tr(key, args) {
+      return coachStrings.$tr(key, args);
     },
   },
 };

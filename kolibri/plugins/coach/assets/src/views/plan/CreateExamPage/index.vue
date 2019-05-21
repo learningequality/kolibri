@@ -24,7 +24,7 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
+      <h2>{{ common$tr('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -120,11 +120,11 @@
       <KBottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
-          :text="coachStrings.$tr('goBackAction')"
+          :text="common$tr('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachStrings.$tr('continueAction')"
+          :text="common$tr('continueAction')"
           primary
           @click="continueProcess"
         />

@@ -19,10 +19,10 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ common$tr('titleLabel') }}</th>
+            <th>{{ common$tr('progressLabel') }}</th>
+            <th>{{ common$tr('recipientsLabel') }}</th>
+            <th>{{ common$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -81,7 +81,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
-          return this.coachStrings.$tr('lessonListEmptyState');
+          return this.common$tr('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
           return LessonsRootPageStrings.$tr('noActiveLessons');

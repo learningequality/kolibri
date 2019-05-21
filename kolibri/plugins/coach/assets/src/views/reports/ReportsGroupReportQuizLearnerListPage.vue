@@ -13,12 +13,12 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="common$tr('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('scoreLabel') }}</th>
+            <th>{{ common$tr('nameLabel') }}</th>
+            <th>{{ common$tr('progressLabel') }}</th>
+            <th>{{ common$tr('scoreLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

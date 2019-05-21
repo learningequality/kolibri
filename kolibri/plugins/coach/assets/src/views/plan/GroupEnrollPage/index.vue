@@ -207,7 +207,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
+            this.createSnackbar(this.common$tr('updatedNotification'));
           });
         });
       },

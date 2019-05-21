@@ -14,7 +14,7 @@
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
       <KCheckbox
-        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :label="common$tr('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -57,7 +57,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+            {{ common$tr('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsExerciseLearners

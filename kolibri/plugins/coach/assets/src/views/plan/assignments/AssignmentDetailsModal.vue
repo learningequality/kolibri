@@ -28,7 +28,7 @@
         <KTextbox
           v-if="showDescriptionField"
           v-model="description"
-          :label="coachStrings.$tr('descriptionLabel')"
+          :label="common$tr('descriptionLabel')"
           :maxlength="200"
           :disabled="disabled || formIsSubmitted"
           :textArea="true"
@@ -37,7 +37,7 @@
 
       <fieldset v-if="assignmentType !== 'new_lesson'">
         <legend>
-          {{ coachStrings.$tr('statusLabel') }}
+          {{ common$tr('statusLabel') }}
         </legend>
         <p>
           {{ assignmentStrings.statusExplanation }}
@@ -58,7 +58,7 @@
 
       <fieldset>
         <legend>
-          {{ coachStrings.$tr('recipientsLabel') }}
+          {{ common$tr('recipientsLabel') }}
         </legend>
         <RecipientSelector
           v-model="selectedCollectionIds"
@@ -73,14 +73,14 @@
 
     <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
-        :text="coachStrings.$tr('cancelAction')"
+        :text="common$tr('cancelAction')"
         appearance="flat-button"
         :primary="false"
         :disabled="disabled"
         @click="$emit('cancel')"
       />
       <KButton
-        :text="coachStrings.$tr('saveChangesAction')"
+        :text="common$tr('saveChangesAction')"
         :primary="true"
         :disabled="disabled"
         @click="submitData"
@@ -193,7 +193,7 @@
                 excludeId: this.$route.params.quizId,
               })
             ) {
-              return this.coachStrings.$tr('quizDuplicateTitleError');
+              return this.common$tr('quizDuplicateTitleError');
             }
           } else {
             if (
@@ -202,7 +202,7 @@
                 excludeId: this.$route.params.lessonId,
               })
             ) {
-              return this.coachStrings.$tr('lessonDuplicateTitleError');
+              return this.common$tr('lessonDuplicateTitleError');
             }
           }
           if (this.showTitleError) {
@@ -217,14 +217,14 @@
       assignmentStrings() {
         if (this.assignmentIsQuiz) {
           return {
-            activeStatus: this.coachStrings.$tr('quizActiveLabel'),
-            inactiveStatus: this.coachStrings.$tr('quizInactiveLabel'),
+            activeStatus: this.common$tr('quizActiveLabel'),
+            inactiveStatus: this.common$tr('quizInactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
-          activeStatus: this.coachStrings.$tr('lessonActiveLabel'),
-          inactiveStatus: this.coachStrings.$tr('lessonInactiveLabel'),
+          activeStatus: this.common$tr('lessonActiveLabel'),
+          inactiveStatus: this.common$tr('lessonInactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };
       },

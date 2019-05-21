@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="coachStrings.$tr('showAction')"
+          :label="common$tr('showAction')"
           :options="statusOptions"
           :inline="true"
         />
@@ -22,16 +22,16 @@
           :primary="true"
           appearance="raised-button"
           :to="newExamRoute"
-          :text="coachStrings.$tr('newQuizAction')"
+          :text="common$tr('newQuizAction')"
         />
       </div>
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
+            <th>{{ common$tr('titleLabel') }}</th>
+            <th>{{ common$tr('recipientsLabel') }}</th>
             <th>
-              {{ coachStrings.$tr('statusLabel') }}
+              {{ common$tr('statusLabel') }}
             </th>
           </tr>
         </thead>
@@ -144,6 +144,15 @@
       },
       newExamRoute() {
         return { name: PageNames.EXAM_CREATION_ROOT };
+      },
+    },
+    methods: {
+      genRecipientsString(groups) {
+        if (!groups.length) {
+          return this.common$tr('entireClassLabel');
+        } else {
+          return this.common$tr('numberOfGroups', { value: groups.length });
+        }
       },
     },
     $trs: {

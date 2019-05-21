@@ -31,7 +31,7 @@
           {{ $tr('learner', {count: learnerNames.length}) }}
         </KLabeledIcon>
         <template slot="value">
-          {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
+          {{ common$tr('integer', {value: learnerNames.length}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

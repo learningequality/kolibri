@@ -25,7 +25,7 @@
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachStrings.$tr('statusLabel') }}
+            {{ common$tr('statusLabel') }}
           </template>
           <template slot="value">
             <LessonActive :active="lesson.active" />
@@ -33,7 +33,7 @@
         </HeaderTableRow>
         <!-- TODO COACH
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+          <template slot="key">{{ common$tr('descriptionLabel') }}</template>
           <template slot="value">Ipsum lorem</template>
         </HeaderTableRow>
          -->
@@ -42,9 +42,9 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+            <th>{{ common$tr('titleLabel') }}</th>
+            <th>{{ common$tr('progressLabel') }}</th>
+            <th>{{ common$tr('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

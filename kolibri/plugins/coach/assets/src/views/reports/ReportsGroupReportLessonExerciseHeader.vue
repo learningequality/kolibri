@@ -21,16 +21,16 @@
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
 
-    <KButton :text="coachStrings.$tr('previewAction')" />
+    <KButton :text="common$tr('previewAction')" />
     -->
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="common$tr('reportLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="common$tr('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>

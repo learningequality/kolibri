@@ -8,24 +8,24 @@
         :text="navStrings.$tr('home')"
       />
     </p>
-    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
+    <h1>{{ common$tr('reportsLabel') }}</h1>
     <p>{{ $tr('description') }}</p>
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachStrings.$tr('lessonsLabel')"
+        :text="common$tr('lessonsLabel')"
         :to="classRoute('ReportsLessonListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('quizzesLabel')"
+        :text="common$tr('quizzesLabel')"
         :to="classRoute('ReportsQuizListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('groupsLabel')"
+        :text="common$tr('groupsLabel')"
         :to="classRoute('ReportsGroupListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('learnersLabel')"
+        :text="common$tr('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
     </HeaderTabs>

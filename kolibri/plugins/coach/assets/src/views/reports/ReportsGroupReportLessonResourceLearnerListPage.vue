@@ -24,13 +24,13 @@
       </h1>
 
       <!-- TODO COACH
-      <KButton :text="coachStrings.$tr('previewAction')" />
+      <KButton :text="common$tr('previewAction')" />
       -->
 
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachStrings.$tr('avgTimeSpentLabel') }}
+            {{ common$tr('avgTimeSpentLabel') }}
           </template>
           <template slot="value">
             <TimeDuration :seconds="360" />
@@ -41,14 +41,14 @@
       <p>
         <StatusSummary :tally="tally" />
       </p>
-      <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="common$tr('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+            <th>{{ common$tr('nameLabel') }}</th>
+            <th>{{ common$tr('statusLabel') }}</th>
+            <th>{{ common$tr('timeSpentLabel') }}</th>
+            <th>{{ common$tr('groupsLabel') }}</th>
+            <th>{{ common$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
