@@ -28,4 +28,5 @@ super-admin-grant-super-admin-permissions.feature
 super-admin-downgrade-from-super-content-import-permission.feature
 super-admin-revoke-super-admin-permissions.feature
 super-admin-export-data.feature
+super-admin-change-facility-settings.feature
 super-admin-sign-out.feature

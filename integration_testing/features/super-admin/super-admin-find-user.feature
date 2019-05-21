@@ -13,7 +13,7 @@ Feature: Super admin searches for users
     Then I see just the user I was searching for
 
   Scenario: Clear search 
-    Given that I wrote user's <username> in the seach field
+    Given that I wrote user's <username> in the search field
       And I see the filtered results
       When I click the clear *X* button, OR tab to focus it and press Enter, OR I delete what I wrote
       Then I see the full (unfiltered) list of users
