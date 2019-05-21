@@ -3,6 +3,7 @@
   <KModal
     :title="$tr('welcomeModalHeader')"
     :submitText="$tr('welcomeButtonDismissText')"
+    @submit="$emit('submit')"
   >
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalContentDescription') }}
