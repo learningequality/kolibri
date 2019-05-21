@@ -4,7 +4,8 @@
 
     <FacilityModal
       v-if="facilityModalVisible"
-      @close="closeFacilityModal"
+      @cancel="closeFacilityModal"
+      @submit="closeFacilityModal"
     />
 
     <div class="wrapper-table">

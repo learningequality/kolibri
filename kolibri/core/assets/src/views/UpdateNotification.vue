@@ -84,7 +84,7 @@
           this.saveDismissedNotification(this.id);
         }
         this.removeNotification(this.id);
-        this.$emit('closeModal');
+        this.$emit('submit');
       },
     },
     $trs: {

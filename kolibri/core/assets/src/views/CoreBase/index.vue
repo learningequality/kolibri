@@ -98,12 +98,12 @@
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
       :linkUrl="mostRecentNotification.linkUrl"
-      @closeModal="dismissUpdateModal"
+      @submit="dismissUpdateModal"
     />
     <LanguageSwitcherModal
       v-if="languageModalShown"
       :style="{ color: $coreTextDefault }"
-      @close="languageModalShown = false"
+      @cancel="languageModalShown = false"
     />
 
   </div>

@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="sideNav" class="side-nav-wrapper" @keydown.esc="toggleNav">
+  <div ref="sideNav" class="side-nav-wrapper" @keyup.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"

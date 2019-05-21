@@ -96,6 +96,7 @@
   @import './EpubStyles';
 
   .bottom-bar {
+    z-index: 8;
     height: 54px;
     padding: 8px 8px 0;
     overflow: hidden;
