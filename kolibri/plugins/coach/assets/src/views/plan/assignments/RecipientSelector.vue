@@ -65,7 +65,7 @@
     },
     computed: {
       entireClassIsSelected() {
-        return isEqual(this.value, [this.classId]) || !this.value.length;
+        return isEqual(this.value, [this.classId]);
       },
     },
     methods: {
