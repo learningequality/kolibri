@@ -7,64 +7,38 @@ import brandColors from './brandColors.js';
 const logging = logger.getLogger(__filename);
 
 const initialState = {
-  '$core-action-light': '#e2d1e0',
-  '$core-action-dark': '#72486f',
-
-  '$core-accent-color': '#996189',
-
-  '$core-bg-canvas': '#f9f9f9',
-
-  '$core-text-default': '#3a3a3a',
-
-  '$core-bg-warning': '#fff3e1',
-
-  '$core-text-error': '#b93329',
-  '$core-bg-error': '#eeeeee',
-
-  /* Status colors */
-  '$core-status-progress': '#2196f3',
-  '$core-status-mastered': '#ffc107',
-  '$core-status-correct': '#4caf50',
-  '$core-status-wrong': '#df4d4f',
-
-  '$core-grey': '#e0e0e0',
-
-  '$core-loading': '#03a9f4',
   modality: null,
+  colors: {
+    black: 'black',
+    white: 'white',
+    palette: materialColors,
+    brand: brandColors,
+  },
+  tokenMapping: {
+    // brand shortcuts
+    primary: 'brand.primary.v_400',
+    primaryLight: 'brand.primary.v_100',
+    primaryDark: 'brand.primary.v_700',
+    secondary: 'brand.secondary.v_400',
+    secondaryLight: 'brand.secondary.v_100',
+    secondaryDark: 'brand.secondary.v_700',
 
-  theme: {
-    colors: {
-      black: 'black',
-      white: 'white',
-      palette: materialColors,
-      brand: brandColors,
-    },
-    tokenMapping: {
-      // brand shortcuts
-      primary: 'brand.primary.v_400',
-      primaryLight: 'brand.primary.v_100',
-      primaryDark: 'brand.primary.v_700',
-      secondary: 'brand.secondary.v_400',
-      secondaryLight: 'brand.secondary.v_100',
-      secondaryDark: 'brand.secondary.v_700',
+    // UI colors
+    text: 'palette.grey.v_900',
+    textDisabled: 'palette.grey.v_300',
+    annotation: 'palette.grey.v_700',
+    loading: 'brand.secondary.v_400',
+    focusOutline: 'brand.secondary.v_200',
 
-      // UI colors
-      text: 'palette.grey.v_900',
-      textDisabled: 'palette.grey.v_300',
-      annotation: 'palette.grey.v_700',
-      loading: 'brand.secondary.v_400',
-      focusOutline: 'brand.secondary.v_200',
+    // general semantic colors
+    error: 'palette.red.v_700',
+    success: 'palette.green.v_600',
 
-      // general semantic colors
-      error: 'palette.red.v_700',
-      success: 'palette.green.v_600',
-
-      // Kolibri-specific semantic colors
-      progress: 'palette.lightblue.v_500',
-      mastered: 'palette.amber.v_500',
-      correct: 'palette.green.v_600',
-      incorrect: 'palette.red.v_800',
-    },
+    // Kolibri-specific semantic colors
+    progress: 'palette.lightblue.v_500',
+    mastered: 'palette.amber.v_500',
+    correct: 'palette.green.v_600',
+    incorrect: 'palette.red.v_800',
   },
 };
 
@@ -83,11 +57,11 @@ const hexcolor = RegExp('#[0-9a-fA-F]{6}');
 function getTokens() {
   const tokens = {};
   // look at each token map
-  Object.keys(dynamicState.theme.tokenMapping).forEach(function(tokenName) {
-    const mapString = dynamicState.theme.tokenMapping[tokenName];
+  Object.keys(dynamicState.tokenMapping).forEach(function(tokenName) {
+    const mapString = dynamicState.tokenMapping[tokenName];
     const refs = mapString.split('.');
     // try to use the dot notation to navigate down the color tree
-    let obj = dynamicState.theme.colors;
+    let obj = dynamicState.colors;
     while (refs.length) {
       const key = refs.shift();
       if (!obj[key]) {
@@ -112,7 +86,7 @@ export default {
     return getTokens();
   },
   $themeColors() {
-    return dynamicState.theme.colors;
+    return dynamicState.colors;
   },
 
   // Should only use these styles to outline stuff that will be focused
