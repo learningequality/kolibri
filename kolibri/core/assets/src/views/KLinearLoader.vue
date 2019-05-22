@@ -11,7 +11,7 @@
     <div
       class="ui-progress-linear"
       :class="classes"
-      :style="{ backgroundColor: `rgba(${$coreLoading}, 0.4)` }"
+      :style="{ backgroundColor: `rgba(${$themeTokens.loading}, 0.4)` }"
     >
       <div
         v-if="type === 'determinate'"
@@ -24,7 +24,7 @@
 
         :style="{
           transform: `scaleX(${moderatedProgress / 100})`,
-          backgroundColor: $coreLoading,
+          backgroundColor: $themeTokens.loading,
         }"
       ></div>
 
@@ -36,7 +36,7 @@
         :aria-valuemax="100"
         :aria-valuemin="0"
 
-        :style="{ backgroundColor: $coreLoading }"
+        :style="{ backgroundColor: $themeTokens.loading }"
       ></div>
     </div>
   </transition>

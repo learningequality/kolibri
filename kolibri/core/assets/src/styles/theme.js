@@ -53,7 +53,7 @@ const initialState = {
       text: 'palette.grey.v_900',
       textDisabled: 'palette.grey.v_300',
       annotation: 'palette.grey.v_700',
-      loading: 'brand.secondary.v_200',
+      loading: 'brand.secondary.v_400',
       focusOutline: 'brand.secondary.v_500',
 
       // general semantic colors
@@ -112,13 +112,6 @@ export default {
     return dynamicState.theme.colors;
   },
 
-  /*
-    TODO - deprecate functions below
-  */
-
-  $coreLoading() {
-    return dynamicState['$core-loading'];
-  },
   // Should only use these styles to outline stuff that will be focused
   // on keyboard-tab-focus
   $coreOutline() {

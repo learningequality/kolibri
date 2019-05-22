@@ -56,7 +56,7 @@
         :aria-valuemax="100"
 
         :aria-valuemin="0"
-        :style="{ stroke: $coreLoading }"
+        :style="{ stroke: $themeTokens.loading }"
       >
         <circle
           class="ui-progress-circular-indeterminate-path"
