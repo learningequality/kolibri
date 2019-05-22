@@ -26,6 +26,7 @@ from . import server  # noqa
 from .conf import OPTIONS  # noqa
 from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
+from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
 from kolibri.utils import conf  # noqa
@@ -315,11 +316,15 @@ def start(port=None, daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+
         kwargs = {}
         # Truncate the file
         if os.path.isfile(server.DAEMON_LOG):
             open(server.DAEMON_LOG, "w").truncate()
-        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
         kwargs["out_log"] = server.DAEMON_LOG
         kwargs["err_log"] = server.DAEMON_LOG
 
@@ -422,11 +427,15 @@ def services(daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+
         kwargs = {}
         # Truncate the file
         if os.path.isfile(server.DAEMON_LOG):
             open(server.DAEMON_LOG, "w").truncate()
-        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
         kwargs["out_log"] = server.DAEMON_LOG
         kwargs["err_log"] = server.DAEMON_LOG
 
@@ -470,6 +479,7 @@ def manage(cmd, args=[]):
     from django.core.management import execute_from_command_line
 
     argv = ["kolibri manage", cmd] + args
+    logger.info("Invoking command '{}'.".format(" ".join(argv)))
     execute_from_command_line(argv=argv)
 
 
@@ -532,12 +542,14 @@ def plugin(plugin_name, **kwargs):
     from kolibri.utils import conf
 
     if kwargs.get("enable", False):
+        logger.info("Enabling Kolibri plugin {}.".format(plugin_name))
         plugin_classes = get_kolibri_plugin(plugin_name)
         for klass in plugin_classes:
             klass.enable()
 
     if kwargs.get("disable", False):
         try:
+            logger.info("Disabling Kolibri plugin {}.".format(plugin_name))
             plugin_classes = get_kolibri_plugin(plugin_name)
             for klass in plugin_classes:
                 klass.disable()
@@ -573,6 +585,11 @@ def set_default_language(lang):
     valid_languages = [l[0] for l in settings.LANGUAGES]
 
     if lang in valid_languages:
+        logger.info(
+            "Setting the default language code to {} for this installation of Kolibri.".format(
+                lang
+            )
+        )
         conf.config["LANGUAGE_CODE"] = lang
         conf.save()
     else:
@@ -580,7 +597,7 @@ def set_default_language(lang):
             langcode=lang, validlangs=valid_languages
         )
 
-        logging.warning(msg)
+        logger.warning(msg)
 
 
 def parse_args(args=None):
@@ -639,6 +656,8 @@ def main(args=None):  # noqa: max-complexity=13
         port = _get_port(arguments["--port"])
         if OPTIONS["Server"]["CHERRYPY_START"]:
             check_other_kolibri_running(port)
+
+    check_log_file_location()
 
     try:
         initialize(debug=debug, skip_update=arguments["--skipupdate"])

@@ -182,8 +182,9 @@ def get_logger(KOLIBRI_HOME):
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
-            "simple_date": {
-                "format": "%(levelname)s %(asctime)s %(module)s %(message)s"
+            "simple_date_file": {
+                "()": "kolibri.core.logger.utils.formatter.KolibriLogFileFormatter",
+                "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
             },
             "color": {
                 "()": "colorlog.ColoredFormatter",
@@ -198,9 +199,11 @@ def get_logger(KOLIBRI_HOME):
             },
             "file": {
                 "level": "INFO",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(KOLIBRI_HOME, "kolibri.log"),
-                "formatter": "simple_date",
+                "class": "kolibri.core.logger.utils.handler.KolibriTimedRotatingFileHandler",
+                "filename": os.path.join(KOLIBRI_HOME, "logs", "kolibri.txt"),
+                "formatter": "simple_date_file",
+                "when": "midnight",
+                "backupCount": 30,
             },
         },
         "loggers": {
