@@ -1,3 +1,4 @@
+
 <template>
 
   <li
@@ -39,6 +40,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssessmentQuestionListItem',
@@ -46,7 +48,7 @@
       CoachContentLabel,
       KDragSortWidget,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, coachStringsMixin],
     props: {
       draggable: {
         type: Boolean,
@@ -107,7 +109,6 @@
       questionNumShort: '{number, number, integer}.',
       preview: 'Preview',
       view: 'View',
-      nthExerciseName: '{ name } ({number, number, integer})',
       moveExerciseUp: 'Move this exercise up by one position',
       moveExerciseDown: 'Move this exercise down by one position',
     },
