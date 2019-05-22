@@ -58,7 +58,7 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$coreBgCanvas,
+          color: this.$themeColors.palette.grey.v_100,
           ':hover': {
             'background-color': this.$themeTokens.primaryDark,
           },

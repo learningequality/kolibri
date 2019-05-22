@@ -11,7 +11,7 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $themeColors.white }">
+          <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"

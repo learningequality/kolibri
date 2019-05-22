@@ -113,9 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreBgCanvas() {
-    return dynamicState['$core-bg-canvas'];
-  },
   $coreTextDefault() {
     return dynamicState['$core-text-default'];
   },

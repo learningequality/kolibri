@@ -18,7 +18,7 @@
     <iframe
       ref="iframe"
       class="iframe"
-      :style="{ backgroundColor: $coreBgCanvas }"
+      :style="{ backgroundColor: $themeColors.palette.grey.v_100 }"
       sandbox="allow-scripts"
       frameBorder="0"
       :name="name"
