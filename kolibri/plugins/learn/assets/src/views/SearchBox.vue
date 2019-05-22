@@ -33,7 +33,10 @@
           />
         </UiIconButton>
 
-        <div class="search-submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primaryDark }">
+        <div
+          class="search-submit-button-wrapper"
+          :style="{ backgroundColor: $themeTokens.primaryDark }"
+        >
           <UiIconButton
             type="secondary"
             color="white"
