@@ -113,9 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreBgWarning() {
-    return dynamicState['$core-bg-warning'];
-  },
   $coreTextError() {
     return dynamicState['$core-text-error'];
   },

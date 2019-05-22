@@ -36,7 +36,7 @@
           @click="generateSessionLog"
         />
       </p>
-      <p class="infobox" :style="infoBoxStyle">
+      <p class="infobox">
         <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
       </p>
     </KGridItem>
@@ -67,7 +67,7 @@
           @click="generateSummaryLog"
         />
       </p>
-      <p class="infobox" :style="infoBoxStyle">
+      <p class="infobox">
         <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
       </p>
     </KGridItem>
@@ -121,11 +121,6 @@
       },
       inDataExportPage() {
         return this.pageName === PageNames.DATA_EXPORT_PAGE;
-      },
-      infoBoxStyle() {
-        return {
-          backgroundColor: this.$coreBgWarning,
-        };
       },
       noDlStyle() {
         return {
