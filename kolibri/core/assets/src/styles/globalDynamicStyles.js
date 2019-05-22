@@ -17,7 +17,7 @@ const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 function generateGlobalStyles() {
   const htmlBodyStyles = {
     color: theme.$themeTokens().text,
-    backgroundColor: theme.$themeColors().palette.grey_v100,
+    backgroundColor: theme.$themeColors().palette.grey.v_100,
   };
 
   const globalStyles = StyleSheet.create({
