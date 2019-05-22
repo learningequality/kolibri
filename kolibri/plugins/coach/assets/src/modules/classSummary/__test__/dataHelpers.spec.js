@@ -41,6 +41,62 @@ describe('coach summary data helpers', () => {
       ]);
     });
   });
+  describe('getLearnersForExam', () => {
+    it('returns empty when exam has no assignments', () => {
+      expect(
+        store.getters.getLearnersForExam({
+          assignments: [],
+        })
+      ).toEqual([]);
+    });
+
+    it('passes through to getLearnersForGroups when exam has assignments', () => {
+      const groups = ['group_id_2', 'group_id_3'];
+      const output = store.getters.getLearnersForExam({
+        assignments: groups,
+        groups,
+      });
+      output.sort();
+      expect(output).toEqual([
+        'learner_id_1',
+        'learner_id_11',
+        'learner_id_2',
+        'learner_id_5',
+        'learner_id_6',
+        'learner_id_7',
+        'learner_id_8',
+        'learner_id_9',
+      ]);
+    });
+  });
+  describe('getLearnersForLesson', () => {
+    it('returns empty when lesson has no assignments', () => {
+      expect(
+        store.getters.getLearnersForLesson({
+          assignments: [],
+        })
+      ).toEqual([]);
+    });
+
+    it('passes through to getLearnersForGroups when lesson has assignments', () => {
+      const groups = ['group_id_2', 'group_id_3'];
+      const output = store.getters.getLearnersForLesson({
+        assignments: groups,
+        groups,
+      });
+      output.sort();
+      expect(output).toEqual([
+        'learner_id_1',
+        'learner_id_11',
+        'learner_id_2',
+        'learner_id_5',
+        'learner_id_6',
+        'learner_id_7',
+        'learner_id_8',
+        'learner_id_9',
+      ]);
+    });
+  });
   describe('getContentStatusObjForLearner', () => {
     it('returns a recorded status object given a content ID and learner ID', () => {
       expect(store.getters.getContentStatusObjForLearner('content_Q', 'learner_id_1')).toEqual({

@@ -64,7 +64,7 @@
       },
       table() {
         const sorted = this._.sortBy(this.groupMembers, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(
             status => learner.id === status.learner_id
@@ -79,7 +79,6 @@
           Object.assign(augmentedObj, learner);
           return augmentedObj;
         });
-        return mapped;
       },
     },
     methods: {

@@ -57,13 +57,13 @@
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
-          const assigned = this.getLearnersForGroups(lesson.groups);
+          const assigned = this.getLearnersForLesson(lesson);
           return {
             key: lesson.id,
             name: lesson.title,
             tally: this.getLessonStatusTally(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
-            hasAssignments: lesson.assignments.length > 0,
+            hasAssignments: assigned.length > 0,
           };
         });
       },

@@ -69,12 +69,11 @@
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
       table() {
-        const mapped = this.difficultQuestions.map(question => {
+        return this.difficultQuestions.map(question => {
           const tableRow = {};
           Object.assign(tableRow, question);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

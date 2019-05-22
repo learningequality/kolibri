@@ -55,13 +55,13 @@
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
-          const assigned = this.getLearnersForGroups(exam.groups);
+          const assigned = this.getLearnersForExam(exam);
           return {
             key: exam.id,
             name: exam.title,
             tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
-            hasAssignments: exam.assignments.length > 0,
+            hasAssignments: assigned.length > 0,
           };
         });
       },
