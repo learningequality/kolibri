@@ -114,7 +114,7 @@
         if (this.color) {
           return { fill: this.color };
         }
-        return { fill: this.$coreTextDefault };
+        return { fill: this.$themeTokens.text };
       },
       flip() {
         return this.isRtl ? 'rtl-icon' : null;

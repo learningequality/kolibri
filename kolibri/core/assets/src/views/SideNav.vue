@@ -7,7 +7,7 @@
         class="side-nav"
         :style="{
           width: `${width}px`,
-          color: $coreTextDefault,
+          color: $themeTokens.text,
           backgroundColor: $themeColors.white,
         }"
       >
@@ -16,7 +16,7 @@
           :style="{
             height: headerHeight + 'px',
             width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $coreTextDefault,
+            backgroundColor: $themeTokens.text,
           }"
         >
           <UiIconButton

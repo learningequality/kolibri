@@ -44,7 +44,7 @@ oriented data synchronization.
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
     >
-      <div class="overall-status" :style="{ color: $coreTextDefault }">
+      <div class="overall-status" :style="{ color: $themeTokens.text }">
         <mat-svg
           name="stars"
           category="action"

@@ -20,7 +20,7 @@
         type="search"
         class="input"
         :class="$computedClass(inputPlaceHolderStyle)"
-        :style="{ color: $coreTextDefault }"
+        :style="{ color: $themeTokens.text }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >

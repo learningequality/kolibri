@@ -53,7 +53,7 @@
         <template slot="content">
           <router-link
             class="rm-link-style"
-            :style="{ color: $coreTextDefault }"
+            :style="{ color: $themeTokens.text }"
             :to="nextContentLink"
           >
             <h2

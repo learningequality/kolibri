@@ -7,7 +7,7 @@
     :showIcon="showIcon"
     :style="{
       height: height + 'px',
-      backgroundColor: primary ? $themeTokens.primary : $coreTextDefault,
+      backgroundColor: primary ? $themeTokens.primary : $themeTokens.text,
     }"
     @nav-icon-click="$emit('navIconClick')"
   >
@@ -124,10 +124,10 @@
         const hoverAndFocus = {
           backgroundColor: this.primary
             ? this.$themeTokens.primaryDark
-            : darken(this.$coreTextDefault, '25%'),
+            : darken(this.$themeTokens.text, '25%'),
         };
         return {
-          backgroundColor: this.primary ? this.$themeTokens.primary : this.$coreTextDefault,
+          backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,
           ':hover': hoverAndFocus,
         };
       },

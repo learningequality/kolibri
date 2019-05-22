@@ -105,7 +105,7 @@ export default {
     },
     secondaryRaisedStyle() {
       return {
-        color: this.$coreTextDefault,
+        color: this.$themeTokens.text,
         backgroundColor: this.$coreGrey200,
         ':hover': {
           backgroundColor: this.$coreGrey300,
@@ -113,20 +113,20 @@ export default {
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
     },
     secondaryFlatStyle() {
       return {
-        color: this.$coreTextDefault,
+        color: this.$themeTokens.text,
         ':hover': {
           backgroundColor: this.$coreGrey300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
     },

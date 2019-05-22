@@ -102,7 +102,7 @@
     />
     <LanguageSwitcherModal
       v-if="languageModalShown"
-      :style="{ color: $coreTextDefault }"
+      :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
 

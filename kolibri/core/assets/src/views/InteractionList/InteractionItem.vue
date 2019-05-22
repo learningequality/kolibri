@@ -2,7 +2,7 @@
 
   <div
     class="attempt-box"
-    :style="{ border: `2px solid ${selected ? $coreTextDefault : $coreTextDisabled }` }"
+    :style="{ border: `2px solid ${selected ? $themeTokens.text : $coreTextDisabled }` }"
   >
     <template v-if="isAnswer">
       <mat-svg
@@ -68,7 +68,7 @@
       },
       svgItemBorder() {
         return {
-          borderBottom: `2px solid ${this.$coreTextDefault}`,
+          borderBottom: `2px solid ${this.$themeTokens.text}`,
         };
       },
     },

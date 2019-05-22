@@ -11,7 +11,7 @@
     <div
       dir="auto"
       class="k-tooltip"
-      :style="{ backgroundColor: $coreTextDefault }"
+      :style="{ backgroundColor: $themeTokens.text }"
     >
       <!--Default slot that will contain the tooltip content.-->
       <slot></slot>

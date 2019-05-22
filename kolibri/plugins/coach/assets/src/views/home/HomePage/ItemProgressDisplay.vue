@@ -1,6 +1,6 @@
 <template>
 
-  <router-link class="link" :style="{color: $coreTextDefault}" :to="to">
+  <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
     <KGrid class="wrapper">
       <KGridItem size="75" percentage>
         <h3 class="title">

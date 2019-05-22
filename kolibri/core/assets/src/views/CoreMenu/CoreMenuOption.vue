@@ -88,7 +88,7 @@
           } else if (this.disabled) {
             color = this.$coreTextAnnotation;
           } else {
-            color = this.$coreTextDefault;
+            color = this.$themeTokens.text;
           }
         }
         const bg = {

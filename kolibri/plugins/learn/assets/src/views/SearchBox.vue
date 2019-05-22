@@ -13,7 +13,7 @@
         v-model.trim="searchQuery"
         type="search"
         :class="[ 'search-input', $computedClass(searchInputStyle) ]"
-        :style="{ color: $coreTextDefault }"
+        :style="{ color: $themeTokens.text }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -23,7 +23,7 @@
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
-          :style="{ color: $coreTextDefault }"
+          :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
         >

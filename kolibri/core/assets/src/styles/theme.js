@@ -113,9 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreTextDefault() {
-    return dynamicState['$core-text-default'];
-  },
   $coreTextAnnotation() {
     return lighten(dynamicState['$core-text-default'], 0.68);
   },

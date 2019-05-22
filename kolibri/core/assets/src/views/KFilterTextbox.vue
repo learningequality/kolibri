@@ -14,7 +14,7 @@
       type="search"
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
       :style="{
-        color: $coreTextDefault,
+        color: $themeTokens.text,
         border: `1px solid ${$coreGrey300}`,
       }"
       :placeholder="placeholder"
@@ -27,7 +27,7 @@
       size="small"
       class="k-filter-clear-button"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :style="{ color: $coreTextDefault }"
+      :style="{ color: $themeTokens.text }"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
     >

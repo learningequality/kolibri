@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
-    :style="{ backgroundColor: $coreTextDefault }"
+    :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <KLinearLoader
