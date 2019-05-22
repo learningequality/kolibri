@@ -53,7 +53,7 @@
                       v-for="(suggestion, i) in suggestions"
                       :key="i"
                       :suggestion="suggestion"
-                      :style="{ backgroundColor: highlightedIndex === i ? $themeColors.palette.grey.v_200 : ''}"
+                      :style="suggestionStyle(i)"
                       @mousedown.native="fillUsername(suggestion)"
                     />
                   </ul>
@@ -416,6 +416,11 @@
       },
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
+      },
+      suggestionStyle(i) {
+        return {
+          backgroundColor: this.highlightedIndex === i ? this.$themeColors.palette.grey.v_200 : '',
+        };
       },
     },
     $trs: {

@@ -15,7 +15,7 @@
       >
         <KButton
           :class="{selected: index === selectedIndex}"
-          :style="{ backgroundColor: index === selectedIndex ? $themeColors.palette.grey.v_300 : '' }"
+          :style="buttonStyle(index)"
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"
@@ -54,6 +54,13 @@
         required: true,
         // simple validator, makes sure the function returns a string
         validator: value => typeof value(0) === 'string',
+      },
+    },
+    methods: {
+      buttonStyle(index) {
+        return {
+          backgroundColor: index === this.selectedIndex ? this.$themeColors.palette.grey.v_300 : '',
+        };
       },
     },
     $trs: {

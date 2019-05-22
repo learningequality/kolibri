@@ -8,7 +8,11 @@
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
         <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon" :style="{ backgroundColor: $themeColors.palette.grey.v_200 }">
+        <div
+          v-else
+          class="default-icon"
+          :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+        >
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>

@@ -5,7 +5,7 @@
       <template v-for="(question, index) in questions">
         <li
           :key="index"
-          :style="{ backgroundColor: questionNumber === index ? $themeColors.palette.grey.v_200 : '' }"
+          :style="liStyle(index)"
           class="clickable"
           @click="$emit('goToQuestion', index)"
         >
@@ -52,6 +52,12 @@
       },
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
+      },
+      liStyle(index) {
+        return {
+          backgroundColor:
+            this.questionNumber === index ? this.$themeColors.palette.grey.v_200 : '',
+        };
       },
     },
     $trs: {

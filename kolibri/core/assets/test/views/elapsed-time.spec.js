@@ -8,10 +8,7 @@ localVue.use(Vuex);
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  const getters = {
-    $themeColors.palette.grey.v_300: () => 'gray',
-  };
-  const store = new Vuex.Store({ getters });
+  const store = new Vuex.Store();
   return mount(ElapsedTime, {
     ...options,
     store,
