@@ -8,7 +8,7 @@
       ref="icon"
       class="d-ib vab"
     >
-      <UiIcon class="coach-mat-icon" :style="{ color: $coreStatusProgress }">
+      <UiIcon class="coach-mat-icon" :style="{ color: $themeTokens.progress }">
         <mat-svg
           name="local_library"
           category="maps"

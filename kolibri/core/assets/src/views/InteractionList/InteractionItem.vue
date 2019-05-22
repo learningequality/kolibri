@@ -10,14 +10,14 @@
         class="svg-item"
         category="action"
         name="check_circle"
-        :style="[svgItemBorder, { fill: $coreStatusCorrect }]"
+        :style="[svgItemBorder, { fill: $themeTokens.correct }]"
       />
       <mat-svg
         v-if="!interaction.correct"
         class="svg-item"
         category="navigation"
         name="cancel"
-        :style="[svgItemBorder, { fill: $coreStatusWrong }]"
+        :style="[svgItemBorder, { fill: $themeTokens.incorrect }]"
       />
     </template>
     <mat-svg

@@ -18,7 +18,7 @@
           <PointsIcon class="points-icon" />
           <div
             class="points-amount"
-            :style="{ color: $coreStatusCorrect }"
+            :style="{ color: $themeTokens.correct }"
           >
             {{ $tr('plusPoints', { maxPoints }) }}
           </div>

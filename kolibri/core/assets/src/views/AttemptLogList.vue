@@ -26,7 +26,7 @@
             <mat-svg
               v-else-if="attemptLog.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusCorrect }"
+              :style="{ fill: $themeTokens.correct }"
               category="action"
               name="check_circle"
             />
@@ -40,7 +40,7 @@
             <mat-svg
               v-else-if="!attemptLog.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusWrong }"
+              :style="{ fill: $themeTokens.incorrect }"
               category="navigation"
               name="cancel"
             />

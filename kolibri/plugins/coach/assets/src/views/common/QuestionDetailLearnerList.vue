@@ -27,7 +27,7 @@
             <mat-svg
               v-else-if="!learner.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusWrong }"
+              :style="{ fill: $themeTokens.incorrect }"
               category="navigation"
               name="cancel"
             />

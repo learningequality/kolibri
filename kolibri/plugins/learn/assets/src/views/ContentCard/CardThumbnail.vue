@@ -52,7 +52,7 @@
         :style="{
           width: `${progress * 100}%`,
           backgroundColor: isMastered ?
-            $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+            $themeTokens.mastered : (isInProgress ? $themeTokens.progress : ''),
         }"
       >
       </div>

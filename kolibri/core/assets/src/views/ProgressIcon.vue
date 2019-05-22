@@ -6,7 +6,7 @@
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
         class="inprogress"
-        :style="{ backgroundColor: $coreStatusProgress }"
+        :style="{ backgroundColor: $themeTokens.progress }"
       >
         <mat-svg name="schedule" category="action" />
       </UiIcon>
@@ -14,7 +14,7 @@
         v-else-if="isCompleted"
         :ariaLabel="$tr('completed')"
         class="completed"
-        :style="{ backgroundColor: $coreStatusMastered }"
+        :style="{ backgroundColor: $themeTokens.mastered }"
       >
         <mat-svg name="star" category="toggle" />
       </UiIcon>

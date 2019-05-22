@@ -49,7 +49,7 @@ oriented data synchronization.
           name="stars"
           category="action"
           :style="{
-            fill: success ? $coreStatusMastered : $coreGrey,
+            fill: success ? $themeTokens.mastered : $coreGrey,
             verticalAlign: 0,
           }"
         />

@@ -63,7 +63,7 @@ const initialState = {
       // Kolibri-specific semantic colors
       progress: 'palette.lightblue.v_500',
       mastered: 'palette.amber.v_500',
-      correct: 'palette.green.v_500',
+      correct: 'palette.green.v_600',
       incorrect: 'palette.red.v_800',
     },
   },
@@ -116,19 +116,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  /* Status colors */
-  $coreStatusProgress() {
-    return dynamicState['$core-status-progress'];
-  },
-  $coreStatusMastered() {
-    return dynamicState['$core-status-mastered'];
-  },
-  $coreStatusCorrect() {
-    return dynamicState['$core-status-correct'];
-  },
-  $coreStatusWrong() {
-    return dynamicState['$core-status-wrong'];
-  },
   $coreGrey() {
     return dynamicState['$core-grey'];
   },

@@ -34,7 +34,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            :style="{ fill: $coreStatusCorrect }"
+            :style="{ fill: $themeTokens.correct }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>

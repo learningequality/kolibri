@@ -21,7 +21,7 @@
       barStyleCompleted() {
         return {
           width: `${Math.ceil((100 * this.completed) / this.total)}%`,
-          backgroundColor: this.$coreStatusMastered,
+          backgroundColor: this.$themeTokens.mastered,
         };
       },
       barStyleStarted() {
@@ -29,7 +29,7 @@
         return {
           marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$coreStatusProgress,
+          backgroundColor: this.$themeTokens.progress,
         };
       },
       helpLineStyle() {
@@ -38,7 +38,7 @@
         return {
           marginLeft: `${Math.ceil((100 * (this.completed + this.started)) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$coreStatusWrong,
+          backgroundColor: this.$themeTokens.incorrect,
         };
       },
     },

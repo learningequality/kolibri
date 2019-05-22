@@ -2,7 +2,7 @@
 
   <span>
     <KLabeledIcon :style="active ? {} : { color: $coreGrey300 }">
-      <KIcon slot="icon" dot :color="active ? $coreStatusCorrect : $coreGrey300" />
+      <KIcon slot="icon" dot :color="active ? $themeTokens.correct : $coreGrey300" />
       {{ label }}
     </KLabeledIcon>
   </span>
