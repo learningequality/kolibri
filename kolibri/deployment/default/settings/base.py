@@ -344,8 +344,16 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "cherrypy.access": {"handlers": ["file"], "level": "INFO", "propagate": False},
-        "cherrypy.error": {"handlers": ["file"], "level": "INFO", "propagate": False},
+        "cherrypy.access": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "cherrypy.error": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 

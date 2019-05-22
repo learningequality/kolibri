@@ -316,7 +316,10 @@ def start(port=None, daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
-        logger.info("Going to daemon mode, logging to {0}".format(server.KOLIBRI_LOG))
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file
@@ -424,7 +427,10 @@ def services(daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
-        logger.info("Going to daemon mode, logging to {0}".format(server.KOLIBRI_LOG))
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
 
         kwargs = {}
         # Truncate the file

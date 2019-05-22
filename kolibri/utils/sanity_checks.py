@@ -16,7 +16,7 @@ PORT_AVAILABILITY_CHECK_TIMEOUT = 2
 
 def check_other_kolibri_running(port):
     """
-    Make sure there are no other Kolibri instances running before starting the kolibri.
+    Make sure there are no other Kolibri instances running before starting the server.
     """
     try:
         # Check if there are other kolibri instances running

@@ -54,8 +54,6 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 # might not have made it to the log file!
 DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 
-KOLIBRI_LOG = settings.LOGGING["handlers"]["file"]["filename"]
-
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
 
