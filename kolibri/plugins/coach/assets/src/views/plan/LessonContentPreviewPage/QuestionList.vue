@@ -15,7 +15,7 @@
       >
         <KButton
           :class="{selected: index === selectedIndex}"
-          :style="{ backgroundColor: index === selectedIndex ? $coreGrey300 : '' }"
+          :style="{ backgroundColor: index === selectedIndex ? $themeColors.palette.grey.v_300 : '' }"
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"

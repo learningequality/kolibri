@@ -5,7 +5,7 @@
       <template v-for="(question, index) in questions">
         <li
           :key="index"
-          :style="{ backgroundColor: questionNumber === index ? $coreGrey : '' }"
+          :style="{ backgroundColor: questionNumber === index ? $themeColors.palette.grey.v_200 : '' }"
           class="clickable"
           @click="$emit('goToQuestion', index)"
         >

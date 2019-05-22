@@ -53,7 +53,7 @@
                       v-for="(suggestion, i) in suggestions"
                       :key="i"
                       :suggestion="suggestion"
-                      :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
+                      :style="{ backgroundColor: highlightedIndex === i ? $themeColors.palette.grey.v_200 : ''}"
                       @mousedown.native="fillUsername(suggestion)"
                     />
                   </ul>

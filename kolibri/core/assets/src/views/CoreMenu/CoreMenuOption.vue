@@ -92,7 +92,7 @@
           }
         }
         const bg = {
-          backgroundColor: this.$coreGrey200,
+          backgroundColor: this.$themeColors.palette.grey.v_200,
         };
         return Object.assign(
           {

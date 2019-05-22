@@ -9,7 +9,7 @@ const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
   const getters = {
-    $coreGrey300: () => 'gray',
+    $themeColors.palette.grey.v_300: () => 'gray',
   };
   const store = new Vuex.Store({ getters });
   return mount(ElapsedTime, {

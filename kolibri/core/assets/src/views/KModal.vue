@@ -45,8 +45,8 @@
             ref="content"
             class="content"
             :style="[ contentSectionMaxHeight, scrollShadow ? {
-              borderTop: `1px solid ${$coreGrey}`,
-              borderBottom: `1px solid ${$coreGrey}`,
+              borderTop: `1px solid ${$themeColors.palette.grey.v_200}`,
+              borderBottom: `1px solid ${$themeColors.palette.grey.v_200}`,
             } : {} ]"
             :class="{ 'scroll-shadow': scrollShadow }"
           >

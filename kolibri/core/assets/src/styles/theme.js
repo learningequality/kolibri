@@ -116,15 +116,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreGrey() {
-    return dynamicState['$core-grey'];
-  },
-  $coreGrey200() {
-    return lighten(dynamicState['$core-grey'], 0.063);
-  },
-  $coreGrey300() {
-    return dynamicState['$core-grey'];
-  },
   $coreLoading() {
     return dynamicState['$core-loading'];
   },

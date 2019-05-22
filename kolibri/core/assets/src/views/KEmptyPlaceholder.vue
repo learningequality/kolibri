@@ -1,6 +1,6 @@
 <template>
 
-  <span :style="{color: $coreGrey300}">—</span>
+  <span :style="{color: $themeColors.palette.grey.v_300}">—</span>
 
 </template>
 

@@ -74,7 +74,7 @@
         v-for="(item, index) in searchResults"
         :key="index"
         class="search-results-list-item"
-        :style="{ borderTop: `solid 1px ${$coreGrey}` }"
+        :style="{ borderTop: `solid 1px ${$themeColors.palette.grey.v_200}` }"
       >
         <KButton
           :text="item.excerpt"

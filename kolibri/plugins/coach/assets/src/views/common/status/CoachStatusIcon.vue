@@ -47,7 +47,7 @@
           return this.$themeTokens.incorrect;
         }
         if (this.icon === ICONS.nothing) {
-          return this.$coreGrey300;
+          return this.$themeColors.palette.grey.v_300;
         }
 
         return undefined;

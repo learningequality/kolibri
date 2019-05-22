@@ -15,7 +15,7 @@
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
       :style="{
         color: $themeTokens.text,
-        border: `1px solid ${$coreGrey300}`,
+        border: `1px solid ${$themeColors.palette.grey.v_300}`,
       }"
       :placeholder="placeholder"
       :aria-label="placeholder"
