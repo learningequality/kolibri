@@ -54,7 +54,7 @@ oriented data synchronization.
           }"
         />
         <div class="overall-status-text">
-          <div v-if="success" class="completed" :style="{ color: $coreTextAnnotation }">
+          <div v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
             {{ $tr('completed') }}
           </div>
           <div>

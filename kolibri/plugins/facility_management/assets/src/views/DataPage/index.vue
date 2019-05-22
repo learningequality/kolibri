@@ -129,7 +129,7 @@
       },
       noDlStyle() {
         return {
-          color: this.$coreTextAnnotation,
+          color: this.$themeTokens.annotation,
         };
       },
     },

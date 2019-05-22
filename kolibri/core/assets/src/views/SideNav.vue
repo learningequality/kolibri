@@ -55,7 +55,7 @@
             </template>
           </CoreMenu>
 
-          <div class="side-nav-scrollable-area-footer" :style="{ color: $coreTextAnnotation }">
+          <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <CoreLogo class="side-nav-scrollable-area-footer-logo" />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>

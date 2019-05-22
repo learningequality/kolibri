@@ -72,7 +72,7 @@
               class="role-badge"
               :style="{
                 color: $themeColors.white,
-                backgroundColor: $coreTextAnnotation,
+                backgroundColor: $themeTokens.annotation,
               }"
             />
           </td>

@@ -21,7 +21,7 @@
         return {
           borderBottom: `solid 1px ${this.$coreGrey}`,
           fontSize: '12px',
-          color: this.$coreTextAnnotation,
+          color: this.$themeTokens.annotation,
         };
       },
       tbodyTrStyle() {

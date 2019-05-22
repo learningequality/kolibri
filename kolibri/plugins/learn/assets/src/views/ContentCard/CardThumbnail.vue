@@ -10,7 +10,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
     />
 
     <ProgressIcon

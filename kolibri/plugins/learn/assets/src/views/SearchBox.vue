@@ -205,7 +205,7 @@
       searchInputStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
         };
       },

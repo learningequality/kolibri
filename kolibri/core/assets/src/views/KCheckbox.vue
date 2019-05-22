@@ -118,7 +118,7 @@
       },
       blank() {
         return {
-          fill: this.disabled ? this.$coreGrey300 : this.$coreTextAnnotation,
+          fill: this.disabled ? this.$coreGrey300 : this.$themeTokens.annotation,
         };
       },
       notBlank() {
@@ -131,7 +131,7 @@
       },
       labelStyle() {
         return {
-          color: this.disabled ? this.$coreTextDisabled : '',
+          color: this.disabled ? this.$themeTokens.textDisabled : '',
         };
       },
     },

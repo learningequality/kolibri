@@ -2,7 +2,7 @@
 
   <div
     class="attempt-box"
-    :style="{ border: `2px solid ${selected ? $themeTokens.text : $coreTextDisabled }` }"
+    :style="{ border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }` }"
   >
     <template v-if="isAnswer">
       <mat-svg
@@ -25,14 +25,14 @@
       class="svg-item"
       category="action"
       name="lightbulb_outline"
-      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
     <mat-svg
       v-else-if="isError"
       class="svg-item"
       category="alert"
       name="error_outline"
-      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
   </div>
 

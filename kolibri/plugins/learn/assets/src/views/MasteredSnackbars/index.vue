@@ -58,7 +58,7 @@
           >
             <h2
               class="next-content-heading"
-              :style="{ color: $coreTextAnnotation }"
+              :style="{ color: $themeTokens.annotation }"
             >
               {{ $tr('next') }}
             </h2>

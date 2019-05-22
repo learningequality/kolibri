@@ -34,7 +34,7 @@
                   :text="resourceTitle(resourceId)"
                   :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
                 />
-                <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
+                <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                   {{ resourceChannelTitle(resourceId) }}
                 </p>

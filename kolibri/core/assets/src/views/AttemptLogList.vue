@@ -11,7 +11,7 @@
           :key="index"
           class="clickable attempt-item"
           :style="{
-            backgroundColor: isSelected(index) ? $coreTextDisabled : '',
+            backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
           }"
           @click="setSelectedAttemptLog(index)"
         >
@@ -19,7 +19,7 @@
             <mat-svg
               v-if="attemptLog.noattempt"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="navigation"
               name="cancel"
             />
@@ -33,7 +33,7 @@
             <mat-svg
               v-else-if="attemptLog.error"
               class="svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="alert"
               name="error_outline"
             />
@@ -47,7 +47,7 @@
             <mat-svg
               v-else-if="attemptLog.hinted"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="action"
               name="lightbulb_outline"
             />

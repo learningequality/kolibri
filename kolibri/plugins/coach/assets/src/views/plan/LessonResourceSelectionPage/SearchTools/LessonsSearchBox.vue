@@ -82,7 +82,7 @@
     computed: {
       searchClasses() {
         return this.$computedClass({
-          borderColor: this.$coreTextAnnotation,
+          borderColor: this.$themeTokens.annotation,
         });
       },
       searchTermHasChanged() {
@@ -91,7 +91,7 @@
       inputPlaceHolderStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
         };
       },

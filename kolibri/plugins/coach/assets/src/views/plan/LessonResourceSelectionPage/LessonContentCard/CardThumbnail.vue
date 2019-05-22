@@ -11,7 +11,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
     />
 
   </div>

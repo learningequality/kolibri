@@ -69,7 +69,7 @@
       styles() {
         return {
           header: {
-            borderBottomColor: this.$coreTextDisabled,
+            borderBottomColor: this.$themeTokens.textDisabled,
           },
           aside: {
             maxHeight: `${this.maxHeight}px`,
@@ -78,7 +78,7 @@
             maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
           },
           footer: {
-            borderTopColor: this.$coreTextDisabled,
+            borderTopColor: this.$themeTokens.textDisabled,
           },
         };
       },

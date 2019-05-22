@@ -78,7 +78,7 @@
       },
       svgFill() {
         return {
-          fill: this.$coreTextAnnotation,
+          fill: this.$themeTokens.annotation,
         };
       },
     },

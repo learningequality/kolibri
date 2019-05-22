@@ -3,7 +3,7 @@
   <div class="k-filter">
     <UiIcon
       class="k-filter-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
       :ariaLabel="$tr('filter')"
     >
       <mat-svg name="search" category="action" />
@@ -90,7 +90,7 @@
       kFilterPlaceHolderStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
         };
       },

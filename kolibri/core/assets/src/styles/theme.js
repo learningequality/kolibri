@@ -50,8 +50,8 @@ const initialState = {
       secondaryDark: 'brand.secondary.v_700',
 
       // UI colors
-      text: 'palette.grey.v_800',
-      textDisabled: 'palette.grey.v_800',
+      text: 'palette.grey.v_900',
+      textDisabled: 'palette.grey.v_300',
       annotation: 'palette.grey.v_700',
       loading: 'brand.secondary.v_200',
       focusOutline: 'brand.secondary.v_500',
@@ -113,12 +113,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreTextAnnotation() {
-    return lighten(dynamicState['$core-text-default'], 0.68);
-  },
-  $coreTextDisabled() {
-    return lighten(dynamicState['$core-text-default'], 2.85);
-  },
   $coreBgWarning() {
     return dynamicState['$core-bg-warning'];
   },

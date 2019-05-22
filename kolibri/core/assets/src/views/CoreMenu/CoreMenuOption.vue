@@ -31,7 +31,7 @@
           <div
             v-if="secondaryText"
             class="ui-menu-option-secondary-text"
-            :style="{ color: disabled ? $coreTextAnnotation : '' }"
+            :style="{ color: disabled ? $themeTokens.annotation : '' }"
           >
             {{ secondaryText }}
           </div>
@@ -86,7 +86,7 @@
           if (this.active) {
             color = this.$themeTokens.primary;
           } else if (this.disabled) {
-            color = this.$coreTextAnnotation;
+            color = this.$themeTokens.annotation;
           } else {
             color = this.$themeTokens.text;
           }

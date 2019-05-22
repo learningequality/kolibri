@@ -23,7 +23,7 @@
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version" :style="{ color: $coreTextAnnotation }">
+      <div class="version" :style="{ color: $themeTokens.annotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
