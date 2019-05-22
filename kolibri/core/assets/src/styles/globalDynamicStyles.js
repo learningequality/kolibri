@@ -14,23 +14,19 @@ const globalExtension = { selectorHandler: globalSelectorHandler };
 
 const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
-function getter(value) {
-  return theme[value]();
-}
-
 function generateGlobalStyles() {
   const htmlBodyStyles = {
-    color: getter('$coreTextDefault'),
-    backgroundColor: getter('$coreBgCanvas'),
+    color: theme.$themeTokens().text,
+    backgroundColor: theme.$themeColors().palette.grey_v100,
   };
 
   const globalStyles = StyleSheet.create({
     globals: {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
-      '*:focus': getter('$coreOutline'),
+      '*:focus': theme.$coreOutline(),
       '*hr': {
-        borderTop: `1px solid ${getter('$coreTextDisabled')}`,
+        borderTop: `1px solid ${theme.$themeTokens().textDisabled}`,
       },
     },
   });
