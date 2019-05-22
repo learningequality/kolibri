@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="navStrings.$tr('home')"
+        :text="$tr('home')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
@@ -31,13 +31,10 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
   import TopNavbar from '../TopNavbar';
-
-  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'PlanHeader',
@@ -48,14 +45,12 @@
       LessonsPageNames() {
         return LessonsPageNames;
       },
-      navStrings() {
-        return navStrings;
-      },
     },
     $trs: {
       back: 'All classes',
       planYourClassLabel: 'Plan your class',
       planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
+      home: 'Class Home',
     },
   };
 

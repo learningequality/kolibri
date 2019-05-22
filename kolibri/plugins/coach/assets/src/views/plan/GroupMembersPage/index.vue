@@ -12,7 +12,7 @@
       <p>
         <BackLink
           :to="$router.getRoute('GroupsPage')"
-          :text="backLinkString"
+          :text="$tr('back')"
         />
 
       </p>
@@ -108,10 +108,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
-  import ReportsGroupHeader from '../../reports/ReportsGroupHeader';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
-
-  const ReportsGroupHeaderStrings = crossComponentTranslator(ReportsGroupHeader);
 
   export default {
     name: 'GroupMembersPage',
@@ -139,9 +136,6 @@
     },
     computed: {
       ...mapState('groups', ['groups']),
-      backLinkString() {
-        return ReportsGroupHeaderStrings.$tr('back');
-      },
       currentGroup() {
         return this.groups.find(g => g.id === this.$route.params.groupId);
       },
@@ -169,6 +163,7 @@
       removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
+      back: 'All groups',
     },
   };
 

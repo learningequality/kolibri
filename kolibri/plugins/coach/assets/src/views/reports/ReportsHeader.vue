@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="navStrings.$tr('home')"
+        :text="this.$tr('home')"
       />
     </p>
     <h1>{{ common$tr('reportsLabel') }}</h1>
@@ -36,12 +36,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
-  import TopNavbar from '../TopNavbar';
-
-  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'ReportsHeader',
@@ -49,12 +45,10 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters(['classListPageEnabled']),
-      navStrings() {
-        return navStrings;
-      },
     },
     $trs: {
       back: 'All classes',
+      home: 'Class Home',
       description: 'View reports for your learners and class materials',
     },
   };

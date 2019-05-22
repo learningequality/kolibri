@@ -5,8 +5,8 @@
     immersivePageIcon="arrow_back"
     :immersivePagePrimary="false"
     :primary="true"
-    :toolbarTitle="groupsPageStrings.$tr('classGroups')"
-    :appBarTitle="groupsPageStrings.$tr('classGroups')"
+    :toolbarTitle="$tr('classGroups')"
+    :appBarTitle="$tr('classGroups')"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
     :pageTitle="pageTitle"
   >
@@ -110,7 +110,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
@@ -118,8 +117,6 @@
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
   import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
   import GroupsPage from '../GroupsPage';
-
-  const groupsPageStrings = crossComponentTranslator(GroupsPage);
 
   export default {
     name: 'GroupEnrollPage',
@@ -136,7 +133,6 @@
         perPage: 10,
         pageNum: 1,
         selectedUsers: [],
-        groupsPageStrings,
       };
     },
     computed: {
@@ -230,6 +226,7 @@
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
       selectUser: 'Select user',
+      classGroups: 'Groups',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

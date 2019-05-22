@@ -84,18 +84,15 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import LessonSummaryPage from '../plan/LessonSummaryPage';
-
-  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
     mixins: [commonCoach],
     computed: {
       emptyMessage() {
-        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+        return this.$tr('noResourcesInLesson');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -131,6 +128,7 @@
     },
     $trs: {
       lessonProgressLabel: "'{lesson}' progress",
+      noResourcesInLesson: 'No resources in this lesson',
     },
   };
 

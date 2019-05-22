@@ -14,7 +14,7 @@
         <BackLink
           slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="backLinkString"
+          :text="$tr('back')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
@@ -95,7 +95,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
@@ -110,8 +109,6 @@
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
-
-  const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
   export default {
     name: 'LessonSummaryPage',
@@ -140,9 +137,6 @@
       };
     },
     computed: {
-      backLinkString() {
-        return ReportsLessonHeaderStrings.$tr('back');
-      },
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       loading() {
@@ -179,6 +173,7 @@
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
       noOne: 'No one',
+      back: 'All lessons',
     },
   };
 

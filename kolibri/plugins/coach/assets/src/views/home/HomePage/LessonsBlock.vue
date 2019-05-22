@@ -1,7 +1,7 @@
 <template>
 
   <Block
-    :allLinkText="viewAllString"
+    :allLinkText="$tr('viewAll')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
     <KLabeledIcon slot="title">
@@ -34,7 +34,6 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
@@ -42,8 +41,6 @@
   import ActivityBlock from './ActivityBlock';
 
   const MAX_LESSONS = 3;
-
-  const translator = crossComponentTranslator(ActivityBlock);
 
   export default {
     name: 'LessonsBlock',
@@ -67,9 +64,6 @@
           };
         });
       },
-      viewAllString() {
-        return translator.$tr('viewAll');
-      },
     },
     methods: {
       // return the last activity among all users for a particular lesson
@@ -88,7 +82,8 @@
       },
     },
     $trs: {
-      viewAll: 'All lessons',
+      viewAllLessons: 'All lessons',
+      viewAll: 'View all',
     },
   };
 

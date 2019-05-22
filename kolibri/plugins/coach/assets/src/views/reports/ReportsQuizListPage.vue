@@ -100,6 +100,8 @@
           {
             label: this.$tr('allQuizzes'),
             value: 'allQuizzes',
+            noActiveExams: 'No active quizzes',
+            noInactiveExams: 'No inactive quizzes',
           },
           {
             label: this.$tr('activeQuizzes'),

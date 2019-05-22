@@ -25,14 +25,10 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
   import Index from '../CoachIndex';
   import CreateExamPage from './CreateExamPage';
-
-  const indexStrings = crossComponentTranslator(Index);
-  const CreateExamPageStrings = crossComponentTranslator(CreateExamPage);
 
   export default {
     name: 'PlanQuizPreviewPage',
@@ -47,7 +43,7 @@
         return Boolean(this.selectedExercises[this.currentContentNode.id]);
       },
       appBarTitle() {
-        return CreateExamPageStrings.$tr('createNewExam');
+        return this.$tr('createNewExam');
       },
     },
     beforeDestroy() {
@@ -58,12 +54,17 @@
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
         this.addToSelectedExercises([content]);
-        this.createSnackbar(indexStrings.$tr('added', { item: this.currentContentNode.title }));
+        this.createSnackbar(this.$tr('added', { item: this.currentContentNode.title }));
       },
       handleRemoveResource(content) {
         this.removeFromSelectedExercises([content]);
-        this.createSnackbar(indexStrings.$tr('removed', { item: this.currentContentNode.title }));
+        this.createSnackbar(this.$tr('removed', { item: this.currentContentNode.title }));
       },
+    },
+    $trs: {
+      added: "Added '{item}'",
+      removed: "Removed '{item}'",
+      createNewExam: 'Create new quiz',
     },
   };
 

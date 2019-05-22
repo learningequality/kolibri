@@ -60,12 +60,9 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import LessonsRootPage from '../plan/LessonsRootPage';
   import ReportsHeader from './ReportsHeader';
-
-  const LessonsRootPageStrings = crossComponentTranslator(LessonsRootPage);
 
   export default {
     name: 'ReportsLessonListPage',
@@ -84,10 +81,10 @@
           return this.common$tr('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
-          return LessonsRootPageStrings.$tr('noActiveLessons');
+          return this.$tr('noActiveLessons');
         }
         if (this.filter.value === 'inactiveLessons') {
-          return LessonsRootPageStrings.$tr('noInactiveLessons');
+          return this.$tr('noInactiveLessons');
         }
 
         return '';
@@ -140,6 +137,8 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
+      noActiveLessons: 'No active lessons',
+      noInactiveLessons: 'No inactive lessons',
     },
   };
 
