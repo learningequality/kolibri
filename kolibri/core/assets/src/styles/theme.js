@@ -56,8 +56,11 @@ const initialState = {
       loading: 'brand.secondary.v_200',
       focusOutline: 'brand.secondary.v_500',
 
-      // semantic colors
-      error: 'palette.red.v_800',
+      // general semantic colors
+      error: 'palette.red.v_700',
+      success: 'palette.green.v_600',
+
+      // Kolibri-specific semantic colors
       progress: 'palette.lightblue.v_500',
       mastered: 'palette.amber.v_500',
       correct: 'palette.green.v_500',
@@ -113,9 +116,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreTextError() {
-    return dynamicState['$core-text-error'];
-  },
   $coreBgError() {
     return dynamicState['$core-bg-error'];
   },

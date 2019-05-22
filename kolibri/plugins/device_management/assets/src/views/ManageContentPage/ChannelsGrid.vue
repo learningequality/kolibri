@@ -5,7 +5,6 @@
       <p
         v-if="noChannelsToShow"
         class="no-channels"
-        :style="{ color: $coreTextError }"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>

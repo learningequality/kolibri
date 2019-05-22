@@ -7,13 +7,13 @@
           v-if="taskHasFailed"
           category="alert"
           name="error"
-          :style="{ fill: $coreTextError }"
+          :style="{ fill: $themeTokens.error }"
         />
         <mat-svg
           v-else-if="taskHasCompleted"
           category="action"
           name="check_circle"
-          :style="{ fill: $coreStatusCorrect }"
+          :style="{ fill: $themeTokens.success }"
         />
         <KCircularLoader
           v-else
