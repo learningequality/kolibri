@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import logger from 'kolibri.lib.logging';
-import { lighten, darken } from 'kolibri.utils.colour';
 
 import materialColors from './materialColors.js';
 import brandColors from './brandColors.js';
@@ -54,7 +53,7 @@ const initialState = {
       textDisabled: 'palette.grey.v_300',
       annotation: 'palette.grey.v_700',
       loading: 'brand.secondary.v_400',
-      focusOutline: 'brand.secondary.v_500',
+      focusOutline: 'brand.secondary.v_200',
 
       // general semantic colors
       error: 'palette.red.v_700',
@@ -81,32 +80,36 @@ function throwThemeError(tokenName, mapString) {
 
 const hexcolor = RegExp('#[0-9a-fA-F]{6}');
 
-export default {
-  $themeTokens() {
-    const tokens = {};
-    // look at each token map
-    Object.keys(dynamicState.theme.tokenMapping).forEach(function(tokenName) {
-      const mapString = dynamicState.theme.tokenMapping[tokenName];
-      const refs = mapString.split('.');
-      // try to use the dot notation to navigate down the color tree
-      let obj = dynamicState.theme.colors;
-      while (refs.length) {
-        const key = refs.shift();
-        if (!obj[key]) {
-          throwThemeError(tokenName, mapString);
-        }
-        obj = obj[key];
-      }
-      if (typeof obj !== 'string') {
+function getTokens() {
+  const tokens = {};
+  // look at each token map
+  Object.keys(dynamicState.theme.tokenMapping).forEach(function(tokenName) {
+    const mapString = dynamicState.theme.tokenMapping[tokenName];
+    const refs = mapString.split('.');
+    // try to use the dot notation to navigate down the color tree
+    let obj = dynamicState.theme.colors;
+    while (refs.length) {
+      const key = refs.shift();
+      if (!obj[key]) {
         throwThemeError(tokenName, mapString);
       }
-      if (!hexcolor.test(obj)) {
-        logging.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
-      }
-      // if we end up at a valid string, use it
-      tokens[tokenName] = obj;
-    });
-    return tokens;
+      obj = obj[key];
+    }
+    if (typeof obj !== 'string') {
+      throwThemeError(tokenName, mapString);
+    }
+    if (!hexcolor.test(obj)) {
+      logging.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
+    }
+    // if we end up at a valid string, use it
+    tokens[tokenName] = obj;
+  });
+  return tokens;
+}
+
+export default {
+  $themeTokens() {
+    return getTokens();
   },
   $themeColors() {
     return dynamicState.theme.colors;
@@ -120,9 +123,8 @@ export default {
         outline: 'none',
       };
     }
-
     return {
-      outlineColor: darken(dynamicState['$core-action-light'], 0.1),
+      outlineColor: getTokens().focusOutline,
       outlineStyle: 'solid',
       outlineWidth: '3px',
       outlineOffset: '4px',
@@ -132,7 +134,7 @@ export default {
   // of modality
   $coreOutlineAnyModality() {
     return {
-      outlineColor: darken(dynamicState['$core-action-light'], 0.1),
+      outlineColor: getTokens().focusOutline,
       outlineStyle: 'solid',
       outlineWidth: '3px',
       outlineOffset: '4px',
