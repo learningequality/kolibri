@@ -97,26 +97,24 @@
       lessonsTable() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(lesson => {
+        return sorted.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
           };
           Object.assign(tableRow, lesson);
           return tableRow;
         });
-        return mapped;
       },
       examsTable() {
         const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(exam => {
+        return sorted.map(exam => {
           const tableRow = {
             statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
           };
           Object.assign(tableRow, exam);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

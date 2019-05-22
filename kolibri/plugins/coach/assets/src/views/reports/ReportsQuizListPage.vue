@@ -47,7 +47,12 @@
                 :verbose="true"
               />
             </td>
-            <td><Recipients :groupNames="tableRow.groupNames" /></td>
+            <td>
+              <Recipients
+                :groupNames="tableRow.groupNames"
+                :hasAssignments="tableRow.hasAssignments"
+              />
+            </td>
             <td>
               <QuizActive :active="tableRow.active" />
             </td>
@@ -121,18 +126,18 @@
           }
         });
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(exam => {
-          const learnersForQuiz = this.getLearnersForGroups(exam.groups);
+        return sorted.map(exam => {
+          const learnersForQuiz = this.getLearnersForExam(exam);
           const tableRow = {
             totalLearners: learnersForQuiz.length,
             tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
             avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
+            hasAssignments: learnersForQuiz.length > 0,
           };
           Object.assign(tableRow, exam);
           return tableRow;
         });
-        return mapped;
       },
     },
     beforeMount() {

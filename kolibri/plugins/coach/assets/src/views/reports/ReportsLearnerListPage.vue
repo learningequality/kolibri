@@ -67,7 +67,7 @@
     computed: {
       table() {
         const sorted = this._.sortBy(this.learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const groupNames = this.getGroupNames(
             this._.map(this.groups.filter(group => group.member_ids.includes(learner.id)), 'id')
           );
@@ -86,7 +86,6 @@
           Object.assign(augmentedObj, learner);
           return augmentedObj;
         });
-        return mapped;
       },
     },
     methods: {

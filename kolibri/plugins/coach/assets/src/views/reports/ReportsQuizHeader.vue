@@ -32,6 +32,7 @@
         <Recipients
           slot="value"
           :groupNames="getGroupNames(exam.groups)"
+          :hasAssignments="exam.assignments.length > 0"
         />
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachStrings.$tr('avgScoreLabel')">
@@ -80,7 +81,7 @@
         return this.examMap[this.$route.params.quizId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.exam.groups);
+        return this.getLearnersForExam(this.exam);
       },
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order

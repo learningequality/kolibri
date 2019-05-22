@@ -180,6 +180,8 @@ export default {
       'getGroupNames',
       'getGroupNamesForLearner',
       'getLearnersForGroups',
+      'getLearnersForExam',
+      'getLearnersForLesson',
       'getContentStatusObjForLearner',
       'getContentStatusTally',
       'getExamStatusObjForLearner',

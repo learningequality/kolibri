@@ -37,6 +37,12 @@ const LEARNER_3 = {
   name: 'learner3 name',
 };
 
+const CLASSROOM = {
+  id: 'classroom',
+  name: 'classroom',
+  member_ids: [LEARNER_1.id, LEARNER_2.id, LEARNER_3.id],
+};
+
 const GROUP_1 = {
   id: 'group1',
   name: 'group1 name',
@@ -112,6 +118,7 @@ const initWrapper = lessonMap => {
     lessonMap = {
       [LESSON_ID]: {
         groups: [],
+        assignments: [CLASSROOM],
       },
     };
   }
@@ -211,6 +218,31 @@ describe('ReportsLessonResourceLearnerListPage', () => {
     expect(wrapper.vm.$route.query.groups).toBeUndefined();
   });
 
+  describe('for a lesson without assignments', () => {
+    let lessonMap;
+
+    beforeEach(() => {
+      lessonMap = {
+        [LESSON_ID]: {
+          groups: [],
+          assignments: [],
+        },
+      };
+    });
+
+    describe('when displaying all learners', () => {
+      beforeEach(() => {
+        wrapper = initWrapper(lessonMap);
+      });
+
+      it('renders no class learners', () => {
+        expect(wrapper.html()).not.toContain(LEARNER_1.name);
+        expect(wrapper.html()).not.toContain(LEARNER_2.name);
+        expect(wrapper.html()).not.toContain(LEARNER_3.name);
+      });
+    });
+  });
+
   describe('for an entire class lesson', () => {
     let lessonMap;
 
@@ -218,6 +250,7 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       lessonMap = {
         [LESSON_ID]: {
           groups: [],
+          assignments: [CLASSROOM],
         },
       };
     });
@@ -286,6 +319,7 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       lessonMap = {
         [LESSON_ID]: {
           groups: [GROUP_2.id, GROUP_3.id],
+          assignments: [GROUP_2.id, GROUP_3.id],
         },
       };
     });
