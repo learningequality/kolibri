@@ -9,7 +9,7 @@
       wrap="soft"
       aria-hidden="true"
       :style="[dynamicHeightStyle, {
-        backgroundColor: $coreBgError,
+        backgroundColor: $themeColors.palette.grey.v_200,
         border: $coreGrey300,
       }]"
     >

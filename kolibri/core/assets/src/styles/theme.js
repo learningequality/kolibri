@@ -116,9 +116,6 @@ export default {
     TODO - deprecate functions below
   */
 
-  $coreBgError() {
-    return dynamicState['$core-bg-error'];
-  },
   /* Status colors */
   $coreStatusProgress() {
     return dynamicState['$core-status-progress'];
