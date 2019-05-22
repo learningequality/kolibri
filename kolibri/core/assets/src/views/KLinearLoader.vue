@@ -126,6 +126,7 @@
     width: 100%;
     height: $ui-progress-linear-height;
     overflow: hidden;
+    border-radius: 2px;
     transition-timing-function: ease;
     transition-duration: 0.3s;
     transition-property: height, opacity;

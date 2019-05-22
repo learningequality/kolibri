@@ -28,6 +28,9 @@ function generateGlobalStyles() {
       '*hr': {
         borderTop: `1px solid ${theme.$themeTokens().textDisabled}`,
       },
+      '*::selection': {
+        background: theme.$themeColors().brand.secondary.v_100,
+      },
     },
   });
 

@@ -42,7 +42,7 @@
           :style="{
             'stroke-dashoffset': strokeDashOffset,
             'stroke-width': calculatedStroke,
-            stroke: $themeTokens.primary,
+            stroke: $themeTokens.loading,
           }"
         />
       </svg>
@@ -68,7 +68,7 @@
 
           :stroke-width="calculatedStroke"
           :style="{
-            stroke: $themeTokens.primary,
+            stroke: $themeTokens.loading,
           }"
         />
       </svg>
