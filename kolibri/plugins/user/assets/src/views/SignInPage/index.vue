@@ -15,7 +15,7 @@
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`}"
+              :style="{'font-size': `${logoTextSize}px`, color: $themeColors.brand.primary.v_300}"
             >
               {{ $tr('kolibri') }}
             </h1>
@@ -564,7 +564,6 @@
     margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
-    color: #9174a9;
   }
 
 </style>
