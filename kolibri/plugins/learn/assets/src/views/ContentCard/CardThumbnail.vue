@@ -10,7 +10,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
     />
 
     <ProgressIcon
@@ -39,20 +39,21 @@
         :kind="kind"
         :showTooltip="true"
         class="content-icon"
+        :style="{ color: $themeTokens.textInverted }"
       />
     </div>
 
     <div
       v-if="progress!==undefined"
       class="progress-bar-wrapper"
-      :style="{ backgroundColor: $coreGrey }"
+      :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
     >
       <div
         class="progress-bar"
         :style="{
           width: `${progress * 100}%`,
           backgroundColor: isMastered ?
-            $coreStatusMastered : (isInProgress ? $coreStatusProgress : ''),
+            $themeTokens.mastered : (isInProgress ? $themeTokens.progress : ''),
         }"
       >
       </div>
@@ -69,6 +70,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'CardThumbnail',
@@ -114,7 +116,7 @@
       },
       thumbnailBackground() {
         return {
-          backgroundColor: this.$coreBgLight,
+          backgroundColor: this.$themeTokens.surface,
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },
@@ -129,15 +131,20 @@
         return `${topLeft} ${topRight} ${bottomLeft}`;
       },
       contentIconBgColor() {
-        const kindToFillHex = {
-          exercise: '#0eafaf',
-          video: '#3938A5',
-          audio: '#E65997',
-          topic: '#262626',
-          document: '#ED2828',
-          html5: '#FF8B41',
-        };
-        return { fill: kindToFillHex[this.kind] };
+        switch (this.kind) {
+          case ContentNodeKinds.EXERCISE:
+            return { fill: this.$themeTokens.exercise };
+          case ContentNodeKinds.VIDEO:
+            return { fill: this.$themeTokens.video };
+          case ContentNodeKinds.AUDIO:
+            return { fill: this.$themeTokens.audio };
+          case ContentNodeKinds.DOCUMENT:
+            return { fill: this.$themeTokens.document };
+          case ContentNodeKinds.HTML5:
+            return { fill: this.$themeTokens.html5 };
+          default:
+            return { fill: this.$themeTokens.topic };
+        }
       },
     },
   };
@@ -180,7 +187,6 @@
   .content-icon {
     position: absolute;
     font-size: 20px;
-    color: white;
     transform: translate(25%, 0);
   }
 

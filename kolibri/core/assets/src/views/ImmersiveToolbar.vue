@@ -7,7 +7,7 @@
     :showIcon="showIcon"
     :style="{
       height: height + 'px',
-      backgroundColor: primary ? $coreActionNormal : $coreTextDefault,
+      backgroundColor: primary ? $themeTokens.primary : $themeTokens.text,
     }"
     @nav-icon-click="$emit('navIconClick')"
   >
@@ -21,6 +21,7 @@
       <UiIconButton
         type="flat"
         class="icon"
+        :style="{fill: $themeTokens.textInverted}"
         @click="$emit('navIconClick')"
       >
         <mat-svg
@@ -45,6 +46,7 @@
       v-else
       type="flat"
       class="icon"
+      :style="{fill: $themeTokens.textInverted}"
       @click="$emit('navIconClick')"
     >
       <mat-svg
@@ -73,7 +75,6 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { darken } from 'kolibri.utils.colour';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
@@ -123,11 +124,11 @@
       linkStyle() {
         const hoverAndFocus = {
           backgroundColor: this.primary
-            ? this.$coreActionDark
-            : darken(this.$coreTextDefault, '25%'),
+            ? this.$themeTokens.primaryDark
+            : this.$themeColors.palette.black,
         };
         return {
-          backgroundColor: this.primary ? this.$coreActionNormal : this.$coreTextDefault,
+          backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,
           ':hover': hoverAndFocus,
         };
       },
@@ -141,10 +142,9 @@
 
   // only used when using a link. Otherwise, uses UiToolbar's styles
   .icon {
-    width: 3em;
     // copied from keen
+    width: 3em;
     height: 3em;
-    fill: white;
   }
 
   .link {

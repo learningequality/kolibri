@@ -4,13 +4,13 @@
     :to="link"
     class="card"
     :class="{ 'mobile-card': isMobile }"
-    :style="{ backgroundColor: $coreBgLight }"
+    :style="{ backgroundColor: $themeTokens.surface }"
   >
     <CardThumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
-    <div class="text" :style="{ color: $coreTextDefault }">
+    <div class="text" :style="{ color: $themeTokens.text }">
       <h3 class="title" dir="auto">
         <TextTruncator
           :text="title"

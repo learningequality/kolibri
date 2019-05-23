@@ -5,7 +5,6 @@
       <p
         v-if="noChannelsToShow"
         class="no-channels"
-        :style="{ color: $coreTextError }"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -17,7 +16,7 @@
       />
 
       <div v-else>
-        <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
+        <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
           {{ $tr('channelHeader') }}
         </div>
 

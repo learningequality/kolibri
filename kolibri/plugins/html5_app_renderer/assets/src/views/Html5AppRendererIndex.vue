@@ -7,6 +7,7 @@
   >
     <UiIconButton
       class="btn"
+      :style="{ fill: $themeTokens.textInverted }"
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       color="primary"
       size="large"
@@ -18,7 +19,7 @@
     <iframe
       ref="iframe"
       class="iframe"
-      :style="{ backgroundColor: $coreBgCanvas }"
+      :style="{ backgroundColor: $themeColors.palette.grey.v_100 }"
       sandbox="allow-scripts"
       frameBorder="0"
       :name="name"
@@ -109,7 +110,6 @@
     position: absolute;
     top: 8px;
     right: 21px;
-    fill: white;
   }
 
   .html5-renderer {

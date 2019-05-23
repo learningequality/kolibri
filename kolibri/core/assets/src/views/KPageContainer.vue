@@ -3,6 +3,7 @@
   <div
     class="page-container"
     :class="classes"
+    :style="{backgroundColor: $themeTokens.surface}"
   >
     <slot></slot>
   </div>
@@ -13,10 +14,11 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'KPageContainer',
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     props: {
       // If true, removes the padding inside the container
       noPadding: {
@@ -46,7 +48,6 @@
 
     padding: 8px 24px 24px;
     margin-top: 24px;
-    background-color: white;
     border-radius: 4px;
   }
 

@@ -44,17 +44,17 @@ oriented data synchronization.
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
     >
-      <div class="overall-status" :style="{ color: $coreTextDefault }">
+      <div class="overall-status" :style="{ color: $themeTokens.text }">
         <mat-svg
           name="stars"
           category="action"
           :style="{
-            fill: success ? $coreStatusMastered : $coreGrey,
+            fill: success ? $themeTokens.mastered : $themeColors.palette.grey.v_200,
             verticalAlign: 0,
           }"
         />
         <div class="overall-status-text">
-          <div v-if="success" class="completed" :style="{ color: $coreTextAnnotation }">
+          <div v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
             {{ $tr('completed') }}
           </div>
           <div>

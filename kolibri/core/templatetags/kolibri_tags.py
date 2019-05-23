@@ -31,6 +31,7 @@ from six import iteritems
 import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
+from kolibri.core.hooks import ThemeHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -119,6 +120,20 @@ def kolibri_navigation_actions():
     :return: An html string
     """
     return webpack_asset_render(NavigationHook)
+
+
+@register.simple_tag()
+def kolibri_theme():
+    """
+    A tag to include a theme configuration object to add custom theming to Kolibri.
+    :return: An html string
+    """
+    template = """
+    <script>
+      var customTheme = JSON.parse('{theme}');
+    </script>
+    """
+    return mark_safe(template.format(theme=json.dumps(ThemeHook().theme)))
 
 
 @register.simple_tag(takes_context=True)

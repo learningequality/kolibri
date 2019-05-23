@@ -5,16 +5,16 @@
       <UiIcon
         v-if="isInProgress"
         :ariaLabel="$tr('inProgress')"
-        class="inprogress"
-        :style="{ backgroundColor: $coreStatusProgress }"
+        class="icon"
+        :style="iconStyle($themeTokens.progress)"
       >
         <mat-svg name="schedule" category="action" />
       </UiIcon>
       <UiIcon
         v-else-if="isCompleted"
         :ariaLabel="$tr('completed')"
-        class="completed"
-        :style="{ backgroundColor: $coreStatusMastered }"
+        class="icon"
+        :style="iconStyle($themeTokens.mastered)"
       >
         <mat-svg name="star" category="toggle" />
       </UiIcon>
@@ -60,6 +60,14 @@
         return this.progress >= 1;
       },
     },
+    methods: {
+      iconStyle(bgColor) {
+        return {
+          backgroundColor: bgColor,
+          color: this.$themeTokens.textInverted,
+        };
+      },
+    },
     $trs: {
       inProgress: 'In progress',
       completed: 'Completed',
@@ -71,9 +79,7 @@
 
 <style lang="scss" scoped>
 
-  .inprogress,
-  .completed {
-    color: white;
+  .icon {
     cursor: default;
     border-radius: 50%;
   }

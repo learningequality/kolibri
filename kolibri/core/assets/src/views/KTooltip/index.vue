@@ -11,7 +11,7 @@
     <div
       dir="auto"
       class="k-tooltip"
-      :style="{ backgroundColor: $coreTextDefault }"
+      :style="{ backgroundColor: $themeTokens.text, color: $themeTokens.textInverted }"
     >
       <!--Default slot that will contain the tooltip content.-->
       <slot></slot>
@@ -120,7 +120,6 @@
     font-size: 12px;
     font-weight: normal;
     line-height: 1.4;
-    color: white;
     text-align: center;
     border-radius: 8px;
   }

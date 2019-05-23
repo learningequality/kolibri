@@ -7,7 +7,7 @@
         category="action"
         name="check_circle"
         class="correct"
-        :style="{ fill: $coreStatusCorrect }"
+        :style="{ fill: $themeTokens.correct }"
       />
       <mat-svg
         v-else-if="answer === 'wrong'"
@@ -78,7 +78,7 @@
       },
       svgFill() {
         return {
-          fill: this.$coreTextAnnotation,
+          fill: this.$themeTokens.annotation,
         };
       },
     },

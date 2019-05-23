@@ -3,7 +3,7 @@
   <!-- HTML makes clicking label apply to input by default -->
   <label
     :class="['k-radio-button', {disabled}]"
-    :style="{ color: disabled ? $coreTextDisabled : '' }"
+    :style="{ color: disabled ? $themeTokens.textDisabled : '' }"
   >
     <!-- v-model listens for @input event by default -->
     <!-- @input has compatibility issues for input of type radio -->
@@ -27,14 +27,14 @@
       category="toggle"
       name="radio_button_checked"
       class="checked"
-      :style="[{ fill: $coreActionNormal }, disabledStyle, activeStyle ]"
+      :style="[{ fill: $themeTokens.primary }, disabledStyle, activeStyle ]"
     />
     <mat-svg
       v-else
       category="toggle"
       name="radio_button_unchecked"
       class="unchecked"
-      :style="[{ fill: $coreTextAnnotation }, disabledStyle, activeStyle ]"
+      :style="[{ fill: $themeTokens.annotation }, disabledStyle, activeStyle ]"
     />
 
     <span class="text" dir="auto">
@@ -42,7 +42,7 @@
       <span
         v-if="description"
         class="description"
-        :style="[{ color: disabled ? '' : $coreTextAnnotation }, disabledStyle ]"
+        :style="[{ color: disabled ? '' : $themeTokens.annotation }, disabledStyle ]"
       >
         {{ description }}
       </span>
@@ -126,7 +126,7 @@
         return this.active ? this.$coreOutline : {};
       },
       disabledStyle() {
-        return this.disabled ? { fill: this.$coreGrey300 } : {};
+        return this.disabled ? { fill: this.$themeColors.palette.grey.v_300 } : {};
       },
     },
 

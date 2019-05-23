@@ -1,6 +1,6 @@
 <template>
 
-  <div class="side-bar" :style="{ backgroundColor: $coreBgCanvas }">
+  <div class="side-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
     <slot></slot>
   </div>
 

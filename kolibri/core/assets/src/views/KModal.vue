@@ -16,7 +16,7 @@
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="[ modalSizeStyles, { background: $coreBgLight } ]"
+        :style="[ modalSizeStyles, { background: $themeTokens.surface } ]"
       >
 
         <!-- Modal Title -->
@@ -45,8 +45,8 @@
             ref="content"
             class="content"
             :style="[ contentSectionMaxHeight, scrollShadow ? {
-              borderTop: `1px solid ${$coreGrey}`,
-              borderBottom: `1px solid ${$coreGrey}`,
+              borderTop: `1px solid ${$themeColors.palette.grey.v_200}`,
+              borderBottom: `1px solid ${$themeColors.palette.grey.v_200}`,
             } : {} ]"
             :class="{ 'scroll-shadow': scrollShadow }"
           >

@@ -38,16 +38,16 @@
       },
       color() {
         if (this.icon === ICONS.clock) {
-          return this.$coreStatusProgress;
+          return this.$themeTokens.progress;
         }
         if (this.icon === ICONS.star) {
-          return this.$coreStatusMastered;
+          return this.$themeTokens.mastered;
         }
         if (this.icon === ICONS.help) {
-          return this.$coreStatusWrong;
+          return this.$themeTokens.incorrect;
         }
         if (this.icon === ICONS.nothing) {
-          return this.$coreGrey300;
+          return this.$themeColors.palette.grey.v_300;
         }
 
         return undefined;

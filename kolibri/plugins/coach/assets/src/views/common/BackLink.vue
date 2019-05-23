@@ -12,13 +12,13 @@
         v-if="!isRtl"
         name="arrow_back"
         category="navigation"
-        :style="{ fill: $coreActionNormal }"
+        :style="{ fill: $themeTokens.primary }"
       />
       <mat-svg
         v-else
         name="arrow_forward"
         category="navigation"
-        :style="{ fill: $coreActionNormal }"
+        :style="{ fill: $themeTokens.primary }"
       />
     </UiIconButton>
     <KRouterLink :to="to" :text="text" />

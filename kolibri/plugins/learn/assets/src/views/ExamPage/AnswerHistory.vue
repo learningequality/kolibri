@@ -1,11 +1,11 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeTokens.surface }">
     <ul class="history-list">
       <template v-for="(question, index) in questions">
         <li
           :key="index"
-          :style="{ backgroundColor: questionNumber === index ? $coreGrey : '' }"
+          :style="liStyle(index)"
           class="clickable"
           @click="$emit('goToQuestion', index)"
         >
@@ -52,6 +52,12 @@
       },
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
+      },
+      liStyle(index) {
+        return {
+          backgroundColor:
+            this.questionNumber === index ? this.$themeColors.palette.grey.v_200 : '',
+        };
       },
     },
     $trs: {

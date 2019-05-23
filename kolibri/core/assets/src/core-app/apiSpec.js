@@ -106,7 +106,6 @@ import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
-import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
@@ -211,7 +210,6 @@ export default {
   urls,
   utils: {
     contentNode,
-    colour,
     browser,
     exams,
     validators,

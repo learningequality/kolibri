@@ -1,6 +1,9 @@
 <template>
 
-  <div class="bar-wrapper">
+  <div
+    class="bar-wrapper"
+    :style="{ backgroundColor: $themeColors.palette.grey.v_300 }"
+  >
     <div class="bar help" :style="helpLineStyle"></div>
     <div class="bar" :style="barStyleStarted"></div>
     <div class="bar" :style="barStyleCompleted"></div>
@@ -21,7 +24,7 @@
       barStyleCompleted() {
         return {
           width: `${Math.ceil((100 * this.completed) / this.total)}%`,
-          backgroundColor: this.$coreStatusMastered,
+          backgroundColor: this.$themeTokens.mastered,
         };
       },
       barStyleStarted() {
@@ -29,7 +32,7 @@
         return {
           marginLeft: `${Math.ceil((100 * this.completed) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$coreStatusProgress,
+          backgroundColor: this.$themeTokens.progress,
         };
       },
       helpLineStyle() {
@@ -38,7 +41,7 @@
         return {
           marginLeft: `${Math.ceil((100 * (this.completed + this.started)) / this.total)}%`,
           width: `${Math.ceil(100 * widthRatio)}%`,
-          backgroundColor: this.$coreStatusWrong,
+          backgroundColor: this.$themeTokens.incorrect,
         };
       },
     },
@@ -56,7 +59,6 @@
     width: 100%;
     height: 16px;
     overflow: hidden;
-    background-color: #dedede;
     border-radius: $radius;
   }
 
