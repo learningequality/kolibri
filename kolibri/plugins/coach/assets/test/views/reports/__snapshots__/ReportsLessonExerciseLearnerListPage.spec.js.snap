@@ -17,12 +17,12 @@ exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some gr
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
@@ -52,7 +52,7 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1 started
   </div></span>
     <!---->
@@ -69,12 +69,12 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
@@ -94,12 +94,12 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
