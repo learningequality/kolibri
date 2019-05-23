@@ -21,6 +21,7 @@
       <UiIconButton
         type="flat"
         class="icon"
+        :style="{fill: $themeTokens.textInverted}"
         @click="$emit('navIconClick')"
       >
         <mat-svg
@@ -45,6 +46,7 @@
       v-else
       type="flat"
       class="icon"
+      :style="{fill: $themeTokens.textInverted}"
       @click="$emit('navIconClick')"
     >
       <mat-svg
@@ -141,10 +143,9 @@
 
   // only used when using a link. Otherwise, uses UiToolbar's styles
   .icon {
-    width: 3em;
     // copied from keen
+    width: 3em;
     height: 3em;
-    fill: white;
   }
 
   .link {

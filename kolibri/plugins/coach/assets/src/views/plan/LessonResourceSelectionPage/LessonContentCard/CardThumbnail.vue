@@ -47,7 +47,7 @@
     computed: {
       thumbnailBackground() {
         return {
-          backgroundColor: this.$themeColors.white,
+          backgroundColor: this.$themeTokens.surface,
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },

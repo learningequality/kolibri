@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeColors.white }">
+  <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeTokens.surface }">
 
     <CardThumbnail
       class="thumbnail"

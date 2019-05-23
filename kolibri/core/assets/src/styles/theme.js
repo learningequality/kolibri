@@ -9,8 +9,8 @@ const logging = logger.getLogger(__filename);
 const initialState = {
   modality: null,
   colors: {
-    black: 'black',
-    white: 'white',
+    black: '#000000',
+    white: '#ffffff',
     palette: materialColors,
     brand: brandColors,
   },
@@ -27,8 +27,10 @@ const initialState = {
     text: 'palette.grey.v_900',
     textDisabled: 'palette.grey.v_300',
     annotation: 'palette.grey.v_700',
-    loading: 'brand.secondary.v_400',
+    textInverted: 'white',
+    loading: 'brand.secondary.v_200',
     focusOutline: 'brand.secondary.v_200',
+    surface: 'white',
 
     // general semantic colors
     error: 'palette.red.v_700',

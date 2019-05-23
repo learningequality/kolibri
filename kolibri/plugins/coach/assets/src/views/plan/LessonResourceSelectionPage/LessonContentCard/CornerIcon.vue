@@ -15,6 +15,7 @@
       :kind="kind"
       :showTooltip="true"
       class="icon"
+      :style="{ color: $themeTokens.textInverted }"
     />
 
   </div>
@@ -26,6 +27,7 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   const kindToBackgroundColorMap = {
     audio: '#E65997',
@@ -41,6 +43,7 @@
     components: {
       ContentIcon,
     },
+    mixins: [themeMixin],
     props: {
       kind: {
         type: String,
@@ -72,7 +75,6 @@
   .icon {
     position: absolute;
     font-size: 18px;
-    color: white;
     transform: translate(25%, 0);
   }
 

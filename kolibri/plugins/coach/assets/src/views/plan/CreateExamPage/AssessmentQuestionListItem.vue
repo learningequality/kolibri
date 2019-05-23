@@ -3,6 +3,7 @@
   <li
     class="item-wrapper"
     :class="{selected: isSelected, draggable}"
+    :style="{ backgroundColor: $themeTokens.surface }"
   >
     <a
       tabindex="0"
@@ -121,7 +122,6 @@
     text-align: left;
     white-space: nowrap;
     user-select: none;
-    background-color: white;
     border-radius: 4px;
   }
 

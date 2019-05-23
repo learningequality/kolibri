@@ -8,7 +8,7 @@
         :style="{
           width: `${width}px`,
           color: $themeTokens.text,
-          backgroundColor: $themeColors.white,
+          backgroundColor: $themeTokens.surface,
         }"
       >
         <div
@@ -31,12 +31,12 @@
             <mat-svg
               name="close"
               category="navigation"
-              class="side-nav-header-close"
+              :style="{fill: $themeTokens.textInverted}"
             />
           </UiIconButton>
           <span
             class="side-nav-header-name"
-            :style="{ color: $themeColors.white }"
+            :style="{ color: $themeTokens.textInverted }"
           >{{ $tr('kolibri') }}</span>
         </div>
 
@@ -46,7 +46,7 @@
         >
           <CoreMenu
             role="navigation"
-            :style="{ backgroundColor: $themeColors.white }"
+            :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
@@ -285,10 +285,6 @@
 
   .side-nav-header-icon {
     margin-left: 5px; /* align with a toolbar icon below */
-  }
-
-  .side-nav-header-close {
-    fill: white;
   }
 
   .side-nav-header-name {

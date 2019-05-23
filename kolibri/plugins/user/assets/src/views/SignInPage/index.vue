@@ -48,6 +48,7 @@
                     v-if="simpleSignIn && suggestions.length"
                     v-show="showDropdown"
                     class="suggestions"
+                    :style="{backgroundColor: $themeTokens.surface}"
                   >
                     <UiAutocompleteSuggestion
                       v-for="(suggestion, i) in suggestions"
@@ -109,7 +110,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeColors.white }">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
@@ -540,7 +541,6 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
-    background-color: white;
   }
 
   .textbox-enter-active {

@@ -46,7 +46,7 @@
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
-            :style="{backgroundColor: iconBackgroundColor }"
+            :style="{backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
           />
         </template>
 
@@ -206,7 +206,6 @@
     width: 24px;
     height: 24px;
     font-size: 18px;
-    color: white;
     text-align: center;
     border-radius: 50%;
   }

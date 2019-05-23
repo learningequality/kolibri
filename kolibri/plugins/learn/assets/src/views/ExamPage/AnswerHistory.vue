@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeColors.white }">
+  <div :style="{ backgroundColor: $themeTokens.surface }">
     <ul class="history-list">
       <template v-for="(question, index) in questions">
         <li

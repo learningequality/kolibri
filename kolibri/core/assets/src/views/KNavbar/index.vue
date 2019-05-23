@@ -15,7 +15,7 @@
         <mat-svg
           name="keyboard_arrow_left"
           category="hardware"
-          class="scroll-button-icon"
+          :style="{ fill: $themeTokens.textInverted }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -40,7 +40,7 @@
         <mat-svg
           name="keyboard_arrow_right"
           category="hardware"
-          class="scroll-button-icon"
+          :style="{ fill: $themeTokens.textInverted }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -145,10 +145,6 @@
     width: 36px;
     height: 36px;
     vertical-align: middle;
-  }
-
-  .scroll-button-icon {
-    fill: white;
   }
 
 </style>

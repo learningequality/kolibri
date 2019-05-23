@@ -11,7 +11,10 @@
 
   <transition :name="transitionName" @after-enter="onEnter" @after-leave="onLeave">
     <div class="ui-snackbar" @click="onClick">
-      <div class="ui-snackbar-message">
+      <div
+        class="ui-snackbar-message"
+        :style="{color: $themeTokens.textInverted}"
+      >
         <slot>{{ message }}</slot>
       </div>
 
@@ -19,7 +22,7 @@
         <button
           v-if="action"
           class="ui-snackbar-action-button"
-          :style="{ color: $themeColors.white }"
+          :style="{ color: $themeTokens.textInverted }"
           @click.stop="onActionClick"
         >
           {{ action }}
@@ -105,7 +108,6 @@
     flex-grow: 1;
     font-size: $ui-snackbar-font-size;
     line-height: 1.5;
-    color: white;
     cursor: default;
   }
 

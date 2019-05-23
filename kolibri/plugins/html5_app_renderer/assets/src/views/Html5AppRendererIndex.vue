@@ -7,6 +7,7 @@
   >
     <UiIconButton
       class="btn"
+      :style="{ fill: $themeTokens.textInverted }"
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       color="primary"
       size="large"
@@ -109,7 +110,6 @@
     position: absolute;
     top: 8px;
     right: 21px;
-    fill: white;
   }
 
   .html5-renderer {

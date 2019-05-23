@@ -20,7 +20,7 @@
         <KDragHandle>
           <KGrid
             class="row"
-            :style="{ backgroundColor: $themeColors.white }"
+            :style="{ backgroundColor: $themeTokens.surface }"
             cols="8"
           >
             <KGridItem size="1" class="relative">

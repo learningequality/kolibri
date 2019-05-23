@@ -39,6 +39,7 @@
         :kind="kind"
         :showTooltip="true"
         class="content-icon"
+        :style="{ color: $themeTokens.textInverted }"
       />
     </div>
 
@@ -115,7 +116,7 @@
       },
       thumbnailBackground() {
         return {
-          backgroundColor: this.$themeColors.white,
+          backgroundColor: this.$themeTokens.surface,
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },
@@ -186,7 +187,6 @@
   .content-icon {
     position: absolute;
     font-size: 20px;
-    color: white;
     transform: translate(25%, 0);
   }
 

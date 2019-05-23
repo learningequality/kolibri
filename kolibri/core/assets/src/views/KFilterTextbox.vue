@@ -15,7 +15,7 @@
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
       :style="{
         color: $themeTokens.text,
-        border: `1px solid ${$themeColors.palette.grey.v_300}`,
+        border: `1px solid ${$themeColors.palette.grey.v_600}`,
       }"
       :placeholder="placeholder"
       :aria-label="placeholder"
@@ -106,6 +106,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .k-filter {
     position: relative;
     display: inline-block;
@@ -131,8 +133,7 @@
     padding-left: 40px;
     margin: 0;
     font-size: 14px;
-    background-color: white;
-    border-radius: 2px;
+    border-radius: $radius;
   }
 
   .k-filter-clear-button {

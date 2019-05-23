@@ -32,6 +32,7 @@
       UiIconButton,
     },
     props: {
+      // TODO - refactor to use themes properly
       color: {
         type: String,
         required: true,

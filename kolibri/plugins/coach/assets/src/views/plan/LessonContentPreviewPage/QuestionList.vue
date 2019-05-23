@@ -1,6 +1,6 @@
 <template>
 
-  <section class="question-list">
+  <section :style="{ backgroundColor: $themeTokens.surface }">
 
     <h2 class="header">
       {{ $tr('questionListHeader', {numOfQuestions:questions.length}) }}
@@ -73,10 +73,6 @@
 
 
 <style lang="scss" scoped>
-
-  .question-list {
-    background-color: white;
-  }
 
   .header,
   .list,

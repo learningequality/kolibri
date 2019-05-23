@@ -58,6 +58,7 @@
 
 <style lang="scss" scoped>
 
+  // TODO - refactor to use theme
   .progress-toolbar {
     fill: white;
   }

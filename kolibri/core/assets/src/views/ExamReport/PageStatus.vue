@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid class="page-status" :style="{ backgroundColor: $themeColors.white }">
+  <KGrid class="page-status" :style="{ backgroundColor: $themeTokens.surface }">
     <KGridItem size="75" percentage>
       <div>
         <h1 class="title">

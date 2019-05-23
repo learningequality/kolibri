@@ -6,7 +6,10 @@
     @submit.prevent="search"
     @keydown.esc.prevent="clearSearchTerm"
   >
-    <div class="box-row">
+    <div
+      class="box-row"
+      :style="{ borderColor: $themeColors.palette.grey.v_600 }"
+    >
       <label
         class="visuallyhidden"
         for="searchfield"
@@ -47,6 +50,7 @@
             class="submit-button"
             :disabled="!searchTermHasChanged"
             :ariaLabel="$tr('startSearchButtonLabel')"
+            :style="{ fill: $themeTokens.textInverted }"
             @click="search"
           >
             <mat-svg
@@ -119,10 +123,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
+  // TODO - consolidate with kFilterTextbox
   .box {
     margin-right: 8px;
-    border-style: solid;
-    border-width: 1px;
   }
 
   .box-within-action-bar {
@@ -132,18 +137,20 @@
   .box-row {
     display: table;
     width: 100%;
-    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: $radius;
   }
 
   .input {
+    position: relative;
+    left: 8px;
     display: table-cell;
     width: 100%;
     height: 36px;
     padding: 0;
-    padding-left: 8px;
     margin: 0;
     vertical-align: middle;
-    background-color: white;
     border: 0;
 
     // removes the IE clear button
@@ -176,7 +183,6 @@
   .submit-button {
     width: 36px;
     height: 36px;
-    fill: white;
   }
 
   .submit-button-wrapper {
