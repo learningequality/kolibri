@@ -1,6 +1,9 @@
 <template>
 
-  <div class="bar-wrapper">
+  <div
+    class="bar-wrapper"
+    :style="{ backgroundColor: $themeColors.palette.grey.v_300 }"
+  >
     <div class="bar help" :style="helpLineStyle"></div>
     <div class="bar" :style="barStyleStarted"></div>
     <div class="bar" :style="barStyleCompleted"></div>
@@ -56,7 +59,6 @@
     width: 100%;
     height: 16px;
     overflow: hidden;
-    background-color: #dedede;
     border-radius: $radius;
   }
 

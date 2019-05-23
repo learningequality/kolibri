@@ -9,8 +9,6 @@ const logging = logger.getLogger(__filename);
 const initialState = {
   modality: null,
   colors: {
-    black: '#000000',
-    white: '#ffffff',
     palette: materialColors,
     brand: brandColors,
   },
@@ -31,6 +29,7 @@ const initialState = {
     loading: 'brand.secondary.v_200',
     focusOutline: 'brand.secondary.v_200',
     surface: 'white',
+    fineLine: '#dedede',
 
     // general semantic colors
     error: 'palette.red.v_700',
@@ -69,8 +68,13 @@ function getTokens() {
   // look at each token map
   Object.keys(dynamicState.tokenMapping).forEach(function(tokenName) {
     const mapString = dynamicState.tokenMapping[tokenName];
+    // if it doesn't look like a path, interpret value as a CSS color value
+    if (mapString.indexOf('.') === -1) {
+      tokens[tokenName] = mapString;
+      return;
+    }
+    // otherwise try to use the dot notation to navigate down the color tree
     const refs = mapString.split('.');
-    // try to use the dot notation to navigate down the color tree
     let obj = dynamicState.colors;
     while (refs.length) {
       const key = refs.shift();
