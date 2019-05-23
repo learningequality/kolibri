@@ -2,8 +2,8 @@
 
   <li
     class="item-wrapper"
-    :class="{selected: isSelected, draggable}"
-    :style="{ backgroundColor: $themeTokens.surface }"
+    :class="{ draggable }"
+    :style="bgStyle"
   >
     <a
       tabindex="0"
@@ -90,6 +90,12 @@
       focusRing() {
         return this.$computedClass({ ':focus': this.$coreOutline });
       },
+      bgStyle() {
+        const color = this.isSelected
+          ? this.$themeColors.palette.grey.v_300
+          : this.$themeTokens.surface;
+        return { backgroundColor: color };
+      },
     },
     methods: {
       handleSelect() {
@@ -129,10 +135,6 @@
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .selected {
-    background-color: #e8e8e8;
   }
 
   .draggable {

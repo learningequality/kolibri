@@ -222,8 +222,4 @@
     }
   }
 
-  .lighten {
-    color: #b3b3b3;
-  }
-
 </style>

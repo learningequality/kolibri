@@ -248,7 +248,8 @@
     padding-right: 8px;
     padding-left: 8px;
     font-weight: normal;
-    border: 1px solid #c8c8c8;
+    // TODO - refactor to use theme, probably $themeTokens.fineLine
+    border: 1px solid #dedede;
   }
 
   table table td,

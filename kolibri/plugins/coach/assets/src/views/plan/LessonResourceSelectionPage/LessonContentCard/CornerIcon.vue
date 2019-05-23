@@ -28,15 +28,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
-  const kindToBackgroundColorMap = {
-    audio: '#E65997',
-    document: '#ED2828',
-    exercise: '#0eafaf',
-    html5: '#FF8B41',
-    topic: '#262626',
-    video: '#3938A5',
-  };
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'CornerIcon',
@@ -56,7 +48,20 @@
         return this.isRtl ? '0,0 48,0 48,48' : '0,0 48,0 0,48';
       },
       backgroundStyle() {
-        return { fill: kindToBackgroundColorMap[this.kind] };
+        switch (this.kind) {
+          case ContentNodeKinds.EXERCISE:
+            return { fill: this.$themeTokens.exercise };
+          case ContentNodeKinds.VIDEO:
+            return { fill: this.$themeTokens.video };
+          case ContentNodeKinds.AUDIO:
+            return { fill: this.$themeTokens.audio };
+          case ContentNodeKinds.DOCUMENT:
+            return { fill: this.$themeTokens.document };
+          case ContentNodeKinds.HTML5:
+            return { fill: this.$themeTokens.html5 };
+          default:
+            return { fill: this.$themeTokens.topic };
+        }
       },
     },
   };
