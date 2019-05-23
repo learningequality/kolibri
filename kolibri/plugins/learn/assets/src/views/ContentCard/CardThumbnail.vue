@@ -69,6 +69,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'CardThumbnail',
@@ -129,15 +130,20 @@
         return `${topLeft} ${topRight} ${bottomLeft}`;
       },
       contentIconBgColor() {
-        const kindToFillHex = {
-          exercise: '#0eafaf',
-          video: '#3938A5',
-          audio: '#E65997',
-          topic: '#262626',
-          document: '#ED2828',
-          html5: '#FF8B41',
-        };
-        return { fill: kindToFillHex[this.kind] };
+        switch (this.kind) {
+          case ContentNodeKinds.EXERCISE:
+            return { fill: this.$themeTokens.exercise };
+          case ContentNodeKinds.VIDEO:
+            return { fill: this.$themeTokens.video };
+          case ContentNodeKinds.AUDIO:
+            return { fill: this.$themeTokens.audio };
+          case ContentNodeKinds.DOCUMENT:
+            return { fill: this.$themeTokens.document };
+          case ContentNodeKinds.HTML5:
+            return { fill: this.$themeTokens.html5 };
+          default:
+            return { fill: this.$themeTokens.topic };
+        }
       },
     },
   };

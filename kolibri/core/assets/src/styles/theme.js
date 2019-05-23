@@ -39,6 +39,14 @@ const initialState = {
     mastered: 'palette.amber.v_500',
     correct: 'palette.green.v_600',
     incorrect: 'palette.red.v_800',
+
+    // content colors
+    exercise: 'palette.cyan.v_600',
+    video: 'palette.indigo.v_700',
+    audio: 'palette.pink.v_400',
+    document: 'palette.lime.v_700',
+    html5: 'palette.orange.v_600',
+    topic: 'palette.grey.v_900',
   },
 };
 

@@ -131,17 +131,17 @@
       iconBackgroundColor() {
         switch (this.nextContent.kind) {
           case ContentNodeKinds.EXERCISE:
-            return '#0eafaf';
+            return this.$themeTokens.exercise;
           case ContentNodeKinds.VIDEO:
-            return '#3938A5';
+            return this.$themeTokens.video;
           case ContentNodeKinds.AUDIO:
-            return '#E65997';
+            return this.$themeTokens.audio;
           case ContentNodeKinds.DOCUMENT:
-            return '#ED2828';
+            return this.$themeTokens.document;
           case ContentNodeKinds.HTML5:
-            return '#FF8B41';
+            return this.$themeTokens.html5;
           default:
-            return '#262626';
+            return this.$themeTokens.topic;
         }
       },
     },
