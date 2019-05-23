@@ -77,7 +77,6 @@
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import { darken } from 'kolibri.utils.colour';
 
   export default {
     name: 'KeenUiIconButton',
@@ -166,7 +165,7 @@
           };
           if (this.dropdownOpen) {
             style[':hover:not(.is-disabled)'] = {
-              backgroundColor: darken(this.$themeTokens.primary, '10%'),
+              backgroundColor: this.$themeTokens.primaryDark,
             };
           }
           return style;

@@ -1,4 +1,6 @@
 export default {
+  black: '#000000',
+  white: '#ffffff',
   red: {
     v_50: '#ffebee',
     v_100: '#ffcdd2',

@@ -75,7 +75,6 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { darken } from 'kolibri.utils.colour';
   import { validateLinkObject } from 'kolibri.utils.validators';
 
   export default {
@@ -126,7 +125,7 @@
         const hoverAndFocus = {
           backgroundColor: this.primary
             ? this.$themeTokens.primaryDark
-            : darken(this.$themeTokens.text, '25%'),
+            : this.$themeColors.palette.black,
         };
         return {
           backgroundColor: this.primary ? this.$themeTokens.primary : this.$themeTokens.text,
