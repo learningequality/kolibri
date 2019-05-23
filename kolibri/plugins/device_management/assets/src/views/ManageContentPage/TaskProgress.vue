@@ -166,9 +166,7 @@
             this.uiBlocked = false;
           });
         } else if (this.cancellable) {
-          this.$emit('canceltask', () => {
-            this.uiBlocked = false;
-          });
+          this.$emit('canceltask');
         } else {
           this.uiBlocked = false;
         }

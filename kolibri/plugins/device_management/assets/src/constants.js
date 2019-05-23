@@ -34,6 +34,7 @@ export const TaskStatuses = {
   RUNNING: 'RUNNING',
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
+  CANCELED: 'CANCELED',
 };
 
 export const TransferTypes = {

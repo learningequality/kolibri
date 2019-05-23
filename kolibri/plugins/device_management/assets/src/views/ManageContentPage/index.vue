@@ -109,7 +109,7 @@
           // Handle failures silently in case of near-simultaneous cancels.
           .catch(() => {})
           .then(() => {
-            unblockCb();
+            unblockCb ? unblockCb() : null;
           });
       },
       clearCompletedTasks() {

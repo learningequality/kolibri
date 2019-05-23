@@ -1,14 +1,23 @@
 import logger from 'kolibri.lib.logging';
+import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-import { TaskTypes } from '../../../constants';
+import { TaskStatuses, TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
 export function cancelTask(store, taskId) {
-  return TaskResource.cancelTask(taskId).then(function onSuccess() {
-    updateTasks(store, []);
-  });
+  let cancelWatch;
+  cancelWatch = coreStore.watch(
+    state =>
+      (state.manageContent.taskList.find(task => task.id === taskId) || {}).status ===
+      TaskStatuses.CANCELED,
+    () => {
+      cancelWatch();
+      TaskResource.deleteFinishedTasks();
+    }
+  );
+  return TaskResource.cancelTask(taskId);
 }
 
 function updateTasks(store, tasks) {
