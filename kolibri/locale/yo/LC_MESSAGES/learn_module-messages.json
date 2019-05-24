@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "Ìbéèrè tó kàn",
   "ExamPage.noItemId": "Ìbéèrè yìí ní àṣìṣe, jọ̀wọ́ tẹ̀síwájú sí ìbéèrè tí ó kàn",
   "ExamPage.previousQuestion": "Ìbéèrè tẹ́lẹ̀",
-  "ExamPage.question": "",
+  "ExamPage.question": "Ibeere { num } ti { total }",
   "ExamPage.questionsAnswered": "{numAnswered, number} ti {numTotal, number} {numTotal, plural, one {ibeere} other {awon ibeere}} ti dáhùn",
   "ExamPage.submitExam": "Fi ìdánwò kúkúrú ṣọwó",
   "ExamPage.unanswered": "O ti {numLeft, number} {numLeft, plural, one {ibeere} other {awon ibeere}} àìdáhùn",

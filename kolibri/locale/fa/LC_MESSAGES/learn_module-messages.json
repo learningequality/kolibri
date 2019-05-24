@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "سوال بعدی",
   "ExamPage.noItemId": "این سوال یک خطا دارد، لطفاً به سوال بعدی بروید",
   "ExamPage.previousQuestion": "سوال قبلی",
-  "ExamPage.question": "",
+  "ExamPage.question": "سوال { num } از { total }",
   "ExamPage.questionsAnswered": "{numAnswered, number} از {numTotal, number} {numTotal, plural, one {سوال} other {سوال}} پاسخ داده شده است",
   "ExamPage.submitExam": "ارائه آزمون",
   "ExamPage.unanswered": "شما {numLeft, number} {numLeft, plural, one {سوال} other {سوال}} بدون پاسخ دارید",
