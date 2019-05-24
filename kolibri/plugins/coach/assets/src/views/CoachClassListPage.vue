@@ -96,7 +96,6 @@
     mixins: [commonCoach],
     data() {
       return {
-        // modalShown: null,
         currentClass: null,
       };
     },
