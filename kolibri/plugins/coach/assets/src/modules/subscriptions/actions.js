@@ -4,12 +4,11 @@ export function displayModal(store, modalName) {
   store.commit('SET_SUBSCRIPTION_MODAL', modalName);
 }
 
-export function saveSubscription(store, subscriptionData) {
+export function saveSubscription(store, { id, subscriptions }) {
   return ClassroomResource.saveModel({
-    data: {
-      id: subscriptionData.id,
-      subscriptions: subscriptionData.subscriptions,
-    },
+    id: id,
+    data: { subscriptions: subscriptions },
+    exists: true,
   })
     .then(store.dispatch('displayModal', false))
     .catch(error => store.dispatch('handleApiError', error, { root: true }));

@@ -4,7 +4,7 @@
     :title="$tr('modalTitle', { collectionName: collectionName })"
     :submitText="$tr('saveSelectionsButtonName')"
     :cancelText="$tr('cancel')"
-    @submit="saveSubscriptions"
+    @submit="saveSelectedSubscriptions"
     @cancel="close"
   >
     <KCheckbox
@@ -47,11 +47,11 @@
         required: true,
       },
     },
-    data() {
-      return {
-        thisCollectionId: this.collectionId,
-      };
-    },
+    // data() {
+    //   return {
+    //     thisCollectionId: this.collectionId,
+    //   };
+    // },
     computed: {
       ...mapGetters({
         channels: 'getChannels',
@@ -59,10 +59,10 @@
     },
     methods: {
       ...mapActions('subscriptions', ['displayModal', 'saveSubscription']),
-      saveSubscriptions() {
+      saveSelectedSubscriptions() {
         this.saveSubscription({
+          id: this.collectionId,
           subscriptions: "{'channels' : ['123','456']}",
-          id: this.thisCollectionId,
         });
       },
       close() {
