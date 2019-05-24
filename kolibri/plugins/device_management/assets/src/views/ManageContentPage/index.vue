@@ -3,15 +3,14 @@
   <div>
     <template v-if="canManageContent">
       <SelectTransferSourceModal :pageName="pageName" />
-
       <div>
-        <TaskProgress
-          v-if="activeTaskList[0]"
-          v-bind="activeTaskList[0]"
-          @cleartask="clearCompletedTasks"
-          @canceltask="cancelRunningTask(activeTaskList[0].id)"
-        />
-
+        <KBottomAppBar v-if="activeTaskList[0]">
+          <TaskProgress
+            v-bind="activeTaskList[0]"
+            @cleartask="clearCompletedTasks"
+            @canceltask="cancelRunningTask(activeTaskList[0].id)"
+          />
+        </KBottomAppBar>
         <KGrid>
           <KGridItem sizes="100, 50, 50" percentage>
             <h1>{{ $tr('title') }}</h1>
@@ -21,21 +20,23 @@
             sizes="100, 50, 50"
             alignments="left, right, right"
             percentage
+            class="push-down"
           >
             <KButton
               :text="$tr('import')"
               :primary="true"
+              :disabled="tasksInQueue"
               @click="startImportWorkflow()"
             />
             <KButton
               v-if="deviceHasChannels"
               :text="$tr('export')"
               class="flush-right"
+              :disabled="tasksInQueue"
               @click="startExportWorkflow()"
             />
           </KGridItem>
         </KGrid>
-
         <ChannelsGrid />
 
       </div>
@@ -59,6 +60,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { TaskResource } from 'kolibri.resources';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
@@ -78,6 +80,7 @@
       KGridItem,
       SelectTransferSourceModal,
       TaskProgress,
+      KBottomAppBar,
     },
     computed: {
       ...mapGetters(['canManageContent']),
@@ -129,6 +132,11 @@
 
   .flush-right {
     margin-right: 0;
+  }
+
+  .push-down {
+    position: relative;
+    top: 8px;
   }
 
 </style>

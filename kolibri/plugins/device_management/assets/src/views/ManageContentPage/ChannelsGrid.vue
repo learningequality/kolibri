@@ -15,21 +15,15 @@
         :delay="false"
       />
 
-      <div v-else>
-        <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-          {{ $tr('channelHeader') }}
-        </div>
-
-        <div class="channel-list">
-          <ChannelListItem
-            v-for="channel in sortedChannels"
-            :key="channel.id"
-            :channel="channel"
-            mode="MANAGE"
-            @clickdelete="selectedChannelId=channel.id"
-            @import_more="startImportWorkflow(channel)"
-          />
-        </div>
+      <div v-else class="channel-list">
+        <ChannelListItem
+          v-for="channel in sortedChannels"
+          :key="channel.id"
+          :channel="channel"
+          mode="MANAGE"
+          @clickdelete="selectedChannelId=channel.id"
+          @import_more="startImportWorkflow(channel)"
+        />
       </div>
     </transition>
 
@@ -105,9 +99,8 @@
 
 <style lang="scss" scoped>
 
-  .channel-list-header {
-    padding: 16px 0;
-    font-size: 12px;
+  .channel-list {
+    margin-top: 32px;
   }
 
 </style>

@@ -1,10 +1,6 @@
 <template>
 
-  <component
-    :is="componentTemplate"
-    class="channel-list-item"
-    :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
-  >
+  <component :is="componentTemplate" :style="wrapperStyle">
     <template slot="thumbnail">
       <div class="thumbnail-container" data-test="thumbnail">
         <img
@@ -186,10 +182,12 @@
           forExport: this.$route.query.for_export,
         });
       },
-      verticalPadding() {
+      wrapperStyle() {
         return {
           paddingBottom: `${this.windowGutter}px`,
-          paddingTop: `${this.windowGutter}px`,
+          paddingTop: `${this.windowGutter / 2}px`,
+          marginTop: `${this.windowGutter}px`,
+          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },
       componentTemplate() {

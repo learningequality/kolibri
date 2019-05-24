@@ -1,7 +1,7 @@
 <template>
 
-  <div class="task-progress">
-    <div class="progress-icon dtc">
+  <KGrid style="text-align: left; margin-top: 8px">
+    <KGridItem size="1" style="padding-top: 8px">
       <transition name="fade" mode="out-in">
         <mat-svg
           v-if="taskHasFailed"
@@ -15,31 +15,28 @@
           name="check_circle"
           :style="{ fill: $themeTokens.success }"
         />
-        <KCircularLoader
-          v-else
-          class="inprogress"
-          :delay="false"
-        />
+        <KCircularLoader v-else :delay="false" />
       </transition>
-    </div>
+    </KGridItem>
 
-    <div class="progress-bar dtc">
-      <div :class="{'task-stage': !taskHasCompleted}">
+    <KGridItem size="5" style="padding-top: 8px">
+      <div>
         {{ stageText }}
       </div>
-      <KLinearLoader
-        v-if="!taskHasCompleted"
-        :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
-        :progress="formattedPercentage"
-        :delay="false"
-      />
-    </div>
+      <div>
+        <KLinearLoader
+          v-if="!taskHasCompleted || true"
+          :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
+          :progress="formattedPercentage"
+          :delay="false"
+        />
+        <div v-if="!taskHasCompleted || true">
+          <span class="percentage">{{ progressMessage }}</span>
+        </div>
+      </div>
+    </KGridItem>
 
-    <div v-if="!taskHasCompleted" class="progress-messages dtc">
-      <span class="percentage">{{ progressMessage }}</span>
-    </div>
-
-    <div v-if="showButtons" class="buttons dtc">
+    <KGridItem v-if="showButtons" size="2" alignment="right">
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
@@ -48,9 +45,9 @@
         :disabled="uiBlocked"
         @click="endTask()"
       />
-    </div>
+    </KGridItem>
 
-  </div>
+  </KGrid>
 
 </template>
 
@@ -61,6 +58,8 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {
@@ -74,6 +73,8 @@
       KLinearLoader,
       KCircularLoader,
       KButton,
+      KGrid,
+      KGridItem,
     },
     mixins: [themeMixin],
     props: {
@@ -190,9 +191,9 @@
     $trs: {
       importingContent: 'Importing content…',
       exportingContent: 'Exporting content…',
-      finished: 'Finished! Click "Close" button to see changes.',
+      finished: "Finished deleting 'Touchable Earth (en)'",
       preparingTask: 'Preparing…',
-      close: 'Close',
+      close: 'Continue',
       cancel: 'Cancel',
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
@@ -207,50 +208,8 @@
 
 <style lang="scss" scoped>
 
-  .progress-icon {
-    position: relative;
-    top: -2px;
-    width: 5%;
-    text-align: center;
-    .inprogress {
-      display: inline-block;
-    }
-  }
-
-  .task-progress {
-    display: table;
-    width: 100%;
-    height: 5em;
-    margin-left: -6px;
-    vertical-align: middle;
-  }
-
-  .task-stage {
-    margin-bottom: 0.5em;
-  }
-
-  .progress-bar {
-    width: 50%;
-    padding-bottom: 8px;
-    padding-left: 8px;
-    font-size: 0.75em;
-  }
-
-  .progress-messages {
-    padding-left: 16px;
-  }
-
   .percentage {
     font-weight: bold;
-  }
-
-  .buttons {
-    text-align: right;
-  }
-
-  .dtc {
-    display: table-cell;
-    vertical-align: inherit;
   }
 
   .btn {
