@@ -64,8 +64,8 @@ export default {
     },
     linkStyle() {
       return {
-        color: this.$coreActionNormal,
-        ':hover': { color: this.$coreActionDark },
+        color: this.$themeTokens.primary,
+        ':hover': { color: this.$themeTokens.primaryDark },
         ':focus': this.$coreOutline,
         ':disabled': { opacity: 0.5 },
       };
@@ -73,8 +73,8 @@ export default {
     primaryRaisedStyle() {
       return {
         color: $primaryRaisedColor,
-        backgroundColor: this.$coreActionNormal,
-        ':hover': { backgroundColor: this.$coreActionDark },
+        backgroundColor: this.$themeTokens.primary,
+        ':hover': { backgroundColor: this.$themeTokens.primaryDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
@@ -92,41 +92,41 @@ export default {
     },
     primaryFlatStyle() {
       return {
-        color: this.$coreActionNormal,
+        color: this.$themeTokens.primary,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreActionNormal,
+          fill: this.$themeTokens.primary,
         },
       };
     },
     secondaryRaisedStyle() {
       return {
-        color: this.$coreTextDefault,
-        backgroundColor: this.$coreGrey200,
+        color: this.$themeTokens.text,
+        backgroundColor: this.$themeColors.palette.grey.v_200,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
     },
     secondaryFlatStyle() {
       return {
-        color: this.$coreTextDefault,
+        color: this.$themeTokens.text,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
     },

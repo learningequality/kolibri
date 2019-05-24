@@ -4,7 +4,7 @@ Feature: Admin sign-in
 
   Background:
     Given that I am on the Kolibri sign-in page
-      And that there is a registered admin <username> with password <password>
+      And that there is a registered facility admin <username> with password <password>
 
   Scenario: Sign-in
     When I fill out my username <username>

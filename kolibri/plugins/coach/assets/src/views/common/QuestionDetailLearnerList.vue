@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
       {{ coachStrings.$tr('learnersLabel') }}
     </h3>
@@ -11,8 +11,8 @@
           :key="index"
           class="clickable learner-item"
           :style="{
-            borderBottom: `2px solid ${$coreTextDisabled}`,
-            backgroundColor: isSelected(index) ? $coreTextDisabled : '',
+            borderBottom: `2px solid ${$themeTokens.textDisabled}`,
+            backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
           }"
           @click="setSelectedLearner(index)"
         >
@@ -20,21 +20,21 @@
             <mat-svg
               v-if="learner.noattempt"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="!learner.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusWrong }"
+              :style="{ fill: $themeTokens.incorrect }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="learner.hinted"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="action"
               name="lightbulb_outline"
             />

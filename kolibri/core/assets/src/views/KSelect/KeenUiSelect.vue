@@ -69,8 +69,7 @@
             v-show="showDropdown"
             ref="dropdown"
             class="ui-select-dropdown"
-            :style="{ color: $coreActionNormal }"
-
+            :style="{ color: $themeTokens.primary, backgroundColor: $themeTokens.surface }"
             tabindex="-1"
             @keydown.enter.prevent.stop="selectHighlighted"
             @keydown.space.prevent.stop="selectHighlighted"
@@ -119,7 +118,11 @@
               />
             </div>
 
-            <ul ref="optionsList" class="ui-select-options">
+            <ul
+              ref="optionsList"
+              class="ui-select-options"
+              :style="{ backgroundColor: $themeTokens.surface }"
+            >
               <KeenUiSelectOption
                 v-for="(option, index) in filteredOptions"
                 ref="options"
@@ -425,7 +428,7 @@
       activeColorStyle() {
         if (this.isActive) {
           return {
-            color: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
           };
         }
 
@@ -434,7 +437,7 @@
       activeBorderStyle() {
         if (this.isActive) {
           return {
-            borderBottomColor: this.$coreActionNormal,
+            borderBottomColor: this.$themeTokens.primary,
           };
         }
 
@@ -988,7 +991,6 @@
     margin: 0;
     margin-bottom: rem-calc(8px);
     list-style-type: none;
-    background-color: white;
     outline: none;
     box-shadow: 1px 2px 8px $md-grey-600;
   }
@@ -1049,7 +1051,6 @@
     overflow-y: auto;
     color: $primary-text-color;
     list-style-type: none;
-    background-color: white;
   }
 
   .ui-select-no-results {

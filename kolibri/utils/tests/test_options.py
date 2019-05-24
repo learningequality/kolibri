@@ -196,6 +196,9 @@ def test_path_expansion():
     Checks that options under [Path] have "~" expanded, and are relativized to the KOLIBRI_HOME directory.
     """
     KOLIBRI_HOME_TEMP = tempfile.mkdtemp()
+    logs_dir = os.path.join(KOLIBRI_HOME_TEMP, "logs")
+    if not os.path.exists(logs_dir):
+        os.mkdir(logs_dir)
 
     _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 

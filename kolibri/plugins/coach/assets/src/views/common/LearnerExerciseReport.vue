@@ -45,7 +45,11 @@
           :selectedQuestionNumber="attemptLogIndex"
           @select="navigateToNewAttempt($event)"
         />
-        <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
+        <div
+          slot="main"
+          class="exercise-section"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
           <KCheckbox
             :label="coachStrings.$tr('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"

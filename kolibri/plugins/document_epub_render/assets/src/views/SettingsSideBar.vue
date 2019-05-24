@@ -63,7 +63,7 @@
           <KButton
             class="settings-button theme-button"
             :aria-label="generateThemeAriaLabel(key)"
-            :appearanceOverrides="generateStyle(value.backgroundColor)"
+            :appearanceOverrides="generateStyle(value)"
             @click="$emit('setTheme', value)"
           >
             <mat-svg
@@ -90,7 +90,6 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import isEqual from 'lodash/isEqual';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import { darken } from 'kolibri.utils.colour';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -157,12 +156,12 @@
           theme.textColor === this.theme.textColor
         );
       },
-      generateStyle(backgroundColor) {
+      generateStyle(theme) {
         return {
           ...this.settingsButtonFocus,
-          backgroundColor,
+          backgroundColor: theme.backgroundColor,
           ':hover': {
-            backgroundColor: darken(backgroundColor, '10%'),
+            backgroundColor: theme.hoverColor,
           },
         };
       },

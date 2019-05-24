@@ -65,12 +65,12 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.lesson.groups);
+        return this.getLearnersForLesson(this.lesson);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
@@ -78,7 +78,6 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
-        return mapped;
       },
     },
     $trs: {

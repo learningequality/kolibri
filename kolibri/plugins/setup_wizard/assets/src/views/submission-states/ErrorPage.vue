@@ -13,7 +13,7 @@
       @click="refreshPage"
     />
 
-    <p class="error-page-subtext" :style="{ color: $coreTextAnnotation }">
+    <p class="error-page-subtext" :style="{ color: $themeTokens.annotation }">
       {{ $tr('errorPageAdditionalGuidance') }}
     </p>
 

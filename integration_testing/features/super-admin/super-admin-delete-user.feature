@@ -2,7 +2,7 @@ Feature: Super admin deletes users
     Super admin needs to be able to delete users from the facility
 
   Background:
-    Given I am signed in to Kolibri Super admin
+    Given I am signed in to Kolibri super admin
       And I am on *Facility > Users* page
 
   Scenario: Delete user

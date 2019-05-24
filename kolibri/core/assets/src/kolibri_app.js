@@ -79,7 +79,6 @@ export default class KolibriApp extends KolibriModule {
         forEach(schema, (subSchema, propertyName) => {
           // Must be a plain object to be a valid schema spec
           // And have at least a default key, and one of type or validator
-          logging.debug(subSchema);
           if (isPlainObject(subSchema)) {
             if (
               typeof subSchema.default !== 'undefined' &&
@@ -118,7 +117,6 @@ export default class KolibriApp extends KolibriModule {
                   );
                 }
               }
-              logging.debug(getter, callback);
               store.watch(getter, callback);
             } else {
               // Otherwise assume it is just a nested object structure

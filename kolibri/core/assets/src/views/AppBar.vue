@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreActionNormal }">
+  <div :style="{ backgroundColor: $themeTokens.primary }">
     <UiToolbar
       :title="title"
       type="clear"
@@ -16,9 +16,9 @@
         @click="$emit('toggleSideNav')"
       >
         <mat-svg
-          class="icon"
           name="menu"
           category="navigation"
+          :style="{fill: $themeTokens.textInverted}"
         />
       </UiIconButton>
 
@@ -40,9 +40,14 @@
             slot="icon"
             name="person"
             category="social"
+            :style="{fill: $themeTokens.textInverted}"
           />
           <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
-          <mat-svg name="arrow_drop_down" category="navigation" />
+          <mat-svg
+            name="arrow_drop_down"
+            category="navigation"
+            :style="{fill: $themeTokens.textInverted}"
+          />
         </UiButton>
 
         <CoreMenu
@@ -52,6 +57,7 @@
           :raised="true"
           :containFocus="true"
           :showActive="false"
+          :style="{backgroundColor: $themeTokens.surface}"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
@@ -181,12 +187,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
-    svg {
-      fill: white;
-    }
   }
 
   .username {
@@ -199,17 +204,12 @@
     position: fixed;
     right: 0;
     z-index: 8;
-    background-color: white;
   }
 
   .role {
     margin-bottom: 8px;
     font-size: small;
     font-weight: bold;
-  }
-
-  .icon {
-    fill: white;
   }
 
   .total-points {

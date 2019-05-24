@@ -6,7 +6,7 @@ Feature: Super Admin runs manage profile command
       And the '[Server]' section of the Kolibri's "options.ini" file is configured with 'PROFILE = 1' to enable request profiling
 
   Scenario: Execute the profile command and review the created "_performance.csv" file
-    When I run the 'kolibri manage profile --num_samples=6' command in the Terminal
+    When I run the 'kolibri manage profile --num-samples=6' command in the Terminal
       And I browse the "KOLIBRI_HOME/performance folder"      # Usually $HOME/.kolibri/performance
     Then I see a "xxxxxxxx_xxxxxx_performance.csv" file       # xxxxxxxx_xxxxxx is current date_time, for example 20181022_194415_performance.csv
 

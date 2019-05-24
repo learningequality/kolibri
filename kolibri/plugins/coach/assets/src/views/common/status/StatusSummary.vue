@@ -40,7 +40,7 @@
     <LearnerProgressCount
       v-else-if="total === notStarted && !showAll"
       class="item"
-      :style="{ color: $coreGrey300 }"
+      :style="{ color: $themeColors.palette.grey.v_300 }"
       :verb="VERBS.notStarted"
       :icon="ICONS.nothing"
       :total="total"
@@ -89,7 +89,7 @@
       <LearnerProgressCount
         v-if="showItem(!verbose)"
         class="item"
-        :style="{ color: $coreGrey300 }"
+        :style="{ color: $themeColors.palette.grey.v_300 }"
         :verb="VERBS.notStarted"
         :icon="ICONS.nothing"
         :total="total"
@@ -220,10 +220,6 @@
     &:not(:last-child) {
       margin-right: 16px;
     }
-  }
-
-  .lighten {
-    color: #b3b3b3;
   }
 
 </style>

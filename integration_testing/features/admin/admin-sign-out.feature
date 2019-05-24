@@ -1,5 +1,5 @@
 Feature: Admin sign-out
-  Admins need to be able to sign out when they finish using Kolibri
+  Admins needs to be able to sign out when they finish using Kolibri
 
   Background:
     Given that I am signed in to Kolibri

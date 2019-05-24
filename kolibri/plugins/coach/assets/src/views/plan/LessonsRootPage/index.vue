@@ -50,7 +50,12 @@
               </KLabeledIcon>
             </td>
             <td>{{ coachStrings.$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
-            <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
+            <td>
+              <Recipients
+                :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
+                :hasAssignments="lesson.lesson_assignments.length > 0"
+              />
+            </td>
             <td>
               <LessonActive :active="lesson.is_active" />
             </td>
@@ -171,17 +176,10 @@
         }
       },
       lessonSummaryLink,
-      getLessonVisibility(assignedGroups) {
-        const numOfAssignments = assignedGroups.length;
-        if (numOfAssignments === 0) {
-          return this.$tr('noOne');
-        } else if (
-          numOfAssignments === 1 &&
-          assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM
-        ) {
-          return this.coachStrings.$tr('entireClassLabel');
-        }
-        return this.coachStrings.$tr('numberOfGroups', { value: numOfAssignments });
+      getGroupIds(assignments) {
+        return assignments
+          .filter(assignment => assignment.collection_kind === CollectionKinds.LEARNERGROUP)
+          .map(assignment => assignment.collection);
       },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;

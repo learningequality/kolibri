@@ -9,6 +9,7 @@ const entries = [
     name: 'learner1',
     username: 'learner1',
     groups: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
+    assignments: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
     statusObj: {
       learner_id: 'd4b',
       content_id: 'a97',
@@ -22,6 +23,7 @@ const entries = [
     name: 'learner2',
     username: 'learner2',
     groups: [{ id: '23s', name: 'group2' }],
+    assignments: [{ id: '23s', name: 'group2' }],
     statusObj: {
       learner_id: 'a5d',
       content_id: 'a97',

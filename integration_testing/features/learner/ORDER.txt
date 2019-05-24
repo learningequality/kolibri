@@ -7,4 +7,5 @@ learner-find-content-item.feature
 learner-close-and-reopen-content.feature
 learner-take-quiz.feature
 learner-engage-completed-quiz.feature
+learner-background-tab.feature
 learner-sign-out.feature

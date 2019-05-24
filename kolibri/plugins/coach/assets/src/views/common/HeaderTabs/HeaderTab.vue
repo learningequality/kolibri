@@ -5,10 +5,10 @@
     :to="to"
     class="header-tab"
     :activeClass="activeClasses"
-    :style="{ color: $coreTextAnnotation }"
+    :style="{ color: $themeTokens.annotation }"
     :class="defaultStyles"
   >
-    <div class="inner" :style="{ borderColor: this.$coreActionNormal }">
+    <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
       {{ text }}
     </div>
   </router-link>
@@ -36,13 +36,13 @@
     computed: {
       activeClasses() {
         // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({ color: this.$coreActionNormal })}`;
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
       },
       defaultStyles() {
         return this.$computedClass({
           ':focus': this.$coreOutline,
           ':hover': {
-            backgroundColor: this.$coreGrey300,
+            backgroundColor: this.$themeColors.palette.grey.v_300,
           },
         });
       },

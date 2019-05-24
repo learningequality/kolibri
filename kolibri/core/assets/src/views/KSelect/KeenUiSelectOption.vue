@@ -103,7 +103,7 @@
       selectedStyle() {
         if (this.selected) {
           return {
-            color: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
           };
         }
 

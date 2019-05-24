@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
+      <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
         {{ $tr('channelHeader') }}
       </div>
 

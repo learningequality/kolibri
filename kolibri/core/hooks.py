@@ -15,7 +15,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import warnings
 
+from kolibri.plugins.hooks import abstract_method
 from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import plugin_url
 
@@ -62,3 +64,47 @@ class RoleBasedRedirectHook(KolibriHook):
     class Meta:
 
         abstract = True
+
+
+class MultipleThemesWarning(UserWarning):
+    pass
+
+
+class ThemeHook(KolibriHook):
+    """
+    A hook to allow custom theming of Kolibri
+    """
+
+    class Meta:
+
+        abstract = True
+
+    @property
+    @abstract_method
+    def theme(self):
+        default = {
+            # Whether to show the Kolibri log
+            # Boolean
+            "showKolibriLogo": True,
+            # URL for custom logo
+            "customLogoURL": None,
+            # URL for custom login background image
+            "splashBackgroundURL": None,
+            # Color Palette specification
+            "paletteColors": {},
+            # Brand Color specification
+            "brandColors": {},
+            # Mapping from colors to particular usage
+            "tokenMapping": {},
+        }
+        theme = {}
+        once = False
+        for hook in self.registered_hooks:
+            if once:
+                warnings.warn("Multiple themes defined by plugins, ignoring all themes")
+                return default
+            for key in default:
+                theme[key] = getattr(hook, key, theme[key])
+            once = True
+
+        return theme or default

@@ -11,11 +11,11 @@
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $coreBgLight }">
+          <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`}"
+              :style="{'font-size': `${logoTextSize}px`, color: $themeColors.brand.primary.v_300}"
             >
               {{ $tr('kolibri') }}
             </h1>
@@ -48,12 +48,13 @@
                     v-if="simpleSignIn && suggestions.length"
                     v-show="showDropdown"
                     class="suggestions"
+                    :style="{backgroundColor: $themeTokens.surface}"
                   >
                     <UiAutocompleteSuggestion
                       v-for="(suggestion, i) in suggestions"
                       :key="i"
                       :suggestion="suggestion"
-                      :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
+                      :style="suggestionStyle(i)"
                       @mousedown.native="fillUsername(suggestion)"
                     />
                   </ul>
@@ -109,7 +110,7 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
@@ -281,7 +282,7 @@
       },
       backgroundImageStyle() {
         return {
-          backgroundColor: this.$coreActionNormal,
+          backgroundColor: this.$themeTokens.primary,
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
         };
       },
@@ -417,6 +418,11 @@
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
       },
+      suggestionStyle(i) {
+        return {
+          backgroundColor: this.highlightedIndex === i ? this.$themeColors.palette.grey.v_200 : '',
+        };
+      },
     },
     $trs: {
       kolibri: 'Kolibri',
@@ -535,7 +541,6 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
-    background-color: white;
   }
 
   .textbox-enter-active {
@@ -559,7 +564,6 @@
     margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
-    color: #9174a9;
   }
 
 </style>

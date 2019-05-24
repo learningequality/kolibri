@@ -14,7 +14,7 @@ Feature: Super admin deletes channel
     Then the modal closes
       And I see the *Preparing...* and *Deleting channel...* messages
     When the delete process is finished
-    Then I see the *Finished! Click the 'Close' button to see changes*
+    Then I see the *Finished! Click 'Close' button to see changes*
     When I click the *Close* button
     Then I see the *Device > Channels* page is reloaded
       And I don't see the <channel> channel anymore

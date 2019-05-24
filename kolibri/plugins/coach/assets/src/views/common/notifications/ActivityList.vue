@@ -20,6 +20,7 @@
         class="notification-card"
         v-bind="cardPropsForNotification(notification)"
         :linkText="cardTextForNotification(notification)"
+        :style="{ borderBottomColor: $themeTokens.fineLine }"
       />
     </div>
 
@@ -57,6 +58,7 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
@@ -77,6 +79,7 @@
       NotificationsFilter,
       NotificationCard,
     },
+    mixins: [themeMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {
@@ -388,9 +391,12 @@
   // Copied from BlockItem.vue
   .notification-card {
     padding-bottom: 16px;
+    border-bottom-style: none;
+    border-bottom-width: 0;
 
     &:not(:last-child) {
-      border-bottom: 1px solid #dedede;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
     }
   }
 

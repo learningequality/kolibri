@@ -2,16 +2,16 @@ Feature: Admin deletes users
   Admin needs to be able to delete users from the facility
 
   Background:
-    Given I am signed in to Kolibri as admin user
+    Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Users* page
-
+      
   Scenario: Delete user
     When I click on *Options* button for the user I want to edit
-      And I select the *Delete* option
+      And I select *Delete* option
     Then I see *Delete user * modal
     When I click the *Delete* button
     Then the modal closes
-      And I see the *Facility > Users* page again
+      And I see the *Facility > Users* page again 
       # no confirmation that the user has been deleted
     When I search for the deleted user in the search field
     Then I see the *No users match the filter* result

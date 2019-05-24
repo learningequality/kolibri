@@ -268,6 +268,10 @@ LOGGING = {
         },
         "simple": {"format": "%(levelname)s %(message)s"},
         "simple_date": {"format": "%(levelname)s %(asctime)s %(module)s %(message)s"},
+        "simple_date_file": {
+            "()": "kolibri.core.logger.utils.formatter.KolibriLogFileFormatter",
+            "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
+        },
         "color": {
             "()": "colorlog.ColoredFormatter",
             "format": "%(log_color)s%(levelname)-8s %(message)s",
@@ -305,15 +309,17 @@ LOGGING = {
             "level": "DEBUG",
             "filters": ["require_debug_true"],
             "class": "logging.FileHandler",
-            "filename": os.path.join(conf.KOLIBRI_HOME, "debug.log"),
+            "filename": os.path.join(conf.LOG_ROOT, "debug.txt"),
             "formatter": "simple_date",
         },
         "file": {
             "level": "INFO",
             "filters": [],
-            "class": "logging.FileHandler",
-            "filename": os.path.join(conf.KOLIBRI_HOME, "kolibri.log"),
-            "formatter": "simple_date",
+            "class": "kolibri.core.logger.utils.handler.KolibriTimedRotatingFileHandler",
+            "filename": os.path.join(conf.LOG_ROOT, "kolibri.txt"),
+            "formatter": "simple_date_file",
+            "when": "midnight",
+            "backupCount": 30,
         },
     },
     "loggers": {
@@ -334,6 +340,16 @@ LOGGING = {
             "propagate": False,
         },
         "morango": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "cherrypy.access": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "cherrypy.error": {
             "handlers": ["file", "console"],
             "level": "INFO",
             "propagate": False,

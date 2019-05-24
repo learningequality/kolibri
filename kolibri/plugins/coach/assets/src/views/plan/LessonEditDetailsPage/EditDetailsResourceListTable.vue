@@ -20,7 +20,7 @@
         <KDragHandle>
           <KGrid
             class="row"
-            :style="{ backgroundColor: $coreBgLight }"
+            :style="{ backgroundColor: $themeTokens.surface }"
             cols="8"
           >
             <KGridItem size="1" class="relative">
@@ -44,7 +44,7 @@
                     contentId: resource.id
                   }, { last: 'LessonReportEditDetailsPage' })"
                 />
-                <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
+                <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                   {{ resource.channelTitle }}
                 </p>

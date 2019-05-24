@@ -2,7 +2,7 @@
 
   <div
     class="attempt-box"
-    :style="{ border: `2px solid ${selected ? $coreTextDefault : $coreTextDisabled }` }"
+    :style="{ border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }` }"
   >
     <template v-if="isAnswer">
       <mat-svg
@@ -10,14 +10,14 @@
         class="svg-item"
         category="action"
         name="check_circle"
-        :style="[svgItemBorder, { fill: $coreStatusCorrect }]"
+        :style="[svgItemBorder, { fill: $themeTokens.correct }]"
       />
       <mat-svg
         v-if="!interaction.correct"
         class="svg-item"
         category="navigation"
         name="cancel"
-        :style="[svgItemBorder, { fill: $coreStatusWrong }]"
+        :style="[svgItemBorder, { fill: $themeTokens.incorrect }]"
       />
     </template>
     <mat-svg
@@ -25,14 +25,14 @@
       class="svg-item"
       category="action"
       name="lightbulb_outline"
-      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
     <mat-svg
       v-else-if="isError"
       class="svg-item"
       category="alert"
       name="error_outline"
-      :style="[svgItemBorder, { fill: $coreTextAnnotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
     />
   </div>
 
@@ -68,7 +68,7 @@
       },
       svgItemBorder() {
         return {
-          borderBottom: `2px solid ${this.$coreTextDefault}`,
+          borderBottom: `2px solid ${this.$themeTokens.text}`,
         };
       },
     },

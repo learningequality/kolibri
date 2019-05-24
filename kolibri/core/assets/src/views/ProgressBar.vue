@@ -6,7 +6,7 @@
     </div>
     <div
       class="progress-bar-wrapper"
-      :style="{ backgroundColor: $coreGrey }"
+      :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
       role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="percent"
@@ -17,7 +17,7 @@
         class="progress-bar-complete"
         :style="{
           width: percent + '%',
-          backgroundColor: color || $coreActionNormal
+          backgroundColor: color || $themeTokens.primary
         }"
       >
       </div>

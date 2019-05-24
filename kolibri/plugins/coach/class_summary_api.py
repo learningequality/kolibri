@@ -183,14 +183,24 @@ class LessonSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = serializers.SerializerMethodField()
 
-    # classrooms are in here, and filtered out later
-    groups = LessonAssignmentsField(
+    # classrooms are in here, and filtered out later to create `groups`
+    assignments = LessonAssignmentsField(
         many=True, read_only=True, source="lesson_assignments"
     )
 
+    groups = serializers.ListField(default=[])
+
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "groups", "description")
+        fields = (
+            "id",
+            "title",
+            "active",
+            "node_ids",
+            "assignments",
+            "groups",
+            "description",
+        )
 
     def get_node_ids(self, obj):
         return [resource["contentnode_id"] for resource in obj.resources]
@@ -210,8 +220,10 @@ class ExamSerializer(serializers.ModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
 
-    # classes are in here, and filtered out later
-    groups = ExamAssignmentsField(many=True, read_only=True, source="assignments")
+    # classes are in here, and filtered out later to create `groups`
+    assignments = ExamAssignmentsField(many=True, read_only=True)
+
+    groups = serializers.ListField(default=[])
 
     class Meta:
         model = Exam
@@ -220,6 +232,7 @@ class ExamSerializer(serializers.ModelSerializer):
             "title",
             "active",
             "question_sources",
+            "assignments",
             "groups",
             "data_model_version",
             "question_count",
@@ -273,11 +286,11 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [g for g in exam["groups"] if g != pk]
+            exam["groups"] = [g for g in exam["assignments"] if g != pk]
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [g for g in lesson["groups"] if g != pk]
+            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
 
         all_node_ids = set()
         for lesson in lesson_data:

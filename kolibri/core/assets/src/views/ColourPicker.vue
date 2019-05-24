@@ -44,22 +44,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import { dynamicState, resetThemeValue } from '../styles/theme';
 
-  const themeColours = {
-    '$core-action-light': 'Core Action Light',
-    '$core-action-dark': 'Core Action Dark',
-    '$core-accent-color': 'Core Accent Color',
-    '$core-bg-canvas': 'Core Background Canvas',
-    '$core-text-default': 'Core Text Default',
-    '$core-bg-warning': 'Core Background Warning',
-    '$core-text-error': 'Core Text Error',
-    '$core-bg-error': 'Core Background Error',
-    '$core-status-progress': 'Core Status: Progress',
-    '$core-status-mastered': 'Core Status: Mastered',
-    '$core-status-correct': 'Core Status: Correct',
-    '$core-status-wrong': 'Core Status: Wrong',
-    '$core-grey': 'Core Grey',
-    '$core-loading': 'Core Loading',
-  };
+  const themeColours = {};
 
   export default {
     name: 'ColourPicker',

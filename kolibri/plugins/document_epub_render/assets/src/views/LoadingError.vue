@@ -1,6 +1,10 @@
 <template>
 
-  <div class="epub-renderer-error" :class="{loaded}">
+  <div
+    class="epub-renderer-error"
+    :class="{loaded}"
+    :style="{background: $themeTokens.surface}"
+  >
     <UiAlert
       type="error"
       :dismissible="false"
@@ -15,12 +19,14 @@
 <script>
 
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'LoadingError',
     components: {
       UiAlert,
     },
+    mixins: [themeMixin],
     props: {
       loaded: {
         type: Boolean,
@@ -44,7 +50,6 @@
     bottom: 0;
     left: 0;
     z-index: 24;
-    background: #ffffff;
   }
 
   .epub-renderer-error.loaded {

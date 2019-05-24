@@ -1,6 +1,6 @@
 <template>
 
-  <div class="bottom" :style="{backgroundColor: $coreBgLight}">
+  <div class="bottom" :style="{backgroundColor: $themeTokens.surface}">
     <div class="inner-bottom" :style="innerStyle">
       <slot></slot>
     </div>

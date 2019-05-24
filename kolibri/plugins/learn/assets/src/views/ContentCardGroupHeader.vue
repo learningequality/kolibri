@@ -4,7 +4,7 @@
 
     <div class="card-group-details">
 
-      <h2 v-if="header" class="card-group-details-header" :style="{ color: $coreTextDefault }">
+      <h2 v-if="header" class="card-group-details-header" :style="{ color: $themeTokens.text }">
         {{ header }}
       </h2>
 

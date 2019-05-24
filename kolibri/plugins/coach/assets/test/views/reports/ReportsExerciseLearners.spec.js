@@ -9,6 +9,7 @@ const entries = [
     name: 'learner1',
     username: 'learner1',
     groups: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
+    assignments: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
     exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
     statusObj: {
       learner_id: 'd4b',
@@ -23,6 +24,7 @@ const entries = [
     name: 'learner2',
     username: 'learner2',
     groups: [{ id: '23s', name: 'group2' }],
+    assignments: [{ id: '23s', name: 'group2' }],
     exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/a5d',
     statusObj: {
       learner_id: 'a5d',

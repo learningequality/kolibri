@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
       {{ $tr('header') }}
     </h3>
@@ -11,7 +11,7 @@
           :key="index"
           class="clickable attempt-item"
           :style="{
-            backgroundColor: isSelected(index) ? $coreTextDisabled : '',
+            backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
           }"
           @click="setSelectedAttemptLog(index)"
         >
@@ -19,35 +19,35 @@
             <mat-svg
               v-if="attemptLog.noattempt"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="attemptLog.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusCorrect }"
+              :style="{ fill: $themeTokens.correct }"
               category="action"
               name="check_circle"
             />
             <mat-svg
               v-else-if="attemptLog.error"
               class="svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="alert"
               name="error_outline"
             />
             <mat-svg
               v-else-if="!attemptLog.correct"
               class="item svg-item"
-              :style="{ fill: $coreStatusWrong }"
+              :style="{ fill: $themeTokens.incorrect }"
               category="navigation"
               name="cancel"
             />
             <mat-svg
               v-else-if="attemptLog.hinted"
               class="item svg-item"
-              :style=" { fill: $coreTextAnnotation }"
+              :style=" { fill: $themeTokens.annotation }"
               category="action"
               name="lightbulb_outline"
             />

@@ -3,7 +3,7 @@
 exports[`ReportsExerciseLearners doesn't render groups information when show groups set to false 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #e0e0e0; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #eeeeee; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Progress</th>
@@ -28,7 +28,7 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
     <div>learner2</div>
   </td>
   <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     Started
   </div></span>
       <!---->
@@ -46,7 +46,7 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
 exports[`ReportsExerciseLearners renders all entries 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #e0e0e0; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #eeeeee; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Progress</th>
@@ -77,7 +77,7 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
     <div>learner2</div>
   </td>
   <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     Started
   </div></span>
       <!---->

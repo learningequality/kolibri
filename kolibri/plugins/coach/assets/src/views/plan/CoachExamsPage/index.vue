@@ -51,7 +51,12 @@
               </KLabeledIcon>
             </td>
 
-            <td> {{ genRecipientsString(exam.groups) }} </td>
+            <td>
+              <Recipients
+                :groupNames="getGroupNames(exam.groups)"
+                :hasAssignments="exam.assignments.length > 0"
+              />
+            </td>
 
             <td>
               <QuizActive :active="exam.active" />
@@ -139,15 +144,6 @@
       },
       newExamRoute() {
         return { name: PageNames.EXAM_CREATION_ROOT };
-      },
-    },
-    methods: {
-      genRecipientsString(groups) {
-        if (!groups.length) {
-          return this.coachStrings.$tr('entireClassLabel');
-        } else {
-          return this.coachStrings.$tr('numberOfGroups', { value: groups.length });
-        }
       },
     },
     $trs: {
