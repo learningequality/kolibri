@@ -760,7 +760,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
-    subscriptions = JSONField(default='{}')
+    subscriptions = JSONField(default='[]')
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)

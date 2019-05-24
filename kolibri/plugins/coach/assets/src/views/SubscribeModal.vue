@@ -47,11 +47,6 @@
         required: true,
       },
     },
-    // data() {
-    //   return {
-    //     thisCollectionId: this.collectionId,
-    //   };
-    // },
     computed: {
       ...mapGetters({
         channels: 'getChannels',
@@ -62,7 +57,7 @@
       saveSelectedSubscriptions() {
         this.saveSubscription({
           id: this.collectionId,
-          subscriptions: "{'channels' : ['123','456']}",
+          choices: "['123','456']",
         });
       },
       close() {

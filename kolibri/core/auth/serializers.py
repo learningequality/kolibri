@@ -114,6 +114,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
             'parent',
             'learner_count',
             'coaches',
+            'subscriptions',
         )
 
         validators = [

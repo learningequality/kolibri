@@ -4,10 +4,10 @@ export function displayModal(store, modalName) {
   store.commit('SET_SUBSCRIPTION_MODAL', modalName);
 }
 
-export function saveSubscription(store, { id, subscriptions }) {
+export function saveSubscription(store, subData) {
   return ClassroomResource.saveModel({
-    id: id,
-    data: { subscriptions: subscriptions },
+    id: subData.id,
+    data: { subscriptions: subData.choices },
     exists: true,
   })
     .then(store.dispatch('displayModal', false))
