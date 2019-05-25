@@ -24,6 +24,8 @@ module.exports = {
         jest: true,
       },
       globals: {
+        $: true,
+        $$: true,
         page: true,
         browser: true,
         context: true,
