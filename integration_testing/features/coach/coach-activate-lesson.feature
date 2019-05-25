@@ -6,29 +6,27 @@ Feature: Coach activates and deactivates lessons
       And I am on *Coach > Plan > Lessons* page
       And I see the lesson <lesson_title>
 
-  Scenario: Coach changes the lesson status to *Active* with toggle
-    When I click the lesson <lesson_title>
-    Then I see the <lesson_title> lesson page
-      And I see the lesson *Status* is *Inactive*
-    When I click *Change*
-    Then I see the *Change lesson status* modal
-    When I select *Active*
-      And I click *Save* button
-    Then the modal closes
-      And I see the snackbar notification
+  Scenario: Coach changes the lesson status to *Active*
+    Given that lesson <lesson_title> *Status* is *Inactive*
+      When I click the *Options* button
+        And I select *Edit details*
+      Then I see the *Edit lesson details for '<lesson_title>'* page
+      When I select *Active* under *Status*
+      And I click *Save changes* button
+    Then the page closes
+      And I see the snackbar notification *Changes to lesson saved*
       And I see the lesson *Status* is *Active*
 
-  Scenario: Coach changes the lesson status to *Inactive* with toggle
-    When I click the lesson <lesson_title>
-    Then I see the <lesson_title> lesson page
-      And I see the lesson *Status* is *Active*
-    When I click *Change*
-    Then I see the *Change lesson status* modal
-    When I select *Inactive*
-      And I click *Save* button
-    Then the modal closes
-      And I see the snackbar notification
-      And I see the lesson *Status* is *Inactive*
+  Scenario: Coach changes the lesson status to *Inactive*
+    Given that lesson <lesson_title> *Status* is *Active*
+      When I click the *Options* button
+        And I select *Edit details*
+      Then I see the *Edit lesson details for '<lesson_title>'* page
+      When I select *Inactive* under *Status*
+      And I click *Save changes* button
+    Then the page closes
+      And I see the snackbar notification *Changes to lesson saved*
+      And I see the lesson *Status* is *Inative*
 
 Examples:
 | lesson_title          |

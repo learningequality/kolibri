@@ -1,5 +1,5 @@
-Feature: Coach activates quizzes
-  Coaches need to activate quizzes in order for learners to gain access and start submitting them
+Feature: Coach activates and deactivates quizzes
+  Coaches need to activate quizzes for learners to gain access and start submitting them
 
   Background:
     Given I am signed in to kolibri as coach user
@@ -10,7 +10,7 @@ Feature: Coach activates quizzes
     Given that quiz <quiz_title> *Status* is *Inactive*
       When I click the *Options* button
         And I select *Edit details*
-      Then I see the *Edit quiz details* modal
+      Then I see the *Edit quiz details for '<quiz_title>'* page
       When I select *Active* under *Status*
       And I click *Save* button
     Then the modal closes
@@ -21,9 +21,9 @@ Feature: Coach activates quizzes
     Given that quiz <quiz_title> *Status* is *Active*
       When I click the *Options* button
         And I select *Edit details*
-      Then I see the *Edit quiz details* modal
+      Then I see the *Edit quiz details for '<quiz_title>'* page
       When I select *Inactive* under *Status*
-      And I click *Save* button
+      And I click *Save changes* button
     Then the modal closes
       And I see the snackbar notification *Changes to quiz saved*
       And I see the quiz *Status* is *Inactive*

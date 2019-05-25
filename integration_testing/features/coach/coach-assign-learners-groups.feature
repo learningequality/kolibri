@@ -1,4 +1,4 @@
-Feature: Assign and remove learners to groups
+Feature: Assign and remove learners to and from groups
   Coach needs to be able to assign learners to groups to support different learning needs and speeds
 
   Background:
@@ -15,14 +15,13 @@ Feature: Assign and remove learners to groups
     When I click on the checkbox(es) of the learner(s) I want to enroll
     Then I see the *Confirm* button is active
     When I click the *Confirm* button
-    Then the modal closes
+    Then the page reloads
       And I see the <group> group page again
       And I see the list of enrolled learner(s)
       And I see the number of learners is increased
 
   Scenario: Remove learners
-    When I click on <group> group
-    Then I see the <group> group page
+    Given I am on the <group> group page
       And I see the list of learners assigned to group
     When I click the *Remove* button for a learner
     Then I see *Remove user* modal

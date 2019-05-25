@@ -9,16 +9,15 @@ Feature: Groups subtab
     Given I am on the *Coach > Reports > Groups* subtab
       When I click <group> group
       Then I see the <group> profile page
-        And I see high level summary data for <group>
-        And I see the history of lessons and quizzes assigned to <group> in the *Reports* subtab
+        And I see the list of lessons and quizzes assigned to <group> in the *Reports* subtab
 
   # Check
   Scenario: Review progress of a quiz assigned to a group
     Given I am on the <group> profile page
       And there are quizzes assigned to it
-    When I click on the <quiz> quiz assigned to <group>
-    Then I see the quiz <quiz> report page for <group>
-      And I see all quiz data scoped to <group>
+        When I click on the <quiz> quiz assigned to <group>
+        Then I see the quiz <quiz> report page for <group>
+          And I see all quiz data scoped to <group>
 
   # Check
   Scenario: Review learner’s quiz report
@@ -30,16 +29,16 @@ Feature: Groups subtab
   Scenario: Review progress of a lesson assigned to a group
     Given I am on the <group> profile page
       And there are lessons assigned to it
-    When I click on the <lesson> assigned to <group>
-    Then I see the <lesson> report page for <group>
-      And I see the <group> progress on all the <lesson> resources
+        When I click on the <lesson> assigned to <group>
+        Then I see the <lesson> report page for <group>
+          And I see the columns for <group> progress and average time spent for each <lesson> resource
 
   # Check
   Scenario: Review progress of group members
     Given I am on the <group> profile page
       When I click the *Members* subtab
       Then I see a list of all the members of that group
-        And I see the data columns displaying resource completions, quiz averages, and number of lessons assigned
+        And I see the columns displaying quiz averages, resource completions, and last activity for each member
 
   Scenario: Review the group's activity
     Given I am on the <group> profile page
