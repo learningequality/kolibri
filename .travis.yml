@@ -58,6 +58,9 @@ matrix:
     - python: "3.5"
       env:
         - TOX_ENV=postgres
+    - python: "3.6"
+      env:
+        - TOX_ENV=integ
     - python: "2.7"
       env:
         - TOX_ENV=frontendlint
