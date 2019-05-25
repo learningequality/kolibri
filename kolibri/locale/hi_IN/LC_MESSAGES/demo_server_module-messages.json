@@ -1,11 +1,11 @@
 {
   "DemoServerBannerContent.demoServerA1": "दस्तावेज़ पढ़ें",
   "DemoServerBannerContent.demoServerA2": "नवीनतम संस्करण को डाउनलोड और इंस्टाल करें",
-  "DemoServerBannerContent.demoServerHeader": "",
-  "DemoServerBannerContent.demoServerL1": "",
-  "DemoServerBannerContent.demoServerL2": "",
-  "DemoServerBannerContent.demoServerL3": "",
-  "DemoServerBannerContent.demoServerP1": "",
-  "DemoServerBannerContent.demoServerP2": "",
+  "DemoServerBannerContent.demoServerHeader": "कोलिब्री डेमो साइट में स्वागत है!",
+  "DemoServerBannerContent.demoServerL1": "पाठक ({user}/{pass} या अतिथि के रूप में देखें)",
+  "DemoServerBannerContent.demoServerL2": "कोच ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "एड्मिन ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "तीन प्राथमिक उपयोगकर्ताओं में से किसी को खोजें:",
+  "DemoServerBannerContent.demoServerP2": "कोलिब्री का यह ऑनलाइन संस्करण केवल प्रदर्शन के लिए है। उपयोगकर्ता और डेटा समय-समय पर मिटा दिए जाएंगे। हाल के कोलिब्री संस्करण की विशेषताएँ डेमो में देख सकते हैं और सभी संसाधन केवल नमूने हैं।",
   "DemoServerBannerContent.demoServerP3": "ऑफ़लाइन संदर्भ में कोलिब्री के बारे में अधिक जानकारी लेने और बेहतर समझने के लिए:"
 }

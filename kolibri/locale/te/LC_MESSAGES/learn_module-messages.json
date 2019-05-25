@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "తదుపరి ప్రశ్న",
   "ExamPage.noItemId": "ఈ ప్రశ్నలో లోపం ఉంది, దయచేసి తదుపరి ప్రశ్నకు వెళ్లు",
   "ExamPage.previousQuestion": "మునుపటి ప్రశ్న",
-  "ExamPage.question": "",
+  "ExamPage.question": "{ total }లో { num }వ ప్రశ్న",
   "ExamPage.questionsAnswered": "{numAnswered, number} of {numTotal, number} {numTotal, plural, one {ప్రశ్న} other {ప్రశ్నలు}}కు సమాధానాలు ఇవ్వబడ్డాయి",
   "ExamPage.submitExam": "క్విజ్‌ని సమర్పించండి",
   "ExamPage.unanswered": "మీరు {numLeft, number} {numLeft, plural, one {ప్రశ్న} other {ప్రశ్నల}}కు సమాధానం ఇవ్వబడలేదు",
