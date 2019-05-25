@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "اگلہ سوال",
   "ExamPage.noItemId": "اس سوال کو مسلہ ہے، اگلے سوال پرجائیں ۔",
   "ExamPage.previousQuestion": "سابقہ سوال",
-  "ExamPage.question": "",
+  "ExamPage.question": "سوال { total } میں سے { num }",
   "ExamPage.questionsAnswered": "{numAnswered, number} کے {numTotal, number} {numTotal, plural, one {سوال} other {سوالات}} جواب دیا گیا",
   "ExamPage.submitExam": "کوئز جمع کرائیں",
   "ExamPage.unanswered": "اپ کے {numLeft, number} {numLeft, plural, one {سوال} other {سوالات}}  کا جواب نہیں دیا گیا",

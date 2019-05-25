@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "अगला प्रश्न",
   "ExamPage.noItemId": "इस प्रश्न में त्रुटि है, कृपया अगले प्रश्न पर जाएँ",
   "ExamPage.previousQuestion": "पिछला प्रश्न",
-  "ExamPage.question": "",
+  "ExamPage.question": "{ total } में से { num } प्रश्न",
   "ExamPage.questionsAnswered": "{numTotal, number} के {numAnswered, number} {numTotal, plural, one {प्रश्न} other {प्रश्नों}} का जवाब",
   "ExamPage.submitExam": "क्विज़ सब्मिट करें",
   "ExamPage.unanswered": "आपके {numLeft, number} {numLeft, plural, one {प्रश्न} other {प्रश्न}} अनुत्तरित हैं",

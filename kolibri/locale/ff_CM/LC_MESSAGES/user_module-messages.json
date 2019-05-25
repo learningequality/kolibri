@@ -1,5 +1,5 @@
 {
-  "ChangeUserPasswordModal.cancelButtonLabel": "faasutu",
+  "ChangeUserPasswordModal.cancelButtonLabel": "alu",
   "ChangeUserPasswordModal.confirmNewPasswordFieldLabel": "Nastin paltirgel fahin",
   "ChangeUserPasswordModal.newPasswordFieldLabel": "Nastin paltirgel kesel",
   "ChangeUserPasswordModal.passwordChangeFormHeader": "Sanju paltirgel",
@@ -16,7 +16,7 @@
   "ProfilePage.isSuperuser": "Yerduye diga mawɗo dawrooɓe ",
   "ProfilePage.limitedPermissions": "Yerduye hetaneego",
   "ProfilePage.manageContent": "Hakkilango ko-woni-nder",
-  "ProfilePage.manageDevicePermissions": "Hakkilango yerduye kompiita",
+  "ProfilePage.manageDevicePermissions": "Hakkilana yerduye kompiita",
   "ProfilePage.name": "Inɗe fuu",
   "ProfilePage.points": "Toɓɓe tiiɗal",
   "ProfilePage.required": "Winndugo ɗo'o ɗum doole",
@@ -33,7 +33,7 @@
   "SignInPage.enterPassword": "Nastin paltirgel",
   "SignInPage.kolibri": "Kolibri",
   "SignInPage.password": "Paltirgel",
-  "SignInPage.poweredBy": "Kolibri {version}",
+  "SignInPage.poweredBy": "{version} Kolibri",
   "SignInPage.privacyLink": "Kuutinirteeɗum e keeɓaaɗum",
   "SignInPage.required": "Winndugo ɗo'o ɗum doole",
   "SignInPage.requiredForCoachesAdmins": "Jannginooɓe e dawrooɓe sey bee paltirgel",
@@ -61,5 +61,5 @@
   "UserIndex.userSignInTitle": "Waɗu junngo",
   "UserPageSnackbars.dismiss": "Riiwu",
   "UserPageSnackbars.signedOut": "A wayrii huwugo, ɗum wurtiniima",
-  "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Paltirgel sanjake"
+  "UserProfilePageSnackbars.passwordChangeSuccessMessage": "Paltirgel sannjake"
 }
