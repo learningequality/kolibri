@@ -3,7 +3,7 @@ Feature: Coach creates quizzes
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Plan > Quizzes* page
+      And I am on the *Coach - '<class>' > Plan > Quizzes* page
 
   Scenario: Create new quiz
     When I click the *New quiz* button
@@ -39,8 +39,7 @@ Feature: Coach creates quizzes
 
   Scenario: Navigate resources
     When I click on a channel or topic card
-    Then I am redirected to a new page
-      And I see channel/topic resources
+    Then I see channel/topic resources
       And I see the breadcrumb path for the channel/topic
     When I click on a parent topic breadcrumb
     Then I am redirected back to that topic
@@ -166,7 +165,7 @@ Feature: Coach creates quizzes
       And I see how many coach exercises/topics it contains
       And I see how many exercises inside are added to the quiz
 
-  Scenario: Preview a resource in the search results
+#  Scenario: Preview a resource in the search results
     Given I am on the search results page
       And there are exercises in the search results page
     When I click an exercise <exercise> card
@@ -174,11 +173,13 @@ Feature: Coach creates quizzes
     When I click the *back arrow* button
     Then I see the search results page again
       And I see my results are still present
+# This ^^ is not implemented
 
-  Scenario: Exit the search results page
+#  Scenario: Exit the search results page
     Given I am on the search results page
       When I click *Exit search*
       Then I see the topic and channel I was viewing before I initiated the search
+# This ^^ is not implemented
 
   Scenario: Preview Quiz
     Given I am on *Create new quiz* page
@@ -200,20 +201,20 @@ Feature: Coach creates quizzes
     When I input a valid title into the field
       And I click *Finish*
     Then I don't see the validation error anymore
-      And I see the quiz on the list at *Coach > Plan > Quizzes* tab 
+      And I see the quiz on the list at *Coach - '<class>' > Plan > Quizzes* tab 
 
   Scenario: Save quiz
     Given I am on *Preview quiz* page
       And there are no validation errors
     When I click “Finish”
-    Then I am redirected to the *Coach > Plan > Quizzes* page
+    Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
       And I see a snackbar confirmation that the quiz is created
 
   Scenario: Exit quiz creation without finishing
     Given I am on *Create new quiz* page
       But I did not save the quiz
     When I click the *back arrow* button
-    Then I am redirected to the *Coach > Plan > Quizzes* page
+    Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
       And I loose all quiz creation progress
 
     Examples:

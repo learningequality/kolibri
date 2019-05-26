@@ -3,7 +3,7 @@ Feature: Assign and remove learners to and from groups
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am on the *Coach > Plan > Groups* page
+      And I am on the *Coach - '<class>' > Plan > Groups* page
       And there are groups created
       
   Scenario: Enroll learners
@@ -30,3 +30,6 @@ Feature: Assign and remove learners to and from groups
       And I see the <group> group page again
       And I see the name of removed learner(s) is not listed
       And I see the number of learners is decreased
+    But if I click the *Cancel* button
+    Then the modal closes
+      And still see the learner(s) on the list

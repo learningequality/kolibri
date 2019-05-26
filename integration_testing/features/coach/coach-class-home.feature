@@ -17,7 +17,7 @@ Feature: General navigation on *Class home* tab
       When I look at the *Quizzes* block
       Then I see no quizzes
       When I click *View all*
-      Then I am on *Coach > Reports > Quizzes* subtab
+      Then I am on *Coach '<class>' > Reports > Quizzes* subtab
         And I see no quizzes
 
   Scenario: There are no lessons
@@ -25,7 +25,7 @@ Feature: General navigation on *Class home* tab
       When I look at the *Lessons* block
       Then I see no lessons
       When I click *View all*
-      Then I am on *Coach > Reports > Lessons* subtab
+      Then I am on *Coach '<class>' > Reports > Lessons* subtab
         And I see no lessons
 
   Scenario: There has been no activity in the class
@@ -37,13 +37,13 @@ Feature: General navigation on *Class home* tab
         And I see *No activity in your class* notification
 
   Scenario: No coaches assigned to class
-    Given there are no coaches assigned to the class
-      When I look at the <class> class home summary block at the top
-      Then I see no coaches listed
-        And I see *-* instead
+    Given I am facility coach
+      And there are no coaches assigned to the class <class>
+        When I look at the <class> class home summary block at the top
+        Then I see no coaches listed
+          And I see *-* instead
 
   Scenario: No learners enrolled in the class
     Given there are no learners assigned to the class
       When I look at the <class> class home summary block at the top
       Then I see *0* listed as number of learners        
-
