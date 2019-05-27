@@ -62,6 +62,7 @@ profile$trs.prototype.apply = function(compiler) {
         return;
       }
 
+      fs.writeFileSync(`/home/jacob/.kolibri/logs/define-${self.moduleName}.json`, JSON.stringify(strProfile));
       compilation.chunks.forEach(chunk => {
         let parsedUrl;
         let ast;
@@ -89,7 +90,7 @@ profile$trs.prototype.apply = function(compiler) {
                 pre: function(node) {
                   // If the node is a Property and has a key.name of `name` then it's
                   // going to give us the namespace of our current module.
-                  if (node.type === 'Property') {
+                  if (node.type === 'Property' && !namespace) {
                     if (node.key.name === 'name') {
                       namespace = node.value.value;
                     }
@@ -107,8 +108,8 @@ profile$trs.prototype.apply = function(compiler) {
                           key = keyFromArguments(node.arguments);
                           common = true;
                         }
-                        if (key) {
-                          let $tring = getStringFromNamespaceKey(strProfile, namespace, key);
+                        if (key !== undefined && namespace) {
+                          let $tring = getStringFromNamespaceKey(strProfile, namespace, key, common);
 
                           if ($tring) {
                             strProfile[$tring].uses.push({
@@ -304,13 +305,17 @@ function filterByModule(definitions, module) {
   );
 }
 
-function getStringFromNamespaceKey(profile, namespace, key) {
+function getStringFromNamespaceKey(profile, namespace, key, common) {
   let string = null;
   Object.keys(profile).forEach(str => {
-    if (
-      profile[str].definitions[0].namespace === namespace &&
-      profile[str].definitions[0].key === key
-    ) {
+    let matchedNamespace;
+    if(common) {
+      matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
+    } else {
+      matchedNamespace = profile[str].definitions.find(def => def.namespace.includes("Common"));
+    }
+    let matchedKey = profile[str].definitions.find(def => def.key === key);
+    if (matchedNamespace && matchedKey) {
       string = str;
     }
   });
