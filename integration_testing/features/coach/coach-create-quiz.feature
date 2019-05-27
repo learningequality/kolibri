@@ -181,7 +181,7 @@ Feature: Coach creates quizzes
       Then I see the topic and channel I was viewing before I initiated the search
 # This ^^ is not implemented
 
-  Scenario: Preview Quiz
+  Scenario: Preview quiz and change the question order
     Given I am on *Create new quiz* page
       And there are no validation errors
     When I click “Continue”
@@ -204,7 +204,7 @@ Feature: Coach creates quizzes
       And I see the quiz on the list at *Coach - '<class>' > Plan > Quizzes* tab 
 
   Scenario: Save quiz
-    Given I am on *Preview quiz* page
+    Given I am on quiz preview page
       And there are no validation errors
     When I click “Finish”
     Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
@@ -217,6 +217,6 @@ Feature: Coach creates quizzes
     Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
       And I loose all quiz creation progress
 
-    Examples:
-      | quiz_title    | number_of_question | exercises_questions | channel                | topic               |
-      | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |
+Examples:
+  | quiz          | number_of_question | exercises_questions | channel                | topic               |
+  | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |
