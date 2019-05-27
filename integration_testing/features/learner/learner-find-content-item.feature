@@ -30,16 +30,15 @@ Feature: Learner finds content item
 
   Scenario: Browse locations for the multiple search results
     Given there is a search result item that is present in various channels and/or locations
-    When I click the *N locations* link on one of the items
-    Then I see the *Locations* modal
-      And I see the list of links to N locations where the search result item is present
-    When I click one of the links
-    Then I see the content item page on that specific location
-    When I click the browser back button 
-    When I click *Close*
-    Then the modal closes 
-
+      When I click the *N locations* link on one of the items
+      Then I see the *Locations* modal
+        And I see the list of links to N locations where the search result item is present
+      When I click one of the links
+      Then I see the content item page on that specific location
+      When I click *Close*
+      Then the modal closes 
 
 Examples:
   | search_term |
   | cosine      |
+  

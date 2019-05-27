@@ -14,3 +14,4 @@ Feature: Learner sign-out
     When I open the sidebar from the top left icon
       And I click the *Sign out* button 
     Then I am signed out and back on the sign-in page
+    
