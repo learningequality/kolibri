@@ -18,6 +18,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const extract$trs = require('./extract$trs');
+const profile$trs = require('./profile$trs');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
@@ -245,6 +246,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         __copyrightYear: new Date().getFullYear(),
       }),
       new extract$trs(data.locale_data_folder, data.name),
+      new profile$trs(data.locale_data_folder, data.name),
       // Add custom messages per bundle.
       new WebpackMessages({
         name: data.name,
