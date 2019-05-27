@@ -96,7 +96,7 @@ Feature: Lessons notifications
         Then I see <exercise> report page
           And I see the completed status on <exercise> for all three learners
 
-  Scenario: One learner needs help the exercise in the lesson
+  Scenario: One learner needs help with the exercise in the lesson
     Given that as <learner1> in one window I am at *Learn > '<class>' > '<lesson>'* page
       And I get multiple incorrect attempts on at least one question in the <exercise>
       And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
@@ -110,7 +110,7 @@ Feature: Lessons notifications
         Then I see <exercise> report page
           And I see <learner1> attempt report on <exercise>
 
-  Scenario: Second learner needs help the exercise in the lesson
+  Scenario: Second learner needs help with the exercise in the lesson
     Given that as <learner2> in one window I am at *Learn > '<class>' > '<lesson>'* page
       And I get multiple incorrect attempts on at least one question in the <exercise>
       And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
@@ -124,7 +124,7 @@ Feature: Lessons notifications
         Then I see <exercise> report page
           And I see both <learner1> and <learner2> need help status on <exercise>
 
-  Scenario: All three learners need help the exercise in the lesson
+  Scenario: All three learners need help with the exercise in the lesson
     Given that as <learner3> in one window I am at *Learn > '<class>' > '<lesson>'* page
       And I get multiple incorrect attempts on at least one question in the <exercise>
       And as <coach> in another window I am at *Coach - '<class>' > Class Home* page

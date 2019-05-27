@@ -12,48 +12,48 @@ Feature: Coach reviews summary progress on a lesson
     When as learner <learner1> in one window I go to the *Learn > Class* page for <class>
     Then I see there's a lesson assigned to me that I have not started
       But I don't do anything else
-    When as a coach <coach> in another window I go to the *Coach > Reports > Lessons > '<lesson>' > Report* subtab
+    When as a coach <coach> in another window I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab
     Then I see the progress for <video> is *3 have not started*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for all learners is *Has not started*
 
   Scenario: Learner1 starts the lesson
     When I as a <learner1> click to open the <lesson> lesson
       And I start the <video>
-    Then within 5 seconds as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *1 of 3 has started*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then within 5 seconds as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *1 of 3 has started*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for <learner1> is *Started*
     
   Scenario: Learner1 completes the lesson
     When I as a <learner1> finish the <video>
-    Then as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 1 of 3*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 1 of 3*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for <learner1> is *Completed*
 
   Scenario: Learner2 starts the lesson
     When I as a <learner2> click to open the <lesson> lesson
       And I start the <video>
-    Then within 5 seconds as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 1 of 3; 1 started*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then within 5 seconds as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 1 of 3; 1 started*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for <learner1> is *Completed*
       And the value for progress for <learner2> is *Started*
     
   Scenario: Learner2 completes the lesson
     When I as a <learner2> finish the <video>
-    Then as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 2 of 3*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 2 of 3*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for both <learner1> and <learner2> is *Completed*
 
   Scenario: Learner3 starts the lesson
     When I as a <learner3> click to open the <lesson> lesson
       And I start the <video>
-    Then within 5 seconds as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 2 of 3; 1 started*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then within 5 seconds as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by 2 of 3; 1 started*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for <learner1> and <learner2> is *Completed*
       And the value for progress for <learner3> is *Started*
     
   Scenario: Learner3 completes the lesson
     When I as a <learner3> finish the <video>
-    Then as a coach <coach> in *Coach > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by all 3*
-    When I go to the *Coach > Reports > Lessons > '<lesson>' > Learners* subtab
+    Then as a coach <coach> in *Coach - '<class>' > Reports > Lessons > '<lesson>' > Report* subtab I see *Progress* for <video> is *Completed by all 3*
+    When I go to the *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
     Then I see the value for progress for all 3 learners is *Completed*
