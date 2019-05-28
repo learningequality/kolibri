@@ -1,13 +1,26 @@
 .. _release_process:
 
+
+.. |last_version_patches| replace:: ``v0.2.0`` and ``v0.2.1``
+.. |last_version_branch| replace:: ``release-v0.2.x``
+
+.. |next_version| replace:: 0.3.0
+.. |next_version_patch| replace:: 0.3.1
+.. |next_version_branch| replace:: ``release-v0.3.x``
+.. |next_version_alpha_tag| replace:: ``v0.3.0-alpha1``
+.. |next_version_beta_tag| replace:: ``v0.3.0-beta1``
+.. |next_version_pex| replace:: ``kolibri-v0.3.0.pex``
+.. |next_version_deb| replace:: ``kolibri_0.3.0-0ubuntu1_all.deb``
+.. |next_version_exe| replace:: ``kolibri-v0.3.0-windows-installer.exe``
+
 Release process
 ===============
 
-These instructions follow the hypothetical release of Kolibri version '0.3.0'.
+These instructions follow the hypothetical release of Kolibri version '|next_version|'.
 
-In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being ``release-v0.2.x`` with potentially multiple tags for patch releases, e.g. ``v0.2.0`` and ``v0.2.1``.
+In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being |last_version_branch| with potentially multiple tags for patch releases, e.g. |last_version_patches|.
 
-Patch releases (e.g. '0.3.1') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. ``release-v0.2.x``). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped
+Patch releases (e.g. '|next_version_patch|') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. |last_version_branch|). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped
 
 
 Create alpha releases
@@ -15,13 +28,13 @@ Create alpha releases
 
 For the majority of development on a new release, PRs will target the ``develop`` branch. Tag alpha releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
-Make sure to target ``develop``, use the standard tag naming convention (e.g. ``v0.3.0-alpha1``), and mark it has a "pre-release".
+Make sure to target ``develop``, use the standard tag naming convention (e.g. |next_version_alpha_tag|), and mark it has a "pre-release".
 
 These alphas can be used for preliminary testing as major, unstable updates are introduced.
 
 When a new alpha is published, *delete any older alphas* using Github's 'delete release' functionality. This will *not* delete the git tag.
 
-It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming 0.3.0 release, we would need to merge ``release-v0.2.x`` into ``develop``.
+It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming |next_version| release, we would need to merge |last_version_branch| into ``develop``.
 
 During the alpha phase is all the period when we should update our Python and Javascript dependencies. In general we should avoid updating dependencies in release branches.
 
@@ -58,20 +71,35 @@ Test to ensure that changes have propagated as expected.
 Create a release branch
 -----------------------
 
-When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version 0.3.0, we'd do the following steps:
+.. UNSUBSTITUTED VERSION NUMBERS IN THIS SECTION
 
-* Create new branch off of ``develop`` with a name like ``release-v0.3.x``
+When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version |next_version|, we'd do the following steps:
+
+* Create new branch off of ``develop`` with a name like |next_version_branch|
 * Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`__ in Github using the same settings as ``develop``
-* Re-target any outstanding PRs for this release from ``develop`` to ``release-v0.3.x``
+* Re-target any outstanding PRs for this release from ``develop`` to |next_version_branch|
 
-Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  ``release-v0.3.x`` and ``develop`` branches.
+Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  |next_version_branch| and ``develop`` branches.
 
-* In ``develop``, update the first three values from ``0, 2, 0`` to ``0, 3, 0``
-* In ``release-v0.3.x``, bump fourth value: ``'alpha'`` to  ``'beta'``
+In ``develop``, increment the second number in the ``VERSION`` tuple:
+
+.. code-block:: diff
+
+  # In 'develop'
+  - VERSION = (0, 2, 0, 'alpha', 1)
+  + VERSION = (0, 3, 0, 'alpha', 1)
+
+In |next_version_branch|, bump fourth value: ``'alpha'`` to  ``'beta'``
+
+.. code-block:: diff
+
+  # In 'release-v0.3.x'
+  - VERSION = (0, 2, 0, 'alpha', 1)
+  + VERSION = (0, 2, 0, 'beta', 1)
 
 These changes can be merged by a Github admin without code review.
 
-Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality. Target the ``release-v0.3.x`` branch, use the standard tag naming convention (``v0.3.0-beta1``), and mark it has a "pre-release".
+Finally, tag the first beta using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality. Target the |next_version_branch| branch, use the standard tag naming convention (|next_version_beta_tag|), and mark it has a "pre-release".
 
 
 Integration testing and beta releases
@@ -91,7 +119,7 @@ For every beta release:
 
 Tag beta releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
-Make sure to target tags to the release branch. For example, for 0.3.0 betas, target ``release-v0.3.x``. Use the standard tag naming convention (e.g. ``v0.3.0-beta1``), and mark it has a "pre-release" in the Github UI.
+Make sure to target tags to the release branch. For example, for |next_version| betas, target |next_version_branch|. Use the standard tag naming convention (e.g. |next_version_beta_tag|), and mark it has a "pre-release" in the Github UI.
 
 These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
 
@@ -114,7 +142,7 @@ See :ref:`crowdin` for more information.
 Merge in previous release again
 -------------------------------
 
-Check one last time if there were any last-minute changes to the previous release branch that need to be merged into the current release branch. For example in preparation for 0.3.0, we would need to merge ``release-v0.2.x`` into ``release-v0.3.x``.
+Check one last time if there were any last-minute changes to the previous release branch that need to be merged into the current release branch. For example in preparation for |next_version|, we would need to merge |last_version_branch| into |next_version_branch|.
 
 
 Triage open PRs and issues
@@ -156,14 +184,14 @@ Create the final release
 
 Before proceeding, tag and build one last beta, and run through the most critical user stories to ensure that there are no glaring issues. If that checks out, it's time to create the final release.
 
-For example, if we were releasing version 0.3.0, we would perform these steps:
+For example, if we were releasing version |next_version|, we would perform these steps:
 
-* The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in ``release-v0.3.x``
+* The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in |next_version_branch|
 * Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
-* Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
+* Tag the final release as ``v0.3.0`` targetting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
-* Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
+* Update ``VERSION`` in |next_version_branch| to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
 
@@ -171,10 +199,12 @@ At this point, all changes to the git tree are complete for the release.
 Publish to PyPI
 ---------------
 
+
 Releasing to PyPI marks the "no turning back" moment of a release because releases cannot be removed – only added. Make sure that the correct tag is checked out and that the git tree has no local changes.
 
-If this were version 0.3.0 we would do:
+If this were version |next_version| we would do:
 
+.. UNSUBSTITUTED VERSION NUMBER: should read '$ git reset --hard v|next_version|'
 .. code-block:: bash
 
     $ git reset --hard v0.3.0
@@ -196,21 +226,21 @@ When uploading files to the Pantry server, put them in a directory of the form `
 Make sure the files and parent directories are owned by the ``www-data`` user, e.g. by running ``sudo chown www-data:www-data [filename]``
 
 
-For the example of version 0.3.0 we would do the following:
+For the example of version |next_version| we would do the following:
 
 * Pex
    * Test that .pex works and version info is correct
-   * Upload .pex to Pantry as ``kolibri-v0.3.0.pex``
+   * Upload .pex to Pantry as |next_version_pex|
 * Debian
    * Build and sign Debian package
    * Test that .deb works and that version is correct
    * Publish package to our PPA
-   * Upload .deb to Pantry as ``kolibri_0.3.0-0ubuntu1_all.deb``
+   * Upload .deb to Pantry as |next_version_deb|
    * Note that if another Debian build is necessary, ``ubuntu1`` can be incremented
 * Windows
    * Sign Windows installer
    * Test that .exe works and that version is correct
-   * Upload .exe to Pantry as ``kolibri-v0.3.0-windows-installer.exe``
+   * Upload .exe to Pantry as |next_version_exe|
 
 
 Update `learningequality.org/download <https://learningequality.org/download/>`__ to point to the latest release by updating variables in the Admin page. Log in and navigate to:
