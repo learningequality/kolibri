@@ -71,7 +71,6 @@ Test to ensure that changes have propagated as expected.
 Create a release branch
 -----------------------
 
-.. UNSUBSTITUTED VERSION NUMBERS IN THIS SECTION
 
 When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version |next_version|, we'd do the following steps:
 
@@ -79,10 +78,12 @@ When we're nearing the end of major new feature development, cut a new release b
 * Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`__ in Github using the same settings as ``develop``
 * Re-target any outstanding PRs for this release from ``develop`` to |next_version_branch|
 
+.. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be the minor number of last version
 Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  |next_version_branch| and ``develop`` branches.
 
 In ``develop``, increment the second number in the ``VERSION`` tuple:
 
+.. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be going from last version to next version e.g. 2 -> 3
 .. code-block:: diff
 
   # In 'develop'
@@ -91,6 +92,7 @@ In ``develop``, increment the second number in the ``VERSION`` tuple:
 
 In |next_version_branch|, bump fourth value: ``'alpha'`` to  ``'beta'``
 
+.. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be the minor number of last version
 .. code-block:: diff
 
   # In 'release-v0.3.x'
@@ -186,11 +188,12 @@ Before proceeding, tag and build one last beta, and run through the most critica
 
 For example, if we were releasing version |next_version|, we would perform these steps:
 
+.. UNSUBSTITUTED VERSION NUMBER: second number in tuples should be the minor value in the next version
 * The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in |next_version_branch|
 * Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
-* Tag the final release as ``v0.3.0`` targetting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
+* Tag the final release as ``v0.3.0`` targeting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
-* Delete the most recent beta pre-lease on github.
+* Delete the most recent beta pre-release on Github.
 * Update ``VERSION`` in |next_version_branch| to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
