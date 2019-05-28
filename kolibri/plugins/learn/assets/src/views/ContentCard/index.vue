@@ -27,6 +27,7 @@
       </p>
       <div class="footer">
         <CoachContentLabel
+          v-if="!isLearner"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
@@ -47,6 +48,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -120,6 +122,7 @@
       },
     },
     computed: {
+      ...mapGetters(['isLearner']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
