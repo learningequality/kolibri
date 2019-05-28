@@ -196,7 +196,9 @@
 
   .username {
     max-width: 200px;
-    overflow: hidden;
+    // overflow-x hidden seems to affect overflow-y also, so include a fixed height
+    height: 16px;
+    overflow-x: hidden;
     text-overflow: ellipsis;
   }
 
