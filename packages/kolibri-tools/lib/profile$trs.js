@@ -11,41 +11,14 @@ var isEqual = require('lodash/isEqual');
 var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
 var vueCompiler = require('vue-template-compiler');
-var util = require('util')
+var util = require('util');
 
-// NOTES:
-/**
- * Compilation happens on every file/module.
- * Meaning - this file is loaded each time, freshly.
- * Meaning - this should work on a per-module basis.
- * Meaning:
- *
- * TODO:
- *
- * - Write export to CSV code.
- * - Refactor the getStringDefinitions() accordingly.
- * - Organize Vue VS JS file parsing code.
- * - Write the JS file parsing code.
- * - Try to include the filepath on the uses objects.
- * - ???
- * - Profit.
- *
- *
- *
- * cannot manipulate the profile$trs local scope and keep data. sad fucking day.
- */
 
 function profile$trs(localePath, moduleName) {
   this.localePath = localePath;
   this.moduleName = moduleName;
   this.hasErrors = false;
 }
-
-/**
- * TODO NEXT RIGHT NOW
- * - Rework all functions so that they're not a part of the prototype
- * - They all take strProfile params which will act on it.
- */
 
 /* Webpack Entry */
 profile$trs.prototype.apply = function(compiler) {
@@ -55,10 +28,6 @@ profile$trs.prototype.apply = function(compiler) {
   if (process.env.NODE_ENV !== 'production') {
     compiler.hooks.emit.tapAsync('Profile$Trs', function(compilation, callback) {
       let strProfile = getStringDefinitions(self.localePath, self.moduleName);
-      let undefinedCombinations = {};
-      let numUses = 0; // TODO: REMOVE
-      let createTranslators = [];
-      let $trCalls = [];
 
       // Not all modules have messages files - bail if we don't get one.
       if (!strProfile) {
@@ -66,7 +35,10 @@ profile$trs.prototype.apply = function(compiler) {
         return;
       }
 
-      fs.writeFileSync(`/home/jacob/.kolibri/logs/define-${self.moduleName}.json`, JSON.stringify(strProfile));
+      fs.writeFileSync(
+        `/home/jacob/.kolibri/logs/define-${self.moduleName}.json`,
+        JSON.stringify(strProfile)
+      );
       compilation.chunks.forEach(chunk => {
         let parsedUrl;
         let ast;
@@ -88,7 +60,7 @@ profile$trs.prototype.apply = function(compiler) {
               ecmaVersion: 2018,
             });
 
-            // Go through the tree....
+            // Go through the tree - parsing JS in <script> tags.
             try {
               traverse(ast, {
                 pre: function(node) {
@@ -114,7 +86,12 @@ profile$trs.prototype.apply = function(compiler) {
                           common = true;
                         }
                         if (key !== undefined && namespace) {
-                          let $tring = getStringFromNamespaceKey(strProfile, namespace, key, common);
+                          let $tring = getStringFromNamespaceKey(
+                            strProfile,
+                            namespace,
+                            key,
+                            common
+                          );
 
                           if ($tring) {
                             strProfile[$tring].uses.push({
@@ -123,9 +100,13 @@ profile$trs.prototype.apply = function(compiler) {
                               common,
                               parsedUrl: parsedUrl.pathname,
                             });
-                            numUses++; // TODO: REMOVE
+
                           } else {
-                            logging.log(`Could not get a $tring for ${namespace}.${key} in ${self.moduleName} because ${key} is not an available key. This indicates that $tr() was called and passed a variable.`)
+                            logging.log(
+                              `Could not get a $tring for ${namespace}.${key} in ${
+                                self.moduleName
+                              } because ${key} is not an available key. This indicates that $tr() was called and passed a variable.`
+                            );
                           }
                         }
                       }
@@ -135,13 +116,24 @@ profile$trs.prototype.apply = function(compiler) {
               });
 
               // AST does not parse the <template> - so compile the template and find what we need.
-              const vueFile = fs.readFileSync(parsedUrl.pathname);
-              const template = vueCompiler.compile(vueFile.toString());
+              if (parsedUrl.pathname) {
+                const vueFile = fs.readFileSync(parsedUrl.pathname);
+                const template = vueCompiler.compile(vueFile.toString());
+                let uses;
 
-              template.ast.children.forEach((node) => {
-                extractVueTemplateUses(strProfile, node, namespace, parsedUrl.pathname);
-              })
-
+                template.ast.children.forEach(node => {
+                  uses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
+                });
+                if(uses) {
+                  Object.keys(uses).forEach(str => {
+                    if (strProfile[str]) {
+                      strProfile[str].uses = [...strProfile[str].uses, ...uses[str].uses];
+                    } else {
+                      strProfile[str].uses = uses[str].uses;
+                    }
+                  });
+                }
+              }
             } catch (e) {
               logging.error(e);
             }
@@ -205,7 +197,6 @@ profile$trs.prototype.apply = function(compiler) {
                       common,
                       parsedUrl: parsedUrl.pathname,
                     });
-                    numUses++; // TODO: REMOVE
                   }
                 });
               }
@@ -213,7 +204,6 @@ profile$trs.prototype.apply = function(compiler) {
           }
         }
       });
-      logging.log(`${numUses} Uses`);
       writeProfileToCSV(strProfile, self.moduleName);
       callback();
     });
@@ -257,46 +247,72 @@ function getStringDefinitions(localeBasePath, moduleName) {
 }
 
 function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
+  if(!namespace) {
+    return;
+  }
   let $tregex = /\$tr\(/;
-  let $treplace = /(\S|\s)*\$tr\([\\"']+|[\\"']+\).*$/;
+  let $treplace = /(\S|\s)*\$tr\([\\"']+|[\\"']+\)(\S|\s)*/g;
   let reCommon = /common\$tr/;
 
   let key;
   let common = false;
 
-  if(node.type === 1) { // Element
-    if(node.attrsMap) {
+  let nodeUses = {};
+
+  if (node.type === 1) {
+    // Element
+    if (node.attrsMap) {
       Object.keys(node.attrsMap).forEach(attr => {
         let val = node.attrsMap[attr];
-        if($tregex.test(val)) {
-          console.log(`Testing Positive for ${val}`)
+        if ($tregex.test(val)) {
           common = reCommon.test(val);
           key = val.replace($treplace, '');
         }
-      })
+      });
     }
   }
-  if(node.type === 2 || node.type === 3) { // Expression or Text Nodes
-    common = reCommon.test(node.text);
-    key = node.text.replace($treplace, '');
+  if (node.type === 2 || node.type === 3) {
+    // Expression or Text Nodes
+    if($tregex.test(node.text)) {
+      common = reCommon.test(node.text);
+      key = node.text.replace($treplace, '');
+    }
   }
-  if(key) {
+  if (key) {
     let $tring = getStringFromNamespaceKey(profile, namespace, key, common);
-    if($tring) {
-      profile[$tring].uses.push({
+    if ($tring) {
+      if (!nodeUses[$tring]) {
+        // Instantiate the array on the key if it hasn't been done.
+        nodeUses[$tring] = {
+          uses: [],
+        };
+      }
+      nodeUses[$tring].uses.push({
         namespace,
         key,
         common,
-        parsedUrl: parsedUrl.pathname
-      })
+        parsedUrl: parsedUrl.pathname,
+      });
     }
   }
-  // Recurse on this MFer
-  if(node.children && node.children.length > 0) {
+  // Recurse!
+  if (node.children && node.children.length > 0) {
     node.children.forEach(child => {
-      extractVueTemplateUses(profile, child, namespace, parsedUrl);
-    })
+      let childUses = extractVueTemplateUses(profile, child, namespace, parsedUrl);
+      // Combine this scope's nodeUses with that returned from the recursed fn call.
+      Object.keys(childUses).forEach(childStr => {
+        if (nodeUses[childStr]) {
+          nodeUses[childStr].uses = [...nodeUses[childStr].uses, ...childUses[childStr].uses]; // Combine incoming uses
+        } else {
+          nodeUses[childStr] = {
+            uses: childUses[childStr].uses
+          }
+        }
+      });
+    });
   }
+
+  return nodeUses;
 }
 
 function writeProfileToCSV(profile, moduleName) {
@@ -313,11 +329,10 @@ function writeProfileToCSV(profile, moduleName) {
       { id: 'pathname', title: 'PATHNAME' },
     ],
   });
-  csvWriter.writeRecords(csvData).then(() => console.log(`Profile CSV written to ${outputFile}`));
+  csvWriter.writeRecords(csvData).then(() => logging.log(`Profile CSV written to ${outputFile}`));
 }
 
 function profileToCSV(profile) {
-  fs.writeFileSync(`/home/jacob/.kolibri/logs/bk/file-${Math.floor(Math.random()*10000) + 1}.json`, JSON.stringify(profile))
   return reduce(
     profile,
     (csv, data, $tr) => {
@@ -341,9 +356,8 @@ function profileToCSV(profile) {
           key: use.key,
           common: use.common ? 'Yes' : 'No',
           pathname: use.parsedUrl,
-        }
-
-        if(!dataRows.some(data => isEqual(data, newUse))) {
+        };
+        if(!dataRows.some(use => isEqual(use, newUse))) {
           dataRows.push(newUse);
         }
       });
@@ -354,37 +368,24 @@ function profileToCSV(profile) {
   );
 }
 
-function filterByModule(definitions, module) {
-  return reduce(
-    definitions,
-    (result, val, key) => {
-      if (val.module === module) {
-        result[key] = val;
-      }
-      return result;
-    },
-    {}
-  );
-}
-
 function getStringFromNamespaceKey(profile, namespace, key, common = false) {
   let $tr = null;
 
-  for(let str of Object.keys(profile)) {
-    if($tr) {
+  for (let str of Object.keys(profile)) {
+    if ($tr) {
       break;
     }
 
     let matchedNamespace;
     let matchedKey;
 
-    if(common) {
-      matchedNamespace = profile[str].definitions.find(def => def.namespace.includes("Common"));
+    if (common) {
+      matchedNamespace = profile[str].definitions.find(def => def.namespace.includes('Common'));
     } else {
       matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
     }
 
-    if(matchedNamespace) {
+    if (matchedNamespace) {
       matchedKey = profile[str].definitions.find(def => def.key === key);
     }
     if (matchedNamespace && matchedKey) {
@@ -393,39 +394,6 @@ function getStringFromNamespaceKey(profile, namespace, key, common = false) {
   }
 
   return $tr;
-}
-
-function nodeIsExpression(node) {
-  return (
-    (node.type === 'ExpressionStatement' &&
-      // Is it an assignment expression?
-      node.expression.type === 'AssignmentExpression' &&
-      // Is the first part of the assignment 'module'?
-      ((node.expression.left || {}).object || {}).name == 'module' &&
-      // Is it assining to the 'exports' property of 'module'?
-      ((node.expression.left || {}).property || {}).name == 'exports' &&
-      // Does the right hand side of the assignment expression have any properties?
-      // (We don't want to both parsing it if it is an empty object)
-      node.expression.right.properties) ||
-    // Is it an export default declaration?f
-    (node.type === 'ExportDefaultDeclaration' &&
-      // Is it an object expression?
-      (node.declaration.type === 'ObjectExpression' ||
-        // Is it an identifier?
-        node.declaration.type === 'Identifier'))
-  );
-}
-
-function propertiesFromNode(node, componentCache = {}) {
-  if (node.type === 'ExportDefaultDeclaration') {
-    if (node.declaration.type === 'ObjectExpression') {
-      return node.declaration.properties;
-    } else if (node.declaration.type === 'Identifier') {
-      return componentCache[node.declaration.name];
-    }
-  } else if (node.type === 'ExpressionStatement') {
-    return node.expression.right.properties;
-  }
 }
 
 function urlIsVue(parsedUrl, module) {
