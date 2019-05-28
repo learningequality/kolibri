@@ -29,7 +29,7 @@ Feature: Coach activates and deactivates lessons
       And I click *Save changes* button
     Then the page closes
       # And I see the snackbar notification *Changes to lesson saved* # No notification?
-      And I see the lesson *Status* is *Inative*
+      And I see the lesson *Status* is *Inactive*
     But if I click the *Cancel* button
     Then the page closes
       And I see the lesson <lesson> *Status* is still *Active*

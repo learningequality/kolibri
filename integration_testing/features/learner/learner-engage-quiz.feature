@@ -6,7 +6,7 @@ Feature: Learner engages with an assigned quiz
       And I am on *Learn > Classes > '<class>'* page
       And there is an quiz assigned to me
 
-  Scenario: Take an asigned quiz
+  Scenario: Take an assigned quiz
     When I click to select a quiz with the label *Not started*
     Then I see all quiz questions
     When I fill out all questions with answers

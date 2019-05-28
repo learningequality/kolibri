@@ -6,7 +6,7 @@ Feature: Coach edits lessons
       And I am on the *Coach - '<class>' > Plan > Lessons* page
       And there are 2 or more learner groups
       And there is a lesson <lesson> created previously
-      And I am on the *Edit Details* dialogue for <lesson> (arriving there from either *Reports* or *Plan* page)
+      And I am on the *Edit Details* dialog for <lesson> (arriving there from either *Reports* or *Plan* page)
 
   Scenario: Edit existing lesson title
     When I edit the lesson <lesson> *Title* and leave the field

@@ -63,7 +63,7 @@ Feature: Super admin goes through the setup wizard
 
     Scenario: Responsibility of the admin regarding privacy
       Given that I am on the *Step 7 of 7* of the setup wizard
-        And I see *Responsabilities as an administrator*
+        And I see *Responsibilities as an administrator*
       When I click the *More information* link
       Then I see the *Usage and privacy* modal
         And I see the text of the privacy statement

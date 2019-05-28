@@ -6,7 +6,7 @@ Feature: Learner engages with an assigned lesson
       And I am on *Learn > Classes > '<class>'* page
       And there is a <lesson> lesson assigned to me, with (in order) <exercise1>, <video> and <exercise2> content items
 
-  Scenario: Open an asigned lesson
+  Scenario: Open an assigned lesson
     When I click to select the <lesson> lesson that displays no progress bar/icon 
     Then I am at *Learn > Classes > '<class>' > '<lesson>'* page
       And I see <exercise1> exercise and <video> video

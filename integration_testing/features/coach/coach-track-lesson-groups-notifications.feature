@@ -24,7 +24,7 @@ Feature: Lessons notifications for multiple groups
   	When I click on the <group1> notification
   	Then I see lesson <exercise> report page
   	  And I see a table with <learner1> and <learner2>, and their progress status on the <exercise>
-  	When I click on the <group2> notifiation
+  	When I click on the <group2> notification
   	Then I see the lesson <exercise> report page
   	  And I see a table with <learner3> progress status on the <exercise>
   
@@ -36,8 +36,8 @@ Feature: Lessons notifications for multiple groups
       	  And I see one *Everyone completed '<exercise>'* <group2> notification
       	When I click on the <group1> notification
         Then I see lesson <exercise> report page
-          And I see a table with <learner1> and <learner2>, and their commpleted status on the <exercise>
-        When I click on the <group2> notifiation
+          And I see a table with <learner1> and <learner2>, and their completed status on the <exercise>
+        When I click on the <group2> notification
         Then I see the lesson <exercise> report page
           And I see a table with <learner3> completed status on the <exercise>
 
@@ -51,6 +51,6 @@ Feature: Lessons notifications for multiple groups
        	When I click on the <group1> notification
         Then I see lesson <exercise> report page
           And I see a table with <learner1> and <learner2>, and their need help status on the <exercise>
-        When I click on the <group2> notifiation
+        When I click on the <group2> notification
         Then I see the lesson <exercise> report page
           And I see a table with <learner3> need help status on the <exercise>

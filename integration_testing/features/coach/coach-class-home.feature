@@ -1,5 +1,5 @@
 Feature: General navigation on *Class home* tab
-# Do at the beginning, with an empty classe, no resources or interactions
+# Do at the beginning, with an empty class, no resources or interactions
 
   Background:
     Given I am signed in as a class or facility coach
