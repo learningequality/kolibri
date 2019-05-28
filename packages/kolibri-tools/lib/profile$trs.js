@@ -11,7 +11,6 @@ var logging = require('./logging');
 function profile$trs(localePath, moduleName) {
   this.localePath = localePath;
   this.moduleName = moduleName;
-  this.hasErrors = false;
 }
 
 /* Webpack Entry */
@@ -29,10 +28,6 @@ profile$trs.prototype.apply = function(compiler) {
         return;
       }
 
-      fs.writeFileSync(
-        `/home/jacob/.kolibri/logs/define-${self.moduleName}.json`,
-        JSON.stringify(strProfile)
-      );
       compilation.chunks.forEach(chunk => {
         let parsedUrl;
         let ast;
@@ -96,9 +91,8 @@ profile$trs.prototype.apply = function(compiler) {
                             });
                           } else {
                             logging.log(
-                              `Could not get a $tring for ${namespace}.${key} in ${
-                                self.moduleName
-                              } because ${key} is not an available key. This indicates that $tr() was called and passed a variable.`
+                              `No string found for ${namespace}.${key}. Either the combination is not
+                              defined or the key we found was passed as a variable and not a key string`
                             );
                           }
                         }
@@ -114,18 +108,20 @@ profile$trs.prototype.apply = function(compiler) {
                 const template = vueCompiler.compile(vueFile.toString());
                 let uses;
 
+                // Pass each highest-level node to our extractVueTemplateUses. Vue templates kinda
+                // demand that you have one high-level node to rule them all so we're passing one node.
                 template.ast.children.forEach(node => {
                   uses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
+                  if (uses) {
+                    Object.keys(uses).forEach(str => {
+                      if (strProfile[str]) {
+                        strProfile[str].uses = [...strProfile[str].uses, ...uses[str].uses];
+                      } else {
+                        strProfile[str].uses = uses[str].uses;
+                      }
+                    });
+                  }
                 });
-                if (uses) {
-                  Object.keys(uses).forEach(str => {
-                    if (strProfile[str]) {
-                      strProfile[str].uses = [...strProfile[str].uses, ...uses[str].uses];
-                    } else {
-                      strProfile[str].uses = uses[str].uses;
-                    }
-                  });
-                }
               }
             } catch (e) {
               logging.error(e);
@@ -144,24 +140,27 @@ profile$trs.prototype.apply = function(compiler) {
             // Process the AST
             try {
               traverse(ast, {
-                // Profile all variable declarations using the
-                // name of the variable as the key and the Namespace
-                // as the value in the dictionary.
                 pre: function(node) {
+                  // Seek out any place where a createTranslator() function is called.
                   if (node.type === 'VariableDeclarator') {
                     if (node.init && node.init.type === 'CallExpression') {
                       if (node.init.callee && node.init.callee.type === 'Identifier') {
                         if (node.init.callee.name === 'createTranslator') {
+                          // Profile all variable declarations creating an instance of createTranslator()
+                          // storing the key (variableName) => value (namespace)
                           varDeclarations[node.id.name] = node.init.arguments[0].value;
                         }
                       }
                     }
                   }
+                  // Seek out all calls to $tr() - again storing the data using a key
                   if (node.type === 'CallExpression') {
                     if (node.callee && node.callee.type === 'MemberExpression') {
                       if (node.callee.property && node.callee.property.name === '$tr') {
                         if (node.arguments && node.arguments.length > 0) {
                           let varName = node.callee.object.name;
+                          // Profile all $tr() calls (ie, uses of the key)
+                          // storing the key (variableName) => value (key)
                           if (Object.keys($trUses).includes(varName)) {
                             $trUses[varName].push(node.arguments[0].value);
                           } else {
@@ -176,6 +175,10 @@ profile$trs.prototype.apply = function(compiler) {
             } catch (e) {
               logging.error(e);
             }
+            // Merge the two collections of declarations and uses. Each object's
+            // keys are declared variable names for instances of createTranslator().
+            // varDeclarations stores variableName => namespace
+            // $trUses stores variableName => [key1, key2, key3] (each key that was used)
             Object.keys(varDeclarations).forEach(variable => {
               let namespace = varDeclarations[variable];
 
@@ -201,10 +204,27 @@ profile$trs.prototype.apply = function(compiler) {
       callback();
     });
   }
-};
+}; // End AST Parsing and Webpack processing.
 
 /* Utility Functions */
 
+/**
+ * Returns an object where "Translation strings" are the keys.
+ * Each key refers to another object with `definitions` and `uses`.
+ *
+ * This function instantiates the `definitions` data by reading all of the
+ * strings, namespaces and keys from the given module's *-messages.json file.
+ *
+ * `definitions` stores an array of objects storing Namespace & Key combinations
+ * which specifically refer to the string used as it's key.
+ *
+ * This function returns an emtpy array for each of the `uses` keys - saving
+ * us from having to check if it's there or not later while parsing the code.
+ *
+ * `uses` stores all objects including all Namespace+Key combinations in which
+ * that literal string of text is called upon as well as other related information.
+ *
+ */
 function getStringDefinitions(localeBasePath, moduleName) {
   const localeFilePath = `${localeBasePath}/${moduleName}-messages.json`;
   let fileContents;
@@ -239,12 +259,22 @@ function getStringDefinitions(localeBasePath, moduleName) {
   return definitions;
 }
 
+/*
+* Function which will recursively traverse the the given node, finding all
+* $tr() and common$tr() calls, extracting their keys and finding which string
+* the Namespace+Key refers to. Each use is stored and passed to this function
+* again, ultimately resolving to combine all uses throughout the node tree.
+*/
 function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
   if (!namespace) {
     return;
   }
+  // Checks for any instance of `$tr(` in a string.
   let $tregex = /\$tr\(/;
+  // Globally matches everything left and right of a string of text that is wrapped
+  // in `... $tr('` and `')...` - when used in replace() it will return the param we need.
   let $treplace = /(\S|\s)*\$tr\([\\"']+|[\\"']+\)(\S|\s)*/g;
+  // Matches `common$tr` specifically.
   let reCommon = /common\$tr/;
 
   let key;
@@ -252,8 +282,9 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
 
   let nodeUses = {};
 
+  // Node type 1 is a DOM element with attrs mapped, which we will
+  // check for uses.
   if (node.type === 1) {
-    // Element
     if (node.attrsMap) {
       Object.keys(node.attrsMap).forEach(attr => {
         let val = node.attrsMap[attr];
@@ -264,13 +295,18 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
       });
     }
   }
+
+  // Node types 2 and 3 are Expression or Text nodes respectively.
+  // Both, conveniently, store relevant data in a `text` property.
   if (node.type === 2 || node.type === 3) {
-    // Expression or Text Nodes
     if ($tregex.test(node.text)) {
       common = reCommon.test(node.text);
       key = node.text.replace($treplace, '');
     }
   }
+
+  // With the key - we can try to find a string defined for this combination
+  // of Namespace & Key in this current module's profile.
   if (key) {
     let $tring = getStringFromNamespaceKey(profile, namespace, key, common);
     if ($tring) {
@@ -309,7 +345,9 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
   return nodeUses;
 }
 
+// Instantiates the CSV data and writes to a file.
 function writeProfileToCSV(profile, moduleName) {
+  // TODO: Don't use my local fs...
   const outputFile = `/home/jacob/.kolibri/logs/${moduleName}.csv`;
   const csvData = profileToCSV(profile);
   const csvWriter = createCsvWriter({
@@ -326,6 +364,7 @@ function writeProfileToCSV(profile, moduleName) {
   csvWriter.writeRecords(csvData).then(() => logging.log(`Profile CSV written to ${outputFile}`));
 }
 
+// Takes all data and processes it into rows of definitions followed by relevant uses.
 function profileToCSV(profile) {
   return reduce(
     profile,
@@ -362,10 +401,19 @@ function profileToCSV(profile) {
   );
 }
 
+/**
+ *
+ * @param {object} profile      - The given strProfile of string definitions and previously profiled uses.
+ * @param {string} namespace    - The namespace to query.
+ * @param {string} key          - The key to query.
+ * @param {bool} common         - Is the suspected use one of a Common string set?
+ */
 function getStringFromNamespaceKey(profile, namespace, key, common = false) {
   let $tr = null;
 
+  // Check against every translation string in the profile as a key.
   for (let str of Object.keys(profile)) {
+    // Bail if we find a $tring that matched.
     if ($tr) {
       break;
     }
@@ -384,6 +432,8 @@ function getStringFromNamespaceKey(profile, namespace, key, common = false) {
     if (matchedNamespace) {
       matchedKey = profile[str].definitions.find(def => def.key === key);
     }
+
+    // If we have matched the translation string to our NS and Key then we win!
     if (matchedNamespace && matchedKey) {
       $tr = str;
     }
@@ -392,6 +442,7 @@ function getStringFromNamespaceKey(profile, namespace, key, common = false) {
   return $tr;
 }
 
+// Returns if the file is the type of *.vue file we're interested in.
 function urlIsVue(parsedUrl, module) {
   return (
     module.resource &&
@@ -402,6 +453,7 @@ function urlIsVue(parsedUrl, module) {
   );
 }
 
+// Returns if the file is the type of *.js file we're interested in.
 function urlIsJS(module) {
   return (
     module.resource &&
@@ -410,6 +462,7 @@ function urlIsJS(module) {
   );
 }
 
+// Given a node's array of arguments, extract and return the key... or null no dice.
 function keyFromArguments(args) {
   let key = null;
   if (args && Array.isArray(args)) {
