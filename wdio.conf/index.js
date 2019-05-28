@@ -23,11 +23,11 @@ exports.config = Object.assign({}, config, {
 
           // Chrome sandboxing will not work in Travis
           '--no-sandbox',
-
-          // Testing fix for failed address bind
-          '--whitelisted-ips',
         ],
       },
     },
   ],
+
+  // Testing fix for failed address bind
+  chromeDriverArgs: ['--whitelisted-ips='],
 });

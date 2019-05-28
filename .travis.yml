@@ -20,60 +20,60 @@ cache:
 
 matrix:
   include:
-    - python: "2.7"
-      env:
-        - TOX_ENV=pythonlint2
-    - python: "3.6"
-      env:
-        - TOX_ENV=pythonlint3
-    - python: "3.6"
-      env:
-        - TOX_ENV=pythonblack
-    - python: "2.7"
-      env:
-        - TOX_ENV=licenses
-    - python: "2.7"
-      env:
-        - TOX_ENV=py2.7
-    - python: "3.5"
-      env:
-        - TOX_ENV=docs
-    - python: "3.4"
-      env:
-        - TOX_ENV=py3.4
-    - python: "3.5"
-      env:
-        - TOX_ENV=py3.5
-    - python: "3.6"
-      env:
-        - TOX_ENV=py3.6
-    - python: 3.7
-      dist: xenial
-      sudo: true
-      env:
-        - TOX_ENV=py3.7
-    - python: "2.7"
-      env:
-        - TOX_ENV=node10.x
-    - python: "3.5"
-      env:
-        - TOX_ENV=postgres
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=pythonlint2
+#    - python: "3.6"
+#      env:
+#        - TOX_ENV=pythonlint3
+#    - python: "3.6"
+#      env:
+#        - TOX_ENV=pythonblack
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=licenses
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=py2.7
+#    - python: "3.5"
+#      env:
+#        - TOX_ENV=docs
+#    - python: "3.4"
+#      env:
+#        - TOX_ENV=py3.4
+#    - python: "3.5"
+#      env:
+#        - TOX_ENV=py3.5
+#    - python: "3.6"
+#      env:
+#        - TOX_ENV=py3.6
+#    - python: 3.7
+#      dist: xenial
+#      sudo: true
+#      env:
+#        - TOX_ENV=py3.7
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=node10.x
+#    - python: "3.5"
+#      env:
+#        - TOX_ENV=postgres
     - python: "3.6"
       env:
         - TOX_ENV=integ
-    - python: "2.7"
-      env:
-        - TOX_ENV=frontendlint
-    - python: "2.7"
-      env:
-        - TOX_ENV=nocext
-      script:
-       - tox -e $TOX_ENV
-    - python: "2.7"
-      env:
-        - TOX_ENV=cext
-      script:
-       - tox -e $TOX_ENV
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=frontendlint
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=nocext
+#      script:
+#       - tox -e $TOX_ENV
+#    - python: "2.7"
+#      env:
+#        - TOX_ENV=cext
+#      script:
+#       - tox -e $TOX_ENV
 
 
 before_install:
