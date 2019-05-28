@@ -1,26 +1,34 @@
 .. _release_process:
 
 
-.. |last_version_patches| replace:: ``v0.2.0`` and ``v0.2.1``
-.. |last_version_branch| replace:: ``release-v0.2.x``
+..
+  The following are substitutions for strings referring to the last and next release numbers.
+  Periodically update these numbers to have these docs reference version numbers that are closer to
+  current state of the code.
 
-.. |next_version| replace:: 0.3.0
-.. |next_version_patch| replace:: 0.3.1
-.. |next_version_branch| replace:: ``release-v0.3.x``
-.. |next_version_alpha_tag| replace:: ``v0.3.0-alpha1``
-.. |next_version_beta_tag| replace:: ``v0.3.0-beta1``
-.. |next_version_pex| replace:: ``kolibri-v0.3.0.pex``
-.. |next_version_deb| replace:: ``kolibri_0.3.0-0ubuntu1_all.deb``
-.. |next_version_exe| replace:: ``kolibri-v0.3.0-windows-installer.exe``
+  Search for the word 'UNRELEASED' to manually edit the (5) places in this document where the version
+  numbers need to be manually updated due to technical limitations of RST.
+.. |last_version_patch1| replace:: ``v0.13.0``
+.. |last_version_patch2| replace:: ``v0.13.1``
+.. |last_version_branch| replace:: ``release-v0.13.x``
+
+.. |next_version_number| replace:: 0.14.0
+.. |next_version_patch| replace:: 0.14.1
+.. |next_version_branch| replace:: ``release-v0.14.x``
+.. |next_version_alpha_tag| replace:: ``v0.14.0-alpha1``
+.. |next_version_beta_tag| replace:: ``v0.14.0-beta1``
+.. |next_version_pex| replace:: ``kolibri-v0.14.0.pex``
+.. |next_version_deb| replace:: ``kolibri_0.14.0-0ubuntu1_all.deb``
+.. |next_version_exe| replace:: ``kolibri-v0.14.0-windows-installer.exe``
 
 Release process
 ===============
 
-These instructions follow the hypothetical release of Kolibri version '|next_version|'.
+These instructions follow the hypothetical release of Kolibri version '|next_version_number|'.
 
-In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being |last_version_branch| with potentially multiple tags for patch releases, e.g. |last_version_patches|.
+In this case, the repo would currently have a ``develop`` branch and a number of pre-existing release branches, the most recent being |last_version_branch| with potentially multiple tags for patch releases, e.g. |last_version_patch1| and |last_version_patch2|.
 
-Patch releases (e.g. '|next_version_patch|') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. |last_version_branch|). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped
+Patch releases (e.g. '|next_version_patch|') follow the same process outlined below, except that development occurs exclusively on an existing release branch (e.g. |last_version_branch|). Patch releases generally do not have new user-facing strings, so translation- and font-related steps can be skipped.
 
 
 Create alpha releases
@@ -34,9 +42,9 @@ These alphas can be used for preliminary testing as major, unstable updates are 
 
 When a new alpha is published, *delete any older alphas* using Github's 'delete release' functionality. This will *not* delete the git tag.
 
-It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming |next_version| release, we would need to merge |last_version_branch| into ``develop``.
+It's common that changes have been made in the previous release that need to be propagated to the current release. For an upcoming |next_version_number| release, we would need to merge |last_version_branch| into ``develop``.
 
-During the alpha phase is all the period when we should update our Python and Javascript dependencies. In general we should avoid updating dependencies in release branches.
+During the alpha phase is when we should update our Python and Javascript dependencies. In general we should avoid updating dependencies in release branches.
 
 
 String freeze and translation
@@ -72,32 +80,32 @@ Create a release branch
 -----------------------
 
 
-When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version |next_version|, we'd do the following steps:
+When we're nearing the end of major new feature development, cut a new release branch. If we're getting ready to release version |next_version_number|, we'd do the following steps:
 
 * Create new branch off of ``develop`` with a name like |next_version_branch|
 * Set up `branch protections <https://help.github.com/articles/about-protected-branches/>`__ in Github using the same settings as ``develop``
 * Re-target any outstanding PRs for this release from ``develop`` to |next_version_branch|
 
 .. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be the minor number of last version
-Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 2, 0, 'alpha', 1)`` in both the  |next_version_branch| and ``develop`` branches.
+Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 13, 0, 'alpha', 1)`` in both the  |next_version_branch| and ``develop`` branches.
 
 In ``develop``, increment the second number in the ``VERSION`` tuple:
 
-.. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be going from last version to next version e.g. 2 -> 3
+.. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be going from last version to next version e.g. 13 -> 14
 .. code-block:: diff
 
   # In 'develop'
-  - VERSION = (0, 2, 0, 'alpha', 1)
-  + VERSION = (0, 3, 0, 'alpha', 1)
+  - VERSION = (0, 13, 0, 'alpha', 1)
+  + VERSION = (0, 14, 0, 'alpha', 1)
 
 In |next_version_branch|, bump fourth value: ``'alpha'`` to  ``'beta'``
 
 .. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be the minor number of last version
 .. code-block:: diff
 
-  # In 'release-v0.3.x'
-  - VERSION = (0, 2, 0, 'alpha', 1)
-  + VERSION = (0, 2, 0, 'beta', 1)
+  # In 'release-v0.14.x'
+  - VERSION = (0, 13, 0, 'alpha', 1)
+  + VERSION = (0, 13, 0, 'beta', 1)
 
 These changes can be merged by a Github admin without code review.
 
@@ -121,7 +129,7 @@ For every beta release:
 
 Tag beta releases as desired using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality, which both adds a tag to the git repo and creates a placeholder on the Github site with built distributions.
 
-Make sure to target tags to the release branch. For example, for |next_version| betas, target |next_version_branch|. Use the standard tag naming convention (e.g. |next_version_beta_tag|), and mark it has a "pre-release" in the Github UI.
+Make sure to target tags to the release branch. For example, for |next_version_number| betas, target |next_version_branch|. Use the standard tag naming convention (e.g. |next_version_beta_tag|), and mark it has a "pre-release" in the Github UI.
 
 These betas should be used for end-to-end testing as final, stabilizing changes are introduced. Risky changes should be avoided during the beta stage unless a critical issue is identified with no straightforward fix.
 
@@ -144,7 +152,7 @@ See :ref:`crowdin` for more information.
 Merge in previous release again
 -------------------------------
 
-Check one last time if there were any last-minute changes to the previous release branch that need to be merged into the current release branch. For example in preparation for |next_version|, we would need to merge |last_version_branch| into |next_version_branch|.
+Check one last time if there were any last-minute changes to the previous release branch that need to be merged into the current release branch. For example in preparation for |next_version_number|, we would need to merge |last_version_branch| into |next_version_branch|.
 
 
 Triage open PRs and issues
@@ -186,15 +194,15 @@ Create the final release
 
 Before proceeding, tag and build one last beta, and run through the most critical user stories to ensure that there are no glaring issues. If that checks out, it's time to create the final release.
 
-For example, if we were releasing version |next_version|, we would perform these steps:
+For example, if we were releasing version |next_version_number|, we would perform these steps:
 
 .. UNSUBSTITUTED VERSION NUMBER: second number in tuples should be the minor value in the next version
-* The ``VERSION`` variable in *__init__.py* should currently be ``(0, 3, 0, 'beta', 1)`` in |next_version_branch|
-* Update this to be ``(0, 3, 0, 'final', 0)`` (no code review necessary)
-* Tag the final release as ``v0.3.0`` targeting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
+* The ``VERSION`` variable in *__init__.py* should currently be ``(0, 14, 0, 'beta', 1)`` in |next_version_branch|
+* Update this to be ``(0, 14, 0, 'final', 0)`` (no code review necessary)
+* Tag the final release as ``v0.14.0`` targeting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-release on Github.
-* Update ``VERSION`` in |next_version_branch| to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
+* Update ``VERSION`` in |next_version_branch| to be ``(0, 14, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
 
@@ -205,12 +213,12 @@ Publish to PyPI
 
 Releasing to PyPI marks the "no turning back" moment of a release because releases cannot be removed – only added. Make sure that the correct tag is checked out and that the git tree has no local changes.
 
-If this were version |next_version| we would do:
+If this were version |next_version_number| we would do:
 
-.. UNSUBSTITUTED VERSION NUMBER: should read '$ git reset --hard v|next_version|'
+.. UNSUBSTITUTED VERSION NUMBER: should read '$ git reset --hard v|next_version_number|'
 .. code-block:: bash
 
-    $ git reset --hard v0.3.0
+    $ git reset --hard v0.14.0
 
 Then sign the release and upload it:
 
@@ -229,7 +237,7 @@ When uploading files to the Pantry server, put them in a directory of the form `
 Make sure the files and parent directories are owned by the ``www-data`` user, e.g. by running ``sudo chown www-data:www-data [filename]``
 
 
-For the example of version |next_version| we would do the following:
+For the example of version |next_version_number| we would do the following:
 
 * Pex
    * Test that .pex works and version info is correct
