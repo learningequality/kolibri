@@ -16,7 +16,7 @@
     </section>
 
     <section v-if="facilityName">
-      <h2>{{ facilityString }}</h2>
+      <h2>{{ $tr('facility') }}</h2>
       <p>{{ facilityName }}</p>
     </section>
 
@@ -134,7 +134,6 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import SignUpPage from '../SignUpPage';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -186,9 +185,6 @@
       }),
       userPermissions() {
         return pickBy(this.getUserPermissions);
-      },
-      facilityString() {
-        return SignUpPageStrings.$tr('facility');
       },
       facilityName() {
         const match = find(this.$store.getters.facilities, {
@@ -319,6 +315,7 @@
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
+      facility: 'Facility',
     },
   };
 

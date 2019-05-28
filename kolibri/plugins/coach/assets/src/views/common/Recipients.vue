@@ -17,25 +17,13 @@
 
 <script>
 
-  import AssignmentSummary from '../plan/assignments/AssignmentSummary';
   import TruncatedItemList from './TruncatedItemList';
-  import { coachStringsMixin } from './commonCoachStrings.js';
-
-  const assignmentSummaryStrings = crossComponentTranslator(AssignmentSummary);
 
   export default {
     name: 'Recipients',
-    components: {
-      TruncatedItemList,
-    },
-    mixins: [coachStringsMixin],
     props: {
       groupNames: {
         type: Array,
-        required: true,
-      },
-      hasAssignments: {
-        type: Boolean,
         required: true,
       },
     },

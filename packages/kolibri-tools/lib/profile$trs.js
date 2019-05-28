@@ -1,18 +1,12 @@
 var fs = require('fs');
-var path = require('path');
 var url = require('url');
 var espree = require('espree');
 var traverse = require('ast-traverse');
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-var escodegen = require('escodegen');
-var mkdirp = require('mkdirp');
 var reduce = require('lodash/reduce');
 var isEqual = require('lodash/isEqual');
-var logging = require('./logging');
-var coreAliases = require('./apiSpecExportTools').coreAliases;
 var vueCompiler = require('vue-template-compiler');
-var util = require('util');
-
+var logging = require('./logging');
 
 function profile$trs(localePath, moduleName) {
   this.localePath = localePath;
@@ -100,7 +94,6 @@ profile$trs.prototype.apply = function(compiler) {
                               common,
                               parsedUrl: parsedUrl.pathname,
                             });
-
                           } else {
                             logging.log(
                               `Could not get a $tring for ${namespace}.${key} in ${
@@ -124,7 +117,7 @@ profile$trs.prototype.apply = function(compiler) {
                 template.ast.children.forEach(node => {
                   uses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
                 });
-                if(uses) {
+                if (uses) {
                   Object.keys(uses).forEach(str => {
                     if (strProfile[str]) {
                       strProfile[str].uses = [...strProfile[str].uses, ...uses[str].uses];
@@ -154,7 +147,7 @@ profile$trs.prototype.apply = function(compiler) {
                 // Profile all variable declarations using the
                 // name of the variable as the key and the Namespace
                 // as the value in the dictionary.
-                pre: function(node, parent) {
+                pre: function(node) {
                   if (node.type === 'VariableDeclarator') {
                     if (node.init && node.init.type === 'CallExpression') {
                       if (node.init.callee && node.init.callee.type === 'Identifier') {
@@ -247,7 +240,7 @@ function getStringDefinitions(localeBasePath, moduleName) {
 }
 
 function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
-  if(!namespace) {
+  if (!namespace) {
     return;
   }
   let $tregex = /\$tr\(/;
@@ -273,7 +266,7 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
   }
   if (node.type === 2 || node.type === 3) {
     // Expression or Text Nodes
-    if($tregex.test(node.text)) {
+    if ($tregex.test(node.text)) {
       common = reCommon.test(node.text);
       key = node.text.replace($treplace, '');
     }
@@ -302,11 +295,12 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
       // Combine this scope's nodeUses with that returned from the recursed fn call.
       Object.keys(childUses).forEach(childStr => {
         if (nodeUses[childStr]) {
-          nodeUses[childStr].uses = [...nodeUses[childStr].uses, ...childUses[childStr].uses]; // Combine incoming uses
+          // Combine incoming uses
+          nodeUses[childStr].uses = [...nodeUses[childStr].uses, ...childUses[childStr].uses];
         } else {
           nodeUses[childStr] = {
-            uses: childUses[childStr].uses
-          }
+            uses: childUses[childStr].uses,
+          };
         }
       });
     });
@@ -357,7 +351,7 @@ function profileToCSV(profile) {
           common: use.common ? 'Yes' : 'No',
           pathname: use.parsedUrl,
         };
-        if(!dataRows.some(use => isEqual(use, newUse))) {
+        if (!dataRows.some(use => isEqual(use, newUse))) {
           dataRows.push(newUse);
         }
       });
@@ -380,6 +374,8 @@ function getStringFromNamespaceKey(profile, namespace, key, common = false) {
     let matchedKey;
 
     if (common) {
+      // Assumes that all Common*Strings namespaces will include the word Common in them... may need
+      // to address this in a better fashion.
       matchedNamespace = profile[str].definitions.find(def => def.namespace.includes('Common'));
     } else {
       matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
