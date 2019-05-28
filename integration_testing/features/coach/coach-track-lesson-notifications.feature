@@ -6,130 +6,134 @@ Feature: Lessons notifications
   # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into three as learner users, and as a coach in the other
 
   Background:
-    Given I have all sessions visible in four browser windows/tabs (signed into three as <learner>, and in the other as <coach>)
-      And I am signed into Kolibri as a <class coach> or <coach>
-      And there three <learner> users enrolled in class <class> I am assigned to
-      And the <learners> are not assigned to any groups
-      And I have a lesson <lesson> with one exercise assigned to the entire class
+    Given I have all sessions visible in four browser windows/tabs (signed into three as learners, and in the other as <coach>)
+      And I am signed in to Kolibri as a facility or class <coach>
+      And there are three learners enrolled in class <class> I am assigned to
+      And they are not assigned to any groups
+      And I have a lesson <lesson> with one <exercise> assigned to the entire class
 
-  Scenario: Each of the three learners start the resource in the lesson
-  	When as learner 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I start the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' started '<lesson>'* notification
-  	  And I should see another *'<learner>' started '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have started the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: One learner starts the exercise in the lesson
+  	Given that as <learner1> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I started the <exercise> in the <lesson>
+  	  And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+      	When as <coach> I look into the *Class activity* block
+      	Then I see one *'<learner1>' started '<lesson>'* notification
+      	  And I see another *'<learner1>' started '<exercise>' notification
+      	When I click the <lesson> notification
+      	Then I see <lesson> report page
+      	  And I see <learner1> who have started the lesson
+      	When I click the <exercise> notification
+      	Then I see <exercise> report page
+      	  And I see <learner1> attempt report on <exercise>
 
-  When as learner 2 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I start the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' and 1 other started '<lesson>'* notification
-  	  And I should see another *'<learner>' and 1 other started '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have started the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: Second learner starts the exercise in the lesson
+    Given that as <learner2> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I started the <exercise> in the <lesson>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *'<learner2>' and 1 other started '<lesson>'* notification
+          And I see another *'<learner2>' and 1 other started '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see both <learner1> and <learner2> have started the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see both <learner1> and <learner2> progress status on <exercise>
 
-  When as learner 3 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I start the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *Everyone started '<lesson>'* notification
-  	  And I should see another *Everyone started '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have started the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: All three learners start the exercise in the lesson
+    Given that as <learner3> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I started the <exercise> in the <lesson>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *Everyone started  '<lesson>'* notification
+          And I see another *Everyone started '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see all three learners have started the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see the progress status on <exercise> for all three learners
 
-  Scenario: Each of the three learners complete the resource in the lesson
-  	When as learner 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I finish the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' completed '<lesson>'* notification
-  	  And I should see another *'<learner>' completed '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have completed the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: First learner completes the exercise in the lesson
+    Given that as <learner1> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I completed the <exercise> in the <lesson>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *'<learner1>' completed '<lesson>'* notification
+          And I see another *'<learner1>' completed '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see <learner1> who have completed the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see <learner1> attempt report on <exercise>
 
-  When as learner 2 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I finish the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' and 1 other completed '<lesson>'* notification
-  	  And I should see another *'<learner>' and 1 other completed '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have completed the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: Second learner completes the exercise in the lesson
+    Given that as <learner2> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I completed the <exercise> in the <lesson>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *'<learner2>' and 1 other completed '<lesson>'* notification
+          And I see another *'<learner2>' and 1 other completed '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see both <learner1> and <learner2> have completed the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see both <learner1> and <learner2> completed status on <exercise>
 
-  When as learner 3 <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I finish the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *Everyone completed '<lesson>'* notification
-  	  And I should see another *Everyone completed '<resource>' notification
-  	When I click the lesson notification
-  	Then I should be directed to that lesson's report page
-  	  And I should see a list of the learners who have completed the lesson
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
+  Scenario: All three learners complete the exercise in the lesson
+    Given that as <learner3> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I completed the <exercise> in the <lesson>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *Everyone completed '<lesson>'* notification
+          And I see another *Everyone completed '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see all three learners have completed the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see the completed status on <exercise> for all three learners
 
-  Scenario: One of the three learners needs help on the lesson
-  	When as learner <learner> in one window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I get multiple incorrect attempts on at least one question in the exercise
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' needs help on '<resource>'* notification
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
-  	  And I should see which learners need help
+  Scenario: One learner needs help with the exercise in the lesson
+    Given that as <learner1> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I get multiple incorrect attempts on at least one question in the <exercise>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *'<learner1>' needs help '<lesson>'* notification
+          And I see another *'<learner1>' needs help '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see <learner1> needs help in the <lesson>
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see <learner1> attempt report on <exercise>
 
-  Scenario: two of the three learners need help on the lesson
-  	When as learner 2 <learner> in another window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I get multiple incorrect attempts on at least one question in the exercise
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' and 1 other need help on '<resource>'* updated notification
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
-  	  And I should see which learners need help
+  Scenario: Second learner needs help with the exercise in the lesson
+    Given that as <learner2> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I get multiple incorrect attempts on at least one question in the <exercise>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *'<learner2>' and 1 other need help '<lesson>'* notification
+          And I see another *'<learner2>' and 1 other need help '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see both <learner1> and <learner2> need help the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see both <learner1> and <learner2> need help status on <exercise>
 
-  Scenario: all learners needs help on the lesson
-  	When as learner 3 <learner> in another window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson> 
-  	  And I get multiple incorrect attempts on at least one question in the exercise
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *Everyone needs help on '<resource>'* updated notification
-  	When I click the lesson resource notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners and their progress status on the resource
-  	  And I should see which learners need help
+  Scenario: All three learners need help with the exercise in the lesson
+    Given that as <learner3> in one window I am at *Learn > '<class>' > '<lesson>'* page
+      And I get multiple incorrect attempts on at least one question in the <exercise>
+      And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+        When as <coach> I look into the *Class activity* block
+        Then I see one *Everyone need help '<lesson>'* notification
+          And I see another *Everyone need help '<exercise>' notification
+        When I click the <lesson> notification
+        Then I see <lesson> report page
+          And I see all three learners need help the lesson
+        When I click the <exercise> notification
+        Then I see <exercise> report page
+          And I see the need help status on <exercise> for all three learners

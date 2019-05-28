@@ -3,7 +3,7 @@ Feature: Learner changes profile information
 
   Background:
     Given I am signed in to Kolibri as a learner user
-      And I am on the *User > Profile* page
+      And I am on the *'<username>' > Profile* page
       And I have permission to edit my full name and username
 
   Scenario: Learner changes username and full name
@@ -23,3 +23,4 @@ Feature: Learner changes profile information
       And if my changes are valid (I did not leave the fields empty, or entered two different passwords)
       And I click the “Update” button
     Then I see the *Password updated* snackbar notification
+    

@@ -16,64 +16,60 @@ Feature: Quiz notifications
   	When as learner 1 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see one *'<learner>' started '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to that learner's quiz report
-  	  And I should see the learner's attempts on the quiz questions
+  	Then I see quiz report for <learner> 
+  	  And I see the learner's attempts on the quiz questions
 
   	When as learner 2 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see *'<learner>' and 1 others started '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 2 learners who started the quiz
+  	Then I see <quiz> quiz report details 
+  	  And I see a list of 2 learners who started the quiz
 
   	When as learner 3 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see *Everyone started '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 3 learners who started the quiz
+  	Then I see <quiz> quiz report details 
+      And I see a list of 3 learners who started the quiz
 
   Scenario: Each of the three learners finish the quiz one at a time
   	When as learner 1 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start and finish the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see one *'<learner>' completed '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to that learner's quiz report
-  	  And I should see the learner's attempts on the quiz questions
+  	Then I see quiz report for <learner> 
+      And I see the learner's attempts on the quiz questions
 
   	When as learner 2 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start and finish the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see *'<learner>' and 1 others completed '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 2 learners who completed the quiz
+  	Then I see <quiz> quiz report details 
+      And I see a list of 2 learners who completed the quiz
 
   	When as learner 3 <learner> in one window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <quiz> 
   	  And I start and finish the <quiz>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
   	Then I see *Everyone completed '<quiz>'* notification
   	When I click the notification
-  	Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 3 learners who completed the quiz
+  	Then I see <quiz> quiz report details 
+      And I see a list of 3 learners who completed the quiz

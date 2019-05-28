@@ -3,7 +3,7 @@ Feature: Coach lesson resource search
 
   Background:
     Given I am signed into Kolibri as a coach user
-      And I am on the *Coach > Plan > Lessons > '<lesson>' > Manage resources* page
+      And I am on the *Coach - '<class>' > Plan > Lessons > '<lesson>' > Manage resources* page
 
     Scenario: Search from browse mode (with results)
       Given I am browsing the topics
@@ -32,14 +32,12 @@ Feature: Coach lesson resource search
         And I arrived to this page directly from a topic
       When I press the *Exit search* button
       Then I return to the the content listing of the last topic
-      # This isn't implemented, exiting search still goes to the list of channels
 
     Scenario: Search has no results
       Given I am on the *Results for '<searchterm>'* page
         And There are no results for <searchterm>
       Then I see a message saying *No results for '<searchterm>'*
-        And I don't see search filters
-        # Filters are still present
+        And I don't see available options in search filters
 
     Scenario: Search results can be filtered
       Given I am on the *Results for '<searchterm>'* page
@@ -51,6 +49,5 @@ Feature: Coach lesson resource search
 
 
 Examples:
-| searchterm |
-| food |
-| silliness  |
+| searchterm | searchterm2 |
+| food       | silliness   |
