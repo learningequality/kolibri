@@ -14,7 +14,16 @@ exports.config = Object.assign({}, config, {
       'goog:chromeOptions': {
         // to run chrome headless the following flags are required
         // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
-        args: ['--headless', '--disable-gpu', '--disable-web-security'],
+        args: [
+          '--headless',
+          '--disable-gpu',
+
+          // avoid cross-origin issues
+          '--disable-web-security',
+
+          // Chrome sandboxing will not work in Travis
+          '--no-sandbox',
+        ],
       },
     },
   ],
