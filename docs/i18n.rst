@@ -98,7 +98,7 @@ Dynamic values are passed into translation strings as named arguments in an obje
 .. code-block:: javascript
 
   export default {
-    name: 'anothetComponent',
+    name: 'anotherComponent',
     mounted() {
       // outputs 'Henry read 2 stories'
       console.log(this.$tr('msg', {name: 'Henry', count: 2}));

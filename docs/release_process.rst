@@ -1,13 +1,15 @@
 .. _release_process:
 
-
+Release process
+===============
 ..
   The following are substitutions for strings referring to the last and next release numbers.
   Periodically update these numbers to have these docs reference version numbers that are closer to
   current state of the code.
 
-  Search for the word 'UNRELEASED' to manually edit the (5) places in this document where the version
+  Search for the word 'UNSUBSTITUTED' to manually edit the (5) places in this document where the version
   numbers need to be manually updated due to technical limitations of RST.
+
 .. |last_version_patch1| replace:: ``v0.13.0``
 .. |last_version_patch2| replace:: ``v0.13.1``
 .. |last_version_branch| replace:: ``release-v0.13.x``
@@ -20,9 +22,6 @@
 .. |next_version_pex| replace:: ``kolibri-v0.14.0.pex``
 .. |next_version_deb| replace:: ``kolibri_0.14.0-0ubuntu1_all.deb``
 .. |next_version_exe| replace:: ``kolibri-v0.14.0-windows-installer.exe``
-
-Release process
-===============
 
 These instructions follow the hypothetical release of Kolibri version '|next_version_number|'.
 
@@ -87,6 +86,7 @@ When we're nearing the end of major new feature development, cut a new release b
 * Re-target any outstanding PRs for this release from ``develop`` to |next_version_branch|
 
 .. UNSUBSTITUTED VERSION NUMBERS: second number in tuple should be the minor number of last version
+
 Next, a couple book-keeping steps are necessary. The ``VERSION`` variable in *__init__.py* should currently be ``(0, 13, 0, 'alpha', 1)`` in both the  |next_version_branch| and ``develop`` branches.
 
 In ``develop``, increment the second number in the ``VERSION`` tuple:
@@ -197,6 +197,7 @@ Before proceeding, tag and build one last beta, and run through the most critica
 For example, if we were releasing version |next_version_number|, we would perform these steps:
 
 .. UNSUBSTITUTED VERSION NUMBER: second number in tuples should be the minor value in the next version
+
 * The ``VERSION`` variable in *__init__.py* should currently be ``(0, 14, 0, 'beta', 1)`` in |next_version_branch|
 * Update this to be ``(0, 14, 0, 'final', 0)`` (no code review necessary)
 * Tag the final release as ``v0.14.0`` targeting the |next_version_branch| branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
@@ -216,6 +217,7 @@ Releasing to PyPI marks the "no turning back" moment of a release because releas
 If this were version |next_version_number| we would do:
 
 .. UNSUBSTITUTED VERSION NUMBER: should read '$ git reset --hard v|next_version_number|'
+
 .. code-block:: bash
 
     $ git reset --hard v0.14.0
