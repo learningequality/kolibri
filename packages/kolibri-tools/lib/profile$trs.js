@@ -108,8 +108,9 @@ profile$trs.prototype.apply = function(compiler) {
                 const template = vueCompiler.compile(vueFile.toString());
                 let uses;
 
-                // Pass each highest-level node to our extractVueTemplateUses. Vue templates kinda
-                // demand that you have one high-level node to rule them all so we're passing one node.
+                // Pass each highest-level node to our extractVueTemplateUses.
+                // Vue templates kinda demand that you have one high-level node to rule
+                // them all so we're passing one node.
                 template.ast.children.forEach(node => {
                   uses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
                   if (uses) {
@@ -146,8 +147,9 @@ profile$trs.prototype.apply = function(compiler) {
                     if (node.init && node.init.type === 'CallExpression') {
                       if (node.init.callee && node.init.callee.type === 'Identifier') {
                         if (node.init.callee.name === 'createTranslator') {
-                          // Profile all variable declarations creating an instance of createTranslator()
-                          // storing the key (variableName) => value (namespace)
+                          // Profile all variable declarations creating an instance of
+                          // createTranslator() storing the
+                          // key (variableName) => value (namespace)
                           varDeclarations[node.id.name] = node.init.arguments[0].value;
                         }
                       }
@@ -403,7 +405,8 @@ function profileToCSV(profile) {
 
 /**
  *
- * @param {object} profile      - The given strProfile of string definitions and previously profiled uses.
+ * @param {object} profile      - The given strProfile of string definitions and
+ *                                previously profiled uses.
  * @param {string} namespace    - The namespace to query.
  * @param {string} key          - The key to query.
  * @param {bool} common         - Is the suspected use one of a Common string set?

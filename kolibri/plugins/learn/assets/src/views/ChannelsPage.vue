@@ -2,7 +2,7 @@
 
   <div>
     <PageHeader
-      :title="$tr('channels')"
+      :title="common$tr('channelsLabel')"
       class="visuallyhidden"
     />
     <ContentCardGroupGrid
@@ -20,6 +20,7 @@
 
   import { mapState } from 'vuex';
   import { PageNames } from '../constants';
+  import { learnStringsMixin } from './commonLearnStrings';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
 
@@ -34,6 +35,7 @@
       PageHeader,
       ContentCardGroupGrid,
     },
+    mixins: [learnStringsMixin],
     computed: {
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },
@@ -46,7 +48,6 @@
       },
     },
     $trs: {
-      channels: 'Channels',
       documentTitle: 'All channels',
     },
   };

@@ -34,7 +34,6 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
-  import TopNavbar from '../TopNavbar';
 
   export default {
     name: 'PlanHeader',

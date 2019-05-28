@@ -85,7 +85,6 @@
 <script>
 
   import commonCoach from '../common';
-  import LessonSummaryPage from '../plan/LessonSummaryPage';
 
   export default {
     name: 'ReportsLearnerReportLessonPage',

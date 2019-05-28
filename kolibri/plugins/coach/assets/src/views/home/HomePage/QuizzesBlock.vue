@@ -37,7 +37,6 @@
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import ActivityBlock from './ActivityBlock';
 
   const MAX_QUIZZES = 3;
 

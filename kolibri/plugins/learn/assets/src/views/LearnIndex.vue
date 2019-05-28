@@ -29,7 +29,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
@@ -53,7 +52,9 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
 
-  const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
+  // Bottom toolbar is 111px high on mobile, 113px normally.
+  // We reserve the smaller number so there is no gap on either screen size.
+  const BOTTOM_SPACED_RESERVED = 111;
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -172,7 +173,7 @@
               [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
               [PageNames.RECOMMENDED]: 'recommended',
             }[last];
-            appBarTitle = RecommendedSubpageStrings.$tr(trString);
+            appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
@@ -251,6 +252,10 @@
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
       searchTitle: 'Search',
+      recommended: 'Recommended',
+      documentTitleForPopular: 'Popular',
+      documentTitleForResume: 'Resume',
+      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

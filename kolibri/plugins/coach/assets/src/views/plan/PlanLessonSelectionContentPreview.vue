@@ -28,7 +28,6 @@
 
   import { mapState, mapActions } from 'vuex';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
-  import Index from '../CoachIndex';
   import commonCoach from '../common';
 
   export default {

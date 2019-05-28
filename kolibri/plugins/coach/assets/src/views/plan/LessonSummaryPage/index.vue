@@ -104,7 +104,6 @@
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
   import LessonActive from '../../common/LessonActive';
-  import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
   import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';

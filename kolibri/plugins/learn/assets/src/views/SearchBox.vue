@@ -6,7 +6,7 @@
     @keydown.esc.prevent="handleEscKey"
   >
     <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
-      <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ common$tr('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -15,7 +15,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="$tr('searchBoxLabel')"
+        :placeholder="common$tr('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton
@@ -92,7 +92,7 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="$tr('channels')"
+          :label="common$tr('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
@@ -115,6 +115,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { PageNames } from '../constants';
+  import { learnStringsMixin } from './commonLearnStrings';
 
   const ALL_FILTER = null;
 
@@ -133,7 +134,7 @@
       UiIconButton,
       KSelect,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, learnStringsMixin],
     props: {
       icon: {
         type: String,
@@ -257,7 +258,6 @@
       },
     },
     $trs: {
-      searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
       resourceType: 'Type',
@@ -268,7 +268,6 @@
       audio: 'Audio',
       documents: 'Documents',
       html5: 'Apps',
-      channels: 'Channels',
     },
   };
 

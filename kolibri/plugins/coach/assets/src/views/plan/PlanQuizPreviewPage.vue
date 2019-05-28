@@ -27,8 +27,6 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
-  import Index from '../CoachIndex';
-  import CreateExamPage from './CreateExamPage';
 
   export default {
     name: 'PlanQuizPreviewPage',

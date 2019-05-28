@@ -105,7 +105,6 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
   import RemoveFromGroupModal from './RemoveFromGroupModal';

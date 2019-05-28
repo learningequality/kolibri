@@ -116,7 +116,6 @@
     filterAndSortUsers,
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
   import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
-  import GroupsPage from '../GroupsPage';
 
   export default {
     name: 'GroupEnrollPage',
