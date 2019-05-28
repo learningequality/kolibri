@@ -5,6 +5,7 @@ learner-engage-content-recommended.feature
 learner-engage-content-channels.feature
 learner-find-content-item.feature
 learner-close-and-reopen-content.feature
+learner-engage-lesson.feature
 learner-engage-quiz.feature
 learner-engage-epub-content.feature
 learner-background-tab.feature

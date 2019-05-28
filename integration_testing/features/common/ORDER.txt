@@ -1,2 +1,3 @@
+view-all-content-types.feature
 appbar-scroll.feature
 appbar-user-type.feature
