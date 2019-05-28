@@ -7,8 +7,11 @@ var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 var escodegen = require('escodegen');
 var mkdirp = require('mkdirp');
 var reduce = require('lodash/reduce');
+var isEqual = require('lodash/isEqual');
 var logging = require('./logging');
 var coreAliases = require('./apiSpecExportTools').coreAliases;
+var vueCompiler = require('vue-template-compiler');
+var util = require('util')
 
 // NOTES:
 /**
@@ -52,6 +55,7 @@ profile$trs.prototype.apply = function(compiler) {
   if (process.env.NODE_ENV !== 'production') {
     compiler.hooks.emit.tapAsync('Profile$Trs', function(compilation, callback) {
       let strProfile = getStringDefinitions(self.localePath, self.moduleName);
+      let undefinedCombinations = {};
       let numUses = 0; // TODO: REMOVE
       let createTranslators = [];
       let $trCalls = [];
@@ -103,6 +107,7 @@ profile$trs.prototype.apply = function(compiler) {
                         // is always the key.
                         if (node.callee.property.name === '$tr') {
                           key = keyFromArguments(node.arguments);
+                          common = false;
                         }
                         if (node.callee.property.name === 'common$tr') {
                           key = keyFromArguments(node.arguments);
@@ -120,7 +125,7 @@ profile$trs.prototype.apply = function(compiler) {
                             });
                             numUses++; // TODO: REMOVE
                           } else {
-                            logging.log(`Could not get a $tring for ${namespace}.${key}`)
+                            logging.log(`Could not get a $tring for ${namespace}.${key} in ${self.moduleName} because ${key} is not an available key. This indicates that $tr() was called and passed a variable.`)
                           }
                         }
                       }
@@ -128,6 +133,15 @@ profile$trs.prototype.apply = function(compiler) {
                   }
                 },
               });
+
+              // AST does not parse the <template> - so compile the template and find what we need.
+              const vueFile = fs.readFileSync(parsedUrl.pathname);
+              const template = vueCompiler.compile(vueFile.toString());
+
+              template.ast.children.forEach((node) => {
+                extractVueTemplateUses(strProfile, node, namespace, parsedUrl.pathname);
+              })
+
             } catch (e) {
               logging.error(e);
             }
@@ -242,6 +256,49 @@ function getStringDefinitions(localeBasePath, moduleName) {
   return definitions;
 }
 
+function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
+  let $tregex = /\$tr\(/;
+  let $treplace = /(\S|\s)*\$tr\([\\"']+|[\\"']+\).*$/;
+  let reCommon = /common\$tr/;
+
+  let key;
+  let common = false;
+
+  if(node.type === 1) { // Element
+    if(node.attrsMap) {
+      Object.keys(node.attrsMap).forEach(attr => {
+        let val = node.attrsMap[attr];
+        if($tregex.test(val)) {
+          console.log(`Testing Positive for ${val}`)
+          common = reCommon.test(val);
+          key = val.replace($treplace, '');
+        }
+      })
+    }
+  }
+  if(node.type === 2 || node.type === 3) { // Expression or Text Nodes
+    common = reCommon.test(node.text);
+    key = node.text.replace($treplace, '');
+  }
+  if(key) {
+    let $tring = getStringFromNamespaceKey(profile, namespace, key, common);
+    if($tring) {
+      profile[$tring].uses.push({
+        namespace,
+        key,
+        common,
+        parsedUrl: parsedUrl.pathname
+      })
+    }
+  }
+  // Recurse on this MFer
+  if(node.children && node.children.length > 0) {
+    node.children.forEach(child => {
+      extractVueTemplateUses(profile, child, namespace, parsedUrl);
+    })
+  }
+}
+
 function writeProfileToCSV(profile, moduleName) {
   const outputFile = `/home/jacob/.kolibri/logs/${moduleName}.csv`;
   const csvData = profileToCSV(profile);
@@ -260,6 +317,7 @@ function writeProfileToCSV(profile, moduleName) {
 }
 
 function profileToCSV(profile) {
+  fs.writeFileSync(`/home/jacob/.kolibri/logs/bk/file-${Math.floor(Math.random()*10000) + 1}.json`, JSON.stringify(profile))
   return reduce(
     profile,
     (csv, data, $tr) => {
@@ -276,14 +334,18 @@ function profileToCSV(profile) {
         });
       });
       uses.forEach(use => {
-        dataRows.push({
+        let newUse = {
           string: '',
           definition: 'No',
           namespace: use.namespace,
           key: use.key,
           common: use.common ? 'Yes' : 'No',
           pathname: use.parsedUrl,
-        });
+        }
+
+        if(!dataRows.some(data => isEqual(data, newUse))) {
+          dataRows.push(newUse);
+        }
       });
       csv = [...csv, ...dataRows];
       return csv;
@@ -305,21 +367,32 @@ function filterByModule(definitions, module) {
   );
 }
 
-function getStringFromNamespaceKey(profile, namespace, key, common) {
-  let string = null;
-  Object.keys(profile).forEach(str => {
+function getStringFromNamespaceKey(profile, namespace, key, common = false) {
+  let $tr = null;
+
+  for(let str of Object.keys(profile)) {
+    if($tr) {
+      break;
+    }
+
     let matchedNamespace;
+    let matchedKey;
+
     if(common) {
-      matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
-    } else {
       matchedNamespace = profile[str].definitions.find(def => def.namespace.includes("Common"));
+    } else {
+      matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
     }
-    let matchedKey = profile[str].definitions.find(def => def.key === key);
+
+    if(matchedNamespace) {
+      matchedKey = profile[str].definitions.find(def => def.key === key);
+    }
     if (matchedNamespace && matchedKey) {
-      string = str;
+      $tr = str;
     }
-  });
-  return string;
+  }
+
+  return $tr;
 }
 
 function nodeIsExpression(node) {

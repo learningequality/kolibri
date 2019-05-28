@@ -67,12 +67,9 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import CoachExamsPage from '../plan/CoachExamsPage';
   import ReportsHeader from './ReportsHeader';
-
-  const CoachExamsPageStrings = crossComponentTranslator(CoachExamsPage);
 
   export default {
     name: 'ReportsQuizListPage',
@@ -91,10 +88,10 @@
           return this.common$tr('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
-          return CoachExamsPageStrings.$tr('noActiveExams');
+          return this.$tr('noActiveExams');
         }
         if (this.filter.value === 'inactiveQuizzes') {
-          return CoachExamsPageStrings.$tr('noInactiveExams');
+          return this.$tr('noInactiveExams');
         }
 
         return '';
@@ -148,6 +145,8 @@
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: 'No inactive quizzes',
     },
   };
 

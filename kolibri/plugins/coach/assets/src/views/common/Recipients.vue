@@ -8,7 +8,7 @@
       {{ $tr('assignmentClass') }}
     </template>
     <template v-else>
-      {{ assignmentNoOne }}
+      {{ $tr('noOne') }}
     </template>
   </span>
 
@@ -17,7 +17,6 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import AssignmentSummary from '../plan/assignments/AssignmentSummary';
   import TruncatedItemList from './TruncatedItemList';
   import { coachStringsMixin } from './commonCoachStrings.js';
@@ -40,13 +39,9 @@
         required: true,
       },
     },
-    computed: {
-      assignmentNoOne() {
-        return assignmentSummaryStrings.$tr('noOne');
-      },
-    },
     $trs: {
       assignmentClass: 'Entire class',
+      noOne: 'No one',
     },
   };
 

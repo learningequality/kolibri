@@ -119,7 +119,6 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import find from 'lodash/find';
@@ -137,8 +136,6 @@
   import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import SignUpPage from '../SignUpPage';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
-
-  const SignUpPageStrings = crossComponentTranslator(SignUpPage);
 
   export default {
     name: 'ProfilePage',
