@@ -57,8 +57,8 @@ Feature: Learner engages ePUB content
       When I click the button to *Set beige theme*
       Then I see the background of <resource> become beige
         And I see the text color of <resource> become brown
-      When I click the button to *Set grey theme*
-      Then I see the background of <resource> become grey
+      When I click the button to *Set gray theme*
+      Then I see the background of <resource> become gray
         And I see the text color of <resource> become white
       When I click the button to *Set black theme*
       Then I see the background of <resource> become black

@@ -3,7 +3,7 @@ Feature: Coach needs to be able to rename groups
   Background:
     Given that there are groups created
       And I am signed in to Kolibri as coach user
-      And I am in the *Coach > Plan > Groups* page
+      And I am in the *Coach - '<class>' > Plan > Groups* page
 
   Scenario: Edit the group name
     When I click *Options* button

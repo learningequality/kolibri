@@ -3,17 +3,33 @@ Feature: Lessons subtab
 
   Background:
     Given I am logged in as a coach
-      And there are several groups in the <class> class
-      And there is a <lesson> lesson created
-      And I am on *Coach > '<class>'> Reports > Lessons* subtab
+      And I am on *Coach - '<class>' > Reports > Lessons* subtab
+      And there is a <lesson> with a <resource> and <exercise> assigned to <class>
 
-# WIP
+    Scenario: Review lesson reports
+      When I click on lesson <lesson>
+      Then I see the *Report* tab and the table with each lesson resource
+        And I see the *Progress* and *Average time spent* columns for each resource
 
-  Scenario: Open a lesson page
-    When I click the <lesson> lesson
-    Then I am on the <lesson> lesson page
-      And in the *Report* subtab I see the table with lesson resources
-      And I see the *Progress* and *Average time spent* columns for each resource
+    Scenario: Review resource progress *Report* subtab
+      When I click on a resource <resource>
+      Then I see the table of learners
+        And I see the summary icons (learners who completed, started, not started, and struggling)
+        And I see engagement data (status, time spent, group, last activity) for each learner assigned the resource
+
+    Scenario: Review progress from *Learners* subtab
+        Given that I am on a lesson <lesson> details page
+          When I click on the *Learners* subtab
+          Then I see the table with learners who are assigned that lesson
+            And I see the columns for progress on the overall lesson resources
+
+    Scenario: Review exercise attempt report
+      Given that I am on *Coach - '<class>' > Reports > Lessons > '<lesson>' > Learners* subtab
+        When I click on the <learner> name
+        Then I see the table with resources in the lesson <lesson>
+          And I see columns with <learner> progress and time spent on each exercise or resource in the <lesson>
+        When I click on <exercise> exercise
+        Then I see the attempt report of the <learner> for each question in the <exercise>
 
   Scenario: Edit lesson details from reports
     When I click the *Options* button
@@ -22,7 +38,7 @@ Feature: Lessons subtab
     	And I see editable fields for lesson title, status, and recipients
     	And I see the list of *Resources*
 
-  Scenario: Save lesson details changes 
+  Scenario: Save lesson details changes
     Given that I made some changes to the lesson details
       When I click the *Save changes* button
       Then see the <lesson> lesson page again
@@ -38,32 +54,22 @@ Feature: Lessons subtab
     Then see the <lesson> lesson page again
       And I see the changes to the resources I made in the *Report* subtab
 
-  Scenario: Open resource report
-  	Given that I am on the *'<lesson>' > Report* subtab
-	    When I click the <resource> resource
-	    Then I am on the <resource> resource page
-	      And I see *Preview* button
-	      And I see *View by groups* unchecked checkbox
-	      And I see the summary icons for learners who have completed, started, and are struggling
-	      And in the *Report* subtab I see the table with learners, with the *Progress*, *Time spent* and *Last activity* columns on <resource> for each of the learners lesson <lesson> is assigned to
-
   Scenario: Learner has not started a resource
-    When a learner has not started <resource>
+    When a learner has not started <resource> or <exercise>
     Then the learner's *Progress* column states *Not started*
 
   Scenario: Learner has started a resource
-    When a learner has started an <resource>
+    When a learner has started an <resource> or <exercise>
     Then the learner's *Progress* column states *Started*
 
   Scenario: Learner has completed a resource
-    When a learner has completed <resource>
+    When a learner has completed <resource> or <exercise>
     Then their *Progress* column states *Completed*
 
   Scenario: Learner needs help with a resource
-    Given the <resource> is an exercise
-      When a learner has ******** <resource> 
+    When a learner has given 2 wrong answers in the <exercise>
       # Clarify conditions for *Needs help*
-      Then their *Progress* column states *Needs help*
+    Then their *Progress* column states *Needs help*
 
 	Scenario: Review exercise attempt report
     Given that I am on the *'<resource>' > Report* subtab
@@ -74,7 +80,7 @@ Feature: Lessons subtab
   Scenario: Open the Learners tab
     Given that I am on the *'<lesson>' > Report* subtab
       When I click to open the *Learners* subtab
-      Then I see a table with learners to whom the <lesson> is assigned 
+      Then I see a table with learners to whom the <lesson> is assigned
       	And I see the *Progress* and *Groups* columns
 
   Scenario: View report for all resources for a learner
@@ -105,6 +111,5 @@ Feature: Lessons subtab
 	    	And the *View by groups* checkbox is still checked
 
 Examples:
-| class    | lesson             | resource           |
-| First A  | Jump into division | One digit division |
-
+| class     | learner  | lesson         | exercise   | resource                 |
+| My class  | Marc G.  | Basic division | Divide up! | One digit division video |

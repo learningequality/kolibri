@@ -6,55 +6,51 @@ Feature: Lessons notifications for multiple groups
   # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into three as learner users, and as a coach in the other
   
   Background:
-    Given I have all sessions visible in four browser windows/tabs (signed into three as <learner>, and in the other as <coach>)
-      And I am signed in to Kolibri as a <class coach> or <coach>
-      And there three <learner> users enrolled in class <class> I am assigned to
-      And two of the learners are assigned to Group 1
-      And one of the learners are assigned to Group 2
-      And I have a lesson <lesson> with one exercise assigned to the two groups
+    Given I have all sessions visible in four browser windows/tabs (signed into three as learners, and in the other as <coach>)
+      And I am signed in to Kolibri as a facility or class <coach>
+      And there are three learners enrolled in class <class> I am assigned to
+      And <learner1> and <learner2> are assigned to <group1>
+      And <learner3> is assigned to <group2>
+      And I have a lesson <lesson> with one exercise <exercise> assigned to the two groups
 
   Scenario: Multiple groups start on a lesson
-  	When as each learner in Group 1 in another window I go to *Learn > Class* page for <class>
+  	When as each learner in <group1> in another window I go to *Learn > Class* page for <class>
   	Then I click into the assigned <lesson>
-  	  And I start the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *'<learner>' and 1 other started on '<resource>'* group 1 notification
-  	And I see one *'<learner>' started on '<resource>'* group 2 notification
-  	When I click on the group 1 started notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of two learners and their progress status on the resource
-  	When I click on the group 2 started notifiation
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of one learner and their progress status on the resource
+  	  And I start the <exercise> in the <lesson>
+  	Then as <coach> in another window I navigate to *Coach - '<class>' > Class Home* page
+  	  And I look into the *Class activity* block
+  	Then I see one *'<learner1>' and 1 other started '<exercise>'* for <group1> notification
+  	 And I see one *'<learner3>' started on '<exercise>'* for <group2> notification
+  	When I click on the <group1> notification
+  	Then I see lesson <exercise> report page
+  	  And I see a table with <learner1> and <learner2>, and their progress status on the <exercise>
+  	When I click on the <group2> notification
+  	Then I see the lesson <exercise> report page
+  	  And I see a table with <learner3> progress status on the <exercise>
   
   Scenario: Multiple groups complete on a lesson
-  	When as each learner in Group 1 in another window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson>
-  	  And I complete the resource in the <lesson>
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *Everyone completed '<resource>'* group 1 notification
-  	And I see one *Everyone completed '<resource>'* group 2 notification
-  	When I click on the group 1 completed notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of two learners and their completion status on the resource
-  	When I click on the group 2 completed notifiation
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of one learner and their completion status on the resource
+  	Given that as each learner in another window I complete the <exercise> in the <lesson>
+  	  And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+      	When I look at *Class activity* block
+      	Then I see *Everyone completed '<exercise>'* <group1> notification
+      	  And I see one *Everyone completed '<exercise>'* <group2> notification
+      	When I click on the <group1> notification
+        Then I see lesson <exercise> report page
+          And I see a table with <learner1> and <learner2>, and their completed status on the <exercise>
+        When I click on the <group2> notification
+        Then I see the lesson <exercise> report page
+          And I see a table with <learner3> completed status on the <exercise>
 
   Scenario: Multiple groups need help on a lesson
-    When as each learner in Group 1 and Group 2 in another window I go to *Learn > Class* page for <class>
-  	Then I click into the assigned <lesson>
-  	  And I get multiple incorrect attempts on at least one question in the exercise
-  	Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	Then I see one *Everyone needs help on '<resource>'* group 1 notification
-  	  And I see one *'<Learner>' needs help on '<resource>'* group 2 notification
-  	When I click the Group 1 needs help notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see a list of learners in group 1 and their progress status on the resource
-  	  And I should see which learners need help
-  	When I click on the Group 2 needs help notification
-  	Then I should be directed to the lesson resource's report page
-  	  And I should see one learner in group 2 and their progress status on the resource
+    Given that as each learner in <group1> and <group2> in another window I go to *Learn > '<class>' > '<lesson>'*
+      And I get multiple incorrect attempts on at least one question in the exercise
+      And as <coach> in another window I see *Coach - '<class>' > Class Home* page
+      	When I look at *Class activity* block
+      	Then I see one *Everyone needs help on '<exercise>'* <group1> notification
+      	  And I see one *'<Learner>' needs help on '<exercise>'* <group2> notification
+       	When I click on the <group1> notification
+        Then I see lesson <exercise> report page
+          And I see a table with <learner1> and <learner2>, and their need help status on the <exercise>
+        When I click on the <group2> notification
+        Then I see the lesson <exercise> report page
+          And I see a table with <learner3> need help status on the <exercise>
