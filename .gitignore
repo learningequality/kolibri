@@ -74,6 +74,9 @@ lerna-debug.log
 # Node coverage data
 coverage
 
+# integration testing screenshots
+integration_testing/screenshots
+
 # webpack built files
 kolibri/**/build/*
 kolibri/**/static/*
