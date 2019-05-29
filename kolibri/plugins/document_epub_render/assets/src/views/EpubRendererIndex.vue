@@ -268,8 +268,9 @@
           'line-height': `1.4em!important`,
         };
 
-        // Display flex helps body size to it's content
-        const htmlScrolledStyle = this.scrolled ? { display: 'flex' } : {};
+        // In scrolled mode, display flex helps body size to it's content
+        // In paged column mode, clear margins on <html> to avoid issues with rendering
+        const htmlStyle = this.scrolled ? { display: 'flex' } : { margin: '0!important' };
 
         // Width style overrides the pixel width added by epub.js, and in conjunction with flex
         // above, helps SandboxIFrameView size containers according to true content width.
@@ -279,7 +280,7 @@
           : {};
 
         return {
-          html: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle, ...htmlScrolledStyle },
+          html: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle, ...htmlStyle },
           body: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle, ...bodyScrolledStyle },
           p: { ...colorStyle, ...alignmentStyle, ...lineHeightStyle },
           h1: { ...colorStyle },
