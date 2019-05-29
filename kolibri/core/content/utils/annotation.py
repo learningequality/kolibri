@@ -156,6 +156,35 @@ def update_num_coach_contents():
 
     trans = connection.begin()
 
+    # Update all leaf ContentNodes to have num_coach_content to 1 or 0
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            # That are not topics
+            ContentNodeTable.c.kind != content_kinds.TOPIC,
+        )
+        .values(
+            num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer())
+        )
+    )
+
+    # Expression to capture all available child nodes of a contentnode
+    available_nodes = select([child.c.available]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
+    # Expression that sums the total number of coach contents for each child node
+    # of a contentnode
+    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
 
         node_depth = (
@@ -164,41 +193,8 @@ def update_num_coach_contents():
             .scalar()
         )
 
-        # Update all leaf ContentNodes to have num_coach_content to 1 or 0
-        connection.execute(
-            ContentNodeTable.update()
-            .where(
-                and_(
-                    # In this channel
-                    ContentNodeTable.c.channel_id == channel_id,
-                    # That are not topics
-                    ContentNodeTable.c.kind != content_kinds.TOPIC,
-                )
-            )
-            .values(
-                num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer())
-            )
-        )
-
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
-
-            # Expression to capture all available child nodes of a contentnode
-            available_nodes = select([child.c.available]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
-
-            # Expression that sums the total number of coach contents for each child node
-            # of a contentnode
-            coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
 
             # Only modify topic availability here
             connection.execute(
@@ -426,48 +422,48 @@ def recurse_annotation_up_tree(channel_id):
         .values(available=False)
     )
 
+    # Expression to capture all available child nodes of a contentnode
+    available_nodes = select([child.c.available]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
+    # Expressions for annotation of coach content
+
+    # Expression that will resolve a boolean value for all the available children
+    # of a content node, whereby if they all have coach_content flagged on them, it will be true,
+    # but otherwise false.
+    # Everything after the select statement should be identical to the available_nodes expression above.
+    if bridge.engine.name == "sqlite":
+        # Use a min function to simulate an AND.
+        coach_content_nodes = select([func.min(child.c.coach_content)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+    elif bridge.engine.name == "postgresql":
+        # Use the postgres boolean AND operator
+        coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+            and_(
+                child.c.available == True,  # noqa
+                ContentNodeTable.c.id == child.c.parent_id,
+            )
+        )
+
+    # Expression that sums the total number of coach contents for each child node
+    # of a contentnode
+    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+        and_(
+            child.c.available == True,  # noqa
+            ContentNodeTable.c.id == child.c.parent_id,
+        )
+    )
+
     # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
-
-        # Expression to capture all available child nodes of a contentnode
-        available_nodes = select([child.c.available]).where(
-            and_(
-                child.c.available == True,  # noqa
-                ContentNodeTable.c.id == child.c.parent_id,
-            )
-        )
-
-        # Expressions for annotation of coach content
-
-        # Expression that will resolve a boolean value for all the available children
-        # of a content node, whereby if they all have coach_content flagged on them, it will be true,
-        # but otherwise false.
-        # Everything after the select statement should be identical to the available_nodes expression above.
-        if bridge.engine.name == "sqlite":
-            # Use a min function to simulate an AND.
-            coach_content_nodes = select([func.min(child.c.coach_content)]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
-        elif bridge.engine.name == "postgresql":
-            # Use the postgres boolean AND operator
-            coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
-                and_(
-                    child.c.available == True,  # noqa
-                    ContentNodeTable.c.id == child.c.parent_id,
-                )
-            )
-
-        # Expression that sums the total number of coach contents for each child node
-        # of a contentnode
-        coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
-            and_(
-                child.c.available == True,  # noqa
-                ContentNodeTable.c.id == child.c.parent_id,
-            )
-        )
 
         logger.info(
             "Annotating ContentNode objects with children for level {level}".format(
