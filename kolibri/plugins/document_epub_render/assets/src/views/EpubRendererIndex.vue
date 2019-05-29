@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
-    :class="{small: windowIsSmall, scrolled: scrolled}"
+    :class="{small: windowIsSmall, scrolled: scrolled, 'fullscreen-enabled': isInFullscreen}"
     :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -743,8 +743,8 @@
     padding-top: calc(100% * 11 / 8.5);
   }
 
-  .epub-renderer.normalize-fullscreen,
-  .epub-renderer.small.normalize-fullscreen {
+  .epub-renderer.fullscreen-mode,
+  .epub-renderer.small.fullscreen-mode {
     padding-top: 0;
   }
 
