@@ -103,13 +103,15 @@
       },
       noSelectableNodes() {
         // If importing from an external drive, disable select-all if every child node is
-        // 1) a leaf node and 2) already on the server or not available on the drive
+        // 1) a leaf node AND
+        // 2a) not importable from the drive OR
+        // 2b) already on the server
         // TODO check to see if this logic is valid for PEER_IMPORT as well.
         if (this.transferType === TransferTypes.LOCALIMPORT) {
           return every(this.annotatedChildNodes, node => {
             return (
               node.kind !== ContentNodeKinds.TOPIC &&
-              (!node.available || node.on_device_resources > 0)
+              (!node.importable || node.on_device_resources > 0)
             );
           });
         } else {
