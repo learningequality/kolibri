@@ -3,7 +3,7 @@ Feature: Coach removes lesson resources
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on *Coach > Plan > Lessons* page
+      And I am on *Coach - '<class>' > Plan > Lessons* page
       And there is a lesson <lesson>
 
   Scenario: Delete resource in the lesson

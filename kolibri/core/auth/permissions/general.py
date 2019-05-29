@@ -141,6 +141,23 @@ class IsFromSameFacility(BasePermissions):
             return queryset.none()
 
 
+def _user_is_admin_for_own_facility(user, obj=None):
+
+    # import here to avoid circular imports
+    from ..models import Facility
+
+    if not hasattr(user, "dataset"):
+        return False
+
+    # if we've been given an object, make sure it too is from the same dataset (facility)
+    if obj:
+        if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
+            return False
+
+    facility = Facility.objects.get(dataset=user.dataset)
+    return user.has_role_for_collection(role_kinds.ADMIN, facility)
+
+
 class IsAdminForOwnFacility(BasePermissions):
     """
     Permissions class that only allows access to object if user is an admin for the facility the object is associated with.
@@ -149,36 +166,20 @@ class IsAdminForOwnFacility(BasePermissions):
     def __init__(self, field_name=".", read_only=False):
         self.read_only = read_only
 
-    def _user_is_admin_for_own_facility(self, user, obj=None):
-
-        # import here to avoid circular imports
-        from ..models import Facility
-
-        if not hasattr(user, "dataset"):
-            return False
-
-        # if we've been given an object, make sure it too is from the same dataset (facility)
-        if obj:
-            if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
-                return False
-
-        facility = Facility.objects.get(dataset=user.dataset)
-        return user.has_role_for_collection(role_kinds.ADMIN, facility)
-
     def user_can_create_object(self, user, obj):
-        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+        return (not self.read_only) and _user_is_admin_for_own_facility(user, obj)
 
     def user_can_read_object(self, user, obj):
-        return self._user_is_admin_for_own_facility(user, obj)
+        return _user_is_admin_for_own_facility(user, obj)
 
     def user_can_update_object(self, user, obj):
-        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+        return (not self.read_only) and _user_is_admin_for_own_facility(user, obj)
 
     def user_can_delete_object(self, user, obj):
-        return (not self.read_only) and self._user_is_admin_for_own_facility(user, obj)
+        return (not self.read_only) and _user_is_admin_for_own_facility(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
-        if self._user_is_admin_for_own_facility(user):
+        if _user_is_admin_for_own_facility(user):
             return queryset.filter(dataset=user.dataset)
         else:
             return queryset.none()

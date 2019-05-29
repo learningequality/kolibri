@@ -962,7 +962,10 @@
   }
 
   .ui-select-display-value {
+    position: relative;
+    top: 2px;
     flex-grow: 1;
+    height: 22px; // height and top help prevent descender clipping
     overflow: hidden;
     text-overflow: ellipsis;
 
