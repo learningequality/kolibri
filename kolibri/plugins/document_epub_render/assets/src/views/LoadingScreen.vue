@@ -47,7 +47,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 24;
+    z-index: 3;
   }
 
   .loading-status {

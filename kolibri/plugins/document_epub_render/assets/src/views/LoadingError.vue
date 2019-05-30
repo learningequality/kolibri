@@ -49,13 +49,13 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 24;
+    z-index: 3;
   }
 
   .epub-renderer-error.loaded {
     top: 36px;
     bottom: auto;
-    z-index: 4;
+    z-index: 0;
     background: transparent;
   }
 
