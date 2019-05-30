@@ -33,7 +33,7 @@ const initialState = {
 
     // general semantic colors
     error: 'palette.red.v_700',
-    success: 'palette.green.v_600',
+    success: 'palette.green.v_700',
 
     // Kolibri-specific semantic colors
     progress: 'palette.lightblue.v_500',
