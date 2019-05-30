@@ -43,7 +43,7 @@
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
             </td>
-            <td><Score :value="tableRow.statusObj.score" /></td>
+            <td><Score :value="score(tableRow.statusObj)" /></td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
           </tr>
         </transition-group>
@@ -59,6 +59,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
+
+  const COMPLETED_STATUS = 'Completed';
 
   export default {
     name: 'ReportsQuizLearnerListPage',
@@ -109,6 +111,13 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      score(statusObj) {
+        return statusObj.status === COMPLETED_STATUS
+          ? statusObj.score || 0.0 // Ensures score will show 0% when null
+          : null;
+      },
     },
     $trs: {},
   };
