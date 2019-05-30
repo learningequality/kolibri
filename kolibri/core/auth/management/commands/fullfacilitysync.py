@@ -31,7 +31,7 @@ class Command(AsyncCommand):
         parser.add_argument("--base-url", type=str)
         parser.add_argument("--username", type=str)
         parser.add_argument("--password", type=str)
-        parser.add_argument('--chunk-size', type=int, default=500)
+        parser.add_argument("--chunk-size", type=int, default=500)
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
@@ -171,7 +171,7 @@ class Command(AsyncCommand):
             progress_update(1)
 
             sync_client = network_connection.create_sync_session(
-                client_cert, server_cert, chunk_size=options['chunk_size']
+                client_cert, server_cert, chunk_size=options["chunk_size"]
             )
             progress_update(1)
 

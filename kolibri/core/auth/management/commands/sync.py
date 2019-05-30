@@ -26,7 +26,12 @@ class Command(AsyncCommand):
             "--baseurl", type=str, default=DATA_PORTAL_SYNCING_BASE_URL, dest="baseurl"
         )
         parser.add_argument("--noninteractive", action="store_true")
-        parser.add_argument('--chunk-size', type=int, default=500, help="Chunk size of records to send/retrieve per request")
+        parser.add_argument(
+            "--chunk-size",
+            type=int,
+            default=500,
+            help="Chunk size of records to send/retrieve per request",
+        )
 
     def _fullfacilitysync(self, baseurl, facility=None, chunk_size=500):
         if facility is None:
@@ -36,7 +41,12 @@ class Command(AsyncCommand):
 
         if baseurl != DATA_PORTAL_SYNCING_BASE_URL:
             self.stdout.write("Syncing has been initiated (this may take a while)...")
-            call_command("fullfacilitysync", base_url=baseurl, dataset_id=dataset_id, chunk_size=chunk_size)
+            call_command(
+                "fullfacilitysync",
+                base_url=baseurl,
+                dataset_id=dataset_id,
+                chunk_size=chunk_size,
+            )
             self.stdout.write("Syncing has been completed.")
             sys.exit(0)
 
@@ -44,7 +54,7 @@ class Command(AsyncCommand):
 
         baseurl = options["baseurl"]
         facility_id = options["facility"]
-        chunk_size = options['chunk_size']
+        chunk_size = options["chunk_size"]
 
         # This handles the case for when we want to pull in facility data for our empty kolibri instance
         if not facility_id:
