@@ -31,6 +31,7 @@ class Command(AsyncCommand):
         parser.add_argument("--base-url", type=str)
         parser.add_argument("--username", type=str)
         parser.add_argument("--password", type=str)
+        parser.add_argument('--chunk-size', type=int, default=500)
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
@@ -128,33 +129,30 @@ class Command(AsyncCommand):
         if not ScopeDefinition.objects.filter():
             call_command("loaddata", "scopedefinitions")
 
-        # ping server at url with info request
-        info_url = urljoin(options["base_url"], "api/morango/v1/morangoinfo/1/")
-        try:
-            info_resp = requests.get(info_url)
-        except ConnectionError:
-            print(
-                "Can not connect to server with base-url: {}".format(
-                    options["base_url"]
-                )
-            )
-            sys.exit(1)
-
-        # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
-        if (
-            InstanceIDModel.get_or_create_current_instance()[0].id
-            == info_resp.json()["instance_id"]
-        ):
-            print(
-                "Device can not sync with itself. Please re-check base-url and try again."
-            )
-            sys.exit(1)
-
         controller = MorangoProfileController("facilitydata")
         with self.start_progress(total=7) as progress_update:
-            network_connection = controller.create_network_connection(
-                options["base_url"]
-            )
+            try:
+                network_connection = controller.create_network_connection(
+                    options["base_url"]
+                )
+            except ConnectionError:
+                print(
+                    "Can not connect to server with base-url: {}".format(
+                        options["base_url"]
+                    )
+                )
+                sys.exit(1)
+
+            # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
+            if (
+                InstanceIDModel.get_or_create_current_instance()[0].id
+                == network_connection.server_info["instance_id"]
+            ):
+                print(
+                    "Device can not sync with itself. Please re-check base-url and try again."
+                )
+                sys.exit(1)
+
             progress_update(1)
 
             options["dataset_id"] = self.get_dataset_id(
@@ -173,7 +171,7 @@ class Command(AsyncCommand):
             progress_update(1)
 
             sync_client = network_connection.create_sync_session(
-                client_cert, server_cert
+                client_cert, server_cert, chunk_size=options['chunk_size']
             )
             progress_update(1)
 
