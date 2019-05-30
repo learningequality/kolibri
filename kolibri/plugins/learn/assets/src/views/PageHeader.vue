@@ -58,6 +58,8 @@
   }
 
   .progress-icon {
+    position: relative;
+    top: -2px;
     display: inline-block;
     margin-left: 16px;
   }
