@@ -88,7 +88,6 @@
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import isEqual from 'lodash/isEqual';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
