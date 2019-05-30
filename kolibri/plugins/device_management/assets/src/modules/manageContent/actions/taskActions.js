@@ -7,17 +7,19 @@ import { TaskStatuses, TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
 export function cancelTask(store, taskId) {
-  let cancelWatch;
-  cancelWatch = coreStore.watch(
-    state =>
-      (state.manageContent.taskList.find(task => task.id === taskId) || {}).status ===
-      TaskStatuses.CANCELED,
-    () => {
-      cancelWatch();
-      TaskResource.deleteFinishedTasks();
-    }
-  );
-  return TaskResource.cancelTask(taskId);
+  return new Promise(resolve => {
+    let cancelWatch;
+    cancelWatch = coreStore.watch(
+      state =>
+        (state.manageContent.taskList.find(task => task.id === taskId) || {}).status ===
+        TaskStatuses.CANCELED,
+      () => {
+        cancelWatch();
+        TaskResource.deleteFinishedTasks().then(resolve);
+      }
+    );
+    TaskResource.cancelTask(taskId);
+  });
 }
 
 function updateTasks(store, tasks) {

@@ -141,7 +141,8 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
+      ...mapGetters('manageContent', ['channelIsInstalled']),
+      ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
       ...mapState('manageContent/wizard', [
         'availableSpace',
@@ -165,12 +166,12 @@
       },
       metadataDownloadTask() {
         return (
-          find(this.activeTaskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
-          find(this.activeTaskList, { type: TaskTypes.LOCALCHANNELIMPORT })
+          find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
+          find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
         );
       },
       contentDownloadTask() {
-        return find(this.activeTaskList, { type: TaskTypes.REMOTECONTENTIMPORT });
+        return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
       },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
       wholePageError() {
@@ -192,7 +193,7 @@
         return this.transferredChannel.version > this.channelOnDevice.version;
       },
       taskInProgress() {
-        return this.activeTaskList[0] && this.activeTaskList[0].status !== TaskStatuses.COMPLETED;
+        return this.taskList[0] && this.taskList[0].status !== TaskStatuses.COMPLETED;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
