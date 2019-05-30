@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import wizard from '../wizard';
+import { TaskStatuses } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -39,6 +40,15 @@ export default {
       return function findChannel(channelId) {
         return find(state.channelList, { id: channelId });
       };
+    },
+    // Tasks that are active, complete, or failed.
+    // Canceling and canceled tasks are filtered here
+    // to hide them from users, but still let us clean
+    // them up when finished.
+    activeTaskList(state) {
+      return state.taskList.filter(
+        task => task.status !== TaskStatuses.CANCELING && task.status !== TaskStatuses.CANCELED
+      );
     },
   },
   actions,

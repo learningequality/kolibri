@@ -14,7 +14,7 @@
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelUpdateChannel()"
+        @canceltask="cancelUpdateChannel()"
       />
       <TaskProgress
         v-else-if="metadataDownloadTask"
@@ -22,7 +22,7 @@
         v-bind="metadataDownloadTask"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="returnToChannelsList()"
+        @canceltask="returnToChannelsList()"
       />
 
       <template v-if="mainAreaIsVisible">
@@ -101,7 +101,6 @@
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -142,9 +141,8 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled']),
+      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
       ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
-      ...mapState('manageContent', ['taskList']),
       ...mapState('manageContent/wizard', [
         'availableSpace',
         'currentTopicNode',
@@ -167,12 +165,12 @@
       },
       metadataDownloadTask() {
         return (
-          find(this.taskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
-          find(this.taskList, { type: TaskTypes.LOCALCHANNELIMPORT })
+          find(this.activeTaskList, { type: TaskTypes.REMOTECHANNELIMPORT }) ||
+          find(this.activeTaskList, { type: TaskTypes.LOCALCHANNELIMPORT })
         );
       },
       contentDownloadTask() {
-        return find(this.taskList, { type: TaskTypes.REMOTECONTENTIMPORT });
+        return find(this.activeTaskList, { type: TaskTypes.REMOTECONTENTIMPORT });
       },
       // If this property is truthy, the entire UI is hidden and only the UiAlert is shown
       wholePageError() {
@@ -194,7 +192,7 @@
         return this.transferredChannel.version > this.channelOnDevice.version;
       },
       taskInProgress() {
-        return this.taskList[0] && this.taskList[0].status !== TaskStatuses.COMPLETED;
+        return this.activeTaskList[0] && this.activeTaskList[0].status !== TaskStatuses.COMPLETED;
       },
       nodeCounts() {
         return this.nodeTransferCounts(this.transferType);
@@ -231,6 +229,7 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
+      ...mapActions('manageContent', ['cancelTask']),
       downloadChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
@@ -238,7 +237,7 @@
       },
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
-          return TaskResource.cancelTask(this.metadataDownloadTaskId);
+          return this.cancelTask(this.metadataDownloadTaskId);
         }
         return Promise.resolve();
       },

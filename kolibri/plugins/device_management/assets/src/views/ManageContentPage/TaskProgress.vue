@@ -42,7 +42,7 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
+        :text="taskHasCompleted || taskHasFailed ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"

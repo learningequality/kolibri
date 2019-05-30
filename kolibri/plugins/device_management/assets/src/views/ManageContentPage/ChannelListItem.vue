@@ -77,7 +77,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -127,8 +127,7 @@
       },
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
       manageChannelActions() {
         return [
           {
@@ -162,7 +161,7 @@
         return this.channel.thumbnail;
       },
       tasksInQueue() {
-        return this.taskList.length > 0;
+        return this.activeTaskList.length > 0;
       },
       versionNumber() {
         const installed = this.channelIsInstalled(this.channel.id);
