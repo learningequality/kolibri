@@ -60,8 +60,6 @@
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
-  const COMPLETED_STATUS = 'Completed';
-
   export default {
     name: 'ReportsQuizLearnerListPage',
     components: {
@@ -114,7 +112,7 @@
     },
     methods: {
       score(statusObj) {
-        return statusObj.status === COMPLETED_STATUS
+        return statusObj.status === this.STATUSES.completed
           ? statusObj.score || 0.0 // Ensures score will show 0% when null
           : null;
       },
