@@ -158,6 +158,20 @@
         return '';
       },
     },
+    watch: {
+      taskHasCompleted(newValue, oldValue) {
+        // Once it becomes complete, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+      taskHasFailed(newValue, oldValue) {
+        // Once it becomes failed, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+    },
     methods: {
       endTask() {
         this.uiBlocked = true;
