@@ -48,6 +48,9 @@ const initialState = {
     document: 'palette.lime.v_700',
     html5: 'palette.orange.v_600',
     topic: 'palette.grey.v_900',
+
+    // others
+    coachContent: 'palette.lightblue.v_800',
   },
 };
 
