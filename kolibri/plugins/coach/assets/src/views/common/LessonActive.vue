@@ -1,11 +1,11 @@
 <template>
 
   <span>
-    <KLabeledIcon :style="active ? null : { color: $themeColors.palette.grey.v_300 }">
+    <KLabeledIcon :style="active ? null : { color: $themeTokens.textDisabled }">
       <KIcon
         slot="icon"
         dot
-        :color="active ? $themeTokens.correct : $themeColors.palette.grey.v_300"
+        :color="active ? $themeTokens.correct : $themeTokens.textDisabled"
       />
       {{ label }}
     </KLabeledIcon>

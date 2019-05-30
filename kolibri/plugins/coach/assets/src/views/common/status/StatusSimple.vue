@@ -60,7 +60,7 @@
       },
       style() {
         if (this.status === STATUSES.notStarted) {
-          return { color: this.$themeColors.palette.grey.v_300 };
+          return { color: this.$themeTokens.textDisabled };
         }
         return '';
       },
