@@ -3,7 +3,7 @@
 exports[`ReportsExerciseLearners doesn't render groups information when show groups set to false 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #eeeeee; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Progress</th>
@@ -46,7 +46,7 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
 exports[`ReportsExerciseLearners renders all entries 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #eeeeee; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Progress</th>
