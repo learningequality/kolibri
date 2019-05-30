@@ -47,9 +47,9 @@ const initialState = {
     exercise: 'palette.cyan.v_600',
     video: 'palette.indigo.v_700',
     audio: 'palette.pink.v_400',
-    document: 'palette.lime.v_700',
-    html5: 'palette.orange.v_600',
-    topic: 'palette.grey.v_900',
+    document: 'palette.deeporange.v_600',
+    html5: 'palette.yellow.v_800',
+    topic: 'palette.grey.v_800',
   },
 };
 
