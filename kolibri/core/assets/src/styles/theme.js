@@ -40,6 +40,8 @@ const initialState = {
     mastered: 'palette.amber.v_500',
     correct: 'palette.green.v_600',
     incorrect: 'palette.red.v_800',
+    coachContent: 'palette.lightblue.v_800',
+    superAdmin: 'palette.amber.v_600',
 
     // content colors
     exercise: 'palette.cyan.v_600',
@@ -48,9 +50,6 @@ const initialState = {
     document: 'palette.lime.v_700',
     html5: 'palette.orange.v_600',
     topic: 'palette.grey.v_900',
-
-    // others
-    coachContent: 'palette.lightblue.v_800',
   },
 };
 
