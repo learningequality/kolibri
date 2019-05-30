@@ -27,7 +27,7 @@
       </p>
       <div class="footer">
         <CoachContentLabel
-          v-if="hasUserPermissions && !isLearner"
+          v-if="userHasPermissions && !isLearner"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
@@ -122,7 +122,7 @@
       },
     },
     computed: {
-      ...mapGetters(['isLearner', 'hasUserPermissions']),
+      ...mapGetters(['isLearner', 'userHasPermissions']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
