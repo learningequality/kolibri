@@ -106,9 +106,6 @@
       theme: {
         type: Object,
         required: true,
-        validator(val) {
-          return Object.values(THEMES).some(obj => isEqual(obj, val));
-        },
       },
       decreaseFontSizeDisabled: {
         type: Boolean,
