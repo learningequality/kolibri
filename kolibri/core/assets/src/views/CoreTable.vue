@@ -19,7 +19,7 @@
     computed: {
       tHeadStyle() {
         return {
-          borderBottom: `solid 1px ${this.$themeColors.palette.grey.v_200}`,
+          borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
           fontSize: '12px',
           color: this.$themeTokens.annotation,
         };
@@ -28,13 +28,13 @@
         const selectable = {
           cursor: 'pointer',
           ':hover': {
-            backgroundColor: this.$themeColors.palette.grey.v_200,
+            backgroundColor: this.$themeTokens.fineLine,
           },
         };
         return Object.assign(
           {
             ':not(:last-child)': {
-              borderBottom: `solid 1px ${this.$themeColors.palette.grey.v_200}`,
+              borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
             },
           },
           this.selectable ? selectable : {}
