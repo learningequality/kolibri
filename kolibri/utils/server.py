@@ -13,6 +13,7 @@ import requests
 from django.conf import settings
 from django.core.management import call_command
 
+import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
@@ -115,6 +116,8 @@ def start(port=8080, run_cherrypy=True):
         os.unlink(PID_FILE)
 
     atexit.register(rm_pid_file)
+
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
     if run_cherrypy:
         run_server(port=port)
