@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from morango.certificates import Filter
 from morango.controller import MorangoProfileController
+from requests.exceptions import ConnectionError
 
 from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
 from kolibri.core.auth.management.utils import get_facility
@@ -25,8 +26,14 @@ class Command(AsyncCommand):
             "--baseurl", type=str, default=DATA_PORTAL_SYNCING_BASE_URL, dest="baseurl"
         )
         parser.add_argument("--noninteractive", action="store_true")
+        parser.add_argument(
+            "--chunk-size",
+            type=int,
+            default=500,
+            help="Chunk size of records to send/retrieve per request",
+        )
 
-    def _fullfacilitysync(self, baseurl, facility=None):
+    def _fullfacilitysync(self, baseurl, facility=None, chunk_size=500):
         if facility is None:
             dataset_id = None
         else:
@@ -34,7 +41,12 @@ class Command(AsyncCommand):
 
         if baseurl != DATA_PORTAL_SYNCING_BASE_URL:
             self.stdout.write("Syncing has been initiated (this may take a while)...")
-            call_command("fullfacilitysync", base_url=baseurl, dataset_id=dataset_id)
+            call_command(
+                "fullfacilitysync",
+                base_url=baseurl,
+                dataset_id=dataset_id,
+                chunk_size=chunk_size,
+            )
             self.stdout.write("Syncing has been completed.")
             sys.exit(0)
 
@@ -42,6 +54,7 @@ class Command(AsyncCommand):
 
         baseurl = options["baseurl"]
         facility_id = options["facility"]
+        chunk_size = options["chunk_size"]
 
         # This handles the case for when we want to pull in facility data for our empty kolibri instance
         if not facility_id:
@@ -52,13 +65,16 @@ class Command(AsyncCommand):
         )
 
         # if url is not pointing to portal server, do P2P syncing
-        self._fullfacilitysync(baseurl, facility=facility)
+        self._fullfacilitysync(baseurl, facility=facility, chunk_size=chunk_size)
 
         # data portal syncing
         self.stdout.write("Syncing has been initiated (this may take a while)...")
         controller = MorangoProfileController("facilitydata")
         with self.start_progress(total=5) as progress_update:
-            network_connection = controller.create_network_connection(baseurl)
+            try:
+                network_connection = controller.create_network_connection(baseurl)
+            except ConnectionError as e:
+                raise CommandError(e)
             progress_update(1)
 
             # get client certificate
@@ -85,7 +101,7 @@ class Command(AsyncCommand):
 
             # we should now be able to push our facility data
             sync_client = network_connection.create_sync_session(
-                client_cert, server_cert
+                client_cert, server_cert, chunk_size=chunk_size
             )
             progress_update(1)
 
