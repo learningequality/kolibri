@@ -48,14 +48,14 @@ Feature: Super admin creates users
       And I see the new learner user on the *Facility > Users* page
 
   Scenario: Create facility admin user account
-    When I click on *Add new* button
-    Then I see *Add new account* modal
+    When I click on *New user* button
+    Then I see *Create new user* modal
     When I enter user's full name <full_name>
       And I enter the username <username>
       And I enter the password <password>
       And I re-enter the password <password>
       And I select *Admin* for the *User type*
-      And I click *Create account* button
+      And I click *Save* button
     Then the modal closes
       And I see the new user on the *Facility > Users* page
       And I see the *Admin* label besides their name
