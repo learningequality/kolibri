@@ -8,7 +8,7 @@
   >
     <div
       class="box-row"
-      :style="{ borderColor: $themeColors.palette.grey.v_600 }"
+      :style="{ borderColor: $themeTokens.fineLine }"
     >
       <label
         class="visuallyhidden"
@@ -43,7 +43,7 @@
           />
         </UiIconButton>
 
-        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primaryDark }">
+        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
           <UiIconButton
             type="secondary"
             color="white"
@@ -138,7 +138,7 @@
     display: table;
     width: 100%;
     border-style: solid;
-    border-width: 1px;
+    border-width: 2px;
     border-radius: $radius;
   }
 
@@ -188,6 +188,8 @@
   .submit-button-wrapper {
     display: inline-block;
     vertical-align: middle;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
   }
 
   .filter-icon {
