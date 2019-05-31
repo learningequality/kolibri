@@ -32,8 +32,9 @@
   import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import store from 'kolibri.coreVue.vuex.store';
   import ContentPage from '../../../../learn/assets/src/views/ContentPage';
-  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import { PageNames, RecommendedPages, ClassesPageNames, pageNameToModuleMap } from '../constants';
   import LessonResourceViewer from '../../../../learn/assets/src/views/classes/LessonResourceViewer';
   import RecommendedPage from '../../../../learn/assets/src/views/RecommendedPage';
   import TotalPoints from '../../../../learn/assets/src/views/TotalPoints';
@@ -47,6 +48,7 @@
   import ClassAssignmentsPage from '../../../../learn/assets/src/views/classes/ClassAssignmentsPage';
   import LessonPlaylistPage from '../../../../learn/assets/src/views/classes/LessonPlaylistPage';
   import ContentUnavailablePage from '../../../../learn/assets/src/views/ContentUnavailablePage';
+  import { THEME_MODULE_NAMESPACE } from '../../../../../core/assets/src/state/modules/theme';
   import ChannelsPage from './ChannelsPage';
   import Breadcrumbs from './Breadcrumbs';
   import EdulutionTopNav from './EdulutionTopNav';
@@ -175,6 +177,14 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+      },
+    },
+    watch: {
+      $route(to, _) {
+        if (pageNameToModuleMap[to.name] !== 'topicsTree') {
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-accent-color');
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-action-dark');
+        }
       },
     },
   };

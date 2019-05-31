@@ -21,3 +21,14 @@ export const pageNameToModuleMap = {
   ...learnPageNameToModuleMap,
   [PageNames.KNOWLEDGE_MAP]: 'topicsTree',
 };
+
+export const prefixToColourMap = {
+  Playlist: {
+    accent: '#FCA146',
+    action: '#F4D19C',
+  },
+  Num: {
+    accent: '#3D8D54',
+    action: '#CCFFCC',
+  },
+};
