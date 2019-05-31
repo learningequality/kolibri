@@ -24,6 +24,7 @@
         </KGrid>
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
+        <LiveAttendanceBlock />
         <ActivityBlock />
       </KGridItem>
     </KGrid>
@@ -40,6 +41,7 @@
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
   import QuizzesBlock from './QuizzesBlock';
+  import LiveAttendanceBlock from './LiveAttendanceBlock';
 
   export default {
     name: 'HomePage',
@@ -48,6 +50,7 @@
       ActivityBlock,
       LessonsBlock,
       QuizzesBlock,
+      LiveAttendanceBlock,
     },
     mixins: [commonCoach],
     $trs: {},

@@ -353,6 +353,32 @@ const translations = {
         '{count, number, integer} of {total, number, integer} {count, plural, one {has started} other {have started}}',
     }),
   },
+  attendance: {
+    active: createTranslator('LearnersActive', {
+      abel: '{count, plural, one {Learner is active} other {Learners are active}}',
+      labelShort: '{count, plural, other {Active}}',
+      count: 'Active: {count, number, integer} {count, plural, one {learner} other {learners}}',
+      countShort: '{count, number, integer} {count, plural, other {active}}',
+      allOfMoreThanTwo: 'All {total, number, integer} learners are active',
+      allOfMoreThanTwoShort: 'All {total, number, integer} are active',
+      ratio:
+        '{count, number, integer} of {total, number, integer} {total, plural, one {learner} other {learners}} {count, plural, one {is active} other {are active}}',
+      ratioShort:
+        '{count, number, integer} of {total, number, integer} {count, plural, one {is active} other {are active}}',
+    }),
+    notActive: createTranslator('LearnersNotActive', {
+      abel: '{count, plural, one {Learner is active} other {Learners are not active}}',
+      labelShort: '{count, plural, other {Not active}}',
+      count: 'Not active: {count, number, integer} {count, plural, one {learner} other {learners}}',
+      countShort: '{count, number, integer} {count, plural, other {not active}}',
+      allOfMoreThanTwo: 'All {total, number, integer} learners are not active',
+      allOfMoreThanTwoShort: 'All {total, number, integer} are not active',
+      ratio:
+        '{count, number, integer} of {total, number, integer} {total, plural, one {learner} other {learners}} {count, plural, one {is not active} other {are not active}}',
+      ratioShort:
+        '{count, number, integer} of {total, number, integer} {count, plural, one {is not active} other {are not active}}',
+    }),
+  },
 };
 
 export function isValidObject(value) {
