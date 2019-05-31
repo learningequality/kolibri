@@ -118,12 +118,12 @@
       },
       blank() {
         return {
-          fill: this.disabled ? this.$themeColors.palette.grey.v_300 : this.$themeTokens.annotation,
+          fill: this.disabled ? this.$themeTokens.textDisabled : this.$themeTokens.annotation,
         };
       },
       notBlank() {
         return {
-          fill: this.disabled ? this.$themeColors.palette.grey.v_300 : this.$themeTokens.primary,
+          fill: this.disabled ? this.$themeTokens.textDisabled : this.$themeTokens.primary,
         };
       },
       activeOutline() {
