@@ -11,7 +11,7 @@
       v-for="channel in channels"
       :key="channel.id"
       :label="channel.title"
-      :checked="true"
+      :checked="false"
     />
     <p>{{ $tr('description') }}</p>
   </KModal>
@@ -53,7 +53,18 @@
       }),
     },
     methods: {
-      ...mapActions('subscriptions', ['displayModal', 'saveSubscription']),
+      ...mapActions('subscriptions', [
+        'displayModal',
+        'saveSubscription',
+        'getDbSubscribedChannels',
+      ]),
+      // getSubscribedChannels() {
+      //   return this.getDbSubscribedChannels(this.collectionId);
+      // },
+      //
+      // setCheckBoxes() {
+      //   channels.filter(channel => getSubscribedChannels());
+      // },
       saveSelectedSubscriptions() {
         this.saveSubscription({
           id: this.collectionId,

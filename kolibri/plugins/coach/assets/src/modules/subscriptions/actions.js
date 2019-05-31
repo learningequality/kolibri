@@ -13,3 +13,15 @@ export function saveSubscription(store, subData) {
     .then(store.dispatch('displayModal', false))
     .catch(error => store.dispatch('handleApiError', error, { root: true }));
 }
+
+export function getDbSubscribedChannels(store, id) {
+  return ClassroomResource.fetchModel({ id: id }).then(
+    channelsData => {
+      return channelsData.subscriptions;
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+      return error;
+    }
+  );
+}
