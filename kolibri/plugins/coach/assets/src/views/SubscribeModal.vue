@@ -21,7 +21,7 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapActions, mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
 
@@ -51,6 +51,7 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
+      ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
     },
     methods: {
       ...mapActions('subscriptions', [
@@ -66,6 +67,7 @@
       //   channels.filter(channel => getSubscribedChannels());
       // },
       saveSelectedSubscriptions() {
+        this.getDbSubscribedChannels(this.collectionId);
         this.saveSubscription({
           id: this.collectionId,
           choices: "['123','456']",

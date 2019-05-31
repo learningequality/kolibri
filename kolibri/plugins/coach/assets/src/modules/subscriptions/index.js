@@ -3,6 +3,7 @@ import * as actions from './actions';
 function defaultState() {
   return {
     subscriptionModalShown: '',
+    selectedSubscriptions: '',
   };
 }
 
@@ -12,6 +13,9 @@ export default {
   mutations: {
     SET_STATE(state, payload) {
       Object.assign(state, payload);
+    },
+    SET_SUBSCRIPTIONS(state, subscriptions) {
+      state.selectedSubscriptions = subscriptions;
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());

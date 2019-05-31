@@ -17,7 +17,7 @@ export function saveSubscription(store, subData) {
 export function getDbSubscribedChannels(store, id) {
   return ClassroomResource.fetchModel({ id: id }).then(
     channelsData => {
-      return channelsData.subscriptions;
+      store.commit('SET_SUBSCRIPTIONS', channelsData.subscriptions);
     },
     error => {
       store.dispatch('handleApiError', error);
