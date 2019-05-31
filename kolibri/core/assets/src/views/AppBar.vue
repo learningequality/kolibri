@@ -185,7 +185,7 @@
       },
     },
     $trs: {
-      openNav: 'Open site navigation',
+      openNav: 'Open site navigation menu',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
