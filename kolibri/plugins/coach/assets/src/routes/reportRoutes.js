@@ -45,6 +45,14 @@ export default [
     redirect: { name: 'ReportsLessonListPage' },
   },
   {
+    path: path(CLASS, ACTIVITY),
+    component: pages.ReportsAttendanceListPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['liveAttendanceLabel', 'CLASS_NAME'],
+    },
+  },
+  {
     path: path(CLASS, GROUP, ACTIVITY),
     component: pages.ReportsGroupActivityPage,
     handler: defaultHandler,

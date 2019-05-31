@@ -28,6 +28,10 @@
         :text="coachStrings.$tr('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
+      <HeaderTab
+        :text="coachStrings.$tr('liveAttendanceLabel')"
+        :to="classRoute('ReportsAttendanceListPage')"
+      />
     </HeaderTabs>
   </div>
 

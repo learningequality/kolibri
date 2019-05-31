@@ -78,7 +78,6 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
 
 @query_params_required(collection_id=str)
 class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
-
     permission_classes = (KolibriReportPermissions,)
     serializer_class = LearnerNotificationSerializer
     pagination_class = OptionalPageNumberPagination
