@@ -23,7 +23,7 @@ function defaultState() {
 function setTheme(channelTitle) {
   let theme = null;
   for (let prefix in prefixToColourMap) {
-    if (channelTitle.indexOf(prefix) !== -1) {
+    if (channelTitle.indexOf(prefix) === 0) {
       theme = prefixToColourMap[prefix];
       break;
     }
