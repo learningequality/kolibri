@@ -81,7 +81,7 @@
   export default {
     name: 'EdulutionIndex',
     $trs: {
-      edulutionTitle: 'Edulution',
+      edulutionTitle: 'Learn',
       examReportTitle: '{examTitle} report',
     },
     components: {
