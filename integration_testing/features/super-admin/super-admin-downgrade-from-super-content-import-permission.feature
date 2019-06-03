@@ -10,7 +10,7 @@ Background:
       And I uncheck the *Make super admin* checkbox
     Then I see that all checkboxes are unchecked and active
       And I see that the *Save changes* button is active
-    When I check the *Can import and export content channels* checkbox under *Device permissions*
+    When I check the *Can manage content on this device* checkbox under *Device permissions*
       And I see that *Save changes* is still active
     When I click *Save changes*
     Then I remain on this page
