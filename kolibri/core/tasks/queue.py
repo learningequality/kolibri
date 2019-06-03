@@ -4,14 +4,12 @@ from django.conf import settings
 from iceqube.queue import Queue
 from iceqube.worker import Worker
 
-_queue = None
-
 app = "kolibri"
-storage_path = settings.QUEUE_JOB_STORAGE_PATH
+connection = settings.QUEUE_JOB_STORAGE_CONNECTION
 
 
 def initialize_worker():
-    worker = Worker(app, storage_path=storage_path)
+    worker = Worker(app, connection=connection)
     atexit.register(worker.shutdown)
 
 
@@ -20,10 +18,4 @@ def get_queue():
 
     :return: the Queue object
     """
-
-    global _queue
-    if not _queue:
-        # not initialized, initialize it
-        _queue = Queue(app, storage_path=storage_path)
-
-    return _queue
+    return Queue(app, connection=connection)
