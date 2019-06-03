@@ -33,7 +33,7 @@ Feature: Admin creates users
       And I click *Save* button
     Then the modal closes
       And I see the new user on the *Facility > Users* page
-      And I see the *Class coach* label besides their name
+      And I see the *Coach* label besides their name
 
   Scenario: Create learner user account
     When I click on *New user* button
