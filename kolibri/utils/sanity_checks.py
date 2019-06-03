@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import sys
 
 import portend
@@ -93,4 +94,4 @@ def check_log_file_location():
         old_log_path = os.path.join(home, log)
         if os.path.exists(old_log_path):
             new_log_path = os.path.join(home, "logs", log_location_update[log])
-            os.rename(old_log_path, new_log_path)
+            shutil.move(old_log_path, new_log_path)
