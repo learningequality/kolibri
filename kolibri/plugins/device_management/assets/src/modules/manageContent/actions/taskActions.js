@@ -3,6 +3,7 @@ import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
+import { waitForTaskToComplete } from '../utils';
 import { TaskStatuses, TaskTypes } from '../../../constants';
 
 const logging = logger.getLogger(__filename);
@@ -29,8 +30,9 @@ function updateTasks(store, tasks) {
 
 function triggerTask(store, taskPromise) {
   return taskPromise
-    .then(function onSuccess(task) {
-      updateTasks(store, [task.entity]);
+    .then(function onSuccess(response) {
+      updateTasks(store, [response.entity]);
+      return response;
     })
     .catch(function onFailure(error) {
       let errorText;
@@ -44,7 +46,9 @@ function triggerTask(store, taskPromise) {
 }
 
 export function triggerChannelDeleteTask(store, channelId) {
-  return triggerTask(store, TaskResource.deleteChannel(channelId));
+  return triggerTask(store, TaskResource.deleteChannel(channelId))
+    .then(response => waitForTaskToComplete(response.entity.id))
+    .then(() => store.dispatch('refreshChannelList'));
 }
 
 const simplifyTask = pick(['id', 'status', 'percentage']);
