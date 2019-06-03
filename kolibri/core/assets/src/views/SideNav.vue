@@ -280,7 +280,6 @@
     left: 0;
     z-index: 17;
     font-size: 14px;
-    text-transform: uppercase;
   }
 
   .side-nav-header-icon {
