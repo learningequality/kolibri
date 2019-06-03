@@ -33,21 +33,23 @@ const initialState = {
 
     // general semantic colors
     error: 'palette.red.v_700',
-    success: 'palette.green.v_600',
+    success: 'palette.green.v_700',
 
     // Kolibri-specific semantic colors
     progress: 'palette.lightblue.v_500',
     mastered: 'palette.amber.v_500',
     correct: 'palette.green.v_600',
     incorrect: 'palette.red.v_800',
+    coachContent: 'palette.lightblue.v_800',
+    superAdmin: 'palette.amber.v_600',
 
     // content colors
     exercise: 'palette.cyan.v_600',
     video: 'palette.indigo.v_700',
     audio: 'palette.pink.v_400',
-    document: 'palette.lime.v_700',
-    html5: 'palette.orange.v_600',
-    topic: 'palette.grey.v_900',
+    document: 'palette.deeporange.v_600',
+    html5: 'palette.yellow.v_800',
+    topic: 'palette.grey.v_800',
   },
 };
 

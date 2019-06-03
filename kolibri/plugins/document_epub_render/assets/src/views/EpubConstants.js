@@ -1,32 +1,34 @@
+import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
 export const THEMES = {
   WHITE: {
-    backgroundColor: 'white',
-    hoverColor: '#efefef',
-    textColor: '#212121',
+    backgroundColor: themeMixin.computed.$themeTokens().surface,
+    hoverColor: themeMixin.computed.$themeColors().palette.grey.v_200,
+    textColor: themeMixin.computed.$themeTokens().text,
   },
   BEIGE: {
-    backgroundColor: '#f9f3e8',
-    hoverColor: '#e0dace',
-    textColor: '#603e22',
+    backgroundColor: themeMixin.computed.$themeColors().palette.brown.v_50,
+    hoverColor: themeMixin.computed.$themeColors().palette.brown.v_100,
+    textColor: themeMixin.computed.$themeColors().palette.brown.v_800,
   },
   GREY: {
-    backgroundColor: '#58585a',
-    hoverColor: '#777777',
-    textColor: 'white',
+    backgroundColor: themeMixin.computed.$themeColors().palette.grey.v_800,
+    hoverColor: themeMixin.computed.$themeColors().palette.grey.v_600,
+    textColor: themeMixin.computed.$themeColors().palette.white,
   },
   BLACK: {
-    backgroundColor: '#171717',
-    hoverColor: '#686868',
-    textColor: '#bebebe',
+    backgroundColor: themeMixin.computed.$themeColors().palette.grey.v_900,
+    hoverColor: themeMixin.computed.$themeColors().palette.grey.v_700,
+    textColor: themeMixin.computed.$themeColors().palette.grey.v_400,
   },
   YELLOW: {
-    backgroundColor: '#202020',
-    hoverColor: '#515151',
-    textColor: '#FFFF00',
+    backgroundColor: themeMixin.computed.$themeColors().palette.grey.v_900,
+    hoverColor: themeMixin.computed.$themeColors().palette.grey.v_700,
+    textColor: themeMixin.computed.$themeColors().palette.yellow.v_300,
   },
   BLUE: {
-    backgroundColor: 'white',
-    hoverColor: '#efefef',
-    textColor: '#0000FF',
+    backgroundColor: themeMixin.computed.$themeTokens().surface,
+    hoverColor: themeMixin.computed.$themeColors().palette.grey.v_200,
+    textColor: themeMixin.computed.$themeColors().palette.blue.v_800,
   },
 };

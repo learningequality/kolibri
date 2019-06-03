@@ -3,7 +3,6 @@
   <UiIconButton
     class="next-button"
     :class="{'next-button-white': color === 'white'}"
-    type="secondary"
     :ariaLabel="$tr('goToNextPage')"
     @click="$emit('goToNextPage')"
   >

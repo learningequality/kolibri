@@ -126,7 +126,7 @@
         return this.active ? this.$coreOutline : {};
       },
       disabledStyle() {
-        return this.disabled ? { fill: this.$themeColors.palette.grey.v_300 } : {};
+        return this.disabled ? { fill: this.$themeTokens.textDisabled } : {};
       },
     },
 

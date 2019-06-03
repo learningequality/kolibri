@@ -1,6 +1,6 @@
 <template>
 
-  <span :style="{color: $themeColors.palette.grey.v_300}">—</span>
+  <span :style="{color: $themeTokens.textDisabled}">—</span>
 
 </template>
 
