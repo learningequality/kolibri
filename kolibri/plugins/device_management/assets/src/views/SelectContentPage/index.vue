@@ -257,13 +257,9 @@
       },
       startContentTransfer() {
         this.contentTransferError = false;
-        return this.transferChannelContent()
-          .then(() => {
-            this.returnToChannelsList();
-          })
-          .catch(() => {
-            this.contentTransferError = true;
-          });
+        return this.transferChannelContent(this.returnToChannelsList).catch(() => {
+          this.contentTransferError = true;
+        });
       },
       refreshPage() {
         this.$router.go(this.$router.currentRoute);
