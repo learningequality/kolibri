@@ -17,8 +17,6 @@ import os
 import pytz
 from django.conf import locale
 from six.moves.urllib.parse import urljoin
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 from tzlocal import get_localzone
 
 import kolibri
@@ -151,12 +149,6 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     }
     DATABASE_ROUTERS = ("kolibri.core.notifications.models.NotificationsRouter",)
 
-    QUEUE_JOB_STORAGE_CONNECTION = create_engine(
-        "sqlite:///{path}".format(path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")),
-        connect_args={'check_same_thread': False},
-        poolclass=NullPool,
-    )
-
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
     DATABASES = {
         "default": {
@@ -168,13 +160,6 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             "PORT": conf.OPTIONS["Database"]["DATABASE_PORT"],
         }
     }
-    QUEUE_JOB_STORAGE_CONNECTION = create_engine("postgresql://{user}:{password}@{host}:{port}/{name}".format(
-        name=conf.OPTIONS["Database"]["DATABASE_NAME"],
-        password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
-        user=conf.OPTIONS["Database"]["DATABASE_USER"],
-        host=conf.OPTIONS["Database"]["DATABASE_HOST"],
-        port=conf.OPTIONS["Database"]["DATABASE_PORT"],
-    ))
 
 
 # Internationalization
