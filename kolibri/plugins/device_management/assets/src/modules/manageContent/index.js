@@ -29,6 +29,12 @@ export default {
     SET_TASK_LIST(state, taskList) {
       state.taskList = [...taskList];
     },
+    ADD_TO_CHANNEL_LIST(state, channel) {
+      state.channelList.push(channel);
+    },
+    REMOVE_FROM_CHANNEL_LIST(state, channelId) {
+      state.channelList = state.channelList.filter(channel => channel.id !== channelId);
+    },
   },
   getters: {
     // Channels that are installed & also "available"
