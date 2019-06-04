@@ -161,11 +161,10 @@ def update_num_coach_contents():
         ContentNodeTable.update()
         .where(
             # That are not topics
-            ContentNodeTable.c.kind != content_kinds.TOPIC,
+            ContentNodeTable.c.kind
+            != content_kinds.TOPIC
         )
-        .values(
-            num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer())
-        )
+        .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
     )
 
     # Expression to capture all available child nodes of a contentnode
