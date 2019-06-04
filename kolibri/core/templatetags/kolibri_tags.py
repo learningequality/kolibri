@@ -130,7 +130,7 @@ def kolibri_theme():
     """
     template = """
     <script>
-      var customTheme = JSON.parse('{theme}');
+      var kolibriTheme = JSON.parse('{theme}');
     </script>
     """
     return mark_safe(template.format(theme=json.dumps(ThemeHook().theme)))

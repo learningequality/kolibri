@@ -17,14 +17,13 @@ from __future__ import unicode_literals
 import logging
 import warnings
 
-from kolibri.plugins.hooks import abstract_method
-from kolibri.plugins.hooks import KolibriHook
+from kolibri.plugins import hooks
 from kolibri.plugins.utils import plugin_url
 
 logger = logging.getLogger(__name__)
 
 
-class NavigationHook(KolibriHook):
+class NavigationHook(hooks.KolibriHook):
 
     # : A string label for the menu item
     label = "Untitled"
@@ -43,11 +42,10 @@ class NavigationHook(KolibriHook):
         return menu
 
     class Meta:
-
         abstract = True
 
 
-class RoleBasedRedirectHook(KolibriHook):
+class RoleBasedRedirectHook(hooks.KolibriHook):
     # User role to redirect for
     role = None
 
@@ -62,49 +60,14 @@ class RoleBasedRedirectHook(KolibriHook):
         return plugin_url(plugin_class, url_name)
 
     class Meta:
-
         abstract = True
 
 
-class MultipleThemesWarning(UserWarning):
-    pass
-
-
-class ThemeHook(KolibriHook):
+class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
     """
-
-    class Meta:
-
-        abstract = True
-
     @property
-    @abstract_method
+    @hooks.only_one_registered
     def theme(self):
-        default = {
-            # Whether to show the Kolibri log
-            # Boolean
-            "showKolibriLogo": True,
-            # URL for custom logo
-            "customLogoURL": None,
-            # URL for custom login background image
-            "splashBackgroundURL": None,
-            # Color Palette specification
-            "paletteColors": {},
-            # Brand Color specification
-            "brandColors": {},
-            # Mapping from colors to particular usage
-            "tokenMapping": {},
-        }
-        theme = {}
-        once = False
-        for hook in self.registered_hooks:
-            if once:
-                warnings.warn("Multiple themes defined by plugins, ignoring all themes")
-                return default
-            for key in default:
-                theme[key] = getattr(hook, key, theme[key])
-            once = True
-
-        return theme or default
+        return self.registered_hooks[0].theme
