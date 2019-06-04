@@ -319,7 +319,8 @@ def query_params_required(**kwargs):
 
 def calculate_spa_etag(*args, **kwargs):
     return hashlib.md5(
-        kolibri_version.encode("utf-8") + str(ContentCacheKey.get_cache_key()).encode("utf-8")
+        kolibri_version.encode("utf-8")
+        + str(ContentCacheKey.get_cache_key()).encode("utf-8")
     ).hexdigest()
 
 
