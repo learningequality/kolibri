@@ -69,15 +69,46 @@ class RoleBasedRedirectHook(hooks.KolibriHook):
 class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
+    Use this tool to help generate your brand colors: https://materialpalettes.com/
     """
+
+    def validateBrandColors(self, theme):
+        if "brandColors" not in theme:
+            logger.error("brand colors not defined by theme")
+            return False
+        required_colors = ["primary", "secondary"]
+        required_keys = [
+            "v_50",
+            "v_100",
+            "v_200",
+            "v_300",
+            "v_400",
+            "v_500",
+            "v_600",
+            "v_700",
+            "v_800",
+            "v_900",
+        ]
+        for color in required_colors:
+            if color not in theme["brandColors"]:
+                logger.error("'{}' not defined by theme".format(color))
+            for key in required_keys:
+                if key not in theme["brandColors"][color]:
+                    logger.error("{} '{}' not defined by theme".format(color, key))
 
     @property
     @hooks.only_one_registered
     def theme(self):
         theme = self.registered_hooks[0].theme
 
+        self.validateBrandColors(theme)
+
         # if a background image has been locally set using the `manage background` command, use it
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, "background.jpg")):
             theme["signInBackground"] = urljoin(settings.MEDIA_URL, "background.jpg")
+
+        # if tokenMapping is not set, make it an empty object
+        if "tokenMapping" not in theme:
+            theme["tokenMapping"] = {}
 
         return theme
