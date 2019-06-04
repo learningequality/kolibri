@@ -137,8 +137,8 @@ def fix_multiple_trees_with_id_one():
 
 def update_num_coach_contents():
     """
-    Function to set num_coach_content on topic trees that were imported before
-    the annotation would have been run.
+    Function to set num_coach_content on all topic trees to account for
+    those that were imported before annotations were performed
     """
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
