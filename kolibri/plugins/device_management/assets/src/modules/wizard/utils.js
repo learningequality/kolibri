@@ -1,5 +1,5 @@
 import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
-import store from 'kolibri.coreVue.vuex.store';
+import coreStore from 'kolibri.coreVue.vuex.store';
 import { ErrorTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
@@ -25,7 +25,7 @@ export function getRemoteChannelBundleByToken(token) {
  * waitForTaskToComplete (which relies on the store singleton with a .watch method)
  *
  */
-export function downloadChannelMetadata() {
+export function downloadChannelMetadata(store = coreStore) {
   const { transferredChannel, selectedDrive, selectedPeer } = store.state.manageContent.wizard;
   let promise;
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
