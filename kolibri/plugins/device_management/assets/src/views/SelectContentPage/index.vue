@@ -268,7 +268,7 @@
           });
       },
       refreshPage() {
-        this.$router.go(this.$router.currentRoute);
+        this.$router.go();
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
