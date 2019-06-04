@@ -6,7 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
-from functools import wraps
 
 from django.utils.cache import patch_response_headers
 from rest_framework.exceptions import APIException
@@ -311,16 +310,6 @@ def query_params_required(**kwargs):
         return Wrapper
 
     return _params
-
-
-def signin_redirect_exempt(view_func):
-    """Mark a view function as being exempt from the signin page redirect"""
-
-    def wrapped_view(*args, **kwargs):
-        return view_func(*args, **kwargs)
-
-    wrapped_view.signin_redirect_exempt = True
-    return wraps(view_func)(wrapped_view)
 
 
 def cache_no_user_data(view_func):
