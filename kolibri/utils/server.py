@@ -274,11 +274,8 @@ def run_server(port):
     cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
 
     # Mount static files
-    static_files_handler = cherrypy.tools.staticdir.handler(
-        section="/", dir=settings.STATIC_ROOT
-    )
     cherrypy.tree.mount(
-        static_files_handler,
+        cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
         settings.STATIC_URL,
         config={
             "/": {
@@ -286,6 +283,12 @@ def run_server(port):
                 "tools.gzip.mime_types": ["text/*", "application/javascript"],
             }
         },
+    )
+
+    # Mount media files
+    cherrypy.tree.mount(
+        cherrypy.tools.staticdir.handler(section="/", dir=settings.MEDIA_ROOT),
+        settings.MEDIA_URL,
     )
 
     # Mount content files

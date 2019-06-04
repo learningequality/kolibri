@@ -159,19 +159,19 @@ def kolibri_set_urls(context):
         },
     )
 
-    js = jsmin(js)
-
-    js = (
+    return mark_safe(
         """<script type="text/javascript">"""
-        + js
+        + jsmin(js)
         + """
         {global_object}.staticUrl = '{static_url}';
+        {global_object}.mediaUrl = '{media_url}';
         </script>
         """.format(
-            global_object=js_global_object_name, static_url=settings.STATIC_URL
+            global_object=js_global_object_name,
+            static_url=settings.STATIC_URL,
+            media_url=settings.MEDIA_URL,
         )
     )
-    return mark_safe(js)
 
 
 @register.simple_tag(takes_context=True)

@@ -46,6 +46,7 @@ from .views import UnsupportedBrowserView
 from kolibri.core.content.utils import paths
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.registry import get_urls as plugin_urls
+from django.conf import settings
 
 app_name = "kolibri"
 
@@ -69,6 +70,8 @@ core_urlpatterns = [
 urlpatterns = [url(r"", include(core_urlpatterns, namespace="core"))]
 
 urlpatterns += plugin_urls()
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(
     paths.get_content_url("/"), document_root=paths.get_content_dir_path()
