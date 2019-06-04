@@ -1,4 +1,4 @@
-import store from 'kolibri.coreVue.vuex.store';
+import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskStatuses } from '../../constants';
 
 /**
@@ -8,7 +8,7 @@ import { TaskStatuses } from '../../constants';
  * @returns {Promise}
  *
  */
-export function waitForTaskToComplete(taskId) {
+export function waitForTaskToComplete(taskId, store = coreStore) {
   const taskList = state => state.manageContent.taskList;
   return new Promise((resolve, reject) => {
     const stopWatching = store.watch(taskList, function checkTaskProgress(tasks) {

@@ -50,7 +50,7 @@ export function downloadChannelMetadata(store = coreStore) {
   return promise
     .then(task => {
       // NOTE: store.watch is not available to dispatched actions
-      return waitForTaskToComplete(task.entity.id);
+      return waitForTaskToComplete(task.entity.id, store);
     })
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;
