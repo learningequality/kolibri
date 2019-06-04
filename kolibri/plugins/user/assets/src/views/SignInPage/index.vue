@@ -281,10 +281,15 @@
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        return {
-          backgroundColor: this.$themeTokens.primary,
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
-        };
+        if (global.kolibriTheme.signInBackground) {
+          return {
+            backgroundColor: this.$themeTokens.primary,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+              global.kolibriTheme.signInBackground
+            })`,
+          };
+        }
+        return { backgroundColor: this.$themeColors.brand.primary.v_900 };
       },
     },
     watch: {

@@ -18,7 +18,10 @@ import logging
 import warnings
 
 from kolibri.plugins import hooks
+from django.utils.six.moves.urllib.parse import urljoin
 from kolibri.plugins.utils import plugin_url
+from django.conf import settings
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +70,14 @@ class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
     """
+
     @property
     @hooks.only_one_registered
     def theme(self):
-        return self.registered_hooks[0].theme
+        theme = self.registered_hooks[0].theme
+
+        # if a background image has been locally set using the `manage background` command, use it
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, "background.jpg")):
+            theme["signInBackground"] = urljoin(settings.MEDIA_URL, "background.jpg")
+
+        return theme
