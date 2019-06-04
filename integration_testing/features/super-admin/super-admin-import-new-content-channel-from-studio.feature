@@ -36,20 +36,25 @@ Feature: Super admin imports content from Studio
 
   Scenario: Select all topics or subtopics
     When I check the *Select all* checkbox
-    Then I see the checkboxes for all the topics or subtopics are checked
-      And I see the *Import* button is active
+    Then I see the *Import* button is active
+      And I see the checkboxes for all the topics or subtopics are checked
       And I see the number of *resources selected* flag for each topic checkbox
       And I see the sum of size and number of resources selected in the *Content selected*
 
-  Scenario: Unselect all topics or subtopics
+  Scenario: Unselect a sub-set of subtopics
+    Given I am on a subtopic and there are other topics checked outside the current subtopic
     When I uncheck the *Select all* checkbox
-    Then I see the checkboxes for all the topics or subtopics are unchecked
-      And I do not see the number of *resources selected* flag for unchecked topics
-    Given there are other topics checked in the topic tree
     Then I see the *Import* button is still active
+      And I see the checkboxes for all the subtopics are unchecked
+      And I do not see the number of *resources selected* flag for unchecked topics
       And I see the values for *Content selected* is deducted with the values from the unchecked topics
+
+  Scenario: Unselect all topics or subtopics
     Given that no other topics are checked in the topic tree
+    When I uncheck the *Select all* checkbox
     Then I see the *Import* button is inactive
+      And I see the checkboxes for all the subtopics are unchecked
+      And I do not see the number of *resources selected* flag for unchecked topics
       And I see the values for *Content selected* is 0
 
   Scenario: Check a topic or subtopic
@@ -59,13 +64,17 @@ Feature: Super admin imports content from Studio
       And I see the values for *Content selected* increase
 
   Scenario: Uncheck a topic or subtopic
+    Given there are two or more topics checked
     When I uncheck a topic checkbox
-    Then I do not see the number of *resources selected* flag for the unchecked topic
-    Given there is another topic checked
     Then I see the *Import* button is still active
+      And I do not see the number of *resources selected* flag for the unchecked topic
       And I see the values for *Content selected* is deducted with the values from the unchecked topic
+    
+  Scenario: Uncheck the only topic
     Given it is the only topic checked
+    When I uncheck the only checked topic checkbox
     Then I see the *Import* button is inactive
+      And I do not see the number of *resources selected* flag for the unchecked topic
       And I see the values for *Content selected* is 0
 
   Scenario: Click the Import button
