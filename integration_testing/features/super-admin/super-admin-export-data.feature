@@ -12,7 +12,7 @@ Feature: Super admin exports usage data
       And the *Download* button is enabled
       And the text change to "Generate a new log file" 
     When I click on *Download* button     
-    Then I see that a file named content_session_logs.csv is automatically saved on my local drive
+    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
 
   Scenario: Export summary logs
     When I click on "Generate log file" link under *Summary logs* heading
@@ -20,4 +20,4 @@ Feature: Super admin exports usage data
       And the *Download* button is enabled
       And the text change to "Generate a new log file"
     When I click on *Download* button 
-    Then I see that a file named content_summary_logs.csv is automatically saved on my local drive
+    Then I see the *Open/Save as* window, or the file 'content_summary_logs.csv' is automatically saved on my local drive, depending on the browser defaults
