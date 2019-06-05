@@ -33,3 +33,4 @@ sentry-sdk==0.7.9
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
+mozilla-django-oidc==1.2.2
