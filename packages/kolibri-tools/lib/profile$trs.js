@@ -1,5 +1,6 @@
 var fs = require('fs');
 var url = require('url');
+var mkdirp = require('mkdirp');
 var espree = require('espree');
 var traverse = require('ast-traverse');
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
@@ -202,7 +203,7 @@ profile$trs.prototype.apply = function(compiler) {
           }
         }
       });
-      writeProfileToCSV(strProfile, self.moduleName);
+      writeProfileToCSV(strProfile, self.moduleName, self.localePath);
       callback();
     });
   }
@@ -348,9 +349,13 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
 }
 
 // Instantiates the CSV data and writes to a file.
-function writeProfileToCSV(profile, moduleName) {
-  // TODO: Don't use my local fs...
-  const outputFile = `/home/jacob/.kolibri/logs/${moduleName}.csv`;
+function writeProfileToCSV(profile, moduleName, localePath) {
+  const baseOuputPath = `${localePath}/csv_profiles`;
+  
+  // Ensure we have a {localePath}/profile directory available.
+  mkdirp.sync(baseOuputPath);
+
+  const outputFile = `${baseOuputPath}/${moduleName}.csv`;
   const csvData = profileToCSV(profile);
   const csvWriter = createCsvWriter({
     path: outputFile,
