@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: learningequality\n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
-"PO-Revision-Date: 2019-05-18 01:11\n"
+"PO-Revision-Date: 2019-06-05 03:45\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
