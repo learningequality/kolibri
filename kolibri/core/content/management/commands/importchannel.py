@@ -123,7 +123,7 @@ class Command(AsyncCommand):
                 if self.is_cancelled():
                     try:
                         os.remove(dest)
-                    except IOError as e:
+                    except OSError as e:
                         logger.error(
                             "Tried to remove {}, but exception {} occurred.".format(
                                 dest, e
