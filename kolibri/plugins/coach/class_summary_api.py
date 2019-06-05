@@ -223,7 +223,7 @@ def get_active_learners(classroom):
     learners_info = []
     try:
         connection.ensure_connection()
-        last_20_minutes = timezone.now() - timedelta(minutes=20)
+        last_20_minutes = timezone.now() - timedelta(minutes=2)
         classroom_members = set(map(lambda member: member.username, classroom.get_members()))
         learners_info = UserSessionLog.objects.filter(user__username__in=classroom_members)\
             .values('user__username').annotate(Max('last_interaction_timestamp')).all()
