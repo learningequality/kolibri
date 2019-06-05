@@ -82,6 +82,7 @@
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -150,14 +151,14 @@
       },
       handleSuccessCreateGroup() {
         this.createSnackbar({
-          text: this.coachStrings.$tr('createdNotification'),
+          text: groupMgmtStrings.$tr('groupCreatedNotice'),
           autoDismiss: true,
         });
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
         this.createSnackbar({
-          text: this.coachStrings.$tr('deletedNotification'),
+          text: groupMgmtStrings.$tr('groupDeletedNotice'),
           autoDismiss: true,
         });
         this.displayModal(false);

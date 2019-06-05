@@ -27,7 +27,7 @@
             @input="showTitleError = false"
           />
         </KGridItem>
-        <KGridItem sizes="100, 100, 50" percentage class="number-input-grid-item">
+        <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="numQuest"
             v-model.trim.number="numQuestions"
@@ -212,9 +212,9 @@
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
   import Bottom from './Bottom';
-  import CreateExamPage from './index';
+  import CeateExamPage from './index';
 
-  const createExamPageStrings = crossComponentTranslator(CreateExamPage);
+  const createExamPageStrings = crossComponentTranslator(CeateExamPage);
   const quizDetailStrings = crossComponentTranslator(QuizDetailEditor);
   const previewQuizStrings = crossComponentTranslator(ExamPreview);
 
@@ -263,7 +263,6 @@
         'loadingNewQuestions',
         'selectedQuestions',
         'selectedExercises',
-        'availableQuestions',
       ]),
       annotatedQuestions() {
         const counts = {};
@@ -438,7 +437,6 @@
 
   .number-field {
     display: inline-block;
-    max-width: 250px;
     margin-right: 8px;
   }
 

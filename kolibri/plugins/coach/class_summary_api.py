@@ -1,7 +1,12 @@
+from datetime import timedelta
+
+from django.db import connection
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
+from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import permissions
 from rest_framework import serializers
@@ -9,15 +14,14 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
-from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import Classroom
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
+from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
-
 
 # Intended to match  NotificationEventType
 NOT_STARTED = "NotStarted"
@@ -209,26 +213,41 @@ def data(Serializer, queryset):
     return Serializer(queryset, many=True).data
 
 
-class ClassSummaryPermissions(permissions.BasePermission):
+def get_active_learners(classroom):
     """
-    Allow only users with admin/coach permissions on the classroom.
+    Returns information about the sessions and users the current
+    Kolibri server has in use
+
     """
+    active_learners = []
+    learners_info = []
+    try:
+        connection.ensure_connection()
+        last_2_minutes = timezone.now() - timedelta(minutes=2)
+        classroom_members = set(map(lambda member: member.username, classroom.get_members()))
+        learners_info = UserSessionLog.objects.filter(user__username__in=classroom_members)\
+            .values('user__username').annotate(Max('last_interaction_timestamp')).all()
 
-    def has_permission(self, request, view):
-        classroom_id = view.kwargs.get('pk')
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        session_objects = UserSessionLog.objects.filter(last_interaction_timestamp__gte=last_2_minutes).all()
+        active_learners_in_class = \
+            filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom)),
+                   session_objects)
+        active_learners = set(map(lambda user_session: user_session.user.username, active_learners_in_class))
+    except OperationalError:
+        print('Database unavailable, impossible to retrieve users and sessions info')
 
-        try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=classroom_id))
-        except (Collection.DoesNotExist, ValueError):
-            return False
+    return active_learners, learners_info
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions,)
+
+    # TODO use more granular permissions. Not sure if KolibriReportPermissions will
+    # work as is, though.
+    permission_classes = (permissions.IsAuthenticated,)
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
+        active_learners = get_active_learners(classroom)
         query_learners = classroom.get_members()
         query_lesson = Lesson.objects.filter(collection=pk)
         query_exams = Exam.objects.filter(collection=pk)
@@ -287,6 +306,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             "content": data(ContentSerializer, query_content),
             "content_learner_status": content_status_serializer(lesson_data, learners_data, classroom),
             "lessons": lesson_data,
+            "active_learners": active_learners[0],
+            "learners_info": active_learners[1]
         }
 
         return Response(output)

@@ -1,3 +1,4 @@
+import ReportsAttendanceListPage from './ReportsAttendanceListPage';
 import ReportsGroupActivityPage from './ReportsGroupActivityPage';
 import ReportsGroupLearnerListPage from './ReportsGroupLearnerListPage';
 import ReportsGroupListPage from './ReportsGroupListPage';
@@ -40,6 +41,7 @@ import ReportsQuizQuestionListPage from './ReportsQuizQuestionListPage';
 import ReportsQuizQuestionPage from './ReportsQuizQuestionPage';
 
 export default {
+  ReportsAttendanceListPage,
   ReportsGroupActivityPage,
   ReportsGroupLearnerListPage,
   ReportsGroupListPage,
