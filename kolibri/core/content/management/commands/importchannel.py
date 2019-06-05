@@ -124,12 +124,11 @@ class Command(AsyncCommand):
                     try:
                         os.remove(dest)
                     except OSError as e:
-                        logger.error(
+                        logger.info(
                             "Tried to remove {}, but exception {} occurred.".format(
                                 dest, e
                             )
                         )
-                    self.cancel()
                 else:
                     try:
                         import_channel_by_id(channel_id, self.is_cancelled)
