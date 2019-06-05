@@ -5,12 +5,17 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import hashlib
 import sys
 
 from django.utils.cache import patch_response_headers
+from django.views.decorators.http import etag
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from six import string_types
+
+from kolibri import __version__ as kolibri_version
+from kolibri.core.device.models import ContentCacheKey
 
 TRUE_VALUES = ("1", "true")
 FALSE_VALUES = ("0", "false")
@@ -312,6 +317,13 @@ def query_params_required(**kwargs):
     return _params
 
 
+def calculate_spa_etag(*args, **kwargs):
+    return hashlib.md5(
+        kolibri_version.encode("utf-8")
+        + str(ContentCacheKey.get_cache_key()).encode("utf-8")
+    ).hexdigest()
+
+
 def cache_no_user_data(view_func):
     """
     Set appropriate Vary on headers on a view that specify there is
@@ -324,11 +336,12 @@ def cache_no_user_data(view_func):
     on a per user basis.
     """
 
+    @etag(calculate_spa_etag)
     def inner_func(*args, **kwargs):
         request = args[0]
         del request.session
         response = view_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=300)
+        patch_response_headers(response, cache_timeout=15)
         response["Vary"] = "accept-encoding, accept"
         return response
 
