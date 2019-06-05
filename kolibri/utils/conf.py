@@ -59,7 +59,7 @@ except ImportError:
     DEFAULT_PLUGINS = [
         "kolibri.plugins.facility_management",
         "kolibri.plugins.device_management",
-        "kolibri.plugins.learn",
+        "kolibri.plugins.edulution",
         "kolibri.plugins.document_pdf_render",
         "kolibri.plugins.html5_app_renderer",
         "kolibri.plugins.media_player",
