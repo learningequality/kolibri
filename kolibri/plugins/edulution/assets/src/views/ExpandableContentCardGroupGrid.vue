@@ -7,8 +7,13 @@
       :class="{'expanded-header': !hidden}"
       @click="hidden = !hidden"
     >
-      <PageHeader :title="child.title" :progress="child.progress" style="display: inline-block" />
-      <UiIconButton type="secondary" size="large" class="topic-arrow" disabled>
+      <PageHeader :title="child.title" style="display: inline-block; padding-left: 16px" />
+      <UiIconButton 
+        type="secondary" 
+        size="large"
+        style="float: right; margin: 8px 8px 0 0" 
+        disabled
+      >
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
         <mat-svg v-else name="expand_more" category="navigation" />
       </UiIconButton>
@@ -47,7 +52,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../constants';
-  import PageHeader from './PageHeader';
+  import PageHeader from '../../../../learn/assets/src/views/PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
 
   export default {
@@ -112,11 +117,6 @@
 
   .hidden-grid {
     display: none;
-  }
-
-  .topic-arrow {
-    float: right;
-    margin: 8px 8px 0 0;
   }
 
   .progress-bar-wrapper {

@@ -12,31 +12,31 @@
   >
     <KPageContainer>
       <h1>
-        {{ $tr('pageHeader', { className: currentGroup.name }) }}
+        {{ learnerClassEnrollmentPageStrings.$tr('pageHeader', { className: currentGroup.name }) }}
       </h1>
       <form @submit.prevent="addSelectedUsersToGroup">
         <div class="actions-header">
           <KFilterTextbox
             v-model.trim="filterInput"
-            :placeholder="$tr('searchForUser')"
+            :placeholder="classEnrollFormStrings.$tr('searchForUser')"
             @input="pageNum = 1"
           />
         </div>
 
-        <h2>{{ $tr('userTableLabel') }}</h2>
+        <h2>{{ classEnrollFormStrings.$tr('userTableLabel') }}</h2>
 
         <UserTable
           v-model="selectedUsers"
           :users="visibleFilteredUsers"
           :selectable="true"
-          :selectAllLabel="$tr('selectAllOnPage')"
-          :userCheckboxLabel="$tr('selectUser')"
+          :selectAllLabel="classEnrollFormStrings.$tr('selectAllOnPage')"
+          :userCheckboxLabel="classEnrollFormStrings.$tr('selectUser')"
           :emptyMessage="emptyMessage"
         />
 
         <nav>
           <span>
-            {{ $tr('pagination', {
+            {{ classEnrollFormStrings.$tr('pagination', {
               visibleStartRange,
               visibleEndRange,
               numFilteredUsers
@@ -44,7 +44,7 @@
           </span>
           <UiIconButton
             type="primary"
-            :ariaLabel="$tr('previousResults')"
+            :ariaLabel="classEnrollFormStrings.$tr('previousResults')"
             :disabled="pageNum === 1"
             size="small"
             @click="goToPage(pageNum - 1)"
@@ -62,7 +62,7 @@
           </UiIconButton>
           <UiIconButton
             type="primary"
-            :ariaLabel="$tr('nextResults')"
+            :ariaLabel="classEnrollFormStrings.$tr('nextResults')"
             :disabled="pageNum === numPages"
             size="small"
             @click="goToPage(pageNum + 1)"
@@ -82,7 +82,7 @@
 
         <div class="footer">
           <KButton
-            :text="$tr('confirmSelectionButtonLabel')"
+            :text="classEnrollFormStrings.$tr('confirmSelectionButtonLabel')"
             :primary="true"
             type="submit"
             :disabled="selectedUsers.length === 0"
@@ -112,8 +112,13 @@
     filterAndSortUsers,
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
   import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
+  import ClassEnrollForm from '../../../../../../facility_management/assets/src/views/ClassEnrollForm';
+  import LearnerClassEnrollmentPage from '../../../../../../facility_management/assets/src/views/LearnerClassEnrollmentPage';
   import GroupsPage from '../GroupsPage';
+  import { groupMgmtStrings } from '../../common/groupManagement/groupManagementStrings';
 
+  const classEnrollFormStrings = crossComponentTranslator(ClassEnrollForm);
+  const learnerClassEnrollmentPageStrings = crossComponentTranslator(LearnerClassEnrollmentPage);
   const groupsPageStrings = crossComponentTranslator(GroupsPage);
 
   export default {
@@ -131,28 +136,17 @@
         perPage: 10,
         pageNum: 1,
         selectedUsers: [],
+        classEnrollFormStrings,
         groupsPageStrings,
+        learnerClassEnrollmentPageStrings,
       };
-    },
-    $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
       pageTitle() {
-        return this.$tr('pageHeader', { className: this.currentGroup.name });
+        return learnerClassEnrollmentPageStrings.$tr('pageHeader', {
+          className: this.currentGroup.name,
+        });
       },
       currentGroupUsers() {
         if (this.currentGroup) {
@@ -200,14 +194,14 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.classEnrollFormStrings.$tr('noUsersExist');
         }
         if (this.usersNotInClass.length === 0) {
-          return this.$tr('allUsersAlready');
+          return this.classEnrollFormStrings.$tr('allUsersAlready');
         }
         if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
-          return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
+          return `${this.classEnrollFormStrings.$tr('noUsersMatch')}: '${this.filterInput}'`;
         }
 
         return '';
@@ -217,13 +211,14 @@
       ...mapActions('groups', ['addUsersToGroup']),
       ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
+        const value = this.selectedUsers.length;
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
             this.createSnackbar({
-              text: this.coachStrings.$tr('updatedNotification'),
+              text: groupMgmtStrings.$tr('addedLearnersNotice', { value }),
               autoDismiss: true,
             });
           });

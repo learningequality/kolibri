@@ -1,15 +1,15 @@
 <template>
 
   <KModal
-    :title="$tr('modalTitle')"
+    :title="removeModalStrings.$tr('modalTitle')"
     :hasError="false"
-    :submitText="$tr('remove')"
-    :cancelText="$tr('cancel')"
+    :submitText="removeModalStrings.$tr('remove')"
+    :cancelText="removeModalStrings.$tr('cancel')"
     @submit="$emit('confirm')"
     @cancel="$emit('cancel')"
   >
     <p>
-      {{ $tr('confirmation', { username: username, classname: groupName }) }}
+      {{ removeModalStrings.$tr('confirmation', { username: username, classname: groupName }) }}
     </p>
   </KModal>
 
@@ -19,15 +19,13 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import UserRemoveConfirmationModal from '../../../../../../facility_management/assets/src/views/ClassEditPage/UserRemoveConfirmationModal';
+
+  const removeModalStrings = crossComponentTranslator(UserRemoveConfirmationModal);
 
   export default {
     name: 'RemoveFromGroupModal',
-    $trs: {
-      modalTitle: 'Remove user',
-      remove: 'Remove',
-      cancel: 'Cancel',
-      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
-    },
     components: {
       KModal,
     },
@@ -40,6 +38,11 @@
         type: String,
         required: true,
       },
+    },
+    data() {
+      return {
+        removeModalStrings,
+      };
     },
   };
 

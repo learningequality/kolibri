@@ -30,7 +30,7 @@
     },
     computed: {
       url() {
-        return urls['kolibri:edulutionplugin:edulution']();
+        return urls['kolibri:learnplugin:edulution']();
       },
     },
     priority: 10,
