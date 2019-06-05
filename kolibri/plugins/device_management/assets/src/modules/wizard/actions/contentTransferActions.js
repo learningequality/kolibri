@@ -56,5 +56,9 @@ export function transferChannelContent(store, callback) {
   return TaskResource.startDiskContentExport({
     ...params,
     drive_id: selectedDrive.id,
+  }).then(() => {
+    if (callback) {
+      callback();
+    }
   });
 }
