@@ -275,7 +275,7 @@
         return height;
       },
       logoTextSize() {
-        return Math.floor(this.logoHeight * 0.3);
+        return Math.max(Math.floor(this.logoHeight * 0.3), 18);
       },
       guestURL() {
         return urls['kolibri:core:guest']();
