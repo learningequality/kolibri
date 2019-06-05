@@ -15,7 +15,7 @@
             <CoreLogo :style="{'height': `${logoHeight}px`}" />
             <h1
               class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`, color: $themeColors.brand.primary.v_300}"
+              :style="{'font-size': `${logoTextSize}px`, color: $themeTokens.logoText}"
             >
               {{ $tr('kolibri') }}
             </h1>
@@ -116,7 +116,7 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            •
+            <CoreLogo class="footer-logo" />
             <KButton
               :text="$tr('privacyLink')"
               appearance="basic-link"
@@ -569,6 +569,16 @@
     margin-bottom: 8px;
     font-size: 1.5em;
     font-weight: 100;
+  }
+
+  .footer-logo {
+    position: relative;
+    top: -1px;
+    display: inline-block;
+    height: 24px;
+    margin-right: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
   }
 
 </style>
