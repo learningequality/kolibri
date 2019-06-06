@@ -5,7 +5,7 @@ import materialColors from './materialColors.js';
 
 const logging = logger.getLogger(__filename);
 
-const initialState = {
+const staticState = {
   modality: null,
   colors: {
     palette: materialColors,
@@ -56,12 +56,6 @@ const initialState = {
   ),
 };
 
-export const dynamicState = Vue.observable(initialState);
-
-export function resetThemeValue(value) {
-  dynamicState[value] = initialState[value];
-}
-
 function throwThemeError(tokenName, mapString) {
   throw `Theme issue: '${tokenName}' has invalid mapping '${mapString}'`;
 }
@@ -71,8 +65,8 @@ const hexcolor = RegExp('#[0-9a-fA-F]{6}');
 function getTokens() {
   const tokens = {};
   // look at each token map
-  Object.keys(dynamicState.tokenMapping).forEach(function(tokenName) {
-    const mapString = dynamicState.tokenMapping[tokenName];
+  Object.keys(staticState.tokenMapping).forEach(function(tokenName) {
+    const mapString = staticState.tokenMapping[tokenName];
     // if it doesn't look like a path, interpret value as a CSS color value
     if (mapString.indexOf('.') === -1) {
       tokens[tokenName] = mapString;
@@ -80,7 +74,7 @@ function getTokens() {
     }
     // otherwise try to use the dot notation to navigate down the color tree
     const refs = mapString.split('.');
-    let obj = dynamicState.colors;
+    let obj = staticState.colors;
     while (refs.length) {
       const key = refs.shift();
       if (!obj[key]) {
@@ -100,12 +94,16 @@ function getTokens() {
   return tokens;
 }
 
+const tokens = getTokens();
+
+export const dynamicState = Vue.observable({ modality: null });
+
 export default {
   $themeTokens() {
-    return getTokens();
+    return tokens;
   },
   $themeColors() {
-    return dynamicState.colors;
+    return staticState.colors;
   },
   $theme() {
     return global.kolibriTheme;
