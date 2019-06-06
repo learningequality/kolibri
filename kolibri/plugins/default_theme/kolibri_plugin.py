@@ -9,11 +9,11 @@ from kolibri.plugins.base import KolibriPluginBase
 from kolibri.core import theme_hook
 
 
-class KolibriThemeTest(KolibriPluginBase):
+class DefaultThemePlugin(KolibriPluginBase):
     pass
 
 
-class CustomTheme(theme_hook.ThemeHook):
+class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
