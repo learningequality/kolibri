@@ -134,6 +134,10 @@ def version_file():
     return os.path.join(KOLIBRI_HOME, ".data_version")
 
 
+def should_reset_plugins(kolibri_version, version_file_contents):
+    return kolibri_version != version_file_contents
+
+
 def should_back_up(kolibri_version, version_file_contents):
     change_version = kolibri_version != version_file_contents
     return (
@@ -167,10 +171,13 @@ def initialize(debug=False, skip_update=False):
         version = open(version_file(), "r").read()
         version = version.strip() if version else ""
 
-        if should_back_up(kolibri.__version__, version):
-            # dbbackup will load settings.INSTALLED_APPS.
-            # we need to ensure plugins are correct in conf.config before
+        if should_reset_plugins(kolibri.__version__, version):
+            # Reset the enabled plugins to the defaults
+            # This needs to be run before dbbackup because
+            # dbbackup relies on settings.INSTALLED_APPS
             enable_default_plugins()
+
+        if should_back_up(kolibri.__version__, version):
             # Version changed, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
 
@@ -224,18 +231,16 @@ def _first_run():
         "to wait a bit while we create a blank database...\n\n"
     )
 
-    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
     # We need to migrate the database before enabling plugins, because they
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
         _migrate_databases()
 
-    for plugin_module in DEFAULT_PLUGINS:
-        try:
-            plugin(plugin_module, enable=True)
-        except PluginDoesNotExist:
-            continue
+    from .conf import enable_default_plugins
+
+    enable_default_plugins()
 
     logger.info("Automatically enabling applications.")
 
