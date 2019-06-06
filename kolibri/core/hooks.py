@@ -14,16 +14,9 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
-import warnings
-
 from kolibri.plugins import hooks
-from django.utils.six.moves.urllib.parse import urljoin
 from kolibri.plugins.utils import plugin_url
-from django.conf import settings
 import os
-
-logger = logging.getLogger(__name__)
 
 
 class NavigationHook(hooks.KolibriHook):
@@ -64,71 +57,3 @@ class RoleBasedRedirectHook(hooks.KolibriHook):
 
     class Meta:
         abstract = True
-
-
-THEME_TOKEN_MAPPING = "tokenMapping"
-THEME_BRAND_COLORS = "brandColors"
-THEME_PRIMARY = "primary"
-THEME_SECONDARY = "secondary"
-THEME_COLOR_NAMES = [
-    "v_50",
-    "v_100",
-    "v_200",
-    "v_300",
-    "v_400",
-    "v_500",
-    "v_600",
-    "v_700",
-    "v_800",
-    "v_900",
-]
-THEME_SIGN_IN = "signIn"
-THEME_SIDE_NAV = "sideNav"
-THEME_BG = "background"
-THEME_BG_IMAGE_NAME = "background_image"
-
-
-class ThemeHook(hooks.KolibriHook):
-    """
-    A hook to allow custom theming of Kolibri
-    Use this tool to help generate your brand colors: https://materialpalettes.com/
-    """
-
-    class Meta:
-        abstract = True
-
-    def validateBrandColors(self, theme):
-        if THEME_BRAND_COLORS not in theme:
-            logger.error("brand colors not defined by theme")
-            return False
-        required_colors = [THEME_PRIMARY, THEME_SECONDARY]
-        for color in required_colors:
-            if color not in theme[THEME_BRAND_COLORS]:
-                logger.error("'{}' not defined by theme".format(color))
-            for name in THEME_COLOR_NAMES:
-                if name not in theme[THEME_BRAND_COLORS][color]:
-                    logger.error("{} '{}' not defined by theme".format(color, name))
-
-    @property
-    @hooks.only_one_registered
-    def theme(self):
-        theme = list(self.registered_hooks)[0].theme
-
-        # set up top-level dicts if they don't exist
-        if THEME_SIGN_IN not in theme:
-            theme[THEME_SIGN_IN] = {}
-        if THEME_TOKEN_MAPPING not in theme:
-            theme[THEME_TOKEN_MAPPING] = {}
-        if THEME_SIDE_NAV not in theme:
-            theme[THEME_SIDE_NAV] = {}
-
-        # some validation
-        self.validateBrandColors(theme)
-
-        # if a background image has been locally set using the `manage background` command, use it
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, THEME_BG_IMAGE_NAME)):
-            theme[THEME_SIGN_IN][THEME_BG] = urljoin(
-                settings.MEDIA_URL, THEME_BG_IMAGE_NAME
-            )
-
-        return theme

@@ -31,7 +31,7 @@ from six import iteritems
 import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
-from kolibri.core.hooks import ThemeHook
+from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
 from kolibri.utils import i18n
