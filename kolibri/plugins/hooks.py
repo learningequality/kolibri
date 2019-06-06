@@ -210,9 +210,14 @@ def only_one_registered(func):
 
     @functools.wraps(func)
     def inner(instance, *args, **kwargs):
-        assert len(list(instance.registered_hooks)) == 1
+        hooks = list(instance.registered_hooks)
+        if not hooks:
+            logger.error("Should have exactly one hook registered.")
+        if len(hooks) > 1:
+            logger.error("Too many hooks registered:")
+            for hook in hooks:
+                logger.error(hook)
         return func(instance, *args, **kwargs)
-
     return inner
 
 
