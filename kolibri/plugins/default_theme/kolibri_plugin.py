@@ -17,6 +17,10 @@ class CustomTheme(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
+            # metadata
+            theme_hook.THEME_NAME: "Default theme",
+            theme_hook.THEME_VERSION: 1, # increment when changes are made
+            # specify primary and secondary brand colors
             theme_hook.BRAND_COLORS: {
                 theme_hook.PRIMARY: {
                     theme_hook.COLOR_V50: "#f0e7ed",
@@ -43,6 +47,7 @@ class CustomTheme(theme_hook.ThemeHook):
                     theme_hook.COLOR_V900: "#1b4634",
                 },
             },
+            # sign-in page config
             theme_hook.SIGN_IN: {
                 theme_hook.BACKGROUND: static("background.jpg"),
                 theme_hook.TITLE: None,  # use default: "Kolibri"
@@ -53,5 +58,6 @@ class CustomTheme(theme_hook.ThemeHook):
                 },
                 theme_hook.SHOW_K_FOOTER_LOGO: False,
             },
+            # side-nav config
             theme_hook.SIDE_NAV: {theme_hook.SHOW_K_FOOTER_LOGO: True},
         }

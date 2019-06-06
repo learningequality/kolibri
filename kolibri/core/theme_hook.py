@@ -18,13 +18,18 @@ import logging
 import warnings
 
 from kolibri.plugins import hooks
-from django.utils.six.moves.urllib.parse import urljoin
+import kolibri
+from django.utils.six.moves.urllib import parse
 from kolibri.plugins.utils import plugin_url
 from django.conf import settings
 import os
 
 logger = logging.getLogger(__name__)
 
+
+# Important for cache busting
+THEME_NAME = "themeName"
+THEME_VERSION = "themeVersion"
 
 # These constants are used by theme.js and the $theme mixin on the front-end
 TOKEN_MAPPING = "tokenMapping"
@@ -54,7 +59,50 @@ SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
 # This is the image file name that will be used when customizing the sign-in background
 # image using the 'kolibri manage background' command. It does not attempt to use a file
 # extension (like .jpg) because we don't know if it's a JPG, SVG, PNG, etc...
-DEFAULT_BG_IMAGE_NAME = "background_image"
+DEFAULT_BG_IMAGE_FILE = "background_image"
+DEFAULT_BG_MD5_FILE = "background_image_md5"
+
+
+def _isSet(theme, keys):
+    obj = theme
+    for key in keys:
+        if not key in obj:
+            return False
+        obj = obj[key]
+    return bool(obj)
+
+
+def _validateMetadata(theme):
+    if THEME_NAME not in theme:
+        logger.error("a theme name must be set")
+    if THEME_VERSION not in theme:
+        logger.error("a theme version must be set")
+
+
+def _validateBrandColors(theme):
+    if BRAND_COLORS not in theme:
+        logger.error("brand colors not defined by theme")
+        return
+
+    required_colors = [PRIMARY, SECONDARY]
+    color_names = [
+        COLOR_V50,
+        COLOR_V100,
+        COLOR_V200,
+        COLOR_V300,
+        COLOR_V400,
+        COLOR_V500,
+        COLOR_V600,
+        COLOR_V700,
+        COLOR_V800,
+        COLOR_V900,
+    ]
+    for color in required_colors:
+        if color not in theme[BRAND_COLORS]:
+            logger.error("'{}' not defined by theme".format(color))
+        for name in color_names:
+            if name not in theme[BRAND_COLORS][color]:
+                logger.error("{} '{}' not defined by theme".format(color, name))
 
 
 class ThemeHook(hooks.KolibriHook):
@@ -66,29 +114,15 @@ class ThemeHook(hooks.KolibriHook):
     class Meta:
         abstract = True
 
-    def validateBrandColors(self, theme):
-        if BRAND_COLORS not in theme:
-            logger.error("brand colors not defined by theme")
-            return False
-        required_colors = [PRIMARY, SECONDARY]
-        color_names = [
-            COLOR_V50,
-            COLOR_V100,
-            COLOR_V200,
-            COLOR_V300,
-            COLOR_V400,
-            COLOR_V500,
-            COLOR_V600,
-            COLOR_V700,
-            COLOR_V800,
-            COLOR_V900,
-        ]
-        for color in required_colors:
-            if color not in theme[BRAND_COLORS]:
-                logger.error("'{}' not defined by theme".format(color))
-            for name in color_names:
-                if name not in theme[BRAND_COLORS][color]:
-                    logger.error("{} '{}' not defined by theme".format(color, name))
+    @property
+    @hooks.only_one_registered
+    def cacheKey(self):
+        theme = list(self.registered_hooks)[0].theme
+        return parse.quote(
+            "{}-{}-{}".format(
+                kolibri.__version__, theme[THEME_NAME], theme[THEME_VERSION]
+            )
+        )
 
     @property
     @hooks.only_one_registered
@@ -104,12 +138,28 @@ class ThemeHook(hooks.KolibriHook):
             theme[SIDE_NAV] = {}
 
         # some validation
-        self.validateBrandColors(theme)
+        _validateMetadata(theme)
+        _validateBrandColors(theme)
+
+        # set up cache busting
+        bust = "?" + self.cacheKey
+        if _isSet(theme, [SIGN_IN, BACKGROUND]):
+            theme[SIGN_IN][BACKGROUND] += bust
+        if _isSet(theme, [SIGN_IN, TOP_LOGO, IMG_SRC]):
+            theme[SIGN_IN][TOP_LOGO][IMG_SRC] += bust
+        if _isSet(theme, [SIDE_NAV, TOP_LOGO, IMG_SRC]):
+            theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
 
         # if a background image has been locally set using the `manage background` command, use it
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_NAME)):
-            theme[SIGN_IN][BACKGROUND] = urljoin(
-                settings.MEDIA_URL, DEFAULT_BG_IMAGE_NAME
+        bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)
+        if os.path.exists(bg_img):
+            theme[SIGN_IN][BACKGROUND] = parse.urljoin(
+                settings.MEDIA_URL, DEFAULT_BG_IMAGE_FILE
             )
+            # add cache busting
+            md5_file = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_MD5_FILE)
+            if os.path.exists(md5_file):
+                with open(md5_file) as f:
+                    theme[SIGN_IN][BACKGROUND] += "?{}".format(f.read())
 
         return theme

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import logging
 import os
 import shutil
+import hashlib
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -28,9 +29,8 @@ class Command(BaseCommand):
         subparser.add_parser(name="unset", cmd=self, help="Return to default")
 
     def handle(self, *args, **options):
-        media_directory = os.path.join(settings.MEDIA_ROOT)
-
-        bg_img = os.path.join(media_directory, theme_hook.DEFAULT_BG_IMAGE_NAME)
+        bg_img = os.path.join(settings.MEDIA_ROOT, theme_hook.DEFAULT_BG_IMAGE_FILE)
+        md5_file = os.path.join(settings.MEDIA_ROOT, theme_hook.DEFAULT_BG_MD5_FILE)
 
         if options["command"] == "set":
             self.stdout.write(
@@ -50,14 +50,19 @@ class Command(BaseCommand):
                 )
                 raise SystemExit(1)
 
-            if not os.path.exists(media_directory):
-                os.mkdir(media_directory)
+            if not os.path.exists(settings.MEDIA_ROOT):
+                os.mkdir(settings.MEDIA_ROOT)
 
             shutil.copy(new_img, bg_img)
+            with open(bg_img, "rb") as img:
+                with open(md5_file, "w") as f:
+                    f.write(hashlib.md5(img.read()).hexdigest())
 
         elif options["command"] == "unset":
             if os.path.exists(bg_img):
                 os.remove(bg_img)
+            if os.path.exists(md5_file):
+                os.remove(md5_file)
 
         else:
             self.stderr.write(
