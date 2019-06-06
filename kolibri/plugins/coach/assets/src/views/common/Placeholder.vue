@@ -32,7 +32,7 @@
     computed: {
       placeholderStyle() {
         return {
-          backgroundColor: this.$coreTextDisabled,
+          backgroundColor: this.$themeTokens.textDisabled,
           width: this.width,
           height: this.height,
         };

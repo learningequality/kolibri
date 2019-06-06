@@ -2,7 +2,7 @@ Feature: Admin edit users
   Admin needs to be able to edit user's full name and username, reset the passwords, change the user types, and delete them from the facility
 
   Background:
-    Given I am signed in to Kolibri as facility admin user
+    Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Users* page
 
   Scenario: Admins cannot edit the user account details of a super admin

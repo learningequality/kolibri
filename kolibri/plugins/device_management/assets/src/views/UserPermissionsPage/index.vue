@@ -62,7 +62,7 @@
         <ul
           class="checkbox-description"
           :style="{
-            color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation
+            color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation
           }"
         >
           <li>{{ $tr('superAdminExplanation1') }}</li>

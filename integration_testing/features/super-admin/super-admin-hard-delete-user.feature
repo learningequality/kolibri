@@ -1,8 +1,8 @@
-Feature: Super Admin delete user
-    Super Admin need to be able to delete a user from the command line
+Feature: Super admin delete user
+    Super admin needs to be able to delete a user from the command line
 
   Background:
-    Given that there exists a user with username <username> I want to delete
+    Given that there is a username <username>
       And I have access to Terminal on device
 
   Scenario: Delete user and all their data
@@ -14,7 +14,7 @@ Feature: Super Admin delete user
     Then I see a second confirmation message, reiterating that I cannot recover the user data.
     When I type "yes"
       And I press *Enter* key
-    Then I get confirmation message of the user data associated with username <username> as being deleted
+    Then I get confirmation message that the user data associated with username <username> has been deleted
 
 Examples:
 | username |

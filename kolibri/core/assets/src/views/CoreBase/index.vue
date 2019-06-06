@@ -98,12 +98,12 @@
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
       :linkUrl="mostRecentNotification.linkUrl"
-      @closeModal="dismissUpdateModal"
+      @submit="dismissUpdateModal"
     />
     <LanguageSwitcherModal
       v-if="languageModalShown"
-      :style="{ color: $coreTextDefault }"
-      @close="languageModalShown = false"
+      :style="{ color: $themeTokens.text }"
+      @cancel="languageModalShown = false"
     />
 
   </div>
@@ -313,7 +313,7 @@
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
           bottom: `${this.marginBottom}px`,
-          backgroundColor: this.$coreBgCanvas,
+          backgroundColor: this.$themeColors.palette.grey.v_100,
         };
       },
       contentStyles() {

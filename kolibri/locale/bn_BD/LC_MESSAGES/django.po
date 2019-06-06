@@ -4,13 +4,13 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: bn\n"
-"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"X-Crowdin-File: /release-v0.12.y/django.po\n"
 "Project-Id-Version: kolibri\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Last-Translator: learningequality\n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
-"PO-Revision-Date: 2019-03-25 17:16\n"
+"PO-Revision-Date: 2019-05-24 23:13\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,54 +24,56 @@ msgstr "শ্রেণীকক্ষ"
 msgid "Learner group"
 msgstr "শিক্ষার্থী দল"
 
-#: kolibri/core/content/api.py:130
+#: kolibri/core/content/api.py:138
 msgid "Content"
 msgstr "বিষয়বস্তু"
 
-#: kolibri/core/content/api.py:702
+#: kolibri/core/content/api.py:836
 msgid "The requested channel does not exist on the content server"
 msgstr "অনুরোধ করা চ্যানেলটি বিষয়বস্তুর সার্ভারে নেই"
 
-#: kolibri/core/content/models.py:283
+#: kolibri/core/content/models.py:296
 msgid "Unknown format"
 msgstr "ভুল হয়েছে"
 
-#: kolibri/core/device/serializers.py:53
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
 
-#: kolibri/core/tasks/api.py:32
+#: kolibri/core/tasks/api.py:33
 msgid "There was a network error."
 msgstr "নেটওয়ার্কে সমস্যা হয়েছে।"
 
-#: kolibri/core/tasks/api.py:34
+#: kolibri/core/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "ডিস্ক অ্যাক্সেস করতে সমস্যা হচ্ছে।"
 
-#: kolibri/core/tasks/api.py:36
+#: kolibri/core/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "একটা অজানা সমস্যা হয়েছে।"
 
 #: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "কলিব্রি"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
 msgstr "এই ব্রাউজারটি ব্যবহার করা যাবে না"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
 msgstr "দুঃখিত, আপনার ব্রাউজারের এই সংস্করণটি ব্যবহার করা যাবে না।"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
 msgstr "কলিব্রি ব্যবহারের জন্য আমরা ফায়ারফক্স এবং ক্রোম ব্যবহারের পরামর্শ দিই।"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
 msgstr "আপনার বর্তমান ব্রাউজারটি আপডেট করার চেষ্টাও করতে পারেন।"
 
-#: kolibri/core/views.py:131
+#: kolibri/core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "কোনও উপযুক্ত পুনর্নির্দেশ পাতা খুঁজে পাওয়া যায়নি। সম্ভবত কলিব্রি ঠিকভাবে কনফিগার করা হয়নি।"
+

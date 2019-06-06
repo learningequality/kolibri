@@ -3,7 +3,7 @@ Feature: Coach creates groups
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am in *Coach > Plan > Groups* page
+      And I am in *Coach - '<class>' > Plan > Groups* page
       And there are learners in the selected class
 
   Scenario: Create group

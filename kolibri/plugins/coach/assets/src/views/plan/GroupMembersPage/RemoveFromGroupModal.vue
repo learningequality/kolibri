@@ -5,8 +5,8 @@
     :hasError="false"
     :submitText="$tr('remove')"
     :cancelText="$tr('cancel')"
-    @submit="$emit('confirm')"
     @cancel="$emit('cancel')"
+    @submit="$emit('submit')"
   >
     <p>
       {{ $tr('confirmation', { username: username, classname: groupName }) }}

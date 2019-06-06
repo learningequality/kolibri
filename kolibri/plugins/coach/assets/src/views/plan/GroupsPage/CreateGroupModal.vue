@@ -6,8 +6,8 @@
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
+    @cancel="$emit('cancel')"
     @submit="callCreateGroup"
-    @cancel="close"
   >
     <KTextbox
       ref="name"
@@ -82,20 +82,17 @@
       },
     },
     methods: {
-      ...mapActions('groups', ['displayModal', 'createGroup']),
+      ...mapActions('groups', ['createGroup']),
       callCreateGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
           this.submitting = true;
           this.createGroup({ groupName: this.name, classId: this.classId }).then(() => {
-            this.$emit('success');
+            this.$emit('submit');
           });
         } else {
           this.$refs.name.focus();
         }
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

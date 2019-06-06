@@ -63,6 +63,28 @@ export default {
     };
   },
   /*
+   * Return array of learner IDs given an exam
+   */
+  getLearnersForExam() {
+    return function(exam) {
+      if (!exam) {
+        throw new Error('getLearnersForLesson: invalid parameter(s)');
+      }
+      return exam.assignments.length ? this.getLearnersForGroups(exam.groups) : [];
+    };
+  },
+  /*
+   * Return array of learner IDs given a lesson
+   */
+  getLearnersForLesson() {
+    return function(lesson) {
+      if (!lesson) {
+        throw new Error('getLearnersForLesson: invalid parameter(s)');
+      }
+      return lesson.assignments.length ? this.getLearnersForGroups(lesson.groups) : [];
+    };
+  },
+  /*
    * Return a STATUSES constant given a content ID and a learner ID
    */
   getContentStatusObjForLearner(state) {

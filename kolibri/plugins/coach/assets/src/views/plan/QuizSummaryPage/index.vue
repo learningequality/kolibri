@@ -37,7 +37,11 @@
             <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
           <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
-            <Recipients slot="value" :groupNames="learnerGroupNames" />
+            <Recipients
+              slot="value"
+              :groupNames="learnerGroupNames"
+              :hasAssignments="quiz.assignments.length > 0"
+            />
           </HeaderTableRow>
           <HeaderTableRow
             :keyText="coachStrings.$tr('questionOrderLabel')"

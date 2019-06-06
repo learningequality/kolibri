@@ -163,7 +163,6 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 * Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
-* Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
 * Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
@@ -228,25 +227,21 @@ Update the following variables:
 
 Publish the Medium post if necessary.
 
+.. note :: An Android APK is automatically generated and signed whenever the release pipeline is unblocked past the per-PR "cleanup" phase. These, however, are not publicly distributed to Pantry or the `learningequality.org/download <https://learningequality.org/download/>`__ page at the moment.
+
 
 Update the demo server
 ----------------------
 
-Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`__ running the latest version:
+Get `kolibridemo.learningequality.org <https://kolibridemo.learningequality.org>`__ running the latest version:
 
- * SSH into ``192.237.248.135``
- * ``sudo su www-data``
- * Upload the new .pex file and update ``/var/www/run_kolibri.sh`` to point at it
-
-Then restart all running instances:
-
-.. code-block:: bash
-
-    killall python
-    run_all
+* SSH into the instance by running ``gcloud compute ssh --project kolibri-demo-servers --zone us-east1-d kolibridemo``. Click `here <https://cloud.google.com/compute/docs/instances/connecting-to-instance#gcetools>`__ for more information about connecting to Google Compute Engine instances. (You will need the right permissions of course.)
+* ``sudo su www-data``
+* Download the new .pex file from the uploaded assets on github/buildkite using ``wget``. Update /var/www/run_kolibridemo.sh to point at it
+* ``./var/www/run_kolibridemo.sh restart`` to restart kolibri
 
 
-Verify that `the demo server <kolibridemo.learningequality.org>`__ is running the latest version.
+Verify that `the demo server <https://kolibridemo.learningequality.org>`__ is running the latest version.
 
 
 Wrap-up
@@ -255,4 +250,3 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
-

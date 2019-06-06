@@ -200,9 +200,9 @@
       progressStyle() {
         return {
           '.vjs-play-progress': {
-            backgroundColor: this.$coreActionNormal,
+            backgroundColor: this.$themeTokens.primary,
             '::before': {
-              color: this.$coreActionNormal,
+              color: this.$themeTokens.primary,
             },
           },
         };

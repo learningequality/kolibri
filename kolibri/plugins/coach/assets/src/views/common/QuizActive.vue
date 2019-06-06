@@ -1,8 +1,12 @@
 <template>
 
   <span>
-    <KLabeledIcon :style="active ? {} : { color: $coreGrey300 }">
-      <KIcon slot="icon" dot :color="active ? $coreStatusCorrect : $coreGrey300" />
+    <KLabeledIcon :style="active ? {} : { color: $themeTokens.textDisabled }">
+      <KIcon
+        slot="icon"
+        dot
+        :color="active ? $themeTokens.success : $themeTokens.textDisabled"
+      />
       {{ label }}
     </KLabeledIcon>
   </span>

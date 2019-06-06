@@ -1,6 +1,6 @@
 <template>
 
-  <span :style="{color: $coreGrey300}">—</span>
+  <span :style="{color: $themeTokens.textDisabled}">—</span>
 
 </template>
 

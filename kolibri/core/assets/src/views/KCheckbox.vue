@@ -118,12 +118,12 @@
       },
       blank() {
         return {
-          fill: this.disabled ? this.$coreGrey300 : this.$coreTextAnnotation,
+          fill: this.disabled ? this.$themeTokens.textDisabled : this.$themeTokens.annotation,
         };
       },
       notBlank() {
         return {
-          fill: this.disabled ? this.$coreGrey300 : this.$coreActionNormal,
+          fill: this.disabled ? this.$themeTokens.textDisabled : this.$themeTokens.primary,
         };
       },
       activeOutline() {
@@ -131,7 +131,7 @@
       },
       labelStyle() {
         return {
-          color: this.disabled ? this.$coreTextDisabled : '',
+          color: this.disabled ? this.$themeTokens.textDisabled : '',
         };
       },
     },

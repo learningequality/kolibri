@@ -13,7 +13,7 @@
   >
     <slot v-if="$slots.default"></slot>
     <template v-else>
-      {{ text }}
+      <span>{{ text }}</span>
     </template>
     <mat-svg
       v-if="hasDropdown"
@@ -43,7 +43,7 @@
        */
       appearance: {
         type: String,
-        default: 'raised-button',
+        default: 'raised-button', // changes default of 'appearance' prop provided by mixin
         validator,
       },
       /**

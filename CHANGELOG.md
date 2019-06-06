@@ -6,6 +6,25 @@ List of the most important changes for each release.
 
 ### Added
 
+- Device Settings Page - The default language can now be changed under Device > Settings. This is the language that will be used on browsers that have never opened Kolibri before (but can be changed after opening Kolibri using the language selector).
+
+## 0.12.3
+
+### Changed or fixed
+
+
+- Improved handling of partially-download or otherwise corrupted content databases
+- Fixed regression where users could not change their passwords in the Profile page
+- Improved PostgreSQL support
+- Added fixes related to coach tools
+
+See a [full list](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3) of changes on Github
+
+
+## 0.12.2
+
+### Added
+
 - Coaches can edit lessons from the Coach > Reports page
 - Coaches can preview and edit quiz details from the Coach > Reports and Plan pages
 
@@ -55,12 +74,6 @@ View all [0.12.2 changes on Github](https://github.com/learningequality/kolibri/
 
 View all [0.12.1 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.1)
 
-
-## 0.12.y
-
-### Added
-
-- Device Settings Page - The default language can now be changed under Device > Settings. This is the language that will be used on browsers that have never opened Kolibri before (but can be changed after opening Kolibri using the language selector).
 
 ## 0.12.0
 

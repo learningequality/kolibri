@@ -11,28 +11,26 @@ Feature: Super admin imports content from a new channel from local drive
     Then I see the *Select content from '<channel>'* page
       And I see the list of topics for the <channel> channel
       And I see the total number and size of <channel> channel resources
+      And I see the value for *Drive space available*
       And I see 0 resources from <channel> channel are listed as *On your device*
 
-  Scenario: Select/unselect all the topics
+  Scenario: Select/deselect all the topics
     When I check the *Select all* checkbox
     Then I see the checkboxes for all the topics are checked
       And I see the *Import* button is active
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)  
+
     When I uncheck the *Select all* checkbox
     Then I see the *Import* button is inactive
       And I see the values for *Content selected* is 0
-      And I see the value for *Drive space available* increases to the initial state
 
-  Scenario: Select/unselect one full topic    
+  Scenario: Select/deselect one full topic    
     When I check the <topic> topic checkbox
     Then I see the *Import* button is active
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I uncheck the <topic> topic checkbox
     Then I see the *Import* button is inactive
       And I see the values for *Content selected* is 0
-      And I see the value for *Drive space available* increases to the initial state
 
   Scenario: Select and import just one resource from a subtopic of a topic
     When I click the <topic> topic
@@ -43,7 +41,6 @@ Feature: Super admin imports content from a new channel from local drive
     Then I see the *Import* button is active 
       And I see the *1 resource selected* flag for the <resource> resource
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
     Then I see *Device > Channels* page again
       And I see the blue progress bar with the percentage increasing 

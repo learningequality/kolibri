@@ -3,16 +3,17 @@
   <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
+    :class="{small: windowIsSmall, scrolled: scrolled}"
     :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
 
-    <LoadingError v-if="errorLoading" />
+    <LoadingError v-if="errorLoading" :loaded="loaded" />
 
     <LoadingScreen v-else-if="!loaded" />
 
     <div
-      v-show="loaded"
+      class="epub-renderer-content"
       :dir="dir"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
@@ -99,32 +100,30 @@
 
       <div
         class="navigation-and-epubjs"
-        :style="navigationAndEpubjsStyle"
+        :style="backgroundColorStyle"
       >
         <div
-          class="column"
-          :style="navigationButtonContainerStyle"
+          class="column epubjs-navigation"
         >
           <PreviousButton
             :color="navigationButtonColor"
-            :style="navigationButtonsStyle"
+            :style="backgroundColorStyle"
             :isRtl="isRtl"
             @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
           ref="epubjsContainer"
-          class="column"
-          :style="epubjsContainerStyle"
+          class="column epubjs-parent"
+          :style="backgroundColorStyle"
         >
         </div>
         <div
-          class="column"
-          :style="navigationButtonContainerStyle"
+          class="column epubjs-navigation"
         >
           <NextButton
             :color="navigationButtonColor"
-            :style="navigationButtonsStyle"
+            :style="backgroundColorStyle"
             :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
@@ -148,11 +147,9 @@
 <script>
 
   import Epub from 'epubjs/src/epub';
-  import defaultManager from 'epubjs/src/managers/default';
   import { EVENTS } from 'epubjs/src/utils/constants';
 
   import Mark from 'mark.js';
-  import debounce from 'lodash/debounce';
   import isEqual from 'lodash/isEqual';
   import Lockr from 'lockr';
 
@@ -192,9 +189,6 @@
     SETTINGS: 'SETTINGS',
   };
 
-  const TOP_BAR_HEIGHT = 36;
-  const BOTTOM_BAR_HEIGHT = 54;
-
   const LOCATIONS_INTERVAL = 1000;
 
   const EPUB_RENDERER_SETTINGS_KEY = 'kolibriEpubRendererSettings';
@@ -233,6 +227,7 @@
       currentSection: null,
       searchQuery: null,
       sliderValue: 0,
+      scrolled: false,
 
       currentLocation: null,
       updateContentStateInterval: null,
@@ -251,6 +246,11 @@
       backgroundColor() {
         return this.theme.backgroundColor;
       },
+      backgroundColorStyle() {
+        return {
+          backgroundColor: this.backgroundColor,
+        };
+      },
       textColor() {
         return this.theme.textColor;
       },
@@ -267,9 +267,21 @@
         const lineHeightStyle = {
           'line-height': `1.4em!important`,
         };
+
+        // In scrolled mode, display flex helps body size to it's content
+        // In paged column mode, clear margins on <html> to avoid issues with rendering
+        const htmlStyle = this.scrolled ? { display: 'flex' } : { margin: '0!important' };
+
+        // Width style overrides the pixel width added by epub.js, and in conjunction with flex
+        // above, helps SandboxIFrameView size containers according to true content width.
+        // Padding override kills an arbitrary `padding:0 (width / 12)px` set by epub.js
+        const bodyScrolledStyle = this.scrolled
+          ? { width: 'auto!important', padding: '20px!important' }
+          : {};
+
         return {
-          html: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle },
-          body: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle },
+          html: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle, ...htmlStyle },
+          body: { ...colorStyle, ...alignmentStyle, ...fontSizeStyle, ...bodyScrolledStyle },
           p: { ...colorStyle, ...alignmentStyle, ...lineHeightStyle },
           h1: { ...colorStyle },
           h2: { ...colorStyle },
@@ -277,7 +289,9 @@
           h4: { ...colorStyle },
           h5: { ...colorStyle },
           'p:first-of-type::first-letter': { ...colorStyle },
+          // help media not overflow their columns
           video: { 'max-width': '100%' },
+          img: { 'max-width': '100%' },
         };
       },
       tocSideBarIsOpen() {
@@ -290,40 +304,14 @@
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
       epubRendererStyle() {
-        const ratio = this.windowIsSmall ? 11 / 8.5 : 8.5 / 11;
         return {
-          height: `${this.elementWidth * ratio}px`,
-          backgroundColor: this.$coreBgLight,
+          backgroundColor: this.$themeTokens.surface,
         };
       },
       navigationButtonColor() {
         return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
           ? 'white'
           : 'black';
-      },
-      navigationAndEpubjsStyle() {
-        return {
-          backgroundColor: this.backgroundColor,
-        };
-      },
-      navigationButtonsStyle() {
-        return {
-          backgroundColor: this.backgroundColor,
-        };
-      },
-      navigationButtonWidth() {
-        return this.windowIsSmall ? 36 : 52;
-      },
-      navigationButtonContainerStyle() {
-        return {
-          width: `${this.navigationButtonWidth}px`,
-        };
-      },
-      epubjsContainerStyle() {
-        return {
-          backgroundColor: this.backgroundColor,
-          width: `${this.elementWidth - this.navigationButtonWidth * 2}px`,
-        };
       },
       bottomBarHeading() {
         if (this.currentSection) {
@@ -386,29 +374,6 @@
           }
         });
       },
-      themeStyle(newTheme) {
-        if (this.rendition) {
-          this.updateRenditionTheme(newTheme);
-          Lockr.set(EPUB_RENDERER_SETTINGS_KEY, {
-            theme: this.theme,
-            fontSize: this.fontSize,
-          });
-        }
-      },
-      elementHeight(newHeight) {
-        if (this.loaded) {
-          const width = this.calculateRenditionWidth(this.elementWidth);
-          const height = this.calculateRenditionHeight(newHeight);
-          this.debounceResizeRendition(width, height);
-        }
-      },
-      elementWidth(newWidth) {
-        if (this.loaded) {
-          const width = this.calculateRenditionWidth(newWidth);
-          const height = this.calculateRenditionHeight(this.elementHeight);
-          this.debounceResizeRendition(width, height);
-        }
-      },
     },
     created() {
       // Try to load the appropriate directional CSS for the particular content
@@ -418,10 +383,10 @@
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
 
-      const { savedTheme = THEMES.WHITE, savedFontSize } =
+      const { theme = this.theme, fontSize = this.fontSize } =
         Lockr.get(EPUB_RENDERER_SETTINGS_KEY) || {};
-      this.theme = savedTheme;
-      this.fontSize = savedFontSize;
+      this.theme = theme;
+      this.fontSize = fontSize;
     },
     mounted() {
       Promise.all([this.cssPromise, this.book.ready]).then(() => {
@@ -429,24 +394,64 @@
           this.toc = this.book.navigation.toc;
         }
 
-        const width = this.calculateRenditionWidth(this.elementWidth);
-        const height = this.calculateRenditionHeight(this.elementHeight);
         this.rendition = this.book.renderTo(this.$refs.epubjsContainer, {
-          defaultManager,
           view: iFrameView,
-          width,
-          height,
+          resizeOnOrientationChange: false,
           spread: 'auto',
           minSpreadWidth: 600,
         });
 
-        if (this.savedLocation) {
-          this.rendition
-            .display(this.savedLocation)
-            .then(() => this.handleReadyRendition(width, height));
-        } else {
-          this.rendition.display().then(() => this.handleReadyRendition(width, height));
-        }
+        this.rendition
+          .display(this.savedLocation || undefined)
+          .then(() => {
+            const hasTables = this.rendition.getContents().reduce((hasTable, contents) => {
+              return hasTable || contents.document.getElementsByTagName('table').length > 0;
+            }, false);
+
+            // Tables have issues rendering, so switch from paginated flow to scrolled
+            if (hasTables) {
+              this.scrolled = true;
+              this.rendition.flow('scrolled');
+              this.rendition.clear();
+              // Re-renders and targets this.savedLocation (if set)
+              return this.rendition.display(this.savedLocation || undefined);
+            }
+
+            // For paginated, update settings
+            const bounds = this.$refs.epubjsContainer.getBoundingClientRect();
+            Object.assign(this.rendition.manager.stage.settings, {
+              width: bounds.width,
+              height: bounds.height,
+            });
+
+            const resize = new Promise((resolve, reject) => {
+              this.rendition.once(EVENTS.RENDITION.DISPLAYED, resolve);
+              this.rendition.once(EVENTS.RENDITION.DISPLAY_ERROR, reject);
+            });
+
+            return this.rendition.q
+              .enqueue(() => this.rendition.resize())
+              .then(() => resize)
+              .then(
+                () => {},
+                () => {
+                  // In IE 11, EVENTS.RENDITION.DISPLAY_ERROR occurs when calling .resize(),
+                  // so we'll try to redisplay, and if that's successful remove `errorLoading`
+                  return this.rendition.display(this.savedLocation || undefined);
+                }
+              )
+              .then(() => {
+                this.errorLoading = false;
+              });
+          })
+          .then(
+            () => {
+              this.handleReadyRendition();
+            },
+            () => {
+              this.errorLoading = true;
+            }
+          );
 
         this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
           this.errorLoading = true;
@@ -472,12 +477,8 @@
           this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
         }
       },
-      handleReadyRendition(width, height) {
+      handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
-
-        // this is not working, hence the delay via the debounce
-        // this.resizeRendition(width, height);
-        this.debounceResizeRendition(width, height);
 
         this.rendition.on(EVENTS.RENDITION.RELOCATED, location => this.relocatedHandler(location));
         this.rendition.on('keyup', this.handleKeyUps);
@@ -491,6 +492,15 @@
           this.locations = locations;
           this.$emit('startTracking');
           this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+
+          // Update current location, .currentLocation() can return Promise or value
+          Promise.resolve()
+            .then(() => this.rendition.currentLocation())
+            .then(currentLocation => {
+              if (currentLocation && currentLocation.start) {
+                this.relocatedHandler(currentLocation);
+              }
+            });
         });
       },
       updateRenditionTheme(newTheme) {
@@ -498,16 +508,27 @@
         this.rendition.themes.register(themeName, newTheme);
         this.rendition.themes.select(themeName);
       },
-      getIframe() {
-        return this.$refs.epubjsContainer.querySelector('iframe');
+      getIFrameView() {
+        return this.rendition
+          .views()
+          .displayed()
+          .filter(view => view instanceof iFrameView)
+          .shift();
       },
       handleKeyUps(event) {
+        const focus = () => {
+          const view = this.getIFrameView();
+          if (view) {
+            view.focus();
+          }
+        };
+
         switch (event.which) {
           case 37:
-            this.goToPreviousPage().then(() => this.getIframe().focus());
+            this.goToPreviousPage().then(focus);
             break;
           case 39:
-            this.goToNextPage().then(() => this.getIframe().focus());
+            this.goToNextPage().then(focus);
             break;
         }
       },
@@ -529,12 +550,6 @@
       },
       closeSideBar() {
         this.sideBarOpen = null;
-      },
-      calculateRenditionWidth(availableWidth) {
-        return availableWidth - this.navigationButtonWidth * 2;
-      },
-      calculateRenditionHeight(availableHeight) {
-        return availableHeight - TOP_BAR_HEIGHT - BOTTOM_BAR_HEIGHT;
       },
       goToNextPage() {
         return this.rendition.next();
@@ -572,10 +587,10 @@
           });
       },
       getCurrentFontSize() {
-        const iframe = this.getIframe();
-        const iframeBody = iframe.contentWindow.document.body;
-        const fontSize = window.getComputedStyle(iframeBody).getPropertyValue('font-size');
-        return fontSize;
+        const view = this.getIFrameView();
+
+        // Use epub Contents class which will get computed font-size
+        return view ? view.getContents().css('font-size', null) : null;
       },
       increaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
@@ -584,7 +599,7 @@
           fontSizeNumericValue + FONT_SIZE_STEP,
           FONT_SIZE_MAX
         );
-        this.fontSize = `${newFontSizeNumericValue}px`;
+        this.setFontSize(`${newFontSizeNumericValue}px`);
       },
       decreaseFontSize() {
         const currentFontSize = this.getCurrentFontSize();
@@ -593,10 +608,35 @@
           fontSizeNumericValue - FONT_SIZE_STEP,
           FONT_SIZE_MIN
         );
-        this.fontSize = `${newFontSizeNumericValue}px`;
+        this.setFontSize(`${newFontSizeNumericValue}px`);
+      },
+      expandIFrameView() {
+        const view = this.getIFrameView();
+
+        if (view) {
+          // TODO: Figure out how to get this trigger the iframe containers to resize
+        }
       },
       setTheme(theme) {
         this.theme = theme;
+        this.persistSettings({ theme });
+        this.updateRenditionTheme(this.themeStyle);
+      },
+      setFontSize(fontSize) {
+        this.fontSize = fontSize;
+        this.persistSettings({ fontSize });
+        this.updateRenditionTheme(this.themeStyle);
+
+        if (this.scrolled) {
+          this.expandIFrameView();
+        }
+      },
+      persistSettings(settings) {
+        const saved = Lockr.get(EPUB_RENDERER_SETTINGS_KEY);
+        Lockr.set(EPUB_RENDERER_SETTINGS_KEY, {
+          ...saved,
+          ...settings,
+        });
       },
       handleNewSearchQuery(searchQuery) {
         this.searchQuery = searchQuery;
@@ -622,8 +662,14 @@
         });
       },
       createMarks(searchQuery) {
+        const view = this.getIFrameView();
+        if (!view) {
+          return Promise.resolve();
+        }
+
         return new Promise(resolve => {
-          this.markInstance = new Mark(this.getIframe().contentDocument.querySelector('body'));
+          const root = view.getContents().root();
+          this.markInstance = new Mark(root.getElementsByTagName('body').item(0));
           this.markInstance.mark(searchQuery, {
             separateWordSearch: false,
             done: () => resolve(),
@@ -660,31 +706,6 @@
         const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
         this.jumpToLocation(locationToJumpTo);
       },
-      debounceResizeRendition: debounce(function(width, height) {
-        this.resizeRendition(width, height);
-      }, 250),
-      resizeRendition(width, height) {
-        if (width > 0 && height > 0) {
-          let cfiToJumpTo;
-          const currentLocation = this.rendition.currentLocation();
-          if (currentLocation.start && currentLocation.start.cfi) {
-            cfiToJumpTo = currentLocation.start.cfi;
-          } else if (this.currentLocation) {
-            cfiToJumpTo = this.currentLocation;
-          } else if (this.locations[0]) {
-            cfiToJumpTo = this.locations[0];
-          } else {
-            return;
-          }
-          this.currentLocation = cfiToJumpTo;
-          this.rendition.resize(width, height);
-
-          if (this.$refs.epubjsContainer && !this.getIframe()) {
-            // Re-render since resize currently breaks
-            this.jumpToLocation(this.currentLocation);
-          }
-        }
-      },
       updateContentState() {
         let contentState;
         if (this.extraFields) {
@@ -707,10 +728,33 @@
 
   @import './EpubStyles';
 
+  $top-bar-height: 36px;
+  $bottom-bar-height: 54px;
+  $navigation-button-small: 36px;
+  $navigation-button-normal: 52px;
+
   .epub-renderer {
     position: relative;
-    height: 500px;
+    max-height: 100%;
+    padding-top: calc(100% * 8.5 / 11);
     font-size: smaller;
+  }
+
+  .epub-renderer.small {
+    padding-top: calc(100% * 11 / 8.5);
+  }
+
+  .epub-renderer:fullscreen,
+  .epub-renderer.small:fullscreen {
+    padding-top: 0;
+  }
+
+  .epub-renderer-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
 
   .top-bar {
@@ -718,12 +762,13 @@
     top: 0;
     right: 0;
     left: 0;
+    height: $top-bar-height;
   }
 
   .side-bar {
     position: absolute;
-    top: 36px;
-    bottom: 54px;
+    top: $top-bar-height;
+    bottom: $bottom-bar-height;
   }
 
   .side-bar-left {
@@ -750,7 +795,7 @@
   .search-button {
     position: absolute;
     top: 0;
-    z-index: 6;
+    z-index: 2;
   }
   .settings-button {
     right: 72px;
@@ -781,10 +826,51 @@
 
   .navigation-and-epubjs {
     position: absolute;
-    top: 36px;
+    top: $top-bar-height;
     right: 0;
-    bottom: 54px;
+    bottom: $bottom-bar-height;
     left: 0;
+    max-height: calc(100vh - #{$top-bar-height + $bottom-bar-height});
+    white-space: nowrap;
+  }
+
+  .epubjs-navigation {
+    width: $navigation-button-normal;
+  }
+
+  .epubjs-parent {
+    position: relative;
+    width: calc(100% - (#{$navigation-button-normal} * 2));
+  }
+
+  /deep/ .epub-container {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .epub-renderer.small .epubjs-navigation {
+    width: $navigation-button-small;
+  }
+
+  .epub-renderer.small .epubjs-parent {
+    width: calc(100% - (#{$navigation-button-small} * 2));
+  }
+
+  .epub-renderer.scrolled {
+    .epubjs-navigation {
+      display: none;
+    }
+
+    .epubjs-parent {
+      width: 100%;
+    }
+
+    /deep/ .epub-container .epub-view {
+      min-width: 100%;
+    }
   }
 
   .column {
@@ -793,6 +879,7 @@
     height: 100%;
     overflow: hidden;
     text-align: center;
+    white-space: normal;
     vertical-align: top;
   }
 

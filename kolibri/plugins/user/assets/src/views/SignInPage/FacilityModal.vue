@@ -5,7 +5,7 @@
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
     :cancelText="$tr('close')"
     @submit="submitAndClose"
-    @cancel="emitClose"
+    @cancel="$emit('cancel')"
   >
     {{ $tr('facilitySelectionPrompt') }}
 
@@ -48,13 +48,10 @@
         setFacilityId: 'SET_FACILITY_ID',
         setLoginError: 'CORE_SET_LOGIN_ERROR',
       }),
-      emitClose() {
-        this.$emit('close');
-      },
       submitAndClose() {
         this.setFacilityId(this.selectedFacility);
         this.setLoginError('');
-        this.getFacilityConfig(this.selectedFacility).then(this.emitClose);
+        this.getFacilityConfig(this.selectedFacility).then(() => this.$emit('submit'));
       },
     },
     $trs: {

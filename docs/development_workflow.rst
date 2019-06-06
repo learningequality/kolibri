@@ -20,6 +20,8 @@ Submissions
 
 Be sure to follow the `instructions <https://github.com/learningequality/kolibri/blob/develop/.github/PULL_REQUEST_TEMPLATE.md>`__ shown in the Github PR template when you `create a new PR <https://github.com/learningequality/kolibri/compare>`__.
 
+In particular, **please use the labels** "Needs review", "Work in progress", and "Needs updates" mutually exclusively to communicate the state of the PR.
+
 Developers maintain their own clones of the Learning Equality `Kolibri repo <https://github.com/learningequality/kolibri/>`__ in their personal Github accounts, and `submit pull requests <https://help.github.com/articles/creating-a-pull-request/>`__ back to the LE repo.
 
 Every pull request will require some combination of manual testing, code review, automated tests, gherkin stories, and UI design review. Developers must fully test their own code before requesting a review, and then closely follow the template and checklist that appears in the PR description. All automated tests must pass.
@@ -77,6 +79,23 @@ Finally, if you see a very trivial but important necessary change, the reviewer 
   This is due to a `Git LFS bug <https://github.com/git-lfs/git-lfs/issues/2291>`__. Try `disabling lock verification <https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings>`__ using the ``lfs.[remote].locksverify`` setting, or simply running ``rm -rf .git/hooks/pre-push``.
 
 
+.. note::
+  Remember to keep the "Needs review", "Work in progress", and "Needs updates" mutually exclusive and up-to-date.
+
+
+Merging PRs
+~~~~~~~~~~~
+
+Who should merge PRs, and when?
+
+First, all automated checks need to pass before merging. Then...
+
+* If there is just one reviewer and they approve the changes, the reviewer should merge the PR immediately
+* If there are multiple reviewers or stakeholders, the last one to approve can merge
+* The reviewer might approve the PR, but also request minor changes such as a typo fix or variable name update. The submitter can then make the change and merge it themselves, with the understanding that the new changes will be limited in scope
+* Stale reviews should be dismissed by the PR submitter when the feedback has been addressed
+
+
 Development phases
 ------------------
 
@@ -105,12 +124,11 @@ We have the following release types:
    * Experimental work is OK
 
 
-Within the learning equality repository:
+Within the Learning Equality Kolibri repository:
 
 * The ``develop`` branch is our current development branch, and the default target for PRs
 * Release branches named like ``release-v1.2.x`` (for example). This will track all patch releases within the 1.2.x minor release line. Distinct releases are tracked as tags like ``v1.2.3``
 * We sometimes create feature branches for changes that are long-running, collaborative, and disruptive. These should be kept up-to-date with ``develop`` by merging, not rebasing.
-* The ``master`` branch should be the same as the latest stable release
 
 If a change needs to be introduced to an older release, target the oldest release branch that we want the change made in. Then that change will need to be merged into all subsequent releases, one-at-a-time, until it eventually gets back to ``develop``.
 

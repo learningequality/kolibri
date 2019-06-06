@@ -6,7 +6,10 @@
     @submit.prevent="search"
     @keydown.esc.prevent="clearSearchTerm"
   >
-    <div class="box-row">
+    <div
+      class="box-row"
+      :style="{ borderColor: $themeTokens.fineLine }"
+    >
       <label
         class="visuallyhidden"
         for="searchfield"
@@ -20,7 +23,7 @@
         type="search"
         class="input"
         :class="$computedClass(inputPlaceHolderStyle)"
-        :style="{ color: $coreTextDefault }"
+        :style="{ color: $themeTokens.text }"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -40,13 +43,14 @@
           />
         </UiIconButton>
 
-        <div class="submit-button-wrapper" :style="{ backgroundColor: $coreActionDark }">
+        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
           <UiIconButton
             type="secondary"
             color="white"
             class="submit-button"
             :disabled="!searchTermHasChanged"
             :ariaLabel="$tr('startSearchButtonLabel')"
+            :style="{ fill: $themeTokens.textInverted }"
             @click="search"
           >
             <mat-svg
@@ -82,7 +86,7 @@
     computed: {
       searchClasses() {
         return this.$computedClass({
-          borderColor: this.$coreTextAnnotation,
+          borderColor: this.$themeTokens.annotation,
         });
       },
       searchTermHasChanged() {
@@ -91,7 +95,7 @@
       inputPlaceHolderStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
         };
       },
@@ -119,10 +123,11 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
+  // TODO - consolidate with kFilterTextbox
   .box {
     margin-right: 8px;
-    border-style: solid;
-    border-width: 1px;
   }
 
   .box-within-action-bar {
@@ -132,18 +137,20 @@
   .box-row {
     display: table;
     width: 100%;
-    background-color: white;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: $radius;
   }
 
   .input {
+    position: relative;
+    left: 8px;
     display: table-cell;
     width: 100%;
     height: 36px;
     padding: 0;
-    padding-left: 8px;
     margin: 0;
     vertical-align: middle;
-    background-color: white;
     border: 0;
 
     // removes the IE clear button
@@ -176,12 +183,13 @@
   .submit-button {
     width: 36px;
     height: 36px;
-    fill: white;
   }
 
   .submit-button-wrapper {
     display: inline-block;
     vertical-align: middle;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
   }
 
   .filter-icon {

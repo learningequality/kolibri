@@ -21,4 +21,4 @@ Feature: Super admin changes their own profile information
       And I re-enter the new password
       And if my changes are valid (I did not leave the fields empty, or entered two different passwords)
       And I click the “Update” button
-    Then I see the *Password updated* snackbar notification
+    Then I see the *Password changed* snackbar notification

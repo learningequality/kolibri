@@ -5,7 +5,7 @@
       <mat-svg
         v-if="hasSuperAdminPermission"
         class="super-admin icon"
-        :style="{ fill: $coreStatusMastered }"
+        :style="{ fill: $themeTokens.superAdmin }"
         name="vpn_key"
         category="communication"
       />
@@ -13,7 +13,7 @@
       <mat-svg
         v-else-if="hasLimitedPermissions"
         class="some-permissions icon"
-        :style="{ fill: $coreTextDefault }"
+        :style="{ fill: $themeTokens.text }"
         name="vpn_key"
         category="communication"
       />

@@ -27,9 +27,9 @@ Feature: Super admin selects import content location
     When I select *Local network or internet* 
       And I click *Continue*
     Then I see *Select network address* modal
-    When I click *New address*
+    When I click *Add new address*
     Then I see *New address* modal
-    When I input the full network address and the network name
+    When I input the full network address and the <network_name>
       And I click *Add*
     Then I see Kolibri trying to connect to the network
     # If the connection is established successfully
@@ -39,7 +39,7 @@ Feature: Super admin selects import content location
     # If there are several added networks
     When I select <network_name>
       And I click *Continue*
-    Then I see the *Import from '<network_name>'* page with the list of available content *Channels* on the <network_name> local drive
+    Then I see the *Import from '<network_name>'* page with the list of available content *Channels* on the <network_name>
 
   Scenario: Import content channels from attached drive
     Given there is a <drive> local drive attached to the device

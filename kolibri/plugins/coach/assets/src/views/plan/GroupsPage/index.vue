@@ -50,7 +50,8 @@
       <CreateGroupModal
         v-if="showCreateGroupModal"
         :groups="sortedGroups"
-        @success="handleSuccessCreateGroup"
+        @submit="handleSuccessCreateGroup"
+        @cancel="closeModal"
       />
 
       <RenameGroupModal
@@ -58,13 +59,15 @@
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
         :groups="sortedGroups"
+        @cancel="closeModal"
       />
 
       <DeleteGroupModal
         v-if="showDeleteGroupModal"
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
-        @success="handleSuccessDeleteGroup"
+        @submit="handleSuccessDeleteGroup"
+        @cancel="closeModal"
       />
 
     </KPageContainer>
@@ -125,6 +128,9 @@
     methods: {
       ...mapActions('groups', ['displayModal']),
       ...mapActions(['createSnackbar']),
+      closeModal() {
+        this.displayModal(false);
+      },
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },

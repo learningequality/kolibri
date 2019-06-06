@@ -74,7 +74,7 @@
         v-for="(item, index) in searchResults"
         :key="index"
         class="search-results-list-item"
-        :style="{ borderTop: `solid 1px ${$coreGrey}` }"
+        :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
       >
         <KButton
           :text="item.excerpt"
@@ -115,10 +115,13 @@
         if (numOfTotalSearchResultsSoFar > maxSearchResults) {
           resolve([]);
         } else {
-          const final = () => spineItem.unload.bind(spineItem);
+          const final = searchResults => {
+            spineItem.unload();
+            return searchResults || [];
+          };
           spineItem
             .load(book.load.bind(book))
-            .then(() => spineItem.find.bind(spineItem, searchQuery))
+            .then(() => spineItem.find(searchQuery))
             .then(final, final)
             .then(searchResults => resolve(searchResults));
         }
@@ -170,7 +173,7 @@
       },
       paragraphStyle() {
         return {
-          color: this.$coreTextAnnotation,
+          color: this.$themeTokens.annotation,
         };
       },
     },

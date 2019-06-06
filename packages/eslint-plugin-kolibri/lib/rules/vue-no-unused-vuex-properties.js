@@ -62,7 +62,7 @@ const create = context => {
       }
     */
     {
-      'CallExpression[callee.name=mapState][arguments] ArrayExpression Literal[value]'(node) {
+      'CallExpression[callee.name=mapState][arguments] > ArrayExpression Literal[value]'(node) {
         unusedVuexProperties.push({
           kind: VUEX_STATE,
           name: node.value,

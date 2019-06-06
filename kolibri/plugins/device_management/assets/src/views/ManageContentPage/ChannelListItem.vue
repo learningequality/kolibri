@@ -3,12 +3,16 @@
   <component
     :is="componentTemplate"
     class="channel-list-item"
-    :style="[verticalPadding, { borderTop: `1px solid ${$coreGrey}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
         <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon" :style="{ backgroundColor: $coreGrey }">
+        <div
+          v-else
+          class="default-icon"
+          :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+        >
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>
@@ -23,7 +27,7 @@
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version" :style="{ color: $coreTextAnnotation }">
+      <div class="version" :style="{ color: $themeTokens.annotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
@@ -34,7 +38,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            :style="{ fill: $coreStatusCorrect }"
+            :style="{ fill: $themeTokens.success }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>

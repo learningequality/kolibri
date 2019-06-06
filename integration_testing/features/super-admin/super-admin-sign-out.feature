@@ -1,5 +1,5 @@
 Feature: Super admin signs-out
-    Super admin need to be able to sign out when finished using Kolibri
+    Super admin needs to be able to sign out when finished using Kolibri
 
   Background:
     Given that I am signed in to Kolibri

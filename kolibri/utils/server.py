@@ -13,6 +13,7 @@ import requests
 from django.conf import settings
 from django.core.management import call_command
 
+import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
@@ -52,7 +53,7 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
-DAEMON_LOG = os.path.join(conf.KOLIBRI_HOME, "server.log")
+DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
@@ -115,6 +116,8 @@ def start(port=8080, run_cherrypy=True):
         os.unlink(PID_FILE)
 
     atexit.register(rm_pid_file)
+
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
     if run_cherrypy:
         run_server(port=port)
@@ -263,8 +266,12 @@ def run_server(port):
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
             "tools.caching.maxsize": calculate_cache_size(),
+            "log.screen": False,
+            "log.access_file": "",
+            "log.error_file": "",
         }
     )
+    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
 
     # Mount static files
     static_files_handler = cherrypy.tools.staticdir.handler(

@@ -49,7 +49,10 @@
     </UserTable>
 
     <!-- Modals -->
-    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" />
+    <UserCreateModal
+      v-if="modalShown===Modals.CREATE_USER"
+      @cancel="closeModal"
+    />
 
     <EditUserModal
       v-if="modalShown===Modals.EDIT_USER"
@@ -57,18 +60,21 @@
       :name="selectedUser.full_name"
       :username="selectedUser.username"
       :kind="selectedUser.kind"
+      @cancel="closeModal"
     />
 
     <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :username="selectedUser.username"
+      @cancel="closeModal"
     />
 
     <DeleteUserModal
       v-if="modalShown===Modals.DELETE_USER"
       :id="selectedUser.id"
       :username="selectedUser.username"
+      @cancel="closeModal"
     />
 
   </div>
@@ -155,6 +161,9 @@
     },
     methods: {
       ...mapActions('userManagement', ['displayModal']),
+      closeModal() {
+        this.displayModal(false);
+      },
       userMatchesRole(user) {
         const { value: filterKind } = this.roleFilter;
         if (filterKind === ALL_FILTER) {

@@ -39,10 +39,10 @@
             </HeaderTableRow>
             <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
               <template slot="value">
-                <template v-if="currentLesson.lesson_assignments.length === 0">
-                  {{ this.$tr('noOne') }}
-                </template>
-                <Recipients v-else :groupNames="groupNames" />
+                <Recipients
+                  :groupNames="groupNames"
+                  :hasAssignments="currentLesson.lesson_assignments.length > 0"
+                />
               </template>
             </HeaderTableRow>
             <HeaderTableRow

@@ -32,6 +32,7 @@
         <Recipients
           slot="value"
           :groupNames="getGroupNames(lesson.groups)"
+          :hasAssignments="lesson.assignments.length > 0"
         />
       </HeaderTableRow>
       <HeaderTableRow

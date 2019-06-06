@@ -1,5 +1,5 @@
 Feature: General navigation on *Class home* tab
-# Do after various interactions
+# Do after various interactions with learner users
 
   Background:
     Given I am signed in as a class or facility coach

@@ -11,7 +11,7 @@
       <div
         v-if="$slots.header"
         class="ui-menu-header"
-        :style="{ color: $coreTextDefault }"
+        :style="{ color: $themeTokens.text }"
       >
         <slot name="header"></slot>
       </div>

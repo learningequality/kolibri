@@ -36,6 +36,7 @@
         :options="languageOptions"
         :disabled="language.value === undefined"
         :floatingLabel="false"
+        style="max-width: 300px"
       />
     </section>
 

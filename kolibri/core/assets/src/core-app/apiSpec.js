@@ -87,6 +87,7 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBasicContentIcon from '../views/icons/KBasicContentIcon';
+import KBottomAppBar from '../views/KBottomAppBar';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -105,7 +106,6 @@ import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
-import * as colour from '../utils/colour';
 import shuffled from '../utils/shuffled';
 import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
@@ -192,6 +192,7 @@ export default {
       KIcon,
       KLabeledIcon,
       KBasicContentIcon,
+      KBottomAppBar,
     },
     router,
     mixins: {
@@ -209,7 +210,6 @@ export default {
   urls,
   utils: {
     contentNode,
-    colour,
     browser,
     exams,
     validators,

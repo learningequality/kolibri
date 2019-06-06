@@ -3,7 +3,7 @@
 exports[`ReportsResourceLearners doesn't render groups information when show groups set to false 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #e0e0e0; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Status</th>
@@ -11,7 +11,7 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #3a3a3a;"></mat-svg></div> <div dir="auto" class="label">
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
           learner1
         </div></span></td>
     <td>
@@ -28,11 +28,11 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
 </span></td>
     </tr>
     <tr>
-      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #3a3a3a;"></mat-svg></div> <div dir="auto" class="label">
+      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
           learner2
         </div></span></td>
       <td>
-        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     Started
   </div></span>
           <!---->
@@ -52,7 +52,7 @@ exports[`ReportsResourceLearners doesn't render groups information when show gro
 exports[`ReportsResourceLearners renders all entries 1`] = `
 <div class="core-table-container">
   <table class="core-table">
-    <thead style="border-bottom: 1px solid #e0e0e0; font-size: 12px; color: rgb(97, 97, 97);">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
       <tr>
         <th>Name</th>
         <th>Status</th>
@@ -62,7 +62,7 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #3a3a3a;"></mat-svg></div> <div dir="auto" class="label">
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
           learner1
         </div></span></td>
     <td>
@@ -83,11 +83,11 @@ exports[`ReportsResourceLearners renders all entries 1`] = `
 </span></td>
     </tr>
     <tr>
-      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #3a3a3a;"></mat-svg></div> <div dir="auto" class="label">
+      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
           learner2
         </div></span></td>
       <td>
-        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     Started
   </div></span>
           <!---->

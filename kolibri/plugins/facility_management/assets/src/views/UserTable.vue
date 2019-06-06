@@ -71,8 +71,8 @@
               :omitLearner="true"
               class="role-badge"
               :style="{
-                color: $coreBgLight,
-                backgroundColor: $coreTextAnnotation,
+                color: $themeTokens.textInverted,
+                backgroundColor: $themeTokens.annotation,
               }"
             />
           </td>

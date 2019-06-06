@@ -47,6 +47,11 @@ if not os.path.exists(KOLIBRI_HOME):
         )
     os.mkdir(KOLIBRI_HOME)
 
+# Create a folder named logs inside KOLIBRI_HOME to store all the log files.
+LOG_ROOT = os.path.join(KOLIBRI_HOME, "logs")
+if not os.path.exists(LOG_ROOT):
+    os.mkdir(LOG_ROOT)
+
 #: Set defaults before updating the dict
 config = {}
 

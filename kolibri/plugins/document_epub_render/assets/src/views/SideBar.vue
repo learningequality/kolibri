@@ -1,6 +1,6 @@
 <template>
 
-  <div class="side-bar" :style="{ backgroundColor: $coreBgCanvas }">
+  <div class="side-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
     <slot></slot>
   </div>
 
@@ -24,7 +24,7 @@
   @import './EpubStyles';
 
   .side-bar {
-    z-index: 6;
+    z-index: 3;
     width: 250px;
     padding: 16px;
     overflow-y: auto;

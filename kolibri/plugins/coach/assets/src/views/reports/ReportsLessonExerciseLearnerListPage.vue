@@ -121,13 +121,13 @@
         return this.groups.filter(group => this.lesson.groups.includes(group.id));
       },
       recipients() {
-        return this.getLearnersForGroups(this.lesson.groups);
+        return this.getLearnersForLesson(this.lesson);
       },
       allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
 
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getLearnerLessonGroups(learner.id),
             statusObj: this.getContentStatusObjForLearner(
@@ -141,8 +141,6 @@
 
           return tableRow;
         });
-
-        return mapped;
       },
       ungroupedEntries() {
         return this.allEntries.filter(entry => !entry.groups || !entry.groups.length);

@@ -1,6 +1,9 @@
 import findKey from 'lodash/findKey';
 import { createTranslator } from 'kolibri.utils.i18n';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
+import logger from 'kolibri.lib.logging';
+
+const logging = logger.getLogger(__filename);
 
 // Strings are the _READABLE strings in le_utils.constants.format_presets,
 // with ' ({fileSize})' appended.
@@ -31,5 +34,6 @@ export function getFilePresetString(file) {
   if (trKey) {
     return filePresetTranslator.$tr(trKey, { fileSize: bytesForHumans(file_size) });
   }
-  return '';
+  logging.error(`Download translation string not defined for '${preset}'`);
+  return preset;
 }

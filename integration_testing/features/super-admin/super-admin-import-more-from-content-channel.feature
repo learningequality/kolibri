@@ -1,9 +1,9 @@
 Feature: Super admin imports more content
-    Admin needs to be able to import additional resources from the content channels previously already imported on the device
+    Super admin needs to be able to import additional resources from the content channels previously already imported on the device
 
   Background:
     Given there is partially imported content from the <channel> channel on the device
-      And I am signed in to Kolibri as Super admin, or a user with device permissions to import content
+      And I am signed in to Kolibri as super admin, or a user with device permissions to import content
       And I am on the *Device > Channels* page
 
   Scenario: Import more content into channel from Kolibri Studio
@@ -15,6 +15,7 @@ Feature: Super admin imports more content
       And I click *Continue*
     Then I see the *Loading channels* message
       And I see the *Select content from '<channel>'* page
+      And I see the value for *Drive space available*
       And I see previously imported topics with inactive checkboxes and the label *Already on your device*
       And I see empty checkboxes for the topics not yet imported
       And I see the total number and size of <channel> channel resources
@@ -23,7 +24,6 @@ Feature: Super admin imports more content
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
     Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 
@@ -57,7 +57,6 @@ Feature: Super admin imports more content
     Then I see the *Import* button is active 
       And I see the *N resources selected* flag for the <topic> topic
       And I see the values for *Content selected* increase
-      And I see the value for *Drive space available* decreases (if the size of selected resources is close to 1GB)
     When I click the *Import* button
     Then I see *Device > Channels* page again
       And I see the *Importing content...* label and blue progress bar with the percentage increasing 

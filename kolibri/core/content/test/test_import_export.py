@@ -1,9 +1,11 @@
 import os
 import sys
 import tempfile
+import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
+from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
 from mock import patch
@@ -15,7 +17,9 @@ from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
 
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.import_export_content import get_files_to_transfer
 from kolibri.utils.tests.helpers import override_option
 
 # helper class for mocking that is equal to anything
@@ -202,7 +206,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_availability_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
@@ -248,8 +252,12 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_availability_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.import_export_content.compare_checksums",
+        return_value=True,
+    )
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
     )
@@ -271,6 +279,7 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock,
         local_path_mock,
         remote_path_mock,
+        checksum_mock,
         annotation_mock,
     ):
         # If transfer is cancelled after transfer of first file
@@ -311,7 +320,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
         annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_availability_up_tree.assert_not_called()
+        annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
@@ -602,6 +611,36 @@ class ImportContentTestCase(TestCase):
             )
             mock_overall_progress.assert_called_with(expected_file_size - src_file_size)
 
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_source_corrupted(
+        self, is_cancelled_mock, path_mock, finalize_dest_mock, annotation_mock
+    ):
+        dest_path_1 = tempfile.mkstemp()[1]
+        dest_path_2 = tempfile.mkstemp()[1]
+        path_mock.side_effect = [dest_path_1, dest_path_2]
+        LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
+            file_size=2201062
+        )
+        LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
+            file_size=336974
+        )
+        call_command(
+            "importcontent",
+            "network",
+            self.the_channel_id,
+            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+        )
+        annotation_mock.annotate_content.assert_called_with(self.the_channel_id, [])
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportChannelTestCase(TestCase):
@@ -698,3 +737,56 @@ class ExportContentTestCase(TestCase):
         FileCopyMock.assert_called_with(local_src_path, local_dest_path)
         FileCopyMock.assert_has_calls([call().cancel()])
         cancel_mock.assert_called_with()
+
+
+class TestFilesToTransfer(TestCase):
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_no_exclude_duplicate_files(self):
+        """
+        Test that including a node id in exclude_node_ids does not
+        exclude a shared file that is also used an in included node
+        """
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        node1 = ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.VIDEO,
+            available=False,
+        )
+        node2 = ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.VIDEO,
+            available=False,
+        )
+        local_file = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file,
+            available=False,
+            contentnode=node1,
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=local_file,
+            available=False,
+            contentnode=node2,
+        )
+        files_to_transfer, _ = get_files_to_transfer(
+            root_node.channel_id, [node1.id], [node2.id], False, False
+        )
+        self.assertEqual(files_to_transfer.filter(id=local_file.id).count(), 1)

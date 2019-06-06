@@ -241,6 +241,21 @@ if path_prefix != "/":
 STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 
+# https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
+# Ensure that our CSRF cookie does not collide with other CSRF cookies
+# set by other Django apps served from the same domain.
+CSRF_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#language-cookie-path
+# Ensure that our language cookie does not collide with other language
+# cookies set by other Django apps served from the same domain.
+LANGUAGE_COOKIE_PATH = path_prefix
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
+# Ensure that our session cookie does not collidge with other session cookies
+# set by other Django apps served from the same domain.
+SESSION_COOKIE_PATH = path_prefix
+
 # https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
 # https://docs.djangoproject.com/en/1.9/topics/logging/
 
@@ -253,6 +268,10 @@ LOGGING = {
         },
         "simple": {"format": "%(levelname)s %(message)s"},
         "simple_date": {"format": "%(levelname)s %(asctime)s %(module)s %(message)s"},
+        "simple_date_file": {
+            "()": "kolibri.core.logger.utils.formatter.KolibriLogFileFormatter",
+            "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
+        },
         "color": {
             "()": "colorlog.ColoredFormatter",
             "format": "%(log_color)s%(levelname)-8s %(message)s",
@@ -290,15 +309,17 @@ LOGGING = {
             "level": "DEBUG",
             "filters": ["require_debug_true"],
             "class": "logging.FileHandler",
-            "filename": os.path.join(conf.KOLIBRI_HOME, "debug.log"),
+            "filename": os.path.join(conf.LOG_ROOT, "debug.txt"),
             "formatter": "simple_date",
         },
         "file": {
             "level": "INFO",
             "filters": [],
-            "class": "logging.FileHandler",
-            "filename": os.path.join(conf.KOLIBRI_HOME, "kolibri.log"),
-            "formatter": "simple_date",
+            "class": "kolibri.core.logger.utils.handler.KolibriTimedRotatingFileHandler",
+            "filename": os.path.join(conf.LOG_ROOT, "kolibri.txt"),
+            "formatter": "simple_date_file",
+            "when": "midnight",
+            "backupCount": 30,
         },
     },
     "loggers": {
@@ -319,6 +340,16 @@ LOGGING = {
             "propagate": False,
         },
         "morango": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "cherrypy.access": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "cherrypy.error": {
             "handlers": ["file", "console"],
             "level": "INFO",
             "propagate": False,

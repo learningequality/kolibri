@@ -237,12 +237,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri.styles.definitions';
-
-  .content-renderer-component {
-    @extend %dropshadow-1dp;
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -12,7 +12,7 @@
   <div class="ui-textbox" :class="classes">
     <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <UiIcon :icon="icon" :style="isActive ? { color: $coreActionNormal } : {}" />
+        <UiIcon :icon="icon" :style="isActive ? { color: $themeTokens.primary } : {}" />
       </slot>
     </div>
 
@@ -22,7 +22,7 @@
           v-if="label || $slots.default"
           class="ui-textbox-label-text"
           :class="labelClasses"
-          :style="isActive ? { color: $coreActionNormal } : {}"
+          :style="isActive ? { color: $themeTokens.primary } : {}"
         >
           <slot>{{ label }}</slot>
         </div>
@@ -44,7 +44,7 @@
           :readonly="readonly"
           :required="required"
           :step="stepValue"
-          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
+          :style="isActive ? { borderBottomColor: $themeTokens.primary } : {}"
 
           :type="type"
           :value="value"
@@ -74,7 +74,7 @@
 
           :required="required"
           :rows="rows"
-          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
+          :style="isActive ? { borderBottomColor: $themeTokens.primary } : {}"
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"

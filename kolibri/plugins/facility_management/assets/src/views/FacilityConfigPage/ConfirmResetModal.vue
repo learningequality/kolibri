@@ -4,8 +4,8 @@
     :title="$tr('title')"
     :submitText="$tr('reset')"
     :cancelText="$tr('cancel')"
-    @submit="handleConfirm"
-    @cancel="handleCancel"
+    @submit="$emit('submit')"
+    @cancel="$emit('cancel')"
   >
     <div>
       <p>{{ $tr('confirmationQuestion') }}</p>
@@ -24,14 +24,6 @@
     name: 'ConfirmResetModal',
     components: {
       KModal,
-    },
-    methods: {
-      handleConfirm() {
-        this.$emit('click-confirm');
-      },
-      handleCancel() {
-        this.$emit('click-cancel');
-      },
     },
     $trs: {
       cancel: 'Cancel',

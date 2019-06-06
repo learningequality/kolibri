@@ -523,6 +523,20 @@
   dependencies:
     "@types/jest-diff" "*"
 
+"@types/jszip@^3.1.4":
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/@types/jszip/-/jszip-3.1.5.tgz#664b424b15aadf0489e871d319f4b18ddc6e24ea"
+  integrity sha512-DXjYsQr0B9rbjI8n7ZoIFXFMNHDBb9XLYRgwVYxhtsnr/HfFglpxb/InshOBAzkmW4WjgtvnA212voeVV2vwiA==
+  dependencies:
+    "@types/node" "*"
+
+"@types/localforage@0.0.34":
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/@types/localforage/-/localforage-0.0.34.tgz#5e31c32dd8791ec4b9ff3ef47c9cb55b2d0d9438"
+  integrity sha1-XjHDLdh5HsS5/z70fJy1Wy0NlDg=
+  dependencies:
+    localforage "*"
+
 "@types/node@*", "@types/node@^10.11.7":
   version "10.12.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.1.tgz#da61b64a2930a80fa708e57c45cd5441eb379d5b"
@@ -4274,16 +4288,21 @@ envinfo@^5.7.0:
   resolved "https://registry.yarnpkg.com/envinfo/-/envinfo-5.10.0.tgz#503a9774ae15b93ea68bdfae2ccd6306624ea6df"
   integrity sha512-rXbzXWvnQxy+TcqZlARbWVQwgGVVouVJgFZhLVN5htjLxl1thstrP2ZGi0pXC309AbK7gVOPU+ulz/tmpCI7iw==
 
-"epubjs@https://github.com/futurepress/epub.js#edf3f2ef7970f42349f2b42544ce0bcb4a160b7e":
-  version "0.3.71"
-  resolved "https://github.com/futurepress/epub.js#edf3f2ef7970f42349f2b42544ce0bcb4a160b7e"
+epubjs@0.3.84:
+  version "0.3.84"
+  resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.84.tgz#c7f340df442cb994489c1b292fc4ba94d8861a0f"
+  integrity sha512-8DKIdoVDs73sa9ZIfSGR0Y9OZhbs341gBVjL5zm785+TYWWU5dOGY/12chZQHsol8VG1kYcZJWhH6VlaDrYUeQ==
   dependencies:
+    "@types/jszip" "^3.1.4"
+    "@types/localforage" "0.0.34"
     event-emitter "^0.3.5"
     jszip "^3.1.5"
+    localforage "^1.7.2"
     lodash "^4.17.10"
     marks-pane "^1.0.9"
     path-webpack "0.0.3"
     stream-browserify "^2.0.1"
+    url-polyfill "^1.1.3"
     xmldom "^0.1.27"
 
 errno@^0.1.3, errno@~0.1.7:
@@ -7841,7 +7860,7 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-lie@~3.1.0:
+lie@3.1.1, lie@~3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/lie/-/lie-3.1.1.tgz#9a436b2cc7746ca59de7a41fa469b3efb76bd87e"
   integrity sha1-mkNrLMd0bKWd56QfpGmz77dr2H4=
@@ -7955,6 +7974,13 @@ loader-utils@^1.0.0, loader-utils@^1.0.1, loader-utils@^1.0.2, loader-utils@^1.1
     big.js "^3.1.3"
     emojis-list "^2.0.0"
     json5 "^0.5.0"
+
+localforage@*, localforage@^1.7.2:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/localforage/-/localforage-1.7.3.tgz#0082b3ca9734679e1bd534995bdd3b24cf10f204"
+  integrity sha512-1TulyYfc4udS7ECSBT2vwJksWbkwwTX8BzeUIiq8Y07Riy7bDAAnxDaPU/tWyOVmQAcWJIEIFP9lPfBGqVoPgQ==
+  dependencies:
+    lie "3.1.1"
 
 locate-path@^2.0.0:
   version "2.0.0"

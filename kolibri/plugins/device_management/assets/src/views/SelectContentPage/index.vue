@@ -88,6 +88,7 @@
         <ContentTreeViewer
           class="block-item"
           :class="{ small : windowIsSmall }"
+          :style="{ borderBottomColor: $themeTokens.fineLine }"
         />
       </template>
     </template>
@@ -99,6 +100,7 @@
 <script>
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { TaskResource } from 'kolibri.resources';
@@ -130,7 +132,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         showUpdateProgressBar: false,
@@ -306,7 +308,8 @@
     margin-top: 24px;
     margin-right: -24px;
     margin-left: -24px;
-    border-top: 1px solid #dedede;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
   }
 
   .small .block-item {

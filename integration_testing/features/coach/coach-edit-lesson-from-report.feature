@@ -10,10 +10,10 @@ Feature: Edit lesson details and manage resources from the lesson *Report* tab
       And the <lesson> lesson is either inactive, or active and assigned to some learner(s)
       And I am on the report page for <lesson>
 
-  Scenario: Lesson details can be edited from the Lesson report page
+  Scenario: Lesson details can be edited from the lesson report page
     When I click the *Options* dropdown menu
       And I select the *Edit details* option
-    Then I see the *Edit details dialogue for '<lesson>'*
+    Then I see the *Edit lesson details for '<lesson>'* page
       And I see form fields for editing the title, description, status, and recipients (in that order)
       And I see a *Resources* section where I can reorder, remove, and preview resources in <lesson>
     When I edit one or more details of the lesson
@@ -21,10 +21,10 @@ Feature: Edit lesson details and manage resources from the lesson *Report* tab
     Then I am returned to the report page for <lesson>
       And the changes I made are reflected in the report
 
-  Scenario: Lesson resources can be managed (added or removed) from the Lesson report page
+  Scenario: Lesson resources can be added or removed from the lesson report page
     When I click the *Options* dropdown menu
       And I select the *Manage resources* option
-    Then I see the *Manage resources in '<lesson>'* dialogue
+    Then I see the *Manage resources in '<lesson>'* page
     When I finish adding to or removing resources from the lesson
       And I click the *Finish* button
     Then I am returned to the report page for <lesson>

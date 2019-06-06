@@ -1,6 +1,6 @@
 <template>
 
-  <div class="top-bar" :style="{ backgroundColor: $coreGrey200 }">
+  <div class="top-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_200 }">
     <KGrid>
       <KGridItem
         sizes="25, 25, 25"
@@ -128,7 +128,7 @@
   @import './EpubStyles';
 
   .top-bar {
-    z-index: 2;
+    z-index: 1;
     box-shadow: $epub-box-shadow;
   }
 

@@ -58,9 +58,9 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$coreBgCanvas,
+          color: this.$themeColors.palette.grey.v_100,
           ':hover': {
-            'background-color': this.$coreActionDark,
+            'background-color': this.$themeTokens.primaryDark,
           },
           ':focus': {
             ...this.$coreOutline,
@@ -102,8 +102,13 @@
     }
   }
 
-  .router-link-active,
-  .tab-selected {
+  // Getting this class to work correctly with our theme system is not currently
+  // possible. Some options:
+  //  1. Update vueAphrodite to handle nested classes (to handle .dimmable)
+  //  2. Wait for <router-link> to support scoped slots as described in
+  //     https://github.com/vuejs/rfcs/pull/34
+  //  3. Somehow refactor the tab styling to not require nested active classes
+  .router-link-active {
     padding-bottom: 2px;
     color: white;
     border-bottom-color: white;
