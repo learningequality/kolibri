@@ -94,6 +94,9 @@ class ThemeHook(hooks.KolibriHook):
     Use this tool to help generate your brand colors: https://materialpalettes.com/
     """
 
+    class Meta:
+        abstract = True
+
     def validateBrandColors(self, theme):
         if THEME_BRAND_COLORS not in theme:
             logger.error("brand colors not defined by theme")
