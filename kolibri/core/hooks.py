@@ -84,8 +84,8 @@ THEME_COLOR_NAMES = [
 ]
 THEME_SIGN_IN = "signIn"
 THEME_SIDE_NAV = "sideNav"
-THEME_BACKGROUND = "background"
-THEME_BACKGROUND_IMAGE = "background.jpg"
+THEME_BG = "background"
+THEME_BG_IMAGE_NAME = "background_image"
 
 
 class ThemeHook(hooks.KolibriHook):
@@ -114,11 +114,11 @@ class ThemeHook(hooks.KolibriHook):
         self.validateBrandColors(theme)
 
         # if a background image has been locally set using the `manage background` command, use it
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, THEME_BACKGROUND_IMAGE)):
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, THEME_BG_IMAGE_NAME)):
             if THEME_SIGN_IN not in theme:
                 theme[THEME_SIGN_IN] = {}
-            theme[THEME_SIGN_IN][THEME_BACKGROUND] = urljoin(
-                settings.MEDIA_URL, THEME_BACKGROUND_IMAGE
+            theme[THEME_SIGN_IN][THEME_BG] = urljoin(
+                settings.MEDIA_URL, THEME_BG_IMAGE_NAME
             )
 
         # if tokenMapping is not set, make it an empty object

@@ -9,6 +9,8 @@ import shutil
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from kolibri.core import hooks
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         media_directory = os.path.join(settings.MEDIA_ROOT)
 
-        bg_img = os.path.join(media_directory, "background.jpg")
+        bg_img = os.path.join(media_directory, hooks.THEME_BG_IMAGE_NAME)
 
         if options["command"] == "set":
             self.stdout.write(
