@@ -66,6 +66,28 @@ class RoleBasedRedirectHook(hooks.KolibriHook):
         abstract = True
 
 
+THEME_TOKEN_MAPPING = "tokenMapping"
+THEME_BRAND_COLORS = "brandColors"
+THEME_PRIMARY = "primary"
+THEME_SECONDARY = "secondary"
+THEME_COLOR_NAMES = [
+    "v_50",
+    "v_100",
+    "v_200",
+    "v_300",
+    "v_400",
+    "v_500",
+    "v_600",
+    "v_700",
+    "v_800",
+    "v_900",
+]
+THEME_SIGN_IN = "signIn"
+THEME_SIDE_NAV = "sideNav"
+THEME_BACKGROUND = "background"
+THEME_BACKGROUND_IMAGE = "background.jpg"
+
+
 class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
@@ -73,28 +95,16 @@ class ThemeHook(hooks.KolibriHook):
     """
 
     def validateBrandColors(self, theme):
-        if "brandColors" not in theme:
+        if THEME_BRAND_COLORS not in theme:
             logger.error("brand colors not defined by theme")
             return False
-        required_colors = ["primary", "secondary"]
-        required_keys = [
-            "v_50",
-            "v_100",
-            "v_200",
-            "v_300",
-            "v_400",
-            "v_500",
-            "v_600",
-            "v_700",
-            "v_800",
-            "v_900",
-        ]
+        required_colors = [THEME_PRIMARY, THEME_SECONDARY]
         for color in required_colors:
-            if color not in theme["brandColors"]:
+            if color not in theme[THEME_BRAND_COLORS]:
                 logger.error("'{}' not defined by theme".format(color))
-            for key in required_keys:
-                if key not in theme["brandColors"][color]:
-                    logger.error("{} '{}' not defined by theme".format(color, key))
+            for name in THEME_COLOR_NAMES:
+                if name not in theme[THEME_BRAND_COLORS][color]:
+                    logger.error("{} '{}' not defined by theme".format(color, name))
 
     @property
     @hooks.only_one_registered
@@ -104,11 +114,15 @@ class ThemeHook(hooks.KolibriHook):
         self.validateBrandColors(theme)
 
         # if a background image has been locally set using the `manage background` command, use it
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, "background.jpg")):
-            theme["signInBackground"] = urljoin(settings.MEDIA_URL, "background.jpg")
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, THEME_BACKGROUND_IMAGE)):
+            if THEME_SIGN_IN not in theme:
+                theme[THEME_SIGN_IN] = {}
+            theme[THEME_SIGN_IN][THEME_BACKGROUND] = urljoin(
+                settings.MEDIA_URL, THEME_BACKGROUND_IMAGE
+            )
 
         # if tokenMapping is not set, make it an empty object
-        if "tokenMapping" not in theme:
-            theme["tokenMapping"] = {}
+        if THEME_TOKEN_MAPPING not in theme:
+            theme[THEME_TOKEN_MAPPING] = {}
 
         return theme
