@@ -218,6 +218,7 @@ def only_one_registered(func):
             for hook in hooks:
                 logger.error(hook)
         return func(instance, *args, **kwargs)
+
     return inner
 
 
