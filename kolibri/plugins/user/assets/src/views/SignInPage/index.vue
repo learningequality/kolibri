@@ -12,13 +12,13 @@
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
-            <img
+            <CoreLogo
               v-if="$theme.signIn.topLogo"
               class="logo"
               :src="$theme.signIn.topLogo.src"
               :alt="$theme.signIn.topLogo.alt"
               :style="$theme.signIn.topLogo.style"
-            >
+            />
             <h1 class="kolibri-title" :style="{color: $themeTokens.logoText}">
               {{ logoText }}
             </h1>

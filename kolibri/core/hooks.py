@@ -114,18 +114,21 @@ class ThemeHook(hooks.KolibriHook):
     def theme(self):
         theme = list(self.registered_hooks)[0].theme
 
+        # set up top-level dicts if they don't exist
+        if THEME_SIGN_IN not in theme:
+            theme[THEME_SIGN_IN] = {}
+        if THEME_TOKEN_MAPPING not in theme:
+            theme[THEME_TOKEN_MAPPING] = {}
+        if THEME_SIDE_NAV not in theme:
+            theme[THEME_SIDE_NAV] = {}
+
+        # some validation
         self.validateBrandColors(theme)
 
         # if a background image has been locally set using the `manage background` command, use it
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, THEME_BG_IMAGE_NAME)):
-            if THEME_SIGN_IN not in theme:
-                theme[THEME_SIGN_IN] = {}
             theme[THEME_SIGN_IN][THEME_BG] = urljoin(
                 settings.MEDIA_URL, THEME_BG_IMAGE_NAME
             )
-
-        # if tokenMapping is not set, make it an empty object
-        if THEME_TOKEN_MAPPING not in theme:
-            theme[THEME_TOKEN_MAPPING] = {}
 
         return theme

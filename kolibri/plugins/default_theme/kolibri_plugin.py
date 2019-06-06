@@ -47,11 +47,11 @@ class CustomTheme(ThemeHook):
                 "background": static("background.jpg"),
                 "title": None,  # use default: "Kolibri"
                 "topLogo": {
-                    "src": static("kolibri-logo.svg"),
+                    "src": None,  # use default Kolibri bird
                     "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
                     "alt": None,
                 },
-                "showKolibriFooterLogo": True,
+                "showKolibriFooterLogo": False,
             },
-            "sideNav": {"topLogo": None, "showKolibriFooterLogo": True},
+            "sideNav": {"showKolibriFooterLogo": True},
         }
