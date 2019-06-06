@@ -120,7 +120,7 @@
               {{ versionMsg }}
             </span>
             <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
-            <span v-else>•</span>
+            <span v-else> • </span>
             <KButton
               :text="$tr('privacyLink')"
               appearance="basic-link"
