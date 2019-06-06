@@ -282,7 +282,11 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         query_exams = Exam.objects.filter(collection=pk)
         query_exam_logs = logger_models.ExamLog.objects.filter(
             exam__in=query_exams
-        ).annotate(last_activity=Coalesce(Max("attemptlogs__end_timestamp"), "completion_timestamp"))
+        ).annotate(
+            last_activity=Coalesce(
+                Max("attemptlogs__end_timestamp"), "completion_timestamp"
+            )
+        )
 
         lesson_data = data(LessonSerializer, query_lesson)
         exam_data = data(ExamSerializer, query_exams)
