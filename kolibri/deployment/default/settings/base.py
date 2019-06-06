@@ -98,8 +98,6 @@ MIDDLEWARE = [
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
-QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
-
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
 
