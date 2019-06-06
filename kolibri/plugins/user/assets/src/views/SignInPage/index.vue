@@ -97,6 +97,9 @@
                 appearance="flat-button"
               />
             </p>
+            <template slot="options">
+              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+            </template>
             <p class="guest small-text">
               <KExternalLink
                 v-if="allowGuestAccess"
@@ -154,6 +157,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import urls from 'kolibri.urls';
+  import loginComponents from 'kolibri.utils.loginComponents';
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import FacilityModal from './FacilityModal';
@@ -285,6 +289,10 @@
           backgroundColor: this.$themeTokens.primary,
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
         };
+      },
+      loginOptions() {
+        // POC, in the future sorting of different login options can be implemented
+        return [...loginComponents];
       },
     },
     watch: {
