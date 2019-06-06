@@ -15,12 +15,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-import warnings
 
 from kolibri.plugins import hooks
 import kolibri
 from django.utils.six.moves.urllib import parse
-from kolibri.plugins.utils import plugin_url
 from django.conf import settings
 import os
 
@@ -65,6 +63,10 @@ DEFAULT_BG_MD5_FILE = "background_image_md5"
 
 
 def _isSet(theme, keys):
+    """
+    Given a theme dict, recursively check that all the keys are populated
+    and that the associated value is truthy
+    """
     obj = theme
     for key in keys:
         if not obj or key not in obj:
@@ -106,6 +108,20 @@ def _validateBrandColors(theme):
                 logger.error("{} '{}' not defined by theme".format(color, name))
 
 
+def _initFields(theme):
+    """
+    set up top-level dicts if they don't exist
+    """
+    if SIGN_IN not in theme:
+        theme[SIGN_IN] = {}
+    if TOKEN_MAPPING not in theme:
+        theme[TOKEN_MAPPING] = {}
+    if SIDE_NAV not in theme:
+        theme[SIDE_NAV] = {}
+    if APP_BAR not in theme:
+        theme[APP_BAR] = {}
+
+
 class ThemeHook(hooks.KolibriHook):
     """
     A hook to allow custom theming of Kolibri
@@ -130,17 +146,8 @@ class ThemeHook(hooks.KolibriHook):
     def theme(self):
         theme = list(self.registered_hooks)[0].theme
 
-        # set up top-level dicts if they don't exist
-        if SIGN_IN not in theme:
-            theme[SIGN_IN] = {}
-        if TOKEN_MAPPING not in theme:
-            theme[TOKEN_MAPPING] = {}
-        if SIDE_NAV not in theme:
-            theme[SIDE_NAV] = {}
-        if APP_BAR not in theme:
-            theme[APP_BAR] = {}
-
-        # some validation
+        # some validation and initialization
+        _initFields(theme)
         _validateMetadata(theme)
         _validateBrandColors(theme)
 

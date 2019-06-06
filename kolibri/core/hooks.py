@@ -16,7 +16,6 @@ from __future__ import unicode_literals
 
 from kolibri.plugins import hooks
 from kolibri.plugins.utils import plugin_url
-import os
 
 
 class NavigationHook(hooks.KolibriHook):
