@@ -18,7 +18,7 @@ function isDescendantOrSelf(testNode, selfNode) {
  *
  */
 export function getContentNodeFileSize(node) {
-  return ContentNodeFileSizeResource.fetchModel({ id: node.id });
+  return ContentNodeFileSizeResource.fetchModel({ id: node.id, force: true });
 }
 
 /**
