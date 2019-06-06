@@ -80,7 +80,7 @@
       },
 
       capStyle() {
-        return { color: this.$coreTextAnnotation };
+        return { color: this.$themeTokens.annotation };
       },
     },
 

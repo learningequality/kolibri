@@ -61,14 +61,14 @@
       style() {
         const activeStyles = this.active
           ? {
-              backgroundColor: this.$coreGrey200,
-              borderLeftColor: this.$coreActionNormal,
+              backgroundColor: this.$themeColors.palette.grey.v_200,
+              borderLeftColor: this.$themeTokens.video,
             }
           : {};
 
         return Object.assign(activeStyles, {
           ':hover': {
-            backgroundColor: this.$coreActionLight,
+            backgroundColor: this.$themeColors.palette.grey.v_100,
           },
           ':focus': this.$coreOutline,
         });
