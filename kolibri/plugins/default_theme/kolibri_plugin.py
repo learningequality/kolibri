@@ -43,11 +43,15 @@ class CustomTheme(ThemeHook):
                     "v_900": "#1b4634",
                 },
             },
-            "signInBackground": static("background.jpg"),
-            "primaryLogo": {
-                "src": static("kolibri-logo.svg"),
-                "style": "padding-right: 64px; padding-left: 64px; margin-bottom: 8px; margin-top: 8px",
-                "alt": None,
+            "signIn": {
+                "background": static("background.jpg"),
+                "title": None,  # use default: "Kolibri"
+                "topLogo": {
+                    "src": static("kolibri-logo.svg"),
+                    "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
+                    "alt": None,
+                },
+                "showKolibriFooterLogo": True,
             },
-            "applicationTitle": None,
+            "sideNav": {"topLogo": None, "showKolibriFooterLogo": True},
         }

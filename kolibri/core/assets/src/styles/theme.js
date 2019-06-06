@@ -107,7 +107,9 @@ export default {
   $themeColors() {
     return dynamicState.colors;
   },
-
+  $theme() {
+    return global.kolibriTheme;
+  },
   // Should only use these styles to outline stuff that will be focused
   // on keyboard-tab-focus
   $coreOutline() {

@@ -13,10 +13,11 @@
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
             <img
+              v-if="$theme.signIn.topLogo"
               class="logo"
-              :src="primaryLogo.src"
-              :alt="primaryLogo.alt"
-              :style="primaryLogo.style"
+              :src="$theme.signIn.topLogo.src"
+              :alt="$theme.signIn.topLogo.alt"
+              :style="$theme.signIn.topLogo.style"
             >
             <h1 class="kolibri-title" :style="{color: $themeTokens.logoText}">
               {{ logoText }}
@@ -118,7 +119,8 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo class="footer-logo" />
+            <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <span v-else>•</span>
             <KButton
               :text="$tr('privacyLink')"
               appearance="basic-link"
@@ -269,23 +271,18 @@
       allowGuestAccess() {
         return this.facilityConfig.allow_guest_access;
       },
-      primaryLogo() {
-        return global.kolibriTheme.primaryLogo;
-      },
       logoText() {
-        return global.kolibriTheme.applicationTitle
-          ? global.kolibriTheme.applicationTitle
-          : this.$tr('kolibri');
+        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        if (global.kolibriTheme.signInBackground) {
+        if (this.$theme.signIn.background) {
           return {
             backgroundColor: this.$themeTokens.primary,
             backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
-              global.kolibriTheme.signInBackground
+              this.$theme.signIn.background
             })`,
           };
         }
