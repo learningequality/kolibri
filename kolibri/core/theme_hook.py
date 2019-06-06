@@ -48,6 +48,7 @@ COLOR_V800 = "v_800"
 COLOR_V900 = "v_900"
 SIGN_IN = "signIn"
 SIDE_NAV = "sideNav"
+APP_BAR = "appBar"
 BACKGROUND = "background"
 TITLE = "title"
 TOP_LOGO = "topLogo"
@@ -66,7 +67,7 @@ DEFAULT_BG_MD5_FILE = "background_image_md5"
 def _isSet(theme, keys):
     obj = theme
     for key in keys:
-        if not key in obj:
+        if not obj or key not in obj:
             return False
         obj = obj[key]
     return bool(obj)
@@ -136,6 +137,8 @@ class ThemeHook(hooks.KolibriHook):
             theme[TOKEN_MAPPING] = {}
         if SIDE_NAV not in theme:
             theme[SIDE_NAV] = {}
+        if APP_BAR not in theme:
+            theme[APP_BAR] = {}
 
         # some validation
         _validateMetadata(theme)
@@ -149,6 +152,8 @@ class ThemeHook(hooks.KolibriHook):
             theme[SIGN_IN][TOP_LOGO][IMG_SRC] += bust
         if _isSet(theme, [SIDE_NAV, TOP_LOGO, IMG_SRC]):
             theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
+        if _isSet(theme, [APP_BAR, TOP_LOGO, IMG_SRC]):
+            theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
 
         # if a background image has been locally set using the `manage background` command, use it
         bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)

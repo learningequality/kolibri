@@ -8,6 +8,7 @@
       class="app-bar"
       :style="{ height: height + 'px' }"
       :raised="false"
+      :removeBrandDivider="true"
     >
       <UiIconButton
         slot="icon"
@@ -21,6 +22,15 @@
           :style="{fill: $themeTokens.textInverted}"
         />
       </UiIconButton>
+
+      <img
+        v-if="$theme.appBar.topLogo"
+        slot="brand"
+        :src="$theme.appBar.topLogo.src"
+        :alt="$theme.appBar.topLogo.alt"
+        :style="$theme.appBar.topLogo.style"
+        class="brand-logo"
+      >
 
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
@@ -217,6 +227,17 @@
   .total-points {
     display: inline-block;
     margin-left: 16px;
+  }
+
+  /deep/ .ui-toolbar__brand {
+    min-width: inherit;
+  }
+
+  .brand-logo {
+    max-width: 48px;
+    max-height: 48px;
+    margin-right: 8px;
+    vertical-align: middle;
   }
 
 </style>

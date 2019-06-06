@@ -19,7 +19,7 @@ class CustomTheme(theme_hook.ThemeHook):
         return {
             # metadata
             theme_hook.THEME_NAME: "Default theme",
-            theme_hook.THEME_VERSION: 1, # increment when changes are made
+            theme_hook.THEME_VERSION: 1,  # increment when changes are made
             # specify primary and secondary brand colors
             theme_hook.BRAND_COLORS: {
                 theme_hook.PRIMARY: {
@@ -60,4 +60,6 @@ class CustomTheme(theme_hook.ThemeHook):
             },
             # side-nav config
             theme_hook.SIDE_NAV: {theme_hook.SHOW_K_FOOTER_LOGO: True},
+            # app bar config
+            theme_hook.APP_BAR: {theme_hook.TOP_LOGO: None},
         }
