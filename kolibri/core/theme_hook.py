@@ -1,15 +1,3 @@
-"""
-Kolibri Core hooks
-------------------
-
-WIP! Many applications are supposed to live inside the core namespace to make
-it explicit that they are part of the core.
-
-Do we put all their hooks in one module or should each app have its own hooks
-module?
-
-Anyways, for now to get hooks started, we have some defined here...
-"""
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
