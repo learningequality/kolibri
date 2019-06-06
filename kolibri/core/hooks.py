@@ -112,7 +112,7 @@ class ThemeHook(hooks.KolibriHook):
     @property
     @hooks.only_one_registered
     def theme(self):
-        theme = self.registered_hooks[0].theme
+        theme = list(self.registered_hooks)[0].theme
 
         self.validateBrandColors(theme)
 
