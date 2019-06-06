@@ -44,4 +44,10 @@ class CustomTheme(ThemeHook):
                 },
             },
             "signInBackground": static("background.jpg"),
+            "primaryLogo": {
+                "src": static("kolibri-logo.svg"),
+                "style": "padding-right: 64px; padding-left: 64px; margin-bottom: 8px; margin-top: 8px",
+                "alt": None,
+            },
+            "applicationTitle": None,
         }

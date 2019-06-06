@@ -12,12 +12,14 @@
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
-            <CoreLogo :style="{'height': `${logoHeight}px`}" />
-            <h1
-              class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`, color: $themeTokens.logoText}"
+            <img
+              class="logo"
+              :src="primaryLogo.src"
+              :alt="primaryLogo.alt"
+              :style="primaryLogo.style"
             >
-              {{ $tr('kolibri') }}
+            <h1 class="kolibri-title" :style="{color: $themeTokens.logoText}">
+              {{ logoText }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
@@ -267,15 +269,13 @@
       allowGuestAccess() {
         return this.facilityConfig.allow_guest_access;
       },
-      logoHeight() {
-        const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
-        let height = this.windowHeight - CRITICAL_ACTIONS_HEIGHT - 32;
-        height = Math.max(height, 32);
-        height = Math.min(height, 80);
-        return height;
+      primaryLogo() {
+        return global.kolibriTheme.primaryLogo;
       },
-      logoTextSize() {
-        return Math.max(Math.floor(this.logoHeight * 0.3), 18);
+      logoText() {
+        return global.kolibriTheme.applicationTitle
+          ? global.kolibriTheme.applicationTitle
+          : this.$tr('kolibri');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
@@ -564,10 +564,16 @@
     transition: opacity 0s;
   }
 
+  .logo {
+    width: 100%;
+    max-width: 65vh; // not compatible with older browsers
+    height: auto;
+  }
+
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 8px;
-    font-size: 1.5em;
+    font-size: 24px;
     font-weight: 100;
   }
 
