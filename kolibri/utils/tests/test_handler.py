@@ -15,9 +15,9 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
         # Temporarily set the rotation time of the log file to be every second
         settings.LOGGING["handlers"]["file"]["when"] = "s"
         # make sure that kolibri will be running for more than one second
-        cli.main(["language", "setdefault", "en"])
+        cli.main(["--skipupdate", "manage", "help"])
         sleep(1)
-        cli.main(["language", "setdefault", "en"])
+        cli.main(["--skipupdate", "manage", "help"])
         # change back to the original rotation time
         settings.LOGGING["handlers"]["file"]["when"] = orig_value
 
