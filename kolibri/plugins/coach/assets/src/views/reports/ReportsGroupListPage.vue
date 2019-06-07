@@ -108,10 +108,8 @@
               status.status !== this.STATUSES.notStarted && learnerIds.includes(status.learner_id)
           ),
         ];
-        if (!statuses.length) {
-          return null;
-        }
-        return this._.maxBy(statuses, 'last_activity').last_activity;
+
+        return statuses.length ? this.maxLastActivity(statuses) : null;
       },
     },
   };

@@ -33,7 +33,6 @@ from .decorators import get_referrer_url
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
 from kolibri.core.content.errors import InvalidStorageFilenameError
-from kolibri.core.decorators import signin_redirect_exempt
 
 # Do this to prevent import of broken Windows filetype registry that makes guesstype not work.
 # https://www.thecodingforums.com/threads/mimetypes-guess_type-broken-in-windows-on-py2-7-and-python-3-x.952693/
@@ -251,7 +250,6 @@ def get_embedded_file(request, zf, zipped_filename, embedded_filepath):
     return response
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class ZipContentView(View):
     @xframe_options_exempt
     @add_security_headers

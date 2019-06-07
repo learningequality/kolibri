@@ -17,6 +17,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.serializers import DateTimeTzField
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 # Intended to match  NotificationEventType
@@ -128,11 +130,11 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     return map(map_content_logs, content_log_values)
 
 
-class ExamStatusSerializer(serializers.ModelSerializer):
+class ExamStatusSerializer(KolibriModelSerializer):
     status = serializers.SerializerMethodField()
     exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
-    last_activity = serializers.CharField()
+    last_activity = DateTimeTzField()
     num_correct = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
@@ -155,7 +157,7 @@ class ExamStatusSerializer(serializers.ModelSerializer):
         fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class GroupSerializer(KolibriModelSerializer):
     member_ids = serializers.SerializerMethodField()
 
     def get_member_ids(self, group):
@@ -166,7 +168,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "member_ids")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(KolibriModelSerializer):
     name = serializers.CharField(source="full_name")
 
     class Meta:
@@ -179,7 +181,7 @@ class LessonAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class LessonSerializer(serializers.ModelSerializer):
+class LessonSerializer(KolibriModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = serializers.SerializerMethodField()
 
@@ -216,7 +218,7 @@ class ExamAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class ExamSerializer(serializers.ModelSerializer):
+class ExamSerializer(KolibriModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
 
@@ -240,7 +242,7 @@ class ExamSerializer(serializers.ModelSerializer):
         )
 
 
-class ContentSerializer(serializers.ModelSerializer):
+class ContentSerializer(KolibriModelSerializer):
     node_id = serializers.CharField(source="id")
 
     class Meta:

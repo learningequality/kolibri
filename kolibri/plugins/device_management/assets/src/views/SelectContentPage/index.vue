@@ -14,7 +14,7 @@
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelUpdateChannel()"
+        @canceltask="cancelUpdateChannel()"
       />
       <TaskProgress
         v-else-if="metadataDownloadTask"
@@ -22,7 +22,7 @@
         v-bind="metadataDownloadTask"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="returnToChannelsList()"
+        @canceltask="returnToChannelsList()"
       />
 
       <template v-if="mainAreaIsVisible">
@@ -103,7 +103,6 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -145,8 +144,8 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
       ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
       ...mapState('manageContent/wizard', [
         'availableSpace',
         'currentTopicNode',
@@ -233,6 +232,7 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
+      ...mapActions('manageContent', ['cancelTask']),
       downloadChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
@@ -240,7 +240,7 @@
       },
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
-          return TaskResource.cancelTask(this.metadataDownloadTaskId);
+          return this.cancelTask(this.metadataDownloadTaskId);
         }
         return Promise.resolve();
       },
@@ -259,16 +259,12 @@
       },
       startContentTransfer() {
         this.contentTransferError = false;
-        return this.transferChannelContent()
-          .then(() => {
-            this.returnToChannelsList();
-          })
-          .catch(() => {
-            this.contentTransferError = true;
-          });
+        return this.transferChannelContent(this.returnToChannelsList).catch(() => {
+          this.contentTransferError = true;
+        });
       },
       refreshPage() {
-        this.$router.go(this.$router.currentRoute);
+        this.$router.go();
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());

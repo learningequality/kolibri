@@ -5,13 +5,18 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import hashlib
 import sys
-from functools import wraps
 
 from django.utils.cache import patch_response_headers
+from django.views.decorators.http import etag
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from six import string_types
+
+from kolibri import __version__ as kolibri_version
+from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.theme_hook import ThemeHook
 
 TRUE_VALUES = ("1", "true")
 FALSE_VALUES = ("0", "false")
@@ -313,14 +318,12 @@ def query_params_required(**kwargs):
     return _params
 
 
-def signin_redirect_exempt(view_func):
-    """Mark a view function as being exempt from the signin page redirect"""
-
-    def wrapped_view(*args, **kwargs):
-        return view_func(*args, **kwargs)
-
-    wrapped_view.signin_redirect_exempt = True
-    return wraps(view_func)(wrapped_view)
+def calculate_spa_etag(*args, **kwargs):
+    return hashlib.md5(
+        kolibri_version.encode("utf-8")
+        + str(ContentCacheKey.get_cache_key()).encode("utf-8")
+        + str(ThemeHook().cacheKey).encode("utf-8")
+    ).hexdigest()
 
 
 def cache_no_user_data(view_func):
@@ -335,11 +338,12 @@ def cache_no_user_data(view_func):
     on a per user basis.
     """
 
+    @etag(calculate_spa_etag)
     def inner_func(*args, **kwargs):
         request = args[0]
         del request.session
         response = view_func(*args, **kwargs)
-        patch_response_headers(response, cache_timeout=300)
+        patch_response_headers(response, cache_timeout=15)
         response["Vary"] = "accept-encoding, accept"
         return response
 

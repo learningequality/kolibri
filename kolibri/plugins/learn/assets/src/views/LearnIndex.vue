@@ -3,6 +3,8 @@
   <CoreBase
     :marginBottom="bottomSpaceReserved"
     :showSubNav="topNavIsVisible"
+    :authorized="userIsAuthorized"
+    authorizedRole="registeredUser"
     v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
@@ -25,7 +27,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -86,6 +88,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
@@ -96,6 +99,9 @@
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
+      userIsAuthorized() {
+        return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
+      },
       currentPage() {
         if (RecommendedPages.includes(this.pageName)) {
           return RecommendedSubpage;

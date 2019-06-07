@@ -279,5 +279,14 @@ export default {
           return null;
       }
     },
+    /**
+     * @param {Object[]} statuses
+     * @param {Date|null} statuses[].last_activity
+     * @return {Date|null}
+     */
+    maxLastActivity(statuses) {
+      const max = this._.maxBy(statuses, 'last_activity');
+      return max && max.last_activity ? max.last_activity : null;
+    },
   },
 };

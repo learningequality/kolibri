@@ -1,11 +1,11 @@
 {
   "DemoServerBannerContent.demoServerA1": "દસ્તાવેજ વાંચો",
   "DemoServerBannerContent.demoServerA2": "નવીનતમ પ્રકાશન ડાઉનલોડ કરો અને ઇન્સ્ટોલ કરો",
-  "DemoServerBannerContent.demoServerHeader": "",
-  "DemoServerBannerContent.demoServerL1": "",
-  "DemoServerBannerContent.demoServerL2": "",
-  "DemoServerBannerContent.demoServerL3": "",
-  "DemoServerBannerContent.demoServerP1": "",
-  "DemoServerBannerContent.demoServerP2": "",
+  "DemoServerBannerContent.demoServerHeader": "કોલિબ્રિ ડેમો સાઇટ પર આપનું સ્વાગત છે",
+  "DemoServerBannerContent.demoServerL1": "લર્નર ({user} / {pass} અથવા અતિથિ તરીકે ઍક્સેસ)",
+  "DemoServerBannerContent.demoServerL2": "Coach ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "એડમિન ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "ત્રણ પ્રાથમિક વપરાશકર્તા પ્રકારોમાંથી કોઈપણનું અન્વેષણ કરો:",
+  "DemoServerBannerContent.demoServerP2": "કોલિબ્રિનું આ ઑનલાઇન સંસ્કરણ ફક્ત નિદર્શન હેતુઓ માટે છે. વપરાશકર્તાઓ અને ડેટા સમયાંતરે કાઢી નાખવામાં આવશે. આ ડેમો તાજેતરની કોલિબ્રિ સંસ્કરણની લાક્ષણિકતાઓ બતાવે છે, અને મળેલા બધા સંસાધનો નમૂના છે.",
   "DemoServerBannerContent.demoServerP3": "ઑફલાઇન સંદર્ભમાં કોલિબ્રિનો ઉપયોગ કરવા વિશે વધુ જાણવા અને પ્લેટફોર્મને વધુ સારી રીતે સમજવા માટે:"
 }

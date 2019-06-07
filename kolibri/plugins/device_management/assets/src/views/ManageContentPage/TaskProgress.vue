@@ -43,7 +43,7 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
+        :text="taskHasCompleted || taskHasFailed ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -159,6 +159,20 @@
         return '';
       },
     },
+    watch: {
+      taskHasCompleted(newValue, oldValue) {
+        // Once it becomes complete, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+      taskHasFailed(newValue, oldValue) {
+        // Once it becomes failed, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+    },
     methods: {
       endTask() {
         this.uiBlocked = true;
@@ -167,9 +181,7 @@
             this.uiBlocked = false;
           });
         } else if (this.cancellable) {
-          this.$emit('canceltask', () => {
-            this.uiBlocked = false;
-          });
+          this.$emit('canceltask');
         } else {
           this.uiBlocked = false;
         }
