@@ -100,9 +100,9 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
+      ...mapGetters(['isAdmin', 'isClas sCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
-      ...mapState('subscriptions', ['subscriptionModalShown']),
+      ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
       Modals: () => Modals,
       // Message that shows up when state.classList is empty
       emptyStateDetails() {

@@ -4,6 +4,10 @@ export function displayModal(store, modalName) {
   store.commit('SET_SUBSCRIPTION_MODAL', modalName);
 }
 
+export function testMethod(store) {
+  store.commit('SET_SUBSCRIPTIONS', '');
+}
+
 export function saveSubscription(store, subData) {
   return ClassroomResource.saveModel({
     id: subData.id,
@@ -14,8 +18,8 @@ export function saveSubscription(store, subData) {
     .catch(error => store.dispatch('handleApiError', error, { root: true }));
 }
 
-export function getDbSubscribedChannels(store, id) {
-  return ClassroomResource.fetchModel({ id: id }).then(
+export function getChannelsFromDatabase(store, id) {
+  ClassroomResource.fetchModel({ id: id }).then(
     channelsData => {
       store.commit('SET_SUBSCRIPTIONS', channelsData.subscriptions);
     },

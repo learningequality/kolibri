@@ -3,7 +3,7 @@ import * as actions from './actions';
 function defaultState() {
   return {
     subscriptionModalShown: '',
-    selectedSubscriptions: '',
+    selectedSubscriptions: '[]',
   };
 }
 
@@ -22,6 +22,11 @@ export default {
     },
     SET_SUBSCRIPTION_MODAL(state, modalName) {
       state.subscriptionModalShown = modalName;
+    },
+  },
+  getters: {
+    getSubs(state) {
+      return state.selectedSubscriptions;
     },
   },
   actions,

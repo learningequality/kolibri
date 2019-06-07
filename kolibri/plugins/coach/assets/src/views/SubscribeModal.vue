@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('modalTitle', { collectionName: collectionName })"
+    :title="$tr('modalTitle', { collectionName: selectedSubscriptions})"
     :submitText="$tr('saveSelectionsButtonName')"
     :cancelText="$tr('cancel')"
     @submit="saveSelectedSubscriptions"
@@ -11,7 +11,8 @@
       v-for="channel in channels"
       :key="channel.id"
       :label="channel.title"
-      :checked="false"
+      :checked="isChecked(channel.id)"
+      @change="addToSelectedArray(channel.id,$event)"
     />
     <p>{{ $tr('description') }}</p>
   </KModal>
@@ -47,30 +48,52 @@
         required: true,
       },
     },
+    data() {
+      return {
+        selectedChannels: [],
+      };
+    },
     computed: {
       ...mapGetters({
         channels: 'getChannels',
       }),
+      ...mapGetters('subscriptions', ['getSubs']),
       ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
+    },
+    beforeMount() {
+      this.getChannelsFromDatabase(this.collectionId);
     },
     methods: {
       ...mapActions('subscriptions', [
         'displayModal',
         'saveSubscription',
-        'getDbSubscribedChannels',
+        'getChannelsFromDatabase',
+        'testMethod',
       ]),
       // getSubscribedChannels() {
-      //   return this.getDbSubscribedChannels(this.collectionId);
+      //   return this.getChannelsFromDatabase(this.collectionId);
       // },
       //
       // setCheckBoxes() {
       //   channels.filter(channel => getSubscribedChannels());
       // },
+      isChecked(id) {
+        let jsonSubs = JSON.parse(this.selectedSubscriptions);
+        jsonSubs.includes(id);
+        //this.addToSelectedArray(id, true);
+        return jsonSubs.includes(id);
+      },
+      addToSelectedArray(id, checked) {
+        if (checked) {
+          this.selectedChannels.push(id);
+        } else {
+          this.selectedChannels.splice(this.selectedChannels.indexOf(id), 1);
+        }
+      },
       saveSelectedSubscriptions() {
-        this.getDbSubscribedChannels(this.collectionId);
         this.saveSubscription({
           id: this.collectionId,
-          choices: "['123','456']",
+          choices: '["a9b25ac9814742c883ce1b0579448337",456]',
         });
       },
       close() {
