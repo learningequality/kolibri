@@ -221,9 +221,8 @@ def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=Non
     dbbackup.assert_not_called()
 
     # Check that it got called for each default plugin
-    from kolibri.utils.conf import DEFAULT_PLUGINS
-
-    assert plugin.call_count == len(DEFAULT_PLUGINS)
+    from kolibri.utils import conf
+    assert set(conf.config["INSTALLED_APPS"]) == set(conf.DEFAULT_PLUGINS)
 
 
 @pytest.mark.django_db
