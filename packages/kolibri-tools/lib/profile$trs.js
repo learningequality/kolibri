@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var url = require('url');
 var mkdirp = require('mkdirp');
 var espree = require('espree');
@@ -8,6 +9,8 @@ var reduce = require('lodash/reduce');
 var isEqual = require('lodash/isEqual');
 var vueCompiler = require('vue-template-compiler');
 var logging = require('./logging');
+
+const PROFILES_FOLDER = 'profiles';
 
 function profile$trs(localePath, moduleName) {
   this.localePath = localePath;
@@ -203,7 +206,10 @@ profile$trs.prototype.apply = function(compiler) {
           }
         }
       });
+      // Write this module out to CSV.
       writeProfileToCSV(strProfile, self.moduleName, self.localePath);
+      // Also dump the JSON profiles so that we can easily combine data.
+      fs.writeFileSync(`${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`, JSON.stringify(strProfile));
       callback();
     });
   }
@@ -350,12 +356,16 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
 
 // Instantiates the CSV data and writes to a file.
 function writeProfileToCSV(profile, moduleName, localePath) {
-  const baseOuputPath = `${localePath}/csv_profiles`;
-  
-  // Ensure we have a {localePath}/profile directory available.
-  mkdirp.sync(baseOuputPath);
+  // Be sure the output path is going to the profiles folder.
+  let baseOutputPath = `${path.resolve(localePath)}`;
+  if(!baseOutputPath.includes(PROFILES_FOLDER)) {
+    baseOutputPath += `/${PROFILES_FOLDER}`;
+  }
 
-  const outputFile = `${baseOuputPath}/${moduleName}.csv`;
+  // Ensure we have a {localePath}/profile directory available.
+  mkdirp.sync(baseOutputPath);
+
+  const outputFile = `${baseOutputPath}/${moduleName}.csv`;
   const csvData = profileToCSV(profile);
   const csvWriter = createCsvWriter({
     path: outputFile,
@@ -484,3 +494,4 @@ function keyFromArguments(args) {
 }
 
 module.exports = profile$trs;
+module.exports.writeProfileToCSV = writeProfileToCSV;
