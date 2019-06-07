@@ -294,10 +294,17 @@
       guestURL() {
         return urls['kolibri:core:guest']();
       },
+      getImagePath() {
+        var today = new Date().getDate();
+        let num = (today % 5) + 1;
+        return require('./background' + num + '.jpg');
+      },
       backgroundImageStyle() {
         return {
           backgroundColor: this.$coreActionNormal,
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+            this.getImagePath
+          })`,
         };
       },
     },
