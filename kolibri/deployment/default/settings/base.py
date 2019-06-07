@@ -237,6 +237,8 @@ if path_prefix != "/":
 
 STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
+MEDIA_URL = urljoin(path_prefix, "media/")
+MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
 # Ensure that our CSRF cookie does not collide with other CSRF cookies

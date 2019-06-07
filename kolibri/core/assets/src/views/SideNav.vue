@@ -44,6 +44,13 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
+          <img
+            v-if="$theme.sideNav.topLogo"
+            class="logo"
+            :src="$theme.sideNav.topLogo.src"
+            :alt="$theme.sideNav.topLogo.alt"
+            :style="$theme.sideNav.topLogo.style"
+          >
           <CoreMenu
             role="navigation"
             :style="{ backgroundColor: $themeTokens.surface }"
@@ -56,7 +63,10 @@
           </CoreMenu>
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
-            <CoreLogo class="side-nav-scrollable-area-footer-logo" />
+            <CoreLogo
+              v-if="$theme.sideNav.showKolibriFooterLogo"
+              class="side-nav-scrollable-area-footer-logo"
+            />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
@@ -280,7 +290,6 @@
     left: 0;
     z-index: 17;
     font-size: 14px;
-    text-transform: uppercase;
   }
 
   .side-nav-header-icon {
@@ -298,6 +307,7 @@
     position: fixed;
     bottom: 0;
     left: 0;
+    padding-top: 8px;
     overflow: auto;
   }
 
@@ -369,6 +379,11 @@
 
   .privacy-link {
     text-align: left;
+  }
+
+  .logo {
+    max-width: 100%;
+    height: auto;
   }
 
 </style>

@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "kolibri-tools": "0.12.0-beta.3.2",
-    "responselike": "^1.0.2",
-    "vue-color": "^2.7.0"
+    "responselike": "^1.0.2"
   }
 }

@@ -16,6 +16,7 @@ from six import string_types
 
 from kolibri import __version__ as kolibri_version
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.theme_hook import ThemeHook
 
 TRUE_VALUES = ("1", "true")
 FALSE_VALUES = ("0", "false")
@@ -321,6 +322,7 @@ def calculate_spa_etag(*args, **kwargs):
     return hashlib.md5(
         kolibri_version.encode("utf-8")
         + str(ContentCacheKey.get_cache_key()).encode("utf-8")
+        + str(ThemeHook().cacheKey).encode("utf-8")
     ).hexdigest()
 
 
