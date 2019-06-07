@@ -222,6 +222,7 @@ def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=Non
 
     # Check that it got called for each default plugin
     from kolibri.utils import conf
+
     assert set(conf.config["INSTALLED_APPS"]) == set(conf.DEFAULT_PLUGINS)
 
 
