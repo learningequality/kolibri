@@ -182,8 +182,9 @@
     watch: {
       $route(to, _) {
         if (pageNameToModuleMap[to.name] !== 'topicsTree') {
-          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-accent-color');
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-action-light');
           store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-action-dark');
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-accent-color');
         }
       },
     },

@@ -23,15 +23,16 @@ function defaultState() {
 function setTheme(channelTitle) {
   let theme = null;
   for (let prefix in prefixToColourMap) {
-    if (channelTitle.indexOf(prefix) === 0) {
+    if (channelTitle.toLowerCase().indexOf(prefix) === 0) {
       theme = prefixToColourMap[prefix];
       break;
     }
   }
   if (theme !== null) {
     store.commit(`${THEME_MODULE_NAMESPACE}/SET_CORE_THEME`, {
+      '$core-action-light': theme.light,
+      '$core-action-dark': theme.dark,
       '$core-accent-color': theme.accent,
-      '$core-action-dark': theme.action,
     });
   }
 }
