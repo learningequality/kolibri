@@ -60,8 +60,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path not in config["INSTALLED_APPS"]:
-            config["INSTALLED_APPS"].append(module_path)
+        if module_path not in config.ACTIVE_PLUGINS:
+            config.enable_plugin(module_path)
         else:
             logger.warning("{} already enabled".format(module_path))
 
@@ -70,8 +70,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path in config["INSTALLED_APPS"]:
-            config["INSTALLED_APPS"].remove(module_path)
+        if module_path in config.ACTIVE_PLUGINS:
+            config.disable_plugin(module_path)
         else:
             logger.warning("{} already disabled".format(module_path))
 
