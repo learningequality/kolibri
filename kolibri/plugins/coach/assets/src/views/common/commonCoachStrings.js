@@ -65,6 +65,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   neverLoggedInLabel: 'Never logged in',
   notEnoughInformationLabel: 'Not enough information yet',
   notStartedLabel: 'Not started',
+  onlyActiveLearnersLabel: 'Show only active learners',
   optionsLabel: 'Options',
   orderFixedLabel: 'Fixed',
   orderFixedLabelLong: 'Fixed: each learner sees the same question order',

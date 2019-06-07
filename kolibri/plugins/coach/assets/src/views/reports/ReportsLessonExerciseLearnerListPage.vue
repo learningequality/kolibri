@@ -22,6 +22,11 @@
         <StatusSummary :tally="tally" />
       </p>
 
+      <KCheckbox
+        :label="coachStrings.$tr('onlyActiveLearnersLabel')"
+        :checked="showOnlyActive"
+        @change="showOnlyActive = !showOnlyActive"
+      />
       <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -69,6 +74,8 @@
 
 <script>
 
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import { localeCompare } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
@@ -77,8 +84,14 @@
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
       ReportsLessonExerciseHeader,
+      KCheckbox,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        showOnlyActive: false,
+      };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -90,7 +103,12 @@
         return this.getContentStatusTally(this.$route.params.exerciseId, this.recipients);
       },
       table() {
-        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        let learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+
+        if (this.showOnlyActive === true) {
+          learners = this.filterByActive(learners);
+        }
+
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
@@ -124,6 +142,16 @@
           return tableRow.statusObj.last_activity;
         }
         return undefined;
+      },
+      active(learner) {
+        return this.activeLearners.includes(learner.username);
+      },
+      filterByActive(learners) {
+        const sortByKey = 'username';
+        const predicate = learner => this.active(learner);
+        return learners.filter(predicate).sort((a, b) => {
+          return localeCompare(a[sortByKey], b[sortByKey]);
+        });
       },
     },
   };
