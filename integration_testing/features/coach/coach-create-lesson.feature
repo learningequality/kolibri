@@ -33,6 +33,7 @@ Feature: Coach creates lessons
       When I select channel <channel>
       Then I see its topics
       When I navigate down to a single topic and click that <topic>
+      # A topic may have one or more sub-topics in the topic tree.
       Then I see the list of resources in that topic
       When I click on a single resource
       Then I see the preview page for the selected resource
