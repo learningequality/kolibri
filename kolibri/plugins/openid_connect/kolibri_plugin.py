@@ -2,24 +2,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from . import hooks
-from . import urls
 from kolibri.core.webpack import hooks as webpack_hooks
-from kolibri.plugins.base import KolibriPluginBase
 
 
-class User(KolibriPluginBase):
-    def url_module(self):
-        return urls
-
-    def url_slug(self):
-        return "^user/"
-
-
-class UserAsset(webpack_hooks.WebpackBundleHook):
-    unique_slug = "user_module"
-    src_file = "assets/src/app.js"
-
-
-class UserInclusionHook(hooks.UserSyncHook):
-    bundle_class = UserAsset
+class LoginItem(webpack_hooks.WebpackBundleHook):
+    inline = True
+    unique_slug = "openid_login_item"
+    src_file = "assets/src/views/OIDCLogin.vue"
