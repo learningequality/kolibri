@@ -26,7 +26,7 @@ clint==0.5.1
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
-ifcfg==0.17
+ifcfg==0.18
 sqlalchemy==1.2.10
 semver==2.8.1
 sentry-sdk==0.7.9
