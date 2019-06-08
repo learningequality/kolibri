@@ -12,12 +12,15 @@
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
           <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
-            <CoreLogo :style="{'height': `${logoHeight}px`}" />
-            <h1
-              class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`, color: $themeColors.brand.primary.v_300}"
-            >
-              {{ $tr('kolibri') }}
+            <CoreLogo
+              v-if="$theme.signIn.topLogo"
+              class="logo"
+              :src="$theme.signIn.topLogo.src"
+              :alt="$theme.signIn.topLogo.alt"
+              :style="$theme.signIn.topLogo.style"
+            />
+            <h1 class="kolibri-title" :style="{color: $themeTokens.logoText}">
+              {{ logoText }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
@@ -119,7 +122,8 @@
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            •
+            <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <span v-else> • </span>
             <KButton
               :text="$tr('privacyLink')"
               appearance="basic-link"
@@ -271,24 +275,22 @@
       allowGuestAccess() {
         return this.facilityConfig.allow_guest_access;
       },
-      logoHeight() {
-        const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
-        let height = this.windowHeight - CRITICAL_ACTIONS_HEIGHT - 32;
-        height = Math.max(height, 32);
-        height = Math.min(height, 80);
-        return height;
-      },
-      logoTextSize() {
-        return Math.floor(this.logoHeight * 0.3);
+      logoText() {
+        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        return {
-          backgroundColor: this.$themeTokens.primary,
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
-        };
+        if (this.$theme.signIn.background) {
+          return {
+            backgroundColor: this.$themeTokens.primary,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+              this.$theme.signIn.background
+            })`,
+          };
+        }
+        return { backgroundColor: this.$themeColors.brand.primary.v_900 };
       },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
@@ -567,11 +569,27 @@
     transition: opacity 0s;
   }
 
+  .logo {
+    width: 100%;
+    max-width: 65vh; // not compatible with older browsers
+    height: auto;
+  }
+
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 8px;
-    font-size: 1.5em;
+    font-size: 24px;
     font-weight: 100;
+  }
+
+  .footer-logo {
+    position: relative;
+    top: -1px;
+    display: inline-block;
+    height: 24px;
+    margin-right: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
   }
 
 </style>

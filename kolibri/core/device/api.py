@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.http.response import HttpResponseBadRequest
-from django.utils.decorators import method_decorator
 from django.utils.translation import check_for_language
 from morango.models import InstanceIDModel
 from rest_framework import mixins
@@ -19,7 +18,6 @@ from .serializers import DeviceProvisionSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -34,7 +32,6 @@ class DevicePermissionsViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class DeviceProvisionView(viewsets.GenericViewSet):
     permission_classes = (NotProvisionedCanPost,)
     serializer_class = DeviceProvisionSerializer

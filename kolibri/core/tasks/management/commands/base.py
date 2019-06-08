@@ -96,7 +96,7 @@ class AsyncCommand(BaseCommand):
             try:
                 self.check_for_cancel()
                 return False
-            except UserCancelledError:
+            except (UserCancelledError, KeyError):
                 return True
         return False
 

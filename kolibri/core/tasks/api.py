@@ -1,5 +1,4 @@
 import os
-import time
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
@@ -308,16 +307,6 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
             get_queue().cancel(request.data["task_id"])
-            waiting_time = 0
-            job = get_queue().fetch_job(request.data["task_id"])
-            interval = 0.1
-            while job.state != State.CANCELED or waiting_time < 5.0:
-                time.sleep(interval)
-                waiting_time += interval
-                job = get_queue().fetch_job(request.data["task_id"])
-            if job.state != State.CANCELED:
-                return Response(status=408)
-            get_queue().clear_job(request.data["task_id"])
         except JobNotFound:
             pass
 

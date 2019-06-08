@@ -8,9 +8,12 @@ Feature: Super admin grants and revokes the content import permissions
   Scenario: Grant import content device permissions
     When I click on *Edit permissions* button for <username> user
     Then I see <full_name> user permissions page
-    When I check the *Can import and export content channels* checkbox
-    Then I see the *See changes* button is active
+    When I check the *Can manage content on this device* checkbox
+    Then I see the *Save changes* button is active
     When I click *Save changes* button
+    Then I see the *Changes saved* notification
+      And the *Save changes* button is now inactive
+    When I click on *Cancel* button after saving
     Then I see the *Device permissions* page again
       And I see the black key icon in front of the <username> user
 
@@ -18,9 +21,12 @@ Feature: Super admin grants and revokes the content import permissions
     Given that <username> user has import content device permissions
     When I click on *Edit permissions* button for <username> user
     Then I see <username> permissions page
-    When I uncheck the *Can import and export content channels* checkbox
-    Then I see the *See changes* button is active
+    When I uncheck the *Can manage content on this device* checkbox
+    Then I see the *Save changes* button is active
     When I click *Save changes* button
+    Then I see the *Changes saved* notification
+      And the *Save changes* button is now inactive
+    When I click on *Cancel* button after saving
     Then I see the *Device permissions* page again
       And I don't see the black key icon in front of the <username> user
 

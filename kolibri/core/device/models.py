@@ -70,7 +70,7 @@ class ContentCacheKey(models.Model):
         cache_key, created = cls.objects.get_or_create()
         cache_key.key = time.time()
         cache_key.save()
-        cache.delete(CONTENT_CACHE_KEY_CACHE_KEY)
+        cache.set(CONTENT_CACHE_KEY_CACHE_KEY, cache_key.key, 5000)
         return cache_key
 
     @classmethod

@@ -92,14 +92,11 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "kolibri.core.auth.middleware.CustomAuthenticationMiddleware",
-    "kolibri.core.middleware.signin_page.RedirectToSignInPageIfNoGuestAccessAndNoActiveSession",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
-
-QUEUE_JOB_STORAGE_PATH = os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
 
 # By default don't cache anything unless it explicitly requests it to!
 CACHE_MIDDLEWARE_SECONDS = 0
@@ -240,6 +237,8 @@ if path_prefix != "/":
 
 STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
+MEDIA_URL = urljoin(path_prefix, "media/")
+MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
 # Ensure that our CSRF cookie does not collide with other CSRF cookies

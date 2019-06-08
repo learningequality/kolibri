@@ -85,7 +85,7 @@
   "DeviceInfoPage.url": "सर्व्हर {count, plural, one {URL} other {URLs}}",
   "DeviceSettingsPage.browserDefaultLanguage": "ब्राऊझर डिफॉल्ट",
   "DeviceSettingsPage.defaultLanguageHeader": "पूर्वनिर्धारित भाषा",
-  "DeviceSettingsPage.pageDescription": "तुम्ही इथे जे बदल कराल ते फक्त या साधनासाठी मर्यादित असतील.",
+  "DeviceSettingsPage.pageDescription": "तुम्ही येथे जे बदल कराल ते फक्त या साधनावर लागू होतील.",
   "DeviceSettingsPage.pageHeader": "साधनाचे सेटिंग्ज",
   "DeviceSettingsPage.saveAction": "सेव्ह करा",
   "DeviceSettingsPage.saveFailureNotification": "सेटिंग्समध्ये बदल झाला नाही",

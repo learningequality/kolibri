@@ -176,9 +176,8 @@ export function showSelectContentPage(store, params) {
   // We let it fail silently, since it is only used to show "on device" files/resources.
   const installedChannelPromise = getChannelWithContentSizes(params.channel_id)
     .then(channel => {
-      if (store.state.manageContent.channelList.length === 0) {
-        store.commit('manageContent/SET_CHANNEL_LIST', [channel]);
-      }
+      store.commit('manageContent/REMOVE_FROM_CHANNEL_LIST', channel.id);
+      store.commit('manageContent/ADD_TO_CHANNEL_LIST', channel);
     })
     .catch(() => {});
 

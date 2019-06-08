@@ -47,7 +47,6 @@ from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
-from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -174,7 +173,6 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
         self.set_password_if_needed(instance, serializer)
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     serializer_class = FacilityUsernameSerializer
@@ -244,7 +242,6 @@ class FacilityViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = PublicFacilitySerializer
@@ -291,7 +288,6 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     filter_fields = ("parent",)
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class SignUpViewSet(viewsets.ViewSet):
 
     serializer_class = FacilityUserSerializer
@@ -323,7 +319,6 @@ class SignUpViewSet(viewsets.ViewSet):
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def create(self, request):

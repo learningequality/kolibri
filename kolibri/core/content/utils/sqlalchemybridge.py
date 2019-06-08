@@ -252,6 +252,10 @@ class Bridge(object):
         return get_class(DjangoModel, self.Base)
 
     def get_table(self, DjangoModel):
+        """
+        Return the SQLAlchemy Table object associated with this Django Model
+        https://docs.sqlalchemy.org/en/13/orm/extensions/declarative/table_config.html#using-a-hybrid-approach-with-table
+        """
         return self.get_class(DjangoModel).__table__
 
     def get_connection(self):
