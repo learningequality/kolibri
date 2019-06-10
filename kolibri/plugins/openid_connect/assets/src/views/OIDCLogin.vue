@@ -8,6 +8,8 @@
 <script>
 
   import loginComponents from 'kolibri.utils.loginComponents';
+  /*eslint no-debugger: "error"*/
+  debugger;
 
   const component = {
     name: 'OIDCButton',
@@ -16,7 +18,6 @@
       login: 'Login',
     },
   };
-
   loginComponents.register(component);
 
   export default component;
