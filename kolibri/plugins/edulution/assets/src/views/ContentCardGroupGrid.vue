@@ -75,11 +75,16 @@
 
 <style lang="scss" scoped>
 
-  $gutters: 16px;
+  $gutters: 17px;
 
   .grid-item {
     margin-right: $gutters;
     margin-bottom: $gutters;
+  }
+
+  .content-grid {
+    padding-top: 21px !important;
+    padding-left: 8% !important;
   }
 
 </style>
