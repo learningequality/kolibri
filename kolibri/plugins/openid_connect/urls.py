@@ -5,7 +5,7 @@ from .views import logout
 from .views import UserView
 
 urlpatterns = [
-    url(r'^oidc/', include('mozilla_django_oidc.urls')),
+    url(r'', include('mozilla_django_oidc.urls', namespace='oidc')),
     url(r'^$', UserView.as_view(), name='user'),
     url(r'^logout/$', logout),
 ]

@@ -100,9 +100,9 @@
                 appearance="flat-button"
               />
             </p>
-            <template slot="options">
+            <div slot="options">
               <component :is="component" v-for="component in loginOptions" :key="component.name" />
-            </template>
+            </div>
             <p class="guest small-text">
               <KExternalLink
                 v-if="allowGuestAccess"

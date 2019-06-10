@@ -506,7 +506,6 @@ def get_kolibri_plugin(plugin_name):
     """
 
     plugin_classes = []
-
     try:
         plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
         for obj in plugin_module.__dict__.values():

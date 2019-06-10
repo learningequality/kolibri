@@ -54,7 +54,6 @@ if not os.path.exists(LOG_ROOT):
 
 #: Set defaults before updating the dict
 config = {}
-
 try:
     # The default list for this is populated from build_tools/default_plugins.txt
     # in the root of the Kolibri repository. The default list is identical to the list below,
@@ -78,6 +77,7 @@ except ImportError:
         "kolibri.plugins.style_guide",
         "kolibri.plugins.document_epub_render",
         "kolibri.plugins.default_theme",
+        "kolibri.plugins.openid_connect"
     ]
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
