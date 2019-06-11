@@ -93,6 +93,9 @@
         lessonContent: 'content',
         currentLesson: 'currentLesson',
       }),
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
+      }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
         topicsTreeChannel: 'channel',
@@ -111,11 +114,11 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return {
-            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
