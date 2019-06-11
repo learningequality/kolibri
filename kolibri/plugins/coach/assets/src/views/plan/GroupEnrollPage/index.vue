@@ -3,10 +3,10 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    :immersivePagePrimary="false"
+    :immersivePagePrimary="true"
     :primary="true"
-    :toolbarTitle="groupsPageStrings.$tr('classGroups')"
-    :appBarTitle="groupsPageStrings.$tr('classGroups')"
+    :toolbarTitle="currentGroup.name"
+    :appBarTitle="currentGroup.name"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
     :pageTitle="pageTitle"
   >
