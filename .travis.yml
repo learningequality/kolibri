@@ -23,6 +23,8 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=pythonlint2
+      script:
+       - tox -e $TOX_ENV
     - python: "3.6"
       env:
         - TOX_ENV=pythonlint3
@@ -32,9 +34,13 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=licenses
+      script:
+       - tox -e $TOX_ENV
     - python: "2.7"
       env:
         - TOX_ENV=py2.7
+      script:
+       - tox -e $TOX_ENV
     - python: "3.5"
       env:
         - TOX_ENV=docs
@@ -55,12 +61,16 @@ matrix:
     - python: "2.7"
       env:
         - TOX_ENV=node10.x
+      script:
+       - tox -e $TOX_ENV
     - python: "3.5"
       env:
         - TOX_ENV=postgres
     - python: "2.7"
       env:
         - TOX_ENV=frontendlint
+      script:
+       - tox -e $TOX_ENV
     - python: "2.7"
       env:
         - TOX_ENV=nocext
@@ -99,6 +109,10 @@ before_script:
 
 # command to run tests
 script:
+  # Ensures that we can compile all source code files in this Python 3+ version
+  # This behavior is disabled in the 'include' matrix above for Python 2.7
+  - python -m compileall -x py2only kolibri -q
+  - python --version
   - tox -e $TOX_ENV
 
 after_success:
