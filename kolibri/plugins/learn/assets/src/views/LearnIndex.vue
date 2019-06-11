@@ -145,12 +145,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('searchTitle'),
+            appBarTitle: this.$tr('learnTitle'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
 
