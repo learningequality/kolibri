@@ -126,8 +126,8 @@
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
