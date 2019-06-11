@@ -194,7 +194,7 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: false,
+            immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
         }
