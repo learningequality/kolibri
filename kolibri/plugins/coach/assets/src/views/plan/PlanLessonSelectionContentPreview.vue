@@ -4,7 +4,8 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('manageResourcesAction')"
+    :immersivePagePrimary="true"
+    :appBarTitle="parentNodeTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -65,13 +66,20 @@
           }
         );
       },
-      ...mapState('lessonSummary', ['workingResources']),
+      ...mapState('lessonSummary', ['workingResources', 'resources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
       isSelected() {
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
           return this.workingResources.includes(this.currentContentNode.id);
         }
         return false;
+      },
+      parentNodeTitle() {
+        try {
+          return this.resources.ancestors.find(i => i.id === this.currentContentNode.parent).title;
+        } catch (e) {
+          return '';
+        }
       },
     },
     beforeDestroy() {
