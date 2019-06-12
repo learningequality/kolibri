@@ -1,8 +1,8 @@
 import logging
+from uuid import uuid4
 
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.auth import SuspiciousOperation
-
 logger = logging.getLogger(__name__)
 
 
@@ -55,7 +55,7 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
     def create_user(self, claims):
         """Return object for a newly created user account."""
         username = claims.get('username')
-        first_name = claims.get('name', '')
+        full_name = claims.get('name', '')
         email = username  # not needed in Kolibri, email is not mandatory
 
-        return self.UserModel.objects.create_user(username, email=email, first_name=first_name)
+        return self.UserModel.objects.create_user(username, email=email, full_name=full_name, password=uuid4().hex)

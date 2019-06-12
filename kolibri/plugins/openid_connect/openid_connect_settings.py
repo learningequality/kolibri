@@ -10,7 +10,7 @@ INSTALLED_APPS += ["mozilla_django_oidc"]
 
 # OIDC SETUP
 AUTHENTICATION_BACKENDS += [
-    'openid_connect.auth.OIDCKolibriAuthenticationBackend',
+    'kolibri.plugins.openid_connect.auth.OIDCKolibriAuthenticationBackend',
 ]
 OIDC_URL = os.environ.get('API_URL', 'http://127.0.0.1:5002/oauth')
 
