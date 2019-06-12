@@ -81,8 +81,13 @@
         }
       },
       immersivePagePrimary() {
-        return this.immersivePageIcon === "arrow_back";
-      }
+        // When the icon is an arrow, it should true for Primary with one
+        // exception: The SELECT_CONTENT page.
+        return (
+          this.immersivePageIcon === 'arrow_back' &&
+          this.pageName !== ContentWizardPages.SELECT_CONTENT
+        );
+      },
     },
     watch: {
       inContentManagementPage(val) {
