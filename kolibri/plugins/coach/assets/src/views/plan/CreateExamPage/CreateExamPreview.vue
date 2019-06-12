@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('preview')"
+    :appBarTitle="$tr('backLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
