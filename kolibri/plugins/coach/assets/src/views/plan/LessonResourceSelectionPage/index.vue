@@ -5,7 +5,7 @@
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="coachStrings.$tr('manageResourcesAction')"
+    :appBarTitle="$tr('documentTitle', { lessonName: currentLesson.title })"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
