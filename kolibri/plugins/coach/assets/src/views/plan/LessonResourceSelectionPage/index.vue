@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
     :appBarTitle="coachStrings.$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
