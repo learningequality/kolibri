@@ -15,11 +15,7 @@ env.set_env()
 
 #: This may not be the exact version as it's subject to modification with
 #: get_version() - use ``kolibri.__version__`` for the exact version string.
-<<<<<<< 4e0397ffa164455ea975c6a65bb3ad56b0af74a7
 VERSION = (0, 13, 0, "alpha", 0)
-=======
-VERSION = (0, 12, 4, "final", 0)
->>>>>>> Update VERSION for 0.12.4
 
 __author__ = "Learning Equality"
 __email__ = "info@learningequality.org"
