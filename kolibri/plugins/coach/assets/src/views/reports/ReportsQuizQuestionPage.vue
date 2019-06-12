@@ -2,8 +2,10 @@
 
   <CoreBase
     :immersivePage="true"
+    :immersivePagePrimary="true"
+    immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="title"
+    :appBarTitle="quizName"
     :pageTitle="title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
@@ -32,6 +34,11 @@
       ...mapState('questionDetail', ['title']),
       toolbarRoute() {
         return this.classRoute('ReportsQuizQuestionListPage', {});
+      },
+      quizName() {
+        if (this.exams && this.exams.length > 0) {
+          return this.exams[0].title;
+        }
       },
     },
     methods: {
