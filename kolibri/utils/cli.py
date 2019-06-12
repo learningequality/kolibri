@@ -646,6 +646,7 @@ def _get_port(port):
 
 def _cleanup_before_quitting(signum, frame):
     from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+
     unregister_zeroconf_service()
     signal.signal(signum, signal.SIG_DFL)
     os.kill(os.getpid(), signum)

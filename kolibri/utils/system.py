@@ -46,17 +46,17 @@ def _posix_pid_exists(pid):
         return True
 
 
-
 def _kill_pid(pid, softkill_signal_number):
     """Kill a PID by sending a signal, starting with a softer one and then escalating as needed"""
-
     try:
         logger.debug("Attempting to soft kill process with pid %d..." % pid)
         os.kill(pid, softkill_signal_number)
         logger.debug("Soft kill signal sent without error.")
     # process does not exist
     except OSError:
-        logger.debug("Soft kill signal could not be sent (OSError); process may not exist?")
+        logger.debug(
+            "Soft kill signal could not be sent (OSError); process may not exist?"
+        )
         return
     # give some time for the process to clean itself up gracefully bfore we force anything
     i = 0
@@ -65,7 +65,10 @@ def _kill_pid(pid, softkill_signal_number):
         i += 1
     # if process didn't exit cleanly, make one last effort to kill it
     if pid_exists(pid):
-        logger.debug("Process wth pid %s still exists after soft kill signal; attempting a SIGKILL." % pid)
+        logger.debug(
+            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
+            % pid
+        )
         os.kill(pid, signal.SIGKILL)
         logger.debug("SIGKILL signal sent without error.")
 

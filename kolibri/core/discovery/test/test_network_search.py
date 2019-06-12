@@ -1,23 +1,22 @@
-import mock
 import socket
 
+import mock
 from django.test import TestCase
 from zeroconf import BadTypeInNameException
 from zeroconf import service_type_name
-from zeroconf import Zeroconf
 from zeroconf import ServiceInfo
+from zeroconf import Zeroconf
 
-from .helpers import mock_request
-from ..utils.network.search import SERVICE_TYPE
-from ..utils.network.search import LOCAL_DOMAIN
 from ..utils.network.search import _id_from_name
-from ..utils.network.search import register_zeroconf_service
-from ..utils.network.search import unregister_zeroconf_service
 from ..utils.network.search import get_available_instances
-from ..utils.network.search import ZEROCONF_STATE
 from ..utils.network.search import initialize_zeroconf_listener
 from ..utils.network.search import KolibriZeroconfService
+from ..utils.network.search import LOCAL_DOMAIN
 from ..utils.network.search import NonUniqueNameException
+from ..utils.network.search import register_zeroconf_service
+from ..utils.network.search import SERVICE_TYPE
+from ..utils.network.search import unregister_zeroconf_service
+from ..utils.network.search import ZEROCONF_STATE
 
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555
