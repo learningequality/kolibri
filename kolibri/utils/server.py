@@ -73,7 +73,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def run_services():
+def run_services(port):
 
     # start the pingback thread
     PingbackThread.start_command()
@@ -100,7 +100,7 @@ def start(port=8080, run_cherrypy=True):
     :param: port: Port number (default: 8080)
     """
 
-    run_services()
+    run_services(port=port)
 
     # Write the new PID
     _write_pid_file(PID_FILE, port=port)
@@ -125,12 +125,12 @@ def start(port=8080, run_cherrypy=True):
         block()
 
 
-def services():
+def services(port):
     """
     Runs the background services.
     """
 
-    run_services()
+    run_services(port=port)
 
     # Write the new PID
     _write_pid_file(PID_FILE)

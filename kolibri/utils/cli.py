@@ -420,7 +420,7 @@ status.codes = {
 }
 
 
-def services(daemon=True):
+def services(port, daemon=True):
     """
     Start the kolibri background services.
 
@@ -446,7 +446,7 @@ def services(daemon=True):
 
         become_daemon(**kwargs)
 
-    server.services()
+    server.services(port=port)
 
 
 def setup_logging(debug=False):
@@ -657,8 +657,9 @@ def main(args=None):  # noqa: max-complexity=13
 
     debug = arguments["--debug"]
 
+    port = _get_port(arguments["--port"])
+
     if arguments["start"]:
-        port = _get_port(arguments["--port"])
         if OPTIONS["Server"]["CHERRYPY_START"]:
             check_other_kolibri_running(port)
 
@@ -733,7 +734,7 @@ def main(args=None):  # noqa: max-complexity=13
                 "Impossible to create file lock to communicate starting process"
             )
 
-        services(daemon=daemon)
+        services(port=port, daemon=daemon)
         return
 
     if arguments["language"] and arguments["setdefault"]:
