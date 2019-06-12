@@ -2,6 +2,8 @@
 
   <CoreBase
     :immersivePage="true"
+    :immersivePagePrimary="true"
+    immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="title"
     :pageTitle="title"
