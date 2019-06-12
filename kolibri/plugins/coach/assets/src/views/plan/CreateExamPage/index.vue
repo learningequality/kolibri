@@ -2,10 +2,10 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    immersivePageIcon="close"
+    :immersivePagePrimary='false'
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('createNewExam')"
+    :appBarTitle="$tr('newExam')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="$tr('documentTitle')"
@@ -492,6 +492,7 @@
       },
     },
     $trs: {
+      newExam: 'New quiz',
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       title: 'Title',
