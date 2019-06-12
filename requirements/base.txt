@@ -33,3 +33,4 @@ sentry-sdk==0.7.9
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
+-e git://github.com/learningequality/python-zeroconf.git@8d0e70029a925862e965519c9d42b4016d694d5c#egg=zeroconf
