@@ -5,7 +5,7 @@
     :immersivePagePrimary="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="quizName"
+    :appBarTitle="exam.title"
     :pageTitle="title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
@@ -31,14 +31,9 @@
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState('questionDetail', ['title']),
+      ...mapState('questionDetail', ['title', 'exam']),
       toolbarRoute() {
         return this.classRoute('ReportsQuizQuestionListPage', {});
-      },
-      quizName() {
-        if (this.exams && this.exams.length > 0) {
-          return this.exams[0].title;
-        }
       },
     },
     methods: {
