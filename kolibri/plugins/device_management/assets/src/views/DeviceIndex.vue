@@ -74,7 +74,11 @@
         return pageNameComponentMap[this.pageName];
       },
       currentPageAppBarTitle() {
-        return this.appBarTitle || this.$tr('deviceManagementTitle');
+        if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {
+          return this.$tr('permissionsLabel');
+        } else {
+          return this.appBarTitle || this.$tr('deviceManagementTitle');
+        }
       },
     },
     watch: {
@@ -114,6 +118,7 @@
       availableChannelsTitle: 'Available Channels',
       deviceManagementTitle: 'Device',
       selectContentTitle: 'Select Content',
+      permissionsLabel: 'Permissions',
     },
   };
 
