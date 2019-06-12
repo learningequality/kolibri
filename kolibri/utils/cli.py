@@ -644,6 +644,13 @@ def _get_port(port):
     return int(port) if port else OPTIONS["Deployment"]["HTTP_PORT"]
 
 
+def _cleanup_before_quitting(signum, frame):
+    from kolibri.core.discovery.utils.network.search import unregister_zeroconf_service
+    unregister_zeroconf_service()
+    signal.signal(signum, signal.SIG_DFL)
+    os.kill(os.getpid(), signum)
+
+
 def main(args=None):  # noqa: max-complexity=13
     """
     Kolibri's main function. Parses arguments and calls utility functions.
@@ -651,7 +658,8 @@ def main(args=None):  # noqa: max-complexity=13
     to use main() for integration tests in order to test the argument API.
     """
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, _cleanup_before_quitting)
+    signal.signal(signal.SIGTERM, _cleanup_before_quitting)
 
     arguments, django_args = parse_args(args)
 
