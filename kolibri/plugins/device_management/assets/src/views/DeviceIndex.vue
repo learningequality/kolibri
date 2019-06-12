@@ -3,7 +3,7 @@
   <CoreBase
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
-    :immersivePagePrimary="true"
+    :immersivePagePrimary="immersivePagePrimary"
     :immersivePageRoute="immersivePageRoute"
     :immersivePageIcon="immersivePageIcon"
     :toolbarTitle="currentPageAppBarTitle"
@@ -80,6 +80,9 @@
           return this.appBarTitle || this.$tr('deviceManagementTitle');
         }
       },
+      immersivePagePrimary() {
+        return this.immersivePageIcon === "arrow_back";
+      }
     },
     watch: {
       inContentManagementPage(val) {
