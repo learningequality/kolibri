@@ -71,7 +71,7 @@
       },
       appBarTitle() {
         if (this.isEnrollmentPage) {
-          if(this.class) {
+          if (this.class) {
             return this.class.name || '';
           }
         }

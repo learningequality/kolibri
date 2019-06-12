@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    :immersivePagePrimary='false'
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="$tr('newExam')"
     :authorized="userIsAuthorized"
