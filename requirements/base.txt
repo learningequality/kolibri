@@ -18,7 +18,7 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.1.15
-kolibri_exercise_perseus_plugin==1.1.7
+kolibri_exercise_perseus_plugin==1.1.8
 jsonfield==2.0.2
 morango==0.4.5
 requests-toolbelt==0.8.0
@@ -26,7 +26,7 @@ clint==0.5.1
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
-ifcfg==0.17
+ifcfg==0.18
 sqlalchemy==1.2.10
 semver==2.8.1
 sentry-sdk==0.7.9

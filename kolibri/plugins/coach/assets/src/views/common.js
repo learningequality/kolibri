@@ -261,6 +261,10 @@ export default {
               groups: 'true',
             }
           );
+        case LastPages.EXERCISE_QUESTION_LIST:
+          return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+            exerciseId: this.$route.query.exerciseId,
+          });
         case LastPages.RESOURCE_LEARNER_LIST:
           return this.classRoute('ReportsLessonResourceLearnerListPage', {
             resourceId: this.$route.query.resourceId,
