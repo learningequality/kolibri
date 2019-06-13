@@ -5,7 +5,7 @@
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
     :immersivePagePrimary="true"
-    :appBarTitle="parentNodeTitle"
+    :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -74,12 +74,10 @@
         }
         return false;
       },
-      parentNodeTitle() {
-        try {
-          return this.resources.ancestors.find(i => i.id === this.currentContentNode.parent).title;
-        } catch (e) {
-          return '';
-        }
+      lessonNameLabel() {
+        const lessonId = this.$route.params.lessonId;
+        const lesson = this.lessons.find(l => l.id === lessonId);
+        return lesson ? lesson.title : $tr('lessonLabel');
       },
     },
     beforeDestroy() {
@@ -98,7 +96,9 @@
         this.createSnackbar(indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 }));
       },
     },
-    $trs: {},
+    $trs: {
+      lessonLabel: 'Lesson',
+    },
   };
 
 </script>
