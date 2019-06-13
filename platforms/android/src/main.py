@@ -49,11 +49,11 @@ def start_django():
     from django.conf import settings
     settings.DEBUG = False
 
-#     logging.info("Preparing Kolibri for launch...")
-#     from django.core.management import call_command
-#     call_command("migrate", interactive=False, database="default")
+    logging.info("Preparing Kolibri for launch...")
+    from django.core.management import call_command
+    call_command("migrate", interactive=False, database="default")
 
-#     call_command("collectstatic", interactive=False)
+    call_command("collectstatic", interactive=False)
 
     # remove this after Kolibri no longer needs it
     if sys.version[0] == '2':
