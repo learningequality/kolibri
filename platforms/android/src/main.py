@@ -36,6 +36,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base
 if pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
     os.environ["TZ"] = Timezone.getDefault().getDisplayName()
+    os.environ["LC_ALL"] = "en_US.UTF-8"
 
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
