@@ -6,6 +6,6 @@ sphinx-intl
 sphinx-rtd-theme
 sphinx-autobuild
 pex<1.6
-setuptools>=20.3,<41,!=34.*,!=35.*  # https://github.com/pantsbuild/pex/blob/master/pex/version.py#L6 # pyup: ignore
+setuptools>=20.3,!=34.*,!=35.*  # https://github.com/pantsbuild/pex/blob/master/pex/version.py#L6 # pyup: ignore
 beautifulsoup4==4.7.1
 requests==2.21.0
