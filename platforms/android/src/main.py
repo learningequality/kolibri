@@ -43,17 +43,17 @@ if pew.ui.platform == "android":
 
 
 def start_django():
-    import django
-    django.setup()
+#     import django
+#     django.setup()
 
-    from django.conf import settings
-    settings.DEBUG = False
+#     from django.conf import settings
+#     settings.DEBUG = False
 
-    logging.info("Preparing Kolibri for launch...")
-    from django.core.management import call_command
-    call_command("migrate", interactive=False, database="default")
+#     logging.info("Preparing Kolibri for launch...")
+#     from django.core.management import call_command
+#     call_command("migrate", interactive=False, database="default")
 
-    call_command("collectstatic", interactive=False)
+#     call_command("collectstatic", interactive=False)
 
     # remove this after Kolibri no longer needs it
     if sys.version[0] == '2':
@@ -61,8 +61,10 @@ def start_django():
         sys.setdefaultencoding('utf8')
 
     logging.info("Starting server...")
-    from kolibri.utils.server import run_server
-    run_server(5000)
+#     from kolibri.utils.server import run_server
+#     run_server(5000)
+    from kolibri.utils.server import start
+    start(port=5000)
 
 
 class Application(pew.ui.PEWApp):
