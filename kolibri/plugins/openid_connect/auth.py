@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.auth import SuspiciousOperation
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,11 +12,11 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         """Returns a User instance if 1 user is found. Creates a user if not found
         and configured to do so. Returns nothing if multiple users are matched."""
         user_info = self.get_userinfo(access_token, id_token, payload)
-        username = user_info.get('username')
+        username = user_info.get("username")
 
         claims_verified = self.verify_claims(user_info)
         if not claims_verified:
-            msg = 'Claims verification failed'
+            msg = "Claims verification failed"
             raise SuspiciousOperation(msg)
 
         # email based filtering
@@ -26,36 +27,42 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         elif len(users) > 1:
             # In the rare case that two user accounts have the same email address,
             # bail. Randomly selecting one seems really wrong.
-            msg = 'Multiple users returned'
+            msg = "Multiple users returned"
             raise SuspiciousOperation(msg)
-        elif self.get_settings('OIDC_CREATE_USER', True):
+        elif self.get_settings("OIDC_CREATE_USER", True):
             user = self.create_user(user_info)
             return user
         else:
-            logger.debug('Login failed: No user with username  %s found, and '
-                         'OIDC_CREATE_USER is False', username)
+            logger.debug(
+                "Login failed: No user with username  %s found, and "
+                "OIDC_CREATE_USER is False",
+                username,
+            )
             return None
 
     def verify_claims(self, claims):
         """Verify the provided claims to decide if authentication should be allowed."""
         # Verify claims required by default configuration
-        scopes = self.get_settings('OIDC_RP_SCOPES', 'openid profile')
-        if 'username' in scopes.split():
-            return 'username' in claims
+        scopes = self.get_settings("OIDC_RP_SCOPES", "openid profile")
+        if "username" in scopes.split():
+            return "username" in claims
 
         return True
 
     def filter_users_by_claims(self, claims):
         """Return all users matching the specified email."""
-        username = claims.get('username')
+        username = claims.get("username")
         if not username:
             return self.UserModel.objects.none()
         return self.UserModel.objects.filter(username__iexact=username)
 
     def create_user(self, claims):
         """Return object for a newly created user account."""
-        username = claims.get('username')
-        full_name = claims.get('name', '')
+        username = claims.get("username")
+        full_name = claims.get("name", "")
         email = username  # not needed in Kolibri, email is not mandatory
+        password = uuid4().hex  # Kolibri doesn't allow an empty password. This is not going to be used
 
-        return self.UserModel.objects.create_user(username, email=email, full_name=full_name, password=uuid4().hex)
+        return self.UserModel.objects.create_user(
+            username, email=email, full_name=full_name, password=password
+        )
