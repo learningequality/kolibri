@@ -43,11 +43,11 @@ if pew.ui.platform == "android":
 
 
 def start_django():
-#     import django
-#     django.setup()
+    import django
+    django.setup()
 
-#     from django.conf import settings
-#     settings.DEBUG = False
+    from django.conf import settings
+    settings.DEBUG = False
 
 #     logging.info("Preparing Kolibri for launch...")
 #     from django.core.management import call_command
