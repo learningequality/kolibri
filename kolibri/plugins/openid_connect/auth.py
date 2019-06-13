@@ -60,8 +60,10 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         """Return object for a newly created user account."""
         username = claims.get("username")
         full_name = claims.get("name", "")
-        email = username  # not needed in Kolibri, email is not mandatory
-        password = uuid4().hex  # Kolibri doesn't allow an empty password. This is not going to be used
+        # not needed in Kolibri, email is not mandatory:
+        email = username
+        # Kolibri doesn't allow an empty password. This isn't going to be used:
+        password = uuid4().hex
 
         return self.UserModel.objects.create_user(
             username, email=email, full_name=full_name, password=password
