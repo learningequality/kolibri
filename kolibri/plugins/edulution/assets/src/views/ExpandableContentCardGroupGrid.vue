@@ -38,7 +38,7 @@
         v-if="child.children.length"
         :contents="child.children"
         :genContentLink="genContentLink"
-        style="padding-left: 16px; padding-top: 16px"
+        style="padding-left: 48px; padding-top: 48px"
       />
     </div>
   </div>
