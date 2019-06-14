@@ -89,18 +89,8 @@ SET_KEYS = ["INSTALLED_APPS", "DISABLED_APPS"]
 
 class ConfigDict(dict):
     def __init__(self):
-        if os.path.isfile(conf_file):
-            try:
-                # Open up the config file and load settings
-                # use default OS encoding
-                with open(conf_file, "r") as kolibri_conf_file:
-                    self.update(json.load(kolibri_conf_file))
-                return
-            except json.JSONDecodeError:
-                pass
         # If the settings file does not exist or does not contain
         # valid JSON then create it
-        logger.info("Initialize kolibri_settings.json..")
         self.update(
             {
                 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
@@ -110,6 +100,16 @@ class ConfigDict(dict):
                 "DISABLED_APPS": [],
             }
         )
+        if os.path.isfile(conf_file):
+            try:
+                # Open up the config file and load settings
+                # use default OS encoding
+                with open(conf_file, "r") as kolibri_conf_file:
+                    self.update(json.load(kolibri_conf_file))
+                return
+            except json.JSONDecodeError:
+                pass
+        logger.info("Initialize kolibri_settings.json..")
         self.save()
 
     @property
