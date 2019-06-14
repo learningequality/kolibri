@@ -64,7 +64,6 @@ try:
     DEFAULT_PLUGINS = plugins
 except ImportError:
     DEFAULT_PLUGINS = [
-        "kolibri.plugins.openid_connect",
         "kolibri.plugins.facility_management",
         "kolibri.plugins.device_management",
         "kolibri.plugins.learn",
@@ -78,6 +77,7 @@ except ImportError:
         "kolibri.plugins.style_guide",
         "kolibri.plugins.document_epub_render",
         "kolibri.plugins.default_theme",
+        "kolibri.plugins.openid_connect",
     ]
 
 #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
