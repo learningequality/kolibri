@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('modalTitle', { collectionName: selectedSubscriptions})"
+    :title="$tr('modalTitle', { collectionName: collectionName })"
     :submitText="$tr('saveSelectionsButtonName')"
     :cancelText="$tr('cancel')"
     @submit="saveSelectedSubscriptions"
@@ -51,6 +51,7 @@
     data() {
       return {
         selectedChannels: [],
+        isSelectedChannelsInitialized: false,
       };
     },
     computed: {
@@ -79,11 +80,13 @@
       // },
       isChecked(id) {
         let jsonSubs = JSON.parse(this.selectedSubscriptions);
-        jsonSubs.includes(id);
-        //this.addToSelectedArray(id, true);
         return jsonSubs.includes(id);
       },
       addToSelectedArray(id, checked) {
+        if (!this.isSelectedChannelsInitialized) {
+          this.selectedChannels = JSON.parse(this.selectedSubscriptions);
+          this.isSelectedChannelsInitialized = true;
+        }
         if (checked) {
           this.selectedChannels.push(id);
         } else {
@@ -91,10 +94,14 @@
         }
       },
       saveSelectedSubscriptions() {
-        this.saveSubscription({
-          id: this.collectionId,
-          choices: '["a9b25ac9814742c883ce1b0579448337",456]',
-        });
+        if (this.isSelectedChannelsInitialized) {
+          this.saveSubscription({
+            id: this.collectionId,
+            choices: JSON.stringify(this.selectedChannels),
+          });
+        } else {
+          this.close();
+        }
       },
       close() {
         this.displayModal(false);
