@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`app bar component drop down user menu should show the language modal link if no components are added and user is not logged in 1`] = `
-<div style="background-color: rgb(153, 97, 137);" navshown="true">
+<div style="background-color: rgb(0, 165, 70);" navshown="true">
   <div class="ui-toolbar app-bar ui-toolbar--type-clear ui-toolbar--text-color-white ui-toolbar--progress-position-bottom" style="height: 20px;">
     <div class="ui-toolbar__left">
       <div class="ui-toolbar__nav-icon"><button type="button" tabindex="0" class="keen-ui-icon-button keen-ui-icon-button--type-secondary keen-ui-icon-button--color-default keen-ui-icon-button--size-normal KeenUiIconButton-noKey-0_1e7m9ar">
-          <div class="keen-ui-icon-button-icon" style="color: rgb(153, 97, 137);">
+          <div class="keen-ui-icon-button-icon" style="color: rgb(0, 165, 70);">
             <mat-svg name="menu" category="navigation" class="icon"></mat-svg>
           </div>
           <div class="ui-progress-circular keen-ui-icon-button-progress ui-progress-circular--type-indeterminate" style="width: 18px; height: 18px; display: none;" name="ui-progress-circular--transition-fade"><svg role="progressbar" viewBox="25 25 50 50" aria-valuemax="100" aria-valuemin="0" class="ui-progress-circular-indeterminate" style="stroke: #03a9f4;">
-              <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular-indeterminate-path" style="stroke: #996189;"></circle>
+              <circle cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10" stroke-width="4.5" class="ui-progress-circular-indeterminate-path" style="stroke: #00A546;"></circle>
             </svg></div>
           <!---->
           <!---->
