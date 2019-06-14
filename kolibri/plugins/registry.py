@@ -45,47 +45,30 @@ from __future__ import unicode_literals
 import importlib
 import logging
 
-from django.conf.urls import include
-from django.conf.urls import url
+from django.utils.functional import SimpleLazyObject
 
 from .base import KolibriPluginBase
 from kolibri.core.device.translation import i18n_patterns
+from kolibri.utils.conf import config
 
 logger = logging.getLogger(__name__)
 
-# : Main registry is private for now, as we figure out if there is any external
-# : module that has a legitimate business
-__registry = []
 
-__initialized = False
+def __register(apps, registry):
+    for app in apps:
+        try:
 
+            # Handle AppConfig INSTALLED_APPS string
+            if ".apps." in app:
+                # remove .apps.Config line in string
+                import_string = app.split(".apps.")[0]
+            else:
+                import_string = app
 
-def initialize(apps=None):
-    """
-    Called once at load time to register hook callbacks.
-    """
-    global __initialized, __registry
+            if import_string not in registry["apps"]:
 
-    if not apps:
-        from django.conf import settings
-
-        apps = settings.INSTALLED_APPS
-
-    if not __initialized:
-        logger.debug("Loading kolibri plugin registry...")
-
-        for app in apps:
-            try:
-
-                # Handle AppConfig INSTALLED_APPS string
-                if ".apps." in app:
-                    # remove .apps.Config line in string
-                    import_string = app.split(".apps.")[0]
-                else:
-                    import_string = app
-
-                import_string += ".kolibri_plugin"
-                plugin_module = importlib.import_module(import_string)
+                plugin_module_string = import_string + ".kolibri_plugin"
+                plugin_module = importlib.import_module(plugin_module_string)
 
                 logger.debug("Loaded kolibri plugin: {}".format(app))
                 # Load a list of all class types in module
@@ -112,19 +95,38 @@ def initialize(apps=None):
                 for PluginClass in plugin_classes:
                     # Initialize the class, nothing more happens for now.
                     logger.debug("Initializing plugin: {}".format(PluginClass.__name__))
-                    __registry.append(PluginClass())
-            except ImportError:
-                pass
+                    registry["plugins"].append(PluginClass())
+                registry["apps"].add(import_string)
+        except ImportError:
+            pass
 
-        __initialized = True
+
+def __initialize():
+    """
+    Called once to register hook callbacks.
+    """
+    registry = {"apps": set(), "plugins": []}
+    logger.debug("Loading kolibri plugin registry...")
+
+    __register(config.ACTIVE_PLUGINS, registry)
+    return registry
+
+
+__registry = SimpleLazyObject(__initialize)
+
+
+def register(apps):
+    __register(apps, __registry)
 
 
 def get_urls():
-    global __initialized, __registry
-    assert __initialized, "Registry not initialized"
+    from django.conf.urls import include
+    from django.conf.urls import url
+
+    global __registry
 
     urlpatterns = []
-    for plugin_instance in __registry:
+    for plugin_instance in __registry["plugins"]:
         url_module = plugin_instance.url_module()
         api_url_module = plugin_instance.api_url_module()
         instance_patterns = []
