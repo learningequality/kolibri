@@ -752,7 +752,8 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True)
+        AllowCoach()
+        | IsFromSameFacility(read_only=True)
         | CollectionSpecificRoleBasedPermissions()
         | AnonUserCanReadFacilities()
         | CoachesCanManageGroupsForTheirClasses()
