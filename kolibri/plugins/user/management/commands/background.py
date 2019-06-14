@@ -52,7 +52,7 @@ class Command(BaseCommand):
             ))
             raise SystemExit(1)
 
-        img_path = os.path.join(user_static_directory, 'background1.jpg')
+        img_path = os.path.join(user_static_directory, 'background.jpg')
         backup_img_path = os.path.join(user_static_directory, 'background-backup')
 
         if options['command'] == 'set':
