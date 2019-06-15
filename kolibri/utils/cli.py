@@ -659,8 +659,12 @@ def main(args=None):  # noqa: max-complexity=13
     to use main() for integration tests in order to test the argument API.
     """
 
-    signal.signal(signal.SIGINT, _cleanup_before_quitting)
-    signal.signal(signal.SIGTERM, _cleanup_before_quitting)
+    try:
+        signal.signal(signal.SIGINT, _cleanup_before_quitting)
+        signal.signal(signal.SIGTERM, _cleanup_before_quitting)
+        logger.info("Added signal handlers for cleaning up on exit...")
+    except ValueError:
+        logger.warn("Error adding signal handlers for cleaning up on exit...")
 
     arguments, django_args = parse_args(args)
 
