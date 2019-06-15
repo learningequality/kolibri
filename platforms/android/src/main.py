@@ -16,9 +16,10 @@ logging.info("Entering main.py...")
 
 if pew.ui.platform == "android":
     from jnius import autoclass
-    PythonActivity = autoclass('org.kivy.android.PythonActivity')
-    File = autoclass('java.io.File')
-    Timezone = autoclass('java.util.TimeZone')
+
+    PythonActivity = autoclass("org.kivy.android.PythonActivity")
+    File = autoclass("java.io.File")
+    Timezone = autoclass("java.util.TimeZone")
 
 
 # TODO check for storage availibility, allow user to chose sd card or internal
@@ -62,8 +63,8 @@ class Application(pew.ui.PEWApp):
         """
 
         # Set loading screen
-        loader_page = os.path.abspath(os.path.join('assets', '_load.html'))
-        self.loader_url = 'file://{}'.format(loader_page)
+        loader_page = os.path.abspath(os.path.join("assets", "_load.html"))
+        self.loader_url = "file://{}".format(loader_page)
         self.kolibri_loaded = False
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
@@ -91,7 +92,11 @@ class Application(pew.ui.PEWApp):
         # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
         # during load, so we do it here.
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if pew.ui.platform == 'android' and not self.kolibri_loaded and url != self.loader_url:
+        if (
+            pew.ui.platform == "android"
+            and not self.kolibri_loaded
+            and url != self.loader_url
+        ):
             # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
             # for clarity.
             self.kolibri_loaded = True
@@ -100,7 +105,7 @@ class Application(pew.ui.PEWApp):
     def wait_for_server(self):
         from kolibri.utils import server
 
-        home_url = 'http://localhost:5000'
+        home_url = "http://localhost:5000"
 
         # test url to see if servr has started
         def running():
@@ -112,12 +117,14 @@ class Application(pew.ui.PEWApp):
 
         # Tie up this thread until the server is running
         while not running():
-            logging.info('Kolibri server not yet started, checking again in one second...')
+            logging.info(
+                "Kolibri server not yet started, checking again in one second..."
+            )
             time.sleep(1)
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.view.get_view_state()
-        logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
+        logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
 
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
             pew.ui.run_on_main_thread(self.view.load_url(saved_state["URL"]))
@@ -127,6 +134,7 @@ class Application(pew.ui.PEWApp):
 
     def get_main_window(self):
         return self.view
+
 
 if __name__ == "__main__":
     app = Application()
