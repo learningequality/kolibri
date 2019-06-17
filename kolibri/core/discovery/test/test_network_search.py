@@ -115,6 +115,9 @@ class TestNetworkSearch(TestCase):
                 "port": MOCK_PORT,
                 "host": ".".join([MOCK_ID, LOCAL_DOMAIN]),
                 "data": {"facilities": [], "channels": []},
+                "base_url": "http://{ip}:{port}/".format(
+                    ip=MOCK_INTERFACE_IP, port=MOCK_PORT
+                ),
             }
         ]
         register_zeroconf_service(MOCK_PORT, MOCK_ID)
