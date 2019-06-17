@@ -110,11 +110,10 @@ before_script:
 # command to run tests
 script:
   # Get static deps in order to try and compile them all for Python 3
-  - make staticdeps
+  - SKIP_PY_CHECK=1 make staticdeps
   # Ensures that we can compile all source code files in this Python 3+ version
   # This behavior is disabled in the 'include' matrix above for Python 2.7
-  - python -m compileall -x py2only kolibri -q
-  - python --version
+  - make staticdeps-compileall
   - tox -e $TOX_ENV
 
 after_success:
