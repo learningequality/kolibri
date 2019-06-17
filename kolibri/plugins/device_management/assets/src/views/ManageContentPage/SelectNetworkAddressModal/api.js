@@ -1,5 +1,5 @@
 import { RemoteChannelResource } from 'kolibri.resources';
-import { NetworkLocationResource } from '../../../apiResources';
+import { NetworkLocationResource, NetworkSearchResource } from '../../../apiResources';
 
 function channelIsAvailableAtLocation(channelId, location) {
   if (!location.available) {
@@ -40,6 +40,27 @@ export function fetchAddresses(withChannelId = '') {
     // If channelId is not provided, then we are at top-level import workflow and do not
     // disable any locations unless it is unavailable
     return locations.map(location => ({ ...location, hasContent: location.available }));
+  });
+}
+
+export function fetchDevices(withChannelId = '') {
+  return NetworkSearchResource.fetchCollection({ force: true }).then(devices => {
+    // Don't include ourself in the results
+    devices = devices.filter(device => !device.self);
+    // If channelId is provided, then we are in an 'import-more' workflow and we exclude
+    // devices that do not have the channel we are looking for. Otherwise, only filter
+    // out devices that don't have any channels loaded at all.
+    if (withChannelId === '') {
+      return devices.map(device => ({
+        ...device,
+        disabled: device.data.channels.length === 0,
+      }));
+    } else {
+      return devices.map(device => ({
+        ...device,
+        disabled: !device.data.channels.map(channel => channel.id).includes(withChannelId),
+      }));
+    }
   });
 }
 

@@ -5,6 +5,7 @@
       v-if="stage === Stages.SELECT_ADDRESS"
       @cancel="resetContentWizardState"
       @click_add_address="goToAddAddress"
+      @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
       @submit="handleSelectAddressSubmit"
     />
@@ -12,6 +13,11 @@
       v-if="stage === Stages.ADD_ADDRESS"
       @cancel="goToSelectAddress"
       @added_address="handleAddedAddress"
+    />
+    <SearchAddressForm
+      v-if="stage === Stages.SEARCH_ADDRESS"
+      @cancel="goToSelectAddress"
+      @submit="handleSelectAddressSubmit"
     />
   </div>
 
@@ -24,10 +30,12 @@
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
   import AddAddressForm from './AddAddressForm';
   import SelectAddressForm from './SelectAddressForm';
+  import SearchAddressForm from './SearchAddressForm';
 
   const Stages = {
     ADD_ADDRESS: 'ADD_ADDRESS',
     SELECT_ADDRESS: 'SELECT_ADDRESS',
+    SEARCH_ADDRESS: 'SEARCH_ADDRESS',
   };
 
   export default {
@@ -35,6 +43,7 @@
     components: {
       AddAddressForm,
       SelectAddressForm,
+      SearchAddressForm,
     },
     data() {
       return {
@@ -53,6 +62,9 @@
       }),
       goToAddAddress() {
         this.stage = Stages.ADD_ADDRESS;
+      },
+      goToSearchAddress() {
+        this.stage = Stages.SEARCH_ADDRESS;
       },
       goToSelectAddress() {
         this.stage = Stages.SELECT_ADDRESS;

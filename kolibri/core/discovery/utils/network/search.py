@@ -113,6 +113,7 @@ class KolibriZeroconfListener(object):
             "port": info.port,
             "host": info.server.strip("."),
             "data": {key: json.loads(val) for (key, val) in info.properties.items()},
+            "base_url": "http://{ip}:{port}/".format(ip=ip, port=info.port),
         }
         logger.info(
             "Kolibri instance '%s' joined zeroconf network; service info: %s\n"

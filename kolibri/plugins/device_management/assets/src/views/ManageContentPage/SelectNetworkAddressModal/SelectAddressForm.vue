@@ -24,13 +24,25 @@
       />
     </UiAlert>
 
-    <KButton
-      v-show="!newAddressButtonDisabled"
-      class="new-address-button"
-      :text="$tr('newAddressButtonLabel')"
-      appearance="basic-link"
-      @click="$emit('click_add_address')"
-    />
+    <template v-show="!newAddressButtonDisabled">
+
+      <KButton
+        class="new-address-button"
+        :text="$tr('newAddressButtonLabel')"
+        appearance="basic-link"
+        @click="$emit('click_add_address')"
+      />
+
+      /
+
+      <KButton
+        class="search-address-button"
+        :text="$tr('searchAddressButtonLabel')"
+        appearance="basic-link"
+        @click="$emit('click_search_address')"
+      />
+
+    </template>
 
     <template v-for="(a, idx) in addresses">
       <div :key="`div-${idx}`">
@@ -204,6 +216,7 @@
       forgetAddressButtonLabel: 'Forget',
       header: 'Select network address',
       newAddressButtonLabel: 'Add new address',
+      searchAddressButtonLabel: 'Search for devices',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
       submitButtonLabel: 'Continue',
