@@ -20,7 +20,7 @@
             v-model="selectedDeviceId"
             class="radio-button"
             :value="d.id"
-            :label="d.host"
+            :label="formatDeviceName(d)"
             :description="d.base_url"
             :disabled="d.disabled"
           />
@@ -111,6 +111,9 @@
       this.stopPolling();
     },
     methods: {
+      formatDeviceName(device) {
+        return device.host + ' (' + device.data.facilities[0].name + ')';
+      },
       handleSubmit() {
         this.attemptingToConnect = true;
         const device = find(this.devices, { id: this.selectedDeviceId });
