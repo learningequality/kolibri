@@ -36,7 +36,10 @@ from kolibri.plugins import hooks
 from kolibri.utils import conf
 
 # Use the cache specifically for built files
-cache = caches["built_files"]
+# Only reference the specific cache inside methods
+# to allow this file to be imported without initiating
+# Django settings configuration.
+CACHE_NAMESPACE = "built_files"
 
 
 class BundleNotFound(Exception):
@@ -111,7 +114,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         cache_key = "json_stats_file_cache_{slug}".format(slug=self.unique_slug)
         try:
-            stats_file_content = cache.get(cache_key)
+            stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
             if not stats_file_content or getattr(
                 django_settings, "DEVELOPER_MODE", False
             ):
@@ -134,7 +137,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 }
                 # Don't invalidate during runtime.
                 # Might need to change this if we move to a different cache backend.
-                cache.set(cache_key, stats_file_content, None)
+                caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
             return stats_file_content
         except IOError as e:
             if hasattr(e, "filename"):
@@ -264,7 +267,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         cache_key = "json_stats_file_cache_{slug}_{lang}".format(
             slug=self.unique_slug, lang=lang_code
         )
-        message_file_content = cache.get(cache_key)
+        message_file_content = caches[CACHE_NAMESPACE].get(cache_key)
         if not message_file_content or getattr(
             django_settings, "DEVELOPER_MODE", False
         ):
@@ -275,7 +278,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     message_file_content = json.dumps(
                         json.load(f), separators=(",", ":")
                     )
-                cache.set(cache_key, message_file_content, None)
+                caches[CACHE_NAMESPACE].set(cache_key, message_file_content, None)
         return message_file_content
 
     def sorted_chunks(self):
@@ -377,7 +380,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         Reads file contents using given `charset` and returns it as text.
         """
         cache_key = "inline_static_file_content_{url}".format(url=url)
-        content = cache.get(cache_key)
+        content = caches[CACHE_NAMESPACE].get(cache_key)
         if content is None:
             # Removes Byte Oorder Mark
             charset = "utf-8-sig"
@@ -394,7 +397,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             with codecs.open(filename, "r", charset) as fd:
                 content = fd.read()
             # Cache this forever, as URLs will update for new files
-            cache.set(cache_key, content, None)
+            caches[CACHE_NAMESPACE].set(cache_key, content, None)
         return content
 
     def render_to_page_load_sync_html(self):

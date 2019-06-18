@@ -27,6 +27,7 @@ from .sanity_checks import check_other_kolibri_running  # noqa
 from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
+from kolibri.plugins.registry import apply_settings  # noqa
 from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
@@ -138,6 +139,7 @@ def initialize(debug=False, skip_update=False):
 
     :param: debug: Tells initialization to setup logging etc.
     """
+    apply_settings(os.environ["DJANGO_SETTINGS_MODULE"])
     if not os.path.isfile(version_file()):
         django.setup()
 

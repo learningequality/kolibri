@@ -131,6 +131,19 @@ class KolibriPluginBase(object):
         """
         return self._return_module("api_urls")
 
+    def settings_module(self):
+        """
+        Return a settings module, containing Django settings that this
+        module wants to apply.
+
+        For settings that take a tuple or list, these will be appended to the value from
+        the base settings module set through conventional Django means.
+
+        By default settings.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
+        """
+        return self._return_module("settings")
+
     def url_namespace(self):
         """
         Used for the ``namespace`` argument when including the plugin's
