@@ -126,8 +126,6 @@ def get_urls():
     from django.conf.urls import include
     from django.conf.urls import url
 
-    global __registry
-
     urlpatterns = []
     for plugin_instance in __registry["plugins"]:
         url_module = plugin_instance.url_module()
@@ -221,6 +219,12 @@ def _process_module_settings(
 
 
 def apply_settings(settings_module):
+    from django.conf import settings
+
+    if settings.configured:
+        raise RuntimeError(
+            "Attempted to apply settings from plugins after Django settings have been configured"
+        )
 
     settings_module = _validate_settings_module(settings_module)
 
