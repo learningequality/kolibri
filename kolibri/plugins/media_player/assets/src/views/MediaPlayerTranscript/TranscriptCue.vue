@@ -14,8 +14,16 @@
     @click="triggerSeekEvent"
     @keypress.enter="triggerSeekEvent"
   >
-    <span class="transcript-cue-time" :aria-label="$tr('timeLabel')">{{ startTime }}</span>
-    <span class="transcript-cue-text" :aria-label="$tr('textLabel')">
+    <span
+      class="transcript-cue-time"
+      :aria-label="$tr('timeLabel')"
+      :style="timeStyle"
+    >{{ startTime }}</span>
+    <span
+      class="transcript-cue-text"
+      :aria-label="$tr('textLabel')"
+      :style="textStyle"
+    >
       <strong v-if="speaker">{{ speaker }}</strong>
       {{ text }}
     </span>
@@ -50,12 +58,18 @@
     data: () => ({}),
 
     computed: {
-      startTime() {
-        return videojs.formatTime(this.cue.startTime, this.mediaDuration);
-      },
-
       dir() {
         return getLangDir(this.langCode);
+      },
+
+      speaker() {
+        return this.cue.text.match(SPEAKER_REGEX)
+          ? this.cue.text.replace(SPEAKER_REGEX, '$1')
+          : null;
+      },
+
+      startTime() {
+        return videojs.formatTime(this.cue.startTime, this.mediaDuration);
       },
 
       style() {
@@ -74,14 +88,20 @@
         });
       },
 
-      speaker() {
-        return this.cue.text.match(SPEAKER_REGEX)
-          ? this.cue.text.replace(SPEAKER_REGEX, '$1')
-          : null;
-      },
-
       text() {
         return this.cue.text.replace(SPEAKER_REGEX, '');
+      },
+
+      textStyle() {
+        return {
+          'border-color': this.$themeTokens.fineLine,
+        };
+      },
+
+      timeStyle() {
+        return {
+          color: this.$themeTokens.annotation,
+        };
       },
     },
 
@@ -141,12 +161,13 @@
 
     .transcript-cue-time {
       width: 50px;
+      margin-top: 0.1rem;
       font-size: 0.9rem;
     }
 
     .transcript-cue-text {
       width: calc(100% - 50px);
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid transparent;
     }
   }
 

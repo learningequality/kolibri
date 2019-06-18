@@ -3,6 +3,9 @@
   <MediaPlayerFullscreen
     ref="fullscreen"
     class="fill-space"
+    :style="{
+      'border-color': $themeTokens.fineLine,
+    }"
     @changeFullscreen="isFullscreen = $event"
   >
     <div
@@ -507,6 +510,7 @@
     position: relative;
     width: 100%;
     height: 100%;
+    border: 1px solid transparent;
   }
 
   .loading-space {
@@ -541,6 +545,8 @@
 
   .normalize-fullscreen,
   .mimic-fullscreen {
+    border-color: transparent !important;
+
     .wrapper {
       max-height: none;
     }
