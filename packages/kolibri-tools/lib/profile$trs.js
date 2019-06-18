@@ -73,7 +73,7 @@ profile$trs.prototype.apply = function(compiler) {
                * a `with(this) {}` expression which returns an array of valid JS expressions in
                * an array.
                *
-               * It's a string - which is what espree wants anyway - so we can strip the `with` block
+               * It's a string - which is what espree wants anyway - so we can strip the `with()`
                * altogether, leaving us with a stringified array containing everything we need to
                * create a thorough AST of the compiled Vue template.               *
                */
@@ -335,7 +335,6 @@ function namespaceFromPath(path) {
  * profileVueTemplate - parses Vue <template> content.
  * profileJSFile - parses JS files.
  */
-
 
 function profileVueScript(profile, ast, pathname, moduleName) {
   let namespace;

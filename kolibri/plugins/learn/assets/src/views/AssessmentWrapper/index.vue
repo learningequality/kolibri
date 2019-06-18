@@ -522,7 +522,6 @@ oriented data synchronization.
 
   @import '~kolibri.styles.definitions';
 
-  // BOTTOM_SPACED_RESERVED in LearnIndex.vue depends on the height of this container
   .attempts-container {
     height: 111px;
     text-align: left;

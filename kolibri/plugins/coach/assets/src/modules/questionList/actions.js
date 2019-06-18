@@ -53,7 +53,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
         return {
           ...stat,
           ...source,
-          title
+          title,
         };
       });
     } else {
@@ -72,7 +72,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           ...stat,
           exercise_id: exerciseId,
           question_id: stat.item,
-          title
+          title,
         };
       });
     }

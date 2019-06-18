@@ -17,8 +17,6 @@
 
 <script>
 
-  import TruncatedItemList from './TruncatedItemList';
-
   export default {
     name: 'Recipients',
     props: {

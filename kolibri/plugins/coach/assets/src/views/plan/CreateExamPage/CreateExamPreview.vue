@@ -143,7 +143,6 @@
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
-  import CreateExamPage from './index';
 
   export default {
     name: 'CreateExamPreview',

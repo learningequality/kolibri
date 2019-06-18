@@ -146,15 +146,6 @@
         return { name: PageNames.EXAM_CREATION_ROOT };
       },
     },
-    methods: {
-      genRecipientsString(groups) {
-        if (!groups.length) {
-          return this.common$tr('entireClassLabel');
-        } else {
-          return this.common$tr('numberOfGroups', { value: groups.length });
-        }
-      },
-    },
     $trs: {
       allExams: 'All quizzes',
       activeExams: 'Active quizzes',

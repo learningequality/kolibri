@@ -52,10 +52,6 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
 
-  // Bottom toolbar is 111px high on mobile, 113px normally.
-  // We reserve the smaller number so there is no gap on either screen size.
-  const BOTTOM_SPACED_RESERVED = 111;
-
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
     [PageNames.TOPICS_CHANNEL]: TopicsPage,

@@ -7,6 +7,11 @@
 // 4 Total uses
 // 1 Common use
 
+// Don't lint this file because I added random uses of $tr() that parse properly
+// in the AST - but don't really do anything.
+
+/* eslint-disable */
+
 import { mapGetters, mapState } from 'vuex';
 import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 import urls from 'kolibri.urls';

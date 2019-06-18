@@ -8,6 +8,11 @@
  * Total Uses: 5
  */
 
+// Don't lint this file because I added random uses of $tr() that parse properly
+// in the AST - but don't really do anything.
+
+/* eslint-disable */
+
 import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { createTranslator } from 'kolibri.utils.i18n';
