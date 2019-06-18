@@ -40,7 +40,7 @@ profile$trs.prototype.apply = function(compiler) {
         for (const module of chunk.modulesIterable) {
           parsedUrl = module.resource && url.parse(module.resource);
 
-          // The properties for each "Use"
+          // The properties for each "Use" found in this scope.
           let namespace;
           let key;
           let common = false;
@@ -109,24 +109,85 @@ profile$trs.prototype.apply = function(compiler) {
               // AST does not parse the <template> - so compile the template and find what we need.
               if (parsedUrl.pathname) {
                 const vueFile = fs.readFileSync(parsedUrl.pathname);
-                const template = vueCompiler.compile(vueFile.toString());
-                let uses;
+                const template = vueCompiler.compile(vueFile.toString(), {
+                  whitespace: 'condense',
+                });
 
-                // Pass each highest-level node to our extractVueTemplateUses.
+                // The render string given has what we need wrapped in a `with() {}` expression block.
+                // Since it is a string - we will remove the first 18 characters `with(this) { return `
+                // as well as the last character `}` (the closing bracket). Leaving us with a string of
+                // valid JS that has everything we want to try to parse as an ast.
+                const render = template.render.replace(/^.{18}|.{1}$/g, '');
+                ast = espree.parse(render, {
+                  ecmaVersion: '2018',
+                  sourceType: 'module',
+                  ecmaFeatures: { jsx: true, templateStrings: true },
+                });
+                traverse(ast, {
+                  pre: function(node) {
+                    // If the node is a Property and has a key.name of `name` then it's
+                    // going to give us the namespace of our current module.
+                    if (!namespace) {
+                      namespace = namespaceFromPath(parsedUrl.pathname);
+                      if (!namespace) {
+                        logging.error('Fuck figure it out/');
+                      }
+                    }
+                    // The CallExpressions will find all potential $tr and commont$tr calls.
+                    // NOTE: This differs from the above - this AST is conveniently slightly
+                    // different in structure - so there are not `property` objects here.
+                    if (node.type === 'CallExpression') {
+                      if (node.callee.type === 'Identifier') {
+                        // node.arguments comes as an array - the first one in $tr and common$tr
+                        // is always the key.
+                        if (node.callee.name === '$tr') {
+                          key = keyFromArguments(node.arguments, namespace);
+                          common = false;
+                        }
+                        if (node.callee.name === 'common$tr') {
+                          key = keyFromArguments(node.arguments, namespace);
+                          common = true;
+                        }
+                        if (key !== undefined && namespace) {
+                          let $tring = getStringFromNamespaceKey(
+                            strProfile,
+                            namespace,
+                            key,
+                            common
+                          );
+
+                          if ($tring) {
+                            logging.log('Found a use in a Vue <template>');
+                            strProfile[$tring].uses.push({
+                              namespace,
+                              key,
+                              common,
+                              parsedUrl: parsedUrl.pathname,
+                            });
+                          }
+                        }
+                      }
+                    }
+                  },
+                });
+
+                // Pass each highest-level node to our extractVueTemplateUses.q
                 // Vue templates kinda demand that you have one high-level node to rule
                 // them all so we're passing one node.
+                /*
                 template.ast.children.forEach(node => {
-                  uses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
-                  if (uses) {
-                    Object.keys(uses).forEach(str => {
+                  extractedUses = extractVueTemplateUses(strProfile, node, namespace, parsedUrl);
+                  if (extractedUses) {
+                    Object.keys(extractedUses).forEach(str => {
                       if (strProfile[str]) {
-                        strProfile[str].uses = [...strProfile[str].uses, ...uses[str].uses];
+                        strProfile[str].uses = [...strProfile[str].uses, ...extractedUses[str].uses];
                       } else {
-                        strProfile[str].uses = uses[str].uses;
+                        strProfile[str].uses = extractedUses[str].uses;
                       }
                     });
                   }
                 });
+                */
               }
             } catch (e) {
               logging.error(e);
@@ -209,7 +270,10 @@ profile$trs.prototype.apply = function(compiler) {
       // Write this module out to CSV.
       writeProfileToCSV(strProfile, self.moduleName, self.localePath);
       // Also dump the JSON profiles so that we can easily combine data.
-      fs.writeFileSync(`${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`, JSON.stringify(strProfile));
+      fs.writeFileSync(
+        `${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`,
+        JSON.stringify(strProfile)
+      );
       callback();
     });
   }
@@ -230,7 +294,7 @@ profile$trs.prototype.apply = function(compiler) {
  * This function returns an emtpy array for each of the `uses` keys - saving
  * us from having to check if it's there or not later while parsing the code.
  *
- * `uses` stores all objects including all Namespace+Key combinations in which
+ * `uses` stores all objects izZzzncluding all Namespace+Key combinations in which
  * that literal string of text is called upon as well as other related information.
  *
  */
@@ -279,12 +343,12 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
     return;
   }
   // Checks for any instance of `$tr(` in a string.
-  let $tregex = /\$tr\(/;
+  let $tregex = /\$tr\(/g;
   // Globally matches everything left and right of a string of text that is wrapped
   // in `... $tr('` and `')...` - when used in replace() it will return the param we need.
   let $treplace = /(\S|\s)*\$tr\([\\"']+|[\\"']+\)(\S|\s)*/g;
   // Matches `common$tr` specifically.
-  let reCommon = /common\$tr/;
+  let reCommon = /common\$tr/g;
 
   let key;
   let common = false;
@@ -297,6 +361,8 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
     if (node.attrsMap) {
       Object.keys(node.attrsMap).forEach(attr => {
         let val = node.attrsMap[attr];
+        console.log(`n - ${val}`);
+
         if ($tregex.test(val)) {
           common = reCommon.test(val);
           key = val.replace($treplace, '');
@@ -308,6 +374,8 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
   // Node types 2 and 3 are Expression or Text nodes respectively.
   // Both, conveniently, store relevant data in a `text` property.
   if (node.type === 2 || node.type === 3) {
+    console.log(`"${node.text}"`);
+
     if ($tregex.test(node.text)) {
       common = reCommon.test(node.text);
       key = node.text.replace($treplace, '');
@@ -334,22 +402,35 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
     }
   }
   // Recurse!
+  let children = [];
+  // Generally, all children are parsed - but anything behind a v-else will not
+  // list in children - but are instead on a ifConditions array on the node where the
+  // associated v-if is declared. The ifConditions items have a block property - tha
+  // block property will have an else property - which is boolean. So we are sure to
   if (node.children && node.children.length > 0) {
-    node.children.forEach(child => {
-      let childUses = extractVueTemplateUses(profile, child, namespace, parsedUrl);
-      // Combine this scope's nodeUses with that returned from the recursed fn call.
-      Object.keys(childUses).forEach(childStr => {
-        if (nodeUses[childStr]) {
-          // Combine incoming uses
-          nodeUses[childStr].uses = [...nodeUses[childStr].uses, ...childUses[childStr].uses];
-        } else {
-          nodeUses[childStr] = {
-            uses: childUses[childStr].uses,
-          };
-        }
-      });
+    children = [...children, ...node.children];
+  }
+  if (node.ifConditions && node.ifConditions.length > 0) {
+    node.ifConditions.forEach(cond => {
+      if (cond.block.else) {
+        children.push(cond.block);
+      }
     });
   }
+  children.forEach(child => {
+    let childUses = extractVueTemplateUses(profile, child, namespace, parsedUrl);
+    // Combine this scope's nodeUses with that returned from the recursed fn call.
+    Object.keys(childUses).forEach(childStr => {
+      if (nodeUses[childStr]) {
+        // Combine incoming uses
+        nodeUses[childStr].uses = [...nodeUses[childStr].uses, ...childUses[childStr].uses];
+      } else {
+        nodeUses[childStr] = {
+          uses: childUses[childStr].uses,
+        };
+      }
+    });
+  });
 
   return nodeUses;
 }
@@ -358,7 +439,7 @@ function extractVueTemplateUses(profile, node, namespace, parsedUrl) {
 function writeProfileToCSV(profile, moduleName, localePath) {
   // Be sure the output path is going to the profiles folder.
   let baseOutputPath = `${path.resolve(localePath)}`;
-  if(!baseOutputPath.includes(PROFILES_FOLDER)) {
+  if (!baseOutputPath.includes(PROFILES_FOLDER)) {
     baseOutputPath += `/${PROFILES_FOLDER}`;
   }
 
@@ -481,7 +562,7 @@ function urlIsJS(module) {
 }
 
 // Given a node's array of arguments, extract and return the key... or null no dice.
-function keyFromArguments(args) {
+function keyFromArguments(args, namespace) {
   let key = null;
   if (args && Array.isArray(args)) {
     if (args.length > 0) {
@@ -490,7 +571,29 @@ function keyFromArguments(args) {
       }
     }
   }
+  if (key === null) {
+    logging.log(
+      `No string found for ${namespace}.${key}. Either the combination is not
+      defined or the key we found was passed as a variable and not a key string`
+    );
+  }
   return key;
+}
+
+// Given a /path/to/file/ we can have two kinds:
+// /path/NameSpace/index.vue or /path/to/NameSpace.vue
+// If the last bit is `index.vue` we use the parent dir, otherwise
+// we use the filename.
+function namespaceFromPath(path) {
+  const parts = path.split('/');
+  const lastIndex = parts.length - 1;
+  const lastPart = parts[lastIndex];
+
+  if (lastPart === 'index.vue') {
+    return parts[lastIndex - 1];
+  } else {
+    return lastPart;
+  }
 }
 
 module.exports = profile$trs;
