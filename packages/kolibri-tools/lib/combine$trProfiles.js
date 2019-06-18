@@ -56,8 +56,8 @@ glob(basePath + '/*.json', {}, (err, files) => {
         })
 
     })
-    //
-    fs.writeFileSync(`${basePath}/fullProfile.json`, JSON.stringify(fullProfile));
+    // Not necessary - if left uncommented then you must delete it before running again.
+    //fs.writeFileSync(`${basePath}/fullProfile.json`, JSON.stringify(fullProfile));
     writeProfileToCSV(fullProfile, 'fullProfile', basePath);
 });
 
