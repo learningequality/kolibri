@@ -46,6 +46,7 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import { throttle } from 'frame-throttle';
 
   import Settings from '../settings';
   import TrackHandler from './trackHandler';
@@ -70,6 +71,7 @@
       showing: false,
       hovering: false,
       nextScroll: null,
+      scrollThrottle: null,
       cues: [],
       activeCueIds: [],
     }),
@@ -100,12 +102,22 @@
           return Math.max(offsetBottom, cue.offsetTop() + cue.height());
         }, 0);
 
-        this.scrollTo(offsetTop, offsetBottom);
+        const duration = newActiveCueIds.reduce((duration, cueId) => {
+          const [cue] = this.$refs[cueId];
+
+          // Multiply duration by 1000 to get milliseconds
+          return duration + cue.duration() * 1000;
+        }, 0);
+
+        this.scrollTo(offsetTop, offsetBottom, duration);
       },
 
       hovering(isHovering) {
         if (!isHovering && this.nextScroll) {
-          this.scrollTo(...this.nextScroll);
+          const { offsetTop, offsetBottom, duration, start } = this.nextScroll;
+          const now = new Date().getTime();
+
+          this.scrollTo(offsetTop, offsetBottom, duration - (now - start));
           this.nextScroll = null;
         }
       },
@@ -211,23 +223,38 @@
         }
       },
 
-      scrollTo(offsetTop, offsetBottom) {
+      scrollTo(offsetTop, offsetBottom, duration) {
+        const start = new Date().getTime();
+
+        // Clear scroll throttle, if current call is from a scroll throttle this doesn't matter
+        if (this.scrollThrottle) {
+          this.scrollThrottle.cancel();
+          this.scrollThrottle = null;
+        }
+
         if (this.hovering) {
-          this.nextScroll = [offsetTop, offsetBottom];
+          this.nextScroll = { offsetTop, offsetBottom, duration, start };
           return;
         }
 
         const height = this.$el.offsetHeight;
-        const offsetMiddle = offsetTop + Math.min(offsetBottom - offsetTop, height) / 2;
+        const targetHeight = offsetBottom - offsetTop;
+        const offsetMiddle = offsetTop + Math.min(targetHeight, height) / 2;
 
         const currentScrollTop = this.$el.scrollTop;
         const currentScrollMiddle = currentScrollTop + height / 2;
         const scrollMax = this.$el.scrollHeight - height;
 
-        if (offsetTop > currentScrollTop && offsetTop < currentScrollMiddle) {
+        // Don't trigger a scroll if target scroll position is in top half of container
+        if (
+          offsetTop > currentScrollTop &&
+          offsetTop < currentScrollMiddle &&
+          targetHeight <= height
+        ) {
           return;
         }
 
+        // Jump backwards to cue
         if (offsetTop < currentScrollTop) {
           this.$el.scrollTo(0, offsetTop);
           return;
@@ -235,6 +262,20 @@
 
         const scrollTo = currentScrollTop + (offsetMiddle - currentScrollMiddle);
         this.$el.scrollTo(0, Math.min(scrollMax, scrollTo));
+
+        if (targetHeight <= height) {
+          return;
+        }
+
+        // In the event the cue('s) contents is taller than the container, we'll slow scroll for
+        // the cue duration until offsetBottom fits
+        const step = (offsetBottom - offsetTop - height) / duration;
+        this.scrollThrottle = throttle(() => {
+          const now = new Date().getTime();
+          this.scrollTo(offsetTop + step * (now - start), offsetBottom, duration - (now - start));
+        });
+
+        this.$nextTick(this.scrollThrottle);
       },
     },
     $trs: {

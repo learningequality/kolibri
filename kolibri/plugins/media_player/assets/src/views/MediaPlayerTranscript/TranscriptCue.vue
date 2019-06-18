@@ -116,8 +116,8 @@
       /**
        * @public
        */
-      offsetTop() {
-        return this.$el.offsetTop;
+      duration() {
+        return this.cue.endTime - this.cue.startTime;
       },
 
       /**
@@ -125,6 +125,13 @@
        */
       height() {
         return this.$el.offsetHeight;
+      },
+
+      /**
+       * @public
+       */
+      offsetTop() {
+        return this.$el.offsetTop;
       },
     },
     $trs: {
