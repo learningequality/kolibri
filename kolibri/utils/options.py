@@ -5,6 +5,7 @@ import sys
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
+from django.utils.functional import SimpleLazyObject
 from validate import Validator
 
 try:
@@ -12,6 +13,8 @@ try:
 except NotImplementedError:
     # This module can't work on this OS
     psutil = None
+
+from kolibri.plugins.registry import extend_config_spec
 
 
 def calculate_thread_pool():
@@ -44,7 +47,7 @@ def calculate_thread_pool():
     return MIN_POOL
 
 
-option_spec = {
+base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
             "type": "option",
@@ -217,6 +220,16 @@ def get_logger(KOLIBRI_HOME):
 
     logging.config.dictConfig(config)
     return logging.getLogger(__name__)
+
+
+def __get_option_spec():
+    """
+    Combine the default option spec with any options that are defined in plugins
+    """
+    return extend_config_spec(base_option_spec)
+
+
+option_spec = SimpleLazyObject(__get_option_spec)
 
 
 def get_configspec():

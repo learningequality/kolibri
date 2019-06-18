@@ -144,6 +144,18 @@ class KolibriPluginBase(object):
         """
         return self._return_module("settings")
 
+    def options_module(self):
+        """
+        Return an options module, containing a config spec as the 'option_spec' value.
+
+        These options should not override the core config spec, but may specify only a new
+        default value for a core config spec option.
+
+        By default options.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
+        """
+        return self._return_module("options")
+
     def url_namespace(self):
         """
         Used for the ``namespace`` argument when including the plugin's
