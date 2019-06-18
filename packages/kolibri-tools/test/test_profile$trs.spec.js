@@ -3,14 +3,16 @@ const path = require('path');
 const espree = require('espree');
 const vueCompiler = require('vue-template-compiler');
 const rewire = require('rewire');
-const profile$trs = rewire('../lib/profile$trs');
 
 // Rewiring the functions to test.
+const profile$trs = rewire('../lib/profile$trs');
 const getStringDefinitions = profile$trs.__get__('getStringDefinitions');
 const profileVueScript = profile$trs.__get__('profileVueScript');
 const profileVueTemplate = profile$trs.__get__('profileVueTemplate');
 const getStringFromNamespaceKey = profile$trs.__get__('getStringFromNamespaceKey');
 const profileJSFile = profile$trs.__get__('profileJSFile');
+
+// Base path for fixtures
 const fixturePath = path.resolve(__dirname + '/fixtures/');
 
 describe('getStringDefinitions', function() {
@@ -19,7 +21,6 @@ describe('getStringDefinitions', function() {
 
   it('should return an object with "Translation strings" as keys', function() {
     const expectedStringKeys = ['Hello world', 'Bar', 'Go back', 'Shark do do do do'].sort();
-
     expect(Object.keys(profile).sort()).toEqual(expectedStringKeys);
   });
 
@@ -47,13 +48,13 @@ describe('getStringDefinitions', function() {
 describe('getStringFromNamespaceKey', function() {
   let profile = JSON.parse(fs.readFileSync(fixturePath + '/test_component-profile.json'));
   it('returns the proper string for a given namespace and key in the given profile', function() {
-    expect(getStringFromNamespaceKey(profile, 'TestComponent', 'classPageSubheader', false)).toEqual(
-      'View learner progress and class performance'
-    );
+    expect(
+      getStringFromNamespaceKey(profile, 'TestComponent', 'classPageSubheader', false)
+    ).toEqual('View learner progress and class performance');
     expect(getStringFromNamespaceKey(profile, 'CommonCoachStrings', 'classesLabel', true)).toEqual(
       'Classes'
-    )
-  })
+    );
+  });
 });
 
 describe('profileVueScript', function() {

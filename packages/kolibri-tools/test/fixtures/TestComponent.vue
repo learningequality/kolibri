@@ -1,4 +1,5 @@
 <template>
+
   <!--
     TEST COMPONENT - Stolen from a real Kolibri component - has a
     known quantity of each kind of Use to extract and test against.
@@ -94,7 +95,7 @@
           return this.$tr('noClassesDetailsForFacilityCoach');
         }
         if (true) {
-          return this.common$tr('coachLabel')
+          return this.common$tr('coachLabel');
         }
 
         return '';
