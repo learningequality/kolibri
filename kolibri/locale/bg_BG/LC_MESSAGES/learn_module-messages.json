@@ -53,7 +53,7 @@
   "ExamPage.nextQuestion": "Следващ въпрос",
   "ExamPage.noItemId": "В този въпрос има грешка, моля премини към следващия въпрос",
   "ExamPage.previousQuestion": "Предишен въпрос",
-  "ExamPage.question": "",
+  "ExamPage.question": "Въпрос { num } от { total }",
   "ExamPage.questionsAnswered": "отговорени {numAnswered, number} от {numTotal, number} {numTotal, plural, one {въпрос} other {въпроса}}",
   "ExamPage.submitExam": "Изпрати теста",
   "ExamPage.unanswered": "Имаш {numLeft, number} неотговорени {numLeft, plural, one {въпрос} other {въпроса}}",

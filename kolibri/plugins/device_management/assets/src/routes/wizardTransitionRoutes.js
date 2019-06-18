@@ -28,10 +28,10 @@ export default [
   {
     name: ContentWizardPages.SELECT_CONTENT,
     path: '/content/channels/:channel_id',
-    handler: ({ query, params }) => {
+    handler: ({ query, params }, from) => {
       // HACK don't refresh state when going from SELECT_CONTENT_TOPIC back to here
-      const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
-      if (cachedChannelPath) {
+      if (from.name === ContentWizardPages.SELECT_CONTENT_TOPIC) {
+        const cachedChannelPath = store.state.manageContent.wizard.pathCache[params.channel_id];
         return updateTreeViewTopic(store, cachedChannelPath[0]);
       }
 

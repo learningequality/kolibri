@@ -43,12 +43,12 @@ class SanityCheckTestCase(TestCase):
             logging_mock.assert_called()
 
     @patch("kolibri.utils.cli.initialize")
-    @patch("kolibri.utils.sanity_checks.os.rename")
+    @patch("kolibri.utils.sanity_checks.shutil.move")
     @patch(
         "kolibri.utils.sanity_checks.os.path.exists", side_effect=[False, True, True]
     )
-    def test_old_log_file_exists(self, path_exists_mock, rename_mock, initialize_mock):
+    def test_old_log_file_exists(self, path_exists_mock, move_mock, initialize_mock):
         cli.main(["language", "setdefault", "en"])
-        # Check if the number of calls to os.rename equals to the number of times
+        # Check if the number of calls to shutil.move equals to the number of times
         # os.path.exists returns True
-        self.assertEqual(rename_mock.call_count, 2)
+        self.assertEqual(move_mock.call_count, 2)

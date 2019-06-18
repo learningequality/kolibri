@@ -18,6 +18,7 @@ from django.utils.safestring import mark_safe
 from le_utils.constants import content_kinds
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
@@ -108,3 +109,17 @@ class ContentRendererHook(WebpackBundleHook):
             )
         ]
         return mark_safe("\n".join(tags))
+
+
+class ContentNodeDisplayHook(KolibriHook):
+    """
+    A hook that registers a capability of a plugin to provide a user interface
+    for a content node. When subclassed, this hook should expose a method that
+    accepts a ContentNode instance as an argument, and returns a URL where the
+    interface to interacting with that node for the user is exposed.
+    If this plugin cannot produce an interface for this particular content node
+    then it may return None.
+    """
+
+    def node_url(self, content_node):
+        raise NotImplementedError("This must be overridden by a subclass")

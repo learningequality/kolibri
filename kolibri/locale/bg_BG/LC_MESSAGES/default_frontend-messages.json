@@ -136,7 +136,7 @@
   "UpdateNotification.upgradeHeader": "Има налични подобрения",
   "UpdateNotification.upgradeHeaderImportant": "Налични са важни подобрения",
   "UpdateNotification.upgradeLearnAndDownload": "Научи повече и изтегли оттук",
-  "UpdateNotification.upgradeMessage0124": "",
+  "UpdateNotification.upgradeMessage0124": "Версия 0.12.4 на Колибри е вече достъпна! Изчистени са сериозни бъгове и са добавени нови функции за Учители.",
   "UpdateNotification.upgradeMessageGeneric": "Налична е нова версия на Колибри.",
   "UpdateNotification.upgradeMessageImportant": "Пуснахме важна актуализация с поправки към тази версия на Колибри.",
   "UserTypeDisplay.adminLabel": "Администратор",

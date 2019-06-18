@@ -24,6 +24,8 @@ steps:
 
   - wait
 
+  # NOTE: Uploading artifacts should only happen once. Doing so twice during the
+  # release process causes an error, which blocks the execution of the steps.
   - label: Upload artifacts
     command: .buildkite/setup_and_upload_artifact.sh
 
@@ -43,11 +45,6 @@ steps:
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
-
-  - wait
-
-  - label: Upload new artifacts
-    command: .buildkite/setup_and_upload_artifact.sh
 
   - block: "Build release APK?"
   - label: "Build Release APK"

@@ -261,6 +261,10 @@ export default {
               groups: 'true',
             }
           );
+        case LastPages.EXERCISE_QUESTION_LIST:
+          return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+            exerciseId: this.$route.query.exerciseId,
+          });
         case LastPages.RESOURCE_LEARNER_LIST:
           return this.classRoute('ReportsLessonResourceLearnerListPage', {
             resourceId: this.$route.query.resourceId,
@@ -278,6 +282,15 @@ export default {
         default:
           return null;
       }
+    },
+    /**
+     * @param {Object[]} statuses
+     * @param {Date|null} statuses[].last_activity
+     * @return {Date|null}
+     */
+    maxLastActivity(statuses) {
+      const max = this._.maxBy(statuses, 'last_activity');
+      return max && max.last_activity ? max.last_activity : null;
     },
   },
 };
