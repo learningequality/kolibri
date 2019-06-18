@@ -13,6 +13,7 @@ var logging = require('./logging');
 const PROFILES_FOLDER = 'profiles';
 
 const COMMON_NAMESPACES = {
+  // Be sure to add all Common*Strings files for all modules here as they are created.
   coach_module: 'CommonCoachStrings',
   test_component: 'TestComponent',
 };
@@ -59,16 +60,23 @@ profile$trs.prototype.apply = function(compiler) {
               // If we have a pathname - which ostensibly points to a Vue file - we
               // can now parse the <template> portion of the Vue file.
               const vueFile = fs.readFileSync(parsedUrl.pathname);
-              // Parse the <template> into a compiled vue template object.
+              // Compile the <template>.
               const template = vueCompiler.compile(vueFile.toString(), {
                 whitespace: 'condense',
               });
 
-              // When compiled, the Vue template has the JS that would render the Vue
-              // component in it's `render` property.
-              // We strip it of it's with(this) {} expression - leaving an array of expressions.
-              // We can use that valid JS to produce a navigable AST which includes all of the
-              // *$tr() calls and arguments that we need.
+              /**
+               * The vueCompiler.compile() function returns an object including an anemic AST
+               * and a property called `render` which has some stringified JS code.
+               *
+               * That code is what Vue would use to render the component - but it's wrapped in
+               * a `with(this) {}` expression which returns an array of valid JS expressions in
+               * an array.
+               *
+               * It's a string - which is what espree wants anyway - so we can strip the `with` block
+               * altogether, leaving us with a stringified array containing everything we need to
+               * create a thorough AST of the compiled Vue template.               *
+               */
               const render = template.render.replace(/^.{18}|.{1}$/g, '');
               ast = espree.parse(render, {
                 ecmaVersion: '2018',
@@ -315,6 +323,19 @@ function namespaceFromPath(path) {
     return lastPart.replace('.vue', ''); // Vue filename sans .vue
   }
 }
+
+/* Profiling Functions */
+/**
+ * The following functions contain all of the logic to process ASTs,
+ * targeting the specific nodes that contain the data that we need.
+ * It manipulates the profile passed to it with any new data - then
+ * returns that profile.
+ *
+ * profileVueScript - parses Vue <script> content.
+ * profileVueTemplate - parses Vue <template> content.
+ * profileJSFile - parses JS files.
+ */
+
 
 function profileVueScript(profile, ast, pathname, moduleName) {
   let namespace;
