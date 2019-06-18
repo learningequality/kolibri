@@ -1,0 +1,35 @@
+{
+  "View learner progress and class performance": {
+    "uses": []
+  },
+  "Class name": {
+    "uses": []
+  },
+  "You aren't assigned to any classes": {
+    "uses": []
+  },
+  "Please consult your Kolibri administrator to be assigned to a class": {
+    "uses": []
+  },
+  "Create a class and enroll learners": {
+    "uses": []
+  },
+  "Please consult your Kolibri administrator": {
+    "uses": []
+  },
+  "There are no classes yet": {
+    "uses": []
+  },
+  "Learners": {
+    "uses": []
+  },
+  "Coaches": {
+    "uses": []
+  },
+  "{value, number, integer}": {
+    "uses": []
+  },
+  "Classes": {
+    "uses": []
+  }
+}
