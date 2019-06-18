@@ -9,6 +9,7 @@ const profile$trs = rewire('../lib/profile$trs');
 const getStringDefinitions = profile$trs.__get__('getStringDefinitions');
 const profileVueScript = profile$trs.__get__('profileVueScript');
 const profileVueTemplate = profile$trs.__get__('profileVueTemplate');
+const getStringFromNamespaceKey = profile$trs.__get__('getStringFromNamespaceKey');
 const profileJSFile = profile$trs.__get__('profileJSFile');
 const fixturePath = path.resolve(__dirname + '/fixtures/');
 
@@ -41,6 +42,18 @@ describe('getStringDefinitions', function() {
       expect(profile[str].uses).toEqual([]);
     });
   });
+});
+
+describe('getStringFromNamespaceKey', function() {
+  let profile = JSON.parse(fs.readFileSync(fixturePath + '/test_component-profile.json'));
+  it('returns the proper string for a given namespace and key in the given profile', function() {
+    expect(getStringFromNamespaceKey(profile, 'TestComponent', 'classPageSubheader', false)).toEqual(
+      'View learner progress and class performance'
+    );
+    expect(getStringFromNamespaceKey(profile, 'CommonCoachStrings', 'classesLabel', true)).toEqual(
+      'Classes'
+    )
+  })
 });
 
 describe('profileVueScript', function() {
@@ -113,11 +126,7 @@ describe('profileJSFile', function() {
     sourceType: 'module',
   });
   let profile = JSON.parse(fs.readFileSync(fixturePath + '/test_user_permissions-profile.json'));
-  profile = profileJSFile(
-    profile,
-    ast,
-    fixturePath + '/TestComponent.vue'
-  );
+  profile = profileJSFile(profile, ast, fixturePath + '/TestComponent.vue');
 
   const expectedTotalUses = 5;
   const expectedGoBackUses = 2;
@@ -130,6 +139,6 @@ describe('profileJSFile', function() {
 
   it('profiles all uses as expected', function() {
     expect(allUses.length).toEqual(expectedTotalUses);
-    expect(profile["Go Back"].uses.length).toEqual(expectedGoBackUses)
+    expect(profile['Go Back'].uses.length).toEqual(expectedGoBackUses);
   });
 });
