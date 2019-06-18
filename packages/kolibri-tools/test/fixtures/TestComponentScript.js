@@ -1,6 +1,11 @@
 // Solely used as a source for parsing into an AST - validity of imports
 // is not important here, but we can test against this because we can see
 // quickly and manually how many uses should be extracted from this file.
+// Importing and parsing this mimics, specifically, getting a module chunk
+// during webpack plugin processing.
+//
+// 4 Total uses
+// 1 Common use
 
 import { mapGetters, mapState } from 'vuex';
 import KExternalLink from 'kolibri.coreVue.components.KExternalLink';

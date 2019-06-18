@@ -1,5 +1,11 @@
 <template>
+  <!--
+    TEST COMPONENT - Stolen from a real Kolibri component - has a
+    known quantity of each kind of Use to extract and test against.
 
+    5 Common
+    8 Total
+  -->
   <CoreBase
     :immersivePage="false"
     :appBarTitle="common$tr('coachLabel')"

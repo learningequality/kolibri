@@ -14,6 +14,7 @@ const PROFILES_FOLDER = 'profiles';
 
 const COMMON_NAMESPACES = {
   coach_module: 'CommonCoachStrings',
+  test_component: 'TestComponent',
 };
 
 function profile$trs(localePath, moduleName) {
@@ -85,70 +86,7 @@ profile$trs.prototype.apply = function(compiler) {
               sourceType: 'module',
             });
 
-            let varDeclarations = {};
-            let $trUses = {};
-
-            // Process the AST
-            try {
-              traverse(ast, {
-                pre: function(node) {
-                  // Seek out any place where a createTranslator() function is called.
-                  if (node.type === 'VariableDeclarator') {
-                    if (node.init && node.init.type === 'CallExpression') {
-                      if (node.init.callee && node.init.callee.type === 'Identifier') {
-                        if (node.init.callee.name === 'createTranslator') {
-                          // Profile all variable declarations creating an instance of
-                          // createTranslator() storing the
-                          // key (variableName) => value (namespace)
-                          varDeclarations[node.id.name] = node.init.arguments[0].value;
-                        }
-                      }
-                    }
-                  }
-                  // Seek out all calls to $tr() - again storing the data using a key
-                  if (node.type === 'CallExpression') {
-                    if (node.callee && node.callee.type === 'MemberExpression') {
-                      if (node.callee.property && node.callee.property.name === '$tr') {
-                        if (node.arguments && node.arguments.length > 0) {
-                          let varName = node.callee.object.name;
-                          // Profile all $tr() calls (ie, uses of the key)
-                          // storing the key (variableName) => value (key)
-                          if (Object.keys($trUses).includes(varName)) {
-                            $trUses[varName].push(node.arguments[0].value);
-                          } else {
-                            $trUses[varName] = [node.arguments[0].value];
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-              });
-            } catch (e) {
-              logging.error(e);
-            }
-            // Merge the two collections of declarations and uses. Each object's
-            // keys are declared variable names for instances of createTranslator().
-            // varDeclarations stores variableName => namespace
-            // $trUses stores variableName => [key1, key2, key3] (each key that was used)
-            Object.keys(varDeclarations).forEach(variable => {
-              let namespace = varDeclarations[variable];
-
-              let uses = $trUses[variable];
-              if (uses) {
-                uses.forEach(key => {
-                  let $tring = getStringFromNamespaceKey(strProfile, namespace, key);
-                  if (namespace && key && $tring) {
-                    strProfile[$tring].uses.push({
-                      namespace,
-                      key,
-                      common,
-                      parsedUrl: parsedUrl.pathname,
-                    });
-                  }
-                });
-              }
-            });
+            strProfile = profileJSFile(strProfile, ast, parsedUrl.pathname, self.moduleName);
           }
         }
       });
@@ -372,9 +310,9 @@ function namespaceFromPath(path) {
   const lastPart = parts[lastIndex];
 
   if (lastPart === 'index.vue') {
-    return parts[lastIndex - 1] // Parent dir name
+    return parts[lastIndex - 1]; // Parent dir name
   } else {
-    return lastPart.replace('.vue', '') // Vue filename sans .vue
+    return lastPart.replace('.vue', ''); // Vue filename sans .vue
   }
 }
 
@@ -418,6 +356,7 @@ function profileVueScript(profile, ast, pathname, moduleName) {
                     common,
                     parsedUrl: pathname,
                   });
+                  key = undefined; // Avoid errant uses by setting key to undefined.
                 } else {
                   logging.log(
                     `No string found for ${currentNamespace}.${key}. Either the combination is not
@@ -447,9 +386,6 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
         // going to give us the namespace of our current module.
         if (!namespace) {
           namespace = namespaceFromPath(pathname);
-          if (!namespace) {
-            return;
-          }
         }
         // The CallExpressions will find all potential $tr and commont$tr calls.
         // NOTE: This differs from the above - this AST is conveniently slightly
@@ -480,6 +416,7 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
                   parsedUrl: pathname,
                 });
               }
+              key = undefined; // Avoid errant uses by setting key to undefined.
             }
           }
         }
@@ -488,6 +425,76 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
   } catch (e) {
     logging.error(e);
   }
+  return profile;
+}
+
+function profileJSFile(profile, ast, pathname) {
+  let common = false;
+  let varDeclarations = {};
+  let $trUses = {};
+
+  // Process the AST
+  try {
+    traverse(ast, {
+      pre: function(node) {
+        // Seek out any place where a createTranslator() function is called.
+        if (node.type === 'VariableDeclarator') {
+          if (node.init && node.init.type === 'CallExpression') {
+            if (node.init.callee && node.init.callee.type === 'Identifier') {
+              if (node.init.callee.name === 'createTranslator') {
+                // Profile all variable declarations creating an instance of
+                // createTranslator() storing the
+                // key (variableName) => value (namespace)
+                varDeclarations[node.id.name] = node.init.arguments[0].value;
+              }
+            }
+          }
+        }
+        // Seek out all calls to $tr() - again storing the data using a key
+        if (node.type === 'CallExpression') {
+          if (node.callee && node.callee.type === 'MemberExpression') {
+            if (node.callee.property && node.callee.property.name === '$tr') {
+              if (node.arguments && node.arguments.length > 0) {
+                let varName = node.callee.object.name;
+                // Profile all $tr() calls (ie, uses of the key)
+                // storing the key (variableName) => value (key)
+                if (Object.keys($trUses).includes(varName)) {
+                  $trUses[varName].push(node.arguments[0].value);
+                } else {
+                  $trUses[varName] = [node.arguments[0].value];
+                }
+              }
+            }
+          }
+        }
+      },
+    });
+  } catch (e) {
+    logging.error(e);
+  }
+  // Merge the two collections of declarations and uses. Each object's
+  // keys are declared variable names for instances of createTranslator().
+  // varDeclarations stores variableName => namespace
+  // $trUses stores variableName => [key1, key2, key3] (each key that was used)
+  Object.keys(varDeclarations).forEach(variable => {
+    let namespace = varDeclarations[variable];
+
+    let uses = $trUses[variable];
+    if (uses) {
+      uses.forEach(key => {
+        let $tring = getStringFromNamespaceKey(profile, namespace, key);
+        if (namespace && key && $tring) {
+          profile[$tring].uses.push({
+            namespace,
+            key,
+            common,
+            parsedUrl: pathname,
+          });
+        }
+      });
+    }
+  });
+
   return profile;
 }
 module.exports = profile$trs;
