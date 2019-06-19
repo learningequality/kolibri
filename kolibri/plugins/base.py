@@ -7,8 +7,10 @@ from __future__ import unicode_literals
 
 import logging
 import sys
+import warnings
 from importlib import import_module
 
+from django.conf import settings
 from django.utils.module_loading import module_has_submodule
 
 from kolibri.utils.conf import config
@@ -43,6 +45,15 @@ class KolibriPluginBase(object):
 
     # : Suggested property, not yet in use
     collect_static_on_enable = False
+
+    def __init__(self):
+        if settings.configured:
+            # Check to see if a plugin is being initialized after Django
+            warnings.warn(
+                "{module} exposes a KolibriPluginBase derived object but is initialized after Django - enable as a plugin to use this properly".format(
+                    module=self._module_path()
+                )
+            )
 
     @classmethod
     def _module_path(cls):

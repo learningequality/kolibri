@@ -19,8 +19,8 @@ through the main Kolibri interface.
     dumped and exported easily.
 
 From a developer's perspective, plugins are Django applications listed
-in ``INSTALLED_APPS`` and are initialized once when the server starts, mean at
-the load time of the django project, i.e. Kolibri.
+in ``INSTALLED_APPS`` and are initialized once when the server starts, before
+the load time of Django.
 
 Loading a plugin
 ~~~~~~~~~~~~~~~~
@@ -30,8 +30,8 @@ plugins without using the hooks API or normal conventional Django scenarios.
 
 .. note::
 
-    Each app in ``INSTALLED_APPS`` is searched for the special
-    ``kolibri_plugin`` module.
+    Each app in ``ACTIVE_PLUGINS`` in the kolibri conf is searched for the
+    special ``kolibri_plugin`` module.
 
 Everything that a plugin does is expected to be defined through
 ``<myapp>/kolibri_plugin.py``.
