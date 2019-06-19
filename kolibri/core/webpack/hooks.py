@@ -209,7 +209,7 @@ class WebpackBundleHook(hooks.KolibriHook):
     def locale_data_folder(self):
         if self._module_path.startswith("kolibri."):
             return os.path.join(
-                getattr(django_settings, "LOCALE_PATHS")[0], "en", "LC_MESSAGES"
+                os.path.dirname(kolibri.__file__), "locale", "en", "LC_MESSAGES"
             )
         # Is an external plugin, do otherwise!
         else:
