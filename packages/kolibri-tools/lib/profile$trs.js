@@ -125,7 +125,7 @@ profile$trs.prototype.apply = function(compiler) {
  * This function returns an emtpy array for each of the `uses` keys - saving
  * us from having to check if it's there or not later while parsing the code.
  *
- * `uses` stores all objects izZzzncluding all Namespace+Key combinations in which
+ * `uses` stores all objects including all Namespace+Key combinations in which
  * that literal string of text is called upon as well as other related information.
  *
  */
