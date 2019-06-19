@@ -13,7 +13,7 @@
 
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ common$tr('detailsLabel') }}</h2>
+      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
@@ -82,14 +82,14 @@
       <div>
         <KRadioButton
           v-model="fixedOrder"
-          :label="common$tr('orderRandomLabel')"
-          :description="common$tr('orderRandomDescription')"
+          :label="coachCommon$tr('orderRandomLabel')"
+          :description="coachCommon$tr('orderRandomDescription')"
           :value="false"
         />
         <KRadioButton
           v-model="fixedOrder"
-          :label="common$tr('orderFixedLabel')"
-          :description="common$tr('orderFixedDescription')"
+          :label="coachCommon$tr('orderFixedLabel')"
+          :description="coachCommon$tr('orderFixedDescription')"
           :value="true"
         />
       </div>
@@ -108,11 +108,11 @@
       <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="common$tr('goBackAction')"
+          :text="coachCommon$tr('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="common$tr('finishAction')"
+          :text="coachCommon$tr('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"
@@ -212,7 +212,7 @@
           return this.$tr('examRequiresTitle');
         }
         if (this.showTitleError) {
-          return this.common$tr('quizDuplicateTitleError');
+          return this.coachCommon$tr('quizDuplicateTitleError');
         }
         return null;
       },

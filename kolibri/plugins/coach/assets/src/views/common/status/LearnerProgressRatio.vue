@@ -51,7 +51,7 @@
       },
       text() {
         if (!this.verbosityNumber) {
-          return this.common$tr('ratioShort', { value: this.count, total: this.total });
+          return this.coachCommon$tr('ratioShort', { value: this.count, total: this.total });
         }
         if (this.count === this.total && this.total > 2 && this.verb != 'notStarted') {
           return this.strings.$tr(this.shorten('allOfMoreThanTwo', this.verbosityNumber), {

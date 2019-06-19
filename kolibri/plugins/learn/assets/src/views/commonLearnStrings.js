@@ -10,7 +10,7 @@ const learnStrings = createTranslator('CommonLearnStrings', {
 
 const learnStringsMixin = {
   methods: {
-    common$tr(key, args) {
+    coachCommon$tr(key, args) {
       return learnStrings.$tr(key, args);
     },
   },

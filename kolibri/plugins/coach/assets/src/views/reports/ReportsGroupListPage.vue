@@ -11,15 +11,15 @@
 
     <KPageContainer>
       <ReportsHeader />
-      <CoreTable :emptyMessage="common$tr('groupListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('groupListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ common$tr('groupNameLabel') }}</th>
-            <th>{{ common$tr('lessonsLabel') }}</th>
-            <th>{{ common$tr('quizzesLabel') }}</th>
-            <th>{{ common$tr('learnersLabel') }}</th>
-            <th>{{ common$tr('avgQuizScoreLabel') }}</th>
-            <th>{{ common$tr('lastActivityLabel') }}</th>
+            <th>{{ coachCommon$tr('groupNameLabel') }}</th>
+            <th>{{ coachCommon$tr('lessonsLabel') }}</th>
+            <th>{{ coachCommon$tr('quizzesLabel') }}</th>
+            <th>{{ coachCommon$tr('learnersLabel') }}</th>
+            <th>{{ coachCommon$tr('avgQuizScoreLabel') }}</th>
+            <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -34,13 +34,13 @@
               </KLabeledIcon>
             </td>
             <td>
-              {{ common$tr('integer', {value: tableRow.numLessons}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numLessons}) }}
             </td>
             <td>
-              {{ common$tr('integer', {value: tableRow.numQuizzes}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numQuizzes}) }}
             </td>
             <td>
-              {{ common$tr('integer', {value: tableRow.numLearners}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numLearners}) }}
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>

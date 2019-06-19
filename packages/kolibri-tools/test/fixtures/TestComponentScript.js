@@ -38,7 +38,7 @@ export default {
         return this.$tr('noClassesDetailsForFacilityCoach');
       }
       if (true) {
-        return this.common$tr('coachLabel');
+        return this.coachCommon$tr('coachLabel');
       }
 
       return '';

@@ -2,7 +2,7 @@
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
-      {{ common$tr('learnersLabel') }}
+      {{ coachCommon$tr('learnersLabel') }}
     </h3>
 
     <ul ref="learnerList" class="history-list">

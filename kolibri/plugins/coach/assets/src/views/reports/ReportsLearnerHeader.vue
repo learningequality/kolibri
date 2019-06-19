@@ -16,7 +16,7 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ common$tr('usernameLabel') }}
+          {{ coachCommon$tr('usernameLabel') }}
         </template>
         <template slot="value">
           {{ learner.username }}
@@ -24,42 +24,42 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ common$tr('groupsLabel') }}
+          {{ coachCommon$tr('groupsLabel') }}
         </template>
         <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ common$tr('avgQuizScoreLabel') }}
+          {{ coachCommon$tr('avgQuizScoreLabel') }}
         </template>
         <template slot="value">
-          {{ common$tr('percentage', {value: avgScore}) }}
+          {{ coachCommon$tr('percentage', {value: avgScore}) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ common$tr('exercisesCompletedLabel') }}
+          {{ coachCommon$tr('exercisesCompletedLabel') }}
         </template>
         <template slot="value">
-          {{ common$tr('integer', {value: exercisesCompleted}) }}
+          {{ coachCommon$tr('integer', {value: exercisesCompleted}) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ common$tr('resourcesViewedLabel') }}
+          {{ coachCommon$tr('resourcesViewedLabel') }}
         </template>
         <template slot="value">
-          {{ common$tr('integer', {value: resourcesViewed}) }}
+          {{ coachCommon$tr('integer', {value: resourcesViewed}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTabs>
       <HeaderTab
-        :text="common$tr('reportsLabel')"
+        :text="coachCommon$tr('reportsLabel')"
         :to="classRoute('ReportsLearnerReportPage', {})"
       />
       <HeaderTab
-        :text="common$tr('activityLabel')"
+        :text="coachCommon$tr('activityLabel')"
         :to="classRoute('ReportsLearnerActivityPage', {})"
       />
     </HeaderTabs>

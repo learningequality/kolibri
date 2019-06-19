@@ -41,7 +41,7 @@
       learnBreadcrumbs() {
         return [
           {
-            text: this.common$tr('recommendedLabel'),
+            text: this.coachCommon$tr('recommendedLabel'),
             link: { name: PageNames.RECOMMENDED },
           },
           { text: this.contentTitle },
@@ -89,7 +89,7 @@
         return [
           // All Channels Link
           {
-            text: this.common$tr('channelsLabel'),
+            text: this.coachCommon$tr('channelsLabel'),
             link: { name: PageNames.TOPICS_ROOT },
           },
           ...this.middleTopicBreadcrumbs,

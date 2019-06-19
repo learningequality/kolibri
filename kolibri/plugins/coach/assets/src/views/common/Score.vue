@@ -2,7 +2,7 @@
 
   <span>
     <KEmptyPlaceholder v-if="value === undefined || value === null" />
-    <template v-else>{{ common$tr('percentage', {value}) }}</template>
+    <template v-else>{{ coachCommon$tr('percentage', {value}) }}</template>
   </span>
 
 </template>

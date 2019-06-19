@@ -52,17 +52,17 @@
             value: 'all',
           },
           {
-            label: this.common$tr('helpNeededLabel'),
+            label: this.coachCommon$tr('helpNeededLabel'),
             value: NotificationEvents.HELP_NEEDED,
             disabled: this.progressIsDisabled(NotificationEvents.HELP_NEEDED),
           },
           {
-            label: this.common$tr('startedLabel'),
+            label: this.coachCommon$tr('startedLabel'),
             value: NotificationEvents.STARTED,
             disabled: this.progressIsDisabled(NotificationEvents.STARTED),
           },
           {
-            label: this.common$tr('completedLabel'),
+            label: this.coachCommon$tr('completedLabel'),
             value: NotificationEvents.COMPLETED,
             disabled: this.progressIsDisabled(NotificationEvents.COMPLETED),
           },
@@ -75,12 +75,12 @@
             value: 'all',
           },
           {
-            label: this.common$tr('lessonsLabel'),
+            label: this.coachCommon$tr('lessonsLabel'),
             value: ContentNodeKinds.LESSON,
             disabled: this.resourceIsDisabled(NotificationObjects.LESSON),
           },
           {
-            label: this.common$tr('quizzesLabel'),
+            label: this.coachCommon$tr('quizzesLabel'),
             value: 'quiz',
             disabled: this.resourceIsDisabled(NotificationObjects.QUIZ),
           },

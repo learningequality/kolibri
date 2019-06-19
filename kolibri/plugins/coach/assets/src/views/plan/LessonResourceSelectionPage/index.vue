@@ -5,7 +5,7 @@
     immersivePageIcon="close"
     immersivePagePrimary
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="common$tr('manageResourcesAction')"
+    :appBarTitle="coachCommon$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
@@ -69,7 +69,7 @@
 
     <KBottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : common$tr('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachCommon$tr('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"

@@ -6,7 +6,7 @@
     @keydown.esc.prevent="handleEscKey"
   >
     <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
-      <label class="visuallyhidden" for="searchfield">{{ common$tr('searchLabel') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -15,7 +15,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="common$tr('searchLabel')"
+        :placeholder="coachCommon$tr('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton
@@ -92,7 +92,7 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="common$tr('channelsLabel')"
+          :label="coachCommon$tr('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"

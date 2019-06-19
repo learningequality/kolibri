@@ -35,7 +35,7 @@
             :size="50"
             percentage
           >
-            {{ common$tr('numberOfLearners', { value: currentGroup.users.length }) }}
+            {{ coachCommon$tr('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
           <KGridItem :size="50" percentage alignment="right">
             <KRouterLink
@@ -148,7 +148,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(this.common$tr('updatedNotification'));
+            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
             this.userForRemoval = null;
           });
         }

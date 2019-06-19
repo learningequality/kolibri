@@ -8,7 +8,7 @@
       <mat-svg name="dashboard" category="action" />
     </KNavbarLink>
     <KNavbarLink
-      :title="common$tr('reportsLabel')"
+      :title="coachCommon$tr('reportsLabel')"
       :link="navRoute(PageNames.REPORTS_PAGE)"
     >
       <mat-svg name="insert_chart" category="editor" />

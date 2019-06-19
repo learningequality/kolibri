@@ -9,10 +9,10 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="common$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="common$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
         <template slot="value">
           <Recipients
             :groupNames="groupNames"
@@ -21,8 +21,8 @@
         </template>
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="common$tr('descriptionLabel')"
-        :valueText="description || common$tr('descriptionMissingLabel')"
+        :keyText="coachCommon$tr('descriptionLabel')"
+        :valueText="description || coachCommon$tr('descriptionMissingLabel')"
       />
     </HeaderTable>
 

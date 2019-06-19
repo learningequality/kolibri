@@ -4,7 +4,7 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="common$tr('manageResourcesAction')"
+    :appBarTitle="coachCommon$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >

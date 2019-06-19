@@ -16,9 +16,9 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ common$tr('titleLabel') }}</th>
-            <th>{{ common$tr('progressLabel') }}</th>
-            <th>{{ common$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

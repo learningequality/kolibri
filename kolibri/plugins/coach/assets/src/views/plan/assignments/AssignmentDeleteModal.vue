@@ -2,8 +2,8 @@
 
   <KModal
     :title="modalTitle"
-    :submitText="common$tr('deleteAction')"
-    :cancelText="common$tr('cancelAction')"
+    :submitText="coachCommon$tr('deleteAction')"
+    :cancelText="coachCommon$tr('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >

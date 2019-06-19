@@ -6,11 +6,11 @@
   >
     <KLabeledIcon slot="title">
       <KIcon slot="icon" quiz />
-      {{ common$tr('quizzesLabel') }}
+      {{ coachCommon$tr('quizzesLabel') }}
     </KLabeledIcon>
 
     <p v-if="table.length === 0">
-      {{ common$tr('quizListEmptyState') }}
+      {{ coachCommon$tr('quizListEmptyState') }}
     </p>
 
     <BlockItem

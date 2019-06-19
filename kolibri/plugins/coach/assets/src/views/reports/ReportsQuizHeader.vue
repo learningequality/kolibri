@@ -22,35 +22,35 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="common$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
         <QuizActive
           slot="value"
           :active="exam.active"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="common$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
         <Recipients
           slot="value"
           :groupNames="getGroupNames(exam.groups)"
           :hasAssignments="exam.assignments.length > 0"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="common$tr('avgScoreLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('avgScoreLabel')">
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="common$tr('questionOrderLabel')"
+        :keyText="coachCommon$tr('questionOrderLabel')"
         :valueText="orderDescriptionString"
       />
     </HeaderTable>
 
     <HeaderTabs>
       <HeaderTab
-        :text="common$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
         :to="classRoute('ReportsQuizLearnerListPage')"
       />
       <HeaderTab
-        :text="common$tr('difficultQuestionsLabel')"
+        :text="coachCommon$tr('difficultQuestionsLabel')"
         :to="classRoute('ReportsQuizQuestionListPage')"
       />
     </HeaderTabs>
@@ -85,8 +85,8 @@
       },
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order
-          ? this.common$tr('orderFixedLabel')
-          : this.common$tr('orderRandomLabel');
+          ? this.coachCommon$tr('orderFixedLabel')
+          : this.coachCommon$tr('orderRandomLabel');
       },
     },
     methods: {

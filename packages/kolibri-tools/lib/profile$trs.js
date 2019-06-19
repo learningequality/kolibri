@@ -324,6 +324,11 @@ function namespaceFromPath(path) {
   }
 }
 
+// Returns true if the string given is a *Common$tr
+function isCommonFn(string) {
+  return /Common\$tr/.test(string);
+}
+
 /* Profiling Functions */
 /**
  * The following functions contain all of the logic to process ASTs,
@@ -354,13 +359,13 @@ function profileVueScript(profile, ast, pathname, moduleName) {
         if (node.type === 'CallExpression') {
           if (node.callee.property) {
             if (node.callee.property.type === 'Identifier') {
-              // node.arguments comes as an array - the first one in $tr and common$tr
+              // node.arguments comes as an array - the first one in $tr and *Common$tr
               // is always the key.
               if (node.callee.property.name === '$tr') {
                 key = keyFromArguments(node.arguments, namespace);
                 common = false;
               }
-              if (node.callee.property.name === 'common$tr') {
+              if (isCommonFn(node.callee.property.name)) {
                 key = keyFromArguments(node.arguments, COMMON_NAMESPACES[moduleName]);
                 common = true;
               }
@@ -412,13 +417,13 @@ function profileVueTemplate(profile, ast, pathname, moduleName) {
         // different in structure - so there are not `property` objects here.
         if (node.type === 'CallExpression') {
           if (node.callee.type === 'Identifier') {
-            // node.arguments comes as an array - the first one in $tr and common$tr
+            // node.arguments comes as an array - the first one in $tr and *Common$tr
             // is always the key.
             if (node.callee.name === '$tr') {
               key = keyFromArguments(node.arguments, namespace);
               common = false;
             }
-            if (node.callee.name === 'common$tr') {
+            if (isCommonFn(node.callee.name)) {
               key = keyFromArguments(node.arguments, COMMON_NAMESPACES[moduleName]);
               common = true;
             }

@@ -19,7 +19,7 @@
           />
           <KButton
             slot="options"
-            :text="common$tr('previewAction')"
+            :text="coachCommon$tr('previewAction')"
             @click="onPreviewClick"
           />
         </BackLinkWithOptions>
@@ -32,7 +32,7 @@
       </section>
 
       <KCheckbox
-        :label="common$tr('viewByGroupsLabel')"
+        :label="coachCommon$tr('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -81,7 +81,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ common$tr('ungroupedLearnersLabel') }}
+            {{ coachCommon$tr('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsResourceLearners

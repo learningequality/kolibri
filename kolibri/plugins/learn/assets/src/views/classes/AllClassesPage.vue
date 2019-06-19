@@ -2,7 +2,7 @@
 
   <div>
     <div v-if="isUserLoggedIn ">
-      <h2>{{ common$tr('classesLabel') }}</h2>
+      <h2>{{ coachCommon$tr('classesLabel') }}</h2>
       <p v-if="!classrooms.length">
         {{ $tr('noClasses') }}
       </p>

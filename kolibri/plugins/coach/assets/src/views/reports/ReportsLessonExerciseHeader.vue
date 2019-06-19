@@ -11,7 +11,7 @@
         />
         <KButton
           slot="options"
-          :text="common$tr('previewAction')"
+          :text="coachCommon$tr('previewAction')"
           @click="$emit('previewClick')"
         />
       </BackLinkWithOptions>
@@ -26,11 +26,11 @@
     <HeaderTabs>
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseLearnerListPage')"
-        :text="common$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
       />
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseQuestionListPage')"
-        :text="common$tr('difficultQuestionsLabel')"
+        :text="coachCommon$tr('difficultQuestionsLabel')"
       />
     </HeaderTabs>
 

@@ -12,18 +12,18 @@
     <KPageContainer>
       <ReportsHeader />
       <!-- TODO COACH
-      <KCheckbox :label="common$tr('viewByGroupsLabel')" />
-      <h2>{{ common$tr('overallLabel') }}</h2>
+      <KCheckbox :label="coachCommon$tr('viewByGroupsLabel')" />
+      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
        -->
-      <CoreTable :emptyMessage="common$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ common$tr('nameLabel') }}</th>
-            <th>{{ common$tr('groupsLabel') }}</th>
-            <th>{{ common$tr('avgQuizScoreLabel') }}</th>
-            <th>{{ common$tr('exercisesCompletedLabel') }}</th>
-            <th>{{ common$tr('resourcesViewedLabel') }}</th>
-            <th>{{ common$tr('lastActivityLabel') }}</th>
+            <th>{{ coachCommon$tr('nameLabel') }}</th>
+            <th>{{ coachCommon$tr('groupsLabel') }}</th>
+            <th>{{ coachCommon$tr('avgQuizScoreLabel') }}</th>
+            <th>{{ coachCommon$tr('exercisesCompletedLabel') }}</th>
+            <th>{{ coachCommon$tr('resourcesViewedLabel') }}</th>
+            <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -39,8 +39,8 @@
             </td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td><Score :value="tableRow.avgScore" /></td>
-            <td>{{ common$tr('integer', {value: tableRow.exercises}) }}</td>
-            <td>{{ common$tr('integer', {value: tableRow.resources}) }}</td>
+            <td>{{ coachCommon$tr('integer', {value: tableRow.exercises}) }}</td>
+            <td>{{ coachCommon$tr('integer', {value: tableRow.resources}) }}</td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
         </transition-group>
