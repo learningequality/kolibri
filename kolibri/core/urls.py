@@ -34,6 +34,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 from django.conf.urls.static import static
@@ -45,8 +46,7 @@ from .views import set_language
 from .views import UnsupportedBrowserView
 from kolibri.core.content.utils import paths
 from kolibri.core.device.translation import i18n_patterns
-from kolibri.plugins.registry import get_urls as plugin_urls
-from django.conf import settings
+from kolibri.plugins.utils.urls import get_urls as plugin_urls
 
 app_name = "kolibri"
 

@@ -14,7 +14,7 @@ except NotImplementedError:
     # This module can't work on this OS
     psutil = None
 
-from kolibri.plugins.registry import extend_config_spec
+from kolibri.plugins.utils.options import extend_config_spec
 
 
 def calculate_thread_pool():

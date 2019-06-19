@@ -27,7 +27,7 @@ from .sanity_checks import check_other_kolibri_running  # noqa
 from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-from kolibri.plugins.registry import apply_settings  # noqa
+from kolibri.plugins.utils.settings import apply_settings  # noqa
 from kolibri.plugins.utils import disable_plugin  # noqa
 from kolibri.plugins.utils import enable_plugin  # noqa
 from kolibri.utils.conf import config  # noqa
