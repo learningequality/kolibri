@@ -241,6 +241,13 @@
         return this.isSuperuser || !user.is_superuser;
       },
     },
+    watch: {
+      searchFilter() {
+        // Reset the pageNum to the first page when searchFilter changes
+        // to avoid showing an empty page.
+        this.pageNum = 1;
+      },
+    },
     $trs: {
       filterUserType: 'User type',
       searchText: 'Search for a user…',
