@@ -21,7 +21,7 @@ def __validate_config_option(
     if section in plugin_specs:
         if name in plugin_specs[section]:
             warnings.warn(
-                "{plugin} set an option {options} in section {section} but {plugins} had already set it".format(
+                "{plugin} set an option {option} in section {section} but {plugins} had already set it".format(
                     plugin=module_path,
                     plugins=", ".join(plugin_specs[section][name]),
                     option=name,
