@@ -290,8 +290,8 @@
       },
     },
     watch: {
-      username() {
-        this.setSuggestionTerm();
+      username(newVal) {
+        this.setSuggestionTerm(newVal);
       },
     },
     mounted() {
