@@ -248,3 +248,65 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
+
+
+Send upgrade notifications
+--------------------------
+
+Wait about 3 business days after communications are published to see if any issues are reported. Afterwards, we can send upgrade notifications through the Nutrition Facts telemetry server.
+
+* `Log in to the telemetry server <http://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
+* Create a new Message object in the server and set it to 'Staged'
+* Set the link URL to ``https://learningequality.org/r/upgrade_kolibri``
+* Set the ``version_range`` using semver syntax
+* Generate and add a new internationalized ``i18n`` JSON blob using the ``nutritionfacts_i18n.py`` script as shown below:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py
+
+You can also specify specific string IDs for the ``title``, ``msg``, and ``link_text``, e.g.:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py --message UpdateNotification.upgradeMessage0124
+
+This will output a JSON blob like:
+
+.. code-block:: json
+
+  {
+    "ar": {
+      "link_text": "تعلم المزيد وقم بتحميله هنا",
+      "msg": "هناك إصدار جديد متاح من كوليبري.",
+      "title": "التحديث للنسخة الجديدة أصبح متاحاً"
+    },
+    "bg-bg": {
+      "link_text": "Научи повече и изтегли оттук",
+      "msg": "Налична е нова версия на Колибри.",
+      "title": "Има налични подобрения"
+    },
+    "bn-bd": {
+      "link_text": "আরও জানুন এবং সেটি এখানে ডাউনলোড করুন",
+      "msg": "কলিব্রির একটি নতুন সংস্করণ পাওয়া যাচ্ছে।",
+      "title": "আপগ্রেড উপলব্ধ"
+    },
+    "en": {
+      "link_text": "Learn more and download it here",
+      "msg": "A new version of Kolibri is available.",
+      "title": "Upgrade available"
+    },
+    "es-es": {
+      "link_text": "Descubre más y descarga aquí",
+      "msg": "Una nueva versión de Kolibri está disponible.",
+      "title": "Actualización disponible"
+    },
+    //...
+  }
+
+
+Set Kolibri's ``RUN_MODE`` to ``staged-msgs`` to receive staged messages. Test that all languages are displayed correctly.
+
+Next, emulate different versions and ensure that the semver conditional logic is being processed correctly. Set ``RUN_MODE`` to something like ``staged-msgs-ver-0.12.3`` to emulate version 0.12.3, for example.
+
+Once testing has confirmed that the message works as expected, set the message to active to enable it.

@@ -30,6 +30,33 @@ if "CROWDIN_API_KEY" not in os.environ:
 
 
 """
+Ensure that these commands are only used when Perseus is installed for development
+"""
+
+PERSEUS_NOT_INSTALLED_FOR_DEV = """
+Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
+and ensure that it has been checked out the the correct commit.
+
+Install it in Kolibri in development mode:
+
+    pip install -e [local_path_to_perseus_repo]
+
+For more information see:
+https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plugin
+"""
+
+
+if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
+    logging.error("Cannot find Perseus locale directory.")
+    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+    sys.exit(1)
+elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
+    logging.error("It appears that Perseus is not installed for development.")
+    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+    sys.exit(1)
+
+
+"""
 Constants
 """
 
@@ -541,4 +568,6 @@ def main():
 
 
 if __name__ == "__main__":
+
+    print("JSEHFKSJDFJKSDFDF???????/")
     main()
