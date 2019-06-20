@@ -115,6 +115,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
@@ -131,6 +132,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
+    mixins: [coreStringsMixin],
     data: () => ({
       name: '',
       username: '',
@@ -157,7 +159,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -174,7 +176,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
             return this.$tr('usernameAlphaNumError');
@@ -191,7 +193,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -202,7 +204,7 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
             return this.$tr('passwordMatchError');
@@ -219,7 +221,7 @@
       facilityIsInvalidText() {
         if (this.facilityBlurred || this.formSubmitted) {
           if (this.noFacilitySelected) {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -287,8 +289,7 @@
       kolibri: 'Kolibri',
       finish: 'Finish',
       facility: 'Facility',
-      required: 'This field is required',
-      documentTitle: 'Create account',
+      documentTitle: 'User Sign Up',
       privacyLink: 'Usage and privacy in Kolibri',
     },
   };

@@ -81,6 +81,7 @@
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -133,7 +134,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -149,7 +150,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
@@ -166,7 +167,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -177,7 +178,7 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
             return this.$tr('pwMismatchError');
@@ -283,7 +284,6 @@
       pwMismatchError: 'Passwords do not match',
       unknownError: 'Whoops, something went wrong. Try again',
       loadingConfirmation: 'Loading...',
-      required: 'This field is required',
     },
   };
 

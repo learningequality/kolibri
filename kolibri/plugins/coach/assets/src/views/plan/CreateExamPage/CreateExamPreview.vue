@@ -140,6 +140,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
@@ -162,7 +163,7 @@
       KTextbox,
       QuestionListPreview,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [responsiveWindow, commonCoach, coreStringsMixin],
     data() {
       return {
         showError: false,
@@ -209,7 +210,7 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return this.$tr('examRequiresTitle');
+          return this.coreCommon$tr('requiredFieldLabel');
         }
         if (this.showTitleError) {
           return this.coachCommon$tr('quizDuplicateTitleError');
@@ -271,7 +272,6 @@
       questions: 'Questions',
       newQuestions: 'New question set created',
       preview: 'Preview quiz',
-      examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',

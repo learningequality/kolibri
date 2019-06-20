@@ -29,7 +29,7 @@
         :label="$tr('nameLabel')"
         :placeholder="$tr('namePlaceholder')"
         :invalid="nameIsInvalid"
-        :invalidText="$tr('fieldIsRequired')"
+        :invalidText="coreCommon$tr('requiredFieldLabel')"
         :maxlength="40"
         :disabled="attemptingToConnect"
         @blur="nameBlurred = true"
@@ -53,6 +53,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { createAddress } from './api';
 
@@ -68,6 +69,7 @@
       KTextbox,
       UiAlert,
     },
+    mixins: [coreStringsMixin],
     props: {},
     data() {
       return {
@@ -88,7 +90,7 @@
           return this.$tr('errorCouldNotConnect');
         }
         if (this.address === '') {
-          return this.$tr('fieldIsRequired');
+          return this.coreCommon$tr('requiredFieldLabel');
         }
         return '';
       },
@@ -145,7 +147,6 @@
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
-      fieldIsRequired: 'This field is required',
       nameDesc: 'Choose a name for this address so you can remember it later:',
       nameLabel: 'Network name',
       namePlaceholder: 'e.g. House network',

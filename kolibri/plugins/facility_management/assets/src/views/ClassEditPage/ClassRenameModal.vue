@@ -30,6 +30,7 @@
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ClassRenameModal',
@@ -37,6 +38,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [coreStringsMixin],
     props: {
       classname: {
         type: String,
@@ -76,7 +78,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');
@@ -109,7 +111,6 @@
       cancel: 'Cancel',
       saveButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
-      required: 'This field is required',
     },
   };
 

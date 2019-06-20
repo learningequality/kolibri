@@ -30,6 +30,7 @@
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'RenameGroupModal',
@@ -37,6 +38,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [coreStringsMixin],
     props: {
       groupName: {
         type: String,
@@ -76,7 +78,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');
@@ -112,7 +114,6 @@
       cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
-      required: 'This field is required',
     },
   };
 

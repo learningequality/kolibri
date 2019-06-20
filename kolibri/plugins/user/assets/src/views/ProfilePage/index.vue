@@ -125,6 +125,7 @@
   import pickBy from 'lodash/pickBy';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -154,7 +155,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, coreStringsMixin],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {
@@ -229,7 +230,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -240,7 +241,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
@@ -309,7 +310,6 @@
       userType: 'User type',
       devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      required: 'This field is required',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
       changePasswordPrompt: 'Change password',

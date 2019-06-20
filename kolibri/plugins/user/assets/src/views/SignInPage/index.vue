@@ -152,6 +152,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -195,7 +196,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, coreStringsMixin],
     data() {
       return {
         username: '',
@@ -234,7 +235,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
             return this.$tr('usernameNotAlphaNumUnderscore');
           }
@@ -249,7 +250,7 @@
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -465,7 +466,6 @@
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',

@@ -38,6 +38,7 @@
   import { mapState, mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ChangeUserPasswordModal',
@@ -45,6 +46,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         newPassword: '',
@@ -59,7 +61,7 @@
       newPasswordInvalidErrorText() {
         if (this.newPasswordBlurred || this.submittedForm) {
           if (this.newPassword === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -70,7 +72,7 @@
       confirmedNewPasswordInvalidErrorText() {
         if (this.confirmedNewPasswordBlurred || this.submittedForm) {
           if (this.confirmedNewPassword === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedNewPassword !== this.newPassword) {
             return this.$tr('passwordMismatchErrorMessage');
@@ -105,7 +107,6 @@
       newPasswordFieldLabel: 'Enter new password',
       confirmNewPasswordFieldLabel: 'Re-enter new password',
       passwordMismatchErrorMessage: 'New passwords do not match',
-      required: 'This field is required',
       cancelButtonLabel: 'cancel',
       updateButtonLabel: 'update',
     },

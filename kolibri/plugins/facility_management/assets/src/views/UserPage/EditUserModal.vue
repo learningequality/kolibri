@@ -85,6 +85,7 @@
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
@@ -103,6 +104,7 @@
       KExternalLink,
       UserTypeDisplay,
     },
+    mixins: [coreStringsMixin],
     props: {
       id: {
         type: String,
@@ -156,7 +158,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred) {
           if (this.newName === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
         }
         return '';
@@ -183,7 +185,7 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred) {
           if (this.newUsername === '') {
-            return this.$tr('required');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
@@ -290,7 +292,6 @@
       learner: 'Learner',
       save: 'Save',
       cancel: 'Cancel',
-      required: 'This field is required',
       usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',

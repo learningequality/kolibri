@@ -99,6 +99,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -112,7 +113,7 @@
       RecipientSelector,
       UiAlert,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       modalTitleErrorMessage: {
         type: String,
@@ -184,7 +185,7 @@
         // submission is handled because "blur" event happens on submit
         if (!this.disabled && this.titleIsVisited) {
           if (this.title === '') {
-            return this.$tr('fieldRequiredError');
+            return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.assignmentIsQuiz) {
             if (
@@ -288,7 +289,6 @@
       },
     },
     $trs: {
-      fieldRequiredError: 'This field is required',
       titlePlaceholder: 'Title',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
       activeLessonsExplanation: 'Learners can only see active lessons',
