@@ -14,7 +14,7 @@
         <KTextbox
           ref="titleField"
           v-model="title"
-          :label="$tr('titlePlaceholder')"
+          :label="coachCommon$tr('titleLabel')"
           :maxlength="50"
           :autofocus="true"
           :invalid="titleIsInvalid"
@@ -289,7 +289,6 @@
       },
     },
     $trs: {
-      titlePlaceholder: 'Title',
       activeQuizzesExplanation: 'Learners can only see active quizzes',
       activeLessonsExplanation: 'Learners can only see active lessons',
     },

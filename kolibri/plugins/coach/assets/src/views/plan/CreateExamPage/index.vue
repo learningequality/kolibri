@@ -31,7 +31,7 @@
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="$tr('title')"
+            :label="coachCommon$tr('titleLabel')"
             :autofocus="true"
             :maxlength="100"
           />
@@ -495,7 +495,6 @@
       newExam: 'New quiz',
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
-      title: 'Title',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
       numQuestionsBetween: 'Enter a number between 1 and 50',

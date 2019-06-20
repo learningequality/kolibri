@@ -19,7 +19,7 @@
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="$tr('examStringsTitle')"
+            :label="coachCommon$tr('titleLabel')"
             :autofocus="true"
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
@@ -275,7 +275,6 @@
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      examStringsTitle: 'Title',
       numQuestions: 'Number of questions',
     },
   };
