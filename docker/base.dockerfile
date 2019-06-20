@@ -40,3 +40,5 @@ RUN cd /kolibri \
     && pip install -r requirements/build.txt \
     && pip install -r requirements/test.txt \
     && yarn install
+
+RUN apt-get remove -y python-setuptools python-wheel

@@ -37,6 +37,8 @@ RUN echo '--- Installing Python dependencies' && \
     pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
 
+RUN apt-get remove -y python-setuptools python-wheel
+
 # Set yarn cache folder for easy binding during runtime
 RUN yarn config set cache-folder /yarn_cache
 
