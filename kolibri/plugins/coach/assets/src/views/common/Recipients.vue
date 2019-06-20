@@ -16,21 +16,22 @@
 
 
 <script>
+
   import TruncatedItemList from './TruncatedItemList';
 
   export default {
     name: 'Recipients',
-    components: {	
-      TruncatedItemList,	
+    components: {
+      TruncatedItemList,
     },
     props: {
       groupNames: {
         type: Array,
         required: true,
       },
-      hasAssignments: {	
-        type: Boolean,	
-        required: true,	
+      hasAssignments: {
+        type: Boolean,
+        required: true,
       },
     },
     $trs: {
