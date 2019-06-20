@@ -225,7 +225,9 @@ def test_first_run(dbbackup, plugin, update, version_file=None, orig_version=Non
     if version_file:
         os.unlink(version_file)
 
-    cli.initialize()
+    with patch("kolibri.utils.cli.apply_settings"):
+
+        cli.initialize()
     update.assert_called_once()
     dbbackup.assert_not_called()
 
@@ -244,7 +246,8 @@ def test_update(update, version_file=None, orig_version=None):
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version + "_test")
-    cli.initialize()
+    with patch("kolibri.utils.cli.apply_settings"):
+        cli.initialize()
     update.assert_called_once()
 
 
@@ -273,7 +276,8 @@ def test_update_no_version_change(
     """
     version_file = cli.version_file()
     open(version_file, "w").write(orig_version)
-    cli.initialize()
+    with patch("kolibri.utils.cli.apply_settings"):
+        cli.initialize()
     update.assert_not_called()
     dbbackup.assert_not_called()
 
