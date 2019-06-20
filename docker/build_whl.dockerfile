@@ -34,6 +34,7 @@ WORKDIR /kolibri
 # Python dependencies
 COPY requirements/ requirements/
 RUN echo '--- Installing Python dependencies' && \
+    pip install -U pip && \
     pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
 
@@ -47,8 +48,8 @@ COPY . .
 
 CMD echo '--- Installing JS dependencies' && \
     yarn install --pure-lockfile && \
-    echo `--- Making whl` && \
+    echo '--- Making whl' && \
     make dist && \
-    echo `--- Making pex` && \
+    echo '--- Making pex' && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/

@@ -36,6 +36,7 @@ VOLUME /docker/mnt
 
 # do the time-consuming base install commands
 RUN cd /kolibri \
+    && pip install -U pip \
     && pip install -r requirements/dev.txt \
     && pip install -r requirements/build.txt \
     && pip install -r requirements/test.txt \
