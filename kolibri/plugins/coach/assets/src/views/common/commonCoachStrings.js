@@ -25,6 +25,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   sortedDescendingAction: 'Sort in descending order',
 
   // labels, phrases, titles, headers...
+  activeQuizzesLabel: 'Active quizzes',
   activityLabel: 'Activity',
   answerLabel: 'Answer',
   answersLabel: 'Answers',

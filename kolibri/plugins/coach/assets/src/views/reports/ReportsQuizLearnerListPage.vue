@@ -78,7 +78,7 @@
             value: 'allQuizzes',
           },
           {
-            label: this.$tr('activeQuizzes'),
+            label: this.coachCommon$tr('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
@@ -112,7 +112,6 @@
     $trs: {
       averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
     },
   };

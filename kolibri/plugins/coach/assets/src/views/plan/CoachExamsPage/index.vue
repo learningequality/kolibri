@@ -68,7 +68,7 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p v-else-if="statusSelected.value === $tr('activeExams') && !activeExams.length">
+      <p v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') && !activeExams.length">
         {{ $tr('noActiveExams') }}
       </p>
       <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
@@ -120,7 +120,10 @@
       statusOptions() {
         return [
           { label: this.$tr('allExams'), value: this.$tr('allExams') },
-          { label: this.$tr('activeExams'), value: this.$tr('activeExams') },
+          {
+            label: this.coachCommon$tr('activeQuizzesLabel'),
+            value: this.coachCommon$tr('activeQuizzesLabel'),
+          },
           { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
         ];
       },
@@ -132,7 +135,7 @@
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.$tr('activeExams')) {
+        if (filter === this.coachCommon$tr('activeQuizzesLabel')) {
           return this.activeExams;
         } else if (filter === this.$tr('inactiveExams')) {
           return this.inactiveExams;
@@ -145,7 +148,6 @@
     },
     $trs: {
       allExams: 'All quizzes',
-      activeExams: 'Active quizzes',
       inactiveExams: 'Inactive quizzes',
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
