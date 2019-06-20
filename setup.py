@@ -28,7 +28,7 @@ readme = """
 from `Learning Equality <https://learningequality.org/>`_.
 
 This package can be installed by running ``pip install kolibri``. `See the download
-page <https://learningequality.org/kolibri/>`_ for other methods of installation.
+page <https://learningequality.org/download/>`_ for other methods of installation.
 
 - `View the documentation <https://kolibri.readthedocs.io/>`_ and the `community
   forums <https://community.learningequality.org/>`_ for more guidance on setting up
