@@ -196,6 +196,13 @@
         return this.sortedFilteredUsers.length;
       },
     },
+    watch: {
+      searchFilter() {
+        // Reset the pageNum to the first page when searchFilter changes
+        // to avoid showing an empty page.
+        this.pageNum = 1;
+      },
+    },
     beforeMount() {
       this.roleFilter = this.userKinds[0];
     },
@@ -239,13 +246,6 @@
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
         return this.isSuperuser || !user.is_superuser;
-      },
-    },
-    watch: {
-      searchFilter() {
-        // Reset the pageNum to the first page when searchFilter changes
-        // to avoid showing an empty page.
-        this.pageNum = 1;
       },
     },
     $trs: {
@@ -302,7 +302,7 @@
   .actions-header,
   .footer,
   nav {
-    text-align: right;
+    text-align: end;
   }
 
 </style>

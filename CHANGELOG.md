@@ -2,6 +2,12 @@
 
 List of the most important changes for each release.
 
+## 0.12.6
+
+### Changed or Fixed
+
+- Facility user table is now paginated to improve performance for facilities with large numbers of users.
+
 ## 0.12.4
 
 ### Changed or fixed
