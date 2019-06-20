@@ -36,10 +36,8 @@ VOLUME /docker/mnt
 
 # do the time-consuming base install commands
 RUN cd /kolibri \
-    && pip install -U pip \
+    && pip install -U pip==9.0.2 \
     && pip install -r requirements/dev.txt \
     && pip install -r requirements/build.txt \
     && pip install -r requirements/test.txt \
     && yarn install
-
-RUN apt-get remove -y python-setuptools python-wheel

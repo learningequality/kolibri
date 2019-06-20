@@ -34,11 +34,9 @@ WORKDIR /kolibri
 # Python dependencies
 COPY requirements/ requirements/
 RUN echo '--- Installing Python dependencies' && \
-    pip install -U pip && \
+    pip install -U pip==9.0.2 && \
     pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
-
-RUN apt-get remove -y python-setuptools python-wheel
 
 # Set yarn cache folder for easy binding during runtime
 RUN yarn config set cache-folder /yarn_cache
