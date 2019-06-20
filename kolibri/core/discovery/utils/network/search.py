@@ -16,7 +16,7 @@ from kolibri.core.content.models import ChannelMetadata
 
 logger = logging.getLogger(__name__)
 
-SERVICE_TYPE = "_kolibri._http._tcp.local."
+SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
 LOCAL_DOMAIN = "kolibri.local"
 
 ZEROCONF_STATE = {"zeroconf": None, "listener": None, "service": None}
