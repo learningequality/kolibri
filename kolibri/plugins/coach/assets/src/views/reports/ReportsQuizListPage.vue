@@ -107,7 +107,7 @@
             value: 'activeQuizzes',
           },
           {
-            label: this.$tr('inactiveQuizzes'),
+            label: this.coachCommon$tr('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];
@@ -142,7 +142,6 @@
     },
     $trs: {
       show: 'Show',
-      inactiveQuizzes: 'Inactive quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
     },

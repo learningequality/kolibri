@@ -71,7 +71,7 @@
       <p v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') && !activeExams.length">
         {{ $tr('noActiveExams') }}
       </p>
-      <p v-else-if=" statusSelected.value === $tr('inactiveExams') && !inactiveExams.length">
+      <p v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') && !inactiveExams.length">
         {{ $tr('noInactiveExams') }}
       </p>
     </KPageContainer>
@@ -130,7 +130,7 @@
             label: this.coachCommon$tr('activeQuizzesLabel'),
             value: this.coachCommon$tr('activeQuizzesLabel'),
           },
-          { label: this.$tr('inactiveExams'), value: this.$tr('inactiveExams') },
+          { label: this.coachCommon$tr('inactiveQuizzesLabel'), value: this.coachCommon$tr('inactiveQuizzesLabel') },
         ];
       },
       activeExams() {
@@ -143,7 +143,7 @@
         const filter = this.statusSelected.label;
         if (filter === this.coachCommon$tr('activeQuizzesLabel')) {
           return this.activeExams;
-        } else if (filter === this.$tr('inactiveExams')) {
+        } else if (filter === this.coachCommon$tr('inactiveQuizzesLabel')) {
           return this.inactiveExams;
         }
         return this.sortedExams;
@@ -153,8 +153,6 @@
       },
     },
     $trs: {
-      allExams: 'All quizzes',
-      inactiveExams: 'Inactive quizzes',
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',

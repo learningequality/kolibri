@@ -53,6 +53,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   groupNameLabel: 'Group name',
   groupsLabel: 'Groups',
   helpNeededLabel: 'Help needed',
+  inactiveQuizzesLabel: 'Inactive quizzes',
   inProgressLabel: 'In progress',
   lastActivityLabel: 'Last activity',
   learnerLabel: 'Learner',
