@@ -19,9 +19,8 @@
 
 <script>
 
-  import commonCoach from '../common';
-  import PlanHeader from './PlanHeader';
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import PlanHeader from './PlanHeader';
 
   export default {
     name: 'PlanLearnerListPage',

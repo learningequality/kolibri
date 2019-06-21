@@ -68,10 +68,16 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') && !activeExams.length">
+      <p 
+        v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') && 
+          !activeExams.length"
+      >
         {{ $tr('noActiveExams') }}
       </p>
-      <p v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') && !inactiveExams.length">
+      <p 
+        v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') && 
+          !inactiveExams.length"
+      >
         {{ $tr('noInactiveExams') }}
       </p>
     </KPageContainer>
@@ -130,7 +136,10 @@
             label: this.coachCommon$tr('activeQuizzesLabel'),
             value: this.coachCommon$tr('activeQuizzesLabel'),
           },
-          { label: this.coachCommon$tr('inactiveQuizzesLabel'), value: this.coachCommon$tr('inactiveQuizzesLabel') },
+          {
+            label: this.coachCommon$tr('inactiveQuizzesLabel'),
+            value: this.coachCommon$tr('inactiveQuizzesLabel'),
+          },
         ];
       },
       activeExams() {

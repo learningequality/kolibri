@@ -95,6 +95,7 @@
       KTextbox,
       KSelect,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         fullName: '',
@@ -115,7 +116,6 @@
         formSubmitted: false,
       };
     },
-    mixins: [coreStringsMixin],
     computed: {
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),

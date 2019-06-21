@@ -31,7 +31,6 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
-  
 
   export default {
     name: 'ClassCreateModal',
