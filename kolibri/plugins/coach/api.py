@@ -2,6 +2,7 @@ import datetime
 
 from django.db.models import Count
 from django.db.models import F
+from django.db.models import Q
 from django.db.models import Sum
 from rest_framework import pagination
 from rest_framework import permissions
@@ -328,7 +329,12 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         Get the difficult questions for a particular quiz.
         """
         group_id = request.GET.get("group_id", None)
-        queryset = ExamAttemptLog.objects.filter(examlog__exam=pk)
+        # Only return logs when the learner has submitted the Quiz OR
+        # the coach has deactivated the Quiz. Do not return logs when Quiz is still
+        # in-progress.
+        queryset = ExamAttemptLog.objects.filter(
+            Q(examlog__closed=True) | Q(examlog__exam__active=False), examlog__exam=pk
+        )
         if group_id is not None:
             queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
                 ancestor_collection=group_id, target_user=F("user")
@@ -339,10 +345,15 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         data = queryset.values("item", "content_id").annotate(correct=Sum("correct"))
 
         # Instead of inferring the totals from the number of logs, use the total
-        # number of people who took the exam as our guide, as people who started the exam
+        # number of people who submitted (if quiz is active) or started the exam
+        # (if quiz is inactive) as our guide, as people who started the exam
         # but did not attempt the question are still important.
         total = (
-            HierarchyRelationsFilter(ExamLog.objects.filter(exam_id=pk))
+            HierarchyRelationsFilter(
+                ExamLog.objects.filter(
+                    Q(closed=True) | Q(exam__active=False), exam_id=pk
+                )
+            )
             .filter_by_hierarchy(
                 ancestor_collection=collection_id, target_user=F("user")
             )
