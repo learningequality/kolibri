@@ -43,7 +43,7 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted || taskHasFailed ? $tr('close') : coreCommon$tr('cancelAction')"
+        :text="taskHasCompleted || taskHasFailed ? coreCommon$tr('closeAction') : coreCommon$tr('cancelAction')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -193,7 +193,6 @@
       exportingContent: 'Exporting content…',
       finished: 'Finished! Click "Close" button to see changes.',
       preparingTask: 'Preparing…',
-      close: 'Close',
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',

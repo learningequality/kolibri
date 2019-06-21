@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
-    :cancelText="$tr('close')"
+    :cancelText="coreCommon$tr('closeAction')"
     @submit="submitAndClose"
     @cancel="$emit('cancel')"
   >
@@ -26,6 +26,7 @@
   import { mapGetters, mapActions, mapMutations } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'FacilityModal',
@@ -33,6 +34,7 @@
       KModal,
       KRadioButton,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         // currentFacilityId uses session, with is anonymous in sign-in-page
@@ -58,7 +60,6 @@
       facilitySelectionPrompt: 'Which facility do you want to sign in to?',
       submitFacilitySelectionButtonPrompt: 'Select',
       facilitySelectionModalHeader: 'Select a facility',
-      close: 'Close',
     },
   };
 

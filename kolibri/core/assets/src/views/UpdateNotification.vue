@@ -2,7 +2,7 @@
 
   <KModal
     size="large"
-    :submitText="$tr('closeButtonLabel')"
+    :submitText="coreCommon$tr('closeAction')"
     :title="title"
     @submit="submit"
   >
@@ -35,6 +35,7 @@
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { mapGetters, mapActions, mapMutations } from 'vuex';
 
   export default {
@@ -44,6 +45,7 @@
       KExternalLink,
       KModal,
     },
+    mixins: [coreStringsMixin],
     props: {
       id: {
         type: String,
@@ -90,7 +92,6 @@
     },
     $trs: {
       adminMessage: 'Please contact the device administrator for this server',
-      closeButtonLabel: 'Close',
       hideNotificationLabel: "Don't show this message again",
       // The strings below are not actually used in the appplication code.
       // They are included simply to get the strings translated for later use. We should do

@@ -30,6 +30,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { mapState } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -41,7 +42,7 @@
       AssignmentCopyModal,
       AssignmentDeleteModal,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       // Should be 'COPY' or 'DELETE'
       currentAction: {
@@ -94,7 +95,7 @@
                   className: classroomName,
                 }),
                 autoDismiss: false,
-                actionText: this.coachCommon$tr('closeAction'),
+                actionText: this.coreCommon$tr('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

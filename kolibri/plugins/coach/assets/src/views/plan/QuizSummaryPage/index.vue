@@ -86,6 +86,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
@@ -122,7 +123,7 @@
       Recipients,
       TopNavbar,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     data() {
       return {
         quiz: {
@@ -250,7 +251,7 @@
                   className,
                 }),
                 autoDismiss: false,
-                actionText: this.coachCommon$tr('closeAction'),
+                actionText: this.coreCommon$tr('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

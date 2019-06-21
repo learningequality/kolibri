@@ -2,7 +2,7 @@
 
   <KModal
     size="large"
-    :cancelText="$tr('cancelButtonLabel')"
+    :cancelText="coreCommon$tr('closeAction')"
     :title="$tr('privacyModalHeader')"
     @cancel="$emit('cancel')"
   >
@@ -50,6 +50,7 @@
 
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'PrivacyInfoModal',
@@ -57,6 +58,7 @@
       KExternalLink,
       KModal,
     },
+    mixins: [coreStringsMixin],
     props: {
       hideUsersSection: {
         type: Boolean,
@@ -73,7 +75,6 @@
     },
     $trs: {
       privacyModalHeader: 'Usage and privacy',
-      cancelButtonLabel: 'Close',
       kolibriUsersTitle: 'Users',
       kolibriUsersP1:
         'You should use Kolibri in compliance with all applicable laws. This may mean obtaining permission from your parent, guardian, or teacher.',

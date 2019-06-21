@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('reportErrorHeader')"
-    :cancelText="$tr('closeErrorModalButtomPrompt')"
+    :cancelText="coreCommon$tr('closeAction')"
     class="error-detail-modal"
     size="large"
     @cancel="$emit('cancel')"
@@ -50,6 +50,7 @@
   import { mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {
@@ -59,6 +60,7 @@
       KModal,
       TechnicalTextBlock,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         // TODO Set offline variable via ping in mounted()?
@@ -92,7 +94,6 @@
       emailDescription:
         'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
-      closeErrorModalButtomPrompt: 'Close',
       errorFileDenotation: 'error',
     },
   };
