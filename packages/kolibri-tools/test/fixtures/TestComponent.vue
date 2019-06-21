@@ -10,7 +10,7 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coachCommon$tr('coachLabel')"
+    :appBarTitle="coreCommon$tr('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"
@@ -76,6 +76,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
 
@@ -84,7 +85,7 @@
     components: {
       KExternalLink,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
@@ -100,7 +101,7 @@
           return this.$tr('noClassesDetailsForFacilityCoach');
         }
         if (true) {
-          return this.coachCommon$tr('coachLabel');
+          return this.coreCommon$tr('coachLabel');
         }
 
         return '';

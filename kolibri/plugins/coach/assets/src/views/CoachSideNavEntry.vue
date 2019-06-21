@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('coach')"
+    :label="coreCommon$tr('coachLabel')"
     :link="url"
   >
     <mat-svg
@@ -18,6 +18,7 @@
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
@@ -26,9 +27,8 @@
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      coach: 'Coach',
-    },
+    mixins: [coreStringsMixin],
+    $trs: {},
     computed: {
       url() {
         return urls['kolibri:coach:coach']();

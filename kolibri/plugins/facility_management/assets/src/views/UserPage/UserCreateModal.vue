@@ -115,6 +115,7 @@
         formSubmitted: false,
       };
     },
+    mixins: [coreStringsMixin],
     computed: {
       ...mapGetters(['currentFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
@@ -204,7 +205,7 @@
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreCommon$tr('coachLabel'),
             value: UserKinds.COACH,
           },
           {
@@ -272,7 +273,6 @@
       userType: 'User type',
       saveUserButtonLabel: 'Save',
       learner: 'Learner',
-      coach: 'Coach',
       admin: 'Admin',
       coachSelectorHeader: 'Coach type',
       classCoachLabel: 'Class coach',

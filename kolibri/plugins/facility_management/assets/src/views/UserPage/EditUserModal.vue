@@ -146,7 +146,7 @@
             value: UserKinds.LEARNER,
           },
           {
-            label: this.$tr('coach'),
+            label: this.coreCommon$tr('coachLabel'),
             value: UserKinds.COACH,
           },
           {
@@ -288,7 +288,6 @@
       username: 'Username',
       userType: 'User type',
       admin: 'Admin',
-      coach: 'Coach',
       learner: 'Learner',
       save: 'Save',
       cancel: 'Cancel',
