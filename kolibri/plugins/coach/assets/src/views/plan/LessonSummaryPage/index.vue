@@ -60,7 +60,7 @@
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
                   :to="lessonSelectionRootPage"
-                  :text="$tr('manageResourcesButton')"
+                  :text="coachCommon$tr('manageResourcesAction')"
                   :primary="true"
                   appearance="raised-button"
                 />

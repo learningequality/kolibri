@@ -841,6 +841,7 @@ acorn@^6.0.1, acorn@^6.0.2:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.0.2.tgz#6a459041c320ab17592c6317abbfdf4bbaa98ca4"
   integrity sha512-GXmKIvbrN3TV7aVqAzVFaMW8F8wzVX7voEBRO3bDA64+EX37YSayggRJP5Xig6HYHBkWKpFg9W5gg6orklubhg==
 
+<<<<<<< HEAD
 acorn@^6.0.7:
 <<<<<<< HEAD
   version "6.2.0"
@@ -852,6 +853,8 @@ acorn@^6.0.7:
   integrity sha512-jPTiwtOxaHNaAPg/dmrJ/beuzLRnXtB0kQPQ8JpotKJgTB6rX6c8mlf315941pyjBSaPg8NHXS9fhP4u17DpGA==
 >>>>>>> 'Cancel' action moved to core common
 
+=======
+>>>>>>> 'Manage resources' that was missed previously
 aes-decrypter@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/aes-decrypter/-/aes-decrypter-3.0.0.tgz#7848a1c145b9fdbf57ae3e2b5b1bc7cf0644a8fb"
@@ -1177,11 +1180,6 @@ ast-metadata-inferer@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/ast-metadata-inferer/-/ast-metadata-inferer-0.1.1.tgz#66e24fae9d30ca961fac4880b7fc466f09b25165"
   integrity sha512-hc9w8Qrgg9Lf9iFcZVhNjUnhrd2BBpTlyCnegPVvCe6O0yMrF57a6Cmh7k+xUsfUOMh9wajOL5AsGOBNEyTCcw==
-
-ast-traverse@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/ast-traverse/-/ast-traverse-0.1.1.tgz#69cf2b8386f19dcda1bb1e05d68fe359d8897de6"
-  integrity sha1-ac8rg4bxnc2hux4F1o/jWdiJfeY=
 
 ast-types@0.10.1:
   version "0.10.1"
@@ -3721,11 +3719,6 @@ cssstyle@^1.0.0:
   dependencies:
     cssom "0.3.x"
 
-csv-writer@^1.3.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/csv-writer/-/csv-writer-1.4.0.tgz#4a574e22376f9c889c6356aca02dfabb628e7ce6"
-  integrity sha512-kJtUxRR3slfhPvMVI8ZPy1FPQcN5BogUg/qIF+wOYmZ3oDUwfQvVOZ91mQzNRbkyaieyN1IX6suqXlNYM1MCCA==
-
 currently-unhandled@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/currently-unhandled/-/currently-unhandled-0.4.1.tgz#988df33feab191ef799a61369dd76c17adf957ea"
@@ -4623,6 +4616,7 @@ eslint@^5.7.0:
     table "^5.0.2"
     text-table "^0.2.0"
 
+<<<<<<< HEAD
 espree@5.0.1, espree@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/espree/-/espree-5.0.1.tgz#5d6526fa4fc7f0788a5cf75b15f30323e2f81f7a"
@@ -4635,6 +4629,8 @@ espree@5.0.1, espree@^5.0.1:
 <<<<<<< HEAD
 espree@^3.5.4:
 =======
+=======
+>>>>>>> 'Manage resources' that was missed previously
 espree@^3.4.0, espree@^3.5.4:
 >>>>>>> 'Cancel' action moved to core common
   version "3.5.4"
