@@ -4,7 +4,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
 import logging
 import os
 import sys
@@ -22,7 +21,22 @@ from kolibri import dist as kolibri_dist
 
 dist_name = "kolibri"
 
-readme = io.open("README.md", mode="r", encoding="utf-8").read()
+# RST-formatted long description.
+# (Markdown will not work until we upgrade build dependencies)
+readme = """
+`Kolibri <https://learningequality.org/kolibri/>`_ is the offline learning platform
+from `Learning Equality <https://learningequality.org/>`_.
+
+This package can be installed by running ``pip install kolibri``. `See the download
+page <https://learningequality.org/download/>`_ for other methods of installation.
+
+- `View the documentation <https://kolibri.readthedocs.io/>`_ and the `community
+  forums <https://community.learningequality.org/>`_ for more guidance on setting up
+  and using Kolibri
+- Visit the `Github project <https://github.com/learningequality/kolibri>`_ and the
+  `developer documentation <https://kolibri-dev.readthedocs.io/>`_ if you would like
+  to contribute to development
+"""
 
 # Default description of the distributed package
 description = """Kolibri - the offline app for universal education"""
@@ -137,7 +151,6 @@ setup(
     version=kolibri.__version__,
     description=description,
     long_description=readme,
-    long_description_content_type="text/markdown",
     author="Learning Equality",
     author_email="info@learningequality.org",
     url="https://github.com/learningequality/kolibri",
