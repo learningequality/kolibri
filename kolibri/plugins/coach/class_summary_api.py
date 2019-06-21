@@ -239,6 +239,7 @@ class ExamSerializer(KolibriModelSerializer):
             "data_model_version",
             "question_count",
             "learners_see_fixed_order",
+            "seed",
         )
 
 

@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
@@ -14,35 +15,35 @@ function exerciseName(name, number) {
 }
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
-  let resource = ExerciseDifficulties;
-  const getParams = {
-    classroom_id: classId,
-  };
-  const promises = [];
-  const pk = exerciseId || quizId;
+  let itemPromise;
+  let resource;
+  let pk;
+
   if (quizId) {
+    pk = quizId;
     resource = QuizDifficulties;
-    promises.push(
-      ExamResource.fetchModel({
-        id: quizId,
-      }).then(fetchNodeDataAndConvertExam)
-    );
+    itemPromise = ExamResource.fetchModel({
+      id: quizId,
+    }).then(fetchNodeDataAndConvertExam);
   } else {
-    promises.push(
-      ContentNodeResource.fetchModel({
-        id: store.rootState.classSummary.contentMap[exerciseId].node_id,
-      })
-    );
-  }
-  if (lessonId) {
-    getParams.lesson_id = lessonId;
-  }
-  if (groupId) {
-    getParams.group_id = groupId;
+    pk = exerciseId;
+    resource = ExerciseDifficulties;
+    itemPromise = ContentNodeResource.fetchModel({
+      id: store.rootState.classSummary.contentMap[exerciseId].node_id,
+    });
   }
 
-  promises.push(resource.fetchDetailCollection('detail', pk, getParams, true));
-  return Promise.all(promises).then(([item, stats]) => {
+  const difficultiesPromise = resource.fetchDetailCollection(
+    'detail',
+    pk,
+    pickBy({
+      classroom_id: classId,
+      lesson_id: lessonId,
+      group_id: groupId,
+    }),
+    true
+  );
+  return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
     if (quizId) {
       store.commit('SET_STATE', { exam: item });
       // If no one attempted one of the questions, it could get missed out of the list
