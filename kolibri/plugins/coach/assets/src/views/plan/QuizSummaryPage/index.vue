@@ -15,7 +15,7 @@
           <BackLink
             slot="backlink"
             :to="$router.getRoute('EXAMS')"
-            :text="$tr('allQuizzes')"
+            :text="coachCommon$tr('allQuizzesLabel')"
           />
           <QuizOptionsDropdownMenu
             slot="options"
@@ -278,7 +278,6 @@
     },
     $trs: {
       pageLoadingError: 'There was a problem loading this quiz',
-      allQuizzes: 'All quizzes',
       quizDeletedNotification: `'{title}' was deleted`,
       uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
     },

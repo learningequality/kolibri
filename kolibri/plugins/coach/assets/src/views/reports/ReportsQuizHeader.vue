@@ -5,7 +5,7 @@
       <BackLink
         slot="backlink"
         :to="classRoute('ReportsQuizListPage')"
-        :text="$tr('back')"
+        :text="coachCommon$tr('allQuizzesLabel')"
       />
       <QuizOptionsDropdownMenu
         slot="options"
@@ -96,9 +96,7 @@
         }
       },
     },
-    $trs: {
-      back: 'All quizzes',
-    },
+    $trs: {},
   };
 
 </script>

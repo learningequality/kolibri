@@ -96,7 +96,7 @@
     name: 'CoachExamsPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coachCommon$tr('quizzesLabel'),
       };
     },
     components: {
@@ -110,7 +110,10 @@
     mixins: [commonCoach],
     data() {
       return {
-        statusSelected: { label: this.$tr('allExams'), value: this.$tr('allExams') },
+        statusSelected: {
+          label: this.coachCommon$tr('allQuizzesLabel'),
+          value: this.coachCommon$tr('allQuizzesLabel'),
+        },
       };
     },
     computed: {
@@ -119,7 +122,10 @@
       },
       statusOptions() {
         return [
-          { label: this.$tr('allExams'), value: this.$tr('allExams') },
+          {
+            label: this.coachCommon$tr('allQuizzesLabel'),
+            value: this.coachCommon$tr('allQuizzesLabel'),
+          },
           {
             label: this.coachCommon$tr('activeQuizzesLabel'),
             value: this.coachCommon$tr('activeQuizzesLabel'),
@@ -152,7 +158,6 @@
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
-      documentTitle: 'Quizzes',
     },
   };
 

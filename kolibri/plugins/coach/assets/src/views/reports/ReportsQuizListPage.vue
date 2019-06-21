@@ -97,7 +97,7 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachCommon$tr('allQuizzesLabel'),
             value: 'allQuizzes',
             noActiveExams: 'No active quizzes',
             noInactiveExams: 'No inactive quizzes',
@@ -142,7 +142,6 @@
     },
     $trs: {
       show: 'Show',
-      allQuizzes: 'All quizzes',
       inactiveQuizzes: 'Inactive quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',

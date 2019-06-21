@@ -3,7 +3,7 @@
   <div>
     <div class="header">
       <h2>
-        {{ $tr('examsHeader') }}
+        {{ coachCommon$tr('quizzesLabel') }}
       </h2>
       <p v-if="exams.length===0">
         {{ $tr('noExamsMessage') }}
@@ -31,6 +31,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
+  import commonCoach from '../common';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
 
   export default {
@@ -38,6 +39,7 @@
     components: {
       ContentCard,
     },
+    mixins: [commonCoach],
     props: {
       exams: {
         type: Array,
@@ -97,7 +99,6 @@
       },
     },
     $trs: {
-      examsHeader: 'Quizzes',
       noExamsMessage: 'You have no quizzes assigned',
       notStarted: 'Not started',
       questionsLeft:

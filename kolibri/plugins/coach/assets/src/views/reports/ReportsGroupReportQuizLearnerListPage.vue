@@ -69,7 +69,7 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allQuizzes'),
+            label: this.coachCommon$tr('allQuizzesLabel'),
             value: 'allQuizzes',
           },
           {
@@ -113,7 +113,6 @@
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',
-      allQuizzes: 'All quizzes',
       inactiveQuizzes: 'Inactive quizzes',
     },
   };

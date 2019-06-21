@@ -27,6 +27,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // labels, phrases, titles, headers...
   activeQuizzesLabel: 'Active quizzes',
   activityLabel: 'Activity',
+  allQuizzesLabel: 'All quizzes',
   answerLabel: 'Answer',
   answersLabel: 'Answers',
   answerHistoryLabel: 'Answer history',
