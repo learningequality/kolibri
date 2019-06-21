@@ -4,7 +4,7 @@ export const KnowledgeMapResource = new Resource({
   name: 'knowledgemap',
   namespace: 'learnplugin',
 
-  fetchKnowdledgeMap(id) {
+  fetchKnowledgeMap(id) {
     return this.fetchModel({ id, force: true });
   },
 });
