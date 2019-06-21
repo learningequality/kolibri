@@ -11,7 +11,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <h1>{{ coachCommon$tr('classesLabel') }}</h1>
+      <h1>{{ coreCommon$tr('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
       <p v-if="classList.length === 0">

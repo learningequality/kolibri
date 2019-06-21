@@ -2,7 +2,7 @@
 
   <div>
     <div v-if="isUserLoggedIn ">
-      <h2>{{ coachCommon$tr('classesLabel') }}</h2>
+      <h2>{{ coreCommon$tr('classesLabel') }}</h2>
       <p v-if="!classrooms.length">
         {{ $tr('noClasses') }}
       </p>
@@ -31,6 +31,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ContentCard from '../ContentCard';
   import { learnStringsMixin } from '../commonLearnStrings';
   import { classAssignmentsLink } from './classPageLinks';
@@ -39,14 +40,14 @@
     name: 'AllClassesPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreCommon$tr('classesLabel'),
       };
     },
     components: {
       AuthMessage,
       ContentCard,
     },
-    mixins: [responsiveWindow, learnStringsMixin],
+    mixins: [coreStringsMixin, responsiveWindow, learnStringsMixin],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),
@@ -58,7 +59,6 @@
       classAssignmentsLink,
     },
     $trs: {
-      documentTitle: 'All classes',
       noClasses: 'You are not enrolled in any classes',
     },
   };

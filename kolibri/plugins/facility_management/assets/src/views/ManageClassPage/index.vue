@@ -4,7 +4,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 75, 75" percentage>
-        <h1>{{ $tr('adminClassPageHeader') }}</h1>
+        <h1>{{ coreCommon$tr('classesLabel') }}</h1>
         <p>{{ $tr('adminClassPageSubheader') }}</p>
       </KGridItem>
       <KGridItem sizes="100, 25, 25" percentage alignment="right">
@@ -109,6 +109,8 @@
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -124,7 +126,7 @@
     name: 'ManageClassPage',
     metaInfo() {
       return {
-        title: this.$tr('adminClassPageHeader'),
+        title: this.coreCommon$tr('classesLabel'),
       };
     },
     components: {
@@ -139,6 +141,7 @@
       KTooltip,
       KEmptyPlaceholder,
     },
+    mixins: [coreStringsMixin],
     data: () => ({ currentClassDelete: null }),
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),

@@ -2,7 +2,7 @@
 
   <KNavbar>
     <KNavbarLink
-      :title="$tr('classes')"
+      :title="coreCommon$tr('classesLabel')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
       <mat-svg name="domain" category="social" />
@@ -34,6 +34,7 @@
 
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames } from '../constants';
 
   export default {
@@ -42,6 +43,7 @@
       KNavbar,
       KNavbarLink,
     },
+    mixins: [coreStringsMixin],
     computed: {
       PageNames: () => PageNames,
     },
@@ -49,7 +51,6 @@
       linkify: name => ({ name }),
     },
     $trs: {
-      classes: 'Classes',
       data: 'Data',
       settings: 'Settings',
       users: 'Users',
