@@ -43,7 +43,7 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted || taskHasFailed ? $tr('close') : $tr('cancel')"
+        :text="taskHasCompleted || taskHasFailed ? $tr('close') : coreCommon$tr('cancelAction')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -61,6 +61,7 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {
@@ -75,7 +76,7 @@
       KCircularLoader,
       KButton,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       type: RequiredString,
       status: RequiredString,
@@ -193,7 +194,6 @@
       finished: 'Finished! Click "Close" button to see changes.',
       preparingTask: 'Preparing…',
       close: 'Close',
-      cancel: 'Cancel',
       taskHasFailed: 'Transfer failed. Please try again.',
       deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
       deletingChannel: 'Deleting channel…',

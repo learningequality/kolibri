@@ -76,7 +76,7 @@
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
         :submitText="coachCommon$tr('continueAction')"
-        :cancelText="coachCommon$tr('cancelAction')"
+        :cancelText="coreCommon$tr('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"
@@ -121,6 +121,7 @@
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'LessonsRootPage',
@@ -135,7 +136,7 @@
       LessonActive,
       AssignmentDetailsModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     data() {
       return {
         showModal: false,

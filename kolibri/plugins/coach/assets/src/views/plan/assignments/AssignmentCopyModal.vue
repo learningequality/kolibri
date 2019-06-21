@@ -7,7 +7,7 @@
       id="select-classroom"
       :title="modalTitle"
       :submitText="coachCommon$tr('continueAction')"
-      :cancelText="coachCommon$tr('cancelAction')"
+      :cancelText="coreCommon$tr('cancelAction')"
       @submit="goToAvailableGroups"
       @cancel="$emit('cancel')"
     >
@@ -26,7 +26,7 @@
       id="select-learnergroup"
       :title="modalTitle"
       :submitText="coachCommon$tr('copyAction')"
-      :cancelText="coachCommon$tr('cancelAction')"
+      :cancelText="coreCommon$tr('cancelAction')"
       @submit="$emit('submit', selectedClassroomId, selectedCollectionIds)"
       @cancel="$emit('cancel')"
     >
@@ -51,6 +51,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -66,7 +67,7 @@
       KRadioButton,
       RecipientSelector,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       modalTitle: {
         type: String,

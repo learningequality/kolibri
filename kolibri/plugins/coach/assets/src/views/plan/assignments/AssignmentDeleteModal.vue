@@ -3,7 +3,7 @@
   <KModal
     :title="modalTitle"
     :submitText="coachCommon$tr('deleteAction')"
-    :cancelText="coachCommon$tr('cancelAction')"
+    :cancelText="coreCommon$tr('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
@@ -19,6 +19,7 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -26,7 +27,7 @@
     components: {
       KModal,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       modalTitle: {
         type: String,

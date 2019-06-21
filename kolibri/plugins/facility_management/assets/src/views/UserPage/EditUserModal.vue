@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('editUserDetailsHeader')"
     :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -290,7 +290,6 @@
       admin: 'Admin',
       learner: 'Learner',
       save: 'Save',
-      cancel: 'Cancel',
       usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',

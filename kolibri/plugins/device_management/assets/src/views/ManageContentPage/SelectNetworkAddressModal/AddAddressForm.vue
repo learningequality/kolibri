@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('header')"
     :submitText="$tr('submitButtonLabel')"
-    :cancelText="$tr('cancelButtonLabel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     size="medium"
     :submitDisabled="attemptingToConnect"
     @submit="handleSubmit"
@@ -143,7 +143,6 @@
         "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
       addressLabel: 'Full network address',
       addressPlaceholder: 'e.g. 192.168.0.100:8080',
-      cancelButtonLabel: 'Cancel',
       errorCouldNotConnect: 'Could not connect to this network address',
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',

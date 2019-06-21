@@ -85,7 +85,7 @@
         />
         <KButton
           :disabled="uiBlocked"
-          :text="$tr('cancelButton')"
+          :text="coreCommon$tr('cancelAction')"
           :primary="false"
           appearance="flat-button"
           @click="goBack()"
@@ -108,6 +108,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UserType from 'kolibri.utils.UserType';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -135,7 +136,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     data() {
       return {
         devicePermissionsChecked: undefined,
@@ -226,7 +227,6 @@
       UserType,
     },
     $trs: {
-      cancelButton: 'Cancel',
       devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",

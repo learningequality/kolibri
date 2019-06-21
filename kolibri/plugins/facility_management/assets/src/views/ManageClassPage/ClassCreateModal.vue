@@ -4,7 +4,7 @@
     :title="$tr('createNewClassHeader')"
     size="small"
     :submitText="$tr('saveClassButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewClass"
     @cancel="$emit('cancel')"
@@ -96,7 +96,6 @@
     $trs: {
       createNewClassHeader: 'Create new class',
       classname: 'Class name',
-      cancel: 'Cancel',
       saveClassButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
     },

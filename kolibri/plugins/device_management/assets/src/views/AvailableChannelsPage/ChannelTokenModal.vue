@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('enterChannelToken')"
     :submitText="$tr('continueButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="formIsDisabled"
     :cancelDisabled="formIsDisabled"
     @submit="submitForm"
@@ -39,6 +39,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
   export default {
@@ -66,6 +67,7 @@
         return true;
       },
     },
+    mixins: [coreStringsMixin],
     methods: {
       ...mapMutations('manageContent/wizard', {
         setAvailableChannels: 'SET_AVAILABLE_CHANNELS',
@@ -103,7 +105,6 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
       channelTokenLabel: 'Channel token',
       continueButtonLabel: 'Continue',
       enterChannelToken: 'Enter channel token',

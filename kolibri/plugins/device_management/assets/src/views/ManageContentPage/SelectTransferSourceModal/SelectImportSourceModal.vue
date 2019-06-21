@@ -4,7 +4,7 @@
     :title="$tr('selectLocalRemoteSourceTitle')"
     size="medium"
     :submitText="$tr('continue')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="formIsDisabled"
     @submit="goForward"
     @cancel="resetContentWizardState"
@@ -54,6 +54,7 @@
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { ContentSources } from '../../../constants';
 
   export default {
@@ -63,6 +64,7 @@
       KModal,
       UiAlert,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,
@@ -96,7 +98,6 @@
       },
     },
     $trs: {
-      cancel: 'Cancel',
       continue: 'Continue',
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',

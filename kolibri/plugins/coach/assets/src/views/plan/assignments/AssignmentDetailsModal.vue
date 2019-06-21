@@ -73,7 +73,7 @@
 
     <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
-        :text="coachCommon$tr('cancelAction')"
+        :text="coreCommon$tr('cancelAction')"
         appearance="flat-button"
         :primary="false"
         :disabled="disabled"

@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('title')"
     :submitText="$tr('reset')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
@@ -19,14 +19,15 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ConfirmResetModal',
     components: {
       KModal,
     },
+    mixins: [coreStringsMixin],
     $trs: {
-      cancel: 'Cancel',
       confirmationQuestion: 'Are you sure you want to reset your settings?',
       reconfirmation: 'Any custom changes will be lost.',
       reset: 'Reset',

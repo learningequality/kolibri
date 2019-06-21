@@ -2,7 +2,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
-
+  cancelAction: 'Cancel',
   // labels, phrases, titles, headers...
   coachLabel: 'Coach',
   viewAll: 'View all',

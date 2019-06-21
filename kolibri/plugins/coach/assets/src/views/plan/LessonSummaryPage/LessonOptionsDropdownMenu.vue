@@ -50,7 +50,7 @@
         return [
           editDetails,
           {
-            label: this.$tr('manageResourcesAction'),
+            label: this.coachCommon$tr('manageResourcesAction'),
             value: 'MANAGE_RESOURCES',
           },
         ];
@@ -58,7 +58,6 @@
     },
     $trs: {
       copyLessonAction: 'Copy lesson',
-      manageResourcesAction: 'Manage resources',
     },
   };
 

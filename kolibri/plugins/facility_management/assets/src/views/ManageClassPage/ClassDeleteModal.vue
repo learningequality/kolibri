@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('modalTitle')"
     :submitText="$tr('deleteClassButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :hasError="false"
     @submit="classDelete"
     @cancel="$emit('cancel')"
@@ -19,12 +19,14 @@
 
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ClassDeleteModal',
     components: {
       KModal,
     },
+    mixins: [coreStringsMixin],
     props: {
       classname: {
         type: String,
@@ -44,7 +46,6 @@
     $trs: {
       modalTitle: 'Delete class',
       deleteClassButtonLabel: 'Delete',
-      cancel: 'Cancel',
       confirmation: "Are you sure you want to delete '{ classname }'?",
       description:
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",

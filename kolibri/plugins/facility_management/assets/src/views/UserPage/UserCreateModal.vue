@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('createNewUserHeader')"
     :submitText="$tr('saveUserButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewUser"
     @cancel="$emit('cancel')"
@@ -265,7 +265,6 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      cancel: 'Cancel',
       name: 'Full name',
       username: 'Username',
       password: 'Password',

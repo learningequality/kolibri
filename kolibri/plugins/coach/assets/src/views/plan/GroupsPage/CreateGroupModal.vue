@@ -4,7 +4,7 @@
     :title="$tr('newLearnerGroup')"
     size="small"
     :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @cancel="$emit('cancel')"
     @submit="callCreateGroup"
@@ -100,7 +100,6 @@
     $trs: {
       newLearnerGroup: 'Create new group',
       learnerGroupName: 'Group name',
-      cancel: 'Cancel',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
     },

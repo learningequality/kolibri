@@ -4,7 +4,7 @@
     :title="$tr('modalTitle')"
     :hasError="false"
     :submitText="$tr('remove')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="$emit('submit')"
   >
@@ -19,12 +19,14 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'RemoveFromGroupModal',
     components: {
       KModal,
     },
+    mixins: [coreStringsMixin],
     props: {
       groupName: {
         type: String,
@@ -38,7 +40,6 @@
     $trs: {
       modalTitle: 'Remove user',
       remove: 'Remove',
-      cancel: 'Cancel',
       confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
     },
   };

@@ -4,7 +4,7 @@
     :title="$tr('modalTitle')"
     size="small"
     :submitText="$tr('saveButtonLabel')"
-    :cancelText="$tr('cancel')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="updateName"
     @cancel="$emit('cancel')"
@@ -108,7 +108,6 @@
     $trs: {
       modalTitle: 'Rename class',
       classname: 'Class name',
-      cancel: 'Cancel',
       saveButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
     },
