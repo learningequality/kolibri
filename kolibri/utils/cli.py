@@ -651,7 +651,10 @@ def main(args=None):  # noqa: max-complexity=13
     to use main() for integration tests in order to test the argument API.
     """
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+    except ValueError:
+        logger.warn("Error adding signal handler for SIGINT...")
 
     arguments, django_args = parse_args(args)
 
