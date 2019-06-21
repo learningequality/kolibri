@@ -273,7 +273,7 @@ You can also specify specific string IDs for the ``title``, ``msg``, and ``link_
 
 This will output a JSON blob like:
 
-.. code-block:: json
+.. code-block:: text
 
   {
     "ar": {
