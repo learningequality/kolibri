@@ -9,7 +9,7 @@
     <h1 v-if="status === ''" class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-      <span v-else>{{ $tr('channels') }}</span>
+      <span v-else>{{ coreCommon$tr('channelsLabel') }}</span>
     </h1>
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
@@ -65,7 +65,7 @@
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
       <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-        {{ $tr('channelHeader') }}
+        {{ coreCommon$tr('channelsLabel') }}
       </div>
 
       <div class="channels-list">
@@ -101,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
@@ -128,7 +129,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [coreStringsMixin, responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},

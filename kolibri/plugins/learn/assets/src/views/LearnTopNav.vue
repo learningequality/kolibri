@@ -4,7 +4,7 @@
     <KNavbarLink
       v-if="isUserLoggedIn && userHasMemberships"
       name="classes-link"
-      :title="coachCommon$tr('classesLabel')"
+      :title="coreCommon$tr('channelsLabel')"
       :link="allClassesLink"
     >
       <mat-svg
@@ -13,7 +13,7 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      :title="coachCommon$tr('channelsLabel')"
+      :title="coreCommon$tr('channelsLabel')"
       :link="channelsLink"
     >
       <mat-svg
@@ -22,7 +22,7 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      :title="coachCommon$tr('recommendedLabel')"
+      :title="coreCommon$tr('recommendedLabel')"
       :link="recommendedLink"
     >
       <mat-svg
@@ -40,8 +40,8 @@
   import { mapGetters, mapState } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { ClassesPageNames, PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
 
   export default {
     name: 'LearnTopNav',
@@ -49,7 +49,7 @@
       KNavbar,
       KNavbarLink,
     },
-    mixins: [learnStringsMixin],
+    mixins: [coreStringsMixin],
     props: {},
     data() {
       return {

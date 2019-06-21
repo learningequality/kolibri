@@ -4,7 +4,9 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
   // labels, phrases, titles, headers...
+  channelsLabel: 'Channels',
   coachLabel: 'Coach',
+  recommendedLabel: 'Recommended',
   viewAll: 'View all',
   // notifications
   requiredFieldLabel: 'This field is required',

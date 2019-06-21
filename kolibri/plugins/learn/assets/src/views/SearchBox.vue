@@ -99,7 +99,7 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="coachCommon$tr('channelsLabel')"
+          :label="coreCommon$tr('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
@@ -123,8 +123,8 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
 
   const ALL_FILTER = null;
 
@@ -143,7 +143,7 @@
       UiIconButton,
       KSelect,
     },
-    mixins: [themeMixin, learnStringsMixin],
+    mixins: [themeMixin, coreStringsMixin],
     props: {
       icon: {
         type: String,
