@@ -24,7 +24,6 @@
         'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
       added: "Added '{item}'",
       removed: "Removed '{item}'",
-      reportLessonDetailEditorTitle: 'Edit lesson details',
       reportLessonResourceManagerTitle: 'Manage resources',
     },
   };

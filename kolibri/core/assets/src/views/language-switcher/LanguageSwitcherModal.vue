@@ -73,7 +73,6 @@
     },
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      cancelButtonText: 'Cancel',
       confirmButtonText: 'Confirm',
     },
   };
