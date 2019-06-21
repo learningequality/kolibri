@@ -111,6 +111,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -128,6 +129,7 @@
         title: this.$tr('userPageTitle'),
       };
     },
+    mixins: [coreStringsMixin],
     components: {
       UserCreateModal,
       EditUserModal,
@@ -160,7 +162,7 @@
         return [
           { label: this.$tr('allUsers'), value: ALL_FILTER },
           { label: this.$tr('learners'), value: UserKinds.LEARNER },
-          { label: this.$tr('coaches'), value: UserKinds.COACH },
+          { label: this.coreCommon$tr('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
@@ -257,7 +259,6 @@
       searchText: 'Search for a user…',
       allUsers: 'All',
       admins: 'Admins',
-      coaches: 'Coaches',
       learners: 'Learners',
       newUserButtonLabel: 'New User',
       userCountLabel: '{userCount} users',

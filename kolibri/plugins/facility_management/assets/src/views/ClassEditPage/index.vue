@@ -36,7 +36,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ $tr('coachTableTitle') }}</h2>
+        <h2>{{ coreCommon$tr('coachesLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -101,6 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
@@ -123,6 +124,7 @@
       KButton,
       KLabeledIcon,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         userToBeRemoved: null,
@@ -170,7 +172,6 @@
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      coachTableTitle: 'Coaches',
       learnerTableTitle: 'Learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",

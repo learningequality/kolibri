@@ -24,7 +24,7 @@
       <thead slot="thead">
         <tr>
           <th>{{ $tr('className') }}</th>
-          <th>{{ $tr('coachesColumnHeader') }}</th>
+          <th>{{ coreCommon$tr('coachesLabel') }}</th>
           <th>{{ $tr('learnersColumnHeader') }}</th>
           <th>
             <span class="visuallyhidden">
@@ -201,7 +201,6 @@
       className: 'Class name',
       tableCaption: 'List of classes',
       learnersColumnHeader: 'Learners',
-      coachesColumnHeader: 'Coaches',
       twoCoachNames: '{name1}, {name2}',
       manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',

@@ -8,6 +8,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   // labels, phrases, titles, headers...
   channelsLabel: 'Channels',
   classesLabel: 'Classes',
+  coachesLabel: 'Coaches',
   coachLabel: 'Coach',
   recommendedLabel: 'Recommended',
   viewAll: 'View all',

@@ -29,7 +29,7 @@
         <thead slot="thead">
           <tr>
             <th>{{ $tr('classNameLabel') }}</th>
-            <th>{{ coachCommon$tr('coachesLabel') }}</th>
+            <th>{{ coreCommon$tr('coachesLabel') }}</th>
             <th>{{ coachCommon$tr('learnersLabel') }}</th>
           </tr>
         </thead>
