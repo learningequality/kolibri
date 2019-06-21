@@ -65,10 +65,9 @@
       </CoreTable>
 
       <SubscribeModal
-        v-if="subscriptionModalShown===Modals.CHOOSE_SUBSCRIPTIONS"
+        v-if="subscriptionModalShown===Modals.CHOOSE_CLASS_SUBSCRIPTIONS"
         :collectionId="currentClass.id"
         :collectionName="currentClass.name"
-        :collectionKind="currentClass.kind"
       />
 
     </KPageContainer>
@@ -100,7 +99,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isClas sCoach', 'isFacilityCoach']),
+      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
       ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
       Modals: () => Modals,
@@ -127,7 +126,7 @@
       ...mapActions('subscriptions', ['displayModal']),
       openSubscribeModal(classModel) {
         this.currentClass = classModel;
-        this.displayModal(Modals.CHOOSE_SUBSCRIPTIONS);
+        this.displayModal(Modals.CHOOSE_CLASS_SUBSCRIPTIONS);
       },
     },
     $trs: {

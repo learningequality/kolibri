@@ -4,6 +4,7 @@ function defaultState() {
   return {
     subscriptionModalShown: '',
     selectedSubscriptions: '[]',
+    selectedGroupSubscriptions: '[]',
   };
 }
 
@@ -16,6 +17,9 @@ export default {
     },
     SET_SUBSCRIPTIONS(state, subscriptions) {
       state.selectedSubscriptions = subscriptions;
+    },
+    SET_GROUP_SUBSCRIPTIONS(state, subscriptions) {
+      state.selectedGroupSubscriptions = subscriptions;
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());

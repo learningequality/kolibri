@@ -10,7 +10,10 @@ function displaySubscribedChannels(store, channels, channelRootIds, include_fiel
     // we want them to be in the same order as the channels list
     const rootNodes = channels
       .map(channel => {
-        const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+        let node;
+        if (channelRootIds.length > 0) {
+          node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+        }
         if (node) {
           node.thumbnail = channel.thumbnail;
           return node;
