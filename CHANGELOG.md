@@ -4,8 +4,6 @@ List of the most important changes for each release.
 
 ## 0.12.5
 
-### Changed or fixed
-
 - Upgraded Morango to 0.4.6, fixing startup errors for some users.
 
 View all [0.12.5 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.5)
