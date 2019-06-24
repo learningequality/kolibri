@@ -74,7 +74,7 @@
               <p>
                 <KButton
                   ref="privacyLink"
-                  :text="$tr('privacyLink')"
+                  :text="coreCommon$tr('usageAndPrivacyLabel')"
                   class="privacy-link"
                   appearance="basic-link"
                   @click="handleClickPrivacyLink"
@@ -107,6 +107,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -140,7 +141,7 @@
       KButton,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
+    mixins: [coreStringsMixin, responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
     props: {
       navShown: {
         type: Boolean,
@@ -234,7 +235,6 @@
       navigationLabel: 'Main user navigation menu',
       closeNav: 'Close navigation menu',
       poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
     },
   };
 

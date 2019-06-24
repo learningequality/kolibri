@@ -29,6 +29,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   recommendedLabel: 'Recommended',
   resourcesLabel: 'Resources',
   searchLabel: 'Search',
+  usageAndPrivacyLabel: 'Usage and privacy',
   usernameLabel: 'Username',
   usersLabel: 'Users',
   userTypeLabel: 'User type',

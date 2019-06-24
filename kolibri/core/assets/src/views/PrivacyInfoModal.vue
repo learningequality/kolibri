@@ -3,7 +3,7 @@
   <KModal
     size="large"
     :cancelText="coreCommon$tr('closeAction')"
-    :title="$tr('privacyModalHeader')"
+    :title="coreCommon$tr('usageAndPrivacyLabel')"
     @cancel="$emit('cancel')"
   >
     <section v-if="!hideUsersSection">
@@ -74,7 +74,6 @@
       },
     },
     $trs: {
-      privacyModalHeader: 'Usage and privacy',
       kolibriUsersP1:
         'You should use Kolibri in compliance with all applicable laws. This may mean obtaining permission from your parent, guardian, or teacher.',
       kolibriUsersP2:

@@ -128,7 +128,7 @@
             <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
             <span v-else> • </span>
             <KButton
-              :text="$tr('privacyLink')"
+              :text="coreCommon$tr('usageAndPrivacyLabel')"
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
@@ -468,7 +468,6 @@
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
     },
   };
 
