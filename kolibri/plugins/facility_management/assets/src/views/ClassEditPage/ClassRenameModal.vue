@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('modalTitle')"
     size="small"
-    :submitText="$tr('saveButtonLabel')"
+    :submitText="coreCommon$tr('saveAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="updateName"
@@ -108,7 +108,6 @@
     $trs: {
       modalTitle: 'Rename class',
       classname: 'Class name',
-      saveButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
     },
   };

@@ -6,6 +6,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   closeAction: 'Close',
   continueAction: 'Continue',
   deleteAction: 'Delete',
+  saveAction: 'Save',
 
   // labels, phrases, titles, headers...
   channelsLabel: 'Channels',

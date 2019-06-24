@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('resetPassword')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreCommon$tr('saveAction')"
+    :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -123,8 +123,6 @@
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
       passwordMatchError: 'Passwords do not match',
-      cancel: 'cancel',
-      save: 'Save',
     },
   };
 

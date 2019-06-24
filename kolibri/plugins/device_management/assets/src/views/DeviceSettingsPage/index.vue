@@ -43,7 +43,7 @@
     <section>
       <KButton
         class="save-button"
-        :text="$tr('saveAction')"
+        :text="coreCommon$tr('saveAction')"
         appearance="raised-button"
         primary
         @click="handleClickSave"
@@ -60,6 +60,7 @@
   import find from 'lodash/find';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KSelect from 'kolibri.coreVue.components.KSelect';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
   import { getDeviceLanguageSetting, saveDeviceLanguageSetting } from './api';
@@ -76,6 +77,7 @@
       KSelect,
       UiAlert,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         language: {},
@@ -131,7 +133,6 @@
       defaultLanguageHeader: 'Default language',
       pageDescription: 'The changes you make here will affect this device only.',
       pageHeader: 'Device settings',
-      saveAction: 'Save',
       saveFailureNotification: 'Settings have not been updated',
       saveSuccessNotification: 'Settings have been updated',
       selectedLanguageLabel: 'Selected',

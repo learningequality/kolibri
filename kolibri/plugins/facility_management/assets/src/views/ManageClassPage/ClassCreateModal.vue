@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('createNewClassHeader')"
     size="small"
-    :submitText="$tr('saveClassButtonLabel')"
+    :submitText="coreCommon$tr('saveAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewClass"
@@ -96,7 +96,6 @@
     $trs: {
       createNewClassHeader: 'Create new class',
       classname: 'Class name',
-      saveClassButtonLabel: 'Save',
       duplicateName: 'A class with that name already exists',
     },
   };

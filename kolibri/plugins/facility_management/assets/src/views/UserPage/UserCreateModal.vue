@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('createNewUserHeader')"
-    :submitText="$tr('saveUserButtonLabel')"
+    :submitText="coreCommon$tr('saveAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewUser"
@@ -270,7 +270,6 @@
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',
-      saveUserButtonLabel: 'Save',
       learner: 'Learner',
       admin: 'Admin',
       coachSelectorHeader: 'Coach type',

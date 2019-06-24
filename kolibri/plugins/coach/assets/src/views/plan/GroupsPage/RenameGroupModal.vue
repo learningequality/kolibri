@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('renameLearnerGroup')"
     size="small"
-    :submitText="$tr('save')"
+    :submitText="coreCommon$tr('saveAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="callRenameGroup"
@@ -111,7 +111,6 @@
     },
     $trs: {
       renameLearnerGroup: 'Rename group',
-      save: 'Save',
       duplicateName: 'A group with that name already exists',
     },
   };

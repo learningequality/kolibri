@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('newLearnerGroup')"
     size="small"
-    :submitText="$tr('save')"
+    :submitText="coreCommon$tr('saveAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @cancel="$emit('cancel')"
@@ -100,7 +100,6 @@
     },
     $trs: {
       newLearnerGroup: 'Create new group',
-      save: 'Save',
       duplicateName: 'A group with that name already exists',
     },
   };
