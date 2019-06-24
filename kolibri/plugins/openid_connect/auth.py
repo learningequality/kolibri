@@ -8,12 +8,17 @@ logger = logging.getLogger(__name__)
 
 
 class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
+    def get_username(self, claim):
+        username = claim.get("nickname")  # according to https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+        if not username:  # according to OLIP implementation
+            username = claim.get("username")
+        return username
+
     def get_or_create_user(self, access_token, id_token, payload):
         """Returns a User instance if 1 user is found. Creates a user if not found
         and configured to do so. Returns nothing if multiple users are matched."""
         user_info = self.get_userinfo(access_token, id_token, payload)
-        username = user_info.get("username")
-
+        username = self.get_username(user_info)
         claims_verified = self.verify_claims(user_info)
         if not claims_verified:
             msg = "Claims verification failed"
@@ -51,15 +56,17 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
 
     def filter_users_by_claims(self, claims):
         """Return all users matching the specified email."""
-        username = claims.get("username")
+        username = self.get_username(claims)
         if not username:
             return self.UserModel.objects.none()
         return self.UserModel.objects.filter(username__iexact=username)
 
     def create_user(self, claims):
         """Return object for a newly created user account."""
-        username = claims.get("username")
+        username = self.get_username(claims)
         full_name = claims.get("name", "")
+        if not full_name:
+            full_name = '{} {}'.format(claims.get('given_name'), claims.get('family_name'))
         # not needed in Kolibri, email is not mandatory:
         email = username
         # Kolibri doesn't allow an empty password. This isn't going to be used:
