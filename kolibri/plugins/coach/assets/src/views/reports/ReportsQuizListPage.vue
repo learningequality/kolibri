@@ -13,7 +13,7 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="$tr('show')"
+        :label="coreCommon$tr('showAction')"
         :options="filterOptions"
         :inline="true"
       />
@@ -142,7 +142,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      show: 'Show',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
     },

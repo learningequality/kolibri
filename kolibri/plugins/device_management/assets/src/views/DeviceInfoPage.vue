@@ -61,6 +61,8 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+
 
   export default {
     name: 'DeviceInfoPage',
@@ -69,6 +71,7 @@
         title: this.$tr('header'),
       };
     },
+    mixins: [coreStringsMixin],
     components: {
       AuthMessage,
       KButton,
@@ -84,7 +87,7 @@
       ...mapGetters(['canManageContent']),
       ...mapState('deviceInfo', ['deviceInfo']),
       buttonText() {
-        return this.advancedShown ? this.$tr('hide') : this.$tr('show');
+        return this.advancedShown ? this.$tr('hide') : this.coreCommon$tr('showAction');
       },
       infoText() {
         return [
@@ -107,7 +110,6 @@
       freeDisk: 'Free disk space',
       advanced: 'Advanced',
       advancedDescription: 'This information may be helpful for troubleshooting or error reporting',
-      show: 'Show',
       hide: 'Hide',
     },
   };

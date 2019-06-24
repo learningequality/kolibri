@@ -71,6 +71,7 @@
   import find from 'lodash/find';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   const kindFilterToLabelMap = {
     [ContentNodeKinds.TOPIC]: 'topics',
@@ -86,6 +87,7 @@
     components: {
       KSelect,
     },
+    mixins: [coreStringsMixin],
     props: {
       searchResults: {
         type: Object,
@@ -152,7 +154,7 @@
       roleFilterOptions() {
         return [
           // 'Show' is synonymous with 'All'
-          { label: this.$tr('showAction'), value: null },
+          { label: this.coreCommon$tr('showAction'), value: null },
           { label: this.$tr('hideAction'), value: 'nonCoach' },
         ];
       },
@@ -176,7 +178,6 @@
       coachResourcesLabel: 'Coach resources:',
       topics: 'Topics',
       videos: 'Videos',
-      showAction: 'Show',
       hideAction: 'Hide',
       searchResultsMessage: `Results for '{searchTerm}'`,
       noSearchResultsMessage: `No results for '{searchTerm}'`,

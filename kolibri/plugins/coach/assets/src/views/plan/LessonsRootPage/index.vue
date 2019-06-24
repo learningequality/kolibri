@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coachCommon$tr('showAction')"
+          :label="coreCommon$tr('showAction')"
           :options="filterOptions"
           :inline="true"
         />
