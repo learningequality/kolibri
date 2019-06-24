@@ -19,7 +19,7 @@
         <thead slot="thead">
           <tr>
             <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coreCommon$tr('progressLabel') }}</th>
             <th>{{ coachCommon$tr('groupsLabel') }}</th>
           </tr>
         </thead>
@@ -51,6 +51,7 @@
 <script>
 
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
   export default {
@@ -58,7 +59,7 @@
     components: {
       ReportsLessonHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

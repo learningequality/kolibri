@@ -84,7 +84,7 @@
         if (this.examSubmitted(exam)) {
           return this.coreCommon$tr('completed');
         } else if (!this.examStarted(exam)) {
-          return this.$tr('notStarted');
+          return this.$tr('notStartedLabel');
         } else if (this.examStartedNotSubmitted(exam)) {
           return this.$tr('questionsLeft', {
             questionsLeft: exam.question_count - exam.progress.answer_count,
@@ -101,7 +101,7 @@
     $trs: {
       examsHeader: 'Quizzes',
       noExamsMessage: 'You have no quizzes assigned',
-      notStarted: 'Not started',
+      notStartedLabel: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
     },

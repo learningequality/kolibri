@@ -2,7 +2,7 @@
 
   <div class="wrapper">
     <div id="progress-bar-label" class="visuallyhidden">
-      {{ $tr('label') }}
+      {{ coreCommon$tr('progressLabel') }}
     </div>
     <div
       class="progress-bar-wrapper"
@@ -33,10 +33,11 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ProgressBar',
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       progress: {
         type: Number,
@@ -58,7 +59,6 @@
       },
     },
     $trs: {
-      label: 'Progress',
       pct: '{0, number, percent}',
     },
   };

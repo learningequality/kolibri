@@ -72,7 +72,7 @@
       />
       <KDropdownMenu
         v-if="inManageMode"
-        :text="$tr('manageChannelOptions')"
+        :text="coreCommon$tr('optionsLabel')"
         :disabled="tasksInQueue"
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
@@ -211,7 +211,6 @@
     $trs: {
       defaultDescription: '(No description)',
       importMoreFromChannel: 'Import more',
-      manageChannelOptions: 'Options',
       onYourDevice: 'On your device',
       selectButton: 'Select',
       version: 'Version {version}',

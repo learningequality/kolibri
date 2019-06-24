@@ -4,7 +4,7 @@
     <thead slot="thead">
       <tr>
         <th>{{ coachCommon$tr('nameLabel') }}</th>
-        <th>{{ coachCommon$tr('progressLabel') }}</th>
+        <th>{{ coreCommon$tr('progressLabel') }}</th>
         <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
           {{ coachCommon$tr('groupsLabel') }}
@@ -55,6 +55,7 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -72,7 +73,7 @@
       TimeDuration,
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       entries: {
         type: Array,

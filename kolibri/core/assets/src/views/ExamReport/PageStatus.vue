@@ -105,7 +105,7 @@
         } else if (this.completed !== null) {
           return this.$tr('inProgress');
         } else {
-          return this.$tr('notStarted');
+          return this.$tr('notStartedLabel');
         }
       },
     },
@@ -115,7 +115,7 @@
       questionsCorrectLabel: 'Questions correct',
       questionsCorrectValue: '{correct, number} out of {total, number}',
       inProgress: 'In progress',
-      notStarted: 'Not started',
+      notStartedLabel: 'Not started',
     },
   };
 

@@ -20,7 +20,7 @@
             <thead slot="thead">
               <tr>
                 <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coachCommon$tr('progressLabel') }}</th>
+                <th>{{ coreCommon$tr('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -46,7 +46,7 @@
             <thead slot="thead">
               <tr>
                 <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coachCommon$tr('progressLabel') }}</th>
+                <th>{{ coreCommon$tr('progressLabel') }}</th>
                 <th>{{ coachCommon$tr('scoreLabel') }}</th>
               </tr>
             </thead>
@@ -79,6 +79,7 @@
 <script>
 
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
 
@@ -87,7 +88,7 @@
     components: {
       ReportsLearnerHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

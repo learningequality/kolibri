@@ -22,7 +22,7 @@
           <tr>
             <th>{{ coachCommon$tr('titleLabel') }}</th>
             <th>{{ coachCommon$tr('avgScoreLabel') }}</th>
-            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coreCommon$tr('progressLabel') }}</th>
             <th>{{ coachCommon$tr('recipientsLabel') }}</th>
             <th>{{ coachCommon$tr('statusLabel') }}</th>
           </tr>
@@ -67,6 +67,7 @@
 <script>
 
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ReportsHeader from './ReportsHeader';
 
   export default {
@@ -74,7 +75,7 @@
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     data() {
       return {
         filter: 'allQuizzes',

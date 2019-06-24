@@ -1,7 +1,7 @@
 <template>
 
   <KDropdownMenu
-    :text="coachCommon$tr('optionsLabel')"
+    :text="coreCommon$tr('optionsLabel')"
     :options="options"
     appearance="raised-button"
     :primary="false"

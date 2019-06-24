@@ -13,7 +13,7 @@
       <div class="ta-r">
         <KButton
           class="new-group-button"
-          :text="$tr('newGroup')"
+          :text="$tr('newGroupAction')"
           :primary="true"
           @click="openCreateGroupModal"
         />
@@ -160,7 +160,7 @@
     },
     $trs: {
       classGroups: 'Groups',
-      newGroup: 'New group',
+      newGroupAction: 'New group',
       noGroups: 'You do not have any groups',
       documentTitle: 'Groups',
     },

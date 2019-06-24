@@ -34,7 +34,7 @@
     <UserTable class="user-roster move-down" :users="visibleUsers" :emptyMessage="emptyMessage">
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
-          :text="$tr('optionsButtonLabel')"
+          :text="coreCommon$tr('optionsLabel')"
           :options="manageUserOptions(userRow.user.id)"
           :disabled="!userCanBeEdited(userRow.user)"
           appearance="flat-button"

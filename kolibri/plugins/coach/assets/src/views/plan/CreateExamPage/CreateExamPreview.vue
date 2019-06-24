@@ -77,7 +77,7 @@
         />
       </div>
       <h2 class="header-margin">
-        {{ $tr('questionOrder') }}
+        {{ coachCommon$tr('questionOrderLabel') }}
       </h2>
       <div>
         <KRadioButton
@@ -268,7 +268,6 @@
       appBarLabel: 'Select exercises',
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
-      questionOrder: 'Question order',
       questions: 'Questions',
       newQuestions: 'New question set created',
       preview: 'Preview quiz',

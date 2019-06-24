@@ -15,7 +15,7 @@
     <td class="core-table-button-col">
       <KDropdownMenu
         appearance="flat-button"
-        :text="coachCommon$tr('optionsLabel')"
+        :text="coreCommon$tr('optionsLabel')"
         :options="menuOptions"
         @select="handleSelection"
       />
