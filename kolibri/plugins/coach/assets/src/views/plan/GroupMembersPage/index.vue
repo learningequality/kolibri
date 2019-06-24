@@ -51,7 +51,7 @@
                 {{ $tr('fullName') }}
               </th>
               <th>
-                {{ $tr('username') }}
+                {{ coreCommon$tr('usernameLabel') }}
               </th>
               <th></th>
             </tr>
@@ -152,7 +152,6 @@
       groupsHeader: 'Groups',
       enrollButton: 'Enroll learners',
       fullName: 'Full name',
-      username: 'Username',
       removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',

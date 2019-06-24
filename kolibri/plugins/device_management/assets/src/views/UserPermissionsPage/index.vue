@@ -17,7 +17,7 @@
         <table>
           <tr>
             <th scope="row">
-              {{ $tr('usernameLabel') }}
+              {{ coreCommon$tr('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
@@ -237,7 +237,6 @@
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
-      usernameLabel: 'Username',
       userTypeLabel: 'User type',
       facilityLabel: 'Facility',
       superAdminExplanation1:

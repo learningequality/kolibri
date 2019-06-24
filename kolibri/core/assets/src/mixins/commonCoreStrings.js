@@ -20,6 +20,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   optionsLabel: 'Options',
   progressLabel: 'Progress',
   recommendedLabel: 'Recommended',
+  usernameLabel: 'Username',
   viewAll: 'View all',
 
   // notifications

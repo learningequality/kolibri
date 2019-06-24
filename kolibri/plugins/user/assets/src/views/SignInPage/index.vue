@@ -41,7 +41,7 @@
                   v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
-                  :label="$tr('username')"
+                  :label="coreCommon$tr('usernameLabel')"
                   :invalid="usernameIsInvalid"
                   :invalidText="usernameIsInvalidText"
                   @blur="handleUsernameBlur"
@@ -459,7 +459,6 @@
     $trs: {
       kolibri: 'Kolibri',
       signIn: 'Sign in',
-      username: 'Username',
       password: 'Password',
       enterPassword: 'Enter password',
       createAccount: 'Create an account',

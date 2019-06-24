@@ -84,7 +84,7 @@
         @input="resetProfileState"
       />
       <template v-else>
-        <h2>{{ $tr('username') }}</h2>
+        <h2>{{ coreCommon$tr('usernameLabel') }}</h2>
         <p>{{ session.username }}</p>
       </template>
 
@@ -300,7 +300,6 @@
     },
     $trs: {
       success: 'Profile details updated',
-      username: 'Username',
       name: 'Full name',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',

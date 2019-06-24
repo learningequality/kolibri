@@ -29,7 +29,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="$tr('username')"
+        :label="coreCommon$tr('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -278,7 +278,6 @@
     $trs: {
       createAccount: 'Create an account',
       name: 'Full name',
-      username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',

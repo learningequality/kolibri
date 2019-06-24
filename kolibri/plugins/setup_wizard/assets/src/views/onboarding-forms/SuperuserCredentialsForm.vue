@@ -21,7 +21,7 @@
     <KTextbox
       ref="username"
       v-model="username"
-      :label="$tr('adminUsernameFieldLabel')"
+      :label="coreCommon$tr('usernameLabel')"
       type="username"
       autocomplete="username"
       :maxlength="30"
@@ -67,6 +67,7 @@
   import { mapMutations } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -75,6 +76,7 @@
       OnboardingForm,
       KTextbox,
     },
+    mixins: [coreStringsMixin],
     props: {
       submitText: {
         type: String,
@@ -180,7 +182,6 @@
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
       adminNameFieldLabel: 'Full name',
-      adminUsernameFieldLabel: 'Username',
       adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
       rememberThisAccountInformation:

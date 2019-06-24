@@ -29,7 +29,7 @@
               {{ $tr('role') }}
             </span>
           </th>
-          <th>{{ $tr('username') }}</th>
+          <th>{{ coreCommon$tr('usernameLabel') }}</th>
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>
@@ -105,6 +105,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'UserTable',
@@ -114,7 +115,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       users: {
         type: Array,
@@ -177,7 +178,6 @@
     $trs: {
       coachTableTitle: 'Coaches',
       fullName: 'Full name',
-      username: 'Username',
       role: 'Role',
       userIconColumnHeader: 'User icon',
       userActionsColumnHeader: 'Actions',

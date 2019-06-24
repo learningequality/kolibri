@@ -24,7 +24,7 @@
         ref="username"
         v-model="username"
         type="text"
-        :label="$tr('username')"
+        :label="coreCommon$tr('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -266,7 +266,6 @@
     $trs: {
       createNewUserHeader: 'Create new user',
       name: 'Full name',
-      username: 'Username',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',

@@ -13,7 +13,7 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('usernameLabel') }}
+          {{ coreCommon$tr('usernameLabel') }}
         </template>
         <template slot="value">
           {{ learner.username }}
@@ -68,11 +68,12 @@
 <script>
 
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsLearnerHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

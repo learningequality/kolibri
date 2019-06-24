@@ -6,7 +6,7 @@
       <thead slot="thead">
         <tr>
           <th>{{ $tr('fullName') }}</th>
-          <th>{{ $tr('username') }}</th>
+          <th>{{ coreCommon$tr('username') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -116,7 +116,6 @@
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
       fullName: 'Full name',
-      username: 'Username',
       noUsersMatching: 'No users matching "{searchFilter}"',
       you: 'You',
     },

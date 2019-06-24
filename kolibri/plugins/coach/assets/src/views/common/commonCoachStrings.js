@@ -12,8 +12,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewAction: 'Preview',  
   renameAction: 'Rename',  
   showMoreAction: 'Show more',
-  sortedAscendingAction: 'Sort in ascending order',
-  sortedDescendingAction: 'Sort in descending order',
   viewAllAction: 'View all',
 
   // labels, phrases, titles, headers...
@@ -57,15 +55,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   reportsLabel: 'Reports',
   resourcesViewedLabel: 'Resources viewed',
   scoreLabel: 'Score',
-  sortedAscendingLabel: '(sorted ascending)',
-  sortedDescendingLabel: '(sorted descending)',
   startedLabel: 'Started',
   statusLabel: 'Status',
   titleLabel: 'Title',
-  timeLabel: 'Time',
   timeSpentLabel: 'Time spent',
-  ungroupedLearnersLabel: 'Ungrouped learners',
-  usernameLabel: 'Username',
+  ungroupedLearnersLabel: 'Ungrouped learners',  
   viewsLabel: 'Views',
 
   // notifications

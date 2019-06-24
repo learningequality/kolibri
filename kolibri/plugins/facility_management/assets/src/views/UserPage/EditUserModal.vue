@@ -24,7 +24,7 @@
       ref="username"
       v-model="newUsername"
       type="text"
-      :label="$tr('username')"
+      :label="coreCommon$tr('usernameLabel')"
       :maxlength="30"
       :invalid="usernameIsInvalid"
       :invalidText="usernameIsInvalidText"
@@ -285,7 +285,6 @@
     $trs: {
       editUserDetailsHeader: 'Edit user details',
       fullName: 'Full name',
-      username: 'Username',
       userType: 'User type',
       admin: 'Admin',
       learner: 'Learner',
