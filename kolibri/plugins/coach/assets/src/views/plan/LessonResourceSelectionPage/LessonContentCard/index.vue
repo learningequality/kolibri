@@ -111,8 +111,6 @@
     },
     $trs: {
       // These strings are not used yet
-      resourcesInTopic: '{count} {count, plural, one {resource} other {resources}}',
-      selectedResourcesInTopic: '{selected} of {total} selected',
       viewLabel: 'View',
       topic: 'Topic:',
       channel: 'Channel:',
