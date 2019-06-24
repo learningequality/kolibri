@@ -8,7 +8,7 @@
       <mat-svg name="domain" category="social" />
     </KNavbarLink>
     <KNavbarLink
-      :title="$tr('users')"
+      :title="coreCommon$tr('usersLabel')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
       <mat-svg name="people" category="social" />
@@ -53,7 +53,6 @@
     $trs: {
       data: 'Data',
       settings: 'Settings',
-      users: 'Users',
     },
   };
 

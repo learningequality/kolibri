@@ -7,7 +7,7 @@
     @cancel="$emit('cancel')"
   >
     <section v-if="!hideUsersSection">
-      <h2>{{ $tr('kolibriUsersTitle') }}</h2>
+      <h2>{{ coreCommon$tr('usersLabel') }}</h2>
       <p>{{ $tr('kolibriUsersP1') }}</p>
       <p>{{ $tr('kolibriUsersP2') }}</p>
       <p>{{ $tr('kolibriUsersP3') }}</p>
@@ -75,7 +75,6 @@
     },
     $trs: {
       privacyModalHeader: 'Usage and privacy',
-      kolibriUsersTitle: 'Users',
       kolibriUsersP1:
         'You should use Kolibri in compliance with all applicable laws. This may mean obtaining permission from your parent, guardian, or teacher.',
       kolibriUsersP2:

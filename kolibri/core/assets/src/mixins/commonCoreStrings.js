@@ -30,6 +30,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   resourcesLabel: 'Resources',
   searchLabel: 'Search',
   usernameLabel: 'Username',
+  usersLabel: 'Users',
   userTypeLabel: 'User type',
   viewMoreLabel: 'View more',
 

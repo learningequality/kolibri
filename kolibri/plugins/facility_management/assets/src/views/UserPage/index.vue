@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ $tr('users') }}</h1>
+        <h1>{{ coreCommon$tr('usersLabel') }}</h1>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
@@ -126,7 +126,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.$tr('userPageTitle'),
+        title: this.coreCommon$tr('usersLabel'),
       };
     },
     components: {
@@ -260,7 +260,6 @@
       newUserButtonLabel: 'New User',
       userCountLabel: '{userCount} users',
       fullName: 'Full name',
-      users: 'Users',
       username: 'Username',
       edit: 'Edit',
       allUsersFilteredOut: 'No users match the filter',
