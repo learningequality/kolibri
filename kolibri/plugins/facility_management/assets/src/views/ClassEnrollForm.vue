@@ -48,7 +48,7 @@
 
     <div class="footer">
       <KButton
-        :text="$tr('confirmSelectionButtonLabel')"
+        :text="coreCommon$tr('confirmAction')"
         :primary="true"
         type="submit"
         :disabled="selectedUsers.length === 0"
@@ -70,6 +70,7 @@
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ClassEnrollForm',
@@ -80,7 +81,7 @@
       KFilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow],
+    mixins: [coreStringsMixin, responsiveWindow],
     props: {
       facilityUsers: {
         type: Array,
@@ -150,7 +151,6 @@
       },
     },
     $trs: {
-      confirmSelectionButtonLabel: 'Confirm',
       searchForUser: 'Search for a user',
       userIconColumnHeader: 'User Icon',
       name: 'Full name',

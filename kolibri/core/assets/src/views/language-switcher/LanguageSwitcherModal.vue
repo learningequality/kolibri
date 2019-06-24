@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('changeLanguageModalHeader')"
-    :submitText="$tr('confirmButtonText')"
+    :submitText="coreCommon$tr('confirmAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="setLang"
@@ -73,7 +73,6 @@
     },
     $trs: {
       changeLanguageModalHeader: 'Change language',
-      confirmButtonText: 'Confirm',
     },
   };
 
