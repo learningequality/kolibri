@@ -48,7 +48,7 @@
           <thead slot="thead">
             <tr>
               <th>
-                {{ $tr('fullName') }}
+                {{ coreCommon$tr('fullNameLabel') }}
               </th>
               <th>
                 {{ coreCommon$tr('usernameLabel') }}
@@ -153,7 +153,6 @@
     $trs: {
       groupsHeader: 'Groups',
       enrollButton: 'Enroll learners',
-      fullName: 'Full name',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
       back: 'All groups',

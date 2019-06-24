@@ -21,7 +21,7 @@
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
             <span :class="{visuallyhidden: selectable}">
-              {{ $tr('fullName') }}
+              {{ coreCommon$tr('fullNameLabel') }}
             </span>
           </th>
           <th>
@@ -177,7 +177,6 @@
     },
     $trs: {
       coachTableTitle: 'Coaches',
-      fullName: 'Full name',
       role: 'Role',
       userIconColumnHeader: 'User icon',
       userActionsColumnHeader: 'Actions',

@@ -5,8 +5,8 @@
     <CoreTable>
       <thead slot="thead">
         <tr>
-          <th>{{ $tr('fullName') }}</th>
-          <th>{{ coreCommon$tr('username') }}</th>
+          <th>{{ coreCommon$tr('fullNameLabel') }}</th>
+          <th>{{ coreCommon$tr('usernameLabel') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -115,7 +115,6 @@
     $trs: {
       viewPermissions: 'View Permissions',
       editPermissions: 'Edit Permissions',
-      fullName: 'Full name',
       noUsersMatching: 'No users matching "{searchFilter}"',
       you: 'You',
     },

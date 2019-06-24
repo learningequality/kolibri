@@ -13,7 +13,7 @@
         ref="name"
         v-model.trim="fullName"
         type="text"
-        :label="$tr('name')"
+        :label="coreCommon$tr('fullNameLabel')"
         :autofocus="true"
         :maxlength="120"
         :invalid="nameIsInvalid"
@@ -265,7 +265,6 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      name: 'Full name',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       userType: 'User type',

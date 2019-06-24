@@ -10,7 +10,7 @@
     <KTextbox
       ref="name"
       v-model="name"
-      :label="$tr('adminNameFieldLabel')"
+      :label="coreCommon$tr('fullNameLabel')"
       :autofocus="true"
       autocomplete="name"
       :maxlength="120"
@@ -181,7 +181,6 @@
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
-      adminNameFieldLabel: 'Full name',
       adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
       rememberThisAccountInformation:

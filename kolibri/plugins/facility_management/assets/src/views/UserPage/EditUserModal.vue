@@ -12,7 +12,7 @@
       ref="name"
       v-model="newName"
       type="text"
-      :label="$tr('fullName')"
+      :label="coreCommon$tr('fullNameLabel')"
       :autofocus="true"
       :maxlength="120"
       :invalid="nameIsInvalid"
@@ -284,7 +284,6 @@
     },
     $trs: {
       editUserDetailsHeader: 'Edit user details',
-      fullName: 'Full name',
       userType: 'User type',
       admin: 'Admin',
       learner: 'Learner',

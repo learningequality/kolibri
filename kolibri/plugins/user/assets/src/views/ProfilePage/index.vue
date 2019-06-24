@@ -58,14 +58,14 @@
         type="text"
         autocomplete="name"
         :autofocus="false"
-        :label="$tr('name')"
+        :label="coreCommon$tr('fullNameLabel')"
         :disabled="busy"
         :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
       />
       <template v-else>
-        <h2>{{ $tr('name') }}</h2>
+        <h2>{{ coreCommon$tr('fullNameLabel') }}</h2>
         <p>{{ name }}</p>
       </template>
 
@@ -300,7 +300,6 @@
     },
     $trs: {
       success: 'Profile details updated',
-      name: 'Full name',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
