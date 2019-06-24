@@ -256,9 +256,10 @@ Send upgrade notifications
 Wait about 3 business days after communications are published to see if any issues are reported. Afterwards, we can send upgrade notifications through the Nutrition Facts telemetry server.
 
 * `Log in to the telemetry server <http://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
-* Create a new Message object in the server and set it to 'Staged'
+* Create a new Message object by clicking the "+ Add" button
+* In the "Status" dropdown, select the "Staged" option
 * Set the link URL to ``https://learningequality.org/r/upgrade_kolibri``
-* Set the ``version_range`` using semver syntax
+* In the "Version range" field, enter a valid semver range (e.g. >=0.12.0)
 * Generate and add a new internationalized ``i18n`` JSON blob using the ``nutritionfacts_i18n.py`` script as shown below:
 
 .. code-block:: bash
@@ -304,6 +305,8 @@ This will output a JSON blob like:
     //...
   }
 
+
+You can `redirect this output to a file <https://askubuntu.com/questions/420981/how-do-i-save-terminal-output-to-a-file>`_ (Bash) or `pipe it to the clipboard <https://stackoverflow.com/questions/1753110/>`_ (Mac)
 
 Set Kolibri's ``RUN_MODE`` to ``staged-msgs`` to receive staged messages. Test that all languages are displayed correctly.
 

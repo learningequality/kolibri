@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 For usage instructions, see:
-    https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html
-
-This set of functions interacts with the crowdin API as documented here:
-    https://support.crowdin.com/api/api-integration-setup/
+    https://kolibri-dev.readthedocs.io/en/develop/release_process.html
 """
 import io
 import json
