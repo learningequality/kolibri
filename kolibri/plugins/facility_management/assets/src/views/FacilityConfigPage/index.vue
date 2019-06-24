@@ -44,7 +44,7 @@
           <KButton
             :primary="true"
             appearance="raised-button"
-            :text="$tr('saveChanges')"
+            :text="coreCommon$tr('saveChangesAction')"
             name="save-settings"
             :disabled="!settingsHaveChanged"
             @click="saveConfig()"
@@ -73,6 +73,7 @@
   import isEqual from 'lodash/isEqual';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -98,6 +99,7 @@
       KCheckbox,
       KButton,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         showModal: false,
@@ -152,7 +154,6 @@
       pageDescription: 'Configure various settings',
       pageHeader: 'Facility settings',
       resetToDefaultSettings: 'Reset to defaults',
-      saveChanges: 'Save changes',
       documentTitle: 'Configure Facility',
     },
   };

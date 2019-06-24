@@ -92,7 +92,7 @@
         v-if="canEditUsername || canEditName"
         type="submit"
         class="submit"
-        :text="$tr('updateProfile')"
+        :text="coreCommon$tr('saveChangesAction')"
         :primary="true"
         :disabled="busy"
       />
@@ -302,7 +302,6 @@
       success: 'Profile details updated',
       username: 'Username',
       name: 'Full name',
-      updateProfile: 'Save changes',
       isSuperuser: 'Super admin permissions ',
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',

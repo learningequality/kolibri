@@ -80,7 +80,7 @@
         @click="$emit('cancel')"
       />
       <KButton
-        :text="coachCommon$tr('saveChangesAction')"
+        :text="coreCommon$tr('saveChangesAction')"
         :primary="true"
         :disabled="disabled"
         @click="submitData"

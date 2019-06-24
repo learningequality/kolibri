@@ -10,7 +10,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   newLessonAction: 'New lesson',
   newQuizAction: 'New quiz',
   previewAction: 'Preview',  
-  saveChangesAction: 'Save changes',
   renameAction: 'Rename',
   showAction: 'Show',
   showMoreAction: 'Show more',
@@ -74,7 +73,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   updatedNotification: 'Updated',
   createdNotification: 'Created',
   deletedNotification: 'Deleted',
-  savedNotification: 'Saved',
 
   // empty states
   activityListEmptyState: 'There is no activity',
