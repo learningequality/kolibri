@@ -39,6 +39,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   masteryModelLabel: 'Completion requirement',
   membersLabel: 'Members',
   nameLabel: 'Name',
+  noResourcesInLessonLabel: 'No resources in this lesson',
   orderFixedLabel: 'Fixed',
   orderFixedDescription: 'Each learner sees the same question order',
   orderRandomLabel: 'Randomized',

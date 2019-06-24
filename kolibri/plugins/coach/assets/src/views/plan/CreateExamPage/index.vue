@@ -500,8 +500,6 @@
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestionsNotMet:
-        'Add more exercises to reach 40 questions. Alternately, lower the number of quiz questions.',
       noneSelected: 'No exercises are selected',
       // TODO: Interpolate strings correctly
       added: "Added '{item}'",

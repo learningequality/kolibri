@@ -5,7 +5,7 @@
     @sort="handleDrag"
   >
     <p v-if="resources.length === 0">
-      {{ $tr('noResources') }}
+      {{ coachCommon$tr('noResourcesInLessonLabel') }}
     </p>
     <transition-group
       v-else
@@ -79,6 +79,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import coachStringsMixin from '../../commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -95,7 +96,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coachStringsMixin, themeMixin],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {

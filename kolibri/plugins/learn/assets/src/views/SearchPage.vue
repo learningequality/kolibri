@@ -29,7 +29,7 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        :text="$tr('viewMore')"
+        :text="coreCommon$tr('viewMoreLabel')"
         @click="loadMore"
       />
       <KCircularLoader
@@ -52,6 +52,7 @@
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'SearchPage',
@@ -60,6 +61,7 @@
         title: this.$tr('documentTitle'),
       };
     },
+    mixins: [coreStringsMixin],
     components: {
       ContentCardGroupGrid,
       KButton,
@@ -113,7 +115,6 @@
         "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
       documentTitle: 'Search',
-      viewMore: 'View more',
     },
   };
 

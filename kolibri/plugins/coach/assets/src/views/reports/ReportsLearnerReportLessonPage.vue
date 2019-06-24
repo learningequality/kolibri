@@ -94,7 +94,7 @@
     mixins: [commonCoach, coreStringsMixin],
     computed: {
       emptyMessage() {
-        return this.$tr('noResourcesInLesson');
+        return this.coachCommon$tr('noResourcesInLessonLabel');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -130,7 +130,6 @@
     },
     $trs: {
       lessonProgressLabel: "'{lesson}' progress",
-      noResourcesInLesson: 'No resources in this lesson',
     },
   };
 

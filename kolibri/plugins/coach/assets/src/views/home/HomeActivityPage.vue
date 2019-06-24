@@ -51,7 +51,6 @@
     $trs: {
       back: 'Class home',
       noActivityLabel: 'No activity in your class',
-      viewMore: 'View more',
     },
   };
 

@@ -39,7 +39,7 @@
     <template>
       <KButton
         v-if="showButton"
-        :text="$tr('viewMoreButtonLabel')"
+        :text="coreCommon$tr('viewMoreLabel')"
         :primary="false"
         @click="$emit('moreresults')"
       />
@@ -63,6 +63,7 @@
 
 <script>
 
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -70,6 +71,7 @@
 
   export default {
     name: 'ContentCardList',
+    mixins: [coreStringsMixin],
     components: {
       KButton,
       KCheckbox,
@@ -141,7 +143,6 @@
     },
     $trs: {
       selectAllCheckboxLabel: 'Select all',
-      viewMoreButtonLabel: 'View more',
       // noMoreResults: 'No more results',
       // moreResultsError: 'Failed to get more results',
     },

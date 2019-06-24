@@ -269,7 +269,6 @@
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
       questionsLabel: 'Questions',
-      newQuestions: 'New question set created',
       preview: 'Preview quiz',
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:

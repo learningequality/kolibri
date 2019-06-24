@@ -71,7 +71,7 @@
           <ResourceListTable v-if="workingResources.length" />
 
           <p v-else class="no-resources-message">
-            {{ $tr('noResourcesInLesson') }}
+            {{ coachCommon$tr('noResourcesInLessonLabel') }}
           </p>
 
           <ManageLessonModals
@@ -163,7 +163,6 @@
       },
     },
     $trs: {
-      noResourcesInLesson: 'No resources in this lesson',
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
       noOne: 'No one',
