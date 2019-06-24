@@ -255,7 +255,7 @@ Send upgrade notifications
 
 Wait about 3 business days after communications are published to see if any issues are reported. Afterwards, we can send upgrade notifications through the Nutrition Facts telemetry server.
 
-* `Log in to the telemetry server <http://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
+* `Log in to the telemetry server <https://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
 * Create a new Message object by clicking the "+ Add" button
 * In the "Status" dropdown, select the "Staged" option
 * Set the link URL to ``https://learningequality.org/r/upgrade_kolibri``
