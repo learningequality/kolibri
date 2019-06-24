@@ -177,7 +177,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreCommon$tr('noUsersExistLabel');
         } else if (this.visibleUsers.length === 0) {
           return this.$tr('allUsersFilteredOut');
         }
@@ -266,7 +266,6 @@
       role: 'Role',
       username: 'Username',
       edit: 'Edit',
-      noUsersExist: 'No users exist',
       allUsersFilteredOut: 'No users match the filter',
       optionsButtonLabel: 'Options',
       editDetailsAction: 'Edit details',

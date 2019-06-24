@@ -132,7 +132,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreCommon$tr('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -158,7 +158,6 @@
       userTableLabel: 'User List',
       role: 'Role',
       // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',

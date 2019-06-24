@@ -181,7 +181,7 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.$tr('noUsersExist');
+          return this.coreCommon$tr('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -218,7 +218,6 @@
       pageHeader: "Enroll learners into '{className}'",
       searchForUser: 'Search for a user',
       userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
