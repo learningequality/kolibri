@@ -29,6 +29,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
@@ -78,7 +79,7 @@
       TotalPoints,
       KPageContainer,
     },
-    mixins: [responsiveWindow],
+    mixins: [coreStringsMixin, responsiveWindow],
     data() {
       return {
         lastRoute: null,
@@ -142,7 +143,7 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('learnTitle'),
+            appBarTitle: this.coreCommon$tr('searchLabel'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
@@ -245,7 +246,6 @@
     $trs: {
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
-      searchTitle: 'Search',
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',

@@ -13,7 +13,7 @@
         fontSize: '16px',
       }"
     >
-      <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ coreCommon$tr('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -22,7 +22,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coachCommon$tr('searchLabel')"
+        :placeholder="coreCommon$tr('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton

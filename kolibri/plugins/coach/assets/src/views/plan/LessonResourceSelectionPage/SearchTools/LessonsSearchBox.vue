@@ -14,7 +14,7 @@
         class="visuallyhidden"
         for="searchfield"
       >
-        {{ $tr('searchBoxLabel') }}
+        {{ coreCommon$tr('searchLabel') }}
       </label>
 
       <input
@@ -25,7 +25,7 @@
         :class="$computedClass(inputPlaceHolderStyle)"
         :style="{ color: $themeTokens.text }"
         dir="auto"
-        :placeholder="$tr('searchBoxLabel')"
+        :placeholder="coreCommon$tr('searchLabel')"
       >
 
       <div class="buttons-wrapper">
@@ -71,13 +71,14 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'LessonsSearchBox',
     components: {
       UiIconButton,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     data() {
       return {
         searchTerm: this.$route.params.searchTerm || '',
@@ -112,7 +113,6 @@
       },
     },
     $trs: {
-      searchBoxLabel: 'Search',
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
     },

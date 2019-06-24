@@ -2,7 +2,7 @@
 
   <div>
 
-    <h3>{{ $tr('searchPageHeader') }}</h3>
+    <h3>{{ coreCommon$tr('searchLabel') }}</h3>
 
     <SearchBox ref="searchBox" :filters="contents.length > 0" />
 
@@ -58,7 +58,7 @@
     name: 'SearchPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreCommon$tr('searchLabel'),
       };
     },
     mixins: [coreStringsMixin],
@@ -109,12 +109,10 @@
       },
     },
     $trs: {
-      searchPageHeader: 'Search',
       noSearch: 'Search by typing in the box above',
       showingResultsFor:
         "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
       noResultsMsg: "No results for '{searchTerm}'",
-      documentTitle: 'Search',
     },
   };
 
