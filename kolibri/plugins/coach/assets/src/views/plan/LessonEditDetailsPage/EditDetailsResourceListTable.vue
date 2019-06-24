@@ -199,12 +199,7 @@
     $trs: {
       noResources: 'No resources in this lesson',
       undoActionPrompt: 'Undo',
-      resourceReorderColumnHeaderForTable:
-        'Use buttons in this column to re-order resources in the lesson',
-      resourceTypeColumnHeaderForTable: 'Resource type',
       lessonTitleColumnHeaderForTable: 'Title',
-      resourceRemovalColumnHeaderForTable:
-        'Use buttons in this column to remove resources from the lesson',
       singleResourceRemovalConfirmationMessage: `Removed '{resourceTitle}'`,
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
