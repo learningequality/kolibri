@@ -75,6 +75,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
@@ -88,6 +89,7 @@
         title: this.currentContentNode.title,
       };
     },
+    mixins: [coreStringsMixin],
     components: {
       KLabeledIcon,
       QuestionList,
@@ -179,11 +181,10 @@
           return '';
         }
         const questionNumber = questionIndex + 1;
-        return this.$tr('questionLabel', { questionNumber });
+        return this.coreCommon$tr('questionNumberLabel', { questionNumber });
       },
     },
     $trs: {
-      questionLabel: 'Question { questionNumber, number }',
       completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',

@@ -23,6 +23,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   progressLabel: 'Progress',
+  questionNumberLabel: 'Question { questionNumber, number }',
   recommendedLabel: 'Recommended',
   usernameLabel: 'Username',
   viewMoreLabel: 'View more',

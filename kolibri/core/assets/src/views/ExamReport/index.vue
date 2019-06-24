@@ -23,7 +23,7 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
+      <h3>{{ coreCommon$tr('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
         :label="$tr('showCorrectAnswerLabel')"
@@ -68,6 +68,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import PageStatus from './PageStatus';
 
   export default {
@@ -80,7 +81,7 @@
       KCheckbox,
       MultiPaneLayout,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       examAttempts: {
         type: Array,
@@ -191,7 +192,6 @@
       correctAnswer: 'Correct answer',
       yourAnswer: 'Your answer',
       correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
-      question: 'Question { questionNumber, number }',
       showCorrectAnswerLabel: 'Show correct answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
