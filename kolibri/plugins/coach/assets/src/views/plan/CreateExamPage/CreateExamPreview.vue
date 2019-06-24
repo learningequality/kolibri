@@ -95,7 +95,7 @@
       </div>
 
       <h2 class="header-margin">
-        {{ $tr('questions') }}
+        {{ $tr('questionsLabel') }}
       </h2>
 
       <QuestionListPreview
@@ -268,7 +268,7 @@
       appBarLabel: 'Select exercises',
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
-      questions: 'Questions',
+      questionsLabel: 'Questions',
       newQuestions: 'New question set created',
       preview: 'Preview quiz',
       numQuestionsBetween: 'Enter a number between 1 and 50',

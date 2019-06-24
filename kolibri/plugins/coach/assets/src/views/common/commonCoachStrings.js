@@ -52,7 +52,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewLabel: 'Preview',
   questionLabel: 'Question',
   questionOrderLabel: 'Question order',
-  questionsLabel: 'Questions',
   quizLabel: 'Quiz',
   quizActiveLabel: 'Active',
   quizScoreLabel: 'Quiz score',
