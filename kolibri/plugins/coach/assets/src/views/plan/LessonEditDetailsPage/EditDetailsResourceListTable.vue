@@ -52,7 +52,7 @@
             </KGridItem>
             <KGridItem size="3" alignment="right">
               <KButton
-                :text="$tr('resourceRemovalButtonLabel')"
+                :text="coreCommon$tr('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resource)"
               />
@@ -80,6 +80,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import coachStringsMixin from '../../commonCoachStrings';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -96,7 +97,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [coachStringsMixin, themeMixin],
+    mixins: [coachStringsMixin, coreStringsMixin, themeMixin],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
@@ -204,7 +205,6 @@
       lessonTitleColumnHeaderForTable: 'Title',
       resourceRemovalColumnHeaderForTable:
         'Use buttons in this column to remove resources from the lesson',
-      resourceRemovalButtonLabel: 'Remove',
       singleResourceRemovalConfirmationMessage: `Removed '{resourceTitle}'`,
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

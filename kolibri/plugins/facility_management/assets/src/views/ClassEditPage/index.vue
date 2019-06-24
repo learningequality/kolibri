@@ -55,7 +55,7 @@
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="$tr('remove')"
+          :text="coreCommon$tr('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
@@ -82,7 +82,7 @@
     >
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="$tr('remove')"
+          :text="coreCommon$tr('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />
@@ -174,7 +174,6 @@
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
-      remove: 'Remove',
       noUsersExist: 'No users in this class',
       edit: 'Edit class name',
       documentTitle: 'Edit Class',

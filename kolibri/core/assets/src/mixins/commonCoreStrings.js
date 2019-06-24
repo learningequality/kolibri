@@ -6,6 +6,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   closeAction: 'Close',
   continueAction: 'Continue',
   deleteAction: 'Delete',
+  removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   showAction: 'Show',

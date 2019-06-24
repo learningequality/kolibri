@@ -74,7 +74,7 @@
               </td>
               <td class="core-table-button-col">
                 <KButton
-                  :text="$tr('removeButton')"
+                  :text="coreCommon$tr('removeAction')"
                   appearance="flat-button"
                   @click="userForRemoval = user"
                 />
@@ -102,6 +102,8 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  
 
   export default {
     name: 'GroupMembersPage',
@@ -121,7 +123,7 @@
       CoreTable,
       RemoveFromGroupModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach. coreStringsMixin],
     data() {
       return {
         userForRemoval: null,
@@ -152,7 +154,6 @@
       groupsHeader: 'Groups',
       enrollButton: 'Enroll learners',
       fullName: 'Full name',
-      removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
       back: 'All groups',

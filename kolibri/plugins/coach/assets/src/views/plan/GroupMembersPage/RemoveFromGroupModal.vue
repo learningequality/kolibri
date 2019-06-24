@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('modalTitle')"
     :hasError="false"
-    :submitText="$tr('remove')"
+    :submitText="coreCommon$tr('removeAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="$emit('submit')"
