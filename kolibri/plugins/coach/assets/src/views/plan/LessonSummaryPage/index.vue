@@ -54,7 +54,7 @@
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
                 <h2 class="resource-list-header-title">
-                  {{ $tr('resources') }}
+                  {{ coreCommon$tr('resourcesLabel') }}
                 </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
@@ -95,6 +95,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoach from '../../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
@@ -124,7 +125,7 @@
       KRouterLink,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     data() {
       return {
         currentAction: '',
@@ -163,7 +164,6 @@
       },
     },
     $trs: {
-      resources: 'Resources',
       manageResourcesButton: 'Manage resources',
       noOne: 'No one',
       back: 'All lessons',
