@@ -34,7 +34,7 @@
 
     <template v-if="editingSuperAdmin">
       <h2 class="user-type header">
-        {{ $tr('userType') }}
+        {{ coreCommon$tr('userTypeLabel') }}
       </h2>
 
       <UserTypeDisplay
@@ -54,7 +54,7 @@
     <template v-else>
       <KSelect
         v-model="typeSelected"
-        :label="$tr('userType')"
+        :label="coreCommon$tr('userTypeLabel')"
         :options="userTypeOptions"
       />
 
@@ -284,7 +284,6 @@
     },
     $trs: {
       editUserDetailsHeader: 'Edit user details',
-      userType: 'User type',
       admin: 'Admin',
       learner: 'Learner',
       usernameAlreadyExists: 'Username already exists',

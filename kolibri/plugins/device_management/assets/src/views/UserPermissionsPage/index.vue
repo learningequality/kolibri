@@ -24,7 +24,7 @@
 
           <tr>
             <th scope="row">
-              {{ $tr('userTypeLabel') }}
+              {{ coreCommon$tr('userTypeLabel') }}
             </th>
             <td>
               <UserTypeDisplay :userType="UserType(user)" />
@@ -237,7 +237,6 @@
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
-      userTypeLabel: 'User type',
       facilityLabel: 'Facility',
       superAdminExplanation1:
         'Has all device permissions and can manage device permissions of other users',

@@ -16,7 +16,7 @@
       <KGridItem sizes="3, 3, 3">
         <KSelect
           v-model="roleFilter"
-          :label="$tr('filterUserType')"
+          :label="coreCommon$tr('userTypeLabel')"
           :options="userKinds"
           :inline="true"
           class="type-filter"
@@ -255,7 +255,6 @@
       },
     },
     $trs: {
-      filterUserType: 'User type',
       searchText: 'Search for a user…',
       admins: 'Admins',
       newUserButtonLabel: 'New User',

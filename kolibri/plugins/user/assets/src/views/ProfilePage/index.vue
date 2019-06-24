@@ -11,7 +11,7 @@
     </section>
 
     <section>
-      <h2>{{ $tr('userType') }}</h2>
+      <h2>{{ coreCommon$tr('userTypeLabel') }}</h2>
       <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
     </section>
 
@@ -304,7 +304,6 @@
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
-      userType: 'User type',
       devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       limitedPermissions: 'Limited permissions',

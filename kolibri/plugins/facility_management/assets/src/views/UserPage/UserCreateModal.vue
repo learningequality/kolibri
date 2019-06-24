@@ -51,7 +51,7 @@
 
       <KSelect
         v-model="kind"
-        :label="$tr('userType')"
+        :label="coreCommon$tr('userTypeLabel')"
         :options="userKindDropdownOptions"
       />
 
@@ -267,7 +267,6 @@
       createNewUserHeader: 'Create new user',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
-      userType: 'User type',
       learner: 'Learner',
       admin: 'Admin',
       coachSelectorHeader: 'Coach type',
