@@ -81,6 +81,8 @@ config['AUTO_SEARCH_PLUGINS'] = []
 #: If a config file does not exist, we assume it's the first run
 config['FIRST_RUN'] = True
 
+#config['Session']['SESSION_COOKIE_AGE'] = 600
+
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
 

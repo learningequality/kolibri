@@ -22,6 +22,7 @@ from kolibri.core.logger import models as logger_models
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
+from kolibri.deployment.default.settings import base
 
 # Intended to match  NotificationEventType
 NOT_STARTED = "NotStarted"
@@ -223,7 +224,7 @@ def get_active_learners(classroom):
     learners_info = []
     try:
         connection.ensure_connection()
-        last_20_minutes = timezone.now() - timedelta(minutes=2)
+        last_20_minutes = timezone.now() - timedelta(seconds=base.SESSION_COOKIE_AGE)
         classroom_members = set(map(lambda member: member.username, classroom.get_members()))
         learners_info = UserSessionLog.objects.filter(user__username__in=classroom_members)\
             .values('user__username').annotate(Max('last_interaction_timestamp')).all()
