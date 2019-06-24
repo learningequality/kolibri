@@ -114,9 +114,6 @@
     },
     $trs: {
       answerHistoryLabel: 'Answer history',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: '{ daysElapsed } days ago',
     },
   };
 
