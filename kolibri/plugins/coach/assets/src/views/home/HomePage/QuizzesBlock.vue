@@ -1,7 +1,7 @@
 <template>
 
   <Block
-    :allLinkText="$tr('viewAll')"
+    :allLinkText="coachCommon$tr('viewAllAction')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <KLabeledIcon slot="title" icon="quiz" :label="coachCommon$tr('quizzesLabel')" />
@@ -78,7 +78,6 @@
     },
     $trs: {
       viewAllQuizzes: 'All quizzes',
-      viewAll: 'View all',
     },
   };
 

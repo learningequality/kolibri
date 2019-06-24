@@ -18,6 +18,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   showMoreAction: 'Show more',
   sortedAscendingAction: 'Sort in ascending order',
   sortedDescendingAction: 'Sort in descending order',
+  viewAllAction: 'View all',
 
   // labels, phrases, titles, headers...
   activeQuizzesLabel: 'Active quizzes',
