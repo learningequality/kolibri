@@ -21,7 +21,7 @@
     />
 
     <nav>
-      <span>
+      <span dir="auto" class="pagination-label">
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
       </span>
       <UiIconButton
@@ -29,6 +29,8 @@
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
         size="small"
+        :dir="isRtl ? 'rtl' : 'ltr'"
+        class="pagination-button"
         @click="goToPage(pageNum - 1)"
       >
         <mat-svg
@@ -47,6 +49,8 @@
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
+        :dir="isRtl ? 'rtl' : 'ltr'"
+        class="pagination-button"
         @click="goToPage(pageNum + 1)"
       >
         <mat-svg
@@ -194,7 +198,13 @@
   .actions-header,
   .footer,
   nav {
-    text-align: right;
+    text-align: end;
+  }
+  .pagination-button[dir='ltr'] {
+    margin-left: 8px;
+  }
+  .pagination-button[dir='rtl'] {
+    margin-right: 8px;
   }
 
 </style>

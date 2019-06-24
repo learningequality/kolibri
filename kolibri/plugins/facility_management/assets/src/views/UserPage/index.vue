@@ -44,12 +44,16 @@
     </UserTable>
 
     <nav>
-      <span>{{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}</span>
+      <span dir="auto">
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+      </span>
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
         size="small"
+        class="pagination-button"
+        :dir="isRtl ? 'rtl' : 'ltr'"
         @click="goToPage(pageNum - 1)"
       >
         <mat-svg v-if="isRtl" name="chevron_right" category="navigation" />
@@ -60,6 +64,8 @@
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
+        class="pagination-button"
+        :dir="isRtl ? 'rtl' : 'ltr'"
         @click="goToPage(pageNum + 1)"
       >
         <mat-svg v-if="isRtl" name="chevron_left" category="navigation" />
@@ -303,6 +309,12 @@
   .footer,
   nav {
     text-align: end;
+  }
+  .pagination-button[dir='ltr'] {
+    margin-left: 8px;
+  }
+  .pagination-button[dir='rtl'] {
+    margin-right: 8px;
   }
 
 </style>
