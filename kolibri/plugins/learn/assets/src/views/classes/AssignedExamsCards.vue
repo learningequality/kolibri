@@ -29,6 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
@@ -48,6 +49,7 @@
         required: true,
       },
     },
+    mixins: [coreStringsMixin],
     computed: {
       EXAM: () => ContentNodeKinds.EXAM,
     },
@@ -80,7 +82,7 @@
       },
       genExamSubtitle(exam) {
         if (this.examSubmitted(exam)) {
-          return this.$tr('completed');
+          return this.coreCommon$tr('completed');
         } else if (!this.examStarted(exam)) {
           return this.$tr('notStarted');
         } else if (this.examStartedNotSubmitted(exam)) {
@@ -102,7 +104,6 @@
       notStarted: 'Not started',
       questionsLeft:
         '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
-      completed: 'Completed',
     },
   };
 

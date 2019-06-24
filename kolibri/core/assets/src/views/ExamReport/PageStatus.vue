@@ -56,6 +56,8 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'PageStatus',
@@ -66,7 +68,7 @@
       ElapsedTime,
       KLabeledIcon,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       userName: {
         type: String,
@@ -99,7 +101,7 @@
       },
       progressIconLabel() {
         if (this.completed) {
-          return this.$tr('completed');
+          return this.coreCommon$tr('completed');
         } else if (this.completed !== null) {
           return this.$tr('inProgress');
         } else {
@@ -112,7 +114,6 @@
       overallScore: 'Overall score',
       questionsCorrectLabel: 'Questions correct',
       questionsCorrectValue: '{correct, number} out of {total, number}',
-      completed: 'Completed',
       inProgress: 'In progress',
       notStarted: 'Not started',
     },

@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('header')"
-    :submitText="$tr('submitButtonLabel')"
+    :submitText="coreCommon$tr('continueAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     size="medium"
     :submitDisabled="submitDisabled"
@@ -207,7 +207,6 @@
       newAddressButtonLabel: 'Add new address',
       noAddressText: 'There are no addresses yet',
       refreshAddressesButtonLabel: 'Refresh addresses',
-      submitButtonLabel: 'Continue',
     },
   };
 

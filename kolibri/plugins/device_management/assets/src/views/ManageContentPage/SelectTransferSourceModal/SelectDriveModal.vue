@@ -3,7 +3,7 @@
   <KModal
     :title="title"
     size="medium"
-    :submitText="$tr('continue')"
+    :submitText="coreCommon$tr('continueAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="selectedDriveId===''"
     @submit="goForward"
@@ -111,7 +111,6 @@
       },
     },
     $trs: {
-      continue: 'Continue',
       findingLocalDrives: 'Finding local drives…',
       problemFindingLocalDrives: 'There was a problem finding local drives.',
       selectDrive: 'Select a drive',

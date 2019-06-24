@@ -4,12 +4,14 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
   closeAction: 'Close',
+  continueAction: 'Continue',
 
   // labels, phrases, titles, headers...
   channelsLabel: 'Channels',
   classesLabel: 'Classes',
   coachesLabel: 'Coaches',
   coachLabel: 'Coach',
+  completedLabel: 'Completed',
   recommendedLabel: 'Recommended',
   viewAll: 'View all',
 

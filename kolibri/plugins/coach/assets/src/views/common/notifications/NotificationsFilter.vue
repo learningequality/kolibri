@@ -23,6 +23,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import {
     NotificationEvents,
     NotificationObjects,
@@ -31,7 +32,7 @@
 
   export default {
     name: 'NotificationsFilter',
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     props: {
       enabledFilters: {
         type: Object,
@@ -62,7 +63,7 @@
             disabled: this.progressIsDisabled(NotificationEvents.STARTED),
           },
           {
-            label: this.coachCommon$tr('completedLabel'),
+            label: this.coreCommon$tr('completedLabel'),
             value: NotificationEvents.COMPLETED,
             disabled: this.progressIsDisabled(NotificationEvents.COMPLETED),
           },

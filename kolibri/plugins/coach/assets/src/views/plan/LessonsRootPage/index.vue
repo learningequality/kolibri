@@ -75,7 +75,7 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
-        :submitText="coachCommon$tr('continueAction')"
+        :submitText="coreCommon$tr('continueAction')"
         :cancelText="coreCommon$tr('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"

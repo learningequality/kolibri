@@ -40,6 +40,7 @@
 
   import { mapActions, mapState, mapMutations } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
@@ -75,7 +76,7 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [coreStringsMixin, responsiveWindow, themeMixin],
     data() {
       return {
         totalOnboardingSteps: 7,
@@ -92,7 +93,7 @@
       submitText() {
         return this.isLastStep
           ? this.$tr('onboardingFinishButton')
-          : this.$tr('onboardingNextStepButton');
+          : this.coreCommon$tr('continueAction');
       },
     },
     methods: {
@@ -129,7 +130,6 @@
       },
     },
     $trs: {
-      onboardingNextStepButton: 'Continue',
       onboardingFinishButton: 'Finish',
       documentTitle: 'Setup Wizard',
       personalFacilityName: 'Home Facility {name}',

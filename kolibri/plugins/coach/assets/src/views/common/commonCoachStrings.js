@@ -2,7 +2,6 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
-  continueAction: 'Continue',
   copyAction: 'Copy',
   createAction: 'Create',
   deleteAction: 'Delete',
@@ -36,7 +35,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   avgQuizScoreLabel: 'Average quiz score',
   channelLabel: 'Channel',
   classLabel: 'Class',
-  completedLabel: 'Completed',
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',

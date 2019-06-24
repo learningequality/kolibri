@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('selectLocalRemoteSourceTitle')"
     size="medium"
-    :submitText="$tr('continue')"
+    :submitText="coreCommon$tr('continueAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="formIsDisabled"
     @submit="goForward"
@@ -98,7 +98,6 @@
       },
     },
     $trs: {
-      continue: 'Continue',
       network: 'Kolibri Studio (online)',
       localNetworkOrInternet: 'Local network or internet',
       localDrives: 'Attached drive or memory card',

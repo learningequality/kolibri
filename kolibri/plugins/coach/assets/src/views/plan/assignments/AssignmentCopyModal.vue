@@ -6,7 +6,7 @@
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
       :title="modalTitle"
-      :submitText="coachCommon$tr('continueAction')"
+      :submitText="coreCommon$tr('continueAction')"
       :cancelText="coreCommon$tr('cancelAction')"
       @submit="goToAvailableGroups"
       @cancel="$emit('cancel')"

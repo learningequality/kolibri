@@ -124,7 +124,7 @@
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachCommon$tr('continueAction')"
+          :text="coreCommon$tr('continueAction')"
           primary
           @click="continueProcess"
         />
@@ -158,6 +158,7 @@
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../../common';
 
   export default {
@@ -177,7 +178,7 @@
       UiIconButton,
       KBottomAppBar,
     },
-    mixins: [responsiveWindow, commonCoach],
+    mixins: [coreStringsMixin, commonCoach, responsiveWindow],
     data() {
       return {
         showError: false,

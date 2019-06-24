@@ -12,7 +12,7 @@
       </UiIcon>
       <UiIcon
         v-else-if="isCompleted"
-        :ariaLabel="$tr('completed')"
+        :ariaLabel="coreCommon$tr('completedLabel')"
         class="icon"
         :style="iconStyle($themeTokens.mastered)"
       >
@@ -33,6 +33,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -42,7 +43,7 @@
       UiIcon,
       KTooltip,
     },
-    mixins: [themeMixin],
+    mixins: [coreStringMixin, themeMixin],
     props: {
       progress: {
         type: Number,
@@ -70,7 +71,6 @@
     },
     $trs: {
       inProgress: 'In progress',
-      completed: 'Completed',
     },
   };
 
