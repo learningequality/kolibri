@@ -60,7 +60,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   titleLabel: 'Title',
   timeSpentLabel: 'Time spent',
   ungroupedLearnersLabel: 'Ungrouped learners',  
-  viewsLabel: 'Views',
 
   // notifications
   updatedNotification: 'Updated',

@@ -410,7 +410,6 @@
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
-      selectAllCheckboxLabel: 'Select all',
       resourcesAddedSnackbarText:
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:
