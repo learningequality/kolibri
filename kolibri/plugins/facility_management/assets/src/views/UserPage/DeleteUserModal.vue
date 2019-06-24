@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('deleteUser')"
-    :submitText="$tr('delete')"
+    :submitText="coreCommon$tr('deleteAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
@@ -53,7 +53,6 @@
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
       warning: 'All data and logs for this user will be lost.',
-      delete: 'Delete',
     },
   };
 

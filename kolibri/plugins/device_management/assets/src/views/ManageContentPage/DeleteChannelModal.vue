@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('title')"
-    :submitText="$tr('confirmButtonLabel')"
+    :submitText="coreCommon$tr('deleteAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
@@ -33,7 +33,6 @@
     $trs: {
       confirmationQuestion: `Are you sure you want to delete '{ channelTitle }' from your device?`,
       title: 'Delete channel',
-      confirmButtonLabel: 'Delete',
     },
   };
 

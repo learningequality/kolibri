@@ -225,7 +225,6 @@
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
       selectUser: 'Select user',
-      classGroups: 'Groups',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',

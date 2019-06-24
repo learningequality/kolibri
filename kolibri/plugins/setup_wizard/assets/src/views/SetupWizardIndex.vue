@@ -92,7 +92,7 @@
       },
       submitText() {
         return this.isLastStep
-          ? this.$tr('onboardingFinishButton')
+          ? this.$tr('finishAction')
           : this.coreCommon$tr('continueAction');
       },
     },
@@ -130,7 +130,7 @@
       },
     },
     $trs: {
-      onboardingFinishButton: 'Finish',
+      finishAction: 'Finish',
       documentTitle: 'Setup Wizard',
       personalFacilityName: 'Home Facility {name}',
     },

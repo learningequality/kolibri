@@ -83,7 +83,7 @@
         <KButton
           :disabled="busy"
           :primary="true"
-          :text="$tr('finish')"
+          :text="$tr('finishAction')"
           type="submit"
           class="submit"
         />
@@ -287,7 +287,7 @@
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
-      finish: 'Finish',
+      finishAction: 'Finish',
       facility: 'Facility',
       documentTitle: 'User Sign Up',
       privacyLink: 'Usage and privacy in Kolibri',

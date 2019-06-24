@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('modalTitle')"
-    :submitText="$tr('deleteClassButtonLabel')"
+    :submitText="coreCommon$tr('deleteAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     :hasError="false"
     @submit="classDelete"

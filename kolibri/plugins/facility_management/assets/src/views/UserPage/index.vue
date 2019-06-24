@@ -232,10 +232,10 @@
       },
       manageUserOptions(userId) {
         return [
-          { label: this.$tr('editUser'), value: Modals.EDIT_USER },
+          { label: this.$tr('editDetailsAction'), value: Modals.EDIT_USER },
           { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
           {
-            label: this.$tr('deleteUser'),
+            label: this.coreCommon$tr('deleteAction'),
             value: Modals.DELETE_USER,
             disabled: userId === this.currentUserId,
           },
@@ -270,9 +270,8 @@
       noUsersExist: 'No users exist',
       allUsersFilteredOut: 'No users match the filter',
       optionsButtonLabel: 'Options',
-      editUser: 'Edit details',
+      editDetailsAction: 'Edit details',
       resetUserPassword: 'Reset password',
-      deleteUser: 'Delete',
       userActions: 'User management actions',
       userPageTitle: 'Users',
       pagination:

@@ -3,8 +3,6 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   copyAction: 'Copy',
-  createAction: 'Create',
-  deleteAction: 'Delete',
   editDetailsAction: 'Edit details',
   finishAction: 'Finish',
   goBackAction: 'Go back',
@@ -25,23 +23,15 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   activeQuizzesLabel: 'Active quizzes',
   activityLabel: 'Activity',
   allQuizzesLabel: 'All quizzes',
-  answerLabel: 'Answer',
-  answersLabel: 'Answers',
-  answerHistoryLabel: 'Answer history',
-  attemptLabel: 'Attempt',
-  attemptsLabel: 'Attempts',
   avgScoreLabel: 'Average score',
   avgTimeSpentLabel: 'Average time spent',
   avgQuizScoreLabel: 'Average quiz score',
-  channelLabel: 'Channel',
-  classLabel: 'Class',
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',
   difficultQuestionsLabel: 'Difficult questions',
   entireClassLabel: 'Entire class',
   exercisesCompletedLabel: 'Exercises completed',
-  groupLabel: 'Group',
   groupNameLabel: 'Group name',
   groupsLabel: 'Groups',
   helpNeededLabel: 'Help needed',
@@ -109,9 +99,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 
   // empty states
   activityListEmptyState: 'There is no activity',
-  answerListEmptyState: 'There are no answers',
-  attemptListEmptyState: 'There are no attempts',
-  classListEmptyState: 'There are no classes',
   groupListEmptyState: 'There are no groups',
   learnerListEmptyState: 'There are no learners',
   lessonListEmptyState: 'There are no lessons',
@@ -125,7 +112,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 
   // formatted values
   integer: '{value, number, integer}',
-  combinedLabel: '{firstItem} / {secondItem}',
   nthExerciseName: '{name} ({number, number, integer})',
   number: '{value, number}',
   numberOfClasses: '{value, number, integer} {value, plural, one {class} other {classes}}',

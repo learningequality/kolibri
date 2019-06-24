@@ -185,7 +185,6 @@
     $trs: {
       questionLabel: 'Question { questionNumber, number }',
       completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
-      descriptionDataHeader: 'Description',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',

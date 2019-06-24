@@ -96,6 +96,7 @@
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   const Modes = {
     IMPORT: 'IMPORT',
@@ -116,7 +117,7 @@
       KRouterLink,
       UiIcon,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [coreStringsMixin, responsiveWindow, themeMixin],
     props: {
       channel: {
         type: Object,
@@ -143,7 +144,7 @@
             value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
           },
           {
-            label: this.$tr('deleteChannel'),
+            label: this.coreCommon$tr('deleteAction'),
             value: ChannelActions.DELETE_CHANNEL,
           },
         ];
@@ -209,7 +210,6 @@
     },
     $trs: {
       defaultDescription: '(No description)',
-      deleteChannel: 'Delete',
       importMoreFromChannel: 'Import more',
       manageChannelOptions: 'Options',
       onYourDevice: 'On your device',

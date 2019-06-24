@@ -100,7 +100,7 @@
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
       :submitText="$tr('submitExam')"
-      :cancelText="$tr('goBack')"
+      :cancelText="$tr('goBackAction')"
       @submit="finishExam"
       @cancel="toggleModal"
     >
@@ -296,7 +296,7 @@
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous',
       nextQuestion: 'Next',
-      goBack: 'Go back',
+      goBackAction: 'Go back',
       areYouSure: 'You cannot change your answers after you submit',
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',

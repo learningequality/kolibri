@@ -15,13 +15,14 @@
 
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'QuizOptionsDropdownMenu',
     components: {
       KDropdownMenu,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       // Should be either 'report' or 'plan',
       optionsFor: {
@@ -42,7 +43,7 @@
               label: this.$tr('copyQuizAction'),
               value: 'COPY',
             },
-            { label: this.coachCommon$tr('deleteAction'), value: 'DELETE' },
+            { label: this.coreCommon$tr('deleteAction'), value: 'DELETE' },
           ];
         }
         return [

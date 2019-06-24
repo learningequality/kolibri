@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('deleteLearnerGroup')"
-    :submitText="$tr('deleteGroup')"
+    :submitText="coreCommon$tr('deleteAction')"
     :cancelText="coreCommon$tr('cancelAction')"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
@@ -46,7 +46,6 @@
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      deleteGroup: 'Delete',
     },
   };
 

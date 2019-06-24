@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="$tr('learnerGroupName')"
+      :label="coachCommon$tr('groupNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -30,6 +30,7 @@
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
+  import coachStringsMixin from '../../commonCoachStrings';
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
@@ -38,7 +39,7 @@
       KModal,
       KTextbox,
     },
-    mixins: [coreStringsMixin],
+    mixins: [coachStringsMixin, coreStringsMixin],
     props: {
       groupName: {
         type: String,
@@ -110,7 +111,6 @@
     },
     $trs: {
       renameLearnerGroup: 'Rename group',
-      learnerGroupName: 'Group name',
       save: 'Save',
       duplicateName: 'A group with that name already exists',
     },

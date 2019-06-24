@@ -32,6 +32,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoach from '../../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'GroupRow',
@@ -40,7 +41,7 @@
       KRouterLink,
       KLabeledIcon,
     },
-    mixins: [commonCoach, responsiveWindow],
+    mixins: [commonCoach, coreStringsMixin, responsiveWindow],
     props: {
       group: {
         type: Object,
@@ -52,7 +53,7 @@
     },
     computed: {
       menuOptions() {
-        return [this.coachCommon$tr('renameAction'), this.coachCommon$tr('deleteAction')];
+        return [this.coachCommon$tr('renameAction'), this.coreCommon$tr('deleteAction')];
       },
     },
     methods: {
@@ -60,7 +61,7 @@
         let emitted;
         if (selectedOption === this.coachCommon$tr('renameAction')) {
           emitted = 'rename';
-        } else if (selectedOption === this.coachCommon$tr('deleteAction')) {
+        } else if (selectedOption === this.coreCommon$tr('deleteAction')) {
           emitted = 'delete';
         }
         this.$emit(emitted, this.group.name, this.group.id);

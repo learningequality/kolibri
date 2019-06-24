@@ -2,7 +2,7 @@
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
     <h3 class="header">
-      {{ $tr('header') }}
+      {{ $tr('answerHistoryLabel') }}
     </h3>
 
     <ul ref="attemptList" class="history-list">
@@ -112,7 +112,7 @@
       },
     },
     $trs: {
-      header: 'Answer history',
+      answerHistoryLabel: 'Answer history',
       today: 'Today',
       yesterday: 'Yesterday',
       daysAgo: '{ daysElapsed } days ago',
