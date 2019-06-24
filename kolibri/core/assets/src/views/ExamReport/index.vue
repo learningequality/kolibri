@@ -54,7 +54,7 @@
     <p v-else slot="main">
       {{ $tr('noItemId') }}
     </p>
-  </MultiPaneLayout>
+</MultiPaneLayout>
 
 </template>
 
@@ -188,10 +188,7 @@
       },
     },
     $trs: {
-      backTo: 'Back to quiz report for { title }',
-      correctAnswer: 'Correct answer',
       yourAnswer: 'Your answer',
-      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
       showCorrectAnswerLabel: 'Show correct answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
