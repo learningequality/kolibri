@@ -14,7 +14,7 @@
         <BackLink
           slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="$tr('back')"
+          :text="coreCommon$tr('allLessonsLabel')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
@@ -165,8 +165,6 @@
     },
     $trs: {
       manageResourcesButton: 'Manage resources',
-      noOne: 'No one',
-      back: 'All lessons',
     },
   };
 

@@ -206,7 +206,6 @@
       inactiveLessons: 'Inactive lessons',
       newLessonModalTitle: 'Create new lesson',
       size: 'Size',
-      noOne: 'No one',
       noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',

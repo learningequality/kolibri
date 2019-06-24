@@ -84,9 +84,7 @@
         return names;
       },
     },
-    $trs: {
-      noOne: 'No one',
-    },
+    $trs: {},
   };
 
 </script>

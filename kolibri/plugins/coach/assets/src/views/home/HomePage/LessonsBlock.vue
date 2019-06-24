@@ -77,9 +77,7 @@
         return last;
       },
     },
-    $trs: {
-      viewAllLessons: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>

@@ -91,7 +91,7 @@
       filterOptions() {
         return [
           {
-            label: this.$tr('allLessons'),
+            label: this.coreCommon$tr('allLessonsLabel'),
             value: 'allLessons',
           },
           {
@@ -132,7 +132,6 @@
       this.filter = this.filterOptions[0];
     },
     $trs: {
-      allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
       noActiveLessons: 'No active lessons',

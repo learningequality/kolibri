@@ -5,7 +5,7 @@
       <BackLink
         slot="backlink"
         :to="classRoute('ReportsLessonListPage')"
-        :text="$tr('back')"
+        :text="coreCommon$tr('allLessonsLabel')"
       />
       <LessonOptionsDropdownMenu
         slot="options"
@@ -91,9 +91,7 @@
         }
       },
     },
-    $trs: {
-      back: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>
