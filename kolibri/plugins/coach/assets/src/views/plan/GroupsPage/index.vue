@@ -26,7 +26,7 @@
               {{ coachCommon$tr('nameLabel') }}
             </th>
             <th>
-              {{ coachCommon$tr('learnersLabel') }}
+              {{ coreCommon$tr('learnersLabel') }}
             </th>
             <th></th>
           </tr>
@@ -89,6 +89,7 @@
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
   import DeleteGroupModal from './DeleteGroupModal';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'GroupsPage',
@@ -101,7 +102,7 @@
       RenameGroupModal,
       DeleteGroupModal,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     data() {
       return {
         selectedGroup: {

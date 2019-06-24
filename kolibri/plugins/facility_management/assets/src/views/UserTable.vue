@@ -176,7 +176,6 @@
     },
     $trs: {
       coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
       fullName: 'Full name',
       username: 'Username',
       role: 'Role',

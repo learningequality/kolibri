@@ -25,7 +25,7 @@
         <tr>
           <th>{{ $tr('className') }}</th>
           <th>{{ coreCommon$tr('coachesLabel') }}</th>
-          <th>{{ $tr('learnersColumnHeader') }}</th>
+          <th>{{ coreCommon$tr('learnersLabel') }}</th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('actions') }}
@@ -200,7 +200,6 @@
       deleteClass: 'Delete class',
       className: 'Class name',
       tableCaption: 'List of classes',
-      learnersColumnHeader: 'Learners',
       twoCoachNames: '{name1}, {name2}',
       manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
       actions: 'Actions',

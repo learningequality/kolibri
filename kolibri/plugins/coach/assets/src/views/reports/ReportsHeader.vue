@@ -25,7 +25,7 @@
         :to="classRoute('ReportsGroupListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('learnersLabel')"
+        :text="coreCommon$tr('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
     </HeaderTabs>
@@ -38,11 +38,12 @@
 
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       ...mapGetters(['classListPageEnabled']),
     },

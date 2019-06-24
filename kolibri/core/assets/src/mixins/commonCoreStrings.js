@@ -13,6 +13,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   coachesLabel: 'Coaches',
   coachLabel: 'Coach',
   completedLabel: 'Completed',
+  learnersLabel: 'Learners',
   recommendedLabel: 'Recommended',
   viewAll: 'View all',
 

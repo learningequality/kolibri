@@ -17,7 +17,7 @@
             <th>{{ coachCommon$tr('groupNameLabel') }}</th>
             <th>{{ coachCommon$tr('lessonsLabel') }}</th>
             <th>{{ coachCommon$tr('quizzesLabel') }}</th>
-            <th>{{ coachCommon$tr('learnersLabel') }}</th>
+            <th>{{ coreCommon$tr('learnersLabel') }}</th>
             <th>{{ coachCommon$tr('avgQuizScoreLabel') }}</th>
             <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
           </tr>
@@ -57,6 +57,7 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsGroupListPage',
@@ -64,7 +65,7 @@
       ReportsHeader,
       ElapsedTime,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       table() {
         const sorted = this._.sortBy(this.groups, ['name']);

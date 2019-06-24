@@ -30,7 +30,7 @@
           <tr>
             <th>{{ $tr('classNameLabel') }}</th>
             <th>{{ coreCommon$tr('coachesLabel') }}</th>
-            <th>{{ coachCommon$tr('learnersLabel') }}</th>
+            <th>{{ coreCommon$tr('learnersLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -102,12 +102,10 @@
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
       classNameLabel: 'Class name',
-      noAssignedClassesHeader: "You aren't assigned to any classes",
       noAssignedClassesDetails:
         'Please consult your Kolibri administrator to be assigned to a class',
       noClassesDetailsForAdmin: 'Create a class and enroll learners',
       noClassesDetailsForFacilityCoach: 'Please consult your Kolibri administrator',
-      noClassesInFacility: 'There are no classes yet',
     },
   };
 

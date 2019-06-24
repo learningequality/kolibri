@@ -64,7 +64,7 @@
 
     <KGrid class="top-margin">
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ $tr('learnerTableTitle') }}</h2>
+        <h2>{{ coreCommon$tr('learnersLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -172,7 +172,6 @@
       enrollLearnerButtonLabel: 'Enroll learners',
       assignCoachesButtonLabel: 'Assign coaches',
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      learnerTableTitle: 'Learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
       remove: 'Remove',

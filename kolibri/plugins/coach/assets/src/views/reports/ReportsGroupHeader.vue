@@ -24,7 +24,7 @@
     </HeaderTable>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coachCommon$tr('learnersLabel') }}</template>
+        <template slot="key">{{ coreCommon$tr('learnersLabel') }}</template>
         <template slot="value">
           <TruncatedItemList
             :items="[
@@ -67,11 +67,12 @@
 <script>
 
   import commonCoach from '../common';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsGroupHeader',
     components: {},
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       group() {
         return this.groupMap[this.$route.params.groupId];

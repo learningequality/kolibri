@@ -219,13 +219,13 @@
         if (this.assignmentIsQuiz) {
           return {
             activeStatus: this.coachCommon$tr('quizActiveLabel'),
-            inactiveStatus: this.coachCommon$tr('quizInactiveLabel'),
+            inactiveStatus: this.coachCommon$tr('inactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
           activeStatus: this.coachCommon$tr('lessonActiveLabel'),
-          inactiveStatus: this.coachCommon$tr('lessonInactiveLabel'),
+          inactiveStatus: this.coachCommon$tr('inactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };
       },

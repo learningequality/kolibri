@@ -38,7 +38,7 @@
       label() {
         return this.active
           ? this.coachCommon$tr('quizActiveLabel')
-          : this.coachCommon$tr('quizInactiveLabel');
+          : this.coachCommon$tr('inactiveLabel');
       },
     },
   };

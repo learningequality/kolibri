@@ -45,7 +45,7 @@
         :to="classRoute('ReportsLessonReportPage', {})"
       />
       <HeaderTab
-        :text="coachCommon$tr('learnersLabel')"
+        :text="coreCommon$tr('learnersLabel')"
         :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
     </HeaderTabs>
@@ -60,6 +60,7 @@
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
   import BackLinkWithOptions from '../common/BackLinkWithOptions';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsLessonHeader',
@@ -67,7 +68,7 @@
       BackLinkWithOptions,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, coreStringsMixin],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

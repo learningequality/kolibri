@@ -161,7 +161,7 @@
       userKinds() {
         return [
           { label: this.$tr('allUsers'), value: ALL_FILTER },
-          { label: this.$tr('learners'), value: UserKinds.LEARNER },
+          { label: this.coreCommon$tr('learnersLabel'), value: UserKinds.LEARNER },
           { label: this.coreCommon$tr('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
@@ -259,7 +259,6 @@
       searchText: 'Search for a user…',
       allUsers: 'All',
       admins: 'Admins',
-      learners: 'Learners',
       newUserButtonLabel: 'New User',
       userCountLabel: '{userCount} users',
       fullName: 'Full name',

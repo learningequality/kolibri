@@ -41,7 +41,7 @@
         return Boolean(this.selectedExercises[this.currentContentNode.id]);
       },
       appBarTitle() {
-        return this.$tr('createNewExam');
+        return this.$tr('createNewExamLabel');
       },
     },
     beforeDestroy() {
@@ -62,7 +62,7 @@
     $trs: {
       added: "Added '{item}'",
       removed: "Removed '{item}'",
-      createNewExam: 'Create new quiz',
+      createNewExamLabel: 'Create new quiz',
     },
   };
 

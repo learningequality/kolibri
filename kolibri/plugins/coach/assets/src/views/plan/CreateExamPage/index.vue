@@ -5,16 +5,16 @@
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('newExam')"
+    :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :pageTitle="$tr('documentTitle')"
+    :pageTitle="$tr('createNewExamLabel')"
     :marginBottom="72"
   >
 
     <KPageContainer>
 
-      <h1>{{ $tr('createNewExam') }}</h1>
+      <h1>{{ $tr('createNewExamLabel') }}</h1>
 
       <UiAlert
         v-if="showError && !inSearchMode"
@@ -493,8 +493,7 @@
       },
     },
     $trs: {
-      newExam: 'New quiz',
-      createNewExam: 'Create new quiz',
+      createNewExamLabel: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       numQuestions: 'Number of questions',
       examRequiresTitle: 'This field is required',
@@ -508,7 +507,6 @@
       added: "Added '{item}'",
       removed: "Removed '{item}'",
       selected: '{count, number, integer} total selected',
-      documentTitle: 'Create new quiz',
       exitSearchButtonLabel: 'Exit search',
       // TODO: Handle singular/plural
       selectionInformation:
