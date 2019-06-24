@@ -5,7 +5,7 @@
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportLessonPage', {})"
-        :text="$tr('back', { lesson: lesson.title })"
+        :text="coachCommon$tr('backToLessonLabel', { lesson: lesson.title })"
       />
     </p>
     <h1>
@@ -53,9 +53,7 @@
         return this.contentMap[this.$route.params.exerciseId];
       },
     },
-    $trs: {
-      back: "Back to '{lesson}'",
-    },
+    $trs: {},
   };
 
 </script>

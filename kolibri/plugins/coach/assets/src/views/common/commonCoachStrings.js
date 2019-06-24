@@ -21,6 +21,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   avgScoreLabel: 'Average score',
   avgTimeSpentLabel: 'Average time spent',
   avgQuizScoreLabel: 'Average quiz score',
+  backToLessonLabel: "Back to '{lesson}'",
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',

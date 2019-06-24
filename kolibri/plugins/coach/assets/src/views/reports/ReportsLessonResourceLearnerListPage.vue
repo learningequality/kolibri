@@ -15,7 +15,7 @@
           <BackLink
             slot="backlink"
             :to="classRoute('ReportsLessonReportPage', {})"
-            :text="$tr('back', { lesson: lesson.title })"
+            :text="coachCommon$tr('backToLessonLabel', { lesson: lesson.title })"
           />
           <KButton
             slot="options"
@@ -225,7 +225,6 @@
       },
     },
     $trs: {
-      back: "Back to '{lesson}'",
       avgNumViews: 'Average number of views',
     },
   };
