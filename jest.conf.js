@@ -10,4 +10,5 @@ module.exports = Object.assign(baseConfig, {
     'packages/hashi/src/*.js',
     'packages/kolibri-tools/lib/src/*.js',
   ],
+  coveragePathIgnorePatterns: ['kolibri/plugins/edulution/']
 });

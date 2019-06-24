@@ -26,7 +26,7 @@
       CoreMenuOption,
     },
     $trs: {
-      edulution: 'Edulution',
+      edulution: 'Learn',
     },
     computed: {
       url() {

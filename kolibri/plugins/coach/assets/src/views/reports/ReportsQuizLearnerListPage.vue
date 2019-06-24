@@ -13,6 +13,12 @@
 
       <ReportsQuizHeader />
 
+      <KCheckbox
+        :label="coachStrings.$tr('onlyActiveLearnersLabel')"
+        :checked="showOnlyActive"
+        @change="showOnlyActive = !showOnlyActive"
+      />
+
       <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
@@ -57,6 +63,8 @@
 
 <script>
 
+  import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
+  import { localeCompare } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
   import ReportsQuizHeader from './ReportsQuizHeader';
 
@@ -64,11 +72,13 @@
     name: 'ReportsQuizLearnerListPage',
     components: {
       ReportsQuizHeader,
+      KCheckbox,
     },
     mixins: [commonCoach],
     data() {
       return {
         filter: 'allQuizzes',
+        showOnlyActive: false,
       };
     },
     computed: {
@@ -95,7 +105,12 @@
         return this.getLearnersForGroups(this.exam.groups);
       },
       table() {
-        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        let learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+
+        if (this.showOnlyActive === true) {
+          learners = this.filterByActive(learners);
+        }
+
         const sorted = this._.sortBy(learners, ['name']);
         const mapped = sorted.map(learner => {
           const tableRow = {
@@ -110,6 +125,18 @@
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
+    },
+    methods: {
+      active(learner) {
+        return this.activeLearners.includes(learner.username);
+      },
+      filterByActive(learners) {
+        const sortByKey = 'username';
+        const predicate = learner => this.active(learner);
+        return learners.filter(predicate).sort((a, b) => {
+          return localeCompare(a[sortByKey], b[sortByKey]);
+        });
+      },
     },
     $trs: {
       averageScore: 'Average score: {score, number, percent}',

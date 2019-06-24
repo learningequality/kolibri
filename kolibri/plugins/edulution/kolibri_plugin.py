@@ -16,7 +16,7 @@ class LearnPlugin(KolibriPluginBase):
         return urls
 
     def url_slug(self):
-        return "^edulution/"
+        return "^learn/"
 
 
 class EdulutionRedirect(RoleBasedRedirectHook):
