@@ -186,7 +186,7 @@
         };
       },
       allFilter() {
-        return { label: this.$tr('all'), value: ALL_FILTER };
+        return { label: this.coreCommon$tr('allLabel'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
         if (this.content_kinds.length) {
@@ -284,7 +284,6 @@
       clearButtonLabel: 'Clear',
       startSearchButtonLabel: 'Start search',
       resourceType: 'Type',
-      all: 'All',
       topics: 'Topics',
       exercises: 'Exercises',
       videos: 'Videos',

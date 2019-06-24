@@ -121,7 +121,7 @@
         return this.$tr(msg, { searchTerm: this.searchTerm });
       },
       allFilter() {
-        return { label: this.$tr('all'), value: null };
+        return { label: this.coreCommon$tr('allLabel'), value: null };
       },
       contentKindValue() {
         return find(this.contentKindFilterOptions, { value: this.value.kind }) || {};
@@ -168,7 +168,6 @@
       },
     },
     $trs: {
-      all: 'All',
       audio: 'Audio',
       channelFilterLabel: 'Channel:',
       contentKindFilterLabel: 'Type:',

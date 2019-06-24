@@ -160,7 +160,7 @@
       Modals: () => Modals,
       userKinds() {
         return [
-          { label: this.$tr('allUsers'), value: ALL_FILTER },
+          { label: this.coreCommon$tr('allLabel'), value: ALL_FILTER },
           { label: this.coreCommon$tr('learnersLabel'), value: UserKinds.LEARNER },
           { label: this.coreCommon$tr('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
@@ -257,7 +257,6 @@
     $trs: {
       filterUserType: 'User type',
       searchText: 'Search for a user…',
-      allUsers: 'All',
       admins: 'Admins',
       newUserButtonLabel: 'New User',
       userCountLabel: '{userCount} users',

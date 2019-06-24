@@ -49,7 +49,7 @@
       progressTypeOptions() {
         return [
           {
-            label: this.$tr('allLabel'),
+            label: this.coreCommon$tr('allLabel'),
             value: 'all',
           },
           {
@@ -72,7 +72,7 @@
       resourceTypeOptions() {
         return [
           {
-            label: this.$tr('allLabel'),
+            label: this.coreCommon$tr('allLabel'),
             value: 'all',
           },
           {
@@ -126,7 +126,6 @@
       },
     },
     $trs: {
-      allLabel: 'All',
       appsLabel: 'Apps',
       audioLabel: 'Audio',
       bookLabel: 'Book',
