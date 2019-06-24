@@ -46,7 +46,6 @@
       },
     },
     $trs: {
-      back: 'All classes',
       planYourClassLabel: 'Plan your class',
       planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
       home: 'Class Home',

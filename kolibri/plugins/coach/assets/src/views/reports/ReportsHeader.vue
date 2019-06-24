@@ -48,7 +48,6 @@
       ...mapGetters(['classListPageEnabled']),
     },
     $trs: {
-      back: 'All classes',
       home: 'Class Home',
       description: 'View reports for your learners and class materials',
     },
