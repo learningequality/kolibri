@@ -112,9 +112,7 @@
         });
       },
     },
-    $trs: {
-      averageScore: 'Average score: {score, number, percent}',
-    },
+    $trs: {},
   };
 
 </script>

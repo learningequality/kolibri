@@ -178,10 +178,8 @@
     $trs: {
       coachTableTitle: 'Coaches',
       role: 'Role',
-      userIconColumnHeader: 'User icon',
       userActionsColumnHeader: 'Actions',
       remove: 'Remove',
-      noUsersExist: 'No users in this class',
     },
   };
 

@@ -73,7 +73,6 @@
     },
     $trs: {
       back: 'All quizzes',
-      quizPerformanceLabel: "'{quiz}' performance",
     },
   };
 

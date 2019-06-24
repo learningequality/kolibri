@@ -81,7 +81,6 @@
       },
     },
     $trs: {
-      averageScore: 'Average score: {score, number, percent}',
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',

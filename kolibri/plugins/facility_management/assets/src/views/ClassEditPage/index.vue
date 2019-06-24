@@ -174,7 +174,6 @@
       coachEnrollmentPageTitle: 'Manage class coaches and learners',
       noCoachesInClassMessge: "You don't have any assigned coaches",
       noLearnersInClassMessage: "You don't have any enrolled learners",
-      noUsersExist: 'No users in this class',
       edit: 'Edit class name',
       documentTitle: 'Edit Class',
       renameButtonLabel: 'Edit',

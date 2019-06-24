@@ -262,7 +262,6 @@
       userCountLabel: '{userCount} users',
       fullName: 'Full name',
       users: 'Users',
-      role: 'Role',
       username: 'Username',
       edit: 'Edit',
       allUsersFilteredOut: 'No users match the filter',

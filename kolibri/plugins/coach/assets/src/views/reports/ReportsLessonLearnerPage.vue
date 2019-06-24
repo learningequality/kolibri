@@ -105,9 +105,7 @@
         return undefined;
       },
     },
-    $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
-    },
+    $trs: {},
   };
 
 </script>

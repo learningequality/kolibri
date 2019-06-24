@@ -110,9 +110,7 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
-    $trs: {
-      averageScore: 'Average score: {score, number, percent}',
-    },
+    $trs: {},
   };
 
 </script>

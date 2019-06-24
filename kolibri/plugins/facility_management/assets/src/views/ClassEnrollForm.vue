@@ -152,11 +152,9 @@
     },
     $trs: {
       searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
       name: 'Full name',
       username: 'Username',
       userTableLabel: 'User List',
-      role: 'Role',
       // TODO clarify empty state messages after string freeze
       noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',

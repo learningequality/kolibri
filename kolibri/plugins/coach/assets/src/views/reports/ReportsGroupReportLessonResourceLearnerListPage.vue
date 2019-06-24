@@ -111,9 +111,7 @@
         });
       },
     },
-    $trs: {
-      avgNumViews: 'Average number of views',
-    },
+    $trs: {},
   };
 
 </script>

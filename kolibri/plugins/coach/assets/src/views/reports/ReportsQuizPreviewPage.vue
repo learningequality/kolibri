@@ -101,7 +101,6 @@
       },
     },
     $trs: {
-      backToQuizAction: 'Back to quiz',
       pageTitle: `Preview of quiz '{title}'`,
     },
   };
