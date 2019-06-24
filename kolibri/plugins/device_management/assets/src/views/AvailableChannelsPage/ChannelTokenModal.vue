@@ -49,6 +49,7 @@
       KModal,
       KTextbox,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         formIsDisabled: false,
@@ -67,7 +68,6 @@
         return true;
       },
     },
-    mixins: [coreStringsMixin],
     methods: {
       ...mapMutations('manageContent/wizard', {
         setAvailableChannels: 'SET_AVAILABLE_CHANNELS',

@@ -15,7 +15,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
 
   // notifications
   requiredFieldLabel: 'This field is required',
-  
+
   // empty states
 
   // toggles

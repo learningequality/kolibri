@@ -129,7 +129,6 @@
         title: this.$tr('userPageTitle'),
       };
     },
-    mixins: [coreStringsMixin],
     components: {
       UserCreateModal,
       EditUserModal,
@@ -145,6 +144,7 @@
       UserTable,
       UiIconButton,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         searchFilter: '',
