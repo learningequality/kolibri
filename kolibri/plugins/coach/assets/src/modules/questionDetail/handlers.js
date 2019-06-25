@@ -19,15 +19,12 @@ export function questionRootRedirectHandler(params, name, next) {
 
 export function generateQuestionDetailHandler(paramsToCheck) {
   return function questionDetailHandler(to, from) {
-    const { params } = to;
-    const fromParams = from.params;
-    const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
-    if (setLoading) {
+    if (paramsToCheck.some(param => to.params[param] !== from.params[param])) {
       // Only set loading state if we are not switching between
       // different views of the same question's learner report.
       store.dispatch('loading');
     }
-    showQuestionDetailView(params).then(() => {
+    showQuestionDetailView(to.params).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
       store.dispatch('notLoading');
@@ -36,8 +33,7 @@ export function generateQuestionDetailHandler(paramsToCheck) {
 }
 
 function showQuestionDetailView(params) {
-  let { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
-  interactionIndex = Number(interactionIndex);
+  const { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   let promise;
   let exerciseNodeId;
   if (quizId) {
@@ -80,7 +76,7 @@ function showQuestionDetailView(params) {
         }
         store.commit('questionDetail/SET_STATE', {
           learnerId,
-          interactionIndex,
+          interactionIndex: Number(interactionIndex),
           questionId,
           title,
           exercise,

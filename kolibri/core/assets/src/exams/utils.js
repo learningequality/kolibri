@@ -93,6 +93,9 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
         "Missing 'contentNodes' array, which is required when converting a V0 Exam model"
       );
     }
+    if (exam.seed === undefined) {
+      throw new Error("Missing 'seed' integer, which is required when converting a V0 Exam model");
+    }
     const { contentNodes } = extraArgs;
     const questionIds = {};
     contentNodes.forEach(node => {

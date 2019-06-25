@@ -2,11 +2,32 @@
 
 List of the most important changes for each release.
 
-## 0.12.y
+## 0.12.5
+
+### Changed or fixed
+
+- Upgraded Morango to 0.4.6, fixing startup errors for some users.
+
+View all [0.12.5 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.5)
+
+## 0.12.4
+
+### Changed or fixed
+
+- EPUB documents with large tables are displayed in a single-column, scrollable format to improve their readability.
+- EPUB viewer now saves font and theme settings between sessions.
+- Quiz creation workflow only places unique questions in a quiz, removing duplicates that may appear in a topic tree.
+- Title and name headers are consistently accompanied by icons in Kolibri symbol system to help orient the user.
 
 ### Added
 
 - Device Settings Page - The default language can now be changed under Device > Settings. This is the language that will be used on browsers that have never opened Kolibri before (but can be changed after opening Kolibri using the language selector).
+- Coach Reports - Users can preview quizzes and lessons and edit their details from their associated report, without having to go to the "Plan" sub-page.
+- Added a `kolibri manage deleteuser` command to remove a user from a server, as well as all other servers synchronized with it.
+- Added a new theming system for customizing various colors that appear in Kolibri.
+
+
+View all [0.12.4 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.4)
 
 ## 0.12.3
 
@@ -18,7 +39,7 @@ List of the most important changes for each release.
 - Improved PostgreSQL support
 - Added fixes related to coach tools
 
-See a [full list](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3) of changes on Github
+View all [0.12.3 changes on Github](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.12.3)
 
 
 ## 0.12.2

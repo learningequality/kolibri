@@ -24,6 +24,7 @@
   <mat-svg v-else-if="exercise" name="assignment" category="action" :style="style" />
   <mat-svg v-else-if="topic" name="folder" category="file" :style="style" />
   <mat-svg v-else-if="video" name="ondemand_video" category="notification" :style="style" />
+  <mat-svg v-else-if="html5" name="widgets" category="device" :style="style" />
   <!-- users -->
   <mat-svg v-else-if="classroom" name="business" category="communication" :style="style" />
   <mat-svg v-else-if="group" category="action" name="group_work" :style="style" />
@@ -90,6 +91,7 @@
       exercise: boolean,
       topic: boolean,
       video: boolean,
+      html5: boolean,
       // users
       classroom: boolean,
       group: boolean,

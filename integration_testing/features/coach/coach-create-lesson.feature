@@ -20,7 +20,7 @@ Feature: Coach creates lessons
     When I try to enter a title with more than 50 characters
     Then I see that the name is cut at 50
     When I input a same lesson title as for an already existing lesson
-    Then I see the error notification *A lesson with that title already exists* 
+    Then I see the error notification *A lesson with this name already exists* 
     When I leave the title field empty
       And I click *Continue*
     Then I see the error notification *This field is required*
@@ -32,7 +32,8 @@ Feature: Coach creates lessons
         And I see the content channel <channel>
       When I select channel <channel>
       Then I see its topics
-      When I click the topic <topic>
+      When I navigate down to a single topic and click that <topic>
+      # A topic may have one or more sub-topics in the topic tree.
       Then I see the list of resources in that topic
       When I click on a single resource
       Then I see the preview page for the selected resource
@@ -41,10 +42,16 @@ Feature: Coach creates lessons
       Then I see the snackbar notification
         And I see the *Added* state notification
         And I see the *Remove* button
-      When I click on *back arrow* button
+      When I click on *back arrow* button near the *Manage resources* page title at the top
+      # The back arrow button is not visible when user has scrolled down at the page or
+      # when viewing the page in a small window like the iPad 2.
       Then I see the *Manage resources in '<lesson>'* page again
         And I see the *1 resource in this lesson* counter
+      When I uncheck the checkbox(es) for other resource(s)
+      Then I see the *N resources in this lesson* counter changed
+        And I see the snackbar notification
       When I check the checkbox(es) for other resource(s)
+      # This allows us to have a selected resource for the lesson before clicking the Finish button.
       Then I see the *N resources in this lesson* counter changed
         And I see the snackbar notification
       When I click the *Finish* button at the bottom
