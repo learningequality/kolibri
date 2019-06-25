@@ -1,0 +1,9 @@
+{
+    "MasterScope.greeting": "Hello world",
+    "MasterScope.foo": "Bar",
+    "MasterScope.goBack": "Go back",
+    "OtherScope.helloWorld": "Hello world",
+    "OtherScope.returnLabel": "Go back",
+    "OceanicScope.baby": "Shark do do do do",
+    "OceanicScope.resurface": "Go back"
+}

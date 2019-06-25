@@ -12,7 +12,7 @@
       <p>
         <BackLink
           :to="$router.getRoute('GroupsPage')"
-          :text="backLinkString"
+          :text="$tr('back')"
         />
 
       </p>
@@ -35,7 +35,7 @@
             :size="50"
             percentage
           >
-            {{ coachStrings.$tr('numberOfLearners', { value: currentGroup.users.length }) }}
+            {{ coachCommon$tr('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
           <KGridItem :size="50" percentage alignment="right">
             <KRouterLink
@@ -105,13 +105,9 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
-  import ReportsGroupHeader from '../../reports/ReportsGroupHeader';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
-
-  const ReportsGroupHeaderStrings = crossComponentTranslator(ReportsGroupHeader);
 
   export default {
     name: 'GroupMembersPage',
@@ -139,9 +135,6 @@
     },
     computed: {
       ...mapState('groups', ['groups']),
-      backLinkString() {
-        return ReportsGroupHeaderStrings.$tr('back');
-      },
       currentGroup() {
         return this.groups.find(g => g.id === this.$route.params.groupId);
       },
@@ -155,7 +148,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
+            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
             this.userForRemoval = null;
           });
         }
@@ -169,6 +162,7 @@
       removeButton: 'Remove',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',
+      back: 'All groups',
     },
   };
 

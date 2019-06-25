@@ -1,0 +1,29 @@
+{
+  "Loading user permissions…": {
+    "definitions": [
+      {
+        "namespace": "UserPermissionToolbarTitles",
+        "key": "loading"
+      }
+    ],
+    "uses": []
+  },
+  "Go Back": {
+    "definitions": [
+      {
+        "namespace": "UserPermissionToolbarTitles",
+        "key": "goBackTitle"
+      }
+    ],
+    "uses": []
+  },
+  "Invalid user ID": {
+    "definitions": [
+      {
+        "namespace": "UserPermissionToolbarTitles",
+        "key": "invalidUserTitle"
+      }
+    ],
+    "uses": []
+  }
+}

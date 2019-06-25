@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="coachStrings.$tr('showAction')"
+          :label="coachCommon$tr('showAction')"
           :options="statusOptions"
           :inline="true"
         />
@@ -22,16 +22,16 @@
           :primary="true"
           appearance="raised-button"
           :to="newExamRoute"
-          :text="coachStrings.$tr('newQuizAction')"
+          :text="coachCommon$tr('newQuizAction')"
         />
       </div>
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
             <th>
-              {{ coachStrings.$tr('statusLabel') }}
+              {{ coachCommon$tr('statusLabel') }}
             </th>
           </tr>
         </thead>

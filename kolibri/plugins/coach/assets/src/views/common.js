@@ -88,11 +88,14 @@ function formatPageTitle() {
 
 export const CoachCoreBase = {
   extends: CoreBase,
+  mixins: [coachStringsMixin],
   props: {
     // Gives each Coach page a default title of 'Coach – [Class Name]'
     appBarTitle: {
       type: String,
       default() {
+        // Using coachStrings.$tr() here because mixins are not applied
+        // prior to props being processed.
         const coachLabel = coachStrings.$tr('coachLabel');
         const classroomName = this.$store.state.classSummary.name;
         if (!classroomName) {

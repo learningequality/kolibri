@@ -14,15 +14,15 @@
       <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
       <!-- TODO COACH
-        <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
+        <KCheckbox :label="coachCommon$tr('viewByGroupsLabel')" />
       -->
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
+      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachCommon$tr('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('questionLabel') }}</th>
-            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
+            <th>{{ coachCommon$tr('questionLabel') }}</th>
+            <th>{{ coachCommon$tr('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

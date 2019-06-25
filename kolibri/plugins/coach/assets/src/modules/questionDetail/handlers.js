@@ -2,8 +2,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
-import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
+import { coachStrings } from '../../views/common/commonCoachStrings';
 
 export function questionRootRedirectHandler(params, name, next) {
   return showQuestionDetailView(params).then(learnerId => {
@@ -33,8 +32,6 @@ export function generateQuestionDetailHandler(paramsToCheck) {
   };
 }
 
-const AssessmentQuestionListItemStrings = crossComponentTranslator(AssessmentQuestionListItem);
-
 function showQuestionDetailView(params) {
   const { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   let promise;
@@ -63,7 +60,7 @@ function showQuestionDetailView(params) {
           const question = exam.question_sources.find(
             source => source.question_id === questionId && source.exercise_id === exerciseNodeId
           );
-          title = AssessmentQuestionListItemStrings.$tr('nthExerciseName', {
+          title = coachStrings.$tr('nthExerciseName', {
             name: question.title,
             number: question.counter_in_exercise,
           });
@@ -72,7 +69,7 @@ function showQuestionDetailView(params) {
             1,
             exercise.assessmentmetadata.assessmentIds.indexOf(questionId)
           );
-          title = AssessmentQuestionListItemStrings.$tr('nthExerciseName', {
+          title = coachStrings.$tr('nthExerciseName', {
             name: exercise.title,
             number: questionNumber,
           });

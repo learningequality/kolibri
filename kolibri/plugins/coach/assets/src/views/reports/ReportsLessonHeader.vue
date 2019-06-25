@@ -22,13 +22,13 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
         <LessonActive
           slot="value"
           :active="lesson.active"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
         <Recipients
           slot="value"
           :groupNames="getGroupNames(lesson.groups)"
@@ -36,19 +36,19 @@
         />
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachStrings.$tr('descriptionLabel')"
-        :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+        :keyText="coachCommon$tr('descriptionLabel')"
+        :valueText="lesson.description || coachCommon$tr('descriptionMissingLabel')"
       />
     </HeaderTable>
 
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
         :to="classRoute('ReportsLessonReportPage', {})"
       />
       <HeaderTab
-        :text="coachStrings.$tr('learnersLabel')"
+        :text="coachCommon$tr('learnersLabel')"
         :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
     </HeaderTabs>

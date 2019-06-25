@@ -19,10 +19,10 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachCommon$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -60,12 +60,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
-  import LessonsRootPage from '../plan/LessonsRootPage';
   import ReportsHeader from './ReportsHeader';
-
-  const LessonsRootPageStrings = crossComponentTranslator(LessonsRootPage);
 
   export default {
     name: 'ReportsLessonListPage',
@@ -81,13 +77,13 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
-          return this.coachStrings.$tr('lessonListEmptyState');
+          return this.coachCommon$tr('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
-          return LessonsRootPageStrings.$tr('noActiveLessons');
+          return this.$tr('noActiveLessons');
         }
         if (this.filter.value === 'inactiveLessons') {
-          return LessonsRootPageStrings.$tr('noInactiveLessons');
+          return this.$tr('noInactiveLessons');
         }
 
         return '';
@@ -140,6 +136,8 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
+      noActiveLessons: 'No active lessons',
+      noInactiveLessons: 'No inactive lessons',
     },
   };
 

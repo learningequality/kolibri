@@ -1,11 +1,7 @@
-import { createTranslator } from 'kolibri.utils.i18n';
 import { mapState } from 'vuex';
 import { ClassesPageNames } from '../../constants';
+import { learnStrings } from '../commonLearnStrings';
 import { classAssignmentsLink, lessonPlaylistLink } from './classPageLinks';
-
-const translator = createTranslator('ClassesBreadcrumbItems', {
-  allClassesBreadcrumb: 'Classes',
-});
 
 // A mixin intended for use inside of learn plugin breadcrumbs
 export default {
@@ -14,7 +10,7 @@ export default {
       const defaultCrumbs = [
         // Link to All Classes Page
         {
-          text: translator.$tr('allClassesBreadcrumb'),
+          text: learnStrings.$tr('allClassesBreadcrumb'),
           link: {
             name: ClassesPageNames.ALL_CLASSES,
           },

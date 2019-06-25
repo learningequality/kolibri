@@ -5,27 +5,27 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="navStrings.$tr('home')"
+        :text="this.$tr('home')"
       />
     </p>
-    <h1>{{ coachStrings.$tr('reportsLabel') }}</h1>
+    <h1>{{ coachCommon$tr('reportsLabel') }}</h1>
     <p>{{ $tr('description') }}</p>
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachStrings.$tr('lessonsLabel')"
+        :text="coachCommon$tr('lessonsLabel')"
         :to="classRoute('ReportsLessonListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('quizzesLabel')"
+        :text="coachCommon$tr('quizzesLabel')"
         :to="classRoute('ReportsQuizListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('groupsLabel')"
+        :text="coachCommon$tr('groupsLabel')"
         :to="classRoute('ReportsGroupListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('learnersLabel')"
+        :text="coachCommon$tr('learnersLabel')"
         :to="classRoute('ReportsLearnerListPage')"
       />
     </HeaderTabs>
@@ -36,12 +36,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
-  import TopNavbar from '../TopNavbar';
-
-  const navStrings = crossComponentTranslator(TopNavbar);
 
   export default {
     name: 'ReportsHeader',
@@ -49,12 +45,10 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters(['classListPageEnabled']),
-      navStrings() {
-        return navStrings;
-      },
     },
     $trs: {
       back: 'All classes',
+      home: 'Class Home',
       description: 'View reports for your learners and class materials',
     },
   };

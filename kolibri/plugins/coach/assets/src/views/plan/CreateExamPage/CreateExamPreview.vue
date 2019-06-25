@@ -13,13 +13,13 @@
 
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
+      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="moreStrings.$tr('title')"
+            :label="$tr('examStringsTitle')"
             :autofocus="true"
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
@@ -34,7 +34,7 @@
             type="number"
             :min="1"
             :max="maxQs"
-            :label="moreStrings.$tr('numQuestions')"
+            :label="$tr('numQuestions')"
             :invalid="Boolean(showError && numQuestIsInvalidText)"
             :invalidText="numQuestIsInvalidText"
             class="number-field"
@@ -82,14 +82,14 @@
       <div>
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachStrings.$tr('orderRandomLabel')"
-          :description="coachStrings.$tr('orderRandomDescription')"
+          :label="coachCommon$tr('orderRandomLabel')"
+          :description="coachCommon$tr('orderRandomDescription')"
           :value="false"
         />
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachStrings.$tr('orderFixedLabel')"
-          :description="coachStrings.$tr('orderFixedDescription')"
+          :label="coachCommon$tr('orderFixedLabel')"
+          :description="coachCommon$tr('orderFixedDescription')"
           :value="true"
         />
       </div>
@@ -108,11 +108,11 @@
       <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="coachStrings.$tr('goBackAction')"
+          :text="coachCommon$tr('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachStrings.$tr('finishAction')"
+          :text="coachCommon$tr('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"
@@ -130,7 +130,6 @@
   import { mapState } from 'vuex';
 
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
@@ -144,9 +143,6 @@
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
-  import CreateExamPage from './index';
-
-  const createExamPageStrings = crossComponentTranslator(CreateExamPage);
 
   export default {
     name: 'CreateExamPreview',
@@ -184,9 +180,6 @@
       maxQs() {
         return MAX_QUESTIONS;
       },
-      moreStrings() {
-        return createExamPageStrings;
-      },
       examTitle: {
         get() {
           return this.$store.state.examCreation.title;
@@ -216,25 +209,25 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return createExamPageStrings.$tr('examRequiresTitle');
+          return this.$tr('examRequiresTitle');
         }
         if (this.showTitleError) {
-          return this.coachStrings.$tr('quizDuplicateTitleError');
+          return this.coachCommon$tr('quizDuplicateTitleError');
         }
         return null;
       },
       numQuestIsInvalidText() {
         if (this.numQuestions === '') {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (this.numQuestions < 1 || this.numQuestions > 50) {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (!Number.isInteger(this.numQuestions)) {
-          return createExamPageStrings.$tr('numQuestionsBetween');
+          return this.$tr('numQuestionsBetween');
         }
         if (this.numQuestions > this.availableQuestions) {
-          return createExamPageStrings.$tr('numQuestionsExceed', {
+          return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
             maxQuestionsFromSelection: this.availableQuestions,
           });
@@ -277,6 +270,12 @@
       questions: 'Questions',
       newQuestions: 'New question set created',
       preview: 'Preview quiz',
+      examRequiresTitle: 'This field is required',
+      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsExceed:
+        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      examStringsTitle: 'Title',
+      numQuestions: 'Number of questions',
     },
   };
 

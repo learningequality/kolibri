@@ -1,15 +1,15 @@
 <template>
 
-  <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
     <thead slot="thead">
       <tr>
-        <th>{{ coachStrings.$tr('nameLabel') }}</th>
-        <th>{{ coachStrings.$tr('statusLabel') }}</th>
-        <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+        <th>{{ coachCommon$tr('nameLabel') }}</th>
+        <th>{{ coachCommon$tr('statusLabel') }}</th>
+        <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
-          {{ coachStrings.$tr('groupsLabel') }}
+          {{ coachCommon$tr('groupsLabel') }}
         </th>
-        <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+        <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">

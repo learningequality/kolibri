@@ -24,21 +24,21 @@
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
           <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
         <HeaderTableRow
-          :keyText="coachStrings.$tr('descriptionLabel')"
-          :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+          :keyText="coachCommon$tr('descriptionLabel')"
+          :valueText="lesson.description || coachCommon$tr('descriptionMissingLabel')"
         />
       </HeaderTable>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('lessonListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

@@ -2,17 +2,9 @@ import pickBy from 'lodash/pickBy';
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
-import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
-
-function exerciseName(name, number) {
-  return crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
-    name,
-    number,
-  });
-}
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let itemPromise;
@@ -55,10 +47,14 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
+        const title = coachStrings.$tr('nthExerciseName', {
+          name: source.title,
+          number: source.counterInExercise,
+        });
         return {
           ...stat,
           ...source,
-          title: exerciseName(source.title, source.counter_in_exercise),
+          title,
         };
       });
     } else {
@@ -69,11 +65,15 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           1,
           item.assessmentmetadata.assessmentIds.indexOf(stat.item)
         );
+        const title = coachStrings.$tr('nthExerciseName', {
+          name: item.title,
+          number: questionNumber,
+        });
         return {
           ...stat,
           exercise_id: exerciseId,
           question_id: stat.item,
-          title: exerciseName(item.title, questionNumber),
+          title,
         };
       });
     }
