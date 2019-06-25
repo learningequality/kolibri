@@ -23,6 +23,13 @@ function profile$trs(localePath, moduleName) {
   this.moduleName = moduleName;
 }
 
+function logKeyError(namespace, key) {
+  logging.log(
+    `No string found for '${namespace}.${key}' ` +
+      '(either not defined, or the key was passed as a variable and not a string)'
+  );
+}
+
 /* Webpack Entry */
 profile$trs.prototype.apply = function(compiler) {
   const self = this;
@@ -300,10 +307,7 @@ function keyFromArguments(args, namespace) {
     }
   }
   if (key === null) {
-    logging.log(
-      `No string found for ${namespace}.${key}. Either the combination is not
-      defined or the key we found was passed as a variable and not a key string`
-    );
+    logKeyError(namespace, key);
   }
   return key;
 }
@@ -383,10 +387,7 @@ function profileVueScript(profile, ast, pathname, moduleName) {
                   });
                   key = undefined; // Avoid errant uses by setting key to undefined.
                 } else {
-                  logging.log(
-                    `No string found for ${currentNamespace}.${key}. Either the combination is not
-                    defined or the key we found was passed as a variable and not a key string`
-                  );
+                  logKeyError(namespace, key);
                 }
               }
             }
