@@ -36,6 +36,11 @@ def plugin_url(plugin_class, url_name):
 
 def _is_plugin(obj):
     return (
+        # Check that the object is an instance of type
+        # i.e. that it is a class definition, not an
+        # instantiated class.
+        # Failing to do this will result in the call to
+        # issubclass below blowing up.
         isinstance(obj, type)
         and obj is not KolibriPluginBase
         and issubclass(obj, KolibriPluginBase)
@@ -52,7 +57,9 @@ def get_kolibri_plugin(plugin_name):
     plugin_classes = []
 
     try:
+        # Exceptions are expected to be thrown from here.
         plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
+        # If no exception is thrown, use this to populate our plugin classes.
         for obj in plugin_module.__dict__.values():
             if _is_plugin(obj):
                 plugin_classes.append(obj)
