@@ -43,7 +43,7 @@
         v-model="password"
         type="password"
         autocomplete="new-password"
-        :label="$tr('password')"
+        :label="coreCommon$tr('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -277,7 +277,6 @@
     },
     $trs: {
       createAccount: 'Create an account',
-      password: 'Password',
       reEnterPassword: 'Re-enter password',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',

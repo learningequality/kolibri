@@ -34,7 +34,7 @@
         ref="password"
         v-model="password"
         type="password"
-        :label="$tr('password')"
+        :label="coreCommon$tr('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -265,7 +265,6 @@
     },
     $trs: {
       createNewUserHeader: 'Create new user',
-      password: 'Password',
       reEnterPassword: 'Re-enter password',
       learner: 'Learner',
       admin: 'Admin',

@@ -32,7 +32,7 @@
     <KTextbox
       ref="password"
       v-model="password"
-      :label="$tr('adminPasswordFieldLabel')"
+      :label="coreCommon$tr('passwordLabel')"
       type="password"
       autocomplete="new-password"
       :invalid="passwordIsInvalid"
@@ -181,7 +181,6 @@
       adminAccountCreationHeader: 'Create super admin account',
       adminAccountCreationDescription:
         'This account allows you to manage the facility, content, and user accounts on this device',
-      adminPasswordFieldLabel: 'Password',
       adminPasswordConfirmationFieldLabel: 'Enter password again',
       rememberThisAccountInformation:
         'Important: please remember this account information. Write it down if needed',

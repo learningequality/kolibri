@@ -75,7 +75,7 @@
                   v-model="password"
                   type="password"
                   autocomplete="current-password"
-                  :label="$tr('password')"
+                  :label="coreCommon$tr('passwordLabel')"
                   :autofocus="simpleSignIn"
                   :invalid="passwordIsInvalid"
                   :invalidText="passwordIsInvalidText"
@@ -459,7 +459,6 @@
     $trs: {
       kolibri: 'Kolibri',
       signIn: 'Sign in',
-      password: 'Password',
       createAccount: 'Create an account',
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
