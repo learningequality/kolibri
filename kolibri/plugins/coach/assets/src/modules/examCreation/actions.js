@@ -66,7 +66,6 @@ export function fetchAdditionalSearchResults(store, params) {
         exclude_content_ids: store.state.searchResults.contentIdsFetched,
       }),
       kind_in: kinds,
-      include_fields: ['num_coach_contents'],
     },
   }).then(results => {
     return filterAndAnnotateContentList(results.results).then(contentList => {
@@ -105,14 +104,7 @@ export function createExamAndRoute(store, classId) {
 
   return createExam(store, exam).then(() => {
     router.push({ name: PageNames.EXAMS });
-    store.dispatch(
-      'createSnackbar',
-      {
-        text: snackbarTranslator.$tr('newExamCreated'),
-        autoDismiss: true,
-      },
-      { root: true }
-    );
+    store.dispatch('createSnackbar', snackbarTranslator.$tr('newExamCreated'), { root: true });
   });
 }
 

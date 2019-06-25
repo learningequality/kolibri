@@ -36,7 +36,7 @@
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
-      @close="showLanguageModal = false"
+      @cancel="showLanguageModal = false"
     />
   </div>
 
@@ -54,9 +54,6 @@
 
   export default {
     name: 'LanguageSwitcherList',
-    $trs: {
-      showMoreLanguagesSelector: 'More languages',
-    },
     components: {
       KButton,
       LanguageSwitcherModal,
@@ -87,6 +84,9 @@
           .slice(0, this.numVisibleLanguages)
           .sort(this.compareLanguages);
       },
+    },
+    $trs: {
+      showMoreLanguagesSelector: 'More languages',
     },
   };
 

@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('exams', '0002_update_exam_data_model'),
-    ]
+    dependencies = [("exams", "0002_update_exam_data_model")]
 
     operations = [
         migrations.AlterField(
-            model_name='exam',
-            name='data_model_version',
+            model_name="exam",
+            name="data_model_version",
             field=models.SmallIntegerField(default=2),
-        ),
+        )
     ]

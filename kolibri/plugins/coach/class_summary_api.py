@@ -17,6 +17,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.serializers import DateTimeTzField
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 # Intended to match  NotificationEventType
@@ -35,14 +37,31 @@ def content_status_serializer(lesson_data, learners_data, classroom):
 
     # Now create a map of content_id to node_id so that we can map between lessons, and notifications
     # which use the node id, and summary logs, which use content_id
-    content_map = {n[0]: n[1] for n in ContentNode.objects.filter(id__in=lesson_node_ids).values_list("content_id", "id")}
+    content_map = {
+        n[0]: n[1]
+        for n in ContentNode.objects.filter(id__in=lesson_node_ids).values_list(
+            "content_id", "id"
+        )
+    }
 
     # Get all the values we need from the summary logs to be able to summarize current status on the
     # relevant content items.
-    content_log_values = logger_models.ContentSummaryLog.objects.filter(
-        content_id__in=set(content_map.keys()), user__in=[learner["id"] for learner in learners_data]) \
-        .annotate(attempts=Count('masterylogs__attemptlogs')) \
-        .values("user_id", "content_id", "end_timestamp", "time_spent", "progress", "kind", "attempts")
+    content_log_values = (
+        logger_models.ContentSummaryLog.objects.filter(
+            content_id__in=set(content_map.keys()),
+            user__in=[learner["id"] for learner in learners_data],
+        )
+        .annotate(attempts=Count("masterylogs__attemptlogs"))
+        .values(
+            "user_id",
+            "content_id",
+            "end_timestamp",
+            "time_spent",
+            "progress",
+            "kind",
+            "attempts",
+        )
+    )
 
     # In order to make the lookup speedy, generate a unique key for each user/node that we find
     # listed in the needs help notifications that are relevant. We can then just check
@@ -50,7 +69,8 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # help.
     lookup_key = "{user_id}-{node_id}"
     needs_help = {
-        lookup_key.format(user_id=n[0], node_id=n[1]): n[2] for n in LearnerProgressNotification.objects.filter(
+        lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
+        for n in LearnerProgressNotification.objects.filter(
             classroom_id=classroom.id,
             notification_event=NotificationEventType.Help,
             lesson_id__in=[lesson["id"] for lesson in lesson_data],
@@ -60,7 +80,8 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     # In case a previously flagged learner has since completed an exercise, check all the completed
     # notifications also
     completed = {
-        lookup_key.format(user_id=n[0], node_id=n[1]): n[2] for n in LearnerProgressNotification.objects.filter(
+        lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
+        for n in LearnerProgressNotification.objects.filter(
             classroom_id=classroom.id,
             notification_event=NotificationEventType.Completed,
             lesson_id__in=[lesson["id"] for lesson in lesson_data],
@@ -78,7 +99,9 @@ def content_status_serializer(lesson_data, learners_data, classroom):
         if content_id in content_map:
             # Don't try to lookup anything if we don't know the content_id
             # node_id mapping - might happen if a channel has since been deleted
-            key = lookup_key.format(user_id=log["user_id"], node_id=content_map[content_id])
+            key = lookup_key.format(
+                user_id=log["user_id"], node_id=content_map[content_id]
+            )
             if key in needs_help:
                 # Now check if we have not already registered completion of the content node
                 # or if we have and the timestamp is earlier than that on the needs_help event
@@ -107,11 +130,11 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     return map(map_content_logs, content_log_values)
 
 
-class ExamStatusSerializer(serializers.ModelSerializer):
+class ExamStatusSerializer(KolibriModelSerializer):
     status = serializers.SerializerMethodField()
     exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
-    last_activity = serializers.CharField()
+    last_activity = DateTimeTzField()
     num_correct = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
@@ -122,11 +145,11 @@ class ExamStatusSerializer(serializers.ModelSerializer):
 
     def get_num_correct(self, exam_log):
         return (
-            exam_log.attemptlogs.values_list('item')
-            .order_by('completion_timestamp')
+            exam_log.attemptlogs.values_list("item")
+            .order_by("completion_timestamp")
             .distinct()
-            .aggregate(Sum('correct'))
-            .get('correct__sum')
+            .aggregate(Sum("correct"))
+            .get("correct__sum")
         )
 
     class Meta:
@@ -134,7 +157,7 @@ class ExamStatusSerializer(serializers.ModelSerializer):
         fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class GroupSerializer(KolibriModelSerializer):
     member_ids = serializers.SerializerMethodField()
 
     def get_member_ids(self, group):
@@ -145,7 +168,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "member_ids")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(KolibriModelSerializer):
     name = serializers.CharField(source="full_name")
 
     class Meta:
@@ -158,21 +181,31 @@ class LessonAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class LessonSerializer(serializers.ModelSerializer):
+class LessonSerializer(KolibriModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = serializers.SerializerMethodField()
 
-    # classrooms are in here, and filtered out later
-    groups = LessonAssignmentsField(
+    # classrooms are in here, and filtered out later to create `groups`
+    assignments = LessonAssignmentsField(
         many=True, read_only=True, source="lesson_assignments"
     )
 
+    groups = serializers.ListField(default=[])
+
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "groups")
+        fields = (
+            "id",
+            "title",
+            "active",
+            "node_ids",
+            "assignments",
+            "groups",
+            "description",
+        )
 
     def get_node_ids(self, obj):
-        return [resource['contentnode_id'] for resource in obj.resources]
+        return [resource["contentnode_id"] for resource in obj.resources]
 
 
 class ExamQuestionSourcesField(serializers.Field):
@@ -185,24 +218,37 @@ class ExamAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class ExamSerializer(serializers.ModelSerializer):
+class ExamSerializer(KolibriModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
 
-    # classes are in here, and filtered out later
-    groups = ExamAssignmentsField(many=True, read_only=True, source="assignments")
+    # classes are in here, and filtered out later to create `groups`
+    assignments = ExamAssignmentsField(many=True, read_only=True)
+
+    groups = serializers.ListField(default=[])
 
     class Meta:
         model = Exam
-        fields = ("id", "title", "active", "question_sources", "groups", "data_model_version", "question_count")
+        fields = (
+            "id",
+            "title",
+            "active",
+            "question_sources",
+            "assignments",
+            "groups",
+            "data_model_version",
+            "question_count",
+            "learners_see_fixed_order",
+            "seed",
+        )
 
 
-class ContentSerializer(serializers.ModelSerializer):
+class ContentSerializer(KolibriModelSerializer):
     node_id = serializers.CharField(source="id")
 
     class Meta:
         model = ContentNode
-        fields = ("node_id", "content_id", "title", "kind")
+        fields = ("node_id", "content_id", "title", "kind", "channel_id")
 
 
 def data(Serializer, queryset):
@@ -215,17 +261,19 @@ class ClassSummaryPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        classroom_id = view.kwargs.get('pk')
+        classroom_id = view.kwargs.get("pk")
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
         try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=classroom_id))
+            return request.user.has_role_for(
+                allowed_roles, Collection.objects.get(pk=classroom_id)
+            )
         except (Collection.DoesNotExist, ValueError):
             return False
 
 
 class ClassSummaryViewSet(viewsets.ViewSet):
-    permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions,)
+    permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions)
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
@@ -241,38 +289,46 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [g for g in exam["groups"] if g != pk]
+            exam["groups"] = [g for g in exam["assignments"] if g != pk]
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [g for g in lesson["groups"] if g != pk]
+            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
 
         all_node_ids = set()
         for lesson in lesson_data:
             all_node_ids |= set(lesson.get("node_ids"))
         for exam in exam_data:
-            exam_node_ids = [question['exercise_id'] for question in exam.get("question_sources")]
+            exam_node_ids = [
+                question["exercise_id"] for question in exam.get("question_sources")
+            ]
             all_node_ids |= set(exam_node_ids)
 
         # map node ids => content_ids so we can replace missing nodes, if another matching content_id node exists
-        content_id_map = {resource['contentnode_id']: resource['content_id'] for lesson in query_lesson for resource in lesson.resources}
+        content_id_map = {
+            resource["contentnode_id"]: resource["content_id"]
+            for lesson in query_lesson
+            for resource in lesson.resources
+        }
         query_content = ContentNode.objects.filter(id__in=all_node_ids)
         # final list of available nodes
         list_of_ids = [node.id for node in query_content]
         # determine a new list of node_ids for each lesson, removing/replacing missing content items
         for lesson in lesson_data:
             node_ids = []
-            for node_id in lesson['node_ids']:
+            for node_id in lesson["node_ids"]:
                 # if resource exists, add to node_ids
                 if node_id in list_of_ids:
                     node_ids.append(node_id)
                 else:
                     # if resource does not exist, check if another resource with same content_id exists
-                    nodes = ContentNode.objects.filter(content_id=content_id_map[node_id])
+                    nodes = ContentNode.objects.filter(
+                        content_id=content_id_map[node_id]
+                    )
                     if nodes:
                         node_ids.append(nodes[0].id)
             # point to new list of node ids
-            lesson['node_ids'] = node_ids
+            lesson["node_ids"] = node_ids
 
         learners_data = data(UserSerializer, query_learners)
 
@@ -285,7 +341,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             "exams": exam_data,
             "exam_learner_status": data(ExamStatusSerializer, query_exam_logs),
             "content": data(ContentSerializer, query_content),
-            "content_learner_status": content_status_serializer(lesson_data, learners_data, classroom),
+            "content_learner_status": content_status_serializer(
+                lesson_data, learners_data, classroom
+            ),
             "lessons": lesson_data,
         }
 

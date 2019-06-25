@@ -8,15 +8,17 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <LessonContentPreviewPage
-      :currentContentNode="currentContentNode"
-      :isSelected="isSelected"
-      :questions="preview.questions"
-      :displaySelectOptions="Boolean(workingResources)"
-      :completionData="preview.completionData"
-      @addResource="handleAddResource"
-      @removeResource="handleRemoveResource"
-    />
+    <KPageContainer noPadding>
+      <LessonContentPreviewPage
+        :currentContentNode="currentContentNode"
+        :isSelected="isSelected"
+        :questions="preview.questions"
+        :displaySelectOptions="showSelectOptions"
+        :completionData="preview.completionData"
+        @addResource="handleAddResource"
+        @removeResource="handleRemoveResource"
+      />
+    </KPageContainer>
   </CoreBase>
 
 </template>
@@ -38,9 +40,31 @@
       LessonContentPreviewPage,
     },
     mixins: [commonCoach],
-    $trs: {},
+    props: {
+      // If set to true, will show the add/remove buttons.
+      showSelectOptions: {
+        type: Boolean,
+        default: true,
+      },
+      // Override the toolbarRoute in vuex
+      backRoute: {
+        type: Object,
+        required: false,
+      },
+    },
     computed: {
-      ...mapState(['toolbarRoute']),
+      toolbarRoute() {
+        if (this.$route.query && this.$route.query.last) {
+          return this.backRouteForQuery(this.$route.query);
+        }
+
+        return (
+          this.backRoute || {
+            ...this.$store.state.toolbarRoute,
+            query: this.$route.query,
+          }
+        );
+      },
       ...mapState('lessonSummary', ['workingResources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
       isSelected() {
@@ -59,15 +83,14 @@
       handleAddResource(content) {
         this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
         this.addToResourceCache({ node: content });
-        const text = indexStrings.$tr('resourcesAddedSnackbarText', { count: 1 });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('resourcesAddedSnackbarText', { count: 1 }));
       },
       handleRemoveResource(content) {
         this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
-        const text = indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 });
-        this.createSnackbar({ text, autoDismiss: true });
+        this.createSnackbar(indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 }));
       },
     },
+    $trs: {},
   };
 
 </script>

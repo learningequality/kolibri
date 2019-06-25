@@ -15,7 +15,9 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.core.content.utils.content_types_tools import renderable_contentnodes_without_topics_q_filter
+from kolibri.core.content.utils.content_types_tools import (
+    renderable_contentnodes_without_topics_q_filter,
+)
 from kolibri.core.content.utils.import_export_content import get_num_coach_contents
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.fields import create_timezonestamp
@@ -32,7 +34,7 @@ def _total_file_size(files_or_nodes):
         localfiles = _files_for_nodes(files_or_nodes)
     else:
         raise TypeError("Expected queryset for LocalFile or ContentNode")
-    return localfiles.distinct().aggregate(Sum('file_size'))['file_size__sum'] or 0
+    return localfiles.distinct().aggregate(Sum("file_size"))["file_size__sum"] or 0
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -41,8 +43,10 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
         super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
 
         # enable dynamic fields specification!
-        if 'request' in self.context and self.context['request'].GET.get('fields', None):
-            fields = self.context['request'].GET['fields'].split(',')
+        if "request" in self.context and self.context["request"].GET.get(
+            "fields", None
+        ):
+            fields = self.context["request"].GET["fields"].split(",")
             # Drop any fields that are not specified in the `fields` argument.
             allowed = set(fields)
             existing = set(self.fields.keys())
@@ -60,36 +64,45 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
         # TODO: rtibbles - cleanup this for device specific serializer.
         value = super(ChannelMetadataSerializer, self).to_representation(instance)
 
-        value.update({"num_coach_contents": get_num_coach_contents(instance.root)})
+        value.update({"num_coach_contents": instance.root.num_coach_contents})
 
         # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if 'request' in self.context:
+        if "request" in self.context:
 
-            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
+            include_fields = (
+                self.context["request"].GET.get("include_fields", "").split(",")
+            )
 
             if include_fields:
 
                 # build querysets for the full set of channel nodes, as well as those that are unrenderable
                 channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
-                unrenderable_nodes = channel_nodes.exclude(renderable_contentnodes_without_topics_q_filter)
+                unrenderable_nodes = channel_nodes.exclude(
+                    renderable_contentnodes_without_topics_q_filter
+                )
 
-                if 'total_resources' in include_fields:
+                if "total_resources" in include_fields:
                     # count the total number of renderable non-topic resources in the channel
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value['total_resources'] = channel_nodes.dedupe_by_content_id().count() - unrenderable_nodes.dedupe_by_content_id().count()
+                    value["total_resources"] = (
+                        channel_nodes.dedupe_by_content_id().count()
+                        - unrenderable_nodes.dedupe_by_content_id().count()
+                    )
 
-                if 'total_file_size' in include_fields:
+                if "total_file_size" in include_fields:
                     # count the total file size of files associated with renderable content nodes
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
-                    value['total_file_size'] = _total_file_size(channel_nodes) - _total_file_size(unrenderable_nodes)
+                    value["total_file_size"] = _total_file_size(
+                        channel_nodes
+                    ) - _total_file_size(unrenderable_nodes)
 
-                if 'on_device_resources' in include_fields:
+                if "on_device_resources" in include_fields:
                     # read the precalculated total number of resources from the channel already available
-                    value['on_device_resources'] = instance.total_resource_count
+                    value["on_device_resources"] = instance.total_resource_count
 
-                if 'on_device_file_size' in include_fields:
+                if "on_device_file_size" in include_fields:
                     # read the precalculated total size of available files associated with the channel
-                    value['on_device_file_size'] = instance.published_size
+                    value["on_device_file_size"] = instance.published_size
 
         return value
 
@@ -111,23 +124,23 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChannelMetadata
         fields = (
-            'author',
-            'description',
-            'id',
-            'last_updated',
-            'lang_code',
-            'lang_name',
-            'name',
-            'root',
-            'thumbnail',
-            'version',
-            'available',
+            "author",
+            "description",
+            "id",
+            "last_updated",
+            "lang_code",
+            "lang_name",
+            "name",
+            "root",
+            "thumbnail",
+            "version",
+            "available",
         )
 
 
 class PublicChannelSerializer(serializers.ModelSerializer):
     included_languages = serializers.SerializerMethodField()
-    matching_tokens = serializers.SerializerMethodField('match_tokens')
+    matching_tokens = serializers.SerializerMethodField("match_tokens")
     language = serializers.SerializerMethodField()
     icon_encoding = serializers.SerializerMethodField()
     last_published = serializers.SerializerMethodField()
@@ -146,22 +159,37 @@ class PublicChannelSerializer(serializers.ModelSerializer):
         return instance.thumbnail
 
     def get_included_languages(self, instance):
-        return list(instance.included_languages.all().values_list('id', flat=True))
+        return list(instance.included_languages.all().values_list("id", flat=True))
 
     def get_last_published(self, instance):
-        return None if not instance.last_updated else create_timezonestamp(instance.last_updated)
+        return (
+            None
+            if not instance.last_updated
+            else create_timezonestamp(instance.last_updated)
+        )
 
     def match_tokens(self, channel):
         return []
 
     class Meta:
         model = ChannelMetadata
-        fields = ('id', 'name', 'language', 'included_languages', 'description', 'total_resource_count', 'version',
-                  'published_size', 'last_published', 'icon_encoding', 'matching_tokens', 'public')
+        fields = (
+            "id",
+            "name",
+            "language",
+            "included_languages",
+            "description",
+            "total_resource_count",
+            "version",
+            "published_size",
+            "last_published",
+            "icon_encoding",
+            "matching_tokens",
+            "public",
+        )
 
 
 class LowerCaseField(serializers.CharField):
-
     def to_representation(self, obj):
         return super(LowerCaseField, self).to_representation(obj).lower()
 
@@ -173,7 +201,7 @@ class LanguageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Language
-        fields = ('id', 'lang_code', 'lang_subcode', 'lang_name', 'lang_direction')
+        fields = ("id", "lang_code", "lang_subcode", "lang_name", "lang_direction")
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -201,8 +229,19 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('storage_url', 'id', 'priority', 'available', 'file_size', 'extension', 'preset', 'lang',
-                  'supplementary', 'thumbnail', 'download_url')
+        fields = (
+            "storage_url",
+            "id",
+            "priority",
+            "available",
+            "file_size",
+            "extension",
+            "preset",
+            "lang",
+            "supplementary",
+            "thumbnail",
+            "download_url",
+        )
 
 
 class FileThumbnailSerializer(serializers.ModelSerializer):
@@ -210,6 +249,7 @@ class FileThumbnailSerializer(serializers.ModelSerializer):
     Serializer used only in ContentNodeSlimSerializer (at the moment) to return minimum data
     for frontend to be able to render thumbnails for content browsing
     """
+
     storage_url = serializers.SerializerMethodField()
 
     def get_storage_url(self, target_node):
@@ -221,21 +261,28 @@ class FileThumbnailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ('storage_url', 'available', 'thumbnail',)
+        fields = ("storage_url", "available", "thumbnail")
 
 
 class AssessmentMetaDataSerializer(serializers.ModelSerializer):
 
-    assessment_item_ids = serializers.JSONField(default='[]')
-    mastery_model = serializers.JSONField(default='{}')
+    assessment_item_ids = serializers.JSONField(default="[]")
+    mastery_model = serializers.JSONField(default="{}")
 
     class Meta:
         model = AssessmentMetaData
-        fields = ('assessment_item_ids', 'number_of_assessments', 'mastery_model', 'randomize', 'is_manipulable', )
+        fields = (
+            "assessment_item_ids",
+            "number_of_assessments",
+            "mastery_model",
+            "randomize",
+            "is_manipulable",
+        )
 
 
 def get_summary_logs(content_ids, user):
     from kolibri.core.logger.models import ContentSummaryLog
+
     if not content_ids:
         return ContentSummaryLog.objects.none()
     # get all summary logs for the current user that correspond to the descendant content nodes
@@ -243,19 +290,30 @@ def get_summary_logs(content_ids, user):
 
 
 def get_topic_progress_fraction(topic, user):
-    leaf_ids = topic.get_descendants(include_self=False).order_by().exclude(
-        kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+    leaf_ids = (
+        topic.get_descendants(include_self=False)
+        .order_by()
+        .exclude(kind=content_kinds.TOPIC)
+        .values_list("content_id", flat=True)
+    )
     return round(
-        (get_summary_logs(leaf_ids, user).aggregate(Sum('progress'))['progress__sum'] or 0) / (len(leaf_ids) or 1),
-        4
+        (
+            get_summary_logs(leaf_ids, user).aggregate(Sum("progress"))["progress__sum"]
+            or 0
+        )
+        / (len(leaf_ids) or 1),
+        4,
     )
 
 
 def get_content_progress_fraction(content, user):
     from kolibri.core.logger.models import ContentSummaryLog
+
     try:
         # add up all the progress for the logs, and divide by the total number of content nodes to get overall progress
-        overall_progress = ContentSummaryLog.objects.get(user=user, content_id=content.content_id).progress
+        overall_progress = ContentSummaryLog.objects.get(
+            user=user, content_id=content.content_id
+        ).progress
     except ContentSummaryLog.DoesNotExist:
         return None
     return round(overall_progress, 4)
@@ -269,31 +327,40 @@ def get_topic_and_content_progress_fraction(node, user):
 
 
 def get_topic_and_content_progress_fractions(nodes, user):
-    leaf_ids = nodes.get_descendants(include_self=True) \
-        .order_by() \
-        .exclude(available=False) \
-        .exclude(kind=content_kinds.TOPIC) \
-        .values_list('content_id', flat=True)
+    leaf_ids = (
+        nodes.get_descendants(include_self=True)
+        .order_by()
+        .exclude(available=False)
+        .exclude(kind=content_kinds.TOPIC)
+        .values_list("content_id", flat=True)
+    )
 
     leaf_node_logs = get_summary_logs(leaf_ids, user)
 
     overall_progress = {}
 
-    for log in leaf_node_logs.values('content_id', 'progress'):
-        overall_progress[log['content_id']] = round(log['progress'], 4)
+    for log in leaf_node_logs.values("content_id", "progress"):
+        overall_progress[log["content_id"]] = round(log["progress"], 4)
 
     for node in nodes:
         if node.kind == content_kinds.TOPIC:
-            topic_leaf_ids = node.get_descendants(include_self=True) \
-                .order_by() \
-                .exclude(available=False) \
-                .exclude(kind=content_kinds.TOPIC) \
-                .values_list('content_id', flat=True)
+            topic_leaf_ids = (
+                node.get_descendants(include_self=True)
+                .order_by()
+                .exclude(available=False)
+                .exclude(kind=content_kinds.TOPIC)
+                .values_list("content_id", flat=True)
+            )
 
-            overall_progress[node.content_id] = round(
-                sum(overall_progress.get(leaf_id, 0) for leaf_id in topic_leaf_ids) / len(topic_leaf_ids),
-                4
-            ) if topic_leaf_ids else 0.0
+            overall_progress[node.content_id] = (
+                round(
+                    sum(overall_progress.get(leaf_id, 0) for leaf_id in topic_leaf_ids)
+                    / len(topic_leaf_ids),
+                    4,
+                )
+                if topic_leaf_ids
+                else 0.0
+            )
 
     return overall_progress
 
@@ -302,17 +369,21 @@ def get_content_progress_fractions(nodes, user):
     if isinstance(nodes, RawQuerySet) or isinstance(nodes, list):
         leaf_ids = [datum.content_id for datum in nodes]
     else:
-        leaf_ids = nodes.exclude(kind=content_kinds.TOPIC).values_list("content_id", flat=True)
+        leaf_ids = nodes.exclude(kind=content_kinds.TOPIC).values_list(
+            "content_id", flat=True
+        )
 
     summary_logs = get_summary_logs(leaf_ids, user)
 
     # make a lookup dict for all logs to allow mapping from content_id to current progress
-    overall_progress = {log['content_id']: round(log['progress'], 4) for log in summary_logs.values('content_id', 'progress')}
+    overall_progress = {
+        log["content_id"]: round(log["progress"], 4)
+        for log in summary_logs.values("content_id", "progress")
+    }
     return overall_progress
 
 
 class ContentNodeListSerializer(serializers.ListSerializer):
-
     def to_representation(self, data):
 
         # Dealing with nested relationships, data can be a Manager,
@@ -325,12 +396,16 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         # ensure that we are filtering by the parent only
         # this allows us to only cache results on the learn page
         from .api import ContentNodeFilter
-        parent_filter_only = set(self.context['request'].GET.keys()).intersection(ContentNodeFilter.Meta.fields) == set(['parent'])
+
+        parent_filter_only = set(self.context["request"].GET.keys()).intersection(
+            ContentNodeFilter.Meta.fields
+        ) == set(["parent"])
 
         # Cache parent look ups only
         if parent_filter_only:
-            cache_key = 'contentnode_list_{parent}'.format(
-                parent=self.context['request'].GET.get('parent'))
+            cache_key = "contentnode_list_{parent}".format(
+                parent=self.context["request"].GET.get("parent")
+            )
 
             if cache.get(cache_key):
                 return cache.get(cache_key)
@@ -338,7 +413,10 @@ class ContentNodeListSerializer(serializers.ListSerializer):
         if not data:
             return data
 
-        if 'request' not in self.context or not self.context['request'].user.is_facility_user:
+        if (
+            "request" not in self.context
+            or not self.context["request"].user.is_facility_user
+        ):
             progress_dict = {}
         else:
             user = self.context["request"].user
@@ -350,15 +428,15 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
         # Allow results to be limited after all queryset filtering has occurred
         if self.limit:
-            data = data[:self.limit]
+            data = data[: self.limit]
 
         for item in data:
             obj = self.child.to_representation(
                 item,
                 progress_fraction=progress_dict.get(item.content_id),
-                annotate_progress_fraction=False
+                annotate_progress_fraction=False,
             )
-            topic_only = topic_only and obj.get('kind') == content_kinds.TOPIC
+            topic_only = topic_only and obj.get("kind") == content_kinds.TOPIC
             result.append(obj)
 
         # Only store if all nodes are topics, because we don't annotate progress on them
@@ -372,46 +450,52 @@ class ContentNodeListSerializer(serializers.ListSerializer):
 
 
 class ContentNodeSerializer(DynamicFieldsModelSerializer):
-    num_coach_contents = serializers.SerializerMethodField()
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileSerializer(many=True, read_only=True)
-    assessmentmetadata = AssessmentMetaDataSerializer(read_only=True, allow_null=True, many=True)
+    assessmentmetadata = AssessmentMetaDataSerializer(
+        read_only=True, allow_null=True, many=True
+    )
     lang = LanguageSerializer()
 
     class Meta:
         model = ContentNode
         fields = (
-            'id',
-            'assessmentmetadata',
-            'author',
-            'available',
-            'channel_id',
-            'coach_content',
-            'content_id',
-            'description',
-            'files',
-            'kind',
-            'lang',
-            'license_description',
-            'license_name',
-            'license_owner',
-            'num_coach_contents',
-            'parent',
-            'sort_order',
-            'title',
+            "id",
+            "assessmentmetadata",
+            "author",
+            "available",
+            "channel_id",
+            "coach_content",
+            "content_id",
+            "description",
+            "files",
+            "kind",
+            "lang",
+            "license_description",
+            "license_name",
+            "license_owner",
+            "num_coach_contents",
+            "parent",
+            "sort_order",
+            "title",
         )
         list_serializer_class = ContentNodeListSerializer
 
     def __new__(cls, *args, **kwargs):
         # This is overwritten to provide a ListClassSerializer for many=True
-        limit = kwargs.pop('limit', None)
+        limit = kwargs.pop("limit", None)
         new = super(ContentNodeSerializer, cls).__new__(cls, *args, **kwargs)
         new.limit = limit
         return new
 
-    def to_representation(self, instance, progress_fraction=None, annotate_progress_fraction=True):
+    def to_representation(
+        self, instance, progress_fraction=None, annotate_progress_fraction=True
+    ):
         if progress_fraction is None and annotate_progress_fraction:
-            if 'request' not in self.context or not self.context['request'].user.is_facility_user:
+            if (
+                "request" not in self.context
+                or not self.context["request"].user.is_facility_user
+            ):
                 # Don't try to annotate for a non facility user
                 progress_fraction = 0.0
             else:
@@ -419,19 +503,8 @@ class ContentNodeSerializer(DynamicFieldsModelSerializer):
                 if instance.kind != content_kinds.TOPIC:
                     progress_fraction = get_content_progress_fraction(instance, user)
         value = super(ContentNodeSerializer, self).to_representation(instance)
-        value['progress_fraction'] = progress_fraction
+        value["progress_fraction"] = progress_fraction
         return value
-
-    def get_num_coach_contents(self, instance):
-        user = self.context["request"].user
-        if user.is_facility_user:  # exclude anon users
-            # cache the user roles query on the instance
-            if getattr(self, "user_roles_exists", None) is None:
-                self.user_roles_exists = user.roles.exists()
-            if self.user_roles_exists or user.is_superuser:  # must have coach role or higher
-                return get_num_coach_contents(instance)
-        # all other conditions return 0
-        return 0
 
 
 class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
@@ -439,35 +512,23 @@ class ContentNodeSlimSerializer(DynamicFieldsModelSerializer):
     Lighter version of the ContentNodeSerializer whose purpose is to provide a minimum
     subset of ContentNode fields necessary for functional content browsing
     """
+
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
     files = FileThumbnailSerializer(many=True, read_only=True)
 
     class Meta:
         model = ContentNode
         fields = (
-            'id',
-            'parent',
-            'description',
-            'channel_id',
-            'content_id',
-            'kind',
-            'files',
-            'title',
+            "id",
+            "parent",
+            "description",
+            "channel_id",
+            "content_id",
+            "kind",
+            "files",
+            "title",
+            "num_coach_contents",
         )
-
-    def to_representation(self, instance):
-        value = super(ContentNodeSlimSerializer, self).to_representation(instance)
-        # if the request includes a GET param 'include_fields', add the requested calculated fields
-        if 'request' in self.context:
-
-            include_fields = self.context['request'].GET.get('include_fields', '').split(',')
-
-            if include_fields:
-
-                if 'num_coach_contents' in include_fields:
-                    value['num_coach_contents'] = get_num_coach_contents(instance)
-
-        return value
 
 
 class ContentNodeGranularSerializer(serializers.ModelSerializer):
@@ -479,38 +540,44 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentNode
         fields = (
-            'id',
-            'available',
-            'coach_content',
-            'importable',
-            'kind',
-            'num_coach_contents',
-            'on_device_resources',
-            'title',
-            'total_resources',
+            "id",
+            "available",
+            "coach_content",
+            "importable",
+            "kind",
+            "num_coach_contents",
+            "on_device_resources",
+            "title",
+            "total_resources",
         )
 
     def get_total_resources(self, instance):
-        return instance.get_descendants(include_self=True) \
-            .filter(renderable_contentnodes_without_topics_q_filter) \
-            .distinct() \
+        return (
+            instance.get_descendants(include_self=True)
+            .filter(renderable_contentnodes_without_topics_q_filter)
+            .distinct()
             .count()
+        )
 
     def get_on_device_resources(self, instance):
-        return instance.get_descendants(include_self=True) \
-            .filter(renderable_contentnodes_without_topics_q_filter) \
-            .filter(available=True) \
-            .distinct() \
+        return (
+            instance.get_descendants(include_self=True)
+            .filter(renderable_contentnodes_without_topics_q_filter)
+            .filter(available=True)
+            .distinct()
             .count()
+        )
 
     def get_num_coach_contents(self, instance):
         # If for exporting, only show what is available on server. For importing,
         # show all of the coach contents in the topic.
-        for_export = self.context['request'].query_params.get('for_export', None)
+        for_export = self.context["request"].query_params.get("for_export", None)
         return get_num_coach_contents(instance, filter_available=for_export)
 
     def get_importable(self, instance):
-        drive_id = self.context['request'].query_params.get('importing_from_drive_id', None)
+        drive_id = self.context["request"].query_params.get(
+            "importing_from_drive_id", None
+        )
 
         # If node is from a remote source, assume it is importable.
         # Topics are annotated as importable by default, but client may disable importing
@@ -532,13 +599,19 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
                 datafolder = drive_ids[drive_id].datafolder
                 cache.set(drive_id, datafolder, 60)  # cache the datafolder for 1 minute
             else:
-                raise serializers.ValidationError('The external drive with given drive id {} does not exist.'.format(drive_id))
+                raise serializers.ValidationError(
+                    "The external drive with given drive id {} does not exist.".format(
+                        drive_id
+                    )
+                )
 
         importable = True
         for f in content_files:
             # Node is importable only if all of its Files are on the external drive
             try:
-                file_path = get_content_storage_file_path(f.local_file.get_filename(), datafolder)
+                file_path = get_content_storage_file_path(
+                    f.local_file.get_filename(), datafolder
+                )
                 importable = importable and os.path.exists(file_path)
             except InvalidStorageFilenameError:
                 importable = False
@@ -549,13 +622,15 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):
-
     def to_representation(self, data):
 
         if not data:
             return data
 
-        if 'request' not in self.context or not self.context['request'].user.is_facility_user:
+        if (
+            "request" not in self.context
+            or not self.context["request"].user.is_facility_user
+        ):
             progress_dict = {}
         else:
             user = self.context["request"].user
@@ -570,25 +645,29 @@ class ContentNodeProgressListSerializer(serializers.ListSerializer):
             self.child.to_representation(
                 item,
                 progress_fraction=progress_dict.get(item.content_id, 0.0),
-                annotate_progress_fraction=False
-            ) for item in iterable
+                annotate_progress_fraction=False,
+            )
+            for item in iterable
         ]
 
 
 class ContentNodeProgressSerializer(serializers.Serializer):
-
-    def to_representation(self, instance, progress_fraction=None, annotate_progress_fraction=True):
+    def to_representation(
+        self, instance, progress_fraction=None, annotate_progress_fraction=True
+    ):
         if progress_fraction is None and annotate_progress_fraction:
-            if 'request' not in self.context or not self.context['request'].user.is_facility_user:
+            if (
+                "request" not in self.context
+                or not self.context["request"].user.is_facility_user
+            ):
                 # Don't try to annotate for a non facility user
                 progress_fraction = 0
             else:
                 user = self.context["request"].user
-                progress_fraction = get_topic_and_content_progress_fraction(instance, user) or 0.0
-        return {
-            'id': instance.id,
-            'progress_fraction': progress_fraction,
-        }
+                progress_fraction = (
+                    get_topic_and_content_progress_fraction(instance, user) or 0.0
+                )
+        return {"id": instance.id, "progress_fraction": progress_fraction}
 
     class Meta:
         list_serializer_class = ContentNodeProgressListSerializer

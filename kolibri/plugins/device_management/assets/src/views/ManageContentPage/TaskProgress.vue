@@ -7,13 +7,13 @@
           v-if="taskHasFailed"
           category="alert"
           name="error"
-          :style="{ fill: $coreTextError }"
+          :style="{ fill: $themeTokens.error }"
         />
         <mat-svg
           v-else-if="taskHasCompleted"
           category="action"
           name="check_circle"
-          :style="{ fill: $coreStatusCorrect }"
+          :style="{ fill: $themeTokens.success }"
         />
         <KCircularLoader
           v-else
@@ -24,24 +24,26 @@
     </div>
 
     <div class="progress-bar dtc">
-      <div class="task-stage">
+      <div :class="{'task-stage': !taskHasCompleted}">
         {{ stageText }}
       </div>
       <KLinearLoader
+        v-if="!taskHasCompleted"
         :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
         :progress="formattedPercentage"
         :delay="false"
       />
     </div>
 
-    <div class="progress-messages dtc">
+    <div v-if="!taskHasCompleted" class="progress-messages dtc">
       <span class="percentage">{{ progressMessage }}</span>
     </div>
 
     <div v-if="showButtons" class="buttons dtc">
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
-        :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
+        class="btn"
+        :text="taskHasCompleted || taskHasFailed ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -55,7 +57,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -82,7 +83,6 @@
         type: Number,
         required: true,
       },
-      id: RequiredString,
       cancellable: {
         type: Boolean,
         required: true,
@@ -108,7 +108,7 @@
           return this.$tr('downloadingChannelContents');
         }
 
-        if (this.status === TaskStatuses.RUNNING) {
+        if (this.status === this.TaskStatuses.RUNNING) {
           switch (this.type) {
             case TaskTypes.REMOTE_IMPORT:
             case TaskTypes.LOCAL_IMPORT:
@@ -135,15 +135,19 @@
         if (this.taskIsPreparing) {
           return this.$tr('preparingTask');
         }
+
+        return '';
       },
       taskHasFailed() {
-        return this.status === TaskStatuses.FAILED;
+        return this.status === this.TaskStatuses.FAILED;
       },
       taskHasCompleted() {
-        return this.status === TaskStatuses.COMPLETED;
+        return this.status === this.TaskStatuses.COMPLETED;
       },
       taskIsPreparing() {
-        return this.status === TaskStatuses.QUEUED || this.status === TaskStatuses.SCHEDULED;
+        return (
+          this.status === this.TaskStatuses.QUEUED || this.status === this.TaskStatuses.SCHEDULED
+        );
       },
       formattedPercentage() {
         return this.percentage * 100;
@@ -155,13 +159,32 @@
         return '';
       },
     },
+    watch: {
+      taskHasCompleted(newValue, oldValue) {
+        // Once it becomes complete, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+      taskHasFailed(newValue, oldValue) {
+        // Once it becomes failed, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+    },
     methods: {
-      ...mapActions('manageContent', ['cancelTask', 'refreshChannelList']),
       endTask() {
         this.uiBlocked = true;
-        this.$emit('cleartask', () => {
+        if (this.taskHasCompleted || this.taskHasFailed) {
+          this.$emit('cleartask', () => {
+            this.uiBlocked = false;
+          });
+        } else if (this.cancellable) {
+          this.$emit('canceltask');
+        } else {
           this.uiBlocked = false;
-        });
+        }
       },
     },
     $trs: {
@@ -185,6 +208,8 @@
 <style lang="scss" scoped>
 
   .progress-icon {
+    position: relative;
+    top: -2px;
     width: 5%;
     text-align: center;
     .inprogress {
@@ -196,7 +221,6 @@
     display: table;
     width: 100%;
     height: 5em;
-    padding-right: 1em;
     margin-left: -6px;
     vertical-align: middle;
   }
@@ -227,6 +251,10 @@
   .dtc {
     display: table-cell;
     vertical-align: inherit;
+  }
+
+  .btn {
+    margin: 0;
   }
 
 </style>

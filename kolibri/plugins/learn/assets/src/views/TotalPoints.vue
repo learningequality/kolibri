@@ -1,9 +1,11 @@
 <template>
 
   <div v-if="isUserLoggedIn">
-    <div ref="icon" class="points" :style="{ color: $coreTextAnnotation }">
-      <PointsIcon class="icon" :active="true" />
-      <div class="description">
+    <div ref="icon" class="points">
+      <div class="points-icon-background" :style="{ backgroundColor: $themeTokens.surface }">
+        <PointsIcon class="icon" />
+      </div>
+      <div v-show="!windowIsSmall" class="description">
         <div class="description-value">
           {{ $formatNumber(totalPoints) }}
         </div>
@@ -22,26 +24,34 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
+  import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
   export default {
     name: 'TotalPoints',
-    $trs: { pointsTooltip: 'You earned { points, number } points' },
     components: {
       PointsIcon,
       KTooltip,
     },
-    mixins: [themeMixin],
+    mixins: [responsiveWindow, themeMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
-    watch: { currentUserId: 'fetchPoints' },
-    created() {
-      this.$store.dispatch('fetchPoints');
+    watch: {
+      currentUserId() {
+        this.fetchPoints();
+      },
     },
+    created() {
+      this.fetchPoints();
+    },
+    methods: {
+      ...mapActions(['fetchPoints']),
+    },
+    $trs: { pointsTooltip: 'You earned { points, number } points' },
   };
 
 </script>
@@ -63,7 +73,14 @@
 
   .description {
     display: inline-block;
-    margin-left: 16px;
+    margin-left: 8px;
+    font-size: 14px;
+  }
+
+  .points-icon-background {
+    display: inline;
+    padding: 4px 8px;
+    border-radius: 100%;
   }
 
 </style>

@@ -18,7 +18,7 @@ Feature: Learner engages recommended content
     Then I see the *Next resource* heading and content item under the player
       And I see the *Next* snackbar alert with the title of the next recommended content item
       And I see the *+500 points* snackbar alert
-      And I see my points couter is inreased by 500 
+      And I see my points counter is increased by 500
     When I click on *Recommended* in the breadcrumb above the player
     Then I see the *Learn > Recommended* page
 

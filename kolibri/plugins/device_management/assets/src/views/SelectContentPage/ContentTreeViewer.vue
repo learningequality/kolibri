@@ -61,7 +61,6 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import last from 'lodash/last';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
   import { navigateToTopicUrl } from '../../routes/wizardTransitionRoutes';
@@ -104,13 +103,15 @@
       },
       noSelectableNodes() {
         // If importing from an external drive, disable select-all if every child node is
-        // 1) a leaf node and 2) already on the server or not available on the drive
+        // 1) a leaf node AND
+        // 2a) not importable from the drive OR
+        // 2b) already on the server
         // TODO check to see if this logic is valid for PEER_IMPORT as well.
         if (this.transferType === TransferTypes.LOCALIMPORT) {
           return every(this.annotatedChildNodes, node => {
             return (
               node.kind !== ContentNodeKinds.TOPIC &&
-              (!node.available || node.on_device_resources > 0)
+              (!node.importable || node.on_device_resources > 0)
             );
           });
         } else {
@@ -156,11 +157,6 @@
           selections,
           !this.inExportMode
         );
-      },
-      breadcrumbItems() {
-        const items = [...this.breadcrumbs];
-        delete last(items).link;
-        return items;
       },
     },
     methods: {
@@ -212,6 +208,7 @@
     $trs: {
       selectAll: 'Select all',
       topicHasNoContents: 'This topic has no sub-topics or resources',
+      estimatedCounts: 'Estimated number of resources',
     },
   };
 

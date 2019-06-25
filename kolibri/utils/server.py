@@ -13,11 +13,18 @@ import requests
 from django.conf import settings
 from django.core.management import call_command
 
+import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
+
+try:
+    import kolibri.utils.pskolibri as psutil
+except NotImplementedError:
+    # This module can't work on this OS
+    psutil = None
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +53,7 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
-DAEMON_LOG = os.path.join(conf.KOLIBRI_HOME, "server.log")
+DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
@@ -66,12 +73,7 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
-def start(port=8080, run_cherrypy=True):
-    """
-    Starts the server.
-
-    :param: port: Port number (default: 8080)
-    """
+def run_services():
 
     # start the pingback thread
     PingbackThread.start_command()
@@ -79,30 +81,66 @@ def start(port=8080, run_cherrypy=True):
     # Do a db vacuum periodically
     VacuumThread.start_command()
 
+    # This is run every time the server is started to clear all the tasks
+    # in the queue
+    from kolibri.core.tasks.queue import get_queue
+
+    get_queue().empty()
+
+    # Initialize the iceqube engine to handle scheduled tasks
+    from kolibri.core.tasks.queue import initialize_worker
+
+    initialize_worker()
+
+
+def start(port=8080, run_cherrypy=True):
+    """
+    Starts the server.
+
+    :param: port: Port number (default: 8080)
+    """
+
+    run_services()
+
     # Write the new PID
-    with open(PID_FILE, 'w') as f:
-        f.write("%d\n%d" % (os.getpid(), port))
+    _write_pid_file(PID_FILE, port=port)
 
     # This should be run every time the server is started for now.
     # Events to trigger it are hard, because of copying a content folder into
     # ~/.kolibri, or deleting a channel DB on disk
     from kolibri.core.content.utils.annotation import update_channel_metadata
-    update_channel_metadata()
 
-    # This is also run every time the server is started to clear all the tasks
-    # in the queue
-    from kolibri.core.tasks.client import get_client
-    get_client().clear(force=True)
+    update_channel_metadata()
 
     def rm_pid_file():
         os.unlink(PID_FILE)
 
     atexit.register(rm_pid_file)
 
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+
     if run_cherrypy:
         run_server(port=port)
     else:
         block()
+
+
+def services():
+    """
+    Runs the background services.
+    """
+
+    run_services()
+
+    # Write the new PID
+    _write_pid_file(PID_FILE)
+
+    def rm_pid_file():
+        os.unlink(PID_FILE)
+
+    atexit.register(rm_pid_file)
+
+    block()
 
 
 def block():
@@ -113,31 +151,30 @@ def block():
         while True:
             time.sleep(100000)
     except Exception as e:
-        logger.error('Block interrupted! %s' % e)
+        logger.error("Block interrupted! %s" % e)
     # Waiting for ALL child threads to finish is necessary on OS X.
     # See https://github.com/cherrypy/cherrypy/issues/581.
     # It's also good to let them all shut down before allowing
     # the main thread to call atexit handlers.
     # See https://github.com/cherrypy/cherrypy/issues/751.
-    logger.debug('Waiting for child threads to terminate...')
+    logger.debug("Waiting for child threads to terminate...")
     for t in threading.enumerate():
         # Validate the we're not trying to join the MainThread
         # that will cause a deadlock and the case exist when
         # implemented as a windows service and in any other case
         # that another thread executes cherrypy.engine.exit()
         if (
-                t != threading.currentThread()
-                and not isinstance(t, threading._MainThread)
-                # Note that any dummy (external) threads are
-                # always daemonic.
-                and not t.daemon
+            t != threading.currentThread()
+            and not isinstance(t, threading._MainThread)
+            # Note that any dummy (external) threads are
+            # always daemonic.
+            and not t.daemon
         ):
-            logger.debug('Waiting for thread %s.' % t.getName())
+            logger.debug("Waiting for thread %s." % t.getName())
             t.join()
 
 
 class PingbackThread(threading.Thread):
-
     @classmethod
     def start_command(cls):
         thread = cls()
@@ -149,7 +186,6 @@ class PingbackThread(threading.Thread):
 
 
 class VacuumThread(threading.Thread):
-
     @classmethod
     def start_command(cls):
         thread = cls()
@@ -188,31 +224,72 @@ def stop(pid=None, force=False):
     os.unlink(PID_FILE)
 
 
+def calculate_cache_size():
+    """
+    Returns the default value for CherryPY memory cache:
+    - value between 50MB and 250MB
+    """
+    MIN_CACHE = 50000000
+    MAX_CACHE = 250000000
+    if psutil:
+        MIN_MEM = 1
+        MAX_MEM = 4
+        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        # if it's in the range, scale thread count linearly with available memory
+        if MIN_MEM < total_memory < MAX_MEM:
+            return MIN_CACHE + int(
+                (MAX_CACHE - MIN_CACHE)
+                * float(total_memory - MIN_MEM)
+                / (MAX_MEM - MIN_MEM)
+            )
+        # otherwise return either the min or max amount
+        return MAX_CACHE if total_memory >= MAX_MEM else MIN_CACHE
+    elif sys.platform.startswith(
+        "darwin"
+    ):  # Considering MacOS has at least 4 Gb of RAM
+        return MAX_CACHE
+    return MIN_CACHE
+
+
 def run_server(port):
 
     # Mount the application
     from kolibri.deployment.default.wsgi import application
+
     cherrypy.tree.graft(application, "/")
 
-    cherrypy.config.update({
-        "environment": "production",
-        "tools.expires.on": True,
-        "tools.expires.secs": 31536000,
-    })
-
-    # Mount static files
-    static_files_handler = cherrypy.tools.staticdir.handler(
-        section="/",
-        dir=settings.STATIC_ROOT)
-    cherrypy.tree.mount(static_files_handler, settings.STATIC_URL, config={
-        "/": {
-            "tools.gzip.on": True,
-            "tools.gzip.mime_types": ["text/*", "application/javascript"],
+    cherrypy.config.update(
+        {
+            "environment": "production",
+            "tools.expires.on": True,
+            "tools.expires.secs": 31536000,
             "tools.caching.on": True,
             "tools.caching.maxobj_size": 2000000,
-            "tools.caching.maxsize": 50000000,
+            "tools.caching.maxsize": calculate_cache_size(),
+            "log.screen": False,
+            "log.access_file": "",
+            "log.error_file": "",
         }
-    })
+    )
+    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
+
+    # Mount static files
+    cherrypy.tree.mount(
+        cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
+        settings.STATIC_URL,
+        config={
+            "/": {
+                "tools.gzip.on": True,
+                "tools.gzip.mime_types": ["text/*", "application/javascript"],
+            }
+        },
+    )
+
+    # Mount media files
+    cherrypy.tree.mount(
+        cherrypy.tools.staticdir.handler(section="/", dir=settings.MEDIA_ROOT),
+        settings.MEDIA_URL,
+    )
 
     # Mount content files
     content_files_handler = cherrypy.tools.staticdir.handler(
@@ -285,7 +362,7 @@ def _read_pid_file(filename):
     return pid, port
 
 
-def _write_pid_file(filename, port):
+def _write_pid_file(filename, port=None):
     """
     Writes a PID file in the format Kolibri parses
 
@@ -293,8 +370,10 @@ def _write_pid_file(filename, port):
     :param: port: Listening port number which the server is assigned
     """
 
-    with open(filename, 'w') as f:
-        f.write("%d\n%d" % (os.getpid(), port))
+    with open(filename, "w") as f:
+        f.write("%d\n" % os.getpid())
+        if port is not None:
+            f.write("%d" % port)
 
 
 def get_status():  # noqa: max-complexity=16
@@ -353,8 +432,7 @@ def get_status():  # noqa: max-complexity=16
             # be configurable
             # TODO: HTTP might not be the protocol if server has SSL
             response = requests.get(check_url, timeout=3)
-        except (requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError):
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
             if os.path.isfile(STARTUP_LOCK):
@@ -366,16 +444,18 @@ def get_status():  # noqa: max-complexity=16
 
         if response.status_code != 200:
             # Probably a mis-configured kolibri
+            sys.stderr.write("---Debug information---\n")
+            sys.stderr.write(response.text)
+            sys.stderr.write("\n-----------------------\n")
             raise NotRunning(STATUS_SERVER_CONFIGURATION_ERROR)
 
     else:
         try:
             requests.get(check_url, timeout=3)
-        except (requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError):
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
-            return pid, '', ''
+            return pid, "", ""
 
     return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
     # We don't detect this at present:
@@ -401,8 +481,8 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             interfaces = ifcfg.interfaces()
-            for interface in filter(lambda i: i['inet'], interfaces.values()):
-                urls.append("http://{}:{}/".format(interface['inet'], port))
+            for interface in filter(lambda i: i["inet"], interfaces.values()):
+                urls.append("http://{}:{}/".format(interface["inet"], port))
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []
@@ -416,58 +496,67 @@ def installation_type(cmd_line=None):  # noqa:C901
     """
     if cmd_line is None:
         cmd_line = sys.argv
-    install_type = 'Unknown'
+    install_type = "Unknown"
 
     def is_debian_package():
         # find out if this is from the debian package
-        install_type = 'dpkg'
+        install_type = "dpkg"
         try:
-            check_output(['apt-cache', 'show', 'kolibri'])
-            apt_repo = str(check_output(['apt-cache', 'madison', 'kolibri']))
+            check_output(["apt-cache", "show", "kolibri"])
+            apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
             if apt_repo:
-                install_type = 'apt'
+                install_type = "apt"
         except CalledProcessError:  # kolibri package not installed!
-            install_type = 'whl'
+            install_type = "whl"
         return install_type
 
     def is_kolibri_server():
         # running under uwsgi, finding out if we are using kolibri-server
-        install_type = ''
+        install_type = ""
         try:
-            package_info = check_output(['apt-cache', 'show', 'kolibri-server']).decode('utf-8').split('\n')
-            version = [output for output in package_info if 'Version' in output]
-            install_type = 'kolibri-server {}'.format(version[0])
+            package_info = (
+                check_output(["apt-cache", "show", "kolibri-server"])
+                .decode("utf-8")
+                .split("\n")
+            )
+            version = [output for output in package_info if "Version" in output]
+            install_type = "kolibri-server {}".format(version[0])
         except CalledProcessError:  # kolibri-server package not installed!
-            install_type = 'uwsgi'
+            install_type = "uwsgi"
         return install_type
 
-    if len(cmd_line) > 1 or 'uwsgi' in cmd_line:
+    if len(cmd_line) > 1 or "uwsgi" in cmd_line:
         launcher = cmd_line[0]
-        if launcher.endswith('.pex'):
-            install_type = 'pex'
-        elif 'runserver' in cmd_line:
-            install_type = 'devserver'
-        elif launcher == '/usr/bin/kolibri':
+        if launcher.endswith(".pex"):
+            install_type = "pex"
+        elif "runserver" in cmd_line:
+            install_type = "devserver"
+        elif launcher == "/usr/bin/kolibri":
             install_type = is_debian_package()
-        elif launcher == 'uwsgi':
+        elif launcher == "uwsgi":
             package = is_debian_package()
-            if package != 'whl':
+            if package != "whl":
                 kolibri_server = is_kolibri_server()
-                install_type = 'kolibri({kolibri_type}) with {kolibri_server}'.format(kolibri_type=package,
-                                                                                      kolibri_server=kolibri_server)
-        elif '\\Scripts\\kolibri' in launcher:
+                install_type = "kolibri({kolibri_type}) with {kolibri_server}".format(
+                    kolibri_type=package, kolibri_server=kolibri_server
+                )
+        elif "\\Scripts\\kolibri" in launcher:
             paths = sys.path
             for path in paths:
-                if 'kolibri.exe' in path:
-                    install_type = 'Windows'
+                if "kolibri.exe" in path:
+                    install_type = "Windows"
                     break
-        elif 'start' in cmd_line:
-            install_type = 'whl'
+        elif "start" in cmd_line:
+            install_type = "whl"
     if on_android():
         from jnius import autoclass
-        context = autoclass('org.kivy.android.PythonActivity')
-        version_name = context.getPackageManager().getPackageInfo(
-            context.getPackageName(), 0).versionName
-        install_type = 'apk - {}'.format(version_name)
+
+        context = autoclass("org.kivy.android.PythonActivity")
+        version_name = (
+            context.getPackageManager()
+            .getPackageInfo(context.getPackageName(), 0)
+            .versionName
+        )
+        install_type = "apk - {}".format(version_name)
 
     return install_type

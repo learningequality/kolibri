@@ -33,7 +33,7 @@ module.exports = {
   },
   transformIgnorePatterns: ['/node_modules/(?!(kolibri-tools|kolibri)/).*/'],
   snapshotSerializers: ['jest-serializer-vue'],
-  setupFiles: [path.resolve(__dirname, './setup')],
+  setupFilesAfterEnv: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',
   verbose: false,
 };

@@ -50,12 +50,6 @@
   };
 
   export default {
-    $trs: {
-      facilityTitle: 'Facility',
-      adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
-      // here because going to use immersive-page
-      detailPageReturnPrompt: 'Class details',
-    },
     name: 'FacilityIndex',
     components: {
       CoreBase,
@@ -91,6 +85,12 @@
       isImmersive() {
         return this.isEnrollmentPage;
       },
+    },
+    $trs: {
+      facilityTitle: 'Facility',
+      adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
+      // here because going to use immersive-page
+      detailPageReturnPrompt: 'Class details',
     },
   };
 

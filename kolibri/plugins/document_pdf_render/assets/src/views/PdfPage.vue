@@ -4,7 +4,8 @@
     class="pdf-page"
     :style="{
       height: `${scaledHeight}px`,
-      width: `${scaledWidth}px`
+      width: `${scaledWidth}px`,
+      background: $themeTokens.surface,
     }"
   >
     <span class="loading">{{ $formatNumber(pageNum) }}</span>
@@ -24,8 +25,11 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+
   export default {
     name: 'PdfPage',
+    mixins: [themeMixin],
     props: {
       pageNum: {
         type: Number,
@@ -83,9 +87,15 @@
       },
     },
     watch: {
-      scale: 'renderPage',
-      pdfPage: 'renderPage',
-      pageReady: 'renderPage',
+      scale(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
+      pdfPage(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
+      pageReady(newVal, oldVal) {
+        this.renderPage(newVal, oldVal);
+      },
     },
     mounted() {
       this.renderPage();
@@ -153,7 +163,6 @@
     position: relative;
     z-index: 2; // material spec - card (resting)
     margin: $page-margin auto;
-    background: #ffffff;
   }
 
   .loading {

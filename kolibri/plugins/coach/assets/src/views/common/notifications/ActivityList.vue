@@ -20,6 +20,7 @@
         class="notification-card"
         v-bind="cardPropsForNotification(notification)"
         :linkText="cardTextForNotification(notification)"
+        :style="{ borderBottomColor: $themeTokens.fineLine }"
       />
     </div>
 
@@ -57,10 +58,12 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { LastPages } from '../../../constants/lastPagesConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import { coachStrings } from '../../common/commonCoachStrings';
   import NotificationCard from './NotificationCard';
@@ -76,6 +79,7 @@
       NotificationsFilter,
       NotificationCard,
     },
+    mixins: [themeMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {
@@ -104,7 +108,6 @@
     data() {
       return {
         loading: true,
-        error: false,
         moreResults: true,
         nextPage: 1,
         progressFilter: 'all',
@@ -141,11 +144,11 @@
       backLinkQuery() {
         switch (this.embeddedPageName) {
           case 'HomeActivityPage':
-            return { last: 'homeactivity' };
+            return { last: LastPages.HOME_ACTIVITY };
           case 'ReportsLearnerActivityPage':
-            return { last: 'learneractivity', last_id: this.$route.params.learnerId };
+            return { last: LastPages.LEARNER_ACTIVITY, last_id: this.$route.params.learnerId };
           case 'ReportsGroupActivityPage':
-            return { last: 'groupactivity', last_id: this.$route.params.groupId };
+            return { last: LastPages.GROUP_ACTIVITY, last_id: this.$route.params.groupId };
           default:
             return {};
         }
@@ -388,9 +391,12 @@
   // Copied from BlockItem.vue
   .notification-card {
     padding-bottom: 16px;
+    border-bottom-style: none;
+    border-bottom-width: 0;
 
     &:not(:last-child) {
-      border-bottom: 1px solid #dedede;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
     }
   }
 

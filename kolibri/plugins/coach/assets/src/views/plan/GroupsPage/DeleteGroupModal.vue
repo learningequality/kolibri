@@ -5,7 +5,7 @@
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
     @submit="handleSubmit"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
   </KModal>
@@ -20,12 +20,6 @@
 
   export default {
     name: 'DeleteGroupModal',
-    $trs: {
-      deleteLearnerGroup: 'Delete group',
-      areYouSure: "Are you sure you want to delete '{ groupName }'?",
-      cancel: 'Cancel',
-      deleteGroup: 'Delete',
-    },
     components: {
       KModal,
     },
@@ -40,15 +34,18 @@
       },
     },
     methods: {
-      ...mapActions('groups', ['displayModal', 'deleteGroup']),
+      ...mapActions('groups', ['deleteGroup']),
       handleSubmit() {
         this.deleteGroup(this.groupId).then(() => {
-          this.$emit('success');
+          this.$emit('submit');
         });
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      deleteLearnerGroup: 'Delete group',
+      areYouSure: "Are you sure you want to delete '{ groupName }'?",
+      cancel: 'Cancel',
+      deleteGroup: 'Delete',
     },
   };
 

@@ -35,7 +35,7 @@ Each minor release (``N.N.*``) is maintained in a CrowdIn Version Branch, follow
 
 On the string freeze date, the strings for the upcoming release should be uploaded to crowdin as described in :ref:`crowdin`. You can run ``make i18n-stats branch=<release-vN.N.x>`` to get figures on the translation work. Send the stats to the i18n team, whom can use them for communication with translators to measure the translation efforts needed.
 
-Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`i18n-perseus`.
+Strings from the Perseus plugin should also be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from CrowdIn such as ``exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
 
 Before the translation start date, provide time to do one final review of all user-facing strings. This can be done e.g. in the course of doing a preliminary translation into Spanish.
 
@@ -163,7 +163,6 @@ For example, if we were releasing version 0.3.0, we would perform these steps:
 * Tag the final release as ``v0.3.0`` targetting the ``release-v0.3.x`` branch using Github's `Releases <https://github.com/learningequality/kolibri/releases>`__ functionality.
 * Copy the entries from the changelog into Github's "Release notes" and ensure that the formatting and links are correct.
 * Delete the most recent beta pre-lease on github.
-* Merge ``release-v0.3.x`` into ``master`` (no code review necessary)
 * Update ``VERSION`` in ``release-v0.3.x`` to be ``(0, 3, 1, 'beta', 0)`` (no code review necessary)
 
 At this point, all changes to the git tree are complete for the release.
@@ -232,21 +231,15 @@ Publish the Medium post if necessary.
 Update the demo server
 ----------------------
 
-Get `kolibridemo.learningequality.org <http://kolibridemo.learningequality.org/>`__ running the latest version:
+Get `kolibridemo.learningequality.org <https://kolibridemo.learningequality.org>`__ running the latest version:
 
- * SSH into ``192.237.248.135``
- * ``sudo su www-data``
- * Upload the new .pex file and update ``/var/www/run_kolibri.sh`` to point at it
-
-Then restart all running instances:
-
-.. code-block:: bash
-
-    killall python
-    run_all
+* SSH into the instance by running ``gcloud compute ssh --project kolibri-demo-servers --zone us-east1-d kolibridemo``. Click `here <https://cloud.google.com/compute/docs/instances/connecting-to-instance#gcetools>`__ for more information about connecting to Google Compute Engine instances. (You will need the right permissions of course.)
+* ``sudo su www-data``
+* Download the new .pex file from the uploaded assets on github/buildkite using ``wget``. Update /var/www/run_kolibridemo.sh to point at it
+* ``./var/www/run_kolibridemo.sh restart`` to restart kolibri
 
 
-Verify that `the demo server <kolibridemo.learningequality.org>`__ is running the latest version.
+Verify that `the demo server <https://kolibridemo.learningequality.org>`__ is running the latest version.
 
 
 Wrap-up
@@ -256,3 +249,67 @@ Wrap-up
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
 
+
+Send upgrade notifications
+--------------------------
+
+Wait about 3 business days after communications are published to see if any issues are reported. Afterwards, we can send upgrade notifications through the Nutrition Facts telemetry server.
+
+* `Log in to the telemetry server <https://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
+* Create a new Message object by clicking the "+ Add" button
+* In the "Status" dropdown, select the "Staged" option
+* Set the link URL to ``https://learningequality.org/r/upgrade_kolibri``
+* In the "Version range" field, enter a valid semver range (e.g. >=0.12.0)
+* Generate and add a new internationalized ``i18n`` JSON blob using the ``nutritionfacts_i18n.py`` script as shown below:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py
+
+You can also specify specific string IDs for the ``title``, ``msg``, and ``link_text``, e.g.:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py --message UpdateNotification.upgradeMessage0124
+
+This will output a JSON blob like:
+
+.. code-block:: text
+
+  {
+    "ar": {
+      "link_text": "تعلم المزيد وقم بتحميله هنا",
+      "msg": "هناك إصدار جديد متاح من كوليبري.",
+      "title": "التحديث للنسخة الجديدة أصبح متاحاً"
+    },
+    "bg-bg": {
+      "link_text": "Научи повече и изтегли оттук",
+      "msg": "Налична е нова версия на Колибри.",
+      "title": "Има налични подобрения"
+    },
+    "bn-bd": {
+      "link_text": "আরও জানুন এবং সেটি এখানে ডাউনলোড করুন",
+      "msg": "কলিব্রির একটি নতুন সংস্করণ পাওয়া যাচ্ছে।",
+      "title": "আপগ্রেড উপলব্ধ"
+    },
+    "en": {
+      "link_text": "Learn more and download it here",
+      "msg": "A new version of Kolibri is available.",
+      "title": "Upgrade available"
+    },
+    "es-es": {
+      "link_text": "Descubre más y descarga aquí",
+      "msg": "Una nueva versión de Kolibri está disponible.",
+      "title": "Actualización disponible"
+    },
+    //...
+  }
+
+
+You can `redirect this output to a file <https://askubuntu.com/questions/420981/how-do-i-save-terminal-output-to-a-file>`_ (Bash) or `pipe it to the clipboard <https://stackoverflow.com/questions/1753110/>`_ (Mac)
+
+Set Kolibri's ``KOLIBRI_RUN_MODE`` to ``staged-msgs-ver-0.0.1`` to receive staged messages, as described in :ref:`EnvVars`. Test that all languages are displayed correctly.
+
+Next, emulate different versions and ensure that the semver conditional logic is being processed correctly. Set ``KOLIBRI_RUN_MODE`` to something like ``staged-msgs-ver-0.12.3`` to emulate version 0.12.3, for example. For more information, take a look at `the function for parsing these strings <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L129-L149>`_.
+
+Once testing has confirmed that the message works as expected, set the message to active to enable it.

@@ -180,15 +180,13 @@ logger = logging.getLogger(__name__)
 
 # : Inspired by how Django's Model Meta option settings work, we define a simple
 # : list of valid options for Meta classes.
-DEFAULT_NAMES = ('abstract', 'replace_parent')
+DEFAULT_NAMES = ("abstract", "replace_parent")
 
 
 def abstract_method(func):
     @functools.wraps(func)
     def inner(instance, *args, **kwargs):
-        assert \
-            instance._meta.abstract, \
-            "Method call only valid for an abstract hook"
+        assert instance._meta.abstract, "Method call only valid for an abstract hook"
         return func(instance, *args, **kwargs)
 
     return inner
@@ -197,9 +195,28 @@ def abstract_method(func):
 def registered_method(func):
     @functools.wraps(func)
     def inner(instance, *args, **kwargs):
-        assert \
-            not instance._meta.abstract, \
-            "Method call only valid for a registered, non-abstract hook"
+        assert (
+            not instance._meta.abstract
+        ), "Method call only valid for a registered, non-abstract hook"
+        return func(instance, *args, **kwargs)
+
+    return inner
+
+
+def only_one_registered(func):
+    """
+    Ensures that only one hook of this type is registered at a time
+    """
+
+    @functools.wraps(func)
+    def inner(instance, *args, **kwargs):
+        hooks = list(instance.registered_hooks)
+        if not hooks:
+            logger.error("Should have exactly one hook registered.")
+        if len(hooks) > 1:
+            logger.error("Too many hooks registered:")
+            for hook in hooks:
+                logger.error(hook)
         return func(instance, *args, **kwargs)
 
     return inner
@@ -224,7 +241,9 @@ class Options(object):
                 if attr_name in meta_attrs:
                     setattr(self, attr_name, meta_attrs.pop(attr_name))
 
-        assert not (self.abstract and self.replace_parent), "Cannot replace abstract hooks"
+        assert not (
+            self.abstract and self.replace_parent
+        ), "Cannot replace abstract hooks"
 
 
 class KolibriHookMeta(type):
@@ -260,16 +279,16 @@ class KolibriHookMeta(type):
         # ...and we just set some empty options
         if not parents:
             base_class = super_new(cls, name, bases, attrs)
-            base_class.add_to_class('_meta', Options(None))
-            base_class.add_to_class('_parents', [])
+            base_class.add_to_class("_meta", Options(None))
+            base_class.add_to_class("_parents", [])
             return base_class
 
         # Create the class.
-        module = attrs.pop('__module__')
-        new_class = super_new(cls, name, bases, {'__module__': module})
+        module = attrs.pop("__module__")
+        new_class = super_new(cls, name, bases, {"__module__": module})
 
-        attr_meta = attrs.pop('Meta', None)
-        abstract = getattr(attr_meta, 'abstract', False)
+        attr_meta = attrs.pop("Meta", None)
+        abstract = getattr(attr_meta, "abstract", False)
         # Commented out because it sets the meta properties of the parent
         # if not attr_meta:
         #     meta = getattr(new_class, 'Meta', None)
@@ -285,8 +304,8 @@ class KolibriHookMeta(type):
         for obj_name, obj in attrs.items():
             new_class.add_to_class(obj_name, obj)
 
-        new_class.add_to_class('_meta', Options(meta))
-        new_class.add_to_class('_parents', parents)
+        new_class.add_to_class("_meta", Options(meta))
+        new_class.add_to_class("_parents", parents)
 
         if not abstract:
             logger.debug("Registered hook class {}".format(new_class))

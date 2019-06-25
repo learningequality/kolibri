@@ -23,7 +23,7 @@ function getElements(wrapper) {
     channelListItems: () => wrapper.findAll({ name: 'ChannelListItem' }),
     emptyState: () => wrapper.find('.no-channels'),
     ProgressBar: () => wrapper.find({ name: 'KLinearLoader' }),
-    deleteChannelModal: () => wrapper.find({ name: 'KModal' }),
+    deleteChannelModal: () => wrapper.find({ name: 'DeleteChannelModal' }),
   };
 }
 

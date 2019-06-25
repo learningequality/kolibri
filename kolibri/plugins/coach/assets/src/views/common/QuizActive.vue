@@ -1,8 +1,12 @@
 <template>
 
   <span>
-    <KLabeledIcon :style="active ? {} : { color: $coreGrey300 }">
-      <KIcon slot="icon" dot :color="active ? $coreStatusCorrect : $coreGrey300" />
+    <KLabeledIcon :style="active ? {} : { color: $themeTokens.textDisabled }">
+      <KIcon
+        slot="icon"
+        dot
+        :color="active ? $themeTokens.success : $themeTokens.textDisabled"
+      />
       {{ label }}
     </KLabeledIcon>
   </span>
@@ -15,6 +19,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'QuizActive',
@@ -22,20 +27,18 @@
       KLabeledIcon,
       KIcon,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, coachStringsMixin],
     props: {
       active: {
         type: Boolean,
         required: true,
       },
     },
-    $trs: {
-      active: 'Active',
-      inactive: 'Inactive',
-    },
     computed: {
       label() {
-        return this.active ? this.$tr('active') : this.$tr('inactive');
+        return this.active
+          ? this.coachStrings.$tr('quizActiveLabel')
+          : this.coachStrings.$tr('quizInactiveLabel');
       },
     },
   };

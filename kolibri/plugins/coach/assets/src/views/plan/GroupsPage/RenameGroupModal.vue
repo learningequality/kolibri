@@ -7,7 +7,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="callRenameGroup"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"
@@ -33,14 +33,6 @@
 
   export default {
     name: 'RenameGroupModal',
-    $trs: {
-      renameLearnerGroup: 'Rename group',
-      learnerGroupName: 'Group name',
-      cancel: 'Cancel',
-      save: 'Save',
-      duplicateName: 'A group with that name already exists',
-      required: 'This field is required',
-    },
     components: {
       KModal,
       KTextbox,
@@ -100,7 +92,7 @@
       },
     },
     methods: {
-      ...mapActions('groups', ['renameGroup', 'displayModal']),
+      ...mapActions('groups', ['renameGroup']),
       callRenameGroup() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -113,9 +105,14 @@
           this.$refs.name.focus();
         }
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      renameLearnerGroup: 'Rename group',
+      learnerGroupName: 'Group name',
+      cancel: 'Cancel',
+      save: 'Save',
+      duplicateName: 'A group with that name already exists',
+      required: 'This field is required',
     },
   };
 

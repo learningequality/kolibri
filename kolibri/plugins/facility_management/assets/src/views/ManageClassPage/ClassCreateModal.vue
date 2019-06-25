@@ -6,8 +6,8 @@
     :submitText="$tr('saveClassButtonLabel')"
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
-    @cancel="close"
     @submit="createNewClass"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"
@@ -33,14 +33,6 @@
 
   export default {
     name: 'ClassCreateModal',
-    $trs: {
-      createNewClassHeader: 'Create new class',
-      classname: 'Class name',
-      cancel: 'Cancel',
-      saveClassButtonLabel: 'Save',
-      duplicateName: 'A class with that name already exists',
-      required: 'This field is required',
-    },
     components: {
       KModal,
       KTextbox,
@@ -88,7 +80,7 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['createClass', 'displayModal']),
+      ...mapActions('classManagement', ['createClass']),
       createNewClass() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -98,9 +90,14 @@
           this.$refs.name.focus();
         }
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      createNewClassHeader: 'Create new class',
+      classname: 'Class name',
+      cancel: 'Cancel',
+      saveClassButtonLabel: 'Save',
+      duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
   };
 

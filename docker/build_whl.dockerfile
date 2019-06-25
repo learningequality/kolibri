@@ -15,8 +15,8 @@ RUN apt-get update && \
       python-sphinx
 
 # add yarn ppa
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 # install nodejs and yarn
 RUN apt-get update && \
@@ -25,16 +25,28 @@ RUN apt-get update && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     apt-get install yarn
 
-RUN git lfs install
+RUN git lfs install &&\
+    mkdir kolibri &&\
+    mkdir yarn_cache
 
-COPY . /kolibri
+WORKDIR /kolibri
 
-VOLUME /kolibridist/  # for mounting the whl files into other docker containers
-
-CMD cd /kolibri && \
+# Python dependencies
+COPY requirements/ requirements/
+RUN echo '--- Installing Python dependencies' && \
     pip install -r requirements/dev.txt && \
-    pip install -r requirements/build.txt && \
-    yarn install && \
+    pip install -r requirements/build.txt
+
+# Set yarn cache folder for easy binding during runtime
+RUN yarn config set cache-folder /yarn_cache
+
+# Copy all files in this directory
+COPY . .
+
+CMD echo '--- Installing JS dependencies' && \
+    yarn install --pure-lockfile && \
+    echo `--- Making whl` && \
     make dist && \
+    echo `--- Making pex` && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/

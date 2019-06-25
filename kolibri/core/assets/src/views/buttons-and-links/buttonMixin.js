@@ -1,4 +1,5 @@
 import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+import merge from 'lodash/merge';
 import { FLAT_BUTTON, RAISED_BUTTON, BASIC_LINK, validator } from './appearances.js';
 
 const $primaryRaisedColor = 'white';
@@ -30,6 +31,13 @@ export default {
       validator,
     },
     /**
+     * Overrides that will modify the styles sent to `$computedClass` based on `appearance` prop
+     */
+    appearanceOverrides: {
+      type: Object,
+      default: () => ({}),
+    },
+    /**
      * For 'raised-button' and 'flat-button' appearances: show as primary or secondary style
      */
     primary: {
@@ -43,21 +51,21 @@ export default {
       const linkClass = 'link';
       const raisedClass = 'raised';
       if (this.appearance === BASIC_LINK) {
-        return [this.$computedClass(this.linkStyle), linkClass];
+        return [this.buttonComputedClass(this.linkStyle), linkClass];
       } else if (this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryRaisedStyle), raisedClass];
+        return [buttonClass, this.buttonComputedClass(this.primaryRaisedStyle), raisedClass];
       } else if (this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.primaryFlatStyle)];
+        return [buttonClass, this.buttonComputedClass(this.primaryFlatStyle)];
       } else if (!this.primary && this.appearance === RAISED_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryRaisedStyle), raisedClass];
+        return [buttonClass, this.buttonComputedClass(this.secondaryRaisedStyle), raisedClass];
       } else if (!this.primary && this.appearance === FLAT_BUTTON) {
-        return [buttonClass, this.$computedClass(this.secondaryFlatStyle)];
+        return [buttonClass, this.buttonComputedClass(this.secondaryFlatStyle)];
       }
     },
     linkStyle() {
       return {
-        color: this.$coreActionNormal,
-        ':hover': { color: this.$coreActionDark },
+        color: this.$themeTokens.primary,
+        ':hover': { color: this.$themeTokens.primaryDark },
         ':focus': this.$coreOutline,
         ':disabled': { opacity: 0.5 },
       };
@@ -65,8 +73,8 @@ export default {
     primaryRaisedStyle() {
       return {
         color: $primaryRaisedColor,
-        backgroundColor: this.$coreActionNormal,
-        ':hover': { backgroundColor: this.$coreActionDark },
+        backgroundColor: this.$themeTokens.primary,
+        ':hover': { backgroundColor: this.$themeTokens.primaryDark },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': Object.assign(
           {
@@ -84,43 +92,48 @@ export default {
     },
     primaryFlatStyle() {
       return {
-        color: this.$coreActionNormal,
+        color: this.$themeTokens.primary,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreActionNormal,
+          fill: this.$themeTokens.primary,
         },
       };
     },
     secondaryRaisedStyle() {
       return {
-        color: this.$coreTextDefault,
-        backgroundColor: this.$coreGrey200,
+        color: this.$themeTokens.text,
+        backgroundColor: this.$themeColors.palette.grey.v_200,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: '6px' },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
     },
     secondaryFlatStyle() {
       return {
-        color: this.$coreTextDefault,
+        color: this.$themeTokens.text,
         ':hover': {
-          backgroundColor: this.$coreGrey300,
+          backgroundColor: this.$themeColors.palette.grey.v_300,
         },
         ':focus': { ...this.$coreOutline, outlineOffset: 0 },
         ':disabled': disabledStyle,
         svg: {
-          fill: this.$coreTextDefault,
+          fill: this.$themeTokens.text,
         },
       };
+    },
+  },
+  methods: {
+    buttonComputedClass(styles) {
+      return this.$computedClass(merge({}, styles, this.appearanceOverrides));
     },
   },
 };

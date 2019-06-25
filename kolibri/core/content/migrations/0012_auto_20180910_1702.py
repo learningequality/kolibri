@@ -3,26 +3,47 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-
-from kolibri.core.content.utils.annotation import calculate_included_languages
-from kolibri.core.content.utils.annotation import calculate_published_size
-from kolibri.core.content.utils.annotation import calculate_total_resource_count
+from django.db.models import Sum
+from le_utils.constants import content_kinds
 
 
 def calculate_fields(apps, schema_editor):
-    ChannelMetadata = apps.get_model('content', 'ChannelMetadata')
+    ChannelMetadata = apps.get_model("content", "ChannelMetadata")
+    ContentNode = apps.get_model("content", "ContentNode")
+    LocalFile = apps.get_model("content", "LocalFile")
     for channel in ChannelMetadata.objects.all():
-        calculate_published_size(channel)
-        calculate_total_resource_count(channel)
-        calculate_included_languages(channel)
+        # Rather than heavily modifying the annotation functions to allow them to use
+        # the mid-migration models, just reimplement them here.
+        content_nodes = ContentNode.objects.filter(
+            channel_id=channel.id, available=True
+        )
+        # calculate_published_size migration
+        channel.published_size = (
+            LocalFile.objects.filter(files__contentnode__in=content_nodes)
+            .distinct()
+            .aggregate(Sum("file_size"))["file_size__sum"]
+            or 0
+        )
+        # calculate_total_resource_count
+        channel.total_resource_count = (
+            content_nodes.exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
+        )
+        # calculate_included_languages
+        languages = (
+            content_nodes.exclude(lang=None)
+            .order_by("lang")
+            .values_list("lang", flat=True)
+            .distinct()
+        )
+        channel.included_languages.add(*list(languages))
+        channel.save()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0011_auto_20180907_1017'),
-    ]
+    dependencies = [("content", "0011_auto_20180907_1017")]
 
-    operations = [
-        migrations.RunPython(calculate_fields, migrations.RunPython.noop),
-    ]
+    operations = [migrations.RunPython(calculate_fields, migrations.RunPython.noop)]

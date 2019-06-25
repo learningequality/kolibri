@@ -1,6 +1,5 @@
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
-import * as CoreMappers from 'kolibri.coreVue.vuex.mappers';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -165,6 +164,14 @@ export function handleError(store, errorString) {
   logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
   store.commit('CORE_SET_PAGE_LOADING', false);
+
+  // optionally log to sentry
+  if (global.sentryDSN) {
+    require.ensure(['@sentry/browser'], function(require) {
+      const Sentry = require('@sentry/browser');
+      Sentry.captureException(errorString);
+    });
+  }
 }
 
 export function clearError(store) {
@@ -200,9 +207,29 @@ export function blockDoubleClicks(store) {
 
 export function setSession(store, { session, clientNow }) {
   const serverTime = session.server_time;
-  setServerTime(serverTime, clientNow);
+  if (clientNow) {
+    setServerTime(serverTime, clientNow);
+  }
   session = pick(session, Object.keys(baseSessionState));
   store.commit('CORE_SET_SESSION', session);
+  // optionally set user context info
+  if (global.sentryDSN) {
+    // hack - delay this to give time for logging to be set up
+    setTimeout(() => {
+      require.ensure(['@sentry/browser'], function(require) {
+        const Sentry = require('@sentry/browser');
+        Sentry.configureScope(scope => {
+          scope.setUser({
+            id: session.user_id,
+            full_name: session.full_name,
+            username: session.username,
+            facility_id: session.facility_id,
+            type: JSON.stringify(session.kind),
+          });
+        });
+      });
+    }, 500);
+  }
 }
 
 /**
@@ -309,7 +336,7 @@ export function getFacilityConfig(store, facilityId) {
     let config = {};
     const facility = facilityConfig[0];
     if (facility) {
-      config = CoreMappers.convertKeysToCamelCase(facility);
+      config = { ...facility };
     }
     store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
@@ -814,8 +841,9 @@ export function updateMasteryAttemptState(
   });
 }
 
-export function createSnackbar(store, snackbarOptions) {
-  store.commit('CORE_CREATE_SNACKBAR', snackbarOptions);
+// Creates a snackbar that automatically dismisses and has no action buttons.
+export function createSnackbar(store, text) {
+  store.commit('CORE_CREATE_SNACKBAR', { text, autoDismiss: true });
 }
 
 export function clearSnackbar(store) {

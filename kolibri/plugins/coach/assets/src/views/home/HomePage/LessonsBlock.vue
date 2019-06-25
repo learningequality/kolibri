@@ -22,6 +22,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :hasAssignments="tableRow.hasAssignments"
         :to="classRoute('ReportsLessonLearnerListPage', { lessonId: tableRow.key })"
       />
     </BlockItem>
@@ -52,19 +53,17 @@
       BlockItem,
     },
     mixins: [commonCoach],
-    $trs: {
-      viewAll: 'All lessons',
-    },
     computed: {
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
-          const assigned = this.getLearnersForGroups(lesson.groups);
+          const assigned = this.getLearnersForLesson(lesson);
           return {
             key: lesson.id,
             name: lesson.title,
             tally: this.getLessonStatusTally(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
+            hasAssignments: assigned.length > 0,
           };
         });
       },
@@ -87,6 +86,9 @@
         });
         return last;
       },
+    },
+    $trs: {
+      viewAll: 'All lessons',
     },
   };
 

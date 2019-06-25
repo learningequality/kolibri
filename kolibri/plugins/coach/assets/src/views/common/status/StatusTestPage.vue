@@ -1,6 +1,6 @@
 <template>
 
-  <div class="overview">
+  <div class="overview" :style="{ backgroundColor: $themeTokens.surface }">
 
     <div class="moving">
       <ProgressSummaryBar
@@ -43,7 +43,9 @@
               <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
             </div>
           </td>
-          <td style="text-align: center">long</td>
+          <td style="text-align: center">
+            long
+          </td>
           <td>
             <StatusSummary :tally="tally" :verbose="true" :ratio="true" />
           </td>
@@ -52,7 +54,9 @@
           </td>
         </tr>
         <tr>
-          <td style="text-align: center">short</td>
+          <td style="text-align: center">
+            short
+          </td>
           <td>
             <StatusSummary :tally="tally" :verbose="false" :ratio="true" />
           </td>
@@ -69,6 +73,7 @@
 
 <script>
 
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
   import StatusSummary from '../../common/status/StatusSummary';
@@ -79,7 +84,7 @@
       StatusSummary,
       ProgressSummaryBar,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, themeMixin],
     data() {
       return {
         testSummaries: [
@@ -228,7 +233,6 @@
   .overview {
     padding: 30px;
     margin: 30px;
-    background-color: white;
   }
 
   .bar {
@@ -244,7 +248,8 @@
     padding-right: 8px;
     padding-left: 8px;
     font-weight: normal;
-    border: 1px solid #c8c8c8;
+    // TODO - refactor to use theme, probably $themeTokens.fineLine
+    border: 1px solid #dedede;
   }
 
   table table td,

@@ -1,11 +1,11 @@
 {
-  "DemoServerIndex.demoServerA1": "Soma maelezo yote",
-  "DemoServerIndex.demoServerA2": "Pakua na weka toleo la hivi karibuni",
-  "DemoServerIndex.demoServerHeader": "Karibu kwenye tovuti ya majaribio ya Kolibri!",
-  "DemoServerIndex.demoServerL1": "Mwanafunzi (username: '{user}', nenosiri: '{pass}') au ingia kama mgeni",
-  "DemoServerIndex.demoServerL2": "Kocha (username: '{user}', nenosiri: '{pass}')",
-  "DemoServerIndex.demoServerL3": "Msimamizi (username: '{user}', nenosiri: '{pass}')",
-  "DemoServerIndex.demoServerP1": "Unakaribishwa kuchunguza kwa kutumia aina yoyote ya watumiaji watatu:",
-  "DemoServerIndex.demoServerP2": "Tovuti hii ya jaribio ya mtandaoni inajumuisha miundo na vifaa vyake vya kazi za toleo la hivi karibuni, lakini inashikilia sampuli ya maudhui ambayo yanapatikana na kutumika kwenye Kolibri nje ya mtandao. Tovuti hii inatumika kwa maonyesho na data yoyote ya mtumiaji hapa inaweza kufutwa mara kwa mara.",
-  "DemoServerIndex.demoServerP3": "Ili kujifunza zaidi kuhusu matumizi ya Kolibri nje ya mtandao na kuelewa vizuri programu:"
+  "DemoServerBannerContent.demoServerA1": "Soma maelezo yote",
+  "DemoServerBannerContent.demoServerA2": "Pakua na weka toleo la hivi karibuni",
+  "DemoServerBannerContent.demoServerHeader": "Karibu kwenye tovuti ya jaribio la Kolibri",
+  "DemoServerBannerContent.demoServerL1": "Mwanafunzi ({user}/{pass} au pakia kama mgeni)",
+  "DemoServerBannerContent.demoServerL2": "Kocha ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "Mratibu ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Jaribu mojawapo ya aina tatu za watumizi:",
+  "DemoServerBannerContent.demoServerP2": "Tovuti hii ya Kolibri inanuiwa kwa madhumuni ya jaribio tu. Watumiaji na data zitafutwa kila mara. Jaribio hili linaonyesha sifa za toleo mpya la Kolibri, na rasilimali zote zinazopatikana \n ni sampuli.",
+  "DemoServerBannerContent.demoServerP3": "Ili kujifunza zaidi kuhusu matumizi ya Kolibri nje ya mtandao na kuelewa vizuri programu:"
 }

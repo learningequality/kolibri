@@ -16,7 +16,7 @@
         role="dialog"
         aria-labelledby="modal-title"
         :class="size"
-        :style="[ modalSizeStyles, { background: $coreBgLight } ]"
+        :style="[ modalSizeStyles, { background: $themeTokens.surface } ]"
       >
 
         <!-- Modal Title -->
@@ -45,8 +45,8 @@
             ref="content"
             class="content"
             :style="[ contentSectionMaxHeight, scrollShadow ? {
-              borderTop: `1px solid ${$coreGrey}`,
-              borderBottom: `1px solid ${$coreGrey}`,
+              borderTop: `1px solid ${$themeTokens.fineLine}`,
+              borderBottom: `1px solid ${$themeTokens.fineLine}`,
             } : {} ]"
             :class="{ 'scroll-shadow': scrollShadow }"
           >
@@ -93,9 +93,12 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import logger from 'kolibri.lib.logging';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import debounce from 'lodash/debounce';
   import KButton from 'kolibri.coreVue.components.KButton';
+
+  const logging = logger.getLogger(__filename);
 
   /**
    * Used to focus attention on a singular action/task
@@ -106,10 +109,6 @@
       KButton,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      // error alerts
-      errorAlert: 'Error in { title }',
-    },
     props: {
       /**
        * The title of the modal
@@ -192,6 +191,18 @@
       contentSectionMaxHeight() {
         return { 'max-height': `${this.maxContentHeight}px` };
       },
+    },
+    created() {
+      if (this.$props.cancelText && !this.$listeners.cancel) {
+        logging.warn(
+          'A "cancelText" has been set, but there is no "cancel" listener. The "cancel" button may not work correctly.'
+        );
+      }
+      if (this.$props.submitText && !this.$listeners.submit) {
+        logging.warn(
+          'A "submitText" has been set, but there is no "submit" listener. The "submit" button may not work correctly.'
+        );
+      }
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -276,6 +287,10 @@
       preventScroll(event) {
         event.preventDefault();
       },
+    },
+    $trs: {
+      // error alerts
+      errorAlert: 'Error in { title }',
     },
   };
 

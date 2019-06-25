@@ -3,8 +3,7 @@
   <KModal
     :title="$tr('welcomeModalHeader')"
     :submitText="$tr('welcomeButtonDismissText')"
-    @submit="emitCloseModal"
-    @cancel="emitCloseModal"
+    @submit="$emit('submit')"
   >
     <p class="welcome-modal-description">
       {{ $tr('welcomeModalContentDescription') }}
@@ -24,6 +23,10 @@
 
   export default {
     name: 'WelcomeModal',
+    components: {
+      KModal,
+    },
+    render: createElement => window.setTimeout(createElement, 750),
     $trs: {
       welcomeModalHeader: 'Welcome to Kolibri!',
       welcomeModalContentDescription:
@@ -32,15 +35,6 @@
         'The super admin account you created during setup has special permissions to do this. Learn more in the Permissions tab later.',
       welcomeButtonDismissText: 'OK',
     },
-    components: {
-      KModal,
-    },
-    methods: {
-      emitCloseModal() {
-        this.$emit('closeModal');
-      },
-    },
-    render: createElement => window.setTimeout(createElement, 750),
   };
 
 </script>

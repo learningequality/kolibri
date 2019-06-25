@@ -19,11 +19,12 @@ Feature: Learner engages content channels
     When I click the <content_item> content item
     Then I see the *Channels > '<channel>' > '<topic>' > '<subtopic>' > '<content_item>'* breadcrumb
       And I see the video start playing automatically
+      # bug in Firefox, issue reported
+      And I see the *Next resource* heading and content item under the player
     When video finishes
-    Then I see the *Next resource* heading and content item under the player
-      And I see the *Next* snackbar alert with the title of the next recommended content item
+    Then I see the *Next* snackbar alert with the title of the next recommended content item
       And I see the *+500 points* snackbar alert
-      And I see my points couter is inreased by 500 
+      And I see my points counter is increased by 500 
     When I click on the <topic> or <subtopic> parts of the breadcrumb above the player
     Then I can see the rest of the contents of the <channel>
     When I click on the *Channels* part of the breadcrumb above the player

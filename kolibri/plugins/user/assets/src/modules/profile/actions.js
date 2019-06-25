@@ -36,7 +36,7 @@ export function updateUserProfile(store, { edits, session }) {
     exists: true,
   }).then(
     () => {
-      store.commit('CORE_SET_SESSION', changedValues, { root: true });
+      store.dispatch('setSession', { session: changedValues }, { root: true });
       store.commit('SET_PROFILE_SUCCESS', true);
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_ERRORS', []);
@@ -67,14 +67,9 @@ export function updateUserProfilePassword(store, password) {
     () => {
       store.commit('SET_PROFILE_BUSY', false);
       store.commit('SET_PROFILE_PASSWORD_MODAL', false);
-      store.commit(
-        'CORE_CREATE_SNACKBAR',
-        {
-          text: snackbarTranslator.$tr('passwordChangeSuccessMessage'),
-          autoDismiss: true,
-        },
-        { root: true }
-      );
+      store.dispatch('createSnackbar', snackbarTranslator.$tr('passwordChangeSuccessMessage'), {
+        root: true,
+      });
     },
     () => {
       store.commit('SET_PROFILE_BUSY', false);

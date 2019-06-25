@@ -10,7 +10,7 @@ function makeWrapper() {
 describe('PersonalDataConsentForm', () => {
   it('the "View statement" opens the statement', () => {
     const { wrapper } = makeWrapper();
-    const modal = () => wrapper.find({ name: 'KModal' });
+    const modal = () => wrapper.find({ name: 'PrivacyInfoModal' });
     const button = wrapper.find({ name: 'KButton' });
     expect(modal().exists()).toEqual(false);
     button.vm.$emit('click');

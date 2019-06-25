@@ -9,8 +9,8 @@
       wrap="soft"
       aria-hidden="true"
       :style="[dynamicHeightStyle, {
-        backgroundColor: $coreBgError,
-        border: $coreGrey300,
+        backgroundColor: $themeColors.palette.grey.v_200,
+        border: $themeColors.palette.grey.v_300,
       }]"
     >
     </textarea>
@@ -32,18 +32,13 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import ClipboardJS from 'clipboard';
 
   export default {
     name: 'TechnicalTextBlock',
-    $trs: {
-      copyToClipboardButtonPrompt: 'Copy to clipboard',
-      copiedToClipboardConfirmation: 'Copied to clipboard',
-      downloadAsTextPrompt: 'Or download as a text file',
-    },
     components: {
       KButton,
     },
@@ -63,9 +58,6 @@
       },
     },
     computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
       clipboardCapable() {
         return ClipboardJS.isSupported();
       },
@@ -86,10 +78,7 @@
         });
 
         this.clipboard.on('success', () => {
-          this.createSnackbar({
-            text: this.$tr('copiedToClipboardConfirmation'),
-            autoDismiss: true,
-          });
+          this.createSnackbar(this.$tr('copiedToClipboardConfirmation'));
         });
       }
     },
@@ -100,6 +89,11 @@
     },
     methods: {
       ...mapActions(['createSnackbar']),
+    },
+    $trs: {
+      copyToClipboardButtonPrompt: 'Copy to clipboard',
+      copiedToClipboardConfirmation: 'Copied to clipboard',
+      downloadAsTextPrompt: 'Or download as a text file',
     },
   };
 

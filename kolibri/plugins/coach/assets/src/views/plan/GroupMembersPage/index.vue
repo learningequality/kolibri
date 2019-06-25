@@ -93,7 +93,7 @@
           :groupName="currentGroup.name"
           :username="userForRemoval.full_name"
           @cancel="userForRemoval = null"
-          @confirm="removeSelectedUserFromGroup"
+          @submit="removeSelectedUserFromGroup"
         />
       </div>
     </KPageContainer>
@@ -155,10 +155,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar({
-              text: this.coachStrings.$tr('updatedNotification'),
-              autoDismiss: true,
-            });
+            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
             this.userForRemoval = null;
           });
         }

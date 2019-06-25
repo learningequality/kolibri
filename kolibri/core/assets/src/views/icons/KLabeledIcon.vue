@@ -17,15 +17,6 @@
   export default {
     name: 'KLabeledIcon',
     components: {},
-    props: {
-      /**
-       * Whether the label should wrap
-       */
-      nowrap: {
-        type: Boolean,
-        default: false,
-      },
-    },
   };
 
 </script>

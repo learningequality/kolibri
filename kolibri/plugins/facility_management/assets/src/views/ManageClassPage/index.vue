@@ -18,7 +18,9 @@
     </KGrid>
 
     <CoreTable>
-      <caption class="visuallyhidden">{{ $tr('tableCaption') }}</caption>
+      <caption class="visuallyhidden">
+        {{ $tr('tableCaption') }}
+      </caption>
       <thead slot="thead">
         <tr>
           <th>{{ $tr('className') }}</th>
@@ -75,16 +77,20 @@
       </transition-group>
     </CoreTable>
 
-    <p v-if="noClassesExist">{{ $tr('noClassesExist') }}</p>
+    <p v-if="noClassesExist">
+      {{ $tr('noClassesExist') }}
+    </p>
 
     <ClassDeleteModal
       v-if="modalShown===Modals.DELETE_CLASS"
       :classid="currentClassDelete.id"
       :classname="currentClassDelete.name"
+      @cancel="closeModal"
     />
     <ClassCreateModal
       v-if="modalShown===Modals.CREATE_CLASS"
       :classes="sortedClassrooms"
+      @cancel="closeModal"
     />
 
   </div>
@@ -149,6 +155,9 @@
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
+      closeModal() {
+        this.displayModal(false);
+      },
       // Duplicated in class-list-page
       coachNames(classroom) {
         const { coaches } = classroom;

@@ -6,7 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="createNewUser"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <section>
       <KTextbox
@@ -88,30 +88,6 @@
 
   export default {
     name: 'UserCreateModal',
-    $trs: {
-      createNewUserHeader: 'Create new user',
-      cancel: 'Cancel',
-      name: 'Full name',
-      username: 'Username',
-      password: 'Password',
-      reEnterPassword: 'Re-enter password',
-      userType: 'User type',
-      saveUserButtonLabel: 'Save',
-      learner: 'Learner',
-      coach: 'Coach',
-      admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
-      classCoachLabel: 'Class coach',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
-      facilityCoachDescription: 'Can instruct all classes in your facility',
-      usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      pwMismatchError: 'Passwords do not match',
-      unknownError: 'Whoops, something went wrong. Try again',
-      loadingConfirmation: 'Loading...',
-      required: 'This field is required',
-    },
     components: {
       KRadioButton,
       KModal,
@@ -238,7 +214,7 @@
       },
     },
     methods: {
-      ...mapActions('userManagement', ['createUser', 'displayModal']),
+      ...mapActions('userManagement', ['createUser']),
       ...mapActions(['handleApiError']),
       createNewUser() {
         this.usernameAlreadyExistsOnServer = false;
@@ -255,7 +231,7 @@
             password: this.password,
           }).then(
             () => {
-              this.close();
+              this.$emit('cancel');
             },
             error => {
               const usernameAlreadyExistsError = CatchErrors(error, [
@@ -284,9 +260,30 @@
           this.$refs.confirmedPassword.focus();
         }
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      createNewUserHeader: 'Create new user',
+      cancel: 'Cancel',
+      name: 'Full name',
+      username: 'Username',
+      password: 'Password',
+      reEnterPassword: 'Re-enter password',
+      userType: 'User type',
+      saveUserButtonLabel: 'Save',
+      learner: 'Learner',
+      coach: 'Coach',
+      admin: 'Admin',
+      coachSelectorHeader: 'Coach type',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
+      usernameAlreadyExists: 'Username already exists',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      pwMismatchError: 'Passwords do not match',
+      unknownError: 'Whoops, something went wrong. Try again',
+      loadingConfirmation: 'Loading...',
+      required: 'This field is required',
     },
   };
 

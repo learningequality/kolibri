@@ -7,7 +7,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="updateName"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"
@@ -33,14 +33,6 @@
 
   export default {
     name: 'ClassRenameModal',
-    $trs: {
-      modalTitle: 'Rename class',
-      classname: 'Class name',
-      cancel: 'Cancel',
-      saveButtonLabel: 'Save',
-      duplicateName: 'A class with that name already exists',
-      required: 'This field is required',
-    },
     components: {
       KModal,
       KTextbox,
@@ -100,7 +92,7 @@
       },
     },
     methods: {
-      ...mapActions('classEditManagement', ['updateClass', 'displayModal']),
+      ...mapActions('classEditManagement', ['updateClass']),
       updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -110,9 +102,14 @@
           this.$refs.name.focus();
         }
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      modalTitle: 'Rename class',
+      classname: 'Class name',
+      cancel: 'Cancel',
+      saveButtonLabel: 'Save',
+      duplicateName: 'A class with that name already exists',
+      required: 'This field is required',
     },
   };
 

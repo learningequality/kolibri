@@ -12,8 +12,3 @@ Frontend architecture
   dependencies
   unit_testing
   frontend_build_pipeline
-
-
-apps
-shared
-all these contain

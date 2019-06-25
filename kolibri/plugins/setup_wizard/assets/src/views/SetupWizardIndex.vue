@@ -18,7 +18,7 @@
       <ProgressToolbar
         :currentStep="onboardingStep"
         :totalSteps="totalOnboardingSteps"
-        :style="{ backgroundColor: $coreActionNormal }"
+        :style="{ backgroundColor: $themeTokens.primary }"
         @backButtonClicked="goToPreviousStep"
       />
 
@@ -65,23 +65,17 @@
 
   export default {
     name: 'SetupWizardIndex',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
     components: {
       ProgressToolbar,
       LoadingPage,
       ErrorPage,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      onboardingNextStepButton: 'Continue',
-      onboardingFinishButton: 'Finish',
-      documentTitle: 'Setup Wizard',
-      personalFacilityName: 'Home Facility {name}',
-    },
-    metaInfo() {
-      return {
-        title: this.$tr('documentTitle'),
-      };
-    },
     data() {
       return {
         totalOnboardingSteps: 7,
@@ -133,6 +127,12 @@
           this.goToNextStep();
         }
       },
+    },
+    $trs: {
+      onboardingNextStepButton: 'Continue',
+      onboardingFinishButton: 'Finish',
+      documentTitle: 'Setup Wizard',
+      personalFacilityName: 'Home Facility {name}',
     },
   };
 

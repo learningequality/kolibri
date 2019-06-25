@@ -5,6 +5,7 @@
       v-if="$slots.header"
       ref="header"
       class="header"
+      :style="styles.header"
     >
       <slot name="header"></slot>
     </header>
@@ -12,8 +13,9 @@
     <div>
       <aside
         v-if="$slots.aside"
+        ref="aside"
         class="aside"
-        :style="{ maxHeight: `${maxHeight}px` }"
+        :style="styles.aside"
       >
         <slot name="aside"></slot>
       </aside>
@@ -22,7 +24,7 @@
         ref="main"
         class="main"
         :class="{'main-with-aside': $slots.aside }"
-        :style="{ maxHeight: $slots.aside ? `${maxHeight}px` : '' }"
+        :style="styles.main"
       >
         <slot name="main"></slot>
       </main>
@@ -32,6 +34,7 @@
       v-if="$slots.footer"
       ref="footer"
       class="footer"
+      :style="styles.footer"
     >
       <slot name="footer"></slot>
     </footer>
@@ -44,10 +47,11 @@
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
+  import themeMixin from '../mixins/theme';
 
   export default {
     name: 'MultiPaneLayout',
-    mixins: [responsiveWindow, responsiveElement],
+    mixins: [responsiveWindow, responsiveElement, themeMixin],
     computed: {
       maxHeight() {
         const APP_BAR_HEIGHT = this.windowIsSmall ? 56 : 64;
@@ -62,8 +66,27 @@
         }
         return maxHeight;
       },
+      styles() {
+        return {
+          header: {
+            borderBottomColor: this.$themeTokens.textDisabled,
+          },
+          aside: {
+            maxHeight: `${this.maxHeight}px`,
+          },
+          main: {
+            maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
+          },
+          footer: {
+            borderTopColor: this.$themeTokens.textDisabled,
+          },
+        };
+      },
     },
     methods: {
+      /**
+       * @public
+       */
       scrollMainToTop() {
         this.$refs.main.scrollTop = 0;
       },
@@ -76,7 +99,9 @@
 <style lang="scss" scoped>
 
   .header {
-    margin-bottom: 8px;
+    padding: 16px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
   }
 
   .aside,
@@ -86,18 +111,21 @@
 
   .aside {
     display: inline-block;
-    width: 25%;
-    margin-right: 8px;
+    width: 33%;
+    padding: 16px;
   }
 
   .main-with-aside {
     display: inline-block;
-    width: calc(75% - 8px);
+    width: 67%;
+    padding: 16px;
     vertical-align: top;
   }
 
   .footer {
-    margin-top: 8px;
+    padding: 16px;
+    border-top-style: solid;
+    border-top-width: 1px;
   }
 
 </style>

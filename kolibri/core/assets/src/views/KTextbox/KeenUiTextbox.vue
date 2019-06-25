@@ -12,7 +12,7 @@
   <div class="ui-textbox" :class="classes">
     <div v-if="icon || $slots.icon" class="ui-textbox-icon-wrapper">
       <slot name="icon">
-        <UiIcon :icon="icon" :style="isActive ? { color: $coreActionNormal } : {}" />
+        <UiIcon :icon="icon" :style="isActive ? { color: $themeTokens.primary } : {}" />
       </slot>
     </div>
 
@@ -22,7 +22,7 @@
           v-if="label || $slots.default"
           class="ui-textbox-label-text"
           :class="labelClasses"
-          :style="isActive ? { color: $coreActionNormal } : {}"
+          :style="isActive ? { color: $themeTokens.primary } : {}"
         >
           <slot>{{ label }}</slot>
         </div>
@@ -44,7 +44,7 @@
           :readonly="readonly"
           :required="required"
           :step="stepValue"
-          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
+          :style="isActive ? { borderBottomColor: $themeTokens.primary } : {}"
 
           :type="type"
           :value="value"
@@ -61,8 +61,8 @@
           v-else
           ref="textarea"
 
-          v-model="value"
           v-autofocus="autofocus"
+          :value="value"
           class="ui-textbox-textarea"
           :autocomplete="autocomplete ? autocomplete : null"
           :disabled="disabled"
@@ -74,7 +74,7 @@
 
           :required="required"
           :rows="rows"
-          :style="isActive ? { borderBottomColor: $coreActionNormal } : {}"
+          :style="isActive ? { borderBottomColor: $themeTokens.primary } : {}"
           @blur="onBlur"
           @change="onChange"
           @focus="onFocus"
@@ -87,11 +87,15 @@
 
       <div v-if="hasFeedback || maxlength" class="ui-textbox-feedback">
         <div v-if="showError" class="ui-textbox-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-textbox-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
 
         <div v-if="maxlength" class="ui-textbox-counter">
@@ -199,10 +203,6 @@
         initialValue: this.value,
         autosizeInitialized: false,
       };
-    },
-
-    $trs: {
-      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
     },
 
     computed: {
@@ -329,6 +329,9 @@
         this.$emit('keydown-enter', e);
       },
 
+      /**
+       * @public
+       */
       reset() {
         // Blur the input if it's focused to prevent required errors
         // when it's value is reset
@@ -347,11 +350,18 @@
         this.isTouched = options.touched;
       },
 
+      /**
+       * @public
+       */
       refreshSize() {
         if (this.autosizeInitialized) {
           autosize.update(this.$refs.textarea);
         }
       },
+    },
+
+    $trs: {
+      maxLengthCounter: '{current, number, integer}/{max, number, integer}',
     },
   };
 

@@ -23,20 +23,6 @@ PERSEUS_LOCALE_PATH = os.path.join(
 )
 PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
 
-PERSEUS_NOT_FOUND = """Cannot find Perseus locale directory.
-Please ensure that you've installed the Perseus plugin in development mode using
-
-    pip install -e [local_path_to_perseus_repo]
-
-Also, please ensure that Perseus has been checked out the the correct commit.
-"""
-
-
-if not (os.path.exists(PERSEUS_LOCALE_PATH)):
-    logging.error(PERSEUS_NOT_FOUND)
-    sys.exit(1)
-
-
 # Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"

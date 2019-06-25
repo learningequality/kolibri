@@ -33,7 +33,9 @@
 
         <div
           class="ui-select-option-image-text"
-        >{{ option[keys.label] }}</div>
+        >
+          {{ option[keys.label] }}
+        </div>
       </div>
     </slot>
   </li>
@@ -101,9 +103,11 @@
       selectedStyle() {
         if (this.selected) {
           return {
-            color: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
           };
         }
+
+        return {};
       },
     },
   };

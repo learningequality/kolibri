@@ -3,18 +3,19 @@
   <div
     class="wrapper"
     :class="wrapperClass"
-    :style="{ backgroundColor: $coreActionNormal }"
+    :style="{ backgroundColor: $themeTokens.primary }"
   >
     <nav>
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        aria-hidden="true"
         @click="handleClickPrevious"
       >
         <mat-svg
           name="keyboard_arrow_left"
           category="hardware"
-          class="scroll-button-icon"
+          :style="{ fill: $themeTokens.textInverted }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -22,6 +23,7 @@
       <ul
         ref="navbarUl"
         class="items"
+        tabindex="-1"
         :style="{ maxWidth: `${ maxWidth }px` }"
       >
         <!-- Contains KNavbarLink components -->
@@ -31,13 +33,14 @@
       <button
         v-show="!enoughSpace"
         class="scroll-button"
+        aria-hidden="true"
         :class="$computedClass(scrollButton)"
         @click="handleClickNext"
       >
         <mat-svg
           name="keyboard_arrow_right"
           category="hardware"
-          class="scroll-button-icon"
+          :style="{ fill: $themeTokens.textInverted }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -72,6 +75,8 @@
         if (!this.enoughSpace) {
           return ['wrapper-narrow'];
         }
+
+        return [];
       },
       scrollButton() {
         return {
@@ -140,10 +145,6 @@
     width: 36px;
     height: 36px;
     vertical-align: middle;
-  }
-
-  .scroll-button-icon {
-    fill: white;
   }
 
 </style>

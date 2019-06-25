@@ -56,7 +56,7 @@
             :class="{ 'is-placeholder': !hasDisplayText }"
           >
             {{ hasDisplayText ? displayText : (
-            hasFloatingLabel && isLabelInline) ? null : placeholder }}
+              hasFloatingLabel && isLabelInline) ? null : placeholder }}
           </div>
 
           <UiIcon class="ui-select-dropdown-button">
@@ -69,8 +69,7 @@
             v-show="showDropdown"
             ref="dropdown"
             class="ui-select-dropdown"
-            :style="{ color: $coreActionNormal }"
-
+            :style="{ color: $themeTokens.primary, backgroundColor: $themeTokens.surface }"
             tabindex="-1"
             @keydown.enter.prevent.stop="selectHighlighted"
             @keydown.space.prevent.stop="selectHighlighted"
@@ -119,7 +118,11 @@
               />
             </div>
 
-            <ul ref="optionsList" class="ui-select-options">
+            <ul
+              ref="optionsList"
+              class="ui-select-options"
+              :style="{ backgroundColor: $themeTokens.surface }"
+            >
               <KeenUiSelectOption
                 v-for="(option, index) in filteredOptions"
                 ref="options"
@@ -146,7 +149,9 @@
               </KeenUiSelectOption>
 
               <div v-show="hasNoResults" class="ui-select-no-results">
-                <slot name="no-results">No results found</slot>
+                <slot name="no-results">
+                  No results found
+                </slot>
               </div>
             </ul>
           </div>
@@ -155,11 +160,15 @@
 
       <div v-if="hasFeedback" class="ui-select-feedback">
         <div v-if="showError" class="ui-select-feedback-text">
-          <slot name="error">{{ error }}</slot>
+          <slot name="error">
+            {{ error }}
+          </slot>
         </div>
 
         <div v-else-if="showHelp" class="ui-select-feedback-text">
-          <slot name="help">{{ help }}</slot>
+          <slot name="help">
+            {{ help }}
+          </slot>
         </div>
       </div>
     </div>
@@ -383,14 +392,6 @@
         return this.options.findIndex(option => looseEqual(this.highlightedOption, option));
       },
 
-      // Returns the index of the currently selected option, -1 if multi-select
-      selectedIndex() {
-        if (this.multiple) {
-          return -1;
-        }
-        return this.options.findIndex(option => looseEqual(this.value, option));
-      },
-
       // Returns an array containing the options and extra annotations
       annotatedOptions() {
         const options = JSON.parse(JSON.stringify(this.options));
@@ -427,16 +428,20 @@
       activeColorStyle() {
         if (this.isActive) {
           return {
-            color: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
           };
         }
+
+        return {};
       },
       activeBorderStyle() {
         if (this.isActive) {
           return {
-            borderBottomColor: this.$coreActionNormal,
+            borderBottomColor: this.$themeTokens.primary,
           };
         }
+
+        return {};
       },
     },
 
@@ -769,6 +774,9 @@
         });
       },
 
+      /**
+       * @public
+       */
       reset() {
         this.setValue(JSON.parse(this.initialValue));
         this.clearQuery();
@@ -954,7 +962,10 @@
   }
 
   .ui-select-display-value {
+    position: relative;
+    top: 2px;
     flex-grow: 1;
+    height: 22px; // height and top help prevent descender clipping
     overflow: hidden;
     text-overflow: ellipsis;
 
@@ -983,7 +994,6 @@
     margin: 0;
     margin-bottom: rem-calc(8px);
     list-style-type: none;
-    background-color: white;
     outline: none;
     box-shadow: 1px 2px 8px $md-grey-600;
   }
@@ -1044,7 +1054,6 @@
     overflow-y: auto;
     color: $primary-text-color;
     list-style-type: none;
-    background-color: white;
   }
 
   .ui-select-no-results {

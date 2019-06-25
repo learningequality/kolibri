@@ -9,13 +9,12 @@
     <template v-else>
       <TaskProgress
         v-if="showUpdateProgressBar"
-        id="updatingchannel"
         type="UPDATING_CHANNEL"
         status="QUEUED"
         :percentage="0"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="cancelUpdateChannel()"
+        @canceltask="cancelUpdateChannel()"
       />
       <TaskProgress
         v-else-if="metadataDownloadTask"
@@ -23,7 +22,7 @@
         v-bind="metadataDownloadTask"
         :showButtons="true"
         :cancellable="true"
-        @cleartask="returnToChannelsList()"
+        @canceltask="returnToChannelsList()"
       />
 
       <template v-if="mainAreaIsVisible">
@@ -89,6 +88,7 @@
         <ContentTreeViewer
           class="block-item"
           :class="{ small : windowIsSmall }"
+          :style="{ borderBottomColor: $themeTokens.fineLine }"
         />
       </template>
     </template>
@@ -100,9 +100,9 @@
 <script>
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { TaskResource } from 'kolibri.resources';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -131,7 +131,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     data() {
       return {
         showUpdateProgressBar: false,
@@ -144,8 +144,8 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
       ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent/wizard', ['nodeTransferCounts']),
       ...mapState('manageContent/wizard', [
         'availableSpace',
         'currentTopicNode',
@@ -185,6 +185,8 @@
         if (Object.values(ContentWizardErrors).includes(this.status)) {
           return this.status;
         }
+
+        return undefined;
       },
       channelOnDevice() {
         return this.channelIsInstalled(this.transferredChannel.id) || {};
@@ -230,6 +232,7 @@
         setAppBarTitle: 'SET_APP_BAR_TITLE',
       }),
       ...mapActions('manageContent/wizard', ['transferChannelContent']),
+      ...mapActions('manageContent', ['cancelTask']),
       downloadChannelMetadata,
       cancelUpdateChannel() {
         this.showUpdateProgressBar = false;
@@ -237,7 +240,7 @@
       },
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
-          return TaskResource.cancelTask(this.metadataDownloadTaskId);
+          return this.cancelTask(this.metadataDownloadTaskId);
         }
         return Promise.resolve();
       },
@@ -256,16 +259,12 @@
       },
       startContentTransfer() {
         this.contentTransferError = false;
-        return this.transferChannelContent()
-          .then(() => {
-            this.returnToChannelsList();
-          })
-          .catch(() => {
-            this.contentTransferError = true;
-          });
+        return this.transferChannelContent(this.returnToChannelsList).catch(() => {
+          this.contentTransferError = true;
+        });
       },
       refreshPage() {
-        this.$router.go(this.$router.currentRoute);
+        this.$router.go();
       },
       returnToChannelsList() {
         this.$router.push(manageContentPageLink());
@@ -305,7 +304,8 @@
     margin-top: 24px;
     margin-right: -24px;
     margin-left: -24px;
-    border-top: 1px solid #dedede;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
   }
 
   .small .block-item {

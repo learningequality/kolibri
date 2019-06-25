@@ -6,18 +6,10 @@ import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
 
-function _setIncludedFieldsByRole(store) {
-  if (store.getters.isCoach || store.getters.isAdmin) {
-    return ['num_coach_contents'];
-  }
-  return [];
-}
-
 // User-agnostic recommendations
 function _getPopular(store) {
   return ContentNodeSlimResource.fetchPopular({
-    by_role: true,
-    include_fields: _setIncludedFieldsByRole(store),
+    user_kind: store.getters.getUserKind,
   });
 }
 
@@ -25,8 +17,7 @@ function _getPopular(store) {
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchNextSteps({
-      by_role: true,
-      include_fields: _setIncludedFieldsByRole(store),
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);
@@ -35,8 +26,7 @@ function _getNextSteps(store) {
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
     return ContentNodeSlimResource.fetchResume({
-      by_role: true,
-      include_fields: _setIncludedFieldsByRole(store),
+      user_kind: store.getters.getUserKind,
     });
   }
   return Promise.resolve([]);
@@ -56,19 +46,8 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   ]).then(([content, channels]) => [_mapContentSet(content), channels]);
 
   pagePrep.then(
-    ([recommendations, channels]) => {
-      if (!channels.length) {
-        return;
-      }
-      const recommendedState = {
-        recommendations,
-      };
-      if (channelId) {
-        const currentChannel = store.getters.getChannelObject(channelId);
-        const channelTitle = currentChannel.title;
-        recommendedState.channelTitle = channelTitle;
-      }
-      store.commit('recommended/subpage/SET_STATE', recommendedState);
+    ([recommendations]) => {
+      store.commit('recommended/subpage/SET_STATE', { recommendations });
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);

@@ -45,6 +45,7 @@
             <td>
               <Recipients
                 :groupNames="tableRow.groupNames"
+                :hasAssignments="tableRow.hasAssignments"
               />
             </td>
             <td><LessonActive :active="tableRow.active" /></td>
@@ -88,6 +89,8 @@
         if (this.filter.value === 'inactiveLessons') {
           return LessonsRootPageStrings.$tr('noInactiveLessons');
         }
+
+        return '';
       },
       filterOptions() {
         return [
@@ -116,17 +119,17 @@
           }
         });
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(lesson => {
-          const learners = this.getLearnersForGroups(lesson.groups);
+        return sorted.map(lesson => {
+          const learners = this.getLearnersForLesson(lesson);
           const tableRow = {
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
+            hasAssignments: learners.length > 0,
           };
           Object.assign(tableRow, lesson);
           return tableRow;
         });
-        return mapped;
       },
     },
     beforeMount() {

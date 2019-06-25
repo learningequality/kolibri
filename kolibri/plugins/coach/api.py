@@ -2,6 +2,7 @@ import datetime
 
 from django.db.models import Count
 from django.db.models import F
+from django.db.models import Q
 from django.db.models import Sum
 from rest_framework import pagination
 from rest_framework import permissions
@@ -25,7 +26,9 @@ from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 
-collection_kind_choices = tuple([choice[0] for choice in collection_kinds.choices] + ['user'])
+collection_kind_choices = tuple(
+    [choice[0] for choice in collection_kinds.choices] + ["user"]
+)
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -34,6 +37,7 @@ class OptionalPageNumberPagination(pagination.PageNumberPagination):
     To activate, the `page_size` argument must be set. For example, to request the first 20 records:
     `?page_size=20&page=1`
     """
+
     page_size = None
     page_size_query_param = "page_size"
 
@@ -45,7 +49,7 @@ class LessonReportPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        report_pk = view.kwargs.get('pk', None)
+        report_pk = view.kwargs.get("pk", None)
         if report_pk is None:
             collection_id = request.user.facility_id
         else:
@@ -54,13 +58,15 @@ class LessonReportPermissions(permissions.BasePermission):
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
         try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+            return request.user.has_role_for(
+                allowed_roles, Collection.objects.get(pk=collection_id)
+            )
         except (Collection.DoesNotExist, ValueError):
             return False
 
 
 class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, LessonReportPermissions,)
+    permission_classes = (permissions.IsAuthenticated, LessonReportPermissions)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()
 
@@ -71,12 +77,14 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        collection_id = view.kwargs.get('collection_id')
+        collection_id = view.kwargs.get("collection_id")
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
         try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+            return request.user.has_role_for(
+                allowed_roles, Collection.objects.get(pk=collection_id)
+            )
         except (Collection.DoesNotExist, ValueError):
             return False
 
@@ -93,7 +101,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         """
         Check if after parameter must be used for the query
         """
-        notifications_after = self.request.query_params.get('after', None)
+        notifications_after = self.request.query_params.get("after", None)
         after = None
         if notifications_after:
             try:
@@ -106,7 +114,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         """
         Filter the notifications by learner_id if applicable
         """
-        learner_id = self.request.query_params.get('learner_id', None)
+        learner_id = self.request.query_params.get("learner_id", None)
         if learner_id:
             return query.filter(user_id=learner_id)
         return query
@@ -115,7 +123,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         """
         This is a hack because DRF sets pagination always if pagination_class.page_size is set
         """
-        if self.request.query_params.get('page', None) is None:
+        if self.request.query_params.get("page", None) is None:
             self.paginator.page_size = None
 
     def get_queryset(self):
@@ -137,7 +145,7 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
         :param: page integer: sets the page to provide when paginating.
         """
-        collection_id = self.kwargs['collection_id']
+        collection_id = self.kwargs["collection_id"]
 
         if collection_id:
             try:
@@ -148,24 +156,30 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             classroom_groups = LearnerGroup.objects.filter(parent=collection)
             learner_groups = [group.id for group in classroom_groups]
             learner_groups.append(collection_id)
-            notifications_query = LearnerProgressNotification.objects.filter(classroom_id__in=learner_groups)
+            notifications_query = LearnerProgressNotification.objects.filter(
+                classroom_id__in=learner_groups
+            )
         else:
-            notifications_query = LearnerProgressNotification.objects.filter(classroom_id=collection_id)
+            notifications_query = LearnerProgressNotification.objects.filter(
+                classroom_id=collection_id
+            )
         notifications_query = self.apply_learner_filter(notifications_query)
         after = self.check_after()
         self.remove_default_page_size()
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
-        elif self.request.query_params.get('page', None) is None:
+        elif self.request.query_params.get("page", None) is None:
             try:
-                last_id_record = notifications_query.latest('id')
+                last_id_record = notifications_query.latest("id")
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_id_record.timestamp - datetime.timedelta(days=1)
-                notifications_query = notifications_query.filter(timestamp__gte=last_24h)
+                notifications_query = notifications_query.filter(
+                    timestamp__gte=last_24h
+                )
             except (LearnerProgressNotification.DoesNotExist):
                 return []
 
-        return notifications_query.order_by('-id')
+        return notifications_query.order_by("-id")
 
     def list(self, request, *args, **kwargs):
         """
@@ -174,12 +188,17 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         are requesting notifications in the last five minutes
         """
         # Use super on the parent class to prevent an infinite recursion.
-        response = super(viewsets.ReadOnlyModelViewSet, self).list(request, *args, **kwargs)
+        response = super(viewsets.ReadOnlyModelViewSet, self).list(
+            request, *args, **kwargs
+        )
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
         logged_notifications = (
-            NotificationsLog.objects.filter(timestamp__gte=logging_interval).values('coach_id').distinct().count()
+            NotificationsLog.objects.filter(timestamp__gte=logging_interval)
+            .values("coach_id")
+            .distinct()
+            .count()
         )
         # if there are more than 10 notifications we limit the answer to 10
         if logged_notifications < 10:
@@ -187,10 +206,13 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             notification_info.coach_id = request.user.id
             notification_info.save()
             NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
-        if 'results' not in response.data:
-            response.data = {'results': response.data, 'coaches_polling': logged_notifications}
+        if "results" not in response.data:
+            response.data = {
+                "results": response.data,
+                "coaches_polling": logged_notifications,
+            }
         else:
-            response.data['coaches_polling'] = logged_notifications
+            response.data["coaches_polling"] = logged_notifications
         return response
 
 
@@ -198,20 +220,27 @@ class ExerciseDifficultiesPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        classroom_id = request.GET.get('classroom_id', None)
-        group_id = request.GET.get('group_id', None)
+        classroom_id = request.GET.get("classroom_id", None)
+        group_id = request.GET.get("group_id", None)
         collection_id = group_id or classroom_id
-        lesson_id = request.GET.get('lesson_id', None)
+        lesson_id = request.GET.get("lesson_id", None)
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
         if lesson_id:
             try:
                 lesson = Lesson.objects.get(id=lesson_id)
                 classroom = lesson.collection
                 return request.user.has_role_for(allowed_roles, classroom)
-            except (FacilityUser.DoesNotExist, Collection.DoesNotExist, Lesson.DoesNotExist, ValueError):
+            except (
+                FacilityUser.DoesNotExist,
+                Collection.DoesNotExist,
+                Lesson.DoesNotExist,
+                ValueError,
+            ):
                 return False
         try:
-            return request.user.has_role_for(allowed_roles, Collection.objects.get(pk=collection_id))
+            return request.user.has_role_for(
+                allowed_roles, Collection.objects.get(pk=collection_id)
+            )
         except (FacilityUser.DoesNotExist, Collection.DoesNotExist, ValueError):
             return False
 
@@ -224,21 +253,26 @@ class BaseExerciseDifficultQuestionsViewset(viewsets.ViewSet):
 
 
 class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
-    permission_classes = (permissions.IsAuthenticated, ExerciseDifficultiesPermissions,)
+    permission_classes = (permissions.IsAuthenticated, ExerciseDifficultiesPermissions)
 
     def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular exercise.
         pk maps to the content_id of the exercise in question.
         """
-        classroom_id = request.GET.get('classroom_id', None)
-        group_id = request.GET.get('group_id', None)
-        lesson_id = request.GET.get('lesson_id', None)
+        classroom_id = request.GET.get("classroom_id", None)
+        group_id = request.GET.get("group_id", None)
+        lesson_id = request.GET.get("lesson_id", None)
         queryset = AttemptLog.objects.filter(masterylog__summarylog__content_id=pk)
         if lesson_id is not None:
-            collection_ids = Lesson.objects.get(id=lesson_id).lesson_assignments.values_list('collection_id', flat=True)
+            collection_ids = Lesson.objects.get(
+                id=lesson_id
+            ).lesson_assignments.values_list("collection_id", flat=True)
             if group_id is not None:
-                if group_id not in collection_ids and classroom_id not in collection_ids:
+                if (
+                    group_id not in collection_ids
+                    and classroom_id not in collection_ids
+                ):
                     # In the special case that the group is not in the lesson assignments
                     # nor the containing classroom, just return an empty queryset.
                     queryset = AttemptLog.objects.none()
@@ -249,19 +283,23 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
                 # Set starting queryset to null, then OR.
                 queryset = AttemptLog.objects.none()
                 for collection_id in collection_ids:
-                    queryset |= HierarchyRelationsFilter(base_queryset).filter_by_hierarchy(
-                        ancestor_collection=collection_id,
-                        target_user=F("user"),
+                    queryset |= HierarchyRelationsFilter(
+                        base_queryset
+                    ).filter_by_hierarchy(
+                        ancestor_collection=collection_id, target_user=F("user")
                     )
                 queryset = queryset.distinct()
         if group_id is not None:
             collection_id = group_id or classroom_id
             queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-                ancestor_collection=collection_id,
-                target_user=F("user"),
+                ancestor_collection=collection_id, target_user=F("user")
             )
 
-        data = queryset.values('item').annotate(total=Count('correct')).annotate(correct=Sum('correct'))
+        data = (
+            queryset.values("item")
+            .annotate(total=Count("correct"))
+            .annotate(correct=Sum("correct"))
+        )
         return Response(data)
 
 
@@ -269,7 +307,7 @@ class QuizDifficultiesPermissions(permissions.BasePermission):
 
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
-        exam_id = view.kwargs.get('pk', None)
+        exam_id = view.kwargs.get("pk", None)
         if exam_id is None:
             return False
         try:
@@ -284,31 +322,43 @@ class QuizDifficultiesPermissions(permissions.BasePermission):
 
 
 class QuizDifficultQuestionsViewset(viewsets.ViewSet):
-    permission_classes = (permissions.IsAuthenticated, QuizDifficultiesPermissions,)
+    permission_classes = (permissions.IsAuthenticated, QuizDifficultiesPermissions)
 
     def retrieve(self, request, pk):
         """
         Get the difficult questions for a particular quiz.
         """
-        group_id = request.GET.get('group_id', None)
-        queryset = ExamAttemptLog.objects.filter(examlog__exam=pk)
+        group_id = request.GET.get("group_id", None)
+        # Only return logs when the learner has submitted the Quiz OR
+        # the coach has deactivated the Quiz. Do not return logs when Quiz is still
+        # in-progress.
+        queryset = ExamAttemptLog.objects.filter(
+            Q(examlog__closed=True) | Q(examlog__exam__active=False), examlog__exam=pk
+        )
         if group_id is not None:
             queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-                ancestor_collection=group_id,
-                target_user=F("user"),
+                ancestor_collection=group_id, target_user=F("user")
             )
             collection_id = group_id
         else:
             collection_id = Exam.objects.get(pk=pk).collection_id
-        data = queryset.values('item', 'content_id').annotate(correct=Sum('correct'))
+        data = queryset.values("item", "content_id").annotate(correct=Sum("correct"))
 
         # Instead of inferring the totals from the number of logs, use the total
-        # number of people who took the exam as our guide, as people who started the exam
+        # number of people who submitted (if quiz is active) or started the exam
+        # (if quiz is inactive) as our guide, as people who started the exam
         # but did not attempt the question are still important.
-        total = HierarchyRelationsFilter(ExamLog.objects.filter(exam_id=pk)).filter_by_hierarchy(
-            ancestor_collection=collection_id,
-            target_user=F("user"),
-        ).count()
+        total = (
+            HierarchyRelationsFilter(
+                ExamLog.objects.filter(
+                    Q(closed=True) | Q(exam__active=False), exam_id=pk
+                )
+            )
+            .filter_by_hierarchy(
+                ancestor_collection=collection_id, target_user=F("user")
+            )
+            .count()
+        )
         for datum in data:
-            datum['total'] = total
+            datum["total"] = total
         return Response(data)

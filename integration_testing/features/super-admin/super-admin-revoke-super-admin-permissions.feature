@@ -1,7 +1,7 @@
-Feature: Super admin removes all device permissions from another Super admin
+Feature: Super admin removes all device permissions from another super admin
 
   Background:
-    Given I am signed in to Kolibri as a Super admin
+    Given I am signed in to Kolibri as a super admin
       And I am on the *Device > Permissions* page
       And there is a <username> super admin user on the device
 

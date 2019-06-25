@@ -3,7 +3,6 @@
   <UiIconButton
     class="previous-button"
     :class="{'previous-button-white': color === 'white'}"
-    type="secondary"
     :ariaLabel="$tr('goToPreviousPage')"
     @click="$emit('goToPreviousPage')"
   >
@@ -28,13 +27,11 @@
 
   export default {
     name: 'PreviousButton',
-    $trs: {
-      goToPreviousPage: 'Go to previous page',
-    },
     components: {
       UiIconButton,
     },
     props: {
+      // TODO - refactor to use themes properly
       color: {
         type: String,
         required: true,
@@ -46,6 +43,9 @@
         type: Boolean,
         required: true,
       },
+    },
+    $trs: {
+      goToPreviousPage: 'Go to previous page',
     },
   };
 

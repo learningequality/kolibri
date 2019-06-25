@@ -15,11 +15,11 @@ from django.db.models import Q
 from django.db.models.query import F
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
-from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -47,7 +47,6 @@ from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
-from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -61,7 +60,9 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        if request.method == "GET" and request.resolver_match.url_name.endswith("-list"):
+        if request.method == "GET" and request.resolver_match.url_name.endswith(
+            "-list"
+        ):
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
         else:
@@ -81,9 +82,12 @@ class KolibriAuthPermissions(permissions.BasePermission):
     A Django REST Framework permissions class that defers to Kolibri's permissions
     system to determine object-level permissions.
     """
+
     def validator(self, request, view, datum):
         model = view.get_serializer_class().Meta.model
-        validated_data = view.get_serializer().to_internal_value(_ensure_raw_dict(datum))
+        validated_data = view.get_serializer().to_internal_value(
+            _ensure_raw_dict(datum)
+        )
         return request.user.can_create(model, validated_data)
 
     def has_permission(self, request, view):
@@ -118,8 +122,10 @@ class FacilityDatasetViewSet(viewsets.ModelViewSet):
     serializer_class = FacilityDatasetSerializer
 
     def get_queryset(self):
-        queryset = FacilityDataset.objects.filter(collection__kind=collection_kinds.FACILITY)
-        facility_id = self.request.query_params.get('facility_id', None)
+        queryset = FacilityDataset.objects.filter(
+            collection__kind=collection_kinds.FACILITY
+        )
+        facility_id = self.request.query_params.get("facility_id", None)
         if facility_id is not None:
             queryset = queryset.filter(collection__id=facility_id)
         return queryset
@@ -127,17 +133,18 @@ class FacilityDatasetViewSet(viewsets.ModelViewSet):
 
 class FacilityUserFilter(FilterSet):
 
-    member_of = ModelChoiceFilter(method="filter_member_of", queryset=Collection.objects.all())
+    member_of = ModelChoiceFilter(
+        method="filter_member_of", queryset=Collection.objects.all()
+    )
 
     def filter_member_of(self, queryset, name, value):
         return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            target_user=F("id"),
-            ancestor_collection=value,
+            target_user=F("id"), ancestor_collection=value
         )
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of", ]
+        fields = ["member_of"]
 
 
 class FacilityUserViewSet(viewsets.ModelViewSet):
@@ -149,8 +156,8 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
 
     def set_password_if_needed(self, instance, serializer):
         with transaction.atomic():
-            if serializer.validated_data.get('password', ''):
-                instance.set_password(serializer.validated_data['password'])
+            if serializer.validated_data.get("password", ""):
+                instance.set_password(serializer.validated_data["password"])
                 instance.save()
         return instance
 
@@ -166,27 +173,29 @@ class FacilityUserViewSet(viewsets.ModelViewSet):
         self.set_password_if_needed(instance, serializer)
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
 class FacilityUsernameViewSet(viewsets.ReadOnlyModelViewSet):
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     serializer_class = FacilityUsernameSerializer
-    filter_fields = ('facility', )
-    search_fields = ('^username', )
+    filter_fields = ("facility",)
+    search_fields = ("^username",)
 
     def get_queryset(self):
-        return FacilityUser.objects.filter(dataset__learner_can_login_with_no_password=True, roles=None).filter(
-            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True))
+        return FacilityUser.objects.filter(
+            dataset__learner_can_login_with_no_password=True, roles=None
+        ).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+        )
 
 
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
 
     def filter_user_ids(self, queryset, name, value):
-        return queryset.filter(user_id__in=value.split(','))
+        return queryset.filter(user_id__in=value.split(","))
 
     class Meta:
         model = Membership
-        fields = ["user", "collection", "user_ids", ]
+        fields = ["user", "collection", "user_ids"]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
@@ -195,18 +204,18 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filter_class = MembershipFilter
-    filter_fields = ['user', 'collection', 'user_ids', ]
+    filter_fields = ["user", "collection", "user_ids"]
 
 
 class RoleFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
 
     def filter_user_ids(self, queryset, name, value):
-        return queryset.filter(user_id__in=value.split(','))
+        return queryset.filter(user_id__in=value.split(","))
 
     class Meta:
         model = Role
-        fields = ["user", "collection", "kind", "user_ids", ]
+        fields = ["user", "collection", "kind", "user_ids"]
 
 
 class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
@@ -215,7 +224,7 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     filter_class = RoleFilter
-    filter_fields = ['user', 'collection', 'kind', 'user_ids', ]
+    filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
 class FacilityViewSet(viewsets.ModelViewSet):
@@ -229,14 +238,11 @@ class FacilityViewSet(viewsets.ModelViewSet):
         if prefetch:
             # This is a default field on the serializer, so do a select_related
             # to prevent n queries when n facilities are queried
-            return queryset.select_related('dataset')
+            return queryset.select_related("dataset")
         return queryset
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = PublicFacilitySerializer
 
@@ -257,14 +263,12 @@ class ClassroomFilter(FilterSet):
             role_kind=role_kinds.ADMIN,
             descendant_collection=F("id"),
         ) | HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=requesting_user,
-            role_kind=value,
-            descendant_collection=F("id"),
+            source_user=requesting_user, role_kind=value, descendant_collection=F("id")
         )
 
     class Meta:
         model = Classroom
-        fields = ['role', 'parent', ]
+        fields = ["role", "parent"]
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):
@@ -281,19 +285,18 @@ class LearnerGroupViewSet(viewsets.ModelViewSet):
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
-    filter_fields = ('parent',)
+    filter_fields = ("parent",)
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
 class SignUpViewSet(viewsets.ViewSet):
 
     serializer_class = FacilityUserSerializer
 
     def extract_request_data(self, request):
         return {
-            "username": request.data.get('username', ''),
-            "full_name": request.data.get('full_name', ''),
-            "password": request.data.get('password', ''),
+            "username": request.data.get("username", ""),
+            "full_name": request.data.get("full_name", ""),
+            "password": request.data.get("password", ""),
             "facility": Facility.get_default_facility().id,
         }
 
@@ -305,21 +308,23 @@ class SignUpViewSet(viewsets.ViewSet):
         serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
-            serialized_user.instance.set_password(data['password'])
+            serialized_user.instance.set_password(data["password"])
             serialized_user.instance.save()
-            authenticated_user = authenticate(username=data['username'], password=data['password'], facility=data['facility'])
+            authenticated_user = authenticate(
+                username=data["username"],
+                password=data["password"],
+                facility=data["facility"],
+            )
             login(request, authenticated_user)
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
-@method_decorator(signin_redirect_exempt, name='dispatch')
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
-
     def create(self, request):
-        username = request.data.get('username', '')
-        password = request.data.get('password', '')
-        facility_id = request.data.get('facility', None)
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+        facility_id = request.data.get("facility", None)
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"
@@ -327,19 +332,35 @@ class SessionViewSet(viewsets.ViewSet):
             # Success!
             # Is this the first time this user has logged in?
             # If so, they will not have any UserSessionLogs until we call get_session.
-            request.session['first_login'] = not UserSessionLog.objects.filter(user=user).exists()
+            request.session["first_login"] = not UserSessionLog.objects.filter(
+                user=user
+            ).exists()
             return Response(self.get_session(request))
-        elif not password and FacilityUser.objects.filter(username__iexact=username, facility=facility_id).exists():
+        elif (
+            not password
+            and FacilityUser.objects.filter(
+                username__iexact=username, facility=facility_id
+            ).exists()
+        ):
             # Password was missing, but username is valid, prompt to give password
-            return Response([{'id': error_constants.MISSING_PASSWORD,
-                              'metadata': {'field': 'password',
-                                           'message': 'Username is valid, but password is missing.'}}],
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                [
+                    {
+                        "id": error_constants.MISSING_PASSWORD,
+                        "metadata": {
+                            "field": "password",
+                            "message": "Username is valid, but password is missing.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         else:
             # Respond with error
-            return Response([{'id': error_constants.INVALID_CREDENTIALS,
-                              'metadata': {}}],
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
     def destroy(self, request, pk=None):
         logout(request)
@@ -350,43 +371,51 @@ class SessionViewSet(viewsets.ViewSet):
 
     def get_session(self, request):
         user = get_user(request)
-        session_key = 'current'
+        session_key = "current"
         server_time = now()
         if isinstance(user, AnonymousUser):
-            return {'id': session_key,
-                    'username': '',
-                    'full_name': '',
-                    'user_id': None,
-                    'facility_id': getattr(Facility.get_default_facility(), 'id', None),
-                    'kind': ['anonymous'],
-                    'error': '200',
-                    'server_time': server_time}
+            return {
+                "id": session_key,
+                "username": "",
+                "full_name": "",
+                "user_id": None,
+                "facility_id": getattr(Facility.get_default_facility(), "id", None),
+                "kind": ["anonymous"],
+                "error": "200",
+                "server_time": server_time,
+            }
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
-        request.session['last_session_request'] = int(time.time())
+        request.session["last_session_request"] = int(time.time())
         # Default to active, only assume not active when explicitly set.
-        active = True if request.GET.get('active', 'true') == 'true' else False
+        active = True if request.GET.get("active", "true") == "true" else False
 
-        session = {'id': session_key,
-                   'username': user.username,
-                   'full_name': user.full_name,
-                   'user_id': user.id,
-                   'can_manage_content': user.can_manage_content,
-                   'server_time': server_time}
+        session = {
+            "id": session_key,
+            "username": user.username,
+            "full_name": user.full_name,
+            "user_id": user.id,
+            "can_manage_content": user.can_manage_content,
+            "server_time": server_time,
+        }
 
-        roles = list(Role.objects.filter(user_id=user.id).values_list('kind', flat=True).distinct())
+        roles = list(
+            Role.objects.filter(user_id=user.id)
+            .values_list("kind", flat=True)
+            .distinct()
+        )
 
-        if len(roles) is 0:
-            session.update({'facility_id': user.facility_id,
-                            'kind': ['learner'],
-                            'error': '200'})
+        if roles:
+            session.update(
+                {"facility_id": user.facility_id, "kind": roles, "error": "200"}
+            )
         else:
-            session.update({'facility_id': user.facility_id,
-                            'kind': roles,
-                            'error': '200'})
+            session.update(
+                {"facility_id": user.facility_id, "kind": ["learner"], "error": "200"}
+            )
 
         if user.is_superuser:
-            session['kind'].insert(0, 'superuser')
+            session["kind"].insert(0, "superuser")
 
         if active:
             UserSessionLog.update_log(user)

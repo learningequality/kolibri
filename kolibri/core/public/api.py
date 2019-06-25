@@ -28,12 +28,13 @@ class InfoViewSet(viewsets.ViewSet):
 
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
-        info = {'application': 'kolibri',
-                'kolibri_version': kolibri.__version__,
-                'instance_id': instance_model.id,
-                'device_name': instance_model.hostname,
-                'operating_system': platform.system()
-                }
+        info = {
+            "application": "kolibri",
+            "kolibri_version": kolibri.__version__,
+            "instance_id": instance_model.id,
+            "device_name": instance_model.hostname,
+            "operating_system": platform.system(),
+        }
         return Response(info)
 
 
@@ -45,8 +46,8 @@ def _get_channel_list(version, params, identifier=None):
 
 
 def _get_channel_list_v1(params, identifier=None):
-    keyword = params.get('keyword', '').strip()
-    language_id = params.get('language', '').strip()
+    keyword = params.get("keyword", "").strip()
+    language_id = params.get("language", "").strip()
 
     channels = None
     if identifier:
@@ -76,24 +77,43 @@ def _get_channel_list_v1(params, identifier=None):
     return channels.filter(root__available=True).distinct()
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def get_public_channel_list(request, version):
     """ Endpoint: /public/<version>/channels/?=<query params> """
     try:
         channel_list = _get_channel_list(version, request.query_params)
     except LookupError:
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
-    return HttpResponse(json.dumps(PublicChannelSerializer(channel_list, many=True).data), content_type='application/json')
+        return HttpResponseNotFound(
+            json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
+            content_type="application/json",
+        )
+    return HttpResponse(
+        json.dumps(PublicChannelSerializer(channel_list, many=True).data),
+        content_type="application/json",
+    )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def get_public_channel_lookup(request, version, identifier):
     """ Endpoint: /public/<version>/channels/lookup/<identifier> """
     try:
-        channel_list = _get_channel_list(version, request.query_params, identifier=identifier.strip().replace('-', ''))
+        channel_list = _get_channel_list(
+            version,
+            request.query_params,
+            identifier=identifier.strip().replace("-", ""),
+        )
     except LookupError:
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
+        return HttpResponseNotFound(
+            json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
+            content_type="application/json",
+        )
 
     if not channel_list.exists():
-        return HttpResponseNotFound(json.dumps({'id': error_constants.NOT_FOUND, 'metadata': {'view': ''}}), content_type='application/json')
-    return HttpResponse(json.dumps(PublicChannelSerializer(channel_list, many=True).data), content_type='application/json')
+        return HttpResponseNotFound(
+            json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
+            content_type="application/json",
+        )
+    return HttpResponse(
+        json.dumps(PublicChannelSerializer(channel_list, many=True).data),
+        content_type="application/json",
+    )

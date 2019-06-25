@@ -19,7 +19,6 @@ import ReportsLearnerReportLessonExercisePage from './ReportsLearnerReportLesson
 import ReportsLearnerReportLessonPage from './ReportsLearnerReportLessonPage';
 import ReportsLearnerReportPage from './ReportsLearnerReportPage';
 import ReportsLearnerReportQuizPage from './ReportsLearnerReportQuizPage';
-import ReportsLessonEditorPage from './ReportsLessonEditorPage';
 import ReportsLessonExerciseLearnerListPage from './ReportsLessonExerciseLearnerListPage';
 import ReportsLessonExerciseLearnerPage from './ReportsLessonExerciseLearnerPage';
 import ReportsLessonExerciseQuestionListPage from './ReportsLessonExerciseQuestionListPage';
@@ -31,7 +30,6 @@ import ReportsLessonListPage from './ReportsLessonListPage';
 import ReportsLessonManagerPage from './ReportsLessonManagerPage';
 import ReportsLessonReportPage from './ReportsLessonReportPage';
 import ReportsLessonResourceLearnerListPage from './ReportsLessonResourceLearnerListPage';
-import ReportsQuizEditorPage from './ReportsQuizEditorPage';
 import ReportsQuizLearnerListPage from './ReportsQuizLearnerListPage';
 import ReportsQuizLearnerPage from './ReportsQuizLearnerPage';
 import ReportsQuizListPage from './ReportsQuizListPage';
@@ -61,7 +59,6 @@ export default {
   ReportsLearnerReportLessonPage,
   ReportsLearnerReportPage,
   ReportsLearnerReportQuizPage,
-  ReportsLessonEditorPage,
   ReportsLessonExerciseLearnerListPage,
   ReportsLessonExerciseLearnerPage,
   ReportsLessonExerciseQuestionListPage,
@@ -73,7 +70,6 @@ export default {
   ReportsLessonManagerPage,
   ReportsLessonReportPage,
   ReportsLessonResourceLearnerListPage,
-  ReportsQuizEditorPage,
   ReportsQuizLearnerListPage,
   ReportsQuizLearnerPage,
   ReportsQuizListPage,

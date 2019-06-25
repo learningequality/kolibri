@@ -62,7 +62,8 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
-	rm -r kolibri/dist/* || true # remove everything
+	rm -f SQLITE_MAX_VARIABLE_NUMBER.cache
+	rm -fr kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
@@ -193,7 +194,7 @@ i18n-pretranslate-approve-all:
 i18n-download:
 	python build_tools/i18n/crowdin.py rebuild ${branch}
 	python build_tools/i18n/crowdin.py download ${branch}
-	yarn run generate-locale-data
+	node build_tools/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
 
 i18n-download-source-fonts:
@@ -217,7 +218,11 @@ docker-clean:
 
 docker-whl: writeversion
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-whl"
+	docker run \
+		--env-file ./docker/env.list \
+		-v $$PWD/dist:/kolibridist \
+		-v yarn_cache:/yarn_cache \
+		"learningequality/kolibri-whl"
 
 docker-deb: writeversion
 	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"

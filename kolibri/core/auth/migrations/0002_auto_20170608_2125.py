@@ -8,14 +8,12 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('kolibriauth', '0001_initial'),
-    ]
+    dependencies = [("kolibriauth", "0001_initial")]
 
     operations = [
         migrations.AddField(
-            model_name='facilitydataset',
-            name='learner_can_login_with_no_password',
+            model_name="facilitydataset",
+            name="learner_can_login_with_no_password",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

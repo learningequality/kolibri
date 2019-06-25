@@ -58,4 +58,4 @@ Testing:
 - PR has been tested for [accessibility regressions](http://kolibri-dev.readthedocs.io/en/develop/manual_testing.html#accessibility-a11y-testing)
 - External dependency files were updated if necessary (`yarn` and `pip`)
 - Documentation is updated
-- Contributor is in AUTHORS.rst
+- Contributor is in AUTHORS.md

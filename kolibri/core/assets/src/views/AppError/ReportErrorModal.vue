@@ -54,21 +54,6 @@
 
   export default {
     name: 'ReportErrorModal',
-    $trs: {
-      reportErrorHeader: 'Report Error',
-      forumPrompt: 'Visit the community forums',
-      // reall long
-      forumUseTips:
-        'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
-      forumPostingTips:
-        'Include a description of what you were trying to do and what you clicked on when the error appeared.',
-      emailPrompt: 'Send an email to the developers',
-      emailDescription:
-        'Contact the support team with your error details and we’ll do our best to help.',
-      errorDetailsHeader: 'Error details',
-      closeErrorModalButtomPrompt: 'Close',
-      errorFileDenotation: 'error',
-    },
     components: {
       KExternalLink,
       KModal,
@@ -94,6 +79,21 @@
       emailAddressLink() {
         return `mailto:${this.emailAddress}`;
       },
+    },
+    $trs: {
+      reportErrorHeader: 'Report Error',
+      forumPrompt: 'Visit the community forums',
+      // reall long
+      forumUseTips:
+        'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
+      forumPostingTips:
+        'Include a description of what you were trying to do and what you clicked on when the error appeared.',
+      emailPrompt: 'Send an email to the developers',
+      emailDescription:
+        'Contact the support team with your error details and we’ll do our best to help.',
+      errorDetailsHeader: 'Error details',
+      closeErrorModalButtomPrompt: 'Close',
+      errorFileDenotation: 'error',
     },
   };
 

@@ -1,10 +1,12 @@
 <template>
 
   <div class="wrapper">
-    <div id="progress-bar-label" class="visuallyhidden">{{ $tr('label') }}</div>
+    <div id="progress-bar-label" class="visuallyhidden">
+      {{ $tr('label') }}
+    </div>
     <div
       class="progress-bar-wrapper"
-      :style="{ backgroundColor: $coreGrey }"
+      :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
       role="progressbar"
       aria-labelledby="progress-bar-label"
       :aria-valuenow="percent"
@@ -15,12 +17,14 @@
         class="progress-bar-complete"
         :style="{
           width: percent + '%',
-          backgroundColor: color || $coreActionNormal
+          backgroundColor: color || $themeTokens.primary
         }"
       >
       </div>
     </div>
-    <div v-if="showPercentage" class="progress-bar-text">{{ $tr('pct', [progress]) }}</div>
+    <div v-if="showPercentage" class="progress-bar-text">
+      {{ $tr('pct', [progress]) }}
+    </div>
   </div>
 
 </template>
@@ -32,10 +36,6 @@
 
   export default {
     name: 'ProgressBar',
-    $trs: {
-      label: 'Progress',
-      pct: '{0, number, percent}',
-    },
     mixins: [themeMixin],
     props: {
       progress: {
@@ -56,6 +56,10 @@
       percent() {
         return Math.max(Math.min(this.progress * 100, 100), 0);
       },
+    },
+    $trs: {
+      label: 'Progress',
+      pct: '{0, number, percent}',
     },
   };
 

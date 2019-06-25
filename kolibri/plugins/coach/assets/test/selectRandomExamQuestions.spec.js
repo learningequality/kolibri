@@ -1,3 +1,4 @@
+import filter from 'lodash/filter';
 import selectQuestions from '../src/modules/examCreation/selectQuestions';
 
 jest.mock('kolibri.lib.logging');
@@ -20,23 +21,15 @@ function countQuestions(exerciseId, questionList) {
 expect.extend({
   toBeOneOf(received, a, b) {
     const possibilities = [a, b];
-    const pass = possibilities.includes(received);
-    if (pass) {
-      return {
-        message: () => `expected ${received} to be one of ${JSON.stringify(possibilities)}`,
-        pass: true,
-      };
-    } else {
-      return {
-        message: () => `expected ${received} to be one of ${JSON.stringify(possibilities)}`,
-        pass: false,
-      };
-    }
+    return {
+      message: () => `expected ${received} to be one of ${JSON.stringify(possibilities)}`,
+      pass: possibilities.includes(received),
+    };
   },
 });
 
 describe('selectQuestions function', () => {
-  it('will choose even distributions across multiple exercises', function() {
+  it('will choose even distributions across multiple exercises', () => {
     const numQs = 8;
     const output = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     expect(output.length).toEqual(numQs);
@@ -44,7 +37,8 @@ describe('selectQuestions function', () => {
     expect(countQuestions('B', output)).toBeOneOf(2, 3);
     expect(countQuestions('C', output)).toBeOneOf(2, 3);
   });
-  it('will choose questions from a single exercise', function() {
+
+  it('will choose questions from a single exercise', () => {
     const numQs = 8;
     const output = selectQuestions(
       numQs,
@@ -58,7 +52,8 @@ describe('selectQuestions function', () => {
     expect(countQuestions('B', output)).toBe(0);
     expect(countQuestions('C', output)).toBe(8);
   });
-  it('handles a small number of questions from a few exercises', function() {
+
+  it('handles a small number of questions from a few exercises', () => {
     const numQs = 2;
     const output = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     expect(output.length).toEqual(numQs);
@@ -66,7 +61,8 @@ describe('selectQuestions function', () => {
     expect(countQuestions('B', output)).toBeOneOf(0, 1);
     expect(countQuestions('C', output)).toBeOneOf(0, 1);
   });
-  it('will handle exercises with smaller numbers of questions', function() {
+
+  it('will handle exercises with smaller numbers of questions', () => {
     const numQs = 18;
     const output = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     expect(output.length).toEqual(numQs);
@@ -74,16 +70,30 @@ describe('selectQuestions function', () => {
     expect(countQuestions('B', output)).toBeOneOf(7, 8);
     expect(countQuestions('C', output)).toBeOneOf(7, 8);
   });
-  it('will choose the same questions for the same seed', function() {
+
+  it('will choose the same questions for the same seed', () => {
     const numQs = 5;
     const output1 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     const output2 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     expect(output1).toEqual(output2);
   });
-  it('will choose different questions for different seeds', function() {
+
+  it('will choose different questions for different seeds', () => {
     const numQs = 5;
     const output1 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     const output2 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 2);
     expect(output1).not.toEqual(output2);
+  });
+
+  it('will not add the same question twice', () => {
+    // Two copies of the same exercise, and a numQuestions that would previously
+    // force duplicates.
+    const exerciseIds = ['C1', 'C2'];
+    const titles = ['original c', 'copy of c'];
+    const assessments = ['A1', 'A2'];
+    const questionIds = [assessments, assessments];
+    const output = selectQuestions(4, exerciseIds, titles, questionIds, 1);
+    expect(filter(output, { question_id: 'A1' })).toHaveLength(1);
+    expect(filter(output, { question_id: 'A2' })).toHaveLength(1);
   });
 });

@@ -3,7 +3,9 @@
   <div>
     <div v-if="isUserLoggedIn ">
       <h2>{{ $tr('allClassesHeader') }}</h2>
-      <p v-if="!classrooms.length">{{ $tr('noClasses') }}</p>
+      <p v-if="!classrooms.length">
+        {{ $tr('noClasses') }}
+      </p>
       <div class="classrooms">
         <ContentCard
           v-for="c in classrooms"

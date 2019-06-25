@@ -16,19 +16,21 @@
           :text="group.name"
         />
       </p>
-      <h1>{{ lesson.title }}</h1>
+      <h1>
+        <KLabeledIcon>
+          <KIcon slot="icon" lesson />
+          {{ lesson.title }}
+        </KLabeledIcon>
+      </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value"><LessonActive :active="lesson.active" /></template>
+        <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+          <LessonActive slot="value" :active="lesson.active" />
         </HeaderTableRow>
-        <!-- TODO COACH
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
-        </HeaderTableRow>
-         -->
+        <HeaderTableRow
+          :keyText="coachStrings.$tr('descriptionLabel')"
+          :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+        />
       </HeaderTable>
 
       <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
@@ -89,15 +91,6 @@
     components: {},
     mixins: [commonCoach],
     computed: {
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
@@ -110,7 +103,7 @@
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
         const sorted = this._.sortBy(contentArray, ['title']);
-        const mapped = sorted.map(content => {
+        return sorted.map(content => {
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
             tally: this.getContentStatusTally(content.content_id, this.recipients),
@@ -118,7 +111,6 @@
           Object.assign(tableRow, content);
           return tableRow;
         });
-        return mapped;
       },
     },
     $trs: {

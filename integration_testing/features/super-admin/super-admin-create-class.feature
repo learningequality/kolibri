@@ -2,7 +2,7 @@ Feature: Super admin creates classes
     Super admin needs to be able create classes for each facility
 
   Background:
-    Given I am signed in to Kolibri as Super admin
+    Given I am signed in to Kolibri as super admin
       And I am on *Facility > Classes* page
 
   Scenario: Create class

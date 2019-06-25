@@ -11,7 +11,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="thumbnail-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
     />
 
   </div>
@@ -47,7 +47,7 @@
     computed: {
       thumbnailBackground() {
         return {
-          backgroundColor: this.$coreBgLight,
+          backgroundColor: this.$themeTokens.surface,
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },

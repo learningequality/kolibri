@@ -45,7 +45,9 @@ function getVersion(prompt = false) {
       dev: 'dev',
     };
 
-    const preid = ['b', 'a', 'dev'].find(pre => remainder.includes(pre));
+    const preid = remainder.includes('dev')
+      ? 'dev'
+      : ['b', 'a'].find(pre => remainder.startsWith(pre));
 
     const prereleaseId = preidMap[preid];
 

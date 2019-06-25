@@ -13,7 +13,7 @@
       <p>
         <BackLink
           :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="$tr('back', { lesson: 'Lesson 1' })"
+          :text="$tr('back', { lesson: lesson.title })"
         />
       </p>
       <h1>
@@ -29,8 +29,12 @@
 
       <HeaderTable>
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('avgTimeSpentLabel') }}</template>
-          <template slot="value"><TimeDuration :seconds="360" /></template>
+          <template slot="key">
+            {{ coachStrings.$tr('avgTimeSpentLabel') }}
+          </template>
+          <template slot="value">
+            <TimeDuration :seconds="360" />
+          </template>
         </HeaderTableRow>
       </HeaderTable>
 
@@ -94,16 +98,13 @@
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
-      avgTime() {
-        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
-      },
       tally() {
         return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
@@ -114,7 +115,6 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
-        return mapped;
       },
     },
     $trs: {

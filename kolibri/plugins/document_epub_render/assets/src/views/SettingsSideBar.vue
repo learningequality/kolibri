@@ -21,7 +21,9 @@
               name="remove"
               category="content"
             />
-            <div class="truncate">{{ $tr('decrease') }}</div>
+            <div class="truncate">
+              {{ $tr('decrease') }}
+            </div>
           </KButton>
         </KGridItem>
         <KGridItem
@@ -38,7 +40,9 @@
               name="add"
               category="content"
             />
-            <div class="truncate">{{ $tr('increase') }}</div>
+            <div class="truncate">
+              {{ $tr('increase') }}
+            </div>
           </KButton>
         </KGridItem>
       </KGrid>
@@ -57,12 +61,9 @@
           :percentage="false"
         >
           <KButton
-            :class="[
-              'settings-button',
-              'theme-button',
-              $computedClass(generateStyle(value.backgroundColor))
-            ]"
+            class="settings-button theme-button"
             :aria-label="generateThemeAriaLabel(key)"
+            :appearanceOverrides="generateStyle(value)"
             @click="$emit('setTheme', value)"
           >
             <mat-svg
@@ -87,24 +88,12 @@
 
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import isEqual from 'lodash/isEqual';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import { darken } from 'kolibri.utils.colour';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
   export default {
     name: 'SettingsSideBar',
-    $trs: {
-      textSize: 'Text size',
-      decrease: 'Decrease',
-      increase: 'Increase',
-      theme: 'Theme',
-      setWhiteTheme: 'Set white theme',
-      setBeigeTheme: 'Set beige theme',
-      setGreyTheme: 'Set grey theme',
-      setBlackTheme: 'Set black theme',
-    },
     components: {
       SideBar,
       KGrid,
@@ -116,9 +105,6 @@
       theme: {
         type: Object,
         required: true,
-        validator(val) {
-          return Object.values(THEMES).some(obj => isEqual(obj, val));
-        },
       },
       decreaseFontSizeDisabled: {
         type: Boolean,
@@ -166,15 +152,25 @@
           theme.textColor === this.theme.textColor
         );
       },
-      generateStyle(backgroundColor) {
+      generateStyle(theme) {
         return {
           ...this.settingsButtonFocus,
-          backgroundColor,
+          backgroundColor: theme.backgroundColor,
           ':hover': {
-            backgroundColor: darken(backgroundColor, '10%'),
+            backgroundColor: theme.hoverColor,
           },
         };
       },
+    },
+    $trs: {
+      textSize: 'Text size',
+      decrease: 'Decrease',
+      increase: 'Increase',
+      theme: 'Theme',
+      setWhiteTheme: 'Set white theme',
+      setBeigeTheme: 'Set beige theme',
+      setGreyTheme: 'Set grey theme',
+      setBlackTheme: 'Set black theme',
     },
   };
 

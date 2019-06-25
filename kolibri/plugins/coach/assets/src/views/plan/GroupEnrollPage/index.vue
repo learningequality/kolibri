@@ -32,7 +32,12 @@
           :selectAllLabel="$tr('selectAllOnPage')"
           :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
-        />
+          :infoDescriptor="$tr('learnerGroups')"
+        >
+          <template slot="info" slot-scope="userRow">
+            <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
+          </template>
+        </UserTable>
 
         <nav>
           <span>
@@ -99,7 +104,7 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
@@ -134,23 +139,9 @@
         groupsPageStrings,
       };
     },
-    $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userTableLabel: 'User List',
-      noUsersExist: 'No users exist',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this class',
-      selectUser: 'Select user',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
+      ...mapGetters('classSummary', ['getGroupNamesForLearner']),
       pageTitle() {
         return this.$tr('pageHeader', { className: this.currentGroup.name });
       },
@@ -165,9 +156,6 @@
       },
       usersNotInClass() {
         return differenceWith(this.classUsers, this.currentGroupUsers, (a, b) => a.id === b.id);
-      },
-      filteredUsers() {
-        return this.usersNotInClass.filter(user => userMatchesFilter(user, this.filterInput));
       },
       sortedFilteredUsers() {
         return filterAndSortUsers(this.usersNotInClass, user =>
@@ -195,9 +183,6 @@
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
-      showConfirmEnrollmentModal() {
-        return this.modalShown === true;
-      },
       emptyMessage() {
         if (this.classUsers.length === 0) {
           return this.$tr('noUsersExist');
@@ -222,28 +207,32 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar({
-              text: this.coachStrings.$tr('updatedNotification'),
-              autoDismiss: true,
-            });
+            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
           });
         });
-      },
-      reducePageNum() {
-        while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
-          this.pageNum = this.pageNum - 1;
-        }
       },
       goToPage(page) {
         this.pageNum = page;
       },
-      pageWithinRange(page) {
-        const maxOnEachSide = 1;
-        if (this.pageNum === 1 || this.pageNum === this.numPages) {
-          return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
-        }
-        return Math.abs(this.pageNum - page) <= maxOnEachSide;
+      getGroupsForLearner(learnerId) {
+        return this.getGroupNamesForLearner(learnerId);
       },
+    },
+    $trs: {
+      pageHeader: "Enroll learners into '{className}'",
+      confirmSelectionButtonLabel: 'Confirm',
+      searchForUser: 'Search for a user',
+      userTableLabel: 'User List',
+      noUsersExist: 'No users exist',
+      noUsersMatch: 'No users match',
+      previousResults: 'Previous results',
+      nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      allUsersAlready: 'All users are already enrolled in this class',
+      selectUser: 'Select user',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+      learnerGroups: 'Current groups',
     },
   };
 

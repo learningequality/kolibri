@@ -6,7 +6,7 @@ function makeWrapper(propsData = {}) {
   const store = makeStore();
   store.commit('facilityConfig/SET_STATE', {
     settings: {
-      learnerCanEditUsername: false,
+      learner_can_edit_username: false,
     },
   });
   return mount(ConfigPage, { propsData, store });
@@ -19,7 +19,7 @@ function getElements(wrapper) {
     confirmResetButton: () => wrapper.find('button[name="submit"]'),
     resetButton: () => wrapper.find('button[name="reset-settings"]'),
     saveButton: () => wrapper.find('button[name="save-settings"]'),
-    confirmResetModal: () => wrapper.find({ name: 'KModal' }),
+    confirmResetModal: () => wrapper.find({ name: 'ConfirmResetModal' }),
     form: () => wrapper.find('form'),
   };
 }
@@ -57,15 +57,16 @@ describe('facility config page view', () => {
     const wrapper = makeWrapper();
     const { checkbox } = getElements(wrapper);
     checkbox().trigger('click');
-    expect(wrapper.vm.$store.state.facilityConfig.settings.learnerCanEditUsername).toEqual(true);
+    expect(wrapper.vm.$store.state.facilityConfig.settings.learner_can_edit_username).toEqual(true);
   });
 
   it('clicking save button dispatches a save action', async () => {
     const wrapper = makeWrapper();
-    const { mock } = (wrapper.vm.saveFacilityConfig = jest.fn().mockResolvedValue());
+    const mock = (wrapper.vm.$store.dispatch = jest.fn().mockResolvedValue());
     const { saveButton } = getElements(wrapper);
     saveButton().trigger('click');
-    expect(mock.calls).toHaveLength(1);
+    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledWith('facilityConfig/saveFacilityConfig');
   });
 
   it('clicking reset button brings up the confirmation modal', () => {
@@ -89,11 +90,12 @@ describe('facility config page view', () => {
   it('confirming reset calls the reset action and closes modal', () => {
     const wrapper = makeWrapper();
     const { resetButton, confirmResetModal } = getElements(wrapper);
-    const { mock } = (wrapper.vm.resetFacilityConfig = jest.fn().mockResolvedValue());
+    const mock = (wrapper.vm.$store.dispatch = jest.fn().mockResolvedValue());
     resetButton().trigger('click');
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');
-    expect(mock.calls).toHaveLength(1);
+    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
     assertModalIsDown(wrapper);
   });
   // not tested: notifications

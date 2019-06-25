@@ -185,7 +185,6 @@
         referenceElm: null,
         popperJS: null,
         showPopper: false,
-        currentPlacement: '',
         popperOptions: {
           placement: 'bottom',
           computeStyle: {

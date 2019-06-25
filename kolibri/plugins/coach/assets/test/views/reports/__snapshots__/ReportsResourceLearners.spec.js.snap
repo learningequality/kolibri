@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReportsResourceLearners doesn't render groups information when show groups set to false 1`] = `
+<div class="core-table-container">
+  <table class="core-table">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Time spent</th>
+        <!---->
+        <th>Last activity</th>
+      </tr>
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
+          learner1
+        </div></span></td>
+    <td>
+      <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    Completed
+  </div></span>
+        <!---->
+      </div>
+    </td>
+    <td><span>92 seconds</span></td>
+    <!---->
+    <td><span>
+  yesterday
+</span></td>
+    </tr>
+    <tr>
+      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
+          learner2
+        </div></span></td>
+      <td>
+        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
+    Started
+  </div></span>
+          <!---->
+        </div>
+      </td>
+      <td><span>17 seconds</span></td>
+      <!---->
+      <td><span>
+  3 hours ago
+</span></td>
+    </tr>
+    </span>
+  </table>
+</div>
+`;
+
+exports[`ReportsResourceLearners renders all entries 1`] = `
+<div class="core-table-container">
+  <table class="core-table">
+    <thead style="border-bottom: 1px solid #dedede; font-size: 12px; color: rgb(97, 97, 97);">
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Time spent</th>
+        <th>
+          Groups
+        </th>
+        <th>Last activity</th>
+      </tr>
+    </thead><span tag="tbody" name="list"><tr><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
+          learner1
+        </div></span></td>
+    <td>
+      <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
+    Completed
+  </div></span>
+        <!---->
+      </div>
+    </td>
+    <td><span>92 seconds</span></td>
+    <td>
+      <div class="items-label"><span>
+    group1, group2
+  </span></div>
+    </td>
+    <td><span>
+  yesterday
+</span></td>
+    </tr>
+    <tr>
+      <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div dir="auto" class="label">
+          learner2
+        </div></span></td>
+      <td>
+        <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
+    Started
+  </div></span>
+          <!---->
+        </div>
+      </td>
+      <td><span>17 seconds</span></td>
+      <td>
+        <div class="items-label"><span>
+    group2
+  </span></div>
+      </td>
+      <td><span>
+  3 hours ago
+</span></td>
+    </tr>
+    </span>
+  </table>
+</div>
+`;

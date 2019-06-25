@@ -50,7 +50,8 @@
       <CreateGroupModal
         v-if="showCreateGroupModal"
         :groups="sortedGroups"
-        @success="handleSuccessCreateGroup"
+        @submit="handleSuccessCreateGroup"
+        @cancel="closeModal"
       />
 
       <RenameGroupModal
@@ -58,13 +59,15 @@
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
         :groups="sortedGroups"
+        @cancel="closeModal"
       />
 
       <DeleteGroupModal
         v-if="showDeleteGroupModal"
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
-        @success="handleSuccessDeleteGroup"
+        @submit="handleSuccessDeleteGroup"
+        @cancel="closeModal"
       />
 
     </KPageContainer>
@@ -89,12 +92,6 @@
 
   export default {
     name: 'GroupsPage',
-    $trs: {
-      classGroups: 'Groups',
-      newGroup: 'New group',
-      noGroups: 'You do not have any groups',
-      documentTitle: 'Groups',
-    },
     components: {
       CoreTable,
       PlanHeader,
@@ -131,6 +128,9 @@
     methods: {
       ...mapActions('groups', ['displayModal']),
       ...mapActions(['createSnackbar']),
+      closeModal() {
+        this.displayModal(false);
+      },
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -149,19 +149,19 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar({
-          text: this.coachStrings.$tr('createdNotification'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.coachStrings.$tr('createdNotification'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar({
-          text: this.coachStrings.$tr('deletedNotification'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.coachStrings.$tr('deletedNotification'));
         this.displayModal(false);
       },
+    },
+    $trs: {
+      classGroups: 'Groups',
+      newGroup: 'New group',
+      noGroups: 'You do not have any groups',
+      documentTitle: 'Groups',
     },
   };
 

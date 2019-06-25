@@ -1,14 +1,14 @@
 <template>
 
-  <div ref="sideNav" class="side-nav-wrapper" @keydown.esc="toggleNav">
+  <div ref="sideNav" class="side-nav-wrapper" @keyup.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
         class="side-nav"
         :style="{
           width: `${width}px`,
-          color: $coreTextDefault,
-          backgroundColor: $coreBgLight,
+          color: $themeTokens.text,
+          backgroundColor: $themeTokens.surface,
         }"
       >
         <div
@@ -16,7 +16,7 @@
           :style="{
             height: headerHeight + 'px',
             width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $coreTextDefault,
+            backgroundColor: $themeTokens.text,
           }"
         >
           <UiIconButton
@@ -25,17 +25,18 @@
             type="secondary"
             color="white"
             size="large"
+            class="side-nav-header-icon"
             @click="toggleNav"
           >
             <mat-svg
               name="close"
               category="navigation"
-              class="side-nav-header-close"
+              :style="{fill: $themeTokens.textInverted}"
             />
           </UiIconButton>
           <span
             class="side-nav-header-name"
-            :style="{ color: $coreBgLight }"
+            :style="{ color: $themeTokens.textInverted }"
           >{{ $tr('kolibri') }}</span>
         </div>
 
@@ -43,10 +44,16 @@
           class="side-nav-scrollable-area"
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
+          <img
+            v-if="$theme.sideNav.topLogo"
+            class="logo"
+            :src="$theme.sideNav.topLogo.src"
+            :alt="$theme.sideNav.topLogo.alt"
+            :style="$theme.sideNav.topLogo.style"
+          >
           <CoreMenu
             role="navigation"
-            :style="{ backgroundColor: $coreBgLight }"
-            :hasIcons="true"
+            :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
             <template slot="options">
@@ -55,8 +62,11 @@
             </template>
           </CoreMenu>
 
-          <div class="side-nav-scrollable-area-footer" :style="{ color: $coreTextAnnotation }">
-            <CoreLogo class="side-nav-scrollable-area-footer-logo" />
+          <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
+            <CoreLogo
+              v-if="$theme.sideNav.showKolibriFooterLogo"
+              class="side-nav-scrollable-area-footer-logo"
+            />
             <div class="side-nav-scrollable-area-footer-info">
               <p>{{ footerMsg }}</p>
               <!-- Not translated -->
@@ -96,7 +106,6 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
@@ -132,13 +141,6 @@
       PrivacyInfoModal,
     },
     mixins: [responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
-    $trs: {
-      kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation',
-      closeNav: 'Close navigation',
-      poweredBy: 'Kolibri {version}',
-      privacyLink: 'Usage and privacy',
-    },
     props: {
       navShown: {
         type: Boolean,
@@ -162,10 +164,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isSuperuser', 'isAdmin', 'isCoach', 'canManageContent']),
-      ...mapState({
-        session: state => state.core.session,
-      }),
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
@@ -231,6 +229,13 @@
         return event;
       },
     },
+    $trs: {
+      kolibri: 'Kolibri',
+      navigationLabel: 'Main user navigation',
+      closeNav: 'Close navigation',
+      poweredBy: 'Kolibri {version}',
+      privacyLink: 'Usage and privacy',
+    },
   };
 
 </script>
@@ -285,11 +290,10 @@
     left: 0;
     z-index: 17;
     font-size: 14px;
-    text-transform: uppercase;
   }
 
-  .side-nav-header-close {
-    fill: white;
+  .side-nav-header-icon {
+    margin-left: 5px; /* align with a toolbar icon below */
   }
 
   .side-nav-header-name {
@@ -303,6 +307,7 @@
     position: fixed;
     bottom: 0;
     left: 0;
+    padding-top: 8px;
     overflow: auto;
   }
 
@@ -374,6 +379,11 @@
 
   .privacy-link {
     text-align: left;
+  }
+
+  .logo {
+    max-width: 100%;
+    height: auto;
   }
 
 </style>

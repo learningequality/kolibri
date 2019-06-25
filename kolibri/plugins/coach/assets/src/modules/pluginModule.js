@@ -24,7 +24,6 @@ export default {
     pageName: '',
     toolbarRoute: {},
     toolbarTitle: '',
-    reportRefreshInterval: 30000,
   },
   mutations: {
     SET_PAGE_NAME(state, pageName) {
@@ -45,6 +44,9 @@ export default {
       // If the number of classes is exactly 1, then redirect to its home page,
       // otherwise show the whole class list
       return state.classList.length !== 1;
+    },
+    userIsAuthorizedForCoach(state, getters) {
+      return getters.isCoach || getters.isAdmin || getters.isSuperuser;
     },
   },
   actions: {
@@ -68,9 +70,9 @@ export default {
         errorObject.status.code &&
         authErrorCodes.includes(errorObject.status.code)
       ) {
-        store.dispatch('handleError', '');
+        store.dispatch('handleApiError', '');
       } else {
-        store.dispatch('handleError', errorObject);
+        store.dispatch('handleApiError', errorObject);
       }
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -107,7 +109,7 @@ export default {
         // otherwise refresh but don't block
         return store
           .dispatch('classSummary/loadClassSummary', classId)
-          .catch(error => this.store.dispatch('handleApiError', error));
+          .catch(error => store.dispatch('handleApiError', error));
       }
     },
   },

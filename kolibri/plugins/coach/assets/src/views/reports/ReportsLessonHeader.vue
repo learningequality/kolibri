@@ -1,50 +1,44 @@
 <template>
 
   <div>
-    <p>
+    <BackLinkWithOptions>
       <BackLink
+        slot="backlink"
         :to="classRoute('ReportsLessonListPage')"
         :text="$tr('back')"
       />
-    </p>
-    <KGrid>
-      <KGridItem sizes="100, 50, 50" percentage>
-        <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" lesson />
-            {{ lesson.title }}
-          </KLabeledIcon>
-        </h1>
-      </KGridItem>
-      <KGridItem sizes="100, 50, 50" percentage alignment="right">
-        <!-- TODO COACH
-        <KDropdownMenu
-          :text="coachStrings.$tr('optionsLabel')"
-          :options="actionOptions"
-          appearance="raised-button"
-          @select="goTo($event.value)"
-        />
-         -->
-      </KGridItem>
-    </KGrid>
+      <LessonOptionsDropdownMenu
+        slot="options"
+        optionsFor="report"
+        @select="handleSelectOption"
+      />
+    </BackLinkWithOptions>
+
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" lesson />
+        {{ lesson.title }}
+      </KLabeledIcon>
+    </h1>
 
     <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-        <template slot="value"><LessonActive :active="lesson.active" /></template>
+      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <LessonActive
+          slot="value"
+          :active="lesson.active"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
-        <template slot="value">
-          <Recipients :groupNames="getGroupNames(lesson.groups)" />
-        </template>
+      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+        <Recipients
+          slot="value"
+          :groupNames="getGroupNames(lesson.groups)"
+          :hasAssignments="lesson.assignments.length > 0"
+        />
       </HeaderTableRow>
-      <!-- TODO COACH
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
-        <template slot="value">{{ lesson.description }}</template>
-      </HeaderTableRow>
-       -->
+      <HeaderTableRow
+        :keyText="coachStrings.$tr('descriptionLabel')"
+        :valueText="lesson.description || coachStrings.$tr('descriptionMissingLabel')"
+      />
     </HeaderTable>
 
     <HeaderTabs>
@@ -67,28 +61,36 @@
 <script>
 
   import commonCoach from '../common';
+  import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsLessonHeader',
-    components: {},
+    components: {
+      BackLinkWithOptions,
+      LessonOptionsDropdownMenu,
+    },
     mixins: [commonCoach],
     computed: {
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
     },
     methods: {
-      goTo(page) {
-        this.$router.push({ name: 'NEW_COACH_PAGES', params: { page } });
+      handleSelectOption(action) {
+        if (action === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('LessonReportEditDetailsPage'));
+        }
+        if (action === 'MANAGE_RESOURCES') {
+          this.$router.push(
+            this.$router.getRoute(
+              'SELECTION_ROOT',
+              {},
+              // So the "X" and "Cancel" buttons return back to the ReportPage
+              { last: this.$route.name }
+            )
+          );
+        }
       },
     },
     $trs: {

@@ -8,15 +8,43 @@ const esLintFormatter = require('eslint/lib/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
-const prettierOptions = require('../.prettier.js');
-const esLintConfig = require('../.eslintrc.js');
-const htmlHintConfig = require('../.htmlhintrc.js');
-const stylelintConfig = require('../.stylelintrc.js');
-const logger = require('./logging');
 
 require('./htmlhint_custom');
 
-const logging = logger.getLogger('Kolibri linter');
+// check for host project's linting configs, otherwise use defaults
+let hostProjectDir = process.cwd();
+
+let esLintConfig;
+try {
+  esLintConfig = require(`${hostProjectDir}/.eslintrc.js`);
+} catch (e) {
+  esLintConfig = require('../.eslintrc.js');
+}
+
+let stylelintConfig;
+try {
+  stylelintConfig = require(`${hostProjectDir}/.stylelintrc.js`);
+} catch (e) {
+  stylelintConfig = require('../.stylelintrc.js');
+}
+
+let htmlHintConfig;
+try {
+  htmlHintConfig = require(`${hostProjectDir}/.htmlhintrc.js`);
+} catch (e) {
+  htmlHintConfig = require('../.htmlhintrc.js');
+}
+
+let prettierConfig;
+try {
+  prettierConfig = require(`${hostProjectDir}/.prettierrc.js`);
+} catch (e) {
+  prettierConfig = require('../.prettierrc.js');
+}
+
+const logger = require('./logging');
+
+const logging = logger.getLogger('Kolibri Linter');
 
 const esLinter = new ESLintCLIEngine({
   baseConfig: esLintConfig,
@@ -91,7 +119,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           {
             filepath: file,
           },
-          prettierOptions,
+          prettierConfig,
           {
             parser,
           }
@@ -163,9 +191,8 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               if (linted.trim() !== (stylinted || code).trim()) {
                 notSoPretty = true;
               }
-              if (linted.trim() !== code.trim()) {
-                styleCodeUpdates.push(() => callback(linted));
-              }
+
+              styleCodeUpdates.push(() => callback(linted));
             })
             .catch(err => {
               messages.push(err.toString());
@@ -193,13 +220,24 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           let block;
           // First lint the whole vue component with eslint
           formatted = eslint(source);
+
+          let vueComponent = compiler.parseComponent(formatted);
+
+          // Format template block
+          if (vueComponent.template && vueComponent.template.content) {
+            formatted = insertContent(
+              formatted,
+              vueComponent.template,
+              vueComponent.template.content
+            );
+            vueComponent = compiler.parseComponent(formatted);
+          }
+
           // Now run htmlhint on the whole vue component
           let htmlMessages = HTMLHint.verify(formatted, htmlHintConfig);
           if (htmlMessages.length) {
             messages.push(...HTMLHint.format(htmlMessages, { colors: true }));
           }
-
-          let vueComponent = compiler.parseComponent(formatted);
 
           // Format script block
           if (vueComponent.script) {

@@ -38,12 +38,6 @@
 
   export default {
     name: 'FacilityTopNav',
-    $trs: {
-      classes: 'Classes',
-      data: 'Data',
-      settings: 'Settings',
-      users: 'Users',
-    },
     components: {
       KNavbar,
       KNavbarLink,
@@ -53,6 +47,12 @@
     },
     methods: {
       linkify: name => ({ name }),
+    },
+    $trs: {
+      classes: 'Classes',
+      data: 'Data',
+      settings: 'Settings',
+      users: 'Users',
     },
   };
 

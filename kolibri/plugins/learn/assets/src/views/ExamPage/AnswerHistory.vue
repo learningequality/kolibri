@@ -1,11 +1,11 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreBgLight }">
+  <div :style="{ backgroundColor: $themeTokens.surface }">
     <ul class="history-list">
       <template v-for="(question, index) in questions">
         <li
           :key="index"
-          :style="{ backgroundColor: questionNumber === index ? $coreGrey : '' }"
+          :style="liStyle(index)"
           class="clickable"
           @click="$emit('goToQuestion', index)"
         >
@@ -35,9 +35,6 @@
 
   export default {
     name: 'AnswerHistory',
-    $trs: {
-      question: 'Question { num }',
-    },
     mixins: [themeMixin],
     props: {
       questionNumber: {
@@ -50,20 +47,21 @@
       ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },
     methods: {
-      daysElapsedText(daysElapsed) {
-        if (daysElapsed > 1) {
-          return this.$tr('daysAgo', { daysElapsed });
-        } else if (daysElapsed === 1) {
-          return this.$tr('yesterday');
-        }
-        return this.$tr('today');
-      },
       questionText(num) {
         return this.$tr('question', { num });
       },
       isAnswered(question) {
         return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
       },
+      liStyle(index) {
+        return {
+          backgroundColor:
+            this.questionNumber === index ? this.$themeColors.palette.grey.v_200 : '',
+        };
+      },
+    },
+    $trs: {
+      question: 'Question { num }',
     },
   };
 

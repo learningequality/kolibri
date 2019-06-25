@@ -4,7 +4,9 @@
     <!-- TODO should I try and use the baked in auth page? Does this have a URL-->
     <AuthMessage v-if="!isSuperuser" authorizedRole="superuser" />
 
-    <h1 v-else-if="user === null">{{ $tr('userDoesNotExist') }}</h1>
+    <h1 v-else-if="user === null">
+      {{ $tr('userDoesNotExist') }}
+    </h1>
 
     <template v-else>
       <div class="section user-info">
@@ -20,20 +22,28 @@
 
         <table>
           <tr>
-            <th scope="row">{{ $tr('usernameLabel') }}</th>
+            <th scope="row">
+              {{ $tr('usernameLabel') }}
+            </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
-            <th scope="row">{{ $tr('userTypeLabel') }}</th>
+            <th scope="row">
+              {{ $tr('userTypeLabel') }}
+            </th>
             <td>
               <UserTypeDisplay :userType="UserType(user)" />
             </td>
           </tr>
 
           <tr>
-            <th scope="row">{{ $tr('facilityLabel') }}</th>
-            <td dir="auto">{{ facilityName }}</td>
+            <th scope="row">
+              {{ $tr('facilityLabel') }}
+            </th>
+            <td dir="auto">
+              {{ facilityName }}
+            </td>
           </tr>
         </table>
 
@@ -52,7 +62,7 @@
         <ul
           class="checkbox-description"
           :style="{
-            color: superuserDisabled ? $coreTextDisabled : $coreTextAnnotation
+            color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation
           }"
         >
           <li>{{ $tr('superAdminExplanation1') }}</li>
@@ -209,10 +219,7 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
-            this.createSnackbar({
-              text: this.$tr('permissionChangeConfirmation'),
-              autoDismiss: true,
-            });
+            this.createSnackbar(this.$tr('permissionChangeConfirmation'));
             this.saveProgress = SUCCESS;
             this.uiBlocked = false;
           })

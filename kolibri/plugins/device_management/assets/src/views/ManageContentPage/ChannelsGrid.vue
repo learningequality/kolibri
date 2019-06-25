@@ -5,7 +5,6 @@
       <p
         v-if="noChannelsToShow"
         class="no-channels"
-        :style="{ color: $coreTextError }"
       >
         {{ $tr('emptyChannelListMessage') }}
       </p>
@@ -17,7 +16,7 @@
       />
 
       <div v-else>
-        <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
+        <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
           {{ $tr('channelHeader') }}
         </div>
 
@@ -37,7 +36,7 @@
     <DeleteChannelModal
       v-if="channelIsSelected"
       :channelTitle="selectedChannelTitle"
-      @confirm="handleDeleteChannel"
+      @submit="handleDeleteChannel"
       @cancel="selectedChannelId=null"
     />
   </div>
@@ -86,11 +85,7 @@
       },
     },
     methods: {
-      ...mapActions('manageContent', [
-        'startImportWorkflow',
-        'triggerChannelDeleteTask',
-        'refreshChannelList',
-      ]),
+      ...mapActions('manageContent', ['startImportWorkflow', 'triggerChannelDeleteTask']),
       handleDeleteChannel() {
         if (this.channelIsSelected) {
           const channelId = this.selectedChannelId;

@@ -35,7 +35,9 @@
                 :text="tableRow.name"
                 :to="link(tableRow.id)"
               />
-              <template v-else>{{ tableRow.name }}</template>
+              <template v-else>
+                {{ tableRow.name }}
+              </template>
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />
@@ -71,9 +73,6 @@
     },
     mixins: [commonCoach],
     computed: {
-      lesson() {
-        return this.lessonMap[this.$route.params.lessonId];
-      },
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
@@ -83,7 +82,7 @@
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
@@ -94,7 +93,6 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

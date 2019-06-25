@@ -7,13 +7,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('content', '0005_auto_20171009_0903'),
-    ]
+    dependencies = [("content", "0005_auto_20171009_0903")]
 
     operations = [
         migrations.AlterIndexTogether(
-            name='contentnode',
-            index_together=set([('level', 'channel_id', 'kind'), ('level', 'channel_id', 'available')]),
-        ),
+            name="contentnode",
+            index_together=set(
+                [("level", "channel_id", "kind"), ("level", "channel_id", "available")]
+            ),
+        )
     ]

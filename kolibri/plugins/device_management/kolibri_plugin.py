@@ -11,10 +11,6 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class DeviceManagementPlugin(KolibriPluginBase):
-    def url_module(self):
-        from . import urls
-        return urls
-
     def url_slug(self):
         return "^device/"
 
@@ -34,7 +30,9 @@ class DeviceFirstTimeRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(DeviceManagementPlugin, 'device_management') + '#/welcome'
+        return (
+            self.plugin_url(DeviceManagementPlugin, "device_management") + "#/welcome"
+        )
 
 
 class DeviceManagementNavItem(NavigationHook, WebpackBundleHook):

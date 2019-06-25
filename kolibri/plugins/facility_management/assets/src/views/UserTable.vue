@@ -30,6 +30,9 @@
             </span>
           </th>
           <th>{{ $tr('username') }}</th>
+          <th v-if="$scopedSlots.info">
+            {{ infoDescriptor }}
+          </th>
           <th v-if="$scopedSlots.action" class="user-action-button">
             <span class="visuallyhidden">
               {{ $tr('userActionsColumnHeader') }}
@@ -68,8 +71,8 @@
               :omitLearner="true"
               class="role-badge"
               :style="{
-                color: $coreBgLight,
-                backgroundColor: $coreTextAnnotation,
+                color: $themeTokens.textInverted,
+                backgroundColor: $themeTokens.annotation,
               }"
             />
           </td>
@@ -80,6 +83,9 @@
             <span dir="auto">
               {{ user.username }}
             </span>
+          </td>
+          <td v-if="$scopedSlots.info">
+            <slot name="info" :user="user"></slot>
           </td>
           <td v-if="$scopedSlots.action" class="core-table-button-col">
             <slot name="action" :user="user"></slot>
@@ -125,9 +131,6 @@
         type: Array,
         required: true,
       },
-      title: {
-        type: String,
-      },
       emptyMessage: {
         type: String,
       },
@@ -151,6 +154,10 @@
       isCoach: {
         type: Boolean,
         default: false,
+      },
+      infoDescriptor: {
+        type: String,
+        default: '',
       },
     },
     computed: {

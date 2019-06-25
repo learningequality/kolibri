@@ -41,7 +41,6 @@ import KNavbar from '../views/KNavbar';
 import KNavbarLink from '../views/KNavbar/KNavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
-import ImmersiveFullScreen from '../views/ImmersiveFullScreen';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
@@ -65,6 +64,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browser from '../utils/browser';
+import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
@@ -87,6 +87,7 @@ import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
 import KBasicContentIcon from '../views/icons/KBasicContentIcon';
+import KBottomAppBar from '../views/KBottomAppBar';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -100,10 +101,11 @@ import KCircularLoader from '../views/KCircularLoader';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import navComponents from '../utils/navComponents';
+import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
 import KTooltip from '../views/KTooltip';
 import UiIconButton from '../views/KeenUiIconButton.vue';
-import * as colour from '../utils/colour';
+import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
 import themeMixin from '../mixins/theme';
 import vue from './kolibriVue';
@@ -148,7 +150,6 @@ export default {
       KNavbar,
       KNavbarLink,
       LanguageSwitcherList,
-      ImmersiveFullScreen,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
@@ -177,6 +178,7 @@ export default {
       CoreLogo,
       UiAlert,
       UiIconButton,
+      UiToolbar,
       PrivacyInfoModal,
       UserTypeDisplay,
       TechnicalTextBlock,
@@ -190,6 +192,7 @@ export default {
       KIcon,
       KLabeledIcon,
       KBasicContentIcon,
+      KBottomAppBar,
     },
     router,
     mixins: {
@@ -207,16 +210,17 @@ export default {
   urls,
   utils: {
     contentNode,
-    colour,
     browser,
     exams,
     validators,
     serverClock,
     i18n,
     navComponents,
+    coreBannerContent,
     samePageCheckGenerator,
     CatchErrors,
     UserType,
     shuffled,
+    bytesForHumans,
   },
 };

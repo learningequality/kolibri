@@ -1,14 +1,19 @@
 <template>
 
-  <router-link class="link" :style="{color: $coreTextDefault}" :to="to">
+  <router-link class="link" :style="{color: $themeTokens.text}" :to="to">
     <KGrid class="wrapper">
       <KGridItem size="75" percentage>
-        <h3 class="title">{{ name }}</h3>
+        <h3 class="title">
+          {{ name }}
+        </h3>
       </KGridItem>
 
       <KGridItem size="25" percentage alignment="right">
         <div class="context">
-          <Recipients :groupNames="groupNames" />
+          <Recipients
+            :groupNames="groupNames"
+            :hasAssignments="hasAssignments"
+          />
         </div>
       </KGridItem>
 
@@ -52,13 +57,13 @@
         type: Array,
         required: true,
       },
+      hasAssignments: {
+        type: Boolean,
+        required: true,
+      },
       tally: {
         type: Object,
         required: true,
-      },
-      isLast: {
-        type: Boolean,
-        default: false,
       },
       to: {
         type: Object,

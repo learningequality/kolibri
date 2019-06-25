@@ -5,15 +5,15 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey"
   >
-    <div class="search-box-row">
+    <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
       <label class="visuallyhidden" for="searchfield">{{ $tr('searchBoxLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
         v-model.trim="searchQuery"
         type="search"
-        :class="[ 'search-input', $computedClass(searchInputStyle) ]"
-        :style="{ color: $coreTextDefault }"
+        class="search-input"
+        :class="$computedClass(searchInputStyle)"
         dir="auto"
         :placeholder="$tr('searchBoxLabel')"
       >
@@ -23,7 +23,7 @@
           size="small"
           class="search-clear-button"
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
-          :style="{ color: $coreTextDefault }"
+          :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="searchQuery = ''"
         >
@@ -33,13 +33,17 @@
           />
         </UiIconButton>
 
-        <div class="search-submit-button-wrapper" :style="{ backgroundColor: $coreActionDark }">
+        <div
+          class="search-submit-button-wrapper"
+          :style="{ backgroundColor: $themeTokens.primaryDark }"
+        >
           <UiIconButton
             type="secondary"
             color="white"
             class="search-submit-button"
             :disabled="!searchUpdate"
             :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
+            :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
           >
@@ -61,9 +65,7 @@
       v-if="filters"
       class="filters"
     >
-      <div
-        class="ib"
-      >
+      <div class="ib">
         <mat-svg
           category="content"
           name="filter_list"
@@ -127,20 +129,6 @@
 
   export default {
     name: 'SearchBox',
-    $trs: {
-      searchBoxLabel: 'Search',
-      clearButtonLabel: 'Clear',
-      startSearchButtonLabel: 'Start search',
-      resourceType: 'Type',
-      all: 'All',
-      topics: 'Topics',
-      exercises: 'Exercises',
-      videos: 'Videos',
-      audio: 'Audio',
-      documents: 'Documents',
-      html5: 'Apps',
-      channels: 'Channels',
-    },
     components: {
       UiIconButton,
       KSelect,
@@ -164,7 +152,6 @@
         searchQuery: this.$store.state.search.searchTerm,
         contentKindFilterSelection: {},
         channelFilterSelection: {},
-        test: 10,
       };
     },
     computed: {
@@ -217,8 +204,9 @@
       searchInputStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
+          color: this.$themeTokens.text,
         };
       },
     },
@@ -268,6 +256,20 @@
         }
       },
     },
+    $trs: {
+      searchBoxLabel: 'Search',
+      clearButtonLabel: 'Clear',
+      startSearchButtonLabel: 'Start search',
+      resourceType: 'Type',
+      all: 'All',
+      topics: 'Topics',
+      exercises: 'Exercises',
+      videos: 'Videos',
+      audio: 'Audio',
+      documents: 'Documents',
+      html5: 'Apps',
+      channels: 'Channels',
+    },
   };
 
 </script>
@@ -287,7 +289,6 @@
     display: table;
     width: 100%;
     max-width: 450px;
-    background-color: white;
   }
 
   .search-input {
@@ -298,7 +299,6 @@
     padding-left: 8px;
     margin: 0;
     vertical-align: middle;
-    background-color: white;
     border: 0;
 
     // removes the IE clear button
@@ -331,7 +331,6 @@
   .search-submit-button {
     width: 36px;
     height: 36px;
-    fill: white;
   }
 
   .search-submit-button-wrapper {

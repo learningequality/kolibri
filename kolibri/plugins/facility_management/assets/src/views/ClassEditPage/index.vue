@@ -26,12 +26,14 @@
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
+      @cancel="closeModal"
     />
     <UserRemoveConfirmationModal
       v-if="modalShown===Modals.REMOVE_USER"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
-      @confirm="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
+      @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
+      @cancel="closeModal"
     />
     <!-- /Modals -->
 
@@ -110,20 +112,6 @@
 
   export default {
     name: 'ClassEditPage',
-    $trs: {
-      enrollLearnerButtonLabel: 'Enroll learners',
-      assignCoachesButtonLabel: 'Assign coaches',
-      coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      coachTableTitle: 'Coaches',
-      learnerTableTitle: 'Learners',
-      noCoachesInClassMessge: "You don't have any assigned coaches",
-      noLearnersInClassMessage: "You don't have any enrolled learners",
-      remove: 'Remove',
-      noUsersExist: 'No users in this class',
-      edit: 'Edit class name',
-      documentTitle: 'Edit Class',
-      renameButtonLabel: 'Edit',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -174,11 +162,28 @@
         'removeClassLearner',
         'removeClassCoach',
       ]),
+      closeModal() {
+        this.displayModal(false);
+      },
       confirmRemoval(user, removalAction) {
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
       },
+    },
+    $trs: {
+      enrollLearnerButtonLabel: 'Enroll learners',
+      assignCoachesButtonLabel: 'Assign coaches',
+      coachEnrollmentPageTitle: 'Manage class coaches and learners',
+      coachTableTitle: 'Coaches',
+      learnerTableTitle: 'Learners',
+      noCoachesInClassMessge: "You don't have any assigned coaches",
+      noLearnersInClassMessage: "You don't have any enrolled learners",
+      remove: 'Remove',
+      noUsersExist: 'No users in this class',
+      edit: 'Edit class name',
+      documentTitle: 'Edit Class',
+      renameButtonLabel: 'Edit',
     },
   };
 

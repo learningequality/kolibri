@@ -11,6 +11,12 @@ Specifically, Kolibri Studio has a modified version of this models.py for genera
 backwards-compatible content databases. Changes made here should be propagated to Studio
 in order to allow for generation of databases with the updated schema.
 
+However, in the case where the modifications are intended only within Kolibri, such
+as fields that provide a local record of expensive to compute properties, these do
+not need to be added to an importable schema version (and will not be used in Studio).
+To allow use of SQLAlchemy updates (for performance reasons), we also maintain an
+updateable copy of the current Django schema.
+
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value must be
 incremented, with an additional constant added for the new version.
 E.g. a new constant VERSION_3 = '3', might be added, and CONTENT_SCHEMA_VERSION set to
@@ -41,6 +47,13 @@ this file e.g. VERSION_3 should be added to the list.
 The channel import test classes for the previous schema should also be added in
 ./test/test_channel_import.py - it should inherit from the NaiveImportTestCase, and set the
 name property to the previous CONTENT_SCHEMA_VERSION e.g. VERSION_2.
+
+In the case where new fields are added that do not need to be added to an export schema
+the generate_schema command should be run like this:
+
+    `kolibri manage generate_schema current`
+
+This will just regenerate the current schema and not generate any other schema or fixtures.
 """
 from __future__ import print_function
 
@@ -72,28 +85,26 @@ from kolibri.utils.conf import OPTIONS
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
-V020BETA1 = 'v0.2.0-beta1'
+V020BETA1 = "v0.2.0-beta1"
 
-V040BETA3 = 'v0.4.0-beta3'
+V040BETA3 = "v0.4.0-beta3"
 
-NO_VERSION = 'unversioned'
+NO_VERSION = "unversioned"
 
-VERSION_1 = '1'
+VERSION_1 = "1"
 
-VERSION_2 = '2'
+VERSION_2 = "2"
 
 # List of the content db schema versions, ordered from most recent to least recent.
 # When a new schema version is generated, it should be added here, at the top of the list.
-CONTENT_DB_SCHEMA_VERSIONS = [
-    VERSION_2,
-    VERSION_1,
-    NO_VERSION,
-    V040BETA3,
-    V020BETA1,
-]
+CONTENT_DB_SCHEMA_VERSIONS = [VERSION_2, VERSION_1, NO_VERSION, V040BETA3, V020BETA1]
 
-# The schema version for this version of Kolibri
+# The latest compatible exported schema version for this version of Kolibri
 CONTENT_SCHEMA_VERSION = VERSION_2
+
+# The version name for the current content schema,
+# which may have schema modifications not present in the export schema
+CURRENT_SCHEMA_VERSION = "current"
 
 
 class UUIDField(models.CharField):
@@ -102,7 +113,7 @@ class UUIDField(models.CharField):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 32
+        kwargs["max_length"] = 32
         super(UUIDField, self).__init__(*args, **kwargs)
 
     def prepare_value(self, value):
@@ -112,7 +123,7 @@ class UUIDField(models.CharField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(UUIDField, self).deconstruct()
-        del kwargs['max_length']
+        del kwargs["max_length"]
         return name, path, args, kwargs
 
     def get_internal_type(self):
@@ -125,7 +136,7 @@ class UUIDField(models.CharField):
             try:
                 value = uuid.UUID(value)
             except AttributeError:
-                raise TypeError(self.error_messages['invalid'] % {'value': value})
+                raise TypeError(self.error_messages["invalid"] % {"value": value})
         return value.hex
 
     def from_db_value(self, value, expression, connection, context):
@@ -147,29 +158,33 @@ class ContentTag(models.Model):
 
 
 class ContentNodeQueryset(TreeQuerySet):
-
     def dedupe_by_content_id(self):
         # remove duplicate content nodes based on content_id
         if connection.vendor == "sqlite":
             # adapted from https://code.djangoproject.com/ticket/22696
-            deduped_ids = self.values('content_id').annotate(node_id=Min('id')).values_list('node_id', flat=True)
+            deduped_ids = (
+                self.values("content_id")
+                .annotate(node_id=Min("id"))
+                .values_list("node_id", flat=True)
+            )
             return self.filter(id__in=deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
         elif connection.vendor == "postgresql":
-            return self.order_by('content_id').distinct('content_id')
+            return self.order_by("content_id").distinct("content_id")
 
 
-class ContentNodeManager(models.Manager.from_queryset(ContentNodeQueryset), TreeManager):
-
+class ContentNodeManager(
+    models.Manager.from_queryset(ContentNodeQueryset), TreeManager
+):
     def get_queryset(self, *args, **kwargs):
         """
         Ensures that this manager always returns nodes in tree order.
         """
-        return super(TreeManager, self).get_queryset(
-            *args, **kwargs
-        ).order_by(
-            self.tree_id_attr, self.left_attr
+        return (
+            super(TreeManager, self)
+            .get_queryset(*args, **kwargs)
+            .order_by(self.tree_id_attr, self.left_attr)
         )
 
 
@@ -182,13 +197,20 @@ class ContentNode(MPTTModel):
     It represents videos, exercises, audio, documents, and other 'content items' that
     exist as nodes in content channels.
     """
+
     id = UUIDField(primary_key=True)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey(
+        "self", null=True, blank=True, related_name="children", db_index=True
+    )
     license_name = models.CharField(max_length=50, null=True, blank=True)
     license_description = models.TextField(null=True, blank=True)
-    has_prerequisite = models.ManyToManyField('self', related_name='prerequisite_for', symmetrical=False, blank=True)
-    related = models.ManyToManyField('self', symmetrical=True, blank=True)
-    tags = models.ManyToManyField(ContentTag, symmetrical=False, related_name='tagged_content', blank=True)
+    has_prerequisite = models.ManyToManyField(
+        "self", related_name="prerequisite_for", symmetrical=False, blank=True
+    )
+    related = models.ManyToManyField("self", symmetrical=True, blank=True)
+    tags = models.ManyToManyField(
+        ContentTag, symmetrical=False, related_name="tagged_content", blank=True
+    )
     title = models.CharField(max_length=200)
     coach_content = models.BooleanField(default=False)
 
@@ -206,13 +228,18 @@ class ContentNode(MPTTModel):
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
-    stemmed_metaphone = models.CharField(max_length=1800, blank=True)  # for fuzzy search in title and description
-    lang = models.ForeignKey('Language', blank=True, null=True)
+    stemmed_metaphone = models.CharField(
+        max_length=1800, blank=True
+    )  # for fuzzy search in title and description
+    lang = models.ForeignKey("Language", blank=True, null=True)
+    # Fields used only on Kolibri and not imported from a content database
+    # Total number of coach only resources for this node
+    num_coach_contents = models.IntegerField(default=0, null=True, blank=True)
 
     objects = ContentNodeManager()
 
     class Meta:
-        ordering = ('lft',)
+        ordering = ("lft",)
         index_together = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
@@ -226,10 +253,11 @@ class ContentNode(MPTTModel):
         Retrieve a queryset of content_ids for non-topic content nodes that are
         descendants of this node.
         """
-        return ContentNode.objects \
-            .filter(lft__gte=self.lft, lft__lte=self.rght) \
-            .exclude(kind=content_kinds.TOPIC) \
+        return (
+            ContentNode.objects.filter(lft__gte=self.lft, lft__lte=self.rght)
+            .exclude(kind=content_kinds.TOPIC)
             .values_list("content_id", flat=True)
+        )
 
 
 @python_2_unicode_compatible
@@ -239,10 +267,12 @@ class Language(models.Model):
     lang_subcode = models.CharField(max_length=10, db_index=True, blank=True, null=True)
     # Localized name
     lang_name = models.CharField(max_length=100, blank=True, null=True)
-    lang_direction = models.CharField(max_length=3, choices=LANGUAGE_DIRECTIONS, default=LANGUAGE_DIRECTIONS[0][0])
+    lang_direction = models.CharField(
+        max_length=3, choices=LANGUAGE_DIRECTIONS, default=LANGUAGE_DIRECTIONS[0][0]
+    )
 
     def __str__(self):
-        return self.lang_name or ''
+        return self.lang_name or ""
 
 
 class File(models.Model):
@@ -250,12 +280,15 @@ class File(models.Model):
     The second to bottom layer of the contentDB schema, defines the basic building brick for content.
     Things it can represent are, for example, mp4, avi, mov, html, css, jpeg, pdf, mp3...
     """
+
     id = UUIDField(primary_key=True)
     # The foreign key mapping happens here as many File objects can map onto a single local file
-    local_file = models.ForeignKey('LocalFile', related_name='files')
+    local_file = models.ForeignKey("LocalFile", related_name="files")
     available = models.BooleanField(default=False)
-    contentnode = models.ForeignKey(ContentNode, related_name='files')
-    preset = models.CharField(max_length=150, choices=format_presets.choices, blank=True)
+    contentnode = models.ForeignKey(ContentNode, related_name="files")
+    preset = models.CharField(
+        max_length=150, choices=format_presets.choices, blank=True
+    )
     lang = models.ForeignKey(Language, blank=True, null=True)
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
@@ -280,7 +313,7 @@ class File(models.Model):
         """
         Return the preset.
         """
-        return PRESET_LOOKUP.get(self.preset, _('Unknown format'))
+        return PRESET_LOOKUP.get(self.preset, _("Unknown format"))
 
     def get_download_filename(self):
         """
@@ -296,7 +329,13 @@ class File(models.Model):
         Return the download url.
         """
         new_filename = self.get_download_filename()
-        return reverse('kolibri:core:downloadcontent', kwargs={'filename': self.local_file.get_filename(), 'new_filename': new_filename})
+        return reverse(
+            "kolibri:core:downloadcontent",
+            kwargs={
+                "filename": self.local_file.get_filename(),
+                "new_filename": new_filename,
+            },
+        )
 
 
 class LocalFileManager(models.Manager):
@@ -304,7 +343,7 @@ class LocalFileManager(models.Manager):
         for file in self.filter(files__isnull=True):
             try:
                 os.remove(paths.get_content_storage_file_path(file.get_filename()))
-            except (IOError, OSError, InvalidStorageFilenameError,):
+            except (IOError, OSError, InvalidStorageFilenameError):
                 pass
             yield file
 
@@ -320,9 +359,12 @@ class LocalFile(models.Model):
     """
     The bottom layer of the contentDB schema, defines the local state of files on the device storage.
     """
+
     # ID should be the checksum of the file
     id = models.CharField(max_length=32, primary_key=True)
-    extension = models.CharField(max_length=40, choices=file_formats.choices, blank=True)
+    extension = models.CharField(
+        max_length=40, choices=file_formats.choices, blank=True
+    )
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
 
@@ -343,7 +385,10 @@ class LocalFile(models.Model):
         The same url will also be exposed by the file serializer.
         """
         if self.available:
-            return paths.get_content_storage_file_url(filename=self.get_filename(), baseurl=OPTIONS['Deployment']['URL_PATH_PREFIX'])
+            return paths.get_content_storage_file_url(
+                filename=self.get_filename(),
+                baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"],
+            )
         else:
             return None
 
@@ -355,10 +400,9 @@ class AssessmentMetaData(models.Model):
     user's state of knowledge and allow them to practice to Mastery.
     ContentNodes with this metadata may also be able to be used within quizzes and exams.
     """
+
     id = UUIDField(primary_key=True)
-    contentnode = models.ForeignKey(
-        ContentNode, related_name='assessmentmetadata'
-    )
+    contentnode = models.ForeignKey(ContentNode, related_name="assessmentmetadata")
     # A JSON blob containing a serialized list of ids for questions that the assessment can present.
     assessment_item_ids = JSONField(default=[])
     # Length of the above assessment_item_ids for a convenience lookup.
@@ -377,6 +421,7 @@ class ChannelMetadata(models.Model):
     """
     Holds metadata about all existing content databases that exist locally.
     """
+
     id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
@@ -391,10 +436,7 @@ class ChannelMetadata(models.Model):
     published_size = models.BigIntegerField(default=0, null=True, blank=True)
     total_resource_count = models.IntegerField(default=0, null=True, blank=True)
     included_languages = models.ManyToManyField(
-        "Language",
-        related_name='channels',
-        verbose_name="languages",
-        blank=True,
+        "Language", related_name="channels", verbose_name="languages", blank=True
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
 
@@ -402,7 +444,7 @@ class ChannelMetadata(models.Model):
         pass
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 
     def __str__(self):
         return self.name

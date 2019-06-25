@@ -23,4 +23,5 @@ CMD git clone https://github.com/learningequality/kolibri-installer-windows.git 
     cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
     export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
     wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss && \
+    mv *.exe kolibri-$KOLIBRI_VERSION-unsigned.exe && \
     cp *.exe /kolibridist/

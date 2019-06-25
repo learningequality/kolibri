@@ -6,6 +6,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import sys
+from importlib import import_module
+
+from django.utils.module_loading import module_has_submodule
 
 from kolibri.utils.conf import config
 
@@ -14,14 +18,16 @@ logger = logging.getLogger(__name__)
 
 class MandatoryPluginMethodNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginMethodNotImplemented,
-              self).__init__("Plugin needs to define this method")  # pragma: no cover
+        super(MandatoryPluginMethodNotImplemented, self).__init__(
+            "Plugin needs to define this method"
+        )  # pragma: no cover
 
 
 class MandatoryPluginAttributeNotImplemented(NotImplementedError):
     def __init__(self):
-        super(MandatoryPluginAttributeNotImplemented,
-              self).__init__("Plugin needs to define this attribute")  # pragma: no cover
+        super(MandatoryPluginAttributeNotImplemented, self).__init__(
+            "Plugin needs to define this attribute"
+        )  # pragma: no cover
 
 
 class KolibriPluginBase(object):
@@ -54,8 +60,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path not in config['INSTALLED_APPS']:
-            config['INSTALLED_APPS'].append(module_path)
+        if module_path not in config.ACTIVE_PLUGINS:
+            config.enable_plugin(module_path)
         else:
             logger.warning("{} already enabled".format(module_path))
 
@@ -64,8 +70,8 @@ class KolibriPluginBase(object):
         """Call this from your enable() method to have the plugin automatically
         added to Kolibri configuration"""
         module_path = cls._module_path()
-        if module_path in config['INSTALLED_APPS']:
-            config['INSTALLED_APPS'].remove(module_path)
+        if module_path in config.ACTIVE_PLUGINS:
+            config.disable_plugin(module_path)
         else:
             logger.warning("{} already disabled".format(module_path))
 
@@ -79,16 +85,17 @@ class KolibriPluginBase(object):
         """Modify the kolibri config dict to your plugin's needs"""
         cls._installed_apps_remove()
 
+    def _return_module(self, module_name):
+        if module_has_submodule(sys.modules[self._module_path()], module_name):
+            models_module_name = "%s.%s" % (self._module_path(), module_name)
+            return import_module(models_module_name)
+
+        return None
+
     def url_module(self):
         """
         Return a url module, containing ``urlpatterns = [...]``, a conventional
         Django application url module.
-
-        If your application has a urls.py, you should do this::
-
-            def url_module(self):
-                from myplugin import urls
-                return urls
 
         URLs are by default accessed through Django's reverse lookups like
         this::
@@ -98,9 +105,31 @@ class KolibriPluginBase(object):
         To customize "mypluginclass" (which is automatically derived from the
         plugin's class name), override ``url_namespace``.
 
-        .. note:: We *could* make urls.py auto-detected.
+        By default urls.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
         """
-        return None
+        return self._return_module("urls")
+
+    def api_url_module(self):
+        """
+        Return a url module, containing ``urlpatterns = [...]``, a conventional
+        Django application url module.
+
+        Do this separately for API endpoints so that they do not need
+        to be prefixed by the language code.
+
+        URLs are by default accessed through Django's reverse lookups like
+        this::
+
+            reverse('kolibri:mypluginclass:url_name')
+
+        To customize "mypluginclass" (which is automatically derived from the
+        plugin's class name), override ``url_namespace``.
+
+        By default api_urls.py will be automatically discovered, if you wish to
+        override this behaviour, override this method.
+        """
+        return self._return_module("api_urls")
 
     def url_namespace(self):
         """

@@ -26,7 +26,6 @@ def flatten(lst):
 
 
 class RolesWithinFacilityTestCase(TestCase):
-
     def setUp(self):
         self.data = create_dummy_facility_data()
 
@@ -62,37 +61,47 @@ class RolesWithinFacilityTestCase(TestCase):
 
 
 class ImplicitMembershipTestCase(TestCase):
-
     def setUp(self):
         self.facility = Facility.objects.create(name="My Facility")
-        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.admin = FacilityUser.objects.create(
+            username="admin", facility=self.facility
+        )
         self.facility.add_admin(self.admin)
-        self.learner = FacilityUser.objects.create(username="learner", facility=self.facility)
+        self.learner = FacilityUser.objects.create(
+            username="learner", facility=self.facility
+        )
 
     def test_has_admin_role_for_learner(self):
         self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
 
     def test_only_has_admin_role_for_learner(self):
-        self.assertEqual(self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN]))
+        self.assertEqual(
+            self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN])
+        )
 
     def test_admin_can_read_learner_object(self):
         self.assertTrue(self.admin.can_read(self.learner))
 
     def test_learner_is_in_list_of_readable_objects(self):
-        self.assertIn(self.learner, self.admin.filter_readable(FacilityUser.objects.all()))
+        self.assertIn(
+            self.learner, self.admin.filter_readable(FacilityUser.objects.all())
+        )
 
 
 class ExplicitMembershipTestCase(TestCase):
-
     def setUp(self):
 
         self.facility = Facility.objects.create(name="My Facility")
 
-        self.admin = FacilityUser.objects.create(username="admin", facility=self.facility)
+        self.admin = FacilityUser.objects.create(
+            username="admin", facility=self.facility
+        )
         self.classroom = Classroom.objects.create(name="Class", parent=self.facility)
         self.classroom.add_admin(self.admin)
 
-        self.learner = FacilityUser.objects.create(username="learner", facility=self.facility)
+        self.learner = FacilityUser.objects.create(
+            username="learner", facility=self.facility
+        )
         self.group = LearnerGroup.objects.create(name="Group", parent=self.classroom)
         self.group.add_member(self.learner)
 
@@ -100,17 +109,20 @@ class ExplicitMembershipTestCase(TestCase):
         self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
 
     def test_only_has_admin_role_for_learner(self):
-        self.assertEqual(self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN]))
+        self.assertEqual(
+            self.admin.get_roles_for(self.learner), set([role_kinds.ADMIN])
+        )
 
     def test_admin_can_read_learner_object(self):
         self.assertTrue(self.admin.can_read(self.learner))
 
     def test_learner_is_in_list_of_readable_objects(self):
-        self.assertIn(self.learner, self.admin.filter_readable(FacilityUser.objects.all()))
+        self.assertIn(
+            self.learner, self.admin.filter_readable(FacilityUser.objects.all())
+        )
 
 
 class RolesAcrossFacilitiesTestCase(TestCase):
-
     def setUp(self):
         self.data1 = create_dummy_facility_data()
         self.data2 = create_dummy_facility_data()
@@ -124,8 +136,16 @@ class RolesAcrossFacilitiesTestCase(TestCase):
                     self.assertEqual(len(user1.get_roles_for(user2)), 0)
 
     def test_no_roles_for_collections_across_facilities(self):
-        users1 = self.data1["classroom_coaches"] + [self.data1["facility_admin"]] + list(self.data1["facility"].get_members())
-        collections2 = [self.data2["facility"]] + self.data2["classrooms"] + flatten(self.data2["learnergroups"])
+        users1 = (
+            self.data1["classroom_coaches"]
+            + [self.data1["facility_admin"]]
+            + list(self.data1["facility"].get_members())
+        )
+        collections2 = (
+            [self.data2["facility"]]
+            + self.data2["classrooms"]
+            + flatten(self.data2["learnergroups"])
+        )
         for user1 in users1:
             for collection2 in collections2:
                 if not user1.is_superuser:
@@ -133,16 +153,21 @@ class RolesAcrossFacilitiesTestCase(TestCase):
 
 
 class MembershipWithinFacilityTestCase(TestCase):
-
     def setUp(self):
         self.data = create_dummy_facility_data()
         self.anon_user = KolibriAnonymousUser()
 
     def test_facility_membership(self):
-        actual_members = flatten(self.data["learners_one_group"] + [self.data["learner_all_groups"]] +
-                                 self.data["unattached_users"] + [self.data["facility_admin"]] +
-                                 [self.data["facility_coach"]] + self.data["classroom_admins"] +
-                                 self.data["classroom_coaches"] + [self.data["superuser"]])
+        actual_members = flatten(
+            self.data["learners_one_group"]
+            + [self.data["learner_all_groups"]]
+            + self.data["unattached_users"]
+            + [self.data["facility_admin"]]
+            + [self.data["facility_coach"]]
+            + self.data["classroom_admins"]
+            + self.data["classroom_coaches"]
+            + [self.data["superuser"]]
+        )
         returned_members = self.data["facility"].get_members()
         self.assertSetEqual(set(actual_members), set(returned_members))
         for user in actual_members:
@@ -151,7 +176,9 @@ class MembershipWithinFacilityTestCase(TestCase):
 
     def test_classroom_membership(self):
         for i, classroom in enumerate(self.data["classrooms"]):
-            actual_members = flatten(self.data["learners_one_group"][i] + [self.data["learner_all_groups"]])
+            actual_members = flatten(
+                self.data["learners_one_group"][i] + [self.data["learner_all_groups"]]
+            )
             returned_members = classroom.get_members()
             self.assertSetEqual(set(actual_members), set(returned_members))
             # ensure that `is_member` is True for all users in the classroom
@@ -166,7 +193,9 @@ class MembershipWithinFacilityTestCase(TestCase):
         for i, classroom_users in enumerate(self.data["learners_one_group"]):
             for j, learnergroup_users in enumerate(classroom_users):
                 learnergroup = self.data["learnergroups"][i][j]
-                actual_members = [self.data["learners_one_group"][i][j]] + [self.data["learner_all_groups"]]
+                actual_members = [self.data["learners_one_group"][i][j]] + [
+                    self.data["learner_all_groups"]
+                ]
                 returned_members = learnergroup.get_members()
                 self.assertSetEqual(set(actual_members), set(returned_members))
                 # ensure that `is_member` is True for all users in the learnergroup
@@ -178,7 +207,6 @@ class MembershipWithinFacilityTestCase(TestCase):
 
 
 class MembershipAcrossFacilitiesTestCase(TestCase):
-
     def setUp(self):
         self.data1 = create_dummy_facility_data()
         self.data2 = create_dummy_facility_data()
@@ -197,7 +225,6 @@ class MembershipAcrossFacilitiesTestCase(TestCase):
 
 
 class SuperuserRolesTestCase(TestCase):
-
     def setUp(self):
         self.data = create_dummy_facility_data()
         self.superuser = self.data["superuser"]
@@ -219,7 +246,6 @@ class SuperuserRolesTestCase(TestCase):
 
 
 class AnonymousUserRolesTestCase(TestCase):
-
     def setUp(self):
         self.data = create_dummy_facility_data()
         self.anon_user = KolibriAnonymousUser()

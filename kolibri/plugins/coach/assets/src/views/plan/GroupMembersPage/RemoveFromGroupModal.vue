@@ -5,8 +5,8 @@
     :hasError="false"
     :submitText="$tr('remove')"
     :cancelText="$tr('cancel')"
-    @submit="$emit('confirm')"
     @cancel="$emit('cancel')"
+    @submit="$emit('submit')"
   >
     <p>
       {{ $tr('confirmation', { username: username, classname: groupName }) }}
@@ -22,12 +22,6 @@
 
   export default {
     name: 'RemoveFromGroupModal',
-    $trs: {
-      modalTitle: 'Remove user',
-      remove: 'Remove',
-      cancel: 'Cancel',
-      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
-    },
     components: {
       KModal,
     },
@@ -40,6 +34,12 @@
         type: String,
         required: true,
       },
+    },
+    $trs: {
+      modalTitle: 'Remove user',
+      remove: 'Remove',
+      cancel: 'Cancel',
+      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
     },
   };
 

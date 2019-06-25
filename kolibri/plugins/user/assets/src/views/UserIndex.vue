@@ -49,9 +49,6 @@
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
       },
-      navBarNeeded() {
-        return this.pageName !== PageNames.SIGN_IN && this.pageName !== PageNames.SIGN_UP;
-      },
       PageNames() {
         return PageNames;
       },

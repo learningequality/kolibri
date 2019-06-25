@@ -1,71 +1,83 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout">
-    <div slot="header">
-      <h1 class="learner-name">{{ learner.name }}</h1>
-      <p class="exercise-detail-section">
-        <ContentIcon
-          class="exercise-detail-icons"
-          :kind="ContentNodeKinds.EXERCISE"
-          :showTooltip="false"
-        />
-        {{ exercise.title }}
-        <CoachContentLabel
-          class="exercise-detail-icons"
-          :value="exercise.num_coach_contents || 0"
-          :isTopic="false"
-        />
-      </p>
-      <HeaderTable>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('masteryModelLabel') }}</template>
-          <template slot="value"><MasteryModel /></template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-          <template slot="value">
-            <StatusSimple :status="status" />
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
-    </div>
-    <template v-if="attemptLogs.length > 0">
-      <AttemptLogList
-        slot="aside"
-        :attemptLogs="attemptLogs"
-        :selectedQuestionNumber="attemptLogIndex"
-        @select="navigateToNewAttempt($event)"
-      />
-      <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
-        <KCheckbox
-          :label="coachStrings.$tr('showCorrectAnswerLabel')"
-          :checked="showCorrectAnswer"
-          @change="toggleShowCorrectAnswer"
-        />
-        <InteractionList
-          v-if="!showCorrectAnswer"
-          :interactions="currentInteractionHistory"
-          :selectedInteractionIndex="interactionIndex"
-          @select="navigateToNewInteraction($event)"
-        />
-        <ContentRenderer
-          v-if="currentInteraction"
-          :id="exercise.id"
-          :itemId="currentAttemptLog.item"
-          :assessment="true"
-          :allowHints="false"
-          :kind="exercise.kind"
-          :files="exercise.files"
-          :contentId="exercise.content_id"
-          :available="exercise.available"
-          :answerState="answerState"
-          :showCorrectAnswer="showCorrectAnswer"
-          :interactive="false"
-          :extraFields="exercise.extra_fields"
-        />
+  <KPageContainer noPadding>
+    <MultiPaneLayout ref="multiPaneLayout">
+      <div slot="header">
+        <h1 class="learner-name">
+          {{ learner.name }}
+        </h1>
+        <p class="exercise-detail-section">
+          <ContentIcon
+            class="exercise-detail-icons"
+            :kind="ContentNodeKinds.EXERCISE"
+            :showTooltip="false"
+          />
+          {{ exercise.title }}
+          <CoachContentLabel
+            class="exercise-detail-icons"
+            :value="exercise.num_coach_contents || 0"
+            :isTopic="false"
+          />
+        </p>
+        <HeaderTable>
+          <HeaderTableRow>
+            <template slot="key">
+              {{ coachStrings.$tr('masteryModelLabel') }}
+            </template>
+            <template slot="value">
+              <MasteryModel />
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow>
+            <template slot="key">
+              {{ coachStrings.$tr('statusLabel') }}
+            </template>
+            <template slot="value">
+              <StatusSimple :status="status" />
+            </template>
+          </HeaderTableRow>
+        </HeaderTable>
       </div>
-    </template>
-  </MultiPaneLayout>
+      <template v-if="attemptLogs.length > 0">
+        <AttemptLogList
+          slot="aside"
+          :attemptLogs="attemptLogs"
+          :selectedQuestionNumber="attemptLogIndex"
+          @select="navigateToNewAttempt($event)"
+        />
+        <div
+          slot="main"
+          class="exercise-section"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
+          <KCheckbox
+            :label="coachStrings.$tr('showCorrectAnswerLabel')"
+            :checked="showCorrectAnswer"
+            @change="toggleShowCorrectAnswer"
+          />
+          <InteractionList
+            v-if="!showCorrectAnswer"
+            :interactions="currentInteractionHistory"
+            :selectedInteractionIndex="interactionIndex"
+            @select="navigateToNewInteraction($event)"
+          />
+          <ContentRenderer
+            v-if="currentInteraction"
+            :itemId="currentAttemptLog.item"
+            :assessment="true"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :available="exercise.available"
+            :answerState="answerState"
+            :showCorrectAnswer="showCorrectAnswer"
+            :interactive="false"
+            :extraFields="exercise.extra_fields"
+          />
+        </div>
+      </template>
+    </MultiPaneLayout>
+  </KPageContainer>
 
 </template>
 
@@ -93,7 +105,6 @@
       CoachContentLabel,
     },
     mixins: [commonCoach, themeMixin],
-    $trs: {},
     data() {
       return {
         showCorrectAnswer: false,
@@ -153,6 +164,7 @@
         this.$forceUpdate();
       },
     },
+    $trs: {},
   };
 
 </script>
@@ -162,13 +174,6 @@
 
   .exercise-section {
     padding: 16px;
-    h3 {
-      margin-top: 0;
-    }
-  }
-
-  .learner-name {
-    margin-bottom: 0;
   }
 
   .exercise-detail-section {

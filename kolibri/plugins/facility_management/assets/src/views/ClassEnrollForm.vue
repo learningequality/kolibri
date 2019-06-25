@@ -85,7 +85,6 @@
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
-  import { Modals } from './../constants';
 
   export default {
     name: 'ClassEnrollForm',
@@ -96,27 +95,6 @@
       UserTable,
     },
     mixins: [responsiveWindow],
-    $trs: {
-      confirmSelectionButtonLabel: 'Confirm',
-      searchForUser: 'Search for a user',
-      userIconColumnHeader: 'User Icon',
-      name: 'Full name',
-      username: 'Username',
-      userTableLabel: 'User List',
-      role: 'Role',
-      // TODO clarify empty state messages after string freeze
-      noUsersExist: 'No users exist',
-      noUsersSelected: 'No users are selected',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      selectAllOnPage: 'Select all on page',
-      allUsersAlready: 'All users are already enrolled in this class',
-      search: 'Search',
-      selectUser: 'Select user',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-    },
     props: {
       facilityUsers: {
         type: Array,
@@ -138,9 +116,6 @@
     computed: {
       usersNotInClass() {
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
-      },
-      filteredUsers() {
-        return this.usersNotInClass.filter(user => userMatchesFilter(user, this.filterInput));
       },
       sortedFilteredUsers() {
         return filterAndSortUsers(this.usersNotInClass, user =>
@@ -168,9 +143,6 @@
       visibleFilteredUsers() {
         return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
-      showConfirmEnrollmentModal() {
-        return this.modalShown === Modals.CONFIRM_ENROLLMENT;
-      },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
@@ -187,21 +159,30 @@
       },
     },
     methods: {
-      reducePageNum() {
-        while (this.visibleFilteredUsers.length === 0 && this.pageNum > 1) {
-          this.pageNum = this.pageNum - 1;
-        }
-      },
       goToPage(page) {
         this.pageNum = page;
       },
-      pageWithinRange(page) {
-        const maxOnEachSide = 1;
-        if (this.pageNum === 1 || this.pageNum === this.numPages) {
-          return Math.abs(this.pageNum - page) <= maxOnEachSide + 1;
-        }
-        return Math.abs(this.pageNum - page) <= maxOnEachSide;
-      },
+    },
+    $trs: {
+      confirmSelectionButtonLabel: 'Confirm',
+      searchForUser: 'Search for a user',
+      userIconColumnHeader: 'User Icon',
+      name: 'Full name',
+      username: 'Username',
+      userTableLabel: 'User List',
+      role: 'Role',
+      // TODO clarify empty state messages after string freeze
+      noUsersExist: 'No users exist',
+      noUsersSelected: 'No users are selected',
+      noUsersMatch: 'No users match',
+      previousResults: 'Previous results',
+      nextResults: 'Next results',
+      selectAllOnPage: 'Select all on page',
+      allUsersAlready: 'All users are already enrolled in this class',
+      search: 'Search',
+      selectUser: 'Select user',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
     },
   };
 

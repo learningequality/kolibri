@@ -67,7 +67,7 @@
     computed: {
       table() {
         const sorted = this._.sortBy(this.learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const groupNames = this.getGroupNames(
             this._.map(this.groups.filter(group => group.member_ids.includes(learner.id)), 'id')
           );
@@ -86,7 +86,6 @@
           Object.assign(augmentedObj, learner);
           return augmentedObj;
         });
-        return mapped;
       },
     },
     methods: {
@@ -102,10 +101,8 @@
           ...examStatuses,
           ...contentStatuses.filter(status => status.status !== this.STATUSES.notStarted),
         ];
-        if (!statuses.length) {
-          return null;
-        }
-        return this._.maxBy(statuses, 'last_activity').last_activity;
+
+        return statuses.length ? this.maxLastActivity(statuses) : null;
       },
       exercisesCompleted(contentStatuses) {
         const statuses = contentStatuses.filter(

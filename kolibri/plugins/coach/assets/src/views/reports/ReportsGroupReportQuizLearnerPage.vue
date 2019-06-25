@@ -33,7 +33,6 @@
         return this.classRoute('ReportsGroupReportQuizLearnerListPage', {});
       },
     },
-    $trs: {},
     methods: {
       handleNavigation(params) {
         this.$router.push({
@@ -46,6 +45,7 @@
         });
       },
     },
+    $trs: {},
   };
 
 </script>

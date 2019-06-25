@@ -6,7 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
-    @cancel="closeModal"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
@@ -22,22 +22,11 @@
 
   export default {
     name: 'DeleteUserModal',
-    $trs: {
-      deleteUser: 'Delete user',
-      confirmation: "Are you sure you want to delete the user '{ username }'?",
-      warning: 'All data and logs for this user will be lost.',
-      cancel: 'Cancel',
-      delete: 'Delete',
-    },
     components: {
       KModal,
     },
     props: {
       id: {
-        type: String,
-        required: true,
-      },
-      name: {
         type: String,
         required: true,
       },
@@ -52,14 +41,18 @@
       };
     },
     methods: {
-      ...mapActions('userManagement', ['deleteUser', 'displayModal']),
+      ...mapActions('userManagement', ['deleteUser']),
       handleDeleteUser() {
         this.submitting = true;
         this.deleteUser(this.id);
       },
-      closeModal() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      deleteUser: 'Delete user',
+      confirmation: "Are you sure you want to delete the user '{ username }'?",
+      warning: 'All data and logs for this user will be lost.',
+      cancel: 'Cancel',
+      delete: 'Delete',
     },
   };
 

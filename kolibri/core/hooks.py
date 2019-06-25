@@ -14,15 +14,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
-
-from kolibri.plugins.hooks import KolibriHook
+from kolibri.plugins import hooks
 from kolibri.plugins.utils import plugin_url
 
-logger = logging.getLogger(__name__)
 
-
-class NavigationHook(KolibriHook):
+class NavigationHook(hooks.KolibriHook):
 
     # : A string label for the menu item
     label = "Untitled"
@@ -41,11 +37,10 @@ class NavigationHook(KolibriHook):
         return menu
 
     class Meta:
-
         abstract = True
 
 
-class RoleBasedRedirectHook(KolibriHook):
+class RoleBasedRedirectHook(hooks.KolibriHook):
     # User role to redirect for
     role = None
 
@@ -60,5 +55,4 @@ class RoleBasedRedirectHook(KolibriHook):
         return plugin_url(plugin_class, url_name)
 
     class Meta:
-
         abstract = True

@@ -4,8 +4,8 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
+    @cancel="$emit('cancel')"
     @submit="setLang"
-    @cancel="closeModal"
   >
     <KGrid>
       <KGridItem
@@ -52,11 +52,6 @@
       KRadioButton,
     },
     mixins: [languageSwitcherMixin, responsiveWindow],
-    $trs: {
-      changeLanguageModalHeader: 'Change language',
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Confirm',
-    },
     data() {
       return {
         selectedLanguage: currentLanguage,
@@ -71,12 +66,14 @@
       },
     },
     methods: {
-      closeModal() {
-        this.$emit('close');
-      },
       setLang() {
         this.switchLanguage(this.selectedLanguage);
       },
+    },
+    $trs: {
+      changeLanguageModalHeader: 'Change language',
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Confirm',
     },
   };
 

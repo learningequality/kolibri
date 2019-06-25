@@ -9,8 +9,8 @@ def tidy_progress_range(apps, schema_editor):
     """
     Tidies progress ranges because a bug had caused them to go out of range
     """
-    ContentSessionLog = apps.get_model('logger', 'ContentSessionLog')
-    ContentSummaryLog = apps.get_model('logger', 'ContentSummaryLog')
+    ContentSessionLog = apps.get_model("logger", "ContentSessionLog")
+    ContentSummaryLog = apps.get_model("logger", "ContentSummaryLog")
 
     # Not knowing how floating points will behave in the local database,
     # 1.0 might become bigger than 1.0!!
@@ -25,10 +25,6 @@ def reverse(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('logger', '0003_auto_20170531_1140'),
-    ]
+    dependencies = [("logger", "0003_auto_20170531_1140")]
 
-    operations = [
-        migrations.RunPython(tidy_progress_range, reverse_code=reverse),
-    ]
+    operations = [migrations.RunPython(tidy_progress_range, reverse_code=reverse)]

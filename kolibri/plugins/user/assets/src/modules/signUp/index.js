@@ -11,6 +11,28 @@ function defaultState() {
 export default {
   namespaced: true,
   state: defaultState(),
+  schema: {
+    busy: {
+      default: false,
+      type: Boolean,
+    },
+    errors: {
+      default: [],
+      type: Array,
+      validator: function(value) {
+        return value.reduce((acc, val) => {
+          if (!(val instanceof String)) {
+            return false;
+          }
+          return acc;
+        }, true);
+      },
+    },
+    unrecognizedError: {
+      default: false,
+      type: Boolean,
+    },
+  },
   mutations: {
     SET_STATE(state, payload) {
       Object.assign(state, payload);

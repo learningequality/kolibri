@@ -27,7 +27,7 @@
               <KLabeledIcon>
                 <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
                 <KRouterLink
-                  v-if="tableRow.kind === 'exercise'"
+                  v-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
                   :text="tableRow.title"
                   :to="classRoute(
                     'ReportsLessonExerciseLearnerListPage',
@@ -35,13 +35,16 @@
                   )"
                 />
                 <KRouterLink
-                  v-else
+                  v-else-if="tableRow.hasAssignments"
                   :text="tableRow.title"
                   :to="classRoute(
                     'ReportsLessonResourceLearnerListPage',
                     { resourceId: tableRow.content_id }
                   )"
                 />
+                <template v-else>
+                  {{ tableRow.title }}
+                </template>
               </KLabeledIcon>
             </td>
             <td>
@@ -81,33 +84,25 @@
       emptyMessage() {
         return LessonSummaryPageStrings.$tr('noResourcesInLesson');
       },
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsLessonEditorPage' },
-          {
-            label: this.coachStrings.$tr('manageResourcesAction'),
-            value: 'ReportsLessonManagerPage',
-          },
-        ];
-      },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.lesson.groups);
+        return this.getLearnersForLesson(this.lesson);
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
         const sorted = this._.sortBy(contentArray, ['title']);
-        const mapped = sorted.map(content => {
+        return sorted.map(content => {
+          const tally = this.getContentStatusTally(content.content_id, this.recipients);
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
-            tally: this.getContentStatusTally(content.content_id, this.recipients),
+            tally,
+            hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
           };
           Object.assign(tableRow, content);
           return tableRow;
         });
-        return mapped;
       },
     },
     $trs: {

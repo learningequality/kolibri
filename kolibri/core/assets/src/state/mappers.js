@@ -1,6 +1,4 @@
-import mapKeys from 'lodash/mapKeys';
 import mapValues from 'lodash/mapValues';
-import camelCase from 'lodash/camelCase';
 import snakeCase from 'lodash/snakeCase';
 
 function ensureTypeSnakeCase(value) {
@@ -10,7 +8,7 @@ function ensureTypeSnakeCase(value) {
   return value;
 }
 
-function assessmentMetaDataState(data) {
+export function assessmentMetaDataState(data) {
   const blankState = {
     assessment: false,
     assessmentIds: [],
@@ -37,13 +35,3 @@ function assessmentMetaDataState(data) {
     randomize: assessmentMetaData.randomize,
   };
 }
-
-function convertKeysToCamelCase(object) {
-  return mapKeys(object, (value, key) => camelCase(key));
-}
-
-function convertKeysToSnakeCase(object) {
-  return mapKeys(object, (value, key) => snakeCase(key));
-}
-
-export { assessmentMetaDataState, convertKeysToCamelCase, convertKeysToSnakeCase };

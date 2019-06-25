@@ -4,19 +4,27 @@
 
     <FacilityModal
       v-if="facilityModalVisible"
-      @close="closeFacilityModal"
+      @cancel="closeFacilityModal"
+      @submit="closeFacilityModal"
     />
 
     <div class="wrapper-table">
       <div class="table-row main-row" :style="backgroundImageStyle">
         <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $coreBgLight }">
-            <CoreLogo :style="{'height': `${logoHeight}px`}" />
+          <div class="box" :style="{ backgroundColor: $themeColors.palette.grey.v_100 }">
+            <CoreLogo
+              v-if="$theme.signIn.topLogo"
+              class="logo"
+              :src="$theme.signIn.topLogo.src"
+              :alt="$theme.signIn.topLogo.alt"
+              :style="$theme.signIn.topLogo.style"
+            />
             <h1
               class="kolibri-title"
-              :style="{'font-size': `${logoTextSize}px`}"
+              :class="$computedClass({color: $themeTokens.logoText})"
+              :style="$theme.signIn.titleStyle"
             >
-              {{ $tr('kolibri') }}
+              {{ logoText }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">
               <UiAlert
@@ -47,12 +55,13 @@
                     v-if="simpleSignIn && suggestions.length"
                     v-show="showDropdown"
                     class="suggestions"
+                    :style="{backgroundColor: $themeTokens.surface}"
                   >
                     <UiAutocompleteSuggestion
                       v-for="(suggestion, i) in suggestions"
                       :key="i"
                       :suggestion="suggestion"
-                      :style="{ backgroundColor: highlightedIndex === i ? $coreGrey : ''}"
+                      :style="suggestionStyle(i)"
                       @mousedown.native="fillUsername(suggestion)"
                     />
                   </ul>
@@ -108,13 +117,14 @@
         </div>
       </div>
       <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $coreBgLight }">
+        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            •
+            <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
+            <span v-else> • </span>
             <KButton
               :text="$tr('privacyLink')"
               appearance="basic-link"
@@ -158,22 +168,6 @@
 
   export default {
     name: 'SignInPage',
-    $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      username: 'Username',
-      password: 'Password',
-      enterPassword: 'Enter password',
-      createAccount: 'Create an account',
-      accessAsGuest: 'Explore without account',
-      signInError: 'Incorrect username or password',
-      poweredBy: 'Kolibri {version}',
-      required: 'This field is required',
-      requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      documentTitle: 'User Sign In',
-      privacyLink: 'Usage and privacy',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -219,7 +213,7 @@
         busy: state => state.core.signInBusy,
       }),
       simpleSignIn() {
-        return this.facilityConfig.learnerCanLoginWithNoPassword;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -264,7 +258,7 @@
         return !this.usernameIsInvalid && !this.passwordIsInvalid;
       },
       canSignUp() {
-        return this.facilityConfig.learnerCanSignUp;
+        return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
         return { name: PageNames.SIGN_UP };
@@ -279,30 +273,30 @@
         return !this.simpleSignIn || this.hasServerError;
       },
       allowGuestAccess() {
-        return this.facilityConfig.allowGuestAccess;
+        return this.facilityConfig.allow_guest_access;
       },
-      logoHeight() {
-        const CRITICAL_ACTIONS_HEIGHT = 350; // title + form + action buttons
-        let height = this.windowHeight - CRITICAL_ACTIONS_HEIGHT - 32;
-        height = Math.max(height, 32);
-        height = Math.min(height, 80);
-        return height;
-      },
-      logoTextSize() {
-        return Math.floor(this.logoHeight * 0.3);
+      logoText() {
+        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
       },
       backgroundImageStyle() {
-        return {
-          backgroundColor: this.$coreActionNormal,
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${require('./background.jpg')})`,
-        };
+        if (this.$theme.signIn.background) {
+          return {
+            backgroundColor: this.$themeTokens.primary,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${
+              this.$theme.signIn.background
+            })`,
+          };
+        }
+        return { backgroundColor: this.$themeColors.brand.primary.v_900 };
       },
     },
     watch: {
-      username: 'setSuggestionTerm',
+      username(newVal) {
+        this.setSuggestionTerm(newVal);
+      },
     },
     mounted() {
       /*
@@ -430,6 +424,27 @@
       handlePasswordChanged() {
         this.autoFilledByChromeAndNotEdited = false;
       },
+      suggestionStyle(i) {
+        return {
+          backgroundColor: this.highlightedIndex === i ? this.$themeColors.palette.grey.v_200 : '',
+        };
+      },
+    },
+    $trs: {
+      kolibri: 'Kolibri',
+      signIn: 'Sign in',
+      username: 'Username',
+      password: 'Password',
+      enterPassword: 'Enter password',
+      createAccount: 'Create an account',
+      accessAsGuest: 'Explore without account',
+      signInError: 'Incorrect username or password',
+      poweredBy: 'Kolibri {version}',
+      required: 'This field is required',
+      requiredForCoachesAdmins: 'Password is required for coaches and admins',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      documentTitle: 'User Sign In',
+      privacyLink: 'Usage and privacy',
     },
   };
 
@@ -532,7 +547,6 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
-    background-color: white;
   }
 
   .textbox-enter-active {
@@ -551,12 +565,27 @@
     transition: opacity 0s;
   }
 
+  .logo {
+    width: 100%;
+    max-width: 65vh; // not compatible with older browsers
+    height: auto;
+  }
+
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 8px;
-    font-size: 1.5em;
+    font-size: 24px;
     font-weight: 100;
-    color: #9174a9;
+  }
+
+  .footer-logo {
+    position: relative;
+    top: -1px;
+    display: inline-block;
+    height: 24px;
+    margin-right: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
   }
 
 </style>

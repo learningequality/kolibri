@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import sys
 
 import portend
@@ -15,6 +16,9 @@ PORT_AVAILABILITY_CHECK_TIMEOUT = 2
 
 
 def check_other_kolibri_running(port):
+    """
+    Make sure there are no other Kolibri instances running before starting the server.
+    """
     try:
         # Check if there are other kolibri instances running
         # If there are, then we need to stop users from starting kolibri again.
@@ -32,6 +36,9 @@ def check_other_kolibri_running(port):
 
 
 def check_port_availability(host, port):
+    """
+    Make sure the port is available for the server to start.
+    """
     try:
         portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
     except portend.Timeout:
@@ -45,7 +52,10 @@ def check_port_availability(host, port):
 
 
 def check_content_directory_exists_and_writable():
-    content_directory = OPTIONS['Paths']['CONTENT_DIR']
+    """
+    Make sure the content directory of Kolibri exists and is writable.
+    """
+    content_directory = OPTIONS["Paths"]["CONTENT_DIR"]
 
     # Check if the content directory exists
     if not os.path.exists(content_directory):
@@ -60,3 +70,28 @@ def check_content_directory_exists_and_writable():
             "The content directory {} is not writable.".format(content_directory)
         )
         sys.exit(1)
+
+
+def check_log_file_location():
+    """
+    Starting from Kolibri v0.12.4, log files are going to be renamed and moved
+    from KOLIBRI_HOME directory to KOLIBRI_HOME/logs directory.
+    """
+    home = os.environ["KOLIBRI_HOME"]
+    log_location_update = {}
+
+    # Old log file names
+    old_daemon_log = "server.log"
+    old_kolibri_log = "kolibri.log"
+    old_debug_log = "debug.log"
+
+    # New log file names
+    log_location_update[old_daemon_log] = "daemon.txt"
+    log_location_update[old_kolibri_log] = "kolibri.txt"
+    log_location_update[old_debug_log] = "debug.txt"
+
+    for log in log_location_update:
+        old_log_path = os.path.join(home, log)
+        if os.path.exists(old_log_path):
+            new_log_path = os.path.join(home, "logs", log_location_update[log])
+            shutil.move(old_log_path, new_log_path)

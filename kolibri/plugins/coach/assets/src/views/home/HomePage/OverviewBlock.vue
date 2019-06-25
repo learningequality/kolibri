@@ -8,14 +8,22 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ $store.state.classSummary.name }}</h1>
+
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" classroom />
+        {{ $store.state.classSummary.name }}
+      </KLabeledIcon>
+    </h1>
     <HeaderTable>
       <HeaderTableRow>
         <KLabeledIcon slot="key">
           <KIcon slot="icon" coach />
           {{ $tr('coach', {count: coachNames.length}) }}
         </KLabeledIcon>
-        <template slot="value"><TruncatedItemList :items="coachNames" /></template>
+        <template slot="value">
+          <TruncatedItemList :items="coachNames" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <KLabeledIcon slot="key">
@@ -41,12 +49,6 @@
     name: 'OverviewBlock',
     components: {},
     mixins: [commonCoach],
-    $trs: {
-      back: 'All classes',
-      changeClass: 'Change class',
-      coach: '{count, plural, one {Coach} other {Coaches}}',
-      learner: '{count, plural, one {Learner} other {Learners}}',
-    },
     computed: {
       ...mapGetters(['classListPageEnabled']),
       coachNames() {
@@ -55,6 +57,12 @@
       learnerNames() {
         return this.learners.map(learner => learner.name);
       },
+    },
+    $trs: {
+      back: 'All classes',
+      changeClass: 'Change class',
+      coach: '{count, plural, one {Coach} other {Coaches}}',
+      learner: '{count, plural, one {Learner} other {Learners}}',
     },
   };
 

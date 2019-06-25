@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
 import flatten from 'lodash/flatten';
+import find from 'lodash/find';
 
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
@@ -279,6 +280,24 @@ export default {
       });
       return map;
     },
+    quizTitleUnavailable(state, getters) {
+      const normalize = title => title.trim().toUpperCase();
+      return function finder({ title, excludeId }) {
+        return find(
+          getters.exams,
+          exam => exam.id !== excludeId && normalize(exam.title) === normalize(title)
+        );
+      };
+    },
+    lessonTitleUnavailable(state, getters) {
+      const normalize = title => title.trim().toUpperCase();
+      return function finder({ title, excludeId }) {
+        return find(
+          getters.lessons,
+          lesson => lesson.id !== excludeId && normalize(lesson.title) === normalize(title)
+        );
+      };
+    },
     // Adapter used in 'coachNotifications' module. Make sure this getter is updated
     // whenever this module's state changes.
     notificationModuleData(state) {
@@ -298,12 +317,12 @@ export default {
       const examMap = _itemMap(summary.exams, 'id');
       summary.exam_learner_status.forEach(status => {
         // convert dates
-        status.last_activity = new Date(status.last_activity);
+        status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
         status.score = _score(status.num_correct, examMap[status.exam_id].question_count);
       });
       summary.content_learner_status.forEach(status => {
         // convert dates
-        status.last_activity = new Date(status.last_activity);
+        status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
       });
       Object.assign(state, {
         id: summary.id,

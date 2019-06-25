@@ -6,7 +6,7 @@
     :cancelText="$tr('cancel')"
     :hasError="false"
     @submit="classDelete"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
@@ -22,14 +22,6 @@
 
   export default {
     name: 'ClassDeleteModal',
-    $trs: {
-      modalTitle: 'Delete class',
-      deleteClassButtonLabel: 'Delete',
-      cancel: 'Cancel',
-      confirmation: "Are you sure you want to delete '{ classname }'?",
-      description:
-        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
-    },
     components: {
       KModal,
     },
@@ -44,13 +36,18 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['deleteClass', 'displayModal']),
+      ...mapActions('classManagement', ['deleteClass']),
       classDelete() {
         this.deleteClass(this.classid);
       },
-      close() {
-        this.displayModal(false);
-      },
+    },
+    $trs: {
+      modalTitle: 'Delete class',
+      deleteClassButtonLabel: 'Delete',
+      cancel: 'Cancel',
+      confirmation: "Are you sure you want to delete '{ classname }'?",
+      description:
+        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },
   };
 

@@ -12,6 +12,8 @@ class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = ChannelMetadataFilter
 
     def get_queryset(self):
-        return ChannelMetadata.objects.all() \
-            .order_by('-last_updated') \
-            .select_related('root__lang')
+        return (
+            ChannelMetadata.objects.all()
+            .order_by("-last_updated")
+            .select_related("root__lang")
+        )

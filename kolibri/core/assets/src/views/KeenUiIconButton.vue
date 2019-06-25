@@ -23,7 +23,7 @@
       v-if="icon || $slots.default"
       class="keen-ui-icon-button-icon"
       :style="{
-        color: !primaryType ? $coreActionNormal : ''
+        color: !primaryType ? $themeTokens.primary : ''
       }"
     >
       <slot>
@@ -62,7 +62,9 @@
       :openOn="openTooltipOn"
 
       :position="tooltipPosition"
-    >{{ tooltip }}</UiTooltip>
+    >
+      {{ tooltip }}
+    </UiTooltip>
   </button>
 
 </template>
@@ -75,7 +77,6 @@
   import UiPopover from 'keen-ui/src/UiPopover';
   import UiTooltip from 'keen-ui/src/UiTooltip';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import { darken } from 'kolibri.utils.colour';
 
   export default {
     name: 'KeenUiIconButton',
@@ -160,20 +161,22 @@
       buttonColor() {
         if (this.primaryColor && this.primaryType) {
           const style = {
-            backgroundColor: this.$coreActionNormal,
+            backgroundColor: this.$themeTokens.primary,
           };
           if (this.dropdownOpen) {
             style[':hover:not(.is-disabled)'] = {
-              backgroundColor: darken(this.$coreActionNormal, '10%'),
+              backgroundColor: this.$themeTokens.primaryDark,
             };
           }
           return style;
         } else if (this.primaryColor && !this.primaryType) {
           return {
-            color: this.$coreActionNormal,
-            fill: this.$coreActionNormal,
+            color: this.$themeTokens.primary,
+            fill: this.$themeTokens.primary,
           };
         }
+
+        return {};
       },
     },
 
@@ -192,18 +195,28 @@
         this.$emit('dropdown-close');
       },
 
+      /**
+       * @public
+       */
       openDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.open();
         }
       },
 
+      /**
+       * @public
+       */
+      // eslint-disable-next-line
       closeDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.close();
         }
       },
 
+      /**
+       * @public
+       */
       toggleDropdown() {
         if (this.$refs.dropdown) {
           this.$refs.dropdown.toggle();

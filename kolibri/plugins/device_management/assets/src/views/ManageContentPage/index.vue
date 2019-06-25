@@ -6,9 +6,10 @@
 
       <div>
         <TaskProgress
-          v-if="firstTask"
-          v-bind="firstTask"
-          @cleartask="clearFirstTask"
+          v-if="activeTaskList[0]"
+          v-bind="activeTaskList[0]"
+          @cleartask="clearCompletedTasks"
+          @canceltask="cancelRunningTask(activeTaskList[0].id)"
         />
 
         <KGrid>
@@ -16,7 +17,7 @@
             <h1>{{ $tr('title') }}</h1>
           </KGridItem>
           <KGridItem
-            v-if="!tasksInQueue"
+            v-if="!activeTaskList.length"
             sizes="100, 50, 50"
             alignments="left, right, right"
             percentage
@@ -57,20 +58,13 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import { TaskResource } from 'kolibri.resources';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
 
   export default {
     name: 'ManageContentPage',
-    $trs: {
-      title: 'Channels',
-      import: 'Import',
-      export: 'Export',
-      noAccessDetails:
-        'You must be signed in as a superuser or have content management permissions to view this page',
-      documentTitle: 'Manage Device Channels',
-    },
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),
@@ -87,10 +81,9 @@
     },
     computed: {
       ...mapGetters(['canManageContent']),
+      ...mapGetters('manageContent', ['activeTaskList']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', {
-        firstTask: state => state.taskList[0],
-        tasksInQueue: state => state.taskList.length > 0,
         deviceHasChannels: state => state.channelList.length > 0,
       }),
     },
@@ -110,14 +103,22 @@
         'startImportWorkflow',
         'startExportWorkflow',
       ]),
-      clearFirstTask(unblockCb) {
-        this.cancelTask(this.firstTask.id)
+      cancelRunningTask(taskId) {
+        this.cancelTask(taskId)
           // Handle failures silently in case of near-simultaneous cancels.
-          .catch(() => {})
-          .then(() => {
-            unblockCb();
-          });
+          .catch(() => {});
       },
+      clearCompletedTasks() {
+        return TaskResource.deleteFinishedTasks();
+      },
+    },
+    $trs: {
+      title: 'Channels',
+      import: 'Import',
+      export: 'Export',
+      noAccessDetails:
+        'You must be signed in as a superuser or have content management permissions to view this page',
+      documentTitle: 'Manage Device Channels',
     },
   };
 

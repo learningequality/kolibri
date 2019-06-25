@@ -24,7 +24,9 @@ coach-class-plan.feature
 coach-class-reports.feature
 coach-class-reports-learners.feature
 coach-class-reports-lessons.feature
+coach-edit-lesson-from-report.feature
 coach-class-reports-quizzes.feature
+coach-edit-quiz-from-report.feature
 coach-class-reports-groups.feature
 coach-track-lesson-groups-notifications.feature
 coach-track-quiz-groups-notifications.feature

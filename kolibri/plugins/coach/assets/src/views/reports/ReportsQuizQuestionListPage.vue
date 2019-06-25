@@ -22,7 +22,7 @@
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.question_id">
+          <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
             <td>
               <KLabeledIcon>
                 <KIcon slot="icon" question />
@@ -68,12 +68,11 @@
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
       table() {
-        const mapped = this.difficultQuestions.map(question => {
+        return this.difficultQuestions.map(question => {
           const tableRow = {};
           Object.assign(tableRow, question);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

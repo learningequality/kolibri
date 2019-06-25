@@ -1,6 +1,10 @@
 <template>
 
-  <div class="tab-block" :class="{ small: windowIsSmall }">
+  <div
+    class="tab-block"
+    :class="{ small: windowIsSmall }"
+    :style="{ borderBottomColor: $themeTokens.fineLine }"
+  >
     <slot></slot>
   </div>
 
@@ -10,10 +14,11 @@
 <script>
 
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   export default {
     name: 'HeaderTabs',
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
   };
 
 </script>
@@ -27,7 +32,8 @@
     margin-right: -24px;
     margin-bottom: 24px;
     margin-left: -24px;
-    border-bottom: 1px solid #dedede;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
   }
 
   .small {

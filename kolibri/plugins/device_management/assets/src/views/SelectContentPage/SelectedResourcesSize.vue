@@ -46,7 +46,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import bytesForHumans from '../ManageContentPage/bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   const RequiredNumber = { type: Number, required: true };
 
@@ -109,6 +109,8 @@
       availableSpace: 'Drive space available: {space}',
       resourcesSelected:
         'Content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
+      estimatedResourcesSelected:
+        'Estimated content selected: {fileSize} ({resources, number, integer} {resources, plural, one {resource} other {resources}})',
     },
   };
 

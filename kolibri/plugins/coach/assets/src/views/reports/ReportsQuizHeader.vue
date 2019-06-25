@@ -1,13 +1,19 @@
 <template>
 
   <div>
-
-    <p>
+    <BackLinkWithOptions>
       <BackLink
+        slot="backlink"
         :to="classRoute('ReportsQuizListPage')"
         :text="$tr('back')"
       />
-    </p>
+      <QuizOptionsDropdownMenu
+        slot="options"
+        optionsFor="report"
+        @select="handleSelectOption"
+      />
+    </BackLinkWithOptions>
+
     <h1>
       <KLabeledIcon>
         <KIcon slot="icon" quiz />
@@ -15,35 +21,27 @@
       </KLabeledIcon>
     </h1>
 
-    <!-- COACH TODO
-    <KDropdownMenu
-      slot="optionsDropdown"
-      :text="coachStrings.$tr('optionsLabel')"
-      :options="actionOptions"
-      appearance="raised-button"
-      @select="goTo($event.value)"
-    />
-     -->
-
     <HeaderTable>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('statusLabel') }}</template>
-        <QuizActive slot="value" :active="exam.active" />
+      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+        <QuizActive
+          slot="value"
+          :active="exam.active"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('recipientsLabel') }}</template>
-        <Recipients slot="value" :groupNames="getGroupNames(exam.groups)" />
+      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+        <Recipients
+          slot="value"
+          :groupNames="getGroupNames(exam.groups)"
+          :hasAssignments="exam.assignments.length > 0"
+        />
       </HeaderTableRow>
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('avgScoreLabel') }}</template>
+      <HeaderTableRow :keyText="coachStrings.$tr('avgScoreLabel')">
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
-      <!-- TODO COACH
-      <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
-      </HeaderTableRow>
-       -->
+      <HeaderTableRow
+        :keyText="coachStrings.$tr('questionOrderLabel')"
+        :valueText="orderDescriptionString"
+      />
     </HeaderTable>
 
     <HeaderTabs>
@@ -65,26 +63,40 @@
 <script>
 
   import commonCoach from '../common';
+  import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
+  import BackLinkWithOptions from '../common/BackLinkWithOptions';
 
   export default {
     name: 'ReportsQuizHeader',
-    components: {},
+    components: {
+      BackLinkWithOptions,
+      QuizOptionsDropdownMenu,
+    },
     mixins: [commonCoach],
     computed: {
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
-      actionOptions() {
-        return [
-          { label: this.coachStrings.$tr('previewAction'), value: 'ReportsQuizPreviewPage' },
-          { label: this.coachStrings.$tr('editDetailsAction'), value: 'ReportsQuizEditorPage' },
-        ];
-      },
       exam() {
         return this.examMap[this.$route.params.quizId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.exam.groups);
+        return this.getLearnersForExam(this.exam);
+      },
+      orderDescriptionString() {
+        return this.exam.learners_see_fixed_order
+          ? this.coachStrings.$tr('orderFixedLabel')
+          : this.coachStrings.$tr('orderRandomLabel');
+      },
+    },
+    methods: {
+      handleSelectOption(option) {
+        if (option === 'EDIT_DETAILS') {
+          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
+        }
+        if (option === 'PREVIEW') {
+          this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
+        }
       },
     },
     $trs: {

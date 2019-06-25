@@ -58,15 +58,6 @@
 
   export default {
     name: 'AppError',
-    $trs: {
-      defaultErrorHeader: 'Sorry! Something went wrong!',
-      defaultErrorExitPrompt: 'Back to home',
-      pageReloadPrompt: 'Refresh',
-      defaultErrorMessage:
-        'We care about your experience on Kolibri and are working hard to fix this issue.',
-      defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
-      defaultErrorReportPrompt: 'Help us by reporting this error',
-    },
     components: {
       KButton,
       KRouterLink,
@@ -92,6 +83,15 @@
       clearErrorState() {
         this.handleError('');
       },
+    },
+    $trs: {
+      defaultErrorHeader: 'Sorry! Something went wrong!',
+      defaultErrorExitPrompt: 'Back to home',
+      pageReloadPrompt: 'Refresh',
+      defaultErrorMessage:
+        'We care about your experience on Kolibri and are working hard to fix this issue.',
+      defaultErrorResolution: 'Try refreshing this page or going back to the home page.',
+      defaultErrorReportPrompt: 'Help us by reporting this error',
     },
   };
 

@@ -11,10 +11,6 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class FacilityManagementPlugin(KolibriPluginBase):
-    def url_module(self):
-        from . import urls
-        return urls
-
     def url_slug(self):
         return "^facility/"
 
@@ -33,7 +29,7 @@ class FacilityRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(FacilityManagementPlugin, 'facility_management')
+        return self.plugin_url(FacilityManagementPlugin, "facility_management")
 
 
 class FacilityManagementNavItem(NavigationHook, WebpackBundleHook):

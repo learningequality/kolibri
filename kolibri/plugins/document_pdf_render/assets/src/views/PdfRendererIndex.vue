@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
-    :style="{ backgroundColor: $coreTextDefault }"
+    :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
   >
     <KLinearLoader
@@ -40,6 +40,7 @@
 
       <UiIconButton
         class="controls button-fullscreen"
+        :style="{ fill: $themeTokens.textInverted }"
         aria-controls="pdf-container"
         :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
         color="primary"
@@ -125,17 +126,11 @@
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
-      pdfURL() {
-        return this.defaultFile.storage_url;
-      },
       targetTime() {
         return this.totalPages * 30;
       },
       documentLoading() {
         return this.progress < 1;
-      },
-      pdfPositionKey() {
-        return `pdfPosition-${this.files[0].id}`;
       },
       itemHeight() {
         return this.firstPageHeight * this.scale + MARGIN;
@@ -355,7 +350,6 @@
   .button-fullscreen {
     top: 16px;
     right: 21px;
-    fill: white;
   }
 
   .button-zoom-in,

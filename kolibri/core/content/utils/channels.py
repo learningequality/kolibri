@@ -2,6 +2,7 @@ import fnmatch
 import logging
 import os
 
+from django.core.cache import cache
 from sqlalchemy.exc import DatabaseError
 
 from .paths import get_content_database_dir_path
@@ -22,15 +23,18 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
         return []
 
     # get a list of all the database files in the directory, and extract IDs
-    db_list = fnmatch.filter(os.listdir(content_database_dir), '*.sqlite3')
-    db_names = [db.split('.sqlite3', 1)[0] for db in db_list]
+    db_list = fnmatch.filter(os.listdir(content_database_dir), "*.sqlite3")
+    db_names = [db.split(".sqlite3", 1)[0] for db in db_list]
 
     # determine which database names are valid, and only use those ones
     valid_db_names = [name for name in db_names if is_valid_uuid(name)]
     invalid_db_names = set(db_names) - set(valid_db_names)
     if invalid_db_names:
-        logger.warning("Ignoring databases in content database directory '{directory}' with invalid names: {names}"
-                       .format(directory=content_database_dir, names=invalid_db_names))
+        logger.warning(
+            "Ignoring databases in content database directory '{directory}' with invalid names: {names}".format(
+                directory=content_database_dir, names=invalid_db_names
+            )
+        )
 
     # nonexistent database files are created if we delete the files that have broken symbolic links;
     # empty database files are created if we delete a database file while the server is running and connected to it;
@@ -80,19 +84,29 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with
     # the latest schema.
-    if not hasattr(source_channel_metadata, 'root_id'):
-        setattr(source_channel_metadata, 'root_id', getattr(source_channel_metadata, 'root_pk'))
+    if not hasattr(source_channel_metadata, "root_id"):
+        setattr(
+            source_channel_metadata,
+            "root_id",
+            getattr(source_channel_metadata, "root_pk"),
+        )
 
     return source_channel_metadata
 
 
 def get_channels_for_data_folder(datafolder):
     channels = []
-    for path in enumerate_content_database_file_paths(get_content_database_dir_path(datafolder)):
+    for path in enumerate_content_database_file_paths(
+        get_content_database_dir_path(datafolder)
+    ):
         try:
             channel = read_channel_metadata_from_db_file(path)
         except DatabaseError:
-            logger.warning("Tried to import channel from database file {}, but the file was corrupted.".format(path))
+            logger.warning(
+                "Tried to import channel from database file {}, but the file was corrupted.".format(
+                    path
+                )
+            )
             continue
         channel_data = {
             "path": path,
@@ -103,16 +117,31 @@ def get_channels_for_data_folder(datafolder):
             "version": channel.version,
             "root": channel.root_id,
             "author": channel.author,
-            "last_updated": getattr(channel, 'last_updated', None),
-            "lang_code": getattr(channel, 'lang_code', None),
-            "lang_name": getattr(channel, 'lang_name', None),
+            "last_updated": getattr(channel, "last_updated", None),
+            "lang_code": getattr(channel, "lang_code", None),
+            "lang_name": getattr(channel, "lang_name", None),
         }
         channels.append(channel_data)
     return channels
 
 
+# Use this to cache mounted drive information when
+# it has already been fetched for querying by drive id
+MOUNTED_DRIVES_CACHE_KEY = "mounted_drives_cache_key"
+
+
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
-        drive.metadata["channels"] = get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
+        drive.metadata["channels"] = (
+            get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
+        )
+    cache.set(MOUNTED_DRIVES_CACHE_KEY, drives, 3600)
     return drives
+
+
+def get_mounted_drive_by_id(drive_id):
+    drives = cache.get(MOUNTED_DRIVES_CACHE_KEY)
+    if drives is None or drives.get(drive_id, None) is None:
+        drives = get_mounted_drives_with_channel_info()
+    return drives[drive_id]

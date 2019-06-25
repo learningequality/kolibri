@@ -12,6 +12,8 @@ import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vu
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showExamsPage } from '../modules/examsRoot/handlers';
+import QuizSummaryPage from '../views/plan/QuizSummaryPage';
+import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
 export default [
   {
@@ -64,5 +66,18 @@ export default [
     handler: toRoute => {
       showExamCreationPreviewPage(store, toRoute.params);
     },
+  },
+  {
+    name: QuizSummaryPage.name,
+    path: '/:classId/plan/quizzes/:quizId',
+    component: QuizSummaryPage,
+    meta: {
+      titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: QuizEditDetailsPage.name,
+    path: '/:classId/plan/quizzes/:quizId/edit',
+    component: QuizEditDetailsPage,
   },
 ];

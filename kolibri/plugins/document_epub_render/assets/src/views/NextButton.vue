@@ -3,7 +3,6 @@
   <UiIconButton
     class="next-button"
     :class="{'next-button-white': color === 'white'}"
-    type="secondary"
     :ariaLabel="$tr('goToNextPage')"
     @click="$emit('goToNextPage')"
   >
@@ -28,13 +27,11 @@
 
   export default {
     name: 'NextButton',
-    $trs: {
-      goToNextPage: 'Go to next page',
-    },
     components: {
       UiIconButton,
     },
     props: {
+      // TODO - refactor to use themes properly
       color: {
         type: String,
         required: true,
@@ -46,6 +43,9 @@
         type: Boolean,
         required: true,
       },
+    },
+    $trs: {
+      goToNextPage: 'Go to next page',
     },
   };
 

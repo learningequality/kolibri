@@ -21,7 +21,7 @@
       v-if="exercise"
       slot="main"
       class="exercise-container"
-      :style="{ backgroundColor: $coreBgLight }"
+      :style="{ backgroundColor: $themeTokens.surface }"
     >
       <h3>{{ $tr('question', {questionNumber: questionNumber + 1}) }}</h3>
 
@@ -38,12 +38,10 @@
       />
       <ContentRenderer
         v-if="exercise"
-        :id="exercise.id"
         :itemId="itemId"
         :allowHints="false"
         :kind="exercise.kind"
         :files="exercise.files"
-        :contentId="exercise.content_id"
         :available="exercise.available"
         :extraFields="exercise.extra_fields"
         :interactive="false"
@@ -74,15 +72,6 @@
 
   export default {
     name: 'ExamReport',
-    $trs: {
-      backTo: 'Back to quiz report for { title }',
-      correctAnswer: 'Correct answer',
-      yourAnswer: 'Your answer',
-      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
-      question: 'Question { questionNumber, number }',
-      showCorrectAnswerLabel: 'Show correct answer',
-      noItemId: 'This question has an error, please move on to the next question',
-    },
     components: {
       ContentRenderer,
       PageStatus,
@@ -196,6 +185,15 @@
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
       },
+    },
+    $trs: {
+      backTo: 'Back to quiz report for { title }',
+      correctAnswer: 'Correct answer',
+      yourAnswer: 'Your answer',
+      correctAnswerCannotBeDisplayed: 'Correct answer cannot be displayed',
+      question: 'Question { questionNumber, number }',
+      showCorrectAnswerLabel: 'Show correct answer',
+      noItemId: 'This question has an error, please move on to the next question',
     },
   };
 

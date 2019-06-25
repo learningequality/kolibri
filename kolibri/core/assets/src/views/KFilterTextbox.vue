@@ -3,7 +3,7 @@
   <div class="k-filter">
     <UiIcon
       class="k-filter-icon"
-      :style="{ color: $coreTextAnnotation }"
+      :style="{ color: $themeTokens.annotation }"
       :ariaLabel="$tr('filter')"
     >
       <mat-svg name="search" category="action" />
@@ -14,8 +14,8 @@
       type="search"
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
       :style="{
-        color: $coreTextDefault,
-        border: `1px solid ${$coreGrey300}`,
+        color: $themeTokens.text,
+        border: `2px solid ${$themeTokens.fineLine}`,
       }"
       :placeholder="placeholder"
       :aria-label="placeholder"
@@ -27,7 +27,7 @@
       size="small"
       class="k-filter-clear-button"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :style="{ color: $coreTextDefault }"
+      :style="{ color: $themeTokens.text }"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
     >
@@ -48,10 +48,6 @@
    */
   export default {
     name: 'KFilterTextbox',
-    $trs: {
-      filter: 'filter',
-      clear: 'clear',
-    },
     components: {
       UiIcon,
       UiIconButton,
@@ -94,10 +90,14 @@
       kFilterPlaceHolderStyle() {
         return {
           '::placeholder': {
-            color: this.$coreTextAnnotation,
+            color: this.$themeTokens.annotation,
           },
         };
       },
+    },
+    $trs: {
+      filter: 'filter',
+      clear: 'clear',
     },
   };
 
@@ -105,6 +105,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri.styles.definitions';
 
   .k-filter {
     position: relative;
@@ -131,8 +133,7 @@
     padding-left: 40px;
     margin: 0;
     font-size: 14px;
-    background-color: white;
-    border-radius: 2px;
+    border-radius: $radius;
   }
 
   .k-filter-clear-button {

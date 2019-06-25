@@ -1,14 +1,14 @@
+import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskStatuses } from '../../constants';
 
 /**
  * Watches the state.taskList and resolves when the tracked Task is COMPLETED.
  *
- * @param {Object} store - store instance (scoped to manageContent module)
  * @param {string} taskId
  * @returns {Promise}
  *
  */
-export function waitForTaskToComplete(store, taskId) {
+export function waitForTaskToComplete(taskId, store = coreStore) {
   const taskList = state => state.manageContent.taskList;
   return new Promise((resolve, reject) => {
     const stopWatching = store.watch(taskList, function checkTaskProgress(tasks) {

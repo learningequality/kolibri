@@ -25,7 +25,7 @@
           <template v-for="setting in settingsList">
             <KCheckbox
               :key="setting"
-              :label="$tr(setting)"
+              :label="$tr(camelCase(setting))"
               :checked="settings[setting]"
               @change="toggleSetting(setting)"
             />
@@ -56,8 +56,8 @@
     <ConfirmResetModal
       v-if="showModal"
       id="confirm-reset"
-      @click-confirm="resetToDefaultSettings"
-      @click-cancel="showModal=false"
+      @submit="resetToDefaultSettings"
+      @cancel="showModal=false"
     />
   </div>
 
@@ -66,21 +66,23 @@
 
 <script>
 
-  import { mapState, mapActions, mapMutations } from 'vuex';
+  import { mapState } from 'vuex';
+  import camelCase from 'lodash/camelCase';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
 
+  // See FacilityDataset in core.auth.models for details
   const settingsList = [
-    'learnerCanEditUsername',
-    'learnerCanEditPassword',
-    'learnerCanEditName',
-    'learnerCanSignUp',
-    'learnerCanLoginWithNoPassword',
-    'showDownloadButtonInLearn',
-    'allowGuestAccess',
+    'learner_can_edit_username',
+    'learner_can_edit_password',
+    'learner_can_edit_name',
+    'learner_can_sign_up',
+    'learner_can_login_with_no_password',
+    'show_download_button_in_learn',
+    'allow_guest_access',
   ];
 
   export default {
@@ -113,28 +115,24 @@
       this.copySettings();
     },
     methods: {
-      ...mapActions('facilityConfig', ['saveFacilityConfig', 'resetFacilityConfig']),
-      ...mapMutations('facilityConfig', {
-        configPageModifySetting: 'CONFIG_PAGE_MODIFY_SETTING',
-        configPageNotify: 'CONFIG_PAGE_NOTIFY',
-      }),
+      camelCase,
       toggleSetting(settingName) {
-        this.configPageModifySetting({
+        this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,
           value: !this.settings[settingName],
         });
       },
       dismissNotification() {
-        this.configPageNotify(null);
+        this.$store.commit('facilityConfig/CONFIG_PAGE_NOTIFY', null);
       },
       resetToDefaultSettings() {
         this.showModal = false;
-        this.resetFacilityConfig().then(() => {
+        this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
           this.copySettings();
         });
       },
       saveConfig() {
-        this.saveFacilityConfig().then(() => {
+        this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
           this.copySettings();
         });
       },

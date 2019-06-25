@@ -25,7 +25,7 @@ DriveData = namedtuple(
         "filesystem",
         "drivetype",
         "metadata",
-    ]
+    ],
 )
 
 
@@ -46,7 +46,9 @@ def enumerate_mounted_disk_partitions():
     for drive in drive_list:
 
         path = drive["path"]
-        drive_id = hashlib.sha1((drive["guid"] or path).encode('utf-8')).hexdigest()[:32]
+        drive_id = hashlib.sha1((drive["guid"] or path).encode("utf-8")).hexdigest()[
+            :32
+        ]
         datafolder = get_kolibri_data_dir_path(path)
 
         # If the Kolibri data directory has been manually created by the user,
@@ -79,7 +81,4 @@ def get_kolibri_data_dir_path(folder):
     to the EXPORT_FOLDER_NAME folder name.
     """
 
-    return os.path.join(
-        folder,
-        EXPORT_FOLDER_NAME,
-    )
+    return os.path.join(folder, EXPORT_FOLDER_NAME)

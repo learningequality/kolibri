@@ -1,6 +1,6 @@
 <template>
 
-  <div class="top-bar" :style="{ backgroundColor: $coreGrey200 }">
+  <div class="top-bar" :style="{ backgroundColor: $themeColors.palette.grey.v_200 }">
     <KGrid>
       <KGridItem
         sizes="25, 25, 25"
@@ -76,9 +76,6 @@
 
   export default {
     name: 'TopBar',
-    $trs: {
-      toggleFullscreen: 'Toggle fullscreen',
-    },
     components: {
       KGrid,
       KGridItem,
@@ -99,15 +96,27 @@
       },
     },
     methods: {
+      /**
+       * @public
+       */
       focusOnTocButton() {
         this.$refs.tocButton.$el.focus();
       },
+      /**
+       * @public
+       */
       focusOnSettingsButton() {
         this.$refs.settingsButton.$el.focus();
       },
+      /**
+       * @public
+       */
       focusOnSearchButton() {
         this.$refs.searchButton.$el.focus();
       },
+    },
+    $trs: {
+      toggleFullscreen: 'Toggle fullscreen',
     },
   };
 
@@ -119,7 +128,7 @@
   @import './EpubStyles';
 
   .top-bar {
-    z-index: 2;
+    z-index: 1;
     box-shadow: $epub-box-shadow;
   }
 

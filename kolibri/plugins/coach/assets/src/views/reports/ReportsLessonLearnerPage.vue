@@ -41,7 +41,9 @@
                   :text="tableRow.title"
                   :to="exerciseLink(tableRow.content_id)"
                 />
-                <template v-else>{{ tableRow.title }}</template>
+                <template v-else>
+                  {{ tableRow.title }}
+                </template>
               </KLabeledIcon>
             </td>
             <td>
@@ -80,14 +82,13 @@
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
         const sorted = this._.sortBy(contentArray, ['title']);
-        const mapped = sorted.map(content => {
+        return sorted.map(content => {
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };
           Object.assign(tableRow, content);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

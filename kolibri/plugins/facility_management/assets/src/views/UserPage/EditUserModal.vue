@@ -6,7 +6,7 @@
     :cancelText="$tr('cancel')"
     :submitDisabled="isBusy"
     @submit="submitForm"
-    @cancel="displayModal(false)"
+    @cancel="$emit('cancel')"
   >
     <KTextbox
       ref="name"
@@ -95,26 +95,6 @@
   // IDEA use UserTypeDisplay for strings in options
   export default {
     name: 'EditUserModal',
-    $trs: {
-      editUserDetailsHeader: 'Edit user details',
-      fullName: 'Full name',
-      username: 'Username',
-      userType: 'User type',
-      admin: 'Admin',
-      coach: 'Coach',
-      learner: 'Learner',
-      save: 'Save',
-      cancel: 'Cancel',
-      required: 'This field is required',
-      usernameAlreadyExists: 'Username already exists',
-      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
-      viewInDeviceTabPrompt: 'View details in Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
-      classCoachLabel: 'Class coach',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachLabel: 'Facility coach',
-      facilityCoachDescription: 'Can instruct all classes in your facility',
-    },
     components: {
       KModal,
       KTextbox,
@@ -231,6 +211,8 @@
         if (devicePageUrl) {
           return `${devicePageUrl()}#/permissions/${this.id}`;
         }
+
+        return '';
       },
       newType() {
         // never got the chance to even change it
@@ -260,7 +242,7 @@
       }
     },
     methods: {
-      ...mapActions('userManagement', ['updateUser', 'displayModal', 'setError', 'displayModal']),
+      ...mapActions('userManagement', ['updateUser', 'setError']),
       ...mapActions(['kolibriLogout']),
       submitForm() {
         if (this.formIsInvalid) {
@@ -294,9 +276,29 @@
             // user has demoted themselves
             this.kolibriLogout();
           }
-          this.displayModal(false);
+          this.$emit('cancel');
         });
       },
+    },
+    $trs: {
+      editUserDetailsHeader: 'Edit user details',
+      fullName: 'Full name',
+      username: 'Username',
+      userType: 'User type',
+      admin: 'Admin',
+      coach: 'Coach',
+      learner: 'Learner',
+      save: 'Save',
+      cancel: 'Cancel',
+      required: 'This field is required',
+      usernameAlreadyExists: 'Username already exists',
+      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
+      viewInDeviceTabPrompt: 'View details in Device permissions',
+      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
+      classCoachLabel: 'Class coach',
+      classCoachDescription: "Can only instruct classes that they're assigned to",
+      facilityCoachLabel: 'Facility coach',
+      facilityCoachDescription: 'Can instruct all classes in your facility',
     },
   };
 

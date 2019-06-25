@@ -31,16 +31,13 @@ export default {
     subpage: {
       namespaced: true,
       state: {
-        channelTitle: '',
         recommendations: [],
       },
       mutations: {
         SET_STATE(state, payload) {
-          state.channelTitle = payload.channelTitle;
           state.recommendations = payload.recommendations;
         },
         RESET_STATE(state) {
-          state.channelTitle = '';
           state.recommendations = [];
         },
       },

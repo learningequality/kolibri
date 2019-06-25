@@ -3,12 +3,16 @@
   <component
     :is="componentTemplate"
     class="channel-list-item"
-    :style="[verticalPadding, { borderTop: `1px solid ${$coreGrey}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">
       <div class="spec-ref-thumbnail">
         <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon" :style="{ backgroundColor: $coreGrey }">
+        <div
+          v-else
+          class="default-icon"
+          :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+        >
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>
@@ -16,12 +20,14 @@
 
     <template slot="header">
       <div>
-        <h2 class="title" dir="auto">{{ channel.name }}</h2>
+        <h2 class="title" dir="auto">
+          {{ channel.name }}
+        </h2>
         <UiIcon v-if="isPrivateChannel" class="icon">
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version" :style="{ color: $coreTextAnnotation }">
+      <div class="version" :style="{ color: $themeTokens.annotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
@@ -32,7 +38,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            :style="{ fill: $coreStatusCorrect }"
+            :style="{ fill: $themeTokens.success }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
@@ -75,14 +81,14 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
-  import bytesForHumans from './bytesForHumans';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';
@@ -125,8 +131,7 @@
       },
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
       manageChannelActions() {
         return [
           {
@@ -160,7 +165,7 @@
         return this.channel.thumbnail;
       },
       tasksInQueue() {
-        return this.taskList.length > 0;
+        return this.activeTaskList.length > 0;
       },
       versionNumber() {
         const installed = this.channelIsInstalled(this.channel.id);

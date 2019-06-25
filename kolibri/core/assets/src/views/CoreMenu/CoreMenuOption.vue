@@ -31,7 +31,7 @@
           <div
             v-if="secondaryText"
             class="ui-menu-option-secondary-text"
-            :style="{ color: disabled ? $coreTextAnnotation : '' }"
+            :style="{ color: disabled ? $themeTokens.annotation : '' }"
           >
             {{ secondaryText }}
           </div>
@@ -64,6 +64,7 @@
         default: false,
       },
     },
+    inject: ['showActive'],
     computed: {
       classes() {
         return {
@@ -75,23 +76,23 @@
       isDivider() {
         return this.type === 'divider';
       },
-
       active() {
-        return window.location.pathname.startsWith(this.link);
+        let showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
+        return showActive && window.location.pathname.startsWith(this.link);
       },
       optionStyle() {
         let color = '';
         if (!this.isDivider) {
           if (this.active) {
-            color = this.$coreAccentColor;
+            color = this.$themeTokens.primary;
           } else if (this.disabled) {
-            color = this.$coreTextAnnotation;
+            color = this.$themeTokens.annotation;
           } else {
-            color = this.$coreTextDefault;
+            color = this.$themeTokens.text;
           }
         }
         const bg = {
-          backgroundColor: this.$coreGrey200,
+          backgroundColor: this.$themeColors.palette.grey.v_200,
         };
         return Object.assign(
           {

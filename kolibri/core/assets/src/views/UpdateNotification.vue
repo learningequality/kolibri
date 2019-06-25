@@ -2,7 +2,7 @@
 
   <KModal
     size="large"
-    :submitText="$tr('okButtonLabel')"
+    :submitText="$tr('closeButtonLabel')"
     :title="title"
     @submit="submit"
   >
@@ -14,7 +14,9 @@
         :text="linkText || linkUrl"
       />
     </p>
-    <p v-if="!isSuperuser">{{ $tr('adminMessage') }}</p>
+    <p v-if="!isSuperuser">
+      {{ $tr('adminMessage') }}
+    </p>
     <p>
       <KCheckbox
         :label="$tr('hideNotificationLabel')"
@@ -68,15 +70,6 @@
         dontShowNotificationAgain: false,
       };
     },
-    $trs: {
-      updateModalHeader: 'Upgrade available',
-      // adminMessage: 'Please contact the device administrator for this server.',
-      //   DR: using the string below because it exists elsewhere in the app, so we can use
-      //   the translation. The string above is actually preferable.
-      adminMessage: 'Please consult your Kolibri administrator',
-      okButtonLabel: 'OK',
-      hideNotificationLabel: "Don't show this message again",
-    },
     computed: {
       ...mapGetters(['isSuperuser']),
     },
@@ -91,8 +84,25 @@
           this.saveDismissedNotification(this.id);
         }
         this.removeNotification(this.id);
-        this.$emit('closeModal');
+        this.$emit('submit');
       },
+    },
+    $trs: {
+      adminMessage: 'Please contact the device administrator for this server',
+      closeButtonLabel: 'Close',
+      hideNotificationLabel: "Don't show this message again",
+      // The strings below are not actually used in the appplication code.
+      // They are included simply to get the strings translated for later use. We should do
+      // this differently in the longer-term to ensure that we have broader language support.
+      upgradeHeader: 'Upgrade available',
+      upgradeHeaderImportant: 'Important upgrade available',
+      upgradeMessageGeneric: 'A new version of Kolibri is available.',
+      upgradeMessageImportant:
+        'We have released an important update with fixes to this version of Kolibri.',
+      upgradeMessage0124:
+        'Kolibri version 0.12.4 is now available! It contains important bug fixes and new Coach features.',
+      upgradeDownload: 'Download it here',
+      upgradeLearnAndDownload: 'Learn more and download it here',
     },
   };
 

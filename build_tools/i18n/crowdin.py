@@ -30,6 +30,33 @@ if "CROWDIN_API_KEY" not in os.environ:
 
 
 """
+Ensure that these commands are only used when Perseus is installed for development
+"""
+
+PERSEUS_NOT_INSTALLED_FOR_DEV = """
+Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
+and ensure that it has been checked out the the correct commit.
+
+Install it in Kolibri in development mode:
+
+    pip install -e [local_path_to_perseus_repo]
+
+For more information see:
+https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plugin
+"""
+
+
+if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
+    logging.error("Cannot find Perseus locale directory.")
+    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+    sys.exit(1)
+elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
+    logging.error("It appears that Perseus is not installed for development.")
+    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
+    sys.exit(1)
+
+
+"""
 Constants
 """
 
@@ -383,18 +410,14 @@ Branch: {branch}
 {summary_table}
 
 =================================================================
-==  Word counts  ================================================
+==  Untranslated  ===============================================
 
-Total words: {words_total}
-
-{words_table}
+{untranslated_table}
 
 =================================================================
-==  String counts  ==============================================
+==  Needs Approval  =============================================
 
-Total strings: {strings_total}
-
-{strings_table}
+{needs_approval_table}
 
 =================================================================
 """
@@ -409,9 +432,9 @@ def command_stats(branch):
     def _is_branch_node(node):
         return node["node_type"] == "branch" and node["name"] == branch
 
-    strings_table = []
+    needs_approval_table = []
     strings_total = 0
-    words_table = []
+    untranslated_table = []
     words_total = 0
 
     sorted_languages = sorted(
@@ -430,53 +453,57 @@ def command_stats(branch):
             logging.error("Branch '{}' not found on Crowdin".format(branch))
             sys.exit(1)
 
-        strings_table.append(
+        needs_approval_table.append(
             (
                 lang[utils.KEY_ENG_NAME],
-                branch_node["phrases"] - branch_node["translated"],
+                branch_node["words_translated"] - branch_node["words_approved"],
                 branch_node["translated"] - branch_node["approved"],
             )
         )
-        words_table.append(
+        untranslated_table.append(
             (
                 lang[utils.KEY_ENG_NAME],
                 branch_node["words"] - branch_node["words_translated"],
-                branch_node["words_translated"] - branch_node["words_approved"],
+                branch_node["phrases"] - branch_node["translated"],
             )
         )
 
         strings_total = branch_node["phrases"]  # should be the same across languages
         words_total = branch_node["words"]  # should be the same across languages
 
-    total_untranslated_strings = sum([row[1] for row in strings_table])
-    total_unapproved_strings = sum([row[2] for row in strings_table])
-    avg_untranslated_strings = round(total_untranslated_strings / len(strings_table))
-    avg_unapproved_strings = round(total_unapproved_strings / len(strings_table))
-    strings_table.append(
-        ("Average - all languages", avg_untranslated_strings, avg_unapproved_strings)
+    total_untranslated_strings = sum([row[2] for row in untranslated_table])
+    total_unapproved_strings = sum([row[2] for row in needs_approval_table])
+
+    avg_untranslated_strings = round(
+        total_untranslated_strings / len(untranslated_table)
     )
-    total_untranslated_words = sum([row[1] for row in words_table])
-    total_unapproved_words = sum([row[2] for row in words_table])
-    avg_untranslated_words = round(total_untranslated_words / len(words_table))
-    avg_unapproved_words = round(total_unapproved_words / len(words_table))
-    words_table.append(
-        ("Average - all languages", avg_untranslated_words, avg_unapproved_words)
-    )
-    summary_table_headers = ["", "Untranslated", "Needs approval"]
+    avg_unapproved_strings = round(total_unapproved_strings / len(needs_approval_table))
+
+    total_untranslated_words = sum([row[1] for row in untranslated_table])
+    total_unapproved_words = sum([row[1] for row in needs_approval_table])
+
+    avg_untranslated_words = round(total_untranslated_words / len(untranslated_table))
+    avg_unapproved_words = round(total_unapproved_words / len(needs_approval_table))
+
+    summary_table_headers = ["", "Words", "Strings"]
     summary_table = [
-        ("Words", total_untranslated_words, total_unapproved_words),
-        ("Strings", total_untranslated_strings, total_unapproved_strings),
+        ("Avg. Untranslated", avg_untranslated_words, avg_untranslated_strings),
+        ("Avg. Needs Approval", avg_unapproved_words, avg_unapproved_strings),
+        ("Total (for a new language)", words_total, strings_total),
     ]
-    strings_table_headers = ["Language", "Untranslated", "Needs approval"]
-    words_table_headers = ["Language", "Untranslated", "Needs approval"]
+    needs_approval_table_headers = ["Language", "Words", "Strings"]
+    untranslated_table_headers = ["Language", "Words", "Strings"]
+
     logging.info(
         STATS_TEMPLATE.format(
             branch=branch,
             summary_table=tabulate(summary_table, headers=summary_table_headers),
-            words_total=words_total,
-            words_table=tabulate(words_table, headers=words_table_headers),
-            strings_total=strings_total,
-            strings_table=tabulate(strings_table, headers=strings_table_headers),
+            untranslated_table=tabulate(
+                untranslated_table, headers=untranslated_table_headers
+            ),
+            needs_approval_table=tabulate(
+                needs_approval_table, headers=needs_approval_table_headers
+            ),
         )
     )
 

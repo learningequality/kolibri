@@ -3,6 +3,7 @@ export const PageNames = {
   MANAGE_PERMISSIONS_PAGE: 'MANAGE_PERMISSIONS_PAGE',
   USER_PERMISSIONS_PAGE: 'USER_PERMISSIONS_PAGE',
   DEVICE_INFO_PAGE: 'DEVICE_INFO_PAGE',
+  DEVICE_SETTINGS_PAGE: 'DEVICE_SETTINGS_PAGE',
 };
 
 export const ContentWizardPages = {
@@ -33,6 +34,8 @@ export const TaskStatuses = {
   RUNNING: 'RUNNING',
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
+  CANCELED: 'CANCELED',
+  CANCELING: 'CANCELING',
 };
 
 export const TransferTypes = {

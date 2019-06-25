@@ -1,6 +1,6 @@
 import { StyleSheet as baseStyleSheet } from 'aphrodite/no-important';
 import store from 'kolibri.coreVue.vuex.store';
-import { THEME_MODULE_NAMESPACE } from '../state/modules/theme';
+import theme from './theme';
 
 const globalSelectorHandler = (selector, _, generateSubtreeStyles) => {
   if (selector[0] !== '*') {
@@ -14,23 +14,22 @@ const globalExtension = { selectorHandler: globalSelectorHandler };
 
 const { StyleSheet, css } = baseStyleSheet.extend([globalExtension]);
 
-function getter(value) {
-  return store.getters[`${THEME_MODULE_NAMESPACE}/${value}`];
-}
-
 function generateGlobalStyles() {
   const htmlBodyStyles = {
-    color: getter('$coreTextDefault'),
-    backgroundColor: getter('$coreBgCanvas'),
+    color: theme.$themeTokens().text,
+    backgroundColor: theme.$themeColors().palette.grey.v_100,
   };
 
   const globalStyles = StyleSheet.create({
     globals: {
       '*html': htmlBodyStyles,
       '*body': htmlBodyStyles,
-      '*:focus': getter('$coreOutline'),
+      '*:focus': theme.$coreOutline(),
       '*hr': {
-        borderTop: `1px solid ${getter('$coreTextDisabled')}`,
+        borderTop: `1px solid ${theme.$themeTokens().textDisabled}`,
+      },
+      '*::selection': {
+        background: theme.$themeColors().brand.secondary.v_100,
       },
     },
   });

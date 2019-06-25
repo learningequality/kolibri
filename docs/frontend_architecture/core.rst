@@ -14,7 +14,7 @@ The following libraries and components are available globally, in all module cod
 - ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
 - ``CoreBase`` - a shared base Vue.js component (*CoreBase.vue*)
 
-And **many** others. The complete specification for commonly shared modules can be found in `kolibri/core/assets/src/core-app/apiSpec.js`. This object defines which modules are imported into the core object. These can then be imported throughout the codebase - e.g.:
+And **many** others. The complete specification for commonly shared modules can be found in ``kolibri/core/assets/src/core-app/apiSpec.js``. This object defines which modules are imported into the core object. These can then be imported throughout the codebase - e.g.:
 
 .. code-block:: javascript
 
@@ -23,7 +23,7 @@ And **many** others. The complete specification for commonly shared modules can 
 
 Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system </pipeline/frontend_build_pipeline>`__.
 
-To expose something in the core app, add the module to the object in `apiSpec.js`, scoping it to the appropriate property for better organization - e.g.:
+To expose something in the core app, add the module to the object in ``apiSpec.js``, scoping it to the appropriate property for better organization - e.g.:
 
 .. code-block:: javascript
 
@@ -42,6 +42,7 @@ These modules would now be available for import anywhere with the following stat
   import navComponents from 'kolibri.utils.navComponents';
 
 .. note::
+
   In order to avoid bloating the core api, only add modules that need to be used in multiple plugins.
 
 Styling
@@ -55,10 +56,10 @@ Dynamic core theme
 Vuex state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in Vuex state, which are then applied inline to elements using Vue.js style bindings from Vuex getters.
 
 There are two cases where dynamic styles cannot be directly applied to DOM elements:
-- inline styles cannot apply `pseudo-classes<https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
-- styles applied during `Vue transitions<https://vuejs.org/v2/guide/transitions.html>`__
+- inline styles cannot apply `pseudo-classes <https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
+- styles applied during `Vue transitions <https://vuejs.org/v2/guide/transitions.html>`__
 
-For these cases, it's necessary to define a "computed class" using the `$computedClass` function. This returns an auto-generated class name which can be used like a standard CSS class name. Under the hood, this uses `Aphrodite<https://github.com/Khan/aphrodite>`__ to create unique classes for each set of inputs given, so be careful not to abuse this feature!
+For these cases, it's necessary to define a "computed class" using the ``$computedClass`` function. This returns an auto-generated class name which can be used like a standard CSS class name. Under the hood, this uses `Aphrodite <https://github.com/Khan/aphrodite>`__ to create unique classes for each set of inputs given, so be careful not to abuse this feature!
 
 In order to apply a style using a computed class, define a style object as a computed property, similarly to how you might for a Vue.js style binding. Pseudo-selectors can be encoded within this object:
 
@@ -72,22 +73,22 @@ In order to apply a style using a computed class, define a style object as a com
       pseudoStyle() {
         return {
           ':hover': {
-            backgroundColor: this.$coreBgCanvas,
+            backgroundColor: this.$themeTokens.primaryDark,
           },
         };
       },
     },
   };
 
-Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the `$computedClass` method, referencing this style object:
+Then, within the template code, this can be applied to an element or component using a Vue.js class binding, and using the ``$computedClass`` method, referencing this style object:
 
-.. code-block:: javascript
+.. code-block:: html
 
   <div :class="$computedClass(pseudoStyle)">I'm going to get a white background when you hover on me!</div>
 
-To use computed classes for Vue.js transitions, you can use the `{event}-class` `properties<https://vuejs.org/v2/api/#transition>`__ as options on the `<transition>` or `<transition-group>` special component, and the `$computedClass` method can be used again:
+To use computed classes for Vue.js transitions, you can use the ``{event}-class`` `properties <https://vuejs.org/v2/api/#transition>`__ as options on the ``<transition>`` or ``<transition-group>`` special component, and the ``$computedClass`` method can be used again:
 
-.. code-block:: javascript
+.. code-block:: html
 
   <transition-group :move-class="$computedClass(pseudoSelector)">
     <div>While moving I'll have the hover style applied!</div>

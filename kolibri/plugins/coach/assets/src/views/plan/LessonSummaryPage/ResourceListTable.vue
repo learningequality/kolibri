@@ -12,7 +12,7 @@
         <KDragHandle>
           <KGrid
             class="row"
-            :style="{ backgroundColor: $coreBgLight }"
+            :style="{ backgroundColor: $themeTokens.surface }"
             cols="8"
           >
             <KGridItem size="1" class="relative">
@@ -30,8 +30,11 @@
             <KGridItem size="4">
               <div class="resource-title">
                 <ContentIcon :kind="resourceKind(resourceId)" />
-                {{ resourceTitle(resourceId) }}
-                <p dir="auto" class="channel-title" :style="{ color: $coreTextAnnotation }">
+                <KRouterLink
+                  :text="resourceTitle(resourceId)"
+                  :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
+                />
+                <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                   {{ resourceChannelTitle(resourceId) }}
                 </p>
@@ -68,6 +71,7 @@
   import KDraggable from 'kolibri.coreVue.components.KDraggable';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -81,6 +85,7 @@
       KDragContainer,
       KDragHandle,
       KDragSortWidget,
+      KRouterLink,
       CoachContentLabel,
       KButton,
       KGrid,
@@ -164,10 +169,10 @@
 
         this.autoSave(this.lessonId, this.workingResources);
 
-        this.createSnackbar({
+        this.$store.commit('CORE_CREATE_SNACKBAR', {
           text: this.removalMessage,
-          duration: removalSnackbarTime,
           autoDismiss: true,
+          duration: removalSnackbarTime,
           actionText: this.$tr('undoActionPrompt'),
           actionCallback: () => {
             this.setWorkingResources(this.workingResourcesBackup);
@@ -197,18 +202,12 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
-        this.createSnackbar({
-          text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
       },
       handleDrag({ newArray }) {
         this.setWorkingResources(newArray);
         this.autoSave(this.lessonId, newArray);
-        this.createSnackbar({
-          text: this.$tr('resourceReorderConfirmationMessage'),
-          autoDismiss: true,
-        });
+        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
       },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {

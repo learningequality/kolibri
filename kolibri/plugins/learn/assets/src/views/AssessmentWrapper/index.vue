@@ -20,13 +20,10 @@ oriented data synchronization.
     </UiAlert>
     <div>
       <ContentRenderer
-        :id="id"
         ref="contentRenderer"
         :kind="kind"
         :lang="lang"
         :files="files"
-        :contentId="contentId"
-        :channelId="channelId"
         :available="available"
         :extraFields="extraFields"
         :assessment="true"
@@ -43,67 +40,66 @@ oriented data synchronization.
       />
     </div>
 
-    <div
+    <KBottomAppBar
       class="attempts-container"
       :class="{ 'mobile': windowIsSmall }"
-      :style="{ backgroundColor: $coreBgLight }"
     >
-      <div class="margin-wrapper">
-        <div class="overall-status" :style="{ color: $coreTextDefault }">
-          <mat-svg
-            name="stars"
-            category="action"
-            :style="{
-              fill: success ? $coreStatusMastered : $coreGrey,
-              verticalAlign: 0,
-            }"
-          />
-          <div class="overall-status-text">
-            <div v-if="success" class="completed" :style="{ color: $coreTextAnnotation }">
-              {{ $tr('completed') }}
-            </div>
-            <div>
-              {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-            </div>
+      <div class="overall-status" :style="{ color: $themeTokens.text }">
+        <mat-svg
+          name="stars"
+          category="action"
+          :style="{
+            fill: success ? $themeTokens.mastered : $themeColors.palette.grey.v_200,
+            verticalAlign: 0,
+          }"
+        />
+        <div class="overall-status-text">
+          <div v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+            {{ $tr('completed') }}
           </div>
-        </div>
-        <div class="table">
-          <div class="row">
-            <div class="left">
-              <transition mode="out-in">
-                <KButton
-                  v-if="!complete"
-                  appearance="raised-button"
-                  class="question-btn"
-                  :text="$tr('check')"
-                  :primary="true"
-                  :class="{shaking: shake}"
-                  :disabled="checkingAnswer"
-                  @click="checkAnswer"
-                />
-                <KButton
-                  v-else
-                  appearance="raised-button"
-                  class="question-btn"
-                  :text="$tr('next')"
-                  :primary="true"
-                  @click="nextQuestion"
-                />
-              </transition>
-            </div>
-
-            <div class="right">
-              <ExerciseAttempts
-                :waitingForAttempt="firstAttemptAtQuestion || itemError"
-                :numSpaces="attemptsWindowN"
-                :log="recentAttempts"
-              />
-              <p class="current-status">{{ currentStatus }}</p>
-            </div>
+          <div>
+            {{ $tr('goal', {count: totalCorrectRequiredM}) }}
           </div>
         </div>
       </div>
-    </div>
+      <div class="table">
+        <div class="row">
+          <div class="left">
+            <transition mode="out-in">
+              <KButton
+                v-if="!complete"
+                appearance="raised-button"
+                class="question-btn"
+                :text="$tr('check')"
+                :primary="true"
+                :class="{shaking: shake}"
+                :disabled="checkingAnswer"
+                @click="checkAnswer"
+              />
+              <KButton
+                v-else
+                appearance="raised-button"
+                class="question-btn"
+                :text="$tr('next')"
+                :primary="true"
+                @click="nextQuestion"
+              />
+            </transition>
+          </div>
+
+          <div class="right">
+            <ExerciseAttempts
+              :waitingForAttempt="firstAttemptAtQuestion || itemError"
+              :numSpaces="attemptsWindowN"
+              :log="recentAttempts"
+            />
+            <p class="current-status">
+              {{ currentStatus }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </KBottomAppBar>
   </div>
 
 </template>
@@ -120,6 +116,7 @@ oriented data synchronization.
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -130,22 +127,9 @@ oriented data synchronization.
       ContentRenderer,
       KButton,
       UiAlert,
+      KBottomAppBar,
     },
     mixins: [responsiveWindow, themeMixin],
-    $trs: {
-      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
-      tryAgain: 'Try again',
-      correct: 'Correct!',
-      check: 'Check',
-      next: 'Next',
-      itemError: 'There was an error showing this item',
-      completed: 'Completed',
-      inputAnswer: 'Please enter an answer above',
-      hintUsed: 'Hint used',
-      greatKeepGoing: 'Great! Keep going',
-      tryDifferentQuestion: 'Try a different question',
-      tryNextQuestion: 'Try next question',
-    },
     props: {
       id: {
         type: String,
@@ -161,10 +145,6 @@ oriented data synchronization.
       files: {
         type: Array,
         default: () => [],
-      },
-      contentId: {
-        type: String,
-        default: '',
       },
       channelId: {
         type: String,
@@ -212,11 +192,7 @@ oriented data synchronization.
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-      }),
       ...mapState({
-        pageName: state => state.pageName,
         mastered: state => state.core.logging.mastery.complete,
         currentInteractions: state => state.core.logging.attempt.interaction_history.length,
         totalattempts: state => state.core.logging.mastery.totalattempts,
@@ -311,7 +287,11 @@ oriented data synchronization.
         return null;
       },
     },
-    watch: { exerciseProgress: 'updateExerciseProgressMethod' },
+    watch: {
+      exerciseProgress() {
+        this.updateExerciseProgressMethod();
+      },
+    },
     beforeDestroy() {
       if (this.currentInteractions > 0) {
         this.saveAttemptLogMasterLog(false);
@@ -519,6 +499,20 @@ oriented data synchronization.
         this.$emit('stopTracking', ...args);
       },
     },
+    $trs: {
+      goal: 'Get {count, number, integer} {count, plural, other {correct}}',
+      tryAgain: 'Try again',
+      correct: 'Correct!',
+      check: 'Check',
+      next: 'Next',
+      itemError: 'There was an error showing this item',
+      completed: 'Completed',
+      inputAnswer: 'Please enter an answer above',
+      hintUsed: 'Hint used',
+      greatKeepGoing: 'Great! Keep going',
+      tryDifferentQuestion: 'Try a different question',
+      tryNextQuestion: 'Try next question',
+    },
   };
 
 </script>
@@ -528,24 +522,10 @@ oriented data synchronization.
 
   @import '~kolibri.styles.definitions';
 
-  // BOTTOM_SPACED_RESERVED depends on the height of this container
+  // BOTTOM_SPACED_RESERVED in LearnIndex.vue depends on the height of this container
   .attempts-container {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 8; // material - Bottom app bar
-    padding: 8px 16px;
-    margin: 0;
-    overflow-x: hidden;
-    font-size: 14px;
-    box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
-      0 6px 30px 5px rgba(0, 0, 0, 0.12);
-  }
-
-  .margin-wrapper {
-    max-width: 936px; // account for page padding 1000 - 64
-    margin: auto;
+    height: 111px;
+    text-align: left;
   }
 
   .mobile {

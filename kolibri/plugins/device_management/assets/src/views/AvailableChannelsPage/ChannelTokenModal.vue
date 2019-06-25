@@ -7,7 +7,7 @@
     :submitDisabled="formIsDisabled"
     :cancelDisabled="formIsDisabled"
     @submit="submitForm"
-    @cancel="$emit('closemodal')"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('tokenExplanation') }}</p>
 
@@ -80,9 +80,9 @@
               // tokens can return one or more channels
               if (channels.length > 1) {
                 this.setAvailableChannels(channels);
-                this.$emit('closemodal');
+                this.$emit('cancel');
               } else {
-                this.$emit('channelfound', channels[0]);
+                this.$emit('submit', channels[0]);
               }
             })
             .catch(error => {
