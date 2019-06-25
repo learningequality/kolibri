@@ -154,7 +154,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreCommon$tr('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
             return this.$tr('usernameAlreadyExists');
@@ -274,7 +274,6 @@
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
     },
   };

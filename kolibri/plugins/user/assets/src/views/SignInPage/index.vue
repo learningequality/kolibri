@@ -237,7 +237,7 @@
           if (this.username === '') {
             return this.coreCommon$tr('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreCommon$tr('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -465,7 +465,6 @@
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       documentTitle: 'User Sign In',
     },
   };

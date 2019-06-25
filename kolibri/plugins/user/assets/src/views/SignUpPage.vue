@@ -179,7 +179,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.$tr('usernameAlphaNumError');
+            return this.coreCommon$tr('usernameNotAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {
             return this.$tr('usernameAlreadyExistsError');
@@ -280,7 +280,6 @@
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
-      usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',

@@ -244,7 +244,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreCommon$tr('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
@@ -304,7 +304,6 @@
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
       changePasswordPrompt: 'Change password',

@@ -191,7 +191,7 @@
             return this.$tr('usernameAlreadyExists');
           }
           if (!validateUsername(this.newUsername)) {
-            return this.$tr('usernameNotAlphaNumUnderscore');
+            return this.coreCommon$tr('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -289,7 +289,6 @@
       usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',

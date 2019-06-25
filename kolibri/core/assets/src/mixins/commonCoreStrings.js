@@ -40,6 +40,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
 
   // notifications
   requiredFieldLabel: 'This field is required',
+  usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
 
   // empty states
 

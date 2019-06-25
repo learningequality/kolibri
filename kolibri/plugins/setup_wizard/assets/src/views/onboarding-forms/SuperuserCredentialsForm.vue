@@ -109,7 +109,7 @@
           return this.$tr('usernameFieldEmptyErrorMessage');
         }
         if (!validateUsername(this.username)) {
-          return this.$tr('usernameCharacterErrorMessage');
+          return this.coreCommon$tr('usernameNotAlphaNumError');
         }
         return '';
       },
@@ -188,7 +188,6 @@
       // error messages
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
-      usernameCharacterErrorMessage: 'Username can only contain letters, numbers, and underscores',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
       passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
