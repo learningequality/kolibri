@@ -135,6 +135,7 @@ def i18n_patterns(urls, prefix=None):
                 recurse_urls_and_set(url.urlpatterns)
             elif hasattr(url, "callback") and url.callback:
                 setattr(url.callback, "translated", True)
+
     recurse_urls_and_set(urls)
     return [LocaleRegexURLResolver(list(urls), prefix=prefix)]
 
