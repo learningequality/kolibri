@@ -14,7 +14,7 @@
 
     <template v-if="settings!==null">
       <div class="mb">
-        <h2>{{ $tr('currentFacilityHeader') }}</h2>
+        <h2>{{ coreCommon$tr('facilityLabel') }}</h2>
         <p class="current-facility-name">
           {{ facilityName }}
         </p>
@@ -143,7 +143,6 @@
       },
     },
     $trs: {
-      currentFacilityHeader: 'Facility',
       learnerCanEditName: 'Allow learners and coaches to edit their full name',
       learnerCanEditPassword: 'Allow learners and coaches to change their password when signed in',
       learnerCanEditUsername: 'Allow learners and coaches to edit their username',

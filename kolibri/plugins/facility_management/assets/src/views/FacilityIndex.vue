@@ -36,6 +36,7 @@
   import ManageClassPage from './ManageClassPage';
   import FacilityTopNav from './FacilityTopNav';
   import UserPage from './UserPage';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 
@@ -56,6 +57,7 @@
       FacilityTopNav,
       KPageContainer,
     },
+    mixins: [coreStringsMixin],
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
@@ -75,7 +77,7 @@
             return this.class.name || '';
           }
         }
-        return this.$tr('facilityTitle');
+        return this.coreCommon$tr('facilityLabel');
       },
       appBarBackLink() {
         if (this.isEnrollmentPage) {
@@ -90,7 +92,6 @@
       },
     },
     $trs: {
-      facilityTitle: 'Facility',
       adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
       // here because going to use immersive-page
       detailPageReturnPrompt: 'Class details',

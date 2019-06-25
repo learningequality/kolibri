@@ -21,6 +21,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   coachLabel: 'Coach',
   completedLabel: 'Completed',
   devicePermissionsLabel: 'Device permissions',
+  facilityLabel: 'Facility',
   fullNameLabel: 'Full name',
   learnersLabel: 'Learners',
   noUsersExistLabel: 'No users exist',

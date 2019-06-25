@@ -63,7 +63,7 @@
 
       <KSelect
         v-model="selectedFacility"
-        :label="$tr('facility')"
+        :label="coreCommon$tr('facilityLabel')"
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
@@ -285,7 +285,6 @@
       logIn: 'Sign in',
       kolibri: 'Kolibri',
       finishAction: 'Finish',
-      facility: 'Facility',
       documentTitle: 'User Sign Up',
       privacyLink: 'Usage and privacy in Kolibri',
     },

@@ -33,7 +33,7 @@
 
           <tr>
             <th scope="row">
-              {{ $tr('facilityLabel') }}
+              {{ coreCommon$tr('facilityLabel') }}
             </th>
             <td dir="auto">
               {{ facilityName }}
@@ -236,7 +236,6 @@
       saveInProgressNotification: 'Saving...',
       saveSuccessfulNotification: 'Changes saved!',
       userDoesNotExist: 'User does not exist',
-      facilityLabel: 'Facility',
       superAdminExplanation1:
         'Has all device permissions and can manage device permissions of other users',
       superAdminExplanation2: 'Has admin permissions for all facilities on this device',

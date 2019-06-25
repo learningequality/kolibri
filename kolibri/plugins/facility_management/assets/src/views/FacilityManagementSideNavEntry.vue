@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('facility')"
+    :label="coreCommon$tr('facilityLabel')"
     :link="url"
   >
     <mat-svg
@@ -18,17 +18,17 @@
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
   const component = {
     name: 'FacilityManagementSideNavEntry',
+    mixins: [coreStringsMixin],
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      facility: 'Facility',
-    },
+    $trs: {},
     computed: {
       url() {
         return urls['kolibri:facilitymanagementplugin:facility_management']();

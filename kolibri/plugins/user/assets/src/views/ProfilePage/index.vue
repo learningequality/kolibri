@@ -16,7 +16,7 @@
     </section>
 
     <section v-if="facilityName">
-      <h2>{{ $tr('facility') }}</h2>
+      <h2>{{ coreCommon$tr('facilityLabel') }}</h2>
       <p>{{ facilityName }}</p>
     </section>
 
