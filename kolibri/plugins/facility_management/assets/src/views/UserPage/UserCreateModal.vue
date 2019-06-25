@@ -269,7 +269,6 @@
       reEnterPassword: 'Re-enter password',
       learner: 'Learner',
       admin: 'Admin',
-      coachSelectorHeader: 'Coach type',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',
@@ -277,8 +276,6 @@
       usernameAlreadyExists: 'Username already exists',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       pwMismatchError: 'Passwords do not match',
-      unknownError: 'Whoops, something went wrong. Try again',
-      loadingConfirmation: 'Loading...',
     },
   };
 

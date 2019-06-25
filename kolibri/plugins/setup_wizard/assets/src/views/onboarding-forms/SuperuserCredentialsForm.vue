@@ -192,7 +192,6 @@
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
       passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
-      setupProgressFeedback: 'Setting up your device...',
     },
   };
 

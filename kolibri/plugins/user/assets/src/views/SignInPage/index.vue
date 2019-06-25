@@ -460,7 +460,6 @@
       kolibri: 'Kolibri',
       signIn: 'Sign in',
       password: 'Password',
-      enterPassword: 'Enter password',
       createAccount: 'Create an account',
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',

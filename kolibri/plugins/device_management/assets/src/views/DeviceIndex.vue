@@ -123,7 +123,6 @@
       },
     },
     $trs: {
-      availableChannelsTitle: 'Available Channels',
       deviceManagementTitle: 'Device',
       selectContentTitle: 'Select Content',
       permissionsLabel: 'Permissions',

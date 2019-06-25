@@ -258,7 +258,6 @@
       searchText: 'Search for a user…',
       admins: 'Admins',
       newUserButtonLabel: 'New User',
-      userCountLabel: '{userCount} users',
       fullName: 'Full name',
       username: 'Username',
       edit: 'Edit',
