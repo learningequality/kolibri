@@ -124,7 +124,7 @@
           return this.$tr('passwordFieldEmptyErrorMessage');
         }
         if (this.passwordConfirm !== this.password) {
-          return this.$tr('passwordsMismatchErrorMessage');
+          return this.coreCommon$tr('passwordsMismatchError');
         }
         return '';
       },
@@ -189,7 +189,6 @@
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
-      passwordsMismatchErrorMessage: 'Passwords do not match',
       facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
     },
   };

@@ -182,7 +182,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('pwMismatchError');
+            return this.coreCommon$tr('passwordsMismatchError');
           }
         }
         return '';
@@ -274,7 +274,6 @@
       facilityCoachLabel: 'Facility coach',
       facilityCoachDescription: 'Can instruct all classes in your facility',
       usernameAlreadyExists: 'Username already exists',
-      pwMismatchError: 'Passwords do not match',
     },
   };
 

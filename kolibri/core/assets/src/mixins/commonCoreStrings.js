@@ -39,6 +39,7 @@ const coreStrings = createTranslator('CommonCoreStrings', {
 
 
   // notifications
+  passwordsMismatchError: 'Passwords do not match',
   requiredFieldLabel: 'This field is required',
   usernameNotAlphaNumError: 'Username can only contain letters, numbers, and underscores',
 

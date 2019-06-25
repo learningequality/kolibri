@@ -86,7 +86,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
+            return this.coreCommon$tr('passwordsMismatchError');
           }
         }
         return '';
@@ -122,7 +122,6 @@
       username: 'Username: ',
       newPassword: 'New password',
       confirmNewPassword: 'Confirm new password',
-      passwordMatchError: 'Passwords do not match',
     },
   };
 

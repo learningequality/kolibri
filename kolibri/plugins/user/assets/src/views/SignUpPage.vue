@@ -207,7 +207,7 @@
             return this.coreCommon$tr('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.$tr('passwordMatchError');
+            return this.coreCommon$tr('passwordsMismatchError');
           }
         }
         return '';
@@ -279,7 +279,6 @@
       createAccount: 'Create an account',
       password: 'Password',
       reEnterPassword: 'Re-enter password',
-      passwordMatchError: 'Passwords do not match',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
       kolibri: 'Kolibri',
