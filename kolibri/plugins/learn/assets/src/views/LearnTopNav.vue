@@ -22,7 +22,7 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      :title="coreCommon$tr('recommendedLabel')"
+      :title="learnCommon$tr('recommendedLabel')"
       :link="recommendedLink"
     >
       <mat-svg
@@ -41,6 +41,7 @@
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import learnStringsMixin from './commonLearnStrings';
   import { ClassesPageNames, PageNames } from '../constants';
 
   export default {
@@ -49,7 +50,7 @@
       KNavbar,
       KNavbarLink,
     },
-    mixins: [coreStringsMixin],
+    mixins: [coreStringsMixin, learnStringsMixin],
     props: {},
     data() {
       return {

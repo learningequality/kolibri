@@ -30,6 +30,7 @@
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import learnStringsMixin from './commonLearnStrings';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
@@ -79,7 +80,7 @@
       TotalPoints,
       KPageContainer,
     },
-    mixins: [coreStringsMixin, responsiveWindow],
+    mixins: [coreStringsMixin, learnStringsMixin, responsiveWindow],
     data() {
       return {
         lastRoute: null,
@@ -193,7 +194,7 @@
         }
 
         return {
-          appBarTitle: this.$tr('learnTitle'),
+          appBarTitle: this.learnCommon$tr('learnLabel'),
           immersivePage: false,
         };
       },
@@ -244,7 +245,6 @@
       },
     },
     $trs: {
-      learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
       recommended: 'Recommended',
       documentTitleForPopular: 'Popular',

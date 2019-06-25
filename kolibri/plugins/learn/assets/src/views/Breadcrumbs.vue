@@ -16,11 +16,12 @@
   import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames, PageModes } from '../constants';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
+  import learnStringsMixin from './commonLearnStrings';
 
   export default {
     name: 'Breadcrumbs',
     components: { KBreadcrumbs },
-    mixins: [classesBreadcrumbItems, coreStringsMixin],
+    mixins: [classesBreadcrumbItems, coreStringsMixin, learnStringsMixin],
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
@@ -41,7 +42,7 @@
       learnBreadcrumbs() {
         return [
           {
-            text: this.coreCommon$tr('recommendedLabel'),
+            text: this.learnCommon$tr('recommendedLabel'),
             link: { name: PageNames.RECOMMENDED },
           },
           { text: this.contentTitle },

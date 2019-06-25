@@ -3,7 +3,7 @@
   <div>
 
     <h1 class="visuallyhidden">
-      {{ $tr('recommended') }}
+      {{ learnCommon$tr('recommendedLabel') }}
     </h1>
 
     <template v-if="popular.length">
@@ -69,6 +69,7 @@
 
   import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import learnStringsMixin from './commonLearnStrings';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
@@ -82,7 +83,7 @@
     name: 'RecommendedPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.learnCommon$tr('learnLabel'),
       };
     },
     components: {
@@ -90,7 +91,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
     },
-    mixins: [responsiveWindow],
+    mixins: [learnStringsMixin, responsiveWindow],
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
@@ -133,11 +134,9 @@
       },
     },
     $trs: {
-      recommended: 'Recommended',
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
       resumeSectionHeader: 'Resume',
-      documentTitle: 'Learn',
     },
   };
 

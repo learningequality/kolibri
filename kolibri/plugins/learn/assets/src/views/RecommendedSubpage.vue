@@ -19,6 +19,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import learnStringsMixin from './commonLearnStrings';
 
   export default {
     name: 'RecommendedSubpage',
@@ -27,6 +28,7 @@
         title: this.documentTitle,
       };
     },
+    mixins: [learnStringsMixin],
     components: {
       ContentCardGroupGrid,
       KBreadcrumbs,
@@ -61,7 +63,7 @@
       breadcrumbItems() {
         return [
           {
-            text: this.$tr('recommended'),
+            text: this.learnCommon$tr('recommendedLabel'),
             link: this.$router.getRoute(PageNames.RECOMMENDED),
           },
           {
@@ -81,7 +83,6 @@
       popularPageHeader: 'Most popular',
       resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
-      recommended: 'Recommended',
       documentTitleForPopular: 'Popular',
       documentTitleForResume: 'Resume',
       documentTitleForNextSteps: 'Next Steps',

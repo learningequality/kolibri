@@ -108,7 +108,7 @@
         />
       </template>
       <template v-if="showRecommended">
-        <h2>{{ $tr('recommended') }}</h2>
+        <h2>{{ learnCommon$tr('recommendedLabel') }}</h2>
         <ContentCardGroupCarousel
           :genContentLink="genContentLink"
           :header="recommendedText"
@@ -148,6 +148,7 @@
   import AssessmentWrapper from './AssessmentWrapper';
   import MasteredSnackbars from './MasteredSnackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
+  import learnStringsMixin from './commonLearnStrings';
 
   export default {
     name: 'ContentPage',
@@ -163,6 +164,7 @@
         }),
       };
     },
+    mixins: [learnStringsMixin],
     components: {
       CoachContentLabel,
       PageHeader,
@@ -216,7 +218,7 @@
         return '';
       },
       recommendedText() {
-        return this.$tr('recommended');
+        return this.learnCommon$tr('recommendedLabel');
       },
       progress() {
         if (this.isUserLoggedIn) {
@@ -315,7 +317,6 @@
       },
     },
     $trs: {
-      recommended: 'Recommended',
       author: 'Author: {author}',
       license: 'License: {license}',
       toggleLicenseDescription: 'Toggle license description',
