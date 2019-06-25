@@ -41,7 +41,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('documentTitleForPopular');
           case PageNames.RECOMMENDED_RESUME:
-            return this.$tr('documentTitleForResume');
+            return this.learnCommon$tr('recommendedLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('documentTitleForNextSteps');
           default:
@@ -53,7 +53,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('popularPageHeader');
           case PageNames.RECOMMENDED_RESUME:
-            return this.$tr('resumePageHeader');
+            return this.learnCommon$tr('recommendedLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
           default:
@@ -81,10 +81,8 @@
     },
     $trs: {
       popularPageHeader: 'Most popular',
-      resumePageHeader: 'Resume',
       nextStepsPageHeader: 'Next steps',
       documentTitleForPopular: 'Popular',
-      documentTitleForResume: 'Resume',
       documentTitleForNextSteps: 'Next Steps',
     },
   };

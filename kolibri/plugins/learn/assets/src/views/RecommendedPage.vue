@@ -44,7 +44,7 @@
 
     <template v-if="resume.length">
       <ContentCardGroupHeader
-        :header="$tr('resumeSectionHeader')"
+        :header="learnCommon$tr('recommendedLabel')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
@@ -136,7 +136,6 @@
     $trs: {
       popularSectionHeader: 'Most popular',
       suggestedNextStepsSectionHeader: 'Next steps',
-      resumeSectionHeader: 'Resume',
     },
   };
 

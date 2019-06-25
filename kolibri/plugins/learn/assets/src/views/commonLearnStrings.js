@@ -4,6 +4,7 @@ const learnStrings = createTranslator('CommonLearnStrings', {
   // Labels
   learnLabel: 'Learn',
   recommendedLabel: 'Recommended',
+  resumeLabel: 'Resume',
 
 });
 
