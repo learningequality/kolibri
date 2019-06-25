@@ -63,9 +63,9 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { fullscreenApiIsSupported } from 'kolibri.utils.browser';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { ReplayButton, ForwardButton, MimicFullscreenToggle } from './customButtons';
   import audioIconPoster from './audio-icon-poster.svg';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   const GlobalLangCode = vue.locale;
 

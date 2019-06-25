@@ -23,7 +23,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import {
     NotificationEvents,
     NotificationObjects,

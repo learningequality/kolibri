@@ -82,6 +82,7 @@
   import orderBy from 'lodash/orderBy';
   import KButton from 'kolibri.coreVue.components.KButton';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
@@ -89,7 +90,6 @@
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
   import DeleteGroupModal from './DeleteGroupModal';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'GroupsPage',

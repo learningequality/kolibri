@@ -9,8 +9,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   manageResourcesAction: 'Manage resources',
   newLessonAction: 'New lesson',
   newQuizAction: 'New quiz',
-  previewAction: 'Preview',  
-  renameAction: 'Rename',  
+  previewAction: 'Preview',
+  renameAction: 'Rename',
   showMoreAction: 'Show more',
   viewAllAction: 'View all',
 
@@ -61,7 +61,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   statusLabel: 'Status',
   titleLabel: 'Title',
   timeSpentLabel: 'Time spent',
-  ungroupedLearnersLabel: 'Ungrouped learners',  
+  ungroupedLearnersLabel: 'Ungrouped learners',
 
   // notifications
   updatedNotification: 'Updated',

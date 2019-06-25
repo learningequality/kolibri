@@ -111,7 +111,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KIcon from 'kolibri.coreVue.components.KIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';

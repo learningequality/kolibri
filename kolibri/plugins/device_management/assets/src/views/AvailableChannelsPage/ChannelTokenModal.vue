@@ -39,7 +39,7 @@
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
   export default {

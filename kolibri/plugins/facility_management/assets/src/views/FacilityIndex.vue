@@ -27,6 +27,7 @@
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -36,7 +37,6 @@
   import ManageClassPage from './ManageClassPage';
   import FacilityTopNav from './FacilityTopNav';
   import UserPage from './UserPage';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   const classEnrollmentPages = [PageNames.CLASS_ENROLL_LEARNER, PageNames.CLASS_ASSIGN_COACH];
 

@@ -31,7 +31,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ContentCard from '../ContentCard';
   import { learnStringsMixin } from '../commonLearnStrings';
   import { classAssignmentsLink } from './classPageLinks';

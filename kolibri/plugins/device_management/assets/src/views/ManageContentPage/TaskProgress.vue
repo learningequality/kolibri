@@ -43,7 +43,9 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted || taskHasFailed ? coreCommon$tr('closeAction') : coreCommon$tr('cancelAction')"
+        :text="taskHasCompleted || taskHasFailed ? 
+          coreCommon$tr('closeAction') : 
+          coreCommon$tr('cancelAction')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -61,7 +63,7 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {

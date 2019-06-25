@@ -66,8 +66,8 @@
 
 <script>
 
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../common';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
   export default {

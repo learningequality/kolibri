@@ -36,7 +36,7 @@
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'TextTruncator',

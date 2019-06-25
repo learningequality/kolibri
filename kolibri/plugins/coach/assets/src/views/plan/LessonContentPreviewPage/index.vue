@@ -75,7 +75,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { currentLanguage, licenseTranslations } from 'kolibri.utils.i18n';
   import markdownIt from 'markdown-it';
   import QuestionList from './QuestionList';
@@ -89,7 +89,6 @@
         title: this.currentContentNode.title,
       };
     },
-    mixins: [coreStringsMixin],
     components: {
       KLabeledIcon,
       QuestionList,
@@ -101,6 +100,7 @@
       KGridItem,
       MultiPaneLayout,
     },
+    mixins: [coreStringsMixin],
     props: {
       currentContentNode: {
         type: Object,

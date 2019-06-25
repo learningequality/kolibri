@@ -61,7 +61,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
 
 
   export default {
@@ -71,13 +71,13 @@
         title: this.$tr('header'),
       };
     },
-    mixins: [coreStringsMixin],
     components: {
       AuthMessage,
       KButton,
       KExternalLink,
       TechnicalTextBlock,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         advancedShown: false,

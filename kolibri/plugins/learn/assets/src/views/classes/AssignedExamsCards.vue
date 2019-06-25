@@ -29,7 +29,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { canViewExam } from '../../utils/exams';
   import ContentCard from '../ContentCard';
   import { examViewerLink, examReportViewerLink } from './classPageLinks';
@@ -39,6 +39,7 @@
     components: {
       ContentCard,
     },
+    mixins: [coreStringsMixin],
     props: {
       exams: {
         type: Array,
@@ -49,7 +50,6 @@
         required: true,
       },
     },
-    mixins: [coreStringsMixin],
     computed: {
       EXAM: () => ContentNodeKinds.EXAM,
     },

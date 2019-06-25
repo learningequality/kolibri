@@ -52,7 +52,12 @@
               name="lightbulb_outline"
             />
             <p class="item">
-              {{ coreCommon$tr('questionNumberLabel', {questionNumber: attemptLog.questionNumber}) }}
+              {{ 
+                coreCommon$tr(
+                  'questionNumberLabel', 
+                  {questionNumber: attemptLog.questionNumber}
+                ) 
+              }}
             </p>
           </div>
           <CoachContentLabel
@@ -71,7 +76,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {

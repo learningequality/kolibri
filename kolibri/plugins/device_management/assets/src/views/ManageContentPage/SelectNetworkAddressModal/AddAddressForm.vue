@@ -53,7 +53,7 @@
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { createAddress } from './api';
 

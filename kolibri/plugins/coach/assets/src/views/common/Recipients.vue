@@ -18,14 +18,14 @@
 <script>
 
   import TruncatedItemList from './TruncatedItemList';
-  import coachStringsMixin from './commonCoachStrings';
+  import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'Recipients',
-    mixins: [coachStringsMixin],
     components: {
       TruncatedItemList,
     },
+    mixins: [coachStringsMixin],
     props: {
       groupNames: {
         type: Array,

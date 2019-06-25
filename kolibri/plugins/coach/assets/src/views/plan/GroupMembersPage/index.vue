@@ -100,10 +100,9 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../../common';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
-  
 
   export default {
     name: 'GroupMembersPage',
@@ -123,7 +122,7 @@
       CoreTable,
       RemoveFromGroupModal,
     },
-    mixins: [commonCoach. coreStringsMixin],
+    mixins: [coreStringsMixin, commonCoach],
     data() {
       return {
         userForRemoval: null,

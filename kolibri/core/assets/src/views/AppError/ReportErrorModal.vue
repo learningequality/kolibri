@@ -50,7 +50,7 @@
   import { mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {

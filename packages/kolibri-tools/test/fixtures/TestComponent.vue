@@ -76,7 +76,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
 

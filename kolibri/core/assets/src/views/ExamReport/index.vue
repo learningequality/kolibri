@@ -54,7 +54,7 @@
     <p v-else slot="main">
       {{ $tr('noItemId') }}
     </p>
-</MultiPaneLayout>
+  </MultiPaneLayout>
 
 </template>
 
@@ -68,7 +68,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import PageStatus from './PageStatus';
 
   export default {

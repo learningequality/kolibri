@@ -55,9 +55,9 @@
 <script>
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ReportsGroupListPage',

@@ -69,9 +69,9 @@
 
   import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import learnStringsMixin from './commonLearnStrings';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
+  import { learnStringsMixin } from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';

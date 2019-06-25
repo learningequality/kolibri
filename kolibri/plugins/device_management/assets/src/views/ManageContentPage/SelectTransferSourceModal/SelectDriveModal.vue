@@ -44,7 +44,7 @@
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';
 

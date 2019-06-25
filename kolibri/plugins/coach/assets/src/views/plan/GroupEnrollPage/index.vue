@@ -110,8 +110,8 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import commonCoach from '../../common';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import {
     userMatchesFilter,
     filterAndSortUsers,

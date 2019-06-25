@@ -30,8 +30,8 @@
   import { mapActions, mapState } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
-  import coachStringsMixin from '../../commonCoachStrings';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'CreateGroupModal',

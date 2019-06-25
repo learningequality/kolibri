@@ -86,7 +86,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';

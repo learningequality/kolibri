@@ -13,10 +13,10 @@
 
   import { mapState, mapGetters } from 'vuex';
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames, PageModes } from '../constants';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
-  import learnStringsMixin from './commonLearnStrings';
+  import { learnStringsMixin } from './commonLearnStrings';
 
   export default {
     name: 'Breadcrumbs',

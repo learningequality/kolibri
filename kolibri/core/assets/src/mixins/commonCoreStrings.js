@@ -37,7 +37,6 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   userTypeLabel: 'User type',
   viewMoreLabel: 'View more',
 
-
   // notifications
   passwordsMismatchError: 'Passwords do not match',
   requiredFieldLabel: 'This field is required',

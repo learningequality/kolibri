@@ -8,7 +8,7 @@
 <script>
 
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'ResourceSelectionBreadcrumbs',

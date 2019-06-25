@@ -5,7 +5,6 @@ const learnStrings = createTranslator('CommonLearnStrings', {
   learnLabel: 'Learn',
   recommendedLabel: 'Recommended',
   resumeLabel: 'Resume',
-
 });
 
 const learnStringsMixin = {

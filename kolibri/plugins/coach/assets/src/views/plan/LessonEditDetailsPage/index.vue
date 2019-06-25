@@ -47,11 +47,11 @@
   import isEmpty from 'lodash/isEmpty';
   import { LessonResource } from 'kolibri.resources';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import ResourceListTable from './EditDetailsResourceListTable';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'LessonEditDetailsPage',

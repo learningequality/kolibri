@@ -49,10 +49,10 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'SearchPage',
@@ -61,13 +61,13 @@
         title: this.coreCommon$tr('searchLabel'),
       };
     },
-    mixins: [coreStringsMixin],
     components: {
       ContentCardGroupGrid,
       KButton,
       KCircularLoader,
       SearchBox,
     },
+    mixins: [coreStringsMixin],
     data() {
       return {
         loading: false,

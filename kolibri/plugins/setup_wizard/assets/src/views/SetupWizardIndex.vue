@@ -40,7 +40,7 @@
 
   import { mapActions, mapState, mapMutations } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
@@ -91,9 +91,7 @@
         return this.onboardingStep === this.totalOnboardingSteps;
       },
       submitText() {
-        return this.isLastStep
-          ? this.$tr('finishAction')
-          : this.coreCommon$tr('continueAction');
+        return this.isLastStep ? this.$tr('finishAction') : this.coreCommon$tr('continueAction');
       },
     },
     methods: {

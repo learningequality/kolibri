@@ -18,8 +18,8 @@
 
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
-  import learnStringsMixin from './commonLearnStrings';
   import urls from 'kolibri.urls';
+  import { learnStringsMixin } from './commonLearnStrings';
 
   const component = {
     name: 'LearnSideNavEntry',

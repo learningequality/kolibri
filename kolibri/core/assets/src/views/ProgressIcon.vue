@@ -33,7 +33,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -43,7 +43,7 @@
       UiIcon,
       KTooltip,
     },
-    mixins: [coreStringMixin, themeMixin],
+    mixins: [coreStringsMixin, themeMixin],
     props: {
       progress: {
         type: Number,

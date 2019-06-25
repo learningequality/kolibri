@@ -31,14 +31,14 @@
 <script>
 
   import KButton from 'kolibri.coreVue.components.KButton';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'SelectOptions',
-    mixins: [coreStringsMixin],
     components: {
       KButton,
     },
+    mixins: [coreStringsMixin],
     props: {
       isSelected: {
         type: Boolean,

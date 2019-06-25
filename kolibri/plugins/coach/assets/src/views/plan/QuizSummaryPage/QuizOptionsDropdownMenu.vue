@@ -14,8 +14,8 @@
 <script>
 
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   export default {
     name: 'QuizOptionsDropdownMenu',

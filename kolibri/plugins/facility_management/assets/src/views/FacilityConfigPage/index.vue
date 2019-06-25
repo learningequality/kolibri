@@ -71,9 +71,9 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
+  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
-  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
