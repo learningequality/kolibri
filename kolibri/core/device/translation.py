@@ -128,8 +128,14 @@ def i18n_patterns(urls, prefix=None):
     """
     if not settings.USE_I18N:
         return list(urls)
-    for url in urls:
-        setattr(url.callback, "translated", True)
+
+    def recurse_urls_and_set(urls_to_set):
+        for url in urls_to_set:
+            if hasattr(url, "urlpatterns") and url.urlpatterns:
+                recurse_urls_and_set(url.urlpatterns)
+            elif hasattr(url, "callback") and url.callback:
+                setattr(url.callback, "translated", True)
+    recurse_urls_and_set(urls)
     return [LocaleRegexURLResolver(list(urls), prefix=prefix)]
 
 
