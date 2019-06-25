@@ -5,12 +5,12 @@ const vueCompiler = require('vue-template-compiler');
 const rewire = require('rewire');
 
 // Rewiring the functions to test.
-const profile$trs = rewire('../lib/profile$trs');
-const getStringDefinitions = profile$trs.__get__('getStringDefinitions');
-const profileVueScript = profile$trs.__get__('profileVueScript');
-const profileVueTemplate = profile$trs.__get__('profileVueTemplate');
-const getStringFromNamespaceKey = profile$trs.__get__('getStringFromNamespaceKey');
-const profileJSFile = profile$trs.__get__('profileJSFile');
+const ProfileStrings = rewire('../lib/ProfileStrings');
+const getStringDefinitions = ProfileStrings.__get__('getStringDefinitions');
+const profileVueScript = ProfileStrings.__get__('profileVueScript');
+const profileVueTemplate = ProfileStrings.__get__('profileVueTemplate');
+const getStringFromNamespaceKey = ProfileStrings.__get__('getStringFromNamespaceKey');
+const profileJSFile = ProfileStrings.__get__('profileJSFile');
 
 // Base path for fixtures
 const fixturePath = path.resolve(__dirname + '/fixtures/');

@@ -37,17 +37,17 @@ function generateMessagesObject(messagesObject) {
   return eval(escodegen.generate(messagesAST));
 }
 
-function extract$trs(messageDir, messagesName) {
+function ExtractStrings(messageDir, messagesName) {
   this.messageDir = messageDir;
   this.messagesName = messagesName;
 }
 
-extract$trs.prototype.apply = function(compiler) {
+ExtractStrings.prototype.apply = function(compiler) {
   var self = this;
   // Only do this in non-production mode, as otherwise the module detection code
   // does not work for .vue files.
   if (process.env.NODE_ENV !== 'production') {
-    compiler.hooks.emit.tapAsync('Extract$Trs', function(compilation, callback) {
+    compiler.hooks.emit.tapAsync('extractStrings', function(compilation, callback) {
       var messageExport = {};
       var nameSpaces = [];
       function registerFoundMessages(messageNameSpace, messages, module) {
@@ -339,7 +339,7 @@ extract$trs.prototype.apply = function(compiler) {
   }
 };
 
-extract$trs.prototype.writeOutput = function(messageExport) {
+ExtractStrings.prototype.writeOutput = function(messageExport) {
   // Make sure the directory we are using exists.
   mkdirp.sync(this.messageDir);
   // Write out the data to JSON.
@@ -350,4 +350,4 @@ extract$trs.prototype.writeOutput = function(messageExport) {
   );
 };
 
-module.exports = extract$trs;
+module.exports = ExtractStrings;

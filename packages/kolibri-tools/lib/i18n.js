@@ -5,6 +5,7 @@
 const os = require('os');
 const webpack = require('webpack');
 const logger = require('./logging');
+const ProfileStrings = require('./ProfileStrings');
 const webpackBaseConfig = require('./webpack.config.base');
 const { getEnvVars } = require('./build');
 
@@ -12,6 +13,8 @@ function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData);
 
   pluginBundle.output.path = os.tmpdir();
+  pluginBundle.plugins.push(new ProfileStrings(data.locale_data_folder, data.name));
+
   return pluginBundle;
 }
 

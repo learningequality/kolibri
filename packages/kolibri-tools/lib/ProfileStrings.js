@@ -18,18 +18,25 @@ const COMMON_NAMESPACES = {
   test_component: 'TestComponent',
 };
 
-function profile$trs(localePath, moduleName) {
+function ProfileStrings(localePath, moduleName) {
   this.localePath = localePath;
   this.moduleName = moduleName;
 }
 
+function logKeyError(namespace, key) {
+  logging.log(
+    `No string found for '${namespace}.${key}' ` +
+      '(either not defined, or the key was passed as a variable and not a string)'
+  );
+}
+
 /* Webpack Entry */
-profile$trs.prototype.apply = function(compiler) {
+ProfileStrings.prototype.apply = function(compiler) {
   const self = this;
 
   // Only works in non-production mode.
   if (process.env.NODE_ENV !== 'production') {
-    compiler.hooks.emit.tapAsync('Profile$Trs', function(compilation, callback) {
+    compiler.hooks.emit.tapAsync('profileStrings', function(compilation, callback) {
       let strProfile = getStringDefinitions(self.localePath, self.moduleName);
 
       // Not all modules have messages files - bail if we don't get one.
@@ -300,10 +307,7 @@ function keyFromArguments(args, namespace) {
     }
   }
   if (key === null) {
-    logging.log(
-      `No string found for ${namespace}.${key}. Either the combination is not
-      defined or the key we found was passed as a variable and not a key string`
-    );
+    logKeyError(namespace, key);
   }
   return key;
 }
@@ -383,10 +387,7 @@ function profileVueScript(profile, ast, pathname, moduleName) {
                   });
                   key = undefined; // Avoid errant uses by setting key to undefined.
                 } else {
-                  logging.log(
-                    `No string found for ${currentNamespace}.${key}. Either the combination is not
-                    defined or the key we found was passed as a variable and not a key string`
-                  );
+                  logKeyError(namespace, key);
                 }
               }
             }
@@ -522,5 +523,5 @@ function profileJSFile(profile, ast, pathname) {
 
   return profile;
 }
-module.exports = profile$trs;
+module.exports = ProfileStrings;
 module.exports.writeProfileToCSV = writeProfileToCSV;

@@ -5,16 +5,16 @@
  * The new CSV file will not be separated by module.
  *
  * USAGE
- * node combine$trProfiles.js /path/to/folder/with/json-dumps
+ * node combineStringProfiles.js /path/to/folder/with/json-dumps
  * EXAMPLE - When run from the root directory package.json command:
- * node combine$trProfiles.js ./kolibri/locale/en/LC_MESSAGES/csv_profiles
+ * node combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/csv_profiles
  */
 
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const logger = require('./logging');
-const writeProfileToCSV = require('./profile$trs').writeProfileToCSV;
+const writeProfileToCSV = require('./ProfileStrings').writeProfileToCSV;
 
 const logging = logger.getLogger('Kolibri String Profiler');
 

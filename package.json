@@ -14,7 +14,7 @@
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
-    "combineprofiles": "node ./packages/kolibri-tools/lib/combine\\$trProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
+    "combineprofiles": "node ./packages/kolibri-tools/lib/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",
     "django-devserver": "kolibri --debug manage runserver --settings=kolibri.deployment.default.settings.dev \"0.0.0.0:8000\" ",
