@@ -94,7 +94,6 @@
       emailDescription:
         'Contact the support team with your error details and we’ll do our best to help.',
       errorDetailsHeader: 'Error details',
-      errorFileDenotation: 'error',
     },
   };
 
