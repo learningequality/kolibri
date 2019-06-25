@@ -1,4 +1,4 @@
-export const Modals = {
+export const SubscriptionModals = {
   CHOOSE_CLASS_SUBSCRIPTIONS: 'CHOOSE_CLASS_SUBSCRIPTIONS',
 };
 

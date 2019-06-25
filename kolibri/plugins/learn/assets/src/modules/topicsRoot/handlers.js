@@ -1,4 +1,8 @@
-import { ContentNodeSlimResource, ClassroomResource } from 'kolibri.resources';
+import {
+  ContentNodeSlimResource,
+  ClassroomResource,
+  LearnerGroupResource,
+} from 'kolibri.resources';
 import { LearnerClassroomResource } from '../../apiResources';
 import { PageNames } from '../../constants';
 import { _collectionState } from '../coreLearn/utils';
@@ -26,6 +30,17 @@ function displaySubscribedChannels(store, channels, channelRootIds, include_fiel
   });
 }
 
+function findGroupWithLearner(learnerId, groups) {
+  let foundGroup = undefined;
+  groups.forEach(function(group) {
+    let found = group.user_ids.includes(learnerId);
+    if (found) {
+      foundGroup = group;
+    }
+  });
+  return foundGroup;
+}
+
 export function showChannels(store) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_ROOT);
@@ -50,9 +65,17 @@ export function showChannels(store) {
             // console.log('classId', classObj.id);
             ClassroomResource.fetchModel({ id: classObj.id }).then(channelsData => {
               // console.log('channelsData.subs', channelsData.subscriptions);
-              channelRootIds = channelRootIds.concat(JSON.parse(channelsData.subscriptions));
-              // console.log('after LearnerCheck', channelRootIds);
-              displaySubscribedChannels(store, channels, channelRootIds, include_fields);
+              LearnerGroupResource.fetchCollection().then(groupCollection => {
+                let group = findGroupWithLearner(store.getters.currentUserId, groupCollection);
+                if (group) {
+                  channelRootIds = channelRootIds.concat(JSON.parse(group.subscriptions));
+                  displaySubscribedChannels(store, channels, channelRootIds, include_fields);
+                } else {
+                  channelRootIds = channelRootIds.concat(JSON.parse(channelsData.subscriptions));
+                  // console.log('after LearnerCheck', channelRootIds);
+                  displaySubscribedChannels(store, channels, channelRootIds, include_fields);
+                }
+              });
             });
           });
         });

@@ -66,11 +66,13 @@
     },
     methods: {
       ...mapActions('subscriptions', [
-        'displayModal',
+        'displaySubscriptionModal',
         'saveSubscription',
         'getChannelsFromDatabase',
+        'updateGroupSubscriptions',
         'testMethod',
       ]),
+      ...mapActions('userManagement', ['displayModal']),
       // getSubscribedChannels() {
       //   return this.getChannelsFromDatabase(this.collectionId);
       // },
@@ -95,15 +97,18 @@
       },
       saveSelectedSubscriptions() {
         if (this.isSelectedChannelsInitialized) {
+          this.updateGroupSubscriptions(this.selectedChannels);
           this.saveSubscription({
             id: this.collectionId,
             choices: JSON.stringify(this.selectedChannels),
           });
+          this.close();
         } else {
           this.close();
         }
       },
       close() {
+        this.displaySubscriptionModal(false);
         this.displayModal(false);
       },
     },

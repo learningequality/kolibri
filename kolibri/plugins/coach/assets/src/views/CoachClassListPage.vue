@@ -82,7 +82,7 @@
   import { mapGetters, mapState, mapActions } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import urls from 'kolibri.urls';
-  import { Modals } from '../constants/subscriptionsConstants';
+  import { SubscriptionModals } from '../constants/subscriptionsConstants';
   import commonCoach from './common';
   import SubscribeModal from './SubscribeModal';
 
@@ -102,7 +102,7 @@
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
       ...mapState('subscriptions', ['subscriptionModalShown', 'selectedSubscriptions']),
-      Modals: () => Modals,
+      Modals: () => SubscriptionModals,
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
         if (this.isClassCoach) {
@@ -123,10 +123,10 @@
       },
     },
     methods: {
-      ...mapActions('subscriptions', ['displayModal']),
+      ...mapActions('subscriptions', ['displaySubscriptionModal']),
       openSubscribeModal(classModel) {
         this.currentClass = classModel;
-        this.displayModal(Modals.CHOOSE_CLASS_SUBSCRIPTIONS);
+        this.displaySubscriptionModal(SubscriptionModals.CHOOSE_CLASS_SUBSCRIPTIONS);
       },
     },
     $trs: {

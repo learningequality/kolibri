@@ -1,6 +1,6 @@
 import { ClassroomResource, LearnerGroupResource } from 'kolibri.resources';
 
-export function displayModal(store, modalName) {
+export function displaySubscriptionModal(store, modalName) {
   store.commit('SET_SUBSCRIPTION_MODAL', modalName);
 }
 
@@ -14,8 +14,34 @@ export function saveSubscription(store, subData) {
     data: { subscriptions: subData.choices },
     exists: true,
   })
-    .then(store.dispatch('displayModal', false))
+    .then()
     .catch(error => store.dispatch('handleApiError', error, { root: true }));
+}
+
+export function updateGroupSubscriptions(store, classSelectedSubs) {
+  LearnerGroupResource.fetchCollection().then(
+    groupCollection => {
+      let resultArray = undefined;
+      groupCollection.forEach(function(group) {
+        let jsonSubs = JSON.parse(group.subscriptions);
+        resultArray = jsonSubs;
+        jsonSubs.forEach(function(sub) {
+          let check = classSelectedSubs.includes(sub);
+          if (!check) {
+            resultArray.splice(resultArray.indexOf(sub), 1);
+          }
+        });
+        saveGroupSubscription(store, {
+          id: group.id,
+          choices: JSON.stringify(resultArray),
+        });
+      });
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+      return error;
+    }
+  );
 }
 
 export function saveGroupSubscription(store, subData) {
