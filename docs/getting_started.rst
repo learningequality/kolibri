@@ -102,6 +102,25 @@ Now, any commands run with will target your virtual environment rather than the 
 .. warning::
   Never install project dependencies using ``sudo pip install ...``
 
+
+.. _EnvVars:
+
+
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+
+Environment variables can be set in many ways, including:
+
+* adding them to a ``~/.bash_profile`` file (for Bash) or a similar file in your shell of choice
+* using a ``.env`` file for this project, `loaded with Pipenv <https://docs.pipenv.org/en/latest/advanced/#automatic-loading-of-env>`_
+* setting them temporarily in the current Bash session using ``EXPORT`` or similar (not recommended except for testing)
+
+There are two environment variables you should plan to set:
+
+* ``KOLIBRI_RUN_MODE`` (required): This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_, and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. (There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing gherkin stories.)
+* ``KOLIBRI_HOME`` (optional): This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
+
+
 Install Python dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

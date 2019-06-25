@@ -308,8 +308,8 @@ This will output a JSON blob like:
 
 You can `redirect this output to a file <https://askubuntu.com/questions/420981/how-do-i-save-terminal-output-to-a-file>`_ (Bash) or `pipe it to the clipboard <https://stackoverflow.com/questions/1753110/>`_ (Mac)
 
-Set Kolibri's ``RUN_MODE`` to ``staged-msgs`` to receive staged messages. Test that all languages are displayed correctly.
+Set Kolibri's ``KOLIBRI_RUN_MODE`` to ``staged-msgs-ver-0.0.1`` to receive staged messages, as described in :ref:`EnvVars`. Test that all languages are displayed correctly.
 
-Next, emulate different versions and ensure that the semver conditional logic is being processed correctly. Set ``RUN_MODE`` to something like ``staged-msgs-ver-0.12.3`` to emulate version 0.12.3, for example.
+Next, emulate different versions and ensure that the semver conditional logic is being processed correctly. Set ``KOLIBRI_RUN_MODE`` to something like ``staged-msgs-ver-0.12.3`` to emulate version 0.12.3, for example. For more information, take a look at `the function for parsing these strings <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L129-L149>`_.
 
 Once testing has confirmed that the message works as expected, set the message to active to enable it.
