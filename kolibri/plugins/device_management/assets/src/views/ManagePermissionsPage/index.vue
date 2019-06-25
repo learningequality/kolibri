@@ -6,7 +6,7 @@
 
     <div v-else>
       <div class="description">
-        <h1>{{ $tr('devicePermissionsHeader') }}</h1>
+        <h1>{{ coreCommon$tr('devicePermissionsLabel') }}</h1>
         <p>{{ $tr('devicePermissionsDescription') }}</p>
       </div>
 
@@ -30,6 +30,7 @@
   import { mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import UserGrid from './UserGrid';
 
   export default {
@@ -39,6 +40,7 @@
         title: this.$tr('documentTitle'),
       };
     },
+    mixins: [coreStringsMixin],
     components: {
       AuthMessage,
       KFilterTextbox,
@@ -53,7 +55,6 @@
       ...mapGetters(['isSuperuser']),
     },
     $trs: {
-      devicePermissionsHeader: 'Device permissions',
       devicePermissionsDescription: 'Make changes to what users can manage on your device',
       searchPlaceholder: 'Search for a user...',
       documentTitle: 'Manage Device Permissions',

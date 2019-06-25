@@ -65,7 +65,7 @@
       </div>
 
       <div class="section">
-        <h2>{{ $tr('devicePermissions') }}</h2>
+        <h2>{{ coreCommon$tr('devicePermissionsLabel') }}</h2>
         <KCheckbox
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
@@ -227,7 +227,6 @@
       UserType,
     },
     $trs: {
-      devicePermissions: 'Device permissions',
       devicePermissionsDetails: 'Can manage content on this device',
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',

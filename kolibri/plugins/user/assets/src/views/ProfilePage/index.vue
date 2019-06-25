@@ -22,7 +22,7 @@
 
 
     <section v-if="userHasPermissions">
-      <h2>{{ $tr('devicePermissions') }}</h2>
+      <h2>{{ coreCommon$tr('devicePermissionsLabel') }}</h2>
       <p>
         <KLabeledIcon>
           <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
@@ -304,7 +304,6 @@
       manageContent: 'Manage content',
       manageDevicePermissions: 'Manage device permissions',
       points: 'Points',
-      devicePermissions: 'Device permissions',
       usernameNotAlphaNumUnderscore: 'Username can only contain letters, numbers, and underscores',
       limitedPermissions: 'Limited permissions',
       youCan: 'You can',
