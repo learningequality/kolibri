@@ -18,7 +18,7 @@ const COMMON_NAMESPACES = {
   test_component: 'TestComponent',
 };
 
-function profile$trs(localePath, moduleName) {
+function ProfileStrings(localePath, moduleName) {
   this.localePath = localePath;
   this.moduleName = moduleName;
 }
@@ -31,12 +31,12 @@ function logKeyError(namespace, key) {
 }
 
 /* Webpack Entry */
-profile$trs.prototype.apply = function(compiler) {
+ProfileStrings.prototype.apply = function(compiler) {
   const self = this;
 
   // Only works in non-production mode.
   if (process.env.NODE_ENV !== 'production') {
-    compiler.hooks.emit.tapAsync('Profile$Trs', function(compilation, callback) {
+    compiler.hooks.emit.tapAsync('profileStrings', function(compilation, callback) {
       let strProfile = getStringDefinitions(self.localePath, self.moduleName);
 
       // Not all modules have messages files - bail if we don't get one.
@@ -523,5 +523,5 @@ function profileJSFile(profile, ast, pathname) {
 
   return profile;
 }
-module.exports = profile$trs;
+module.exports = ProfileStrings;
 module.exports.writeProfileToCSV = writeProfileToCSV;
