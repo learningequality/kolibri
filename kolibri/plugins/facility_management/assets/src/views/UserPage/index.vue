@@ -53,11 +53,9 @@
         :disabled="pageNum === 1"
         size="small"
         class="pagination-button"
-        :dir="isRtl ? 'rtl' : 'ltr'"
         @click="goToPage(pageNum - 1)"
       >
-        <mat-svg v-if="isRtl" name="chevron_right" category="navigation" />
-        <mat-svg v-else name="chevron_left" category="navigation" />
+        <KIcon back style="position: relative; top: -1px;" />
       </UiIconButton>
       <UiIconButton
         type="primary"
@@ -65,11 +63,9 @@
         :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
         class="pagination-button"
-        :dir="isRtl ? 'rtl' : 'ltr'"
         @click="goToPage(pageNum + 1)"
       >
-        <mat-svg v-if="isRtl" name="chevron_left" category="navigation" />
-        <mat-svg v-else name="chevron_right" category="navigation" />
+        <KIcon forward style="position: relative; top: -1px;" />
       </UiIconButton>
     </nav>
 
@@ -113,6 +109,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
@@ -139,6 +136,7 @@
       KButton,
       KFilterTextbox,
       KDropdownMenu,
+      KIcon,
       KSelect,
       KGrid,
       KGridItem,
@@ -310,11 +308,8 @@
   nav {
     text-align: end;
   }
-  .pagination-button[dir='ltr'] {
+  .pagination-button {
     margin-left: 8px;
-  }
-  .pagination-button[dir='rtl'] {
-    margin-right: 8px;
   }
 
 </style>

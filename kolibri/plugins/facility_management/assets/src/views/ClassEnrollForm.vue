@@ -29,40 +29,20 @@
         :ariaLabel="$tr('previousResults')"
         :disabled="pageNum === 1"
         size="small"
-        :dir="isRtl ? 'rtl' : 'ltr'"
         class="pagination-button"
         @click="goToPage(pageNum - 1)"
       >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_right"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_left"
-          category="navigation"
-        />
+        <KIcon back style="position: relative; top: -1px;" />
       </UiIconButton>
       <UiIconButton
         type="primary"
         :ariaLabel="$tr('nextResults')"
         :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
-        :dir="isRtl ? 'rtl' : 'ltr'"
         class="pagination-button"
         @click="goToPage(pageNum + 1)"
       >
-        <mat-svg
-          v-if="isRtl"
-          name="chevron_left"
-          category="navigation"
-        />
-        <mat-svg
-          v-else
-          name="chevron_right"
-          category="navigation"
-        />
+        <KIcon forward style="position: relative; top: -1px;" />
       </UiIconButton>
     </nav>
 
@@ -87,6 +67,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
 
@@ -94,6 +75,7 @@
     name: 'ClassEnrollForm',
     components: {
       KButton,
+      KIcon,
       UiIconButton,
       KFilterTextbox,
       UserTable,
@@ -200,11 +182,8 @@
   nav {
     text-align: end;
   }
-  .pagination-button[dir='ltr'] {
+  .pagination-button {
     margin-left: 8px;
-  }
-  .pagination-button[dir='rtl'] {
-    margin-right: 8px;
   }
 
 </style>
