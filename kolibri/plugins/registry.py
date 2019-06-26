@@ -18,9 +18,10 @@ through the main Kolibri interface.
     We should aim for a configuration style in which data can be pre-seeded,
     dumped and exported easily.
 
-From a developer's perspective, plugins are Django applications listed
-in ``INSTALLED_APPS`` and are initialized once when the server starts, before
-the load time of Django.
+From a developer's perspective, plugins are wrappers around Django applications,
+listed in ``ACTIVE_PLUGINS`` on the kolibri config object.
+They are initialized before Django's app registry is initialized and then their
+relevant Django apps are added to the ``INSTALLED_APPS`` of kolibri.
 
 Loading a plugin
 ~~~~~~~~~~~~~~~~
