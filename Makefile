@@ -161,8 +161,8 @@ buildconfig:
 	python build_tools/customize_build.py
 
 dist: writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
-	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
-	python setup.py bdist_wheel --static
+	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
+	python setup.py bdist_wheel
 	ls -l dist
 
 pex: writeversion
