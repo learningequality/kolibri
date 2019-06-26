@@ -144,11 +144,11 @@ In the frontend, we provide a ``isRTL`` property attached to every Vue instance.
 .. code-block:: javascript
 
   previous() {
-    if (this.isRtl) this.scrollRight();
+    if (this.isRTL) this.scrollRight();
     else this.scrollLeft();
   },
   next() {
-    if (this.isRtl) this.scrollLeft();
+    if (this.isRTL) this.scrollLeft();
     else this.scrollRight();
   },
 
