@@ -109,6 +109,74 @@ Dynamic values are passed into translation strings as named arguments in an obje
   };
 
 
+RTL language support
+--------------------
+
+Kolibri has full support for right-to-left languages, and all functionality should work equally well when displayed in both LTR and RTL languages.
+
+There are a number of important considerations to take into account with RTL content. `Material Design has an excellent article <https://material.io/design/usability/bidirectionality.html>`_ that covers most important topics at a high level.
+
+.. warning::
+
+  Right-to-left support is broken when running the development server with hot reloading enabled (``yarn run devserver-hot``)
+
+
+Text alignment
+~~~~~~~~~~~~~~
+
+Alignment of application text  (i.e. text using ``$tr`` syntax) is mostly handled "automagically" by the `RTLCSS framework <https://rtlcss.com/>`_. This means that application text should have CSS applied to it  as though it is written in English. For example, if you want the text aligned left for LTR languages and right for RTL, simply use ``text-align: left``. This will be automatically flipped to ``text-align: right`` by the webpack plugin. Since the application is only ever viewed in one language at a time, RTLCSS can apply these changes to all CSS at once.
+
+On the other hand, alignment of user-generated text (from databases or from content) is inherently unknown beforehand. Therefore all user-generated text must have ``dir="auto"`` set on a parent DOM node. This can get especially complicated when LTR and RTL content are `mixed inline bidirectionally <https://www.w3.org/International/articles/inline-bidi-markup/>`_. Read more about the `Unicode Bidirectional algorithm <https://www.w3.org/International/articles/inline-bidi-markup/uba-basics>`_.
+
+A rule of thumb for inline bidirectional text:
+
+* if user-generated text is on its own in a block-level DOM element, it should be aligned based on the text's language using ``dir="auto"`` on the block-level element.
+* if user-generated text is displayed inline with application text (such as "App Label: user text"), it should be aligned using CSS ``text-align`` on the block-level element, and ``dir="auto"`` on a ``span`` wrapping the inline user text.
+
+
+Behavior
+~~~~~~~~
+
+Occasionally it is necessary to perform different logic depending on the directionalty of the the currently-selected language. For example, the handling of a button that changes horizontal scroll position would need to flip direction.
+
+In the frontend, we provide a ``isRTL`` property attached to every Vue instance. For example, you could write Vue methods like:
+
+.. code-block:: javascript
+
+  previous() {
+    if (this.isRtl) this.scrollRight();
+    else this.scrollLeft();
+  },
+  next() {
+    if (this.isRtl) this.scrollLeft();
+    else this.scrollRight();
+  },
+
+If you need to get the current language directionality on the backend, you can use ``django.utils.translation.get_language_bidi``.
+
+
+Iconography
+~~~~~~~~~~~
+
+Choosing whether or not to mirror icons in RTL languages is a subtle decision. Some icons should be flipped, but not others. From the `Material guidelines <https://google.github.io/material-design-icons/#icons-in-rtl>`_:
+
+    *anything that relates to time should be depicted as moving from right to left. For example, forward points to the left, and backwards points to the right*
+
+It is recommended to use the ``KIcon`` component when possible, as this will handle RTL flipping for you and apply it when appropriate:
+
+.. code-block:: html
+
+  <KIcon forward />
+
+
+If ``KIcon`` does not have the icon you need or is not usable for some reason, we also provide a global CSS class ``rtl-icon`` which will flip the icon. This can be applied conditionally with the ``isRTL`` property, e.g.:
+
+.. code-block:: html
+
+  <img src="forward.png" :class="{ 'is-rtl': isRTL }" />
+
+
+
 
 .. _crowdin:
 
