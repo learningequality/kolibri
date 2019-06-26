@@ -37,6 +37,29 @@ class KolibriPluginBase(object):
     This is the base class that all Kolibri plugins need to implement.
     """
 
+    # Name of a local module that contains url_patterns that define
+    # URLs for views that do not contain any
+    # translated content, and hence will not be prefixed
+    # with a language prefix
+    untranslated_view_urls = None
+
+    # Name of a local module that contains url_patterns that define
+    # URLs for views that contain
+    # translated content, and hence will be prefixed
+    # with a language prefixs
+    translated_view_urls = None
+
+    # Name of a local module that contains additional settings to augment
+    # Django settings.
+    # For settings that take a tuple or list, these will be appended to the value from
+    # the base settings module set through conventional Django means.
+    django_settings = None
+
+    # Name of a local module, containing a config spec as the 'option_spec' value.
+    # These options should not override the core config spec, but may specify a new
+    # default value for a core config spec option.
+    kolibri_options = None
+
     # : Suggested property, not yet in use
     migrate_on_enable = False
 
@@ -116,10 +139,18 @@ class KolibriPluginBase(object):
         To customize "mypluginclass" (which is automatically derived from the
         plugin's class name), override ``url_namespace``.
 
-        By default urls.py will be automatically discovered, if you wish to
-        override this behaviour, override this method.
+        By default this will be discovered based on the translated_view_urls
+        property.
         """
-        return self._return_module("urls")
+        if self.translated_view_urls:
+            module = self._return_module(self.translated_view_urls)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {urls} translated view urls but the module was not found".format(
+                        plugin=self._module_path(), urls=self.translated_view_urls
+                    )
+                )
+            return module
 
     def api_url_module(self):
         """
@@ -137,10 +168,18 @@ class KolibriPluginBase(object):
         To customize "mypluginclass" (which is automatically derived from the
         plugin's class name), override ``url_namespace``.
 
-        By default api_urls.py will be automatically discovered, if you wish to
-        override this behaviour, override this method.
+        By default this will be discovered based on the untranslated_view_urls
+        property.
         """
-        return self._return_module("api_urls")
+        if self.untranslated_view_urls:
+            module = self._return_module(self.untranslated_view_urls)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {urls} untranslated view urls but the module was not found".format(
+                        plugin=self._module_path(), urls=self.untranslated_view_urls
+                    )
+                )
+            return module
 
     def settings_module(self):
         """
@@ -150,10 +189,18 @@ class KolibriPluginBase(object):
         For settings that take a tuple or list, these will be appended to the value from
         the base settings module set through conventional Django means.
 
-        By default settings.py will be automatically discovered, if you wish to
-        override this behaviour, override this method.
+        By default this will be discovered based on the django_settings
+        property.
         """
-        return self._return_module("settings")
+        if self.django_settings:
+            module = self._return_module(self.django_settings)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {module} django settings but the module was not found".format(
+                        plugin=self._module_path(), module=self.django_settings
+                    )
+                )
+            return module
 
     def options_module(self):
         """
@@ -162,10 +209,18 @@ class KolibriPluginBase(object):
         These options should not override the core config spec, but may specify only a new
         default value for a core config spec option.
 
-        By default options.py will be automatically discovered, if you wish to
-        override this behaviour, override this method.
+        By default this will be discovered based on the kolibri_options
+        property.
         """
-        return self._return_module("options")
+        if self.kolibri_options:
+            module = self._return_module(self.kolibri_options)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {module} kolibri options but the module was not found".format(
+                        plugin=self._module_path(), module=self.kolibri_options
+                    )
+                )
+            return module
 
     def url_namespace(self):
         """
