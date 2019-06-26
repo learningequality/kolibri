@@ -139,16 +139,16 @@ Behavior
 
 Occasionally it is necessary to perform different logic depending on the directionalty of the the currently-selected language. For example, the handling of a button that changes horizontal scroll position would need to flip direction.
 
-In the frontend, we provide a ``isRTL`` property attached to every Vue instance. For example, you could write Vue methods like:
+In the frontend, we provide a ``isRtl`` property attached to every Vue instance. For example, you could write Vue methods like:
 
 .. code-block:: javascript
 
   previous() {
-    if (this.isRTL) this.scrollRight();
+    if (this.isRtl) this.scrollRight();
     else this.scrollLeft();
   },
   next() {
-    if (this.isRTL) this.scrollLeft();
+    if (this.isRtl) this.scrollLeft();
     else this.scrollRight();
   },
 
@@ -169,11 +169,11 @@ It is recommended to use the ``KIcon`` component when possible, as this will han
   <KIcon forward />
 
 
-If ``KIcon`` does not have the icon you need or is not usable for some reason, we also provide a global CSS class ``rtl-icon`` which will flip the icon. This can be applied conditionally with the ``isRTL`` property, e.g.:
+If ``KIcon`` does not have the icon you need or is not usable for some reason, we also provide a global CSS class ``rtl-icon`` which will flip the icon. This can be applied conditionally with the ``isRtl`` property, e.g.:
 
 .. code-block:: html
 
-  <img src="forward.png" :class="{ 'is-rtl': isRTL }" alt="" />
+  <img src="forward.png" :class="{ 'is-rtl': isRtl }" alt="" />
 
 
 
