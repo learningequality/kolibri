@@ -162,7 +162,7 @@ Choosing whether or not to mirror icons in RTL languages is a subtle decision. S
 
     *anything that relates to time should be depicted as moving from right to left. For example, forward points to the left, and backwards points to the right*
 
-It is recommended to use the ``KIcon`` component when possible, as this will handle RTL flipping for you and apply it when appropriate:
+It is recommended to use the ``KIcon`` component when possible, as this will handle RTL flipping for you and apply it when appropriate, as well as taking care of other details:
 
 .. code-block:: html
 
@@ -173,7 +173,7 @@ If ``KIcon`` does not have the icon you need or is not usable for some reason, w
 
 .. code-block:: html
 
-  <img src="forward.png" :class="{ 'is-rtl': isRTL }" />
+  <img src="forward.png" :class="{ 'is-rtl': isRTL }" alt="" />
 
 
 
