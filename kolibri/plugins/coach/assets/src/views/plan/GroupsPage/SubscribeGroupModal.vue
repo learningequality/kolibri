@@ -29,7 +29,7 @@
   export default {
     name: 'SubscribeGroupModal',
     $trs: {
-      modalTitle: 'Groups channel subscriptions for { collectionName }',
+      modalTitle: "{ collectionName }'s subscriptions",
       saveSelectionsButtonName: 'Save',
       cancel: 'Cancel',
       description: 'Chosen channels will be available to all members of the class',
