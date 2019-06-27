@@ -66,7 +66,7 @@
           }
         );
       },
-      ...mapState('lessonSummary', ['workingResources', 'resources']),
+      ...mapState('lessonSummary', ['workingResources']),
       ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
       isSelected() {
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
@@ -77,7 +77,7 @@
       lessonNameLabel() {
         const lessonId = this.$route.params.lessonId;
         const lesson = this.lessons.find(l => l.id === lessonId);
-        return lesson ? lesson.title : $tr('lessonLabel');
+        return lesson ? lesson.title : this.$tr('lessonLabel');
       },
     },
     beforeDestroy() {
