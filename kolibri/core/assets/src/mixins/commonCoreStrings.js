@@ -17,6 +17,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLessonsLabel: 'All lessons',
   channelsLabel: 'Channels',
   classesLabel: 'Classes',
+  classNameLabel: 'Class name',
   coachesLabel: 'Coaches',
   coachLabel: 'Coach',
   completedLabel: 'Completed',

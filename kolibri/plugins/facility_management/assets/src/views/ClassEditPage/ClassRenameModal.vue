@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="$tr('classname')"
+      :label="coreCommon$tr('classNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -107,7 +107,6 @@
     },
     $trs: {
       modalTitle: 'Rename class',
-      classname: 'Class name',
       duplicateName: 'A class with that name already exists',
     },
   };

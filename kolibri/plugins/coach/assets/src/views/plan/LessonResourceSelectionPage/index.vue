@@ -69,7 +69,7 @@
 
     <KBottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachCommon$tr('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreCommon$tr('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"

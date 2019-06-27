@@ -91,7 +91,7 @@
         return this.onboardingStep === this.totalOnboardingSteps;
       },
       submitText() {
-        return this.isLastStep ? this.$tr('finishAction') : this.coreCommon$tr('continueAction');
+        return this.isLastStep ? this.coreCommon$tr('finishAction') : this.coreCommon$tr('continueAction');
       },
     },
     methods: {
@@ -128,7 +128,6 @@
       },
     },
     $trs: {
-      finishAction: 'Finish',
       documentTitle: 'Setup Wizard',
       personalFacilityName: 'Home Facility {name}',
     },

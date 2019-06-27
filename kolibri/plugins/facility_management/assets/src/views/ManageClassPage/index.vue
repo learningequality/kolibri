@@ -23,7 +23,7 @@
       </caption>
       <thead slot="thead">
         <tr>
-          <th>{{ $tr('className') }}</th>
+          <th>{{ coreCommon$tr('classNameLabel') }}</th>
           <th>{{ coreCommon$tr('coachesLabel') }}</th>
           <th>{{ coreCommon$tr('learnersLabel') }}</th>
           <th>
@@ -194,11 +194,9 @@
       },
     },
     $trs: {
-      adminClassPageHeader: 'Classes',
       adminClassPageSubheader: 'View and manage your classes',
       addNew: 'New class',
       deleteClass: 'Delete class',
-      className: 'Class name',
       tableCaption: 'List of classes',
       twoCoachNames: '{name1}, {name2}',
       manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',

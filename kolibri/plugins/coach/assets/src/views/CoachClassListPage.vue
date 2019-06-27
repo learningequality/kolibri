@@ -28,7 +28,7 @@
       <CoreTable v-else>
         <thead slot="thead">
           <tr>
-            <th>{{ $tr('classNameLabel') }}</th>
+            <th>{{ coreCommon$tr('classNameLabel') }}</th>
             <th>{{ coreCommon$tr('coachesLabel') }}</th>
             <th>{{ coreCommon$tr('learnersLabel') }}</th>
           </tr>
@@ -101,7 +101,6 @@
     },
     $trs: {
       classPageSubheader: 'View learner progress and class performance',
-      classNameLabel: 'Class name',
       noAssignedClassesDetails:
         'Please consult your Kolibri administrator to be assigned to a class',
       noClassesDetailsForAdmin: 'Create a class and enroll learners',

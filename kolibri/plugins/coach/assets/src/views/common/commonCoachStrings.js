@@ -4,7 +4,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   copyAction: 'Copy',
   editDetailsAction: 'Edit details',
-  finishAction: 'Finish',
   goBackAction: 'Go back',
   manageResourcesAction: 'Manage resources',
   newLessonAction: 'New lesson',
@@ -15,6 +14,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   viewAllAction: 'View all',
 
   // labels, phrases, titles, headers...
+  activeLabel: 'Active',
   activeQuizzesLabel: 'Active quizzes',
   activityLabel: 'Activity',
   allQuizzesLabel: 'All quizzes',
@@ -35,7 +35,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   helpNeededLabel: 'Help needed',
   inactiveQuizzesLabel: 'Inactive quizzes',
   lastActivityLabel: 'Last activity',
-  lessonActiveLabel: 'Active',
   inactiveLabel: 'Inactive',
   learnersLabel: 'Learners', // Kept here for use in common.js
   lessonsLabel: 'Lessons',
@@ -53,7 +52,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   questionLabel: 'Question',
   questionsLabel: 'Questions',
   questionOrderLabel: 'Question order',
-  quizActiveLabel: 'Active',
   quizzesLabel: 'Quizzes',
   quizzesAssignedLabel: 'Quizzes assigned',
   recipientsLabel: 'Recipients',

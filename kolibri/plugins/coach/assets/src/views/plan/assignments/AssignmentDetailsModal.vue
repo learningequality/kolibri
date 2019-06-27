@@ -218,13 +218,13 @@
       assignmentStrings() {
         if (this.assignmentIsQuiz) {
           return {
-            activeStatus: this.coachCommon$tr('quizActiveLabel'),
+            activeStatus: this.coachCommon$tr('activeLabel'),
             inactiveStatus: this.coachCommon$tr('inactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
-          activeStatus: this.coachCommon$tr('lessonActiveLabel'),
+          activeStatus: this.coachCommon$tr('activeLabel'),
           inactiveStatus: this.coachCommon$tr('inactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };

@@ -82,9 +82,7 @@
         });
       },
     },
-    $trs: {
-      avgTimeSpentLabel: 'Average time spent',
-    },
+    $trs: {},
   };
 
 </script>

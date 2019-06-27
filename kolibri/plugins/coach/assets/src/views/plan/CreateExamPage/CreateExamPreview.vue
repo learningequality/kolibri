@@ -112,7 +112,7 @@
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachCommon$tr('finishAction')"
+          :text="coreCommon$tr('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"

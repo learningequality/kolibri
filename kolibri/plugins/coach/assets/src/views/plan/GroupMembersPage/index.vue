@@ -150,7 +150,6 @@
       },
     },
     $trs: {
-      groupsHeader: 'Groups',
       enrollButton: 'Enroll learners',
       noLearnersInGroup: 'No learners in this group',
       groupDoesNotExist: 'This group does not exist',

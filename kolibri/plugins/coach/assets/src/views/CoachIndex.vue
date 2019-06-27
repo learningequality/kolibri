@@ -9,12 +9,7 @@
 
   export default {
     name: 'CoachIndex',
-    $trs: {
-      coachToolbarHeader: 'Coach',
-      selectPageToolbarHeader: 'Manage resources',
-      previewContentPageToolbarHeader: 'Preview resources',
-      reportLessonResourceManagerTitle: 'Manage resources',
-    },
+    $trs: {},
   };
 
 </script>

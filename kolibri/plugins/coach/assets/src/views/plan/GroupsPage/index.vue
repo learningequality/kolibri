@@ -159,10 +159,8 @@
       },
     },
     $trs: {
-      classGroups: 'Groups',
       newGroupAction: 'New group',
       noGroups: 'You do not have any groups',
-      documentTitle: 'Groups',
     },
   };
 

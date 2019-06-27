@@ -82,8 +82,6 @@
     },
     $trs: {
       allQuizzes: 'All quizzes',
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
     },
   };
 

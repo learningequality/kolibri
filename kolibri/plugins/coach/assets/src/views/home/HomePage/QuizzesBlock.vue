@@ -76,9 +76,7 @@
         return last;
       },
     },
-    $trs: {
-      viewAllQuizzes: 'All quizzes',
-    },
+    $trs: {},
   };
 
 </script>

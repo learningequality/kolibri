@@ -163,9 +163,7 @@
         }
       },
     },
-    $trs: {
-      manageResourcesButton: 'Manage resources',
-    },
+    $trs: {},
   };
 
 </script>

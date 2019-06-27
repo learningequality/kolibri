@@ -71,9 +71,7 @@
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
     },
-    $trs: {
-      back: 'All quizzes',
-    },
+    $trs: {},
   };
 
 </script>
