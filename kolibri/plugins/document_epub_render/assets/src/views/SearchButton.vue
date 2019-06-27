@@ -25,7 +25,7 @@
       UiIconButton,
     },
     $trs: {
-      toggleSearchSideBar: 'Toggle search side bar',
+      toggleSearchSideBar: 'Toggle search',
     },
   };
 

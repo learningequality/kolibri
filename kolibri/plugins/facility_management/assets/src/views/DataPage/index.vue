@@ -175,13 +175,13 @@
       pageSubHeading:
         'Download CSV (comma-separated value) files containing information about users and their interactions with the content on this device',
       detailsHeading: 'Session logs',
-      detailsSubHeading: 'Individual visits to each piece of content',
+      detailsSubHeading: 'Individual visits to each resource',
       summaryHeading: 'Summary logs',
-      summarySubHeading: 'Total time/progress for each piece of content',
+      summarySubHeading: 'Total time/progress for each resource',
       detailsInfo:
-        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific piece of content. This includes anonymous usage, when no user is signed in.',
+        'When a user views content, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
       summaryInfo:
-        'A user may visit the same piece of content multiple times. This file records the total time and progress each user has achieved for each piece of content, summarized across possibly more than one visit. Anonymous usage is not included.',
+        'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
       generateLog: 'Generate log file',
       regenerateLog: 'Generate a new log file',
       noLogsYet: 'No logs are available to download.',
