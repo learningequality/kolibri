@@ -15,6 +15,8 @@ const PROFILES_FOLDER = 'profiles';
 const COMMON_NAMESPACES = {
   // Be sure to add all Common*Strings files for all modules here as they are created.
   coach_module: 'CommonCoachStrings',
+  default_frontend: 'CommonCoreStrings',
+  learn_module: 'CommonLearnStrings',
   test_component: 'TestComponent',
 };
 
