@@ -12,7 +12,6 @@ Talk to us
 
 * Get support in our `Community Forums <http://community.learningequality.org/>`__.
 * Email us at info@learningequality.org
-* Sign up to receive developer announcements in `Google groups <https://groups.google.com/a/learningequality.org/forum/#!forum/dev>`__
 * Visit the ``#kolibri`` room on Freenode IRC
 
 Translate
@@ -20,16 +19,18 @@ Translate
 
 Help us `translate the application on Crowdin <https://crowdin.com/project/kolibri>`__.
 
-Give Feedback
+Give feedback
 -------------
 
-`Report issues on github <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported.
+You can ask questions, make suggestions, and report issues in the `community forums <https://community.learningequality.org/>`__.
 
-If you are reporting a bug, please include:
+If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported, and make sure to use the template.
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+If you are reporting an issue, please include:
+
+* Your operating system name and version
+* Any details about your local setup that might be helpful in troubleshooting
+* Detailed steps to reproduce the bug
 
 If you are proposing a new feature or giving feedback on an existing feature:
 
@@ -37,19 +38,21 @@ If you are proposing a new feature or giving feedback on an existing feature:
 * Keep the scope as narrow as possible, to make it easier to understand the specific problem you're trying to address
 
 
-Write Code
+Write code
 ----------
 
-Look through the GitHub issues for issues you'd like to address. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
+Look through the GitHub issues for issues you'd like to address. We have a number of issues tagged as `beginner issues <https://github.com/learningequality/kolibri/issues?q=is%3Aopen+is%3Aissue+label%3A%22TAG%3A+beginner+issue%22>`__, and these are an excellent starting point. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
 
 Then, visit :ref:`getting_started` to begin contributing.
 
 Note that since Kolibri is still in development, the APIs are subject to change, and a lot of code is still in flux.
 
 
-Write Documentation
+Write documentation
 -------------------
 
-Kolibri could always use more documentation, whether as part of the
-official Kolibri docs, in docstrings, or even on the web in blog posts,
-articles, and such.
+If you'd like to help improve Kolibri's `User Documentation <https://kolibri.readthedocs.io/en/latest/>`__, see the `Kolibri docs Github repo <https://github.com/learningequality/kolibri-docs>`__.
+
+You can also help improve our developer docuemntation that you're reading now! These are in the main Kolibri repo.
+
+Both our developer docs and the user docs are formatted using `reStructuredText <http://docutils.sourceforge.net/rst.html>`__.
