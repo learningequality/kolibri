@@ -108,7 +108,7 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserType from 'kolibri.utils.UserType';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
@@ -136,7 +136,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       return {
         devicePermissionsChecked: undefined,

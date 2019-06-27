@@ -19,11 +19,11 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   const component = {
     name: 'LearnSideNavEntry',
-    mixin: [learnStringsMixin],
+    mixins: [commonLearnStrings],
     components: {
       CoreMenuOption,
     },

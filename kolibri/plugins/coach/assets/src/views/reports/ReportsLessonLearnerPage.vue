@@ -61,14 +61,14 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonLearnerPage',
     components: {},
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

@@ -67,7 +67,7 @@
   import { mapMutations } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
   export default {
@@ -76,7 +76,7 @@
       OnboardingForm,
       KTextbox,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       submitText: {
         type: String,

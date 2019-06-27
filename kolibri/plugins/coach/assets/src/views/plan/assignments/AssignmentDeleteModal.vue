@@ -19,7 +19,7 @@
 <script>
 
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -27,7 +27,7 @@
     components: {
       KModal,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitle: {
         type: String,

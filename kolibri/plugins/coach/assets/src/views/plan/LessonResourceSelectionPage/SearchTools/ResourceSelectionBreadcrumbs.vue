@@ -8,14 +8,14 @@
 <script>
 
   import KBreadcrumbs from 'kolibri.coreVue.components.KBreadcrumbs';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResourceSelectionBreadcrumbs',
     components: {
       KBreadcrumbs,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       ancestors: {
         type: Array,

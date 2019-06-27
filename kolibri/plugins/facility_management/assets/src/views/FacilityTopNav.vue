@@ -34,7 +34,7 @@
 
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
 
   export default {
@@ -43,7 +43,7 @@
       KNavbar,
       KNavbarLink,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     computed: {
       PageNames: () => PageNames,
     },

@@ -7,12 +7,10 @@ const learnStrings = createTranslator('CommonLearnStrings', {
   resumeLabel: 'Resume',
 });
 
-const learnStringsMixin = {
+export default {
   methods: {
     learnCommon$tr(key, args) {
       return learnStrings.$tr(key, args);
     },
   },
 };
-
-export { learnStrings, learnStringsMixin };

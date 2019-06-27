@@ -58,7 +58,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import ChannelsGrid from './ChannelsGrid';
   import TaskProgress from './TaskProgress';
@@ -80,7 +80,7 @@
       SelectTransferSourceModal,
       TaskProgress,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['canManageContent']),
       ...mapGetters('manageContent', ['activeTaskList']),

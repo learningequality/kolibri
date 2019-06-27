@@ -55,7 +55,7 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -73,7 +73,7 @@
       TimeDuration,
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       entries: {
         type: Array,

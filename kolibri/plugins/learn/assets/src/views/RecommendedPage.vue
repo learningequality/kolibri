@@ -71,7 +71,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';
@@ -91,7 +91,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
     },
-    mixins: [learnStringsMixin, responsiveWindow],
+    mixins: [commonLearnStrings, responsiveWindow],
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {

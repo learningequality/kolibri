@@ -63,7 +63,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
@@ -77,7 +77,7 @@
       KCircularLoader,
       LessonContentCard,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       showSelectAll: {
         type: Boolean,

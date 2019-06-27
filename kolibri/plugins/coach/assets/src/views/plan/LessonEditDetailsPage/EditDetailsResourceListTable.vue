@@ -79,7 +79,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
@@ -97,7 +97,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [coachStringsMixin, coreStringsMixin, themeMixin],
+    mixins: [coachStringsMixin, commonCoreStrings, themeMixin],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {

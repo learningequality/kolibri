@@ -75,7 +75,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="$tr('username')"
+        :label="coreCommon$tr('usernameLabel')"
         :disabled="busy"
         :maxlength="30"
         :invalid="usernameIsInvalid"
@@ -125,7 +125,7 @@
   import pickBy from 'lodash/pickBy';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { validateUsername } from 'kolibri.utils.validators';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -155,7 +155,7 @@
       ChangeUserPasswordModal,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindow, themeMixin, coreStringsMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     data() {
       const { username, full_name } = this.$store.state.core.session;
       return {

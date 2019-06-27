@@ -66,7 +66,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsLessonHeader from './ReportsLessonHeader';
 
@@ -75,7 +75,7 @@
     components: {
       ReportsLessonHeader,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
         return this.coachCommon$tr('noResourcesInLessonLabel');

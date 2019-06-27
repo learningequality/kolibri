@@ -14,7 +14,7 @@
 <script>
 
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -22,7 +22,7 @@
     components: {
       KDropdownMenu,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       // Should be either 'report' or 'plan',
       optionsFor: {

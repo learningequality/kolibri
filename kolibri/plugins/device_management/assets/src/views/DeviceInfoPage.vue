@@ -61,7 +61,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
 
 
   export default {
@@ -77,7 +77,7 @@
       KExternalLink,
       TechnicalTextBlock,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         advancedShown: false,

@@ -19,7 +19,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'RecommendedSubpage',
@@ -32,7 +32,7 @@
       ContentCardGroupGrid,
       KBreadcrumbs,
     },
-    mixins: [learnStringsMixin],
+    mixins: [commonLearnStrings],
     computed: {
       ...mapState(['pageName']),
       ...mapState('recommended/subpage', ['recommendations']),

@@ -71,7 +71,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KButton from 'kolibri.coreVue.components.KButton';
   import isEqual from 'lodash/isEqual';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ConfirmResetModal from './ConfirmResetModal';
   import Notifications from './ConfigPageNotifications';
 
@@ -99,7 +99,7 @@
       KCheckbox,
       KButton,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         showModal: false,

@@ -19,14 +19,14 @@
 
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ClassDeleteModal',
     components: {
       KModal,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       classname: {
         type: String,

@@ -22,6 +22,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   avgTimeSpentLabel: 'Average time spent',
   avgQuizScoreLabel: 'Average quiz score',
   backToLessonLabel: "Back to '{lesson}'",
+  classesLabel: "Classes", // Kept for use in common.js
+  coachLabel: 'Coach', // Kept here for use in common.js
   descriptionLabel: 'Description',
   descriptionMissingLabel: 'No description',
   detailsLabel: 'Details',
@@ -35,6 +37,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   lastActivityLabel: 'Last activity',
   lessonActiveLabel: 'Active',
   inactiveLabel: 'Inactive',
+  learnersLabel: 'Learners', // Kept here for use in common.js
   lessonsLabel: 'Lessons',
   lessonsAssignedLabel: 'Lessons assigned',
   masteryModelLabel: 'Completion requirement',
@@ -48,6 +51,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   overallLabel: 'Overall',
   previewLabel: 'Preview',
   questionLabel: 'Question',
+  questionsLabel: 'Questions',
   questionOrderLabel: 'Question order',
   quizActiveLabel: 'Active',
   quizzesLabel: 'Quizzes',

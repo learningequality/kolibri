@@ -31,9 +31,9 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';
-  import { learnStringsMixin } from '../commonLearnStrings';
+  import { commonLearnStrings } from '../commonLearnStrings';
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {
@@ -47,7 +47,7 @@
       AuthMessage,
       ContentCard,
     },
-    mixins: [coreStringsMixin, responsiveWindow, learnStringsMixin],
+    mixins: [commonCoreStrings, responsiveWindow, commonLearnStrings],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),

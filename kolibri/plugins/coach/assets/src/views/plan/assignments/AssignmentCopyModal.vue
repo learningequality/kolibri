@@ -51,7 +51,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import { LearnerGroupResource } from 'kolibri.resources';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -67,7 +67,7 @@
       KRadioButton,
       RecipientSelector,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitle: {
         type: String,

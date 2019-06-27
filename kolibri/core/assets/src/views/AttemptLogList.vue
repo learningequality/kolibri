@@ -76,7 +76,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
@@ -84,7 +84,7 @@
     components: {
       CoachContentLabel,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       attemptLogs: {
         type: Array,

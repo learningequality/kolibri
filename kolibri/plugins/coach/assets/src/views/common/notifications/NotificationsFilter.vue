@@ -23,7 +23,7 @@
 <script>
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
     NotificationEvents,
     NotificationObjects,
@@ -32,7 +32,7 @@
 
   export default {
     name: 'NotificationsFilter',
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     props: {
       enabledFilters: {
         type: Object,

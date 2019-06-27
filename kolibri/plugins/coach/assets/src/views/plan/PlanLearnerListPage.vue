@@ -19,7 +19,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PlanHeader from './PlanHeader';
 
   export default {
@@ -27,7 +27,7 @@
     components: {
       PlanHeader,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     $trs: {},
   };
 

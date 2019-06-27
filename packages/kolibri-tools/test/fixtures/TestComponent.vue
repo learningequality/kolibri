@@ -76,7 +76,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
 
@@ -85,7 +85,7 @@
     components: {
       KExternalLink,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),

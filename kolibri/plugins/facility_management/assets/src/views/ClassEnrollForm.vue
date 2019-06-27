@@ -68,7 +68,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KIcon from 'kolibri.coreVue.components.KIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import coreStringsMixin from 'kolibri.coreVue.mixins.coreStringsMixin';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import UserTable from './UserTable';
 
@@ -81,7 +81,7 @@
       KFilterTextbox,
       UserTable,
     },
-    mixins: [coreStringsMixin, responsiveWindow],
+    mixins: [commonCoreStrings, responsiveWindow],
     props: {
       facilityUsers: {
         type: Array,

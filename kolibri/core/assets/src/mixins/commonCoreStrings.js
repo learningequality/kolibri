@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const coreStrings = createTranslator('CommonCoreStrings', {
+export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
   closeAction: 'Close',
@@ -51,12 +51,10 @@ const coreStrings = createTranslator('CommonCoreStrings', {
   // Errors
 });
 
-const coreStringsMixin = {
+export default {
   methods: {
     coreCommon$tr(key, args) {
       return coreStrings.$tr(key, args);
     },
   },
 };
-
-export { coreStrings, coreStringsMixin };

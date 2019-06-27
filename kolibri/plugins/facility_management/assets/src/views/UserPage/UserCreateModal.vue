@@ -81,7 +81,7 @@
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { validateUsername } from 'kolibri.utils.validators';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
@@ -95,7 +95,7 @@
       KTextbox,
       KSelect,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         fullName: '',

@@ -49,7 +49,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -57,7 +57,7 @@
   export default {
     name: 'CoreBanner',
     components: { KButton, KGrid, KGridItem },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       return {
         bannerClosed: false,

@@ -41,7 +41,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from './mixin';
 
   export default {
@@ -52,7 +52,7 @@
       KGridItem,
       KRadioButton,
     },
-    mixins: [coreStringsMixin, languageSwitcherMixin, responsiveWindow],
+    mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindow],
     data() {
       return {
         selectedLanguage: currentLanguage,

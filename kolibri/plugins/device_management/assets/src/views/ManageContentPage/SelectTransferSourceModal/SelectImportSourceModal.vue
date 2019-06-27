@@ -54,7 +54,7 @@
   import { RemoteChannelResource } from 'kolibri.resources';
   import KModal from 'kolibri.coreVue.components.KModal';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentSources } from '../../../constants';
 
   export default {
@@ -64,7 +64,7 @@
       KModal,
       UiAlert,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         source: ContentSources.KOLIBRI_STUDIO,

@@ -105,7 +105,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import difference from 'lodash/difference';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTable',
@@ -115,7 +115,7 @@
       UserTypeDisplay,
       KLabeledIcon,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       users: {
         type: Array,

@@ -40,9 +40,9 @@
   import { mapGetters, mapState } from 'vuex';
   import KNavbar from 'kolibri.coreVue.components.KNavbar';
   import KNavbarLink from 'kolibri.coreVue.components.KNavbarLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames, PageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearnTopNav',
@@ -50,7 +50,7 @@
       KNavbar,
       KNavbarLink,
     },
-    mixins: [coreStringsMixin, learnStringsMixin],
+    mixins: [commonCoreStrings, commonLearnStrings],
     props: {},
     data() {
       return {

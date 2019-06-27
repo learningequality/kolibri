@@ -152,7 +152,7 @@
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -178,7 +178,7 @@
       UiIconButton,
       KBottomAppBar,
     },
-    mixins: [coreStringsMixin, commonCoach, responsiveWindow],
+    mixins: [commonCoreStrings, commonCoach, responsiveWindow],
     data() {
       return {
         showError: false,

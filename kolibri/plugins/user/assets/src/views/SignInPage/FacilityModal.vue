@@ -26,7 +26,7 @@
   import { mapGetters, mapActions, mapMutations } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FacilityModal',
@@ -34,7 +34,7 @@
       KModal,
       KRadioButton,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         // currentFacilityId uses session, with is anonymous in sign-in-page

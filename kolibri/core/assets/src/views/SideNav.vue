@@ -107,7 +107,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
@@ -141,7 +141,13 @@
       KButton,
       PrivacyInfoModal,
     },
-    mixins: [coreStringsMixin, responsiveWindow, responsiveElement, navComponentsMixin, themeMixin],
+    mixins: [
+      commonCoreStrings,
+      responsiveWindow,
+      responsiveElement,
+      navComponentsMixin,
+      themeMixin,
+    ],
     props: {
       navShown: {
         type: Boolean,

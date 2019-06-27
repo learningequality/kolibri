@@ -71,7 +71,7 @@
   import find from 'lodash/find';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const kindFilterToLabelMap = {
     [ContentNodeKinds.TOPIC]: 'topics',
@@ -87,7 +87,7 @@
     components: {
       KSelect,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       searchResults: {
         type: Object,

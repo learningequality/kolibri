@@ -60,7 +60,7 @@
   import find from 'lodash/find';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { availableLanguages } from 'kolibri.utils.i18n';
   import { getDeviceLanguageSetting, saveDeviceLanguageSetting } from './api';
@@ -77,7 +77,7 @@
       KSelect,
       UiAlert,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         language: {},

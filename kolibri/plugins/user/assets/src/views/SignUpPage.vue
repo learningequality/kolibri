@@ -115,7 +115,7 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
 
   export default {
@@ -132,7 +132,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data: () => ({
       name: '',
       username: '',

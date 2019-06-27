@@ -64,7 +64,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { deleteAddress, fetchAddresses } from './api';
 
   const Stages = {
@@ -84,7 +84,7 @@
       KRadioButton,
       UiAlert,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {},
     data() {
       return {

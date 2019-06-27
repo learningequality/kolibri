@@ -13,11 +13,11 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UserTypeDisplay',
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       userType: {
         type: String,
@@ -42,7 +42,7 @@
           [UserKinds.COACH]: this.distinguishCoachTypes
             ? this.$tr('facilityCoachLabel')
             : this.coreCommon$tr('coachLabel'),
-          [UserKinds.ASSIGNABLE_COACH]: this.$tr('coachLabel'),
+          [UserKinds.ASSIGNABLE_COACH]: this.coreCommon$tr('coachLabel'),
           [UserKinds.LEARNER]: this.omitLearner ? '' : this.$tr('learnerLabel'),
         };
       },

@@ -17,14 +17,14 @@
 
   import { mapActions } from 'vuex';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeleteGroupModal',
     components: {
       KModal,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       groupName: {
         type: String,

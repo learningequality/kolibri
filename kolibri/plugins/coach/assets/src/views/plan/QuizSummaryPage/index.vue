@@ -86,7 +86,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CoachCoreBase } from '../../common';
   import BackLink from '../../common/BackLink';
   import HeaderTable from '../../common/HeaderTable';
@@ -123,7 +123,7 @@
       Recipients,
       TopNavbar,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     data() {
       return {
         quiz: {

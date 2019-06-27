@@ -148,7 +148,7 @@
   import AssessmentWrapper from './AssessmentWrapper';
   import MasteredSnackbars from './MasteredSnackbars';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'ContentPage',
@@ -175,7 +175,7 @@
       MasteredSnackbars,
       UiIconButton,
     },
-    mixins: [learnStringsMixin],
+    mixins: [commonLearnStrings],
     data() {
       return {
         wasIncomplete: false,

@@ -113,7 +113,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -136,7 +136,7 @@
       LogoutSideNavEntry,
       UserTypeDisplay,
     },
-    mixins: [coreStringsMixin, navComponentsMixin, themeMixin],
+    mixins: [commonCoreStrings, navComponentsMixin, themeMixin],
     props: {
       title: {
         type: String,

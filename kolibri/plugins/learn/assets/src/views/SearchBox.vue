@@ -123,7 +123,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KSelect from 'kolibri.coreVue.components.KSelect';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
 
   const ALL_FILTER = null;
@@ -143,7 +143,7 @@
       UiIconButton,
       KSelect,
     },
-    mixins: [themeMixin, coreStringsMixin],
+    mixins: [themeMixin, commonCoreStrings],
     props: {
       icon: {
         type: String,

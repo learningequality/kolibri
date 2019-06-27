@@ -116,7 +116,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LessonActive from '../../common/LessonActive';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -136,7 +136,7 @@
       LessonActive,
       AssignmentDetailsModal,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         showModal: false,

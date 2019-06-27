@@ -59,6 +59,7 @@
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
 
   export default {
@@ -69,6 +70,7 @@
       CoreTable,
       KLabeledIcon,
     },
+    mixins: [commonCoreStrings],
     props: {
       searchFilter: {
         type: String,

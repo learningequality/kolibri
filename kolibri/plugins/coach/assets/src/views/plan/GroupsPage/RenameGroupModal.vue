@@ -30,7 +30,7 @@
   import { mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -39,7 +39,7 @@
       KModal,
       KTextbox,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groupName: {
         type: String,

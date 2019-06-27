@@ -18,7 +18,7 @@
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
 
@@ -27,7 +27,7 @@
     components: {
       CoreMenuOption,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     $trs: {},
     computed: {
       url() {

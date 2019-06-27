@@ -75,7 +75,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const removalSnackbarTime = 5000;
 
@@ -93,7 +93,7 @@
       KGridItem,
       ContentIcon,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
       const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;

@@ -152,7 +152,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -196,7 +196,7 @@
       LanguageSwitcherFooter,
       PrivacyInfoModal,
     },
-    mixins: [responsiveWindow, themeMixin, coreStringsMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     data() {
       return {
         username: '',

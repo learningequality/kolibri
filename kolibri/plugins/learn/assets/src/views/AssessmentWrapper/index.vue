@@ -55,7 +55,7 @@ oriented data synchronization.
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-            {{ coreCommon$tr('completed') }}
+            {{ coreCommon$tr('completedLabel') }}
           </span>
           <span>
             {{ $tr('goal', {count: totalCorrectRequiredM}) }}
@@ -109,7 +109,7 @@ oriented data synchronization.
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import { now } from 'kolibri.utils.serverClock';
@@ -130,7 +130,7 @@ oriented data synchronization.
       UiAlert,
       KBottomAppBar,
     },
-    mixins: [coreStringsMixin, themeMixin, responsiveWindow],
+    mixins: [commonCoreStrings, themeMixin, responsiveWindow],
     props: {
       id: {
         type: String,

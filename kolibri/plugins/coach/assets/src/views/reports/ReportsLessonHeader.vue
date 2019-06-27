@@ -57,7 +57,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
   import BackLinkWithOptions from '../common/BackLinkWithOptions';
@@ -68,7 +68,7 @@
       BackLinkWithOptions,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

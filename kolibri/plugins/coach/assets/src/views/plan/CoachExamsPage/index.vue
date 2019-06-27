@@ -68,14 +68,14 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p 
-        v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') && 
+      <p
+        v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') &&
           !activeExams.length"
       >
         {{ $tr('noActiveExams') }}
       </p>
-      <p 
-        v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') && 
+      <p
+        v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') &&
           !inactiveExams.length"
       >
         {{ $tr('noInactiveExams') }}
@@ -93,6 +93,8 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -113,7 +115,7 @@
       QuizActive,
       KLabeledIcon,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         statusSelected: {

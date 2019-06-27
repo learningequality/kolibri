@@ -55,7 +55,7 @@
 <script>
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -65,7 +65,7 @@
       ReportsHeader,
       ElapsedTime,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const sorted = this._.sortBy(this.groups, ['name']);

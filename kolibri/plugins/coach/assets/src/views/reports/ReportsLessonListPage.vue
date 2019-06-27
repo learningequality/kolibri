@@ -59,7 +59,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import ReportsHeader from './ReportsHeader';
 
@@ -68,7 +68,7 @@
     components: {
       ReportsHeader,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allLessons',

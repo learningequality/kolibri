@@ -49,7 +49,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KButton from 'kolibri.coreVue.components.KButton';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import SearchBox from './SearchBox';
@@ -67,7 +67,7 @@
       KCircularLoader,
       SearchBox,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         loading: false,

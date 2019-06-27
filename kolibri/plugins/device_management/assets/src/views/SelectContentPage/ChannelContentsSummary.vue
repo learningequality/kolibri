@@ -53,7 +53,7 @@
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ChannelContentsSummary',
@@ -61,7 +61,7 @@
       UiIcon,
       KLabeledIcon,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       channel: {
         type: Object,

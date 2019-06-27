@@ -82,7 +82,7 @@
   import orderBy from 'lodash/orderBy';
   import KButton from 'kolibri.coreVue.components.KButton';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
@@ -102,7 +102,7 @@
       RenameGroupModal,
       DeleteGroupModal,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         selectedGroup: {

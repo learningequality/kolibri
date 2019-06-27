@@ -39,7 +39,7 @@
   import { mapState, mapActions } from 'vuex';
   import KTextbox from 'kolibri.coreVue.components.KTextbox';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',
@@ -47,7 +47,7 @@
       KModal,
       KTextbox,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       id: {
         type: String,

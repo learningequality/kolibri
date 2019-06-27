@@ -63,7 +63,7 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes, TaskStatuses } from '../../constants';
 
   const RequiredString = {
@@ -78,7 +78,7 @@
       KCircularLoader,
       KButton,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       type: RequiredString,
       status: RequiredString,

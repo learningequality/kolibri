@@ -101,7 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
@@ -124,7 +124,7 @@
       KButton,
       KLabeledIcon,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         userToBeRemoved: null,

@@ -68,7 +68,7 @@
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PageStatus from './PageStatus';
 
   export default {
@@ -81,7 +81,7 @@
       KCheckbox,
       MultiPaneLayout,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       examAttempts: {
         type: Array,

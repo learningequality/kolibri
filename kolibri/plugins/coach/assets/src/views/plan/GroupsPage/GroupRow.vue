@@ -32,7 +32,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KIcon from 'kolibri.coreVue.components.KIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
 
   export default {
@@ -42,7 +42,7 @@
       KRouterLink,
       KLabeledIcon,
     },
-    mixins: [commonCoach, coreStringsMixin, responsiveWindow],
+    mixins: [commonCoach, commonCoreStrings, responsiveWindow],
     props: {
       group: {
         type: Object,

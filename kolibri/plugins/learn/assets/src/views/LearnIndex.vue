@@ -29,12 +29,12 @@
 
   import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
-  import { learnStringsMixin } from './commonLearnStrings';
+  import commonLearnStrings from './commonLearnStrings';
   import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -80,7 +80,7 @@
       TotalPoints,
       KPageContainer,
     },
-    mixins: [coreStringsMixin, learnStringsMixin, responsiveWindow],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindow],
     data() {
       return {
         lastRoute: null,

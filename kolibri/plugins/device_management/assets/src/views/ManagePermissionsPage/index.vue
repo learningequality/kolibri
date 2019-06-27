@@ -30,7 +30,7 @@
   import { mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserGrid from './UserGrid';
 
   export default {
@@ -45,7 +45,7 @@
       KFilterTextbox,
       UserGrid,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         searchFilterText: '',

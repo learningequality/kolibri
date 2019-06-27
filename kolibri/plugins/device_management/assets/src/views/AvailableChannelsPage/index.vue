@@ -101,7 +101,7 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import uniqBy from 'lodash/uniqBy';
   import ChannelListItem from '../ManageContentPage/ChannelListItem';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
@@ -129,7 +129,7 @@
       KLinearLoader,
       KSelect,
     },
-    mixins: [coreStringsMixin, responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
     data() {
       return {
         languageFilter: {},

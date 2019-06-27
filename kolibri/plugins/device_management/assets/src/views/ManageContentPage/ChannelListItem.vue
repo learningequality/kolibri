@@ -93,7 +93,7 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from './manageContentLinks';
   import ChannelListItemLarge from './ChannelListItemLarge';
   import ChannelListItemSmall from './ChannelListItemSmall';
@@ -117,7 +117,7 @@
       KRouterLink,
       UiIcon,
     },
-    mixins: [coreStringsMixin, responsiveWindow, themeMixin],
+    mixins: [commonCoreStrings, responsiveWindow, themeMixin],
     props: {
       channel: {
         type: Object,

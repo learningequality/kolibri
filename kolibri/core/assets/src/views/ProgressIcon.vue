@@ -23,7 +23,7 @@
       reference="icon"
       :refs="$refs"
     >
-      {{ isInProgress ? $tr('inProgress') : $tr('completed') }}
+      {{ isInProgress ? $tr('inProgress') : coreCommon$tr('completedLabel') }}
     </KTooltip>
   </span>
 
@@ -33,7 +33,7 @@
 <script>
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiIcon from 'keen-ui/src/UiIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -43,7 +43,7 @@
       UiIcon,
       KTooltip,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       progress: {
         type: Number,

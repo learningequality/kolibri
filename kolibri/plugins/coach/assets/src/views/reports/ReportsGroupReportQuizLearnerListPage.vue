@@ -50,7 +50,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
@@ -60,7 +60,7 @@
     components: {
       ReportsGroupReportQuizHeader,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filter: 'allQuizzes',

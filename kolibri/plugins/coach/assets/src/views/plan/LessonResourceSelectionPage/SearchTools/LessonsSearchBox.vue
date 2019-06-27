@@ -71,14 +71,14 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'LessonsSearchBox',
     components: {
       UiIconButton,
     },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     data() {
       return {
         searchTerm: this.$route.params.searchTerm || '',

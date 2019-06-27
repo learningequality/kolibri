@@ -50,7 +50,7 @@
   import { mapState } from 'vuex';
   import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
   import KModal from 'kolibri.coreVue.components.KModal';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {
@@ -60,7 +60,7 @@
       KModal,
       TechnicalTextBlock,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         // TODO Set offline variable via ping in mounted()?

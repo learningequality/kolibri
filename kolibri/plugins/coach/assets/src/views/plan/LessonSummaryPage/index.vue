@@ -94,7 +94,7 @@
   import { mapState } from 'vuex';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import HeaderTable from '../../common/HeaderTable';
@@ -125,7 +125,7 @@
       KRouterLink,
       LessonOptionsDropdownMenu,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         currentAction: '',

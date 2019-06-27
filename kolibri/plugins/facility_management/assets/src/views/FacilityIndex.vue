@@ -27,7 +27,7 @@
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ClassEditPage from './ClassEditPage';
   import CoachClassAssignmentPage from './CoachClassAssignmentPage';
@@ -57,7 +57,7 @@
       FacilityTopNav,
       KPageContainer,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),

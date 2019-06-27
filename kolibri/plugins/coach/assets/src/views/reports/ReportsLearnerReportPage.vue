@@ -78,7 +78,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
@@ -88,7 +88,7 @@
     components: {
       ReportsLearnerHeader,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

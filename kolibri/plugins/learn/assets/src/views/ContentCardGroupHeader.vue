@@ -23,12 +23,12 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ContentCardGroupHeader',
     components: { KRouterLink },
-    mixins: [coreStringsMixin, themeMixin],
+    mixins: [commonCoreStrings, themeMixin],
     props: {
       header: { type: String },
       viewMorePageLink: { type: Object },

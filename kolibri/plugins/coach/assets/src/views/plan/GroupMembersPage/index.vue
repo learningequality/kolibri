@@ -100,7 +100,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
@@ -122,7 +122,7 @@
       CoreTable,
       RemoveFromGroupModal,
     },
-    mixins: [coreStringsMixin, commonCoach],
+    mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
         userForRemoval: null,

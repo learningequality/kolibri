@@ -62,7 +62,7 @@
 
 <script>
 
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
@@ -72,7 +72,7 @@
     components: {
       ReportsGroupReportLessonExerciseHeader,
     },
-    mixins: [commonCoach, coreStringsMixin],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       recipients() {
         return this.getLearnersForGroups([this.$route.params.groupId]);

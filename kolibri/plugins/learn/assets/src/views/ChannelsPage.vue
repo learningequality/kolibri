@@ -19,7 +19,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -35,7 +35,7 @@
       PageHeader,
       ContentCardGroupGrid,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },

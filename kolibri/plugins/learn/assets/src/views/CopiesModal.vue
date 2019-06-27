@@ -48,7 +48,7 @@
   import KModal from 'kolibri.coreVue.components.KModal';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
   import { PageNames } from '../constants';
 
@@ -59,7 +59,7 @@
       KCircularLoader,
       KRouterLink,
     },
-    mixins: [coreStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       uniqueId: {
         type: String,

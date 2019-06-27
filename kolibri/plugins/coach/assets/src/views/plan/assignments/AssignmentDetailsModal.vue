@@ -99,7 +99,7 @@
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -113,7 +113,7 @@
       RecipientSelector,
       UiAlert,
     },
-    mixins: [coachStringsMixin, coreStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       modalTitleErrorMessage: {
         type: String,

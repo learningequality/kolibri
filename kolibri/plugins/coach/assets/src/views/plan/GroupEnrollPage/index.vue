@@ -110,7 +110,7 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import { coreStringsMixin } from 'kolibri.coreVue.mixins.coreStringsMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
@@ -126,7 +126,7 @@
       KFilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindow, commonCoach, coreStringsMixin],
+    mixins: [responsiveWindow, commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',
