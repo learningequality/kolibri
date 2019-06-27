@@ -202,7 +202,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
+            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
           });
         });
       },
@@ -225,6 +225,7 @@
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
       selectUser: 'Select user',
+      classGroups: 'Groups',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',
