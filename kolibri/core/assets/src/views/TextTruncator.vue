@@ -20,7 +20,7 @@
       <KButton
         v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
-        :text="viewAllText ? $tr('viewLessButtonPrompt') : coreCommon$tr('viewMoreLabel')"
+        :text="viewAllText ? $tr('viewLessButtonPrompt') : coreCommon$tr('viewMoreAction')"
         @click.stop.prevent="viewAllText = !viewAllText"
       />
     </div>

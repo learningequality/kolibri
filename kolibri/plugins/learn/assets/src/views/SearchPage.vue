@@ -29,7 +29,7 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        :text="coreCommon$tr('viewMoreLabel')"
+        :text="coreCommon$tr('viewMoreAction')"
         @click="loadMore"
       />
       <KCircularLoader

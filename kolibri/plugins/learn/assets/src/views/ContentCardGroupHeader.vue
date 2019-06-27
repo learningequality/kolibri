@@ -9,7 +9,7 @@
       </h2>
 
       <span v-if="showViewMore" class="card-group-details-view-more">
-        <KRouterLink :text="coreCommon$tr('viewMoreLabel')" :to="viewMorePageLink" />
+        <KRouterLink :text="coreCommon$tr('viewMoreAction')" :to="viewMorePageLink" />
       </span>
 
     </div>

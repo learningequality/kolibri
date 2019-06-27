@@ -39,7 +39,7 @@
     <template>
       <KButton
         v-if="showButton"
-        :text="coreCommon$tr('viewMoreLabel')"
+        :text="coreCommon$tr('viewMoreAction')"
         :primary="false"
         @click="$emit('moreresults')"
       />
