@@ -33,7 +33,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentCard from '../ContentCard';
-  import { commonLearnStrings } from '../commonLearnStrings';
+  import commonLearnStrings from '../commonLearnStrings';
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {

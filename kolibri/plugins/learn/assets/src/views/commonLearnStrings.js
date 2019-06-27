@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
-const learnStrings = createTranslator('CommonLearnStrings', {
+export const learnStrings = createTranslator('CommonLearnStrings', {
   // Labels
   learnLabel: 'Learn',
   recommendedLabel: 'Recommended',
