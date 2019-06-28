@@ -136,7 +136,6 @@
       needsHelpOnlyToggle: "Show only 'Needs help'",
       progressTypeLabel: 'Progress type',
       resourceTypeLabel: 'Resource type',
-      typeLabel: 'Type',
       videosLabel: 'Videos',
     },
   };
