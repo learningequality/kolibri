@@ -13,7 +13,7 @@ export default [
     },
   },
   {
-    name: PageNames.KNOWLEDGE_MAP,
+    name: PageNames.EDULUTION_TOPICS_ROOT,
     path: '/topics',
     handler: () => {
       showChannels(store);
