@@ -1,7 +1,7 @@
 <template>
 
   <KDropdownMenu
-    :text="coreCommon$tr('optionsLabel')"
+    :text="coreString('optionsLabel')"
     :options="options"
     appearance="raised-button"
     :primary="false"
@@ -33,7 +33,7 @@
     computed: {
       options() {
         const editDetails = {
-          label: this.coreCommon$tr('editDetailsAction'),
+          label: this.coreString('editDetailsAction'),
           value: 'EDIT_DETAILS',
         };
 
@@ -44,14 +44,14 @@
               label: this.$tr('copyLessonAction'),
               value: 'COPY',
             },
-            { label: this.coreCommon$tr('deleteAction'), value: 'DELETE' },
+            { label: this.coreString('deleteAction'), value: 'DELETE' },
           ];
         }
 
         return [
           editDetails,
           {
-            label: this.coachCommon$tr('manageResourcesAction'),
+            label: this.coachString('manageResourcesAction'),
             value: 'MANAGE_RESOURCES',
           },
         ];

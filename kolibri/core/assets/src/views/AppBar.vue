@@ -72,7 +72,7 @@
         >
           <template v-if="isUserLoggedIn" slot="header">
             <div class="role">
-              {{ coreCommon$tr('userTypeLabel') }}
+              {{ coreString('userTypeLabel') }}
             </div>
             <div>
               <UserTypeDisplay

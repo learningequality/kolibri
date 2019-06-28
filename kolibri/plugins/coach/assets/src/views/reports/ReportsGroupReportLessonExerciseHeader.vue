@@ -5,7 +5,7 @@
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportLessonPage', {})"
-        :text="coachCommon$tr('backToLessonLabel', { lesson: lesson.title })"
+        :text="coachString('backToLessonLabel', { lesson: lesson.title })"
       />
     </p>
     <h1>
@@ -18,16 +18,16 @@
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
 
-    <KButton :text="coachCommon$tr('previewAction')" />
+    <KButton :text="coachString('previewAction')" />
     -->
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>

@@ -13,12 +13,12 @@
 
       <ReportsQuizHeader />
 
-      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachCommon$tr('questionListEmptyState')">
+      <h2>{{ coachString('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('questionLabel') }}</th>
-            <th>{{ coachCommon$tr('helpNeededLabel') }}</th>
+            <th>{{ coachString('questionLabel') }}</th>
+            <th>{{ coachString('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

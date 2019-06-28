@@ -2,12 +2,12 @@
 
   <KModal
     size="large"
-    :cancelText="coreCommon$tr('closeAction')"
-    :title="coreCommon$tr('usageAndPrivacyLabel')"
+    :cancelText="coreString('closeAction')"
+    :title="coreString('usageAndPrivacyLabel')"
     @cancel="$emit('cancel')"
   >
     <section v-if="!hideUsersSection">
-      <h2>{{ coreCommon$tr('usersLabel') }}</h2>
+      <h2>{{ coreString('usersLabel') }}</h2>
       <p>{{ $tr('kolibriUsersP1') }}</p>
       <p>{{ $tr('kolibriUsersP2') }}</p>
       <p>{{ $tr('kolibriUsersP3') }}</p>

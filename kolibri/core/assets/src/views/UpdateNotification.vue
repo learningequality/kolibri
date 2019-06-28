@@ -2,7 +2,7 @@
 
   <KModal
     size="large"
-    :submitText="coreCommon$tr('closeAction')"
+    :submitText="coreString('closeAction')"
     :title="title"
     @submit="submit"
   >

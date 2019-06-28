@@ -37,7 +37,7 @@
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ coreCommon$tr('kolibriLabel') }}</span>
+          >{{ coreString('kolibriLabel') }}</span>
         </div>
 
         <div
@@ -74,7 +74,7 @@
               <p>
                 <KButton
                   ref="privacyLink"
-                  :text="coreCommon$tr('usageAndPrivacyLabel')"
+                  :text="coreString('usageAndPrivacyLabel')"
                   class="privacy-link"
                   appearance="basic-link"
                   @click="handleClickPrivacyLink"

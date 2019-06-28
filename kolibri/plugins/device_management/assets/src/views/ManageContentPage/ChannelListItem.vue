@@ -72,7 +72,7 @@
       />
       <KDropdownMenu
         v-if="inManageMode"
-        :text="coreCommon$tr('optionsLabel')"
+        :text="coreString('optionsLabel')"
         :disabled="tasksInQueue"
         :options="manageChannelActions"
         @select="handleManageChannelAction($event.value)"
@@ -144,7 +144,7 @@
             value: ChannelActions.IMPORT_MORE_FROM_CHANNEL,
           },
           {
-            label: this.coreCommon$tr('deleteAction'),
+            label: this.coreString('deleteAction'),
             value: ChannelActions.DELETE_CHANNEL,
           },
         ];

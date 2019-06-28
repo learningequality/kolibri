@@ -8,7 +8,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
 
 export default {
   methods: {
-    learnCommon$tr(key, args) {
+    learnString(key, args) {
       return learnStrings.$tr(key, args);
     },
   },

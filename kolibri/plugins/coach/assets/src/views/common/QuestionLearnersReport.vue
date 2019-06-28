@@ -30,7 +30,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <KCheckbox
-            :label="coreCommon$tr('showCorrectAnswerLabel')"
+            :label="coreString('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />

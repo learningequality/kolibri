@@ -44,8 +44,8 @@
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
         :text="taskHasCompleted || taskHasFailed ? 
-          coreCommon$tr('closeAction') : 
-          coreCommon$tr('cancelAction')"
+          coreString('closeAction') : 
+          coreString('cancelAction')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"

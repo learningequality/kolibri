@@ -101,7 +101,7 @@
       },
       progressIconLabel() {
         if (this.completed) {
-          return this.coreCommon$tr('completedLabel');
+          return this.coreString('completedLabel');
         } else if (this.completed !== null) {
           return this.$tr('inProgress');
         } else {

@@ -12,17 +12,17 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="coreCommon$tr('showAction')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -77,7 +77,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
-          return this.coachCommon$tr('lessonListEmptyState');
+          return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'activeLessons') {
           return this.$tr('noActiveLessons');
@@ -91,7 +91,7 @@
       filterOptions() {
         return [
           {
-            label: this.coreCommon$tr('allLessonsLabel'),
+            label: this.coreString('allLessonsLabel'),
             value: 'allLessons',
           },
           {

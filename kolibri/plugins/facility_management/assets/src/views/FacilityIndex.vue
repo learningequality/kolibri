@@ -77,7 +77,7 @@
             return this.class.name || '';
           }
         }
-        return this.coreCommon$tr('facilityLabel');
+        return this.coreString('facilityLabel');
       },
       appBarBackLink() {
         if (this.isEnrollmentPage) {

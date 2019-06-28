@@ -9,7 +9,7 @@
       />
       {{ $tr('addedIndicator') }}
       <KButton
-        :text="coreCommon$tr('removeAction')"
+        :text="coreString('removeAction')"
         :primary="true"
         class="no-margin"
         @click="$emit('removeResource')"

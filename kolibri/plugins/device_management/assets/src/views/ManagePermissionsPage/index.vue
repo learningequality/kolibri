@@ -6,7 +6,7 @@
 
     <div v-else>
       <div class="description">
-        <h1>{{ coreCommon$tr('devicePermissionsLabel') }}</h1>
+        <h1>{{ coreString('devicePermissionsLabel') }}</h1>
         <p>{{ $tr('devicePermissionsDescription') }}</p>
       </div>
 

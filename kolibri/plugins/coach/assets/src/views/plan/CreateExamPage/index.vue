@@ -24,14 +24,14 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="coachCommon$tr('titleLabel')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
           />
@@ -120,11 +120,11 @@
       <KBottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
-          :text="coreCommon$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coreCommon$tr('continueAction')"
+          :text="coreString('continueAction')"
           primary
           @click="continueProcess"
         />

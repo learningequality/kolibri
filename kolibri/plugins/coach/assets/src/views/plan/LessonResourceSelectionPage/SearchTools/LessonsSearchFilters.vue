@@ -121,7 +121,7 @@
         return this.$tr(msg, { searchTerm: this.searchTerm });
       },
       allFilter() {
-        return { label: this.coreCommon$tr('allLabel'), value: null };
+        return { label: this.coreString('allLabel'), value: null };
       },
       contentKindValue() {
         return find(this.contentKindFilterOptions, { value: this.value.kind }) || {};
@@ -154,7 +154,7 @@
       roleFilterOptions() {
         return [
           // 'Show' is synonymous with 'All'
-          { label: this.coreCommon$tr('showAction'), value: null },
+          { label: this.coreString('showAction'), value: null },
           { label: this.$tr('hideAction'), value: 'nonCoach' },
         ];
       },

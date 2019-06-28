@@ -167,7 +167,7 @@
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
-            return this.coreCommon$tr('kolibriLabel');
+            return this.coreString('kolibriLabel');
           }
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });

@@ -2,13 +2,13 @@
 
   <KNavbar>
     <KNavbarLink
-      :title="coreCommon$tr('classesLabel')"
+      :title="coreString('classesLabel')"
       :link="linkify(PageNames.CLASS_MGMT_PAGE)"
     >
       <mat-svg name="domain" category="social" />
     </KNavbarLink>
     <KNavbarLink
-      :title="coreCommon$tr('usersLabel')"
+      :title="coreString('usersLabel')"
       :link="linkify(PageNames.USER_MGMT_PAGE)"
     >
       <mat-svg name="people" category="social" />

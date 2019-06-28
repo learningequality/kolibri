@@ -3,7 +3,7 @@
   <div>
     <div class="header">
       <h2>
-        {{ coreCommon$tr('lessonsLabel') }}
+        {{ coreString('lessonsLabel') }}
       </h2>
       <p v-if="lessons.length===0">
         {{ $tr('noLessonsMessage') }}

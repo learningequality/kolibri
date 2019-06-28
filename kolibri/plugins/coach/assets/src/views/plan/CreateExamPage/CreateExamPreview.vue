@@ -13,13 +13,13 @@
 
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
+      <h2>{{ coachString('detailsLabel') }}</h2>
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
           <KTextbox
             ref="title"
             v-model.trim="examTitle"
-            :label="coachCommon$tr('titleLabel')"
+            :label="coachString('titleLabel')"
             :autofocus="true"
             :maxlength="100"
             :invalid="Boolean(showError && titleIsInvalidText)"
@@ -77,19 +77,19 @@
         />
       </div>
       <h2 class="header-margin">
-        {{ coachCommon$tr('questionOrderLabel') }}
+        {{ coachString('questionOrderLabel') }}
       </h2>
       <div>
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachCommon$tr('orderRandomLabel')"
-          :description="coachCommon$tr('orderRandomDescription')"
+          :label="coachString('orderRandomLabel')"
+          :description="coachString('orderRandomDescription')"
           :value="false"
         />
         <KRadioButton
           v-model="fixedOrder"
-          :label="coachCommon$tr('orderFixedLabel')"
-          :description="coachCommon$tr('orderFixedDescription')"
+          :label="coachString('orderFixedLabel')"
+          :description="coachString('orderFixedDescription')"
           :value="true"
         />
       </div>
@@ -108,11 +108,11 @@
       <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="coreCommon$tr('goBackAction')"
+          :text="coreString('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coreCommon$tr('finishAction')"
+          :text="coreString('finishAction')"
           :disabled="loadingNewQuestions"
           primary
           @click="submit"
@@ -210,10 +210,10 @@
       },
       titleIsInvalidText() {
         if (this.examTitle === '') {
-          return this.coreCommon$tr('requiredFieldLabel');
+          return this.coreString('requiredFieldLabel');
         }
         if (this.showTitleError) {
-          return this.coachCommon$tr('quizDuplicateTitleError');
+          return this.coachString('quizDuplicateTitleError');
         }
         return null;
       },

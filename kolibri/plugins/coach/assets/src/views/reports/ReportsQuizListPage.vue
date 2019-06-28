@@ -13,18 +13,18 @@
       <ReportsHeader />
       <KSelect
         v-model="filter"
-        :label="coreCommon$tr('showAction')"
+        :label="coreString('showAction')"
         :options="filterOptions"
         :inline="true"
       />
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('avgScoreLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coachString('avgScoreLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -84,7 +84,7 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachCommon$tr('quizListEmptyState');
+          return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
           return this.$tr('noActiveExams');
@@ -98,17 +98,17 @@
       filterOptions() {
         return [
           {
-            label: this.coachCommon$tr('allQuizzesLabel'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
             noActiveExams: 'No active quizzes',
             noInactiveExams: 'No inactive quizzes',
           },
           {
-            label: this.coachCommon$tr('activeQuizzesLabel'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.coachCommon$tr('inactiveQuizzesLabel'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];

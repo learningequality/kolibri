@@ -41,7 +41,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('documentTitleForPopular');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnCommon$tr('recommendedLabel');
+            return this.learnString('recommendedLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('documentTitleForNextSteps');
           default:
@@ -53,7 +53,7 @@
           case PageNames.RECOMMENDED_POPULAR:
             return this.$tr('popularPageHeader');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnCommon$tr('recommendedLabel');
+            return this.learnString('recommendedLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
             return this.$tr('nextStepsPageHeader');
           default:
@@ -63,7 +63,7 @@
       breadcrumbItems() {
         return [
           {
-            text: this.learnCommon$tr('recommendedLabel'),
+            text: this.learnString('recommendedLabel'),
             link: this.$router.getRoute(PageNames.RECOMMENDED),
           },
           {

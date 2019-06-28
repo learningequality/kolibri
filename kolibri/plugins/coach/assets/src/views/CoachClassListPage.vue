@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coreCommon$tr('coachLabel')"
+    :appBarTitle="coreString('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"
@@ -11,7 +11,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <h1>{{ coreCommon$tr('classesLabel') }}</h1>
+      <h1>{{ coreString('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
       <p v-if="classList.length === 0">
@@ -28,9 +28,9 @@
       <CoreTable v-else>
         <thead slot="thead">
           <tr>
-            <th>{{ coreCommon$tr('classNameLabel') }}</th>
-            <th>{{ coreCommon$tr('coachesLabel') }}</th>
-            <th>{{ coreCommon$tr('learnersLabel') }}</th>
+            <th>{{ coreString('classNameLabel') }}</th>
+            <th>{{ coreString('coachesLabel') }}</th>
+            <th>{{ coreString('learnersLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -47,7 +47,7 @@
               <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
             </td>
             <td>
-              {{ coachCommon$tr('integer', { value: classObj.learner_count }) }}
+              {{ coachString('integer', { value: classObj.learner_count }) }}
             </td>
           </tr>
         </transition-group>

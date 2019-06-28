@@ -11,18 +11,18 @@
     </section>
 
     <section>
-      <h2>{{ coreCommon$tr('userTypeLabel') }}</h2>
+      <h2>{{ coreString('userTypeLabel') }}</h2>
       <UserTypeDisplay :distinguishCoachTypes="false" :userType="getUserKind" />
     </section>
 
     <section v-if="facilityName">
-      <h2>{{ coreCommon$tr('facilityLabel') }}</h2>
+      <h2>{{ coreString('facilityLabel') }}</h2>
       <p>{{ facilityName }}</p>
     </section>
 
 
     <section v-if="userHasPermissions">
-      <h2>{{ coreCommon$tr('devicePermissionsLabel') }}</h2>
+      <h2>{{ coreString('devicePermissionsLabel') }}</h2>
       <p>
         <KLabeledIcon>
           <PermissionsIcon slot="icon" :permissionType="permissionType" class="permissions-icon" />
@@ -58,14 +58,14 @@
         type="text"
         autocomplete="name"
         :autofocus="false"
-        :label="coreCommon$tr('fullNameLabel')"
+        :label="coreString('fullNameLabel')"
         :disabled="busy"
         :maxlength="120"
         :invalid="nameIsInvalid"
         :invalidText="nameIsInvalidText"
       />
       <template v-else>
-        <h2>{{ coreCommon$tr('fullNameLabel') }}</h2>
+        <h2>{{ coreString('fullNameLabel') }}</h2>
         <p>{{ name }}</p>
       </template>
 
@@ -75,7 +75,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="coreCommon$tr('usernameLabel')"
+        :label="coreString('usernameLabel')"
         :disabled="busy"
         :maxlength="30"
         :invalid="usernameIsInvalid"
@@ -84,7 +84,7 @@
         @input="resetProfileState"
       />
       <template v-else>
-        <h2>{{ coreCommon$tr('usernameLabel') }}</h2>
+        <h2>{{ coreString('usernameLabel') }}</h2>
         <p>{{ session.username }}</p>
       </template>
 
@@ -92,7 +92,7 @@
         v-if="canEditUsername || canEditName"
         type="submit"
         class="submit"
-        :text="coreCommon$tr('saveChangesAction')"
+        :text="coreString('saveChangesAction')"
         :primary="true"
         :disabled="busy"
       />
@@ -230,7 +230,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -241,10 +241,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.coreCommon$tr('usernameNotAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');

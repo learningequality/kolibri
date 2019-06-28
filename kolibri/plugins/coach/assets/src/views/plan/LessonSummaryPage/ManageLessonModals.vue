@@ -95,7 +95,7 @@
                   className: classroomName,
                 }),
                 autoDismiss: false,
-                actionText: this.coreCommon$tr('closeAction'),
+                actionText: this.coreString('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

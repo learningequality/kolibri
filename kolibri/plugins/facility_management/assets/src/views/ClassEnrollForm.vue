@@ -48,7 +48,7 @@
 
     <div class="footer">
       <KButton
-        :text="coreCommon$tr('confirmAction')"
+        :text="coreString('confirmAction')"
         :primary="true"
         type="submit"
         :disabled="selectedUsers.length === 0"
@@ -132,7 +132,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.coreCommon$tr('noUsersExistLabel');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');

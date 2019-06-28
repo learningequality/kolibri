@@ -13,9 +13,9 @@ const logging = require('./logging');
 const PROFILES_FOLDER = 'profiles';
 
 const COMMON_NAMESPACES = {
-  'coachCommon$tr': 'CommonCoachStrings',
-  'coreCommon$tr': 'CommonCoreStrings',
-  'learnCommon$tr': 'CommonLearnStrings',
+  'coachString': 'CommonCoachStrings',
+  'coreString': 'CommonCoreStrings',
+  'learnString': 'CommonLearnStrings',
 };
 
 

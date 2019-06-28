@@ -17,14 +17,14 @@
         <table>
           <tr>
             <th scope="row">
-              {{ coreCommon$tr('usernameLabel') }}
+              {{ coreString('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
             <th scope="row">
-              {{ coreCommon$tr('userTypeLabel') }}
+              {{ coreString('userTypeLabel') }}
             </th>
             <td>
               <UserTypeDisplay :userType="UserType(user)" />
@@ -33,7 +33,7 @@
 
           <tr>
             <th scope="row">
-              {{ coreCommon$tr('facilityLabel') }}
+              {{ coreString('facilityLabel') }}
             </th>
             <td dir="auto">
               {{ facilityName }}
@@ -65,7 +65,7 @@
       </div>
 
       <div class="section">
-        <h2>{{ coreCommon$tr('devicePermissionsLabel') }}</h2>
+        <h2>{{ coreString('devicePermissionsLabel') }}</h2>
         <KCheckbox
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
@@ -85,7 +85,7 @@
         />
         <KButton
           :disabled="uiBlocked"
-          :text="coreCommon$tr('cancelAction')"
+          :text="coreString('cancelAction')"
           :primary="false"
           appearance="flat-button"
           @click="goBack()"

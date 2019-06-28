@@ -87,7 +87,7 @@
 
         <div class="footer">
           <KButton
-            :text="coreCommon$tr('confirmAction')"
+            :text="coreString('confirmAction')"
             :primary="true"
             type="submit"
             :disabled="selectedUsers.length === 0"
@@ -181,7 +181,7 @@
       },
       emptyMessage() {
         if (this.classUsers.length === 0) {
-          return this.coreCommon$tr('noUsersExistLabel');
+          return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
@@ -203,7 +203,7 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
+            this.createSnackbar(this.coachString('updatedNotification'));
           });
         });
       },

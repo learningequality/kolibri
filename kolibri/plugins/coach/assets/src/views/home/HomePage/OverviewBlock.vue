@@ -26,7 +26,7 @@
           :label="$tr('learner', {count: learnerNames.length})"
         />
         <template slot="value">
-          {{ coachCommon$tr('integer', {value: learnerNames.length}) }}
+          {{ coachString('integer', {value: learnerNames.length}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

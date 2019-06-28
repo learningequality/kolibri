@@ -38,12 +38,12 @@
       typeDisplayMap() {
         return {
           [UserKinds.SUPERUSER]: this.$tr('superUserLabel'),
-          [UserKinds.ADMIN]: this.coreCommon$tr('adminLabel'),
+          [UserKinds.ADMIN]: this.coreString('adminLabel'),
           [UserKinds.COACH]: this.distinguishCoachTypes
-            ? this.coreCommon$tr('facilityCoachLabel')
-            : this.coreCommon$tr('coachLabel'),
-          [UserKinds.ASSIGNABLE_COACH]: this.coreCommon$tr('coachLabel'),
-          [UserKinds.LEARNER]: this.omitLearner ? '' : this.coreCommon$tr('learnerLabel'),
+            ? this.coreString('facilityCoachLabel')
+            : this.coreString('coachLabel'),
+          [UserKinds.ASSIGNABLE_COACH]: this.coreString('coachLabel'),
+          [UserKinds.LEARNER]: this.omitLearner ? '' : this.coreString('learnerLabel'),
         };
       },
       typeDisplay() {

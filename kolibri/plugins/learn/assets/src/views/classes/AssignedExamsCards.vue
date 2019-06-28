@@ -82,7 +82,7 @@
       },
       genExamSubtitle(exam) {
         if (this.examSubmitted(exam)) {
-          return this.coreCommon$tr('completedLabel');
+          return this.coreString('completedLabel');
         } else if (!this.examStarted(exam)) {
           return this.$tr('notStartedLabel');
         } else if (this.examStartedNotSubmitted(exam)) {

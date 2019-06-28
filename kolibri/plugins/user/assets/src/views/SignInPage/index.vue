@@ -41,7 +41,7 @@
                   v-model="username"
                   autocomplete="username"
                   :autofocus="!hasMultipleFacilities"
-                  :label="coreCommon$tr('usernameLabel')"
+                  :label="coreString('usernameLabel')"
                   :invalid="usernameIsInvalid"
                   :invalidText="usernameIsInvalidText"
                   @blur="handleUsernameBlur"
@@ -75,7 +75,7 @@
                   v-model="password"
                   type="password"
                   autocomplete="current-password"
-                  :label="coreCommon$tr('passwordLabel')"
+                  :label="coreString('passwordLabel')"
                   :autofocus="simpleSignIn"
                   :invalid="passwordIsInvalid"
                   :invalidText="passwordIsInvalidText"
@@ -88,7 +88,7 @@
                 <KButton
                   class="login-btn"
                   type="submit"
-                  :text="coreCommon$tr('signInLabel')"
+                  :text="coreString('signInLabel')"
                   :primary="true"
                   :disabled="busy"
                 />
@@ -128,7 +128,7 @@
             <CoreLogo v-if="this.$theme.signIn.showKolibriFooterLogo" class="footer-logo" />
             <span v-else> • </span>
             <KButton
-              :text="coreCommon$tr('usageAndPrivacyLabel')"
+              :text="coreString('usageAndPrivacyLabel')"
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
@@ -235,9 +235,9 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           } else if (!validateUsername(this.username)) {
-            return this.coreCommon$tr('usernameNotAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
         }
         return '';
@@ -250,7 +250,7 @@
           if (this.simpleSignIn && this.password === '') {
             return this.$tr('requiredForCoachesAdmins');
           } else if (this.password === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -287,7 +287,7 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title ? this.$theme.signIn.title : this.coreCommon$tr('kolibriLabel');
+        return this.$theme.signIn.title ? this.$theme.signIn.title : this.coreString('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();

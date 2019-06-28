@@ -2,7 +2,7 @@
 
   <div>
 
-    <h3>{{ coreCommon$tr('searchLabel') }}</h3>
+    <h3>{{ coreString('searchLabel') }}</h3>
 
     <SearchBox ref="searchBox" :filters="contents.length > 0" />
 
@@ -29,7 +29,7 @@
 
       <KButton
         v-if="contents.length < total_results && !loading"
-        :text="coreCommon$tr('viewMoreAction')"
+        :text="coreString('viewMoreAction')"
         @click="loadMore"
       />
       <KCircularLoader
@@ -58,7 +58,7 @@
     name: 'SearchPage',
     metaInfo() {
       return {
-        title: this.coreCommon$tr('searchLabel'),
+        title: this.coreString('searchLabel'),
       };
     },
     components: {

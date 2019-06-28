@@ -20,12 +20,12 @@
         <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
-      <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

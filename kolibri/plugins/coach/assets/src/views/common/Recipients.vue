@@ -5,7 +5,7 @@
       <TruncatedItemList :items="groupNames" />
     </template>
     <template v-else-if="hasAssignments">
-      {{ coachCommon$tr('entireClassLabel') }}
+      {{ coachString('entireClassLabel') }}
     </template>
     <template v-else>
       {{ $tr('noOne') }}

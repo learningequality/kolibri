@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('resetPassword')"
-    :submitText="coreCommon$tr('saveAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -72,7 +72,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.submittedForm) {
           if (this.password === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -83,10 +83,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.submittedForm) {
           if (this.confirmedPassword === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.coreCommon$tr('passwordsMismatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';

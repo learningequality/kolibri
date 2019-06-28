@@ -14,7 +14,7 @@
         <BackLink
           slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="coreCommon$tr('allLessonsLabel')"
+          :text="coreString('allLessonsLabel')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
@@ -31,10 +31,10 @@
           </h1>
 
           <HeaderTable>
-            <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+            <HeaderTableRow :keyText="coachString('statusLabel')">
               <LessonActive slot="value" :active="currentLesson.is_active" />
             </HeaderTableRow>
-            <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+            <HeaderTableRow :keyText="coachString('recipientsLabel')">
               <template slot="value">
                 <Recipients
                   :groupNames="groupNames"
@@ -43,8 +43,8 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="coachCommon$tr('descriptionLabel')"
-              :valueText="currentLesson.description || coachCommon$tr('descriptionMissingLabel')"
+              :keyText="coachString('descriptionLabel')"
+              :valueText="currentLesson.description || coachString('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>
@@ -54,13 +54,13 @@
             <div class="resource-list-header">
               <div class="resource-list-header-title-block">
                 <h2 class="resource-list-header-title">
-                  {{ coreCommon$tr('resourcesLabel') }}
+                  {{ coreString('resourcesLabel') }}
                 </h2>
               </div>
               <div class="resource-list-header-add-resource-button">
                 <KRouterLink
                   :to="lessonSelectionRootPage"
-                  :text="coachCommon$tr('manageResourcesAction')"
+                  :text="coachString('manageResourcesAction')"
                   :primary="true"
                   appearance="raised-button"
                 />
@@ -71,7 +71,7 @@
           <ResourceListTable v-if="workingResources.length" />
 
           <p v-else class="no-resources-message">
-            {{ coachCommon$tr('noResourcesInLessonLabel') }}
+            {{ coachString('noResourcesInLessonLabel') }}
           </p>
 
           <ManageLessonModals

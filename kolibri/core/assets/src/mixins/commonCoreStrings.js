@@ -65,7 +65,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
 export default {
   methods: {
-    coreCommon$tr(key, args) {
+    coreString(key, args) {
       return coreStrings.$tr(key, args);
     },
   },

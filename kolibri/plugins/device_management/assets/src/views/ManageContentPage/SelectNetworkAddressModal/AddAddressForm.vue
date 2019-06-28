@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('header')"
     :submitText="$tr('submitButtonLabel')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :cancelText="coreString('cancelAction')"
     size="medium"
     :submitDisabled="attemptingToConnect"
     @submit="handleSubmit"
@@ -29,7 +29,7 @@
         :label="$tr('nameLabel')"
         :placeholder="$tr('namePlaceholder')"
         :invalid="nameIsInvalid"
-        :invalidText="coreCommon$tr('requiredFieldLabel')"
+        :invalidText="coreString('requiredFieldLabel')"
         :maxlength="40"
         :disabled="attemptingToConnect"
         @blur="nameBlurred = true"
@@ -90,7 +90,7 @@
           return this.$tr('errorCouldNotConnect');
         }
         if (this.address === '') {
-          return this.coreCommon$tr('requiredFieldLabel');
+          return this.coreString('requiredFieldLabel');
         }
         return '';
       },

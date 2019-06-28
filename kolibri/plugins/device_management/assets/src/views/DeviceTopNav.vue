@@ -3,7 +3,7 @@
   <KNavbar>
     <KNavbarLink
       v-if="canManageContent"
-      :title="coreCommon$tr('channelsLabel')"
+      :title="coreString('channelsLabel')"
       :link="$router.getRoute('MANAGE_CONTENT_PAGE')"
     >
       <mat-svg name="apps" category="navigation" />

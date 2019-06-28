@@ -61,7 +61,7 @@
       newPasswordInvalidErrorText() {
         if (this.newPasswordBlurred || this.submittedForm) {
           if (this.newPassword === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -72,7 +72,7 @@
       confirmedNewPasswordInvalidErrorText() {
         if (this.confirmedNewPasswordBlurred || this.submittedForm) {
           if (this.confirmedNewPassword === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedNewPassword !== this.newPassword) {
             return this.$tr('passwordMismatchErrorMessage');

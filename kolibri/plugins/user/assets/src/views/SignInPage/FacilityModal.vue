@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('facilitySelectionModalHeader')"
     :submitText="$tr('submitFacilitySelectionButtonPrompt')"
-    :cancelText="coreCommon$tr('closeAction')"
+    :cancelText="coreString('closeAction')"
     @submit="submitAndClose"
     @cancel="$emit('cancel')"
   >

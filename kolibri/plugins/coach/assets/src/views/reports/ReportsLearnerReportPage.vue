@@ -15,12 +15,12 @@
 
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('lessonsAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachCommon$tr('lessonListEmptyState')">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coreCommon$tr('progressLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -41,13 +41,13 @@
           </CoreTable>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachCommon$tr('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachCommon$tr('quizListEmptyState')">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachCommon$tr('titleLabel') }}</th>
-                <th>{{ coreCommon$tr('progressLabel') }}</th>
-                <th>{{ coachCommon$tr('scoreLabel') }}</th>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
+                <th>{{ coachString('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">

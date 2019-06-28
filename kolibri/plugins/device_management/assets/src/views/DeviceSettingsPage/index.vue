@@ -43,7 +43,7 @@
     <section>
       <KButton
         class="save-button"
-        :text="coreCommon$tr('saveAction')"
+        :text="coreString('saveAction')"
         appearance="raised-button"
         primary
         @click="handleClickSave"

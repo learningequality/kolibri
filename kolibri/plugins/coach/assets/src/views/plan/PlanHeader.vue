@@ -12,15 +12,15 @@
     <p>{{ $tr('planYourClassDescription') }}</p>
     <HeaderTabs>
       <HeaderTab
-        :text="coreCommon$tr('lessonsLabel')"
+        :text="coreString('lessonsLabel')"
         :to="classRoute(LessonsPageNames.PLAN_LESSONS_ROOT)"
       />
       <HeaderTab
-        :text="coreCommon$tr('quizzesLabel')"
+        :text="coreString('quizzesLabel')"
         :to="classRoute(PageNames.EXAMS)"
       />
       <HeaderTab
-        :text="coachCommon$tr('groupsLabel')"
+        :text="coachString('groupsLabel')"
         :to="classRoute('GroupsPage')"
       />
     </HeaderTabs>

@@ -87,7 +87,7 @@
       ...mapGetters(['canManageContent']),
       ...mapState('deviceInfo', ['deviceInfo']),
       buttonText() {
-        return this.advancedShown ? this.$tr('hide') : this.coreCommon$tr('showAction');
+        return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');
       },
       infoText() {
         return [

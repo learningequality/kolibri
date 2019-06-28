@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="coreCommon$tr('coachLabel')"
+    :label="coreString('coachLabel')"
     :link="url"
   >
     <mat-svg

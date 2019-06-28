@@ -16,9 +16,9 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -78,7 +78,7 @@
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       emptyMessage() {
-        return this.coachCommon$tr('noResourcesInLessonLabel');
+        return this.coachString('noResourcesInLessonLabel');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

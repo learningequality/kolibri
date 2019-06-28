@@ -34,7 +34,7 @@
       selectionCrumbs() {
         return [
           // The "Channels" breadcrumb
-          { text: this.coreCommon$tr('channelsLabel'), link: this.channelsLink },
+          { text: this.coreString('channelsLabel'), link: this.channelsLink },
           // Ancestors breadcrumbs
           // NOTE: The current topic is injected into `ancestors` in the showPage action
           ...this.ancestors.map(a => ({

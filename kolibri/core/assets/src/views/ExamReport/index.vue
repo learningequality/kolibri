@@ -23,10 +23,10 @@
       class="exercise-container"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <h3>{{ coreCommon$tr('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
+      <h3>{{ coreString('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
-        :label="coreCommon$tr('showCorrectAnswerLabel')"
+        :label="coreString('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />

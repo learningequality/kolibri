@@ -32,7 +32,7 @@
             :size="50"
             percentage
           >
-            {{ coachCommon$tr('numberOfLearners', { value: currentGroup.users.length }) }}
+            {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
           </KGridItem>
           <KGridItem :size="50" percentage alignment="right">
             <KRouterLink
@@ -48,10 +48,10 @@
           <thead slot="thead">
             <tr>
               <th>
-                {{ coreCommon$tr('fullNameLabel') }}
+                {{ coreString('fullNameLabel') }}
               </th>
               <th>
-                {{ coreCommon$tr('usernameLabel') }}
+                {{ coreString('usernameLabel') }}
               </th>
               <th></th>
             </tr>
@@ -74,7 +74,7 @@
               </td>
               <td class="core-table-button-col">
                 <KButton
-                  :text="coreCommon$tr('removeAction')"
+                  :text="coreString('removeAction')"
                   appearance="flat-button"
                   @click="userForRemoval = user"
                 />
@@ -143,7 +143,7 @@
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
+            this.createSnackbar(this.coachString('updatedNotification'));
             this.userForRemoval = null;
           });
         }

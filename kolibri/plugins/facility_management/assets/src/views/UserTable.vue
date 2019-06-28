@@ -21,7 +21,7 @@
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
             <span :class="{visuallyhidden: selectable}">
-              {{ coreCommon$tr('fullNameLabel') }}
+              {{ coreString('fullNameLabel') }}
             </span>
           </th>
           <th>
@@ -29,7 +29,7 @@
               {{ $tr('role') }}
             </span>
           </th>
-          <th>{{ coreCommon$tr('usernameLabel') }}</th>
+          <th>{{ coreString('usernameLabel') }}</th>
           <th v-if="$scopedSlots.info">
             {{ infoDescriptor }}
           </th>

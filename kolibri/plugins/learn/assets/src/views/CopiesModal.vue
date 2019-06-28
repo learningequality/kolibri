@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('copies')"
-    :submitText="coreCommon$tr('closeAction')"
+    :submitText="coreString('closeAction')"
     @submit="$emit('submit')"
   >
     <transition mode="out-in">

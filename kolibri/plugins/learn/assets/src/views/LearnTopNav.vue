@@ -4,7 +4,7 @@
     <KNavbarLink
       v-if="isUserLoggedIn && userHasMemberships"
       name="classes-link"
-      :title="coreCommon$tr('classesLabel')"
+      :title="coreString('classesLabel')"
       :link="allClassesLink"
     >
       <mat-svg
@@ -13,7 +13,7 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      :title="coreCommon$tr('channelsLabel')"
+      :title="coreString('channelsLabel')"
       :link="channelsLink"
     >
       <mat-svg
@@ -22,7 +22,7 @@
       />
     </KNavbarLink>
     <KNavbarLink
-      :title="learnCommon$tr('recommendedLabel')"
+      :title="learnString('recommendedLabel')"
       :link="recommendedLink"
     >
       <mat-svg

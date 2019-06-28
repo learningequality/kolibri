@@ -5,8 +5,8 @@
     <CoreTable>
       <thead slot="thead">
         <tr>
-          <th>{{ coreCommon$tr('fullNameLabel') }}</th>
-          <th>{{ coreCommon$tr('usernameLabel') }}</th>
+          <th>{{ coreString('fullNameLabel') }}</th>
+          <th>{{ coreString('usernameLabel') }}</th>
           <th></th>
         </tr>
       </thead>

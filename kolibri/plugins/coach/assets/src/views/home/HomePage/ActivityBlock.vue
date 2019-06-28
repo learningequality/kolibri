@@ -1,7 +1,7 @@
 <template>
 
   <Block
-    :allLinkText="coachCommon$tr('viewAllAction')"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
   >
     <template slot="title">

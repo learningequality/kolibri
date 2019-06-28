@@ -33,7 +33,7 @@
         >
           <KButton
             class="close-button"
-            :text="coreCommon$tr('closeAction')"
+            :text="coreString('closeAction')"
             appearance="flat-button"
             :primary="true"
             @click="toggleBanner"

@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="coreCommon$tr('facilityLabel')"
+    :label="coreString('facilityLabel')"
     :link="url"
   >
     <mat-svg

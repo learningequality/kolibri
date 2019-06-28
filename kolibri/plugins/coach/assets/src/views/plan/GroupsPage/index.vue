@@ -23,10 +23,10 @@
         <thead slot="thead">
           <tr>
             <th>
-              {{ coachCommon$tr('nameLabel') }}
+              {{ coachString('nameLabel') }}
             </th>
             <th>
-              {{ coreCommon$tr('learnersLabel') }}
+              {{ coreString('learnersLabel') }}
             </th>
             <th></th>
           </tr>
@@ -150,11 +150,11 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar(this.coachCommon$tr('createdNotification'));
+        this.createSnackbar(this.coachString('createdNotification'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar(this.coachCommon$tr('deletedNotification'));
+        this.createSnackbar(this.coachString('deletedNotification'));
         this.displayModal(false);
       },
     },

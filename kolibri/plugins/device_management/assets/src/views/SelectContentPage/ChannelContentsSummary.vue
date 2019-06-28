@@ -29,7 +29,7 @@
     <table class="channel-statistics">
       <tr class="headers">
         <th></th>
-        <th>{{ coreCommon$tr('resourcesLabel') }}</th>
+        <th>{{ coreString('resourcesLabel') }}</th>
         <th>{{ $tr('sizeCol') }}</th>
       </tr>
       <tr>

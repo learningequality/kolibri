@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h1>{{ coreCommon$tr('usersLabel') }}</h1>
+        <h1>{{ coreString('usersLabel') }}</h1>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" percentage align="right">
         <KButton
@@ -16,7 +16,7 @@
       <KGridItem sizes="3, 3, 3">
         <KSelect
           v-model="roleFilter"
-          :label="coreCommon$tr('userTypeLabel')"
+          :label="coreString('userTypeLabel')"
           :options="userKinds"
           :inline="true"
           class="type-filter"
@@ -34,7 +34,7 @@
     <UserTable class="user-roster move-down" :users="visibleUsers" :emptyMessage="emptyMessage">
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
-          :text="coreCommon$tr('optionsLabel')"
+          :text="coreString('optionsLabel')"
           :options="manageUserOptions(userRow.user.id)"
           :disabled="!userCanBeEdited(userRow.user)"
           appearance="flat-button"
@@ -126,7 +126,7 @@
     name: 'UserPage',
     metaInfo() {
       return {
-        title: this.coreCommon$tr('usersLabel'),
+        title: this.coreString('usersLabel'),
       };
     },
     components: {
@@ -160,9 +160,9 @@
       Modals: () => Modals,
       userKinds() {
         return [
-          { label: this.coreCommon$tr('allLabel'), value: ALL_FILTER },
-          { label: this.coreCommon$tr('learnersLabel'), value: UserKinds.LEARNER },
-          { label: this.coreCommon$tr('coachesLabel'), value: UserKinds.COACH },
+          { label: this.coreString('allLabel'), value: ALL_FILTER },
+          { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
+          { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
@@ -177,7 +177,7 @@
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
-          return this.coreCommon$tr('noUsersExistLabel');
+          return this.coreString('noUsersExistLabel');
         } else if (this.visibleUsers.length === 0) {
           return this.$tr('allUsersFilteredOut');
         }
@@ -232,10 +232,10 @@
       },
       manageUserOptions(userId) {
         return [
-          { label: this.coreCommon$tr('editDetailsAction'), value: Modals.EDIT_USER },
+          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
           { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
           {
-            label: this.coreCommon$tr('deleteAction'),
+            label: this.coreString('deleteAction'),
             value: Modals.DELETE_USER,
             disabled: userId === this.currentUserId,
           },

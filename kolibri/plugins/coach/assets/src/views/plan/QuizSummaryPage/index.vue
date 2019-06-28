@@ -15,7 +15,7 @@
           <BackLink
             slot="backlink"
             :to="$router.getRoute('EXAMS')"
-            :text="coachCommon$tr('allQuizzesLabel')"
+            :text="coachString('allQuizzesLabel')"
           />
           <QuizOptionsDropdownMenu
             slot="options"
@@ -30,10 +30,10 @@
 
       <section>
         <HeaderTable>
-          <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+          <HeaderTableRow :keyText="coachString('statusLabel')">
             <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
-          <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+          <HeaderTableRow :keyText="coachString('recipientsLabel')">
             <Recipients
               slot="value"
               :groupNames="learnerGroupNames"
@@ -41,7 +41,7 @@
             />
           </HeaderTableRow>
           <HeaderTableRow
-            :keyText="coachCommon$tr('questionOrderLabel')"
+            :keyText="coachString('questionOrderLabel')"
             :valueText="questionOrderValueString"
           />
         </HeaderTable>
@@ -49,7 +49,7 @@
 
       <section v-if="selectedQuestions">
         <h2>
-          {{ coachCommon$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+          {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
         </h2>
 
         <p>
@@ -149,13 +149,13 @@
       },
       questionOrderValueString() {
         return this.quizIsRandomized
-          ? this.coachCommon$tr('orderRandomLabel')
-          : this.coachCommon$tr('orderFixedLabel');
+          ? this.coachString('orderRandomLabel')
+          : this.coachString('orderFixedLabel');
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachCommon$tr('orderRandomDescription')
-          : this.coachCommon$tr('orderFixedDescription');
+          ? this.coachString('orderRandomDescription')
+          : this.coachString('orderFixedDescription');
       },
       classId() {
         return this.$route.params.classId;
@@ -251,7 +251,7 @@
                   className,
                 }),
                 autoDismiss: false,
-                actionText: this.coreCommon$tr('closeAction'),
+                actionText: this.coreString('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

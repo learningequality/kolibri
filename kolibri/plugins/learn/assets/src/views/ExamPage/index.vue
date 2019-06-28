@@ -100,7 +100,7 @@
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
       :submitText="$tr('submitExam')"
-      :cancelText="coreCommon$tr('goBackAction')"
+      :cancelText="coreString('goBackAction')"
       @submit="finishExam"
       @cancel="toggleModal"
     >

@@ -13,14 +13,14 @@
 
       <ReportsLessonHeader />
 
-      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
+      <h2>{{ coachString('overallLabel') }}</h2>
 
-      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('groupsLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">

@@ -25,7 +25,7 @@
           slot="resourceTable"
         >
           <h2 class="resource-header">
-            {{ coreCommon$tr('resourcesLabel') }}
+            {{ coreString('resourcesLabel') }}
           </h2>
           <ResourceListTable
             v-show="!disabled"

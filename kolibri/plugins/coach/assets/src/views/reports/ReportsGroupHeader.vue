@@ -15,16 +15,16 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('avgQuizScoreLabel') }}
+          {{ coachString('avgQuizScoreLabel') }}
         </template>
         <template slot="value">
-          {{ coachCommon$tr('percentage', {value: avgScore}) }}
+          {{ coachString('percentage', {value: avgScore}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTable>
       <HeaderTableRow>
-        <template slot="key">{{ coreCommon$tr('learnersLabel') }}</template>
+        <template slot="key">{{ coreString('learnersLabel') }}</template>
         <template slot="value">
           <TruncatedItemList
             :items="[
@@ -47,15 +47,15 @@
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('reportsLabel')"
+        :text="coachString('reportsLabel')"
         :to="classRoute('ReportsGroupReportPage', {})"
       />
       <HeaderTab
-        :text="coachCommon$tr('membersLabel')"
+        :text="coachString('membersLabel')"
         :to="classRoute('ReportsGroupLearnerListPage', {})"
       />
       <HeaderTab
-        :text="coachCommon$tr('activityLabel')"
+        :text="coachString('activityLabel')"
         :to="classRoute('ReportsGroupActivityPage', {})"
       />
     </HeaderTabs>

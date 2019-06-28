@@ -47,7 +47,7 @@
             </KGridItem>
             <KGridItem size="3" alignment="right">
               <KButton
-                :text="coreCommon$tr('removeAction')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resourceId)"
               />

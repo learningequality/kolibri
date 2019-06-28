@@ -60,8 +60,8 @@
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachCommon$tr('orderRandomDescription')
-          : this.coachCommon$tr('orderFixedDescription');
+          ? this.coachString('orderRandomDescription')
+          : this.coachString('orderFixedDescription');
       },
       immersivePageProps() {
         const title = this.$tr('pageTitle', { title: this.quiz.title });

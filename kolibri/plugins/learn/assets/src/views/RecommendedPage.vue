@@ -3,7 +3,7 @@
   <div>
 
     <h1 class="visuallyhidden">
-      {{ learnCommon$tr('recommendedLabel') }}
+      {{ learnString('recommendedLabel') }}
     </h1>
 
     <template v-if="popular.length">
@@ -44,7 +44,7 @@
 
     <template v-if="resume.length">
       <ContentCardGroupHeader
-        :header="learnCommon$tr('recommendedLabel')"
+        :header="learnString('recommendedLabel')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
@@ -83,7 +83,7 @@
     name: 'RecommendedPage',
     metaInfo() {
       return {
-        title: this.learnCommon$tr('learnLabel'),
+        title: this.learnString('learnLabel'),
       };
     },
     components: {

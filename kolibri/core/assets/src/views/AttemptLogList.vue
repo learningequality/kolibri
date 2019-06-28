@@ -53,7 +53,7 @@
             />
             <p class="item">
               {{ 
-                coreCommon$tr(
+                coreString(
                   'questionNumberLabel', 
                   {questionNumber: attemptLog.questionNumber}
                 ) 

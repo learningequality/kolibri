@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('selectLocalRemoteSourceTitle')"
     size="medium"
-    :submitText="coreCommon$tr('continueAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="formIsDisabled"
     @submit="goForward"
     @cancel="resetContentWizardState"

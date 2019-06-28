@@ -49,21 +49,21 @@
       progressTypeOptions() {
         return [
           {
-            label: this.coreCommon$tr('allLabel'),
+            label: this.coreString('allLabel'),
             value: 'all',
           },
           {
-            label: this.coachCommon$tr('helpNeededLabel'),
+            label: this.coachString('helpNeededLabel'),
             value: NotificationEvents.HELP_NEEDED,
             disabled: this.progressIsDisabled(NotificationEvents.HELP_NEEDED),
           },
           {
-            label: this.coachCommon$tr('startedLabel'),
+            label: this.coachString('startedLabel'),
             value: NotificationEvents.STARTED,
             disabled: this.progressIsDisabled(NotificationEvents.STARTED),
           },
           {
-            label: this.coreCommon$tr('completedLabel'),
+            label: this.coreString('completedLabel'),
             value: NotificationEvents.COMPLETED,
             disabled: this.progressIsDisabled(NotificationEvents.COMPLETED),
           },
@@ -72,16 +72,16 @@
       resourceTypeOptions() {
         return [
           {
-            label: this.coreCommon$tr('allLabel'),
+            label: this.coreString('allLabel'),
             value: 'all',
           },
           {
-            label: this.coreCommon$tr('lessonsLabel'),
+            label: this.coreString('lessonsLabel'),
             value: ContentNodeKinds.LESSON,
             disabled: this.resourceIsDisabled(NotificationObjects.LESSON),
           },
           {
-            label: this.coreCommon$tr('quizzesLabel'),
+            label: this.coreString('quizzesLabel'),
             value: 'quiz',
             disabled: this.resourceIsDisabled(NotificationObjects.QUIZ),
           },

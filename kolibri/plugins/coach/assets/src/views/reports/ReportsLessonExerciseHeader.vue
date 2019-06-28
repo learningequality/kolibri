@@ -7,11 +7,11 @@
         <BackLink
           slot="backlink"
           :to="classRoute('ReportsLessonReportPage')"
-          :text="coachCommon$tr('backToLessonLabel', { lesson: lesson.title })"
+          :text="coachString('backToLessonLabel', { lesson: lesson.title })"
         />
         <KButton
           slot="options"
-          :text="coachCommon$tr('previewAction')"
+          :text="coachString('previewAction')"
           @click="$emit('previewClick')"
         />
       </BackLinkWithOptions>
@@ -23,11 +23,11 @@
     <HeaderTabs>
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseLearnerListPage')"
-        :text="coachCommon$tr('reportLabel')"
+        :text="coachString('reportLabel')"
       />
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseQuestionListPage')"
-        :text="coachCommon$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
       />
     </HeaderTabs>
 

@@ -14,7 +14,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="coreCommon$tr('showAction')"
+          :label="coreString('showAction')"
           :options="statusOptions"
           :inline="true"
         />
@@ -22,16 +22,16 @@
           :primary="true"
           appearance="raised-button"
           :to="newExamRoute"
-          :text="coachCommon$tr('newQuizAction')"
+          :text="coachString('newQuizAction')"
         />
       </div>
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
             <th>
-              {{ coachCommon$tr('statusLabel') }}
+              {{ coachString('statusLabel') }}
             </th>
           </tr>
         </thead>
@@ -69,13 +69,13 @@
         {{ $tr('noExams') }}
       </p>
       <p
-        v-else-if="statusSelected.value === coachCommon$tr('activeQuizzesLabel') &&
+        v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
           !activeExams.length"
       >
         {{ $tr('noActiveExams') }}
       </p>
       <p
-        v-else-if=" statusSelected.value === coachCommon$tr('inactiveQuizzesLabel') &&
+        v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
           !inactiveExams.length"
       >
         {{ $tr('noInactiveExams') }}
@@ -104,7 +104,7 @@
     name: 'CoachExamsPage',
     metaInfo() {
       return {
-        title: this.coreCommon$tr('quizzesLabel'),
+        title: this.coreString('quizzesLabel'),
       };
     },
     components: {
@@ -119,8 +119,8 @@
     data() {
       return {
         statusSelected: {
-          label: this.coachCommon$tr('allQuizzesLabel'),
-          value: this.coachCommon$tr('allQuizzesLabel'),
+          label: this.coachString('allQuizzesLabel'),
+          value: this.coachString('allQuizzesLabel'),
         },
       };
     },
@@ -131,16 +131,16 @@
       statusOptions() {
         return [
           {
-            label: this.coachCommon$tr('allQuizzesLabel'),
-            value: this.coachCommon$tr('allQuizzesLabel'),
+            label: this.coachString('allQuizzesLabel'),
+            value: this.coachString('allQuizzesLabel'),
           },
           {
-            label: this.coachCommon$tr('activeQuizzesLabel'),
-            value: this.coachCommon$tr('activeQuizzesLabel'),
+            label: this.coachString('activeQuizzesLabel'),
+            value: this.coachString('activeQuizzesLabel'),
           },
           {
-            label: this.coachCommon$tr('inactiveQuizzesLabel'),
-            value: this.coachCommon$tr('inactiveQuizzesLabel'),
+            label: this.coachString('inactiveQuizzesLabel'),
+            value: this.coachString('inactiveQuizzesLabel'),
           },
         ];
       },
@@ -152,9 +152,9 @@
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.coachCommon$tr('activeQuizzesLabel')) {
+        if (filter === this.coachString('activeQuizzesLabel')) {
           return this.activeExams;
-        } else if (filter === this.coachCommon$tr('inactiveQuizzesLabel')) {
+        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
           return this.inactiveExams;
         }
         return this.sortedExams;

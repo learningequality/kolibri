@@ -94,7 +94,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 
 const coachStringsMixin = {
   methods: {
-    coachCommon$tr(key, args) {
+    coachString(key, args) {
       return coachStrings.$tr(key, args);
     },
   },

@@ -55,7 +55,7 @@ oriented data synchronization.
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-            {{ coreCommon$tr('completedLabel') }}
+            {{ coreString('completedLabel') }}
           </span>
           <span>
             {{ $tr('goal', {count: totalCorrectRequiredM}) }}

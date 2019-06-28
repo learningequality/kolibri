@@ -14,7 +14,7 @@
         class="visuallyhidden"
         for="searchfield"
       >
-        {{ coreCommon$tr('searchLabel') }}
+        {{ coreString('searchLabel') }}
       </label>
 
       <input
@@ -25,7 +25,7 @@
         :class="$computedClass(inputPlaceHolderStyle)"
         :style="{ color: $themeTokens.text }"
         dir="auto"
-        :placeholder="coreCommon$tr('searchLabel')"
+        :placeholder="coreString('searchLabel')"
       >
 
       <div class="buttons-wrapper">

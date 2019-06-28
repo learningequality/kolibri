@@ -199,7 +199,7 @@
               'Current Time': this.$tr('currentTime'),
               'Duration Time': this.$tr('durationTime'),
               Loaded: this.$tr('loaded'),
-              Progress: this.coreCommon$tr('progressLabel'),
+              Progress: this.coreString('progressLabel'),
               'Progress Bar': this.$tr('progressBar'),
               Fullscreen: this.$tr('fullscreen'),
               'Non-Fullscreen': this.$tr('nonFullscreen'),

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('changeLanguageModalHeader')"
-    :submitText="coreCommon$tr('confirmAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('confirmAction')"
+    :cancelText="coreString('cancelAction')"
     @cancel="$emit('cancel')"
     @submit="setLang"
   >

@@ -14,7 +14,7 @@
 
         <KGrid>
           <KGridItem sizes="100, 50, 50" percentage>
-            <h1>{{ coreCommon$tr('channelsLabel') }}</h1>
+            <h1>{{ coreString('channelsLabel') }}</h1>
           </KGridItem>
           <KGridItem
             v-if="!activeTaskList.length"

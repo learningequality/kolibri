@@ -12,7 +12,7 @@
         <div class="close-container cell">
           <UiIconButton
             size="small"
-            :ariaLabel="coreCommon$tr('closeAction')"
+            :ariaLabel="coreString('closeAction')"
             @click="$emit('close')"
           >
             <mat-svg name="close" category="navigation" />

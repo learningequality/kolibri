@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('reportErrorHeader')"
-    :cancelText="coreCommon$tr('closeAction')"
+    :cancelText="coreString('closeAction')"
     class="error-detail-modal"
     size="large"
     @cancel="$emit('cancel')"

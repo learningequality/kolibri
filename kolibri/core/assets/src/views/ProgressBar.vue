@@ -2,7 +2,7 @@
 
   <div class="wrapper">
     <div id="progress-bar-label" class="visuallyhidden">
-      {{ coreCommon$tr('progressLabel') }}
+      {{ coreString('progressLabel') }}
     </div>
     <div
       class="progress-bar-wrapper"

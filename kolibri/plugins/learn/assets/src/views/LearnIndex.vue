@@ -144,7 +144,7 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.coreCommon$tr('searchLabel'),
+            appBarTitle: this.coreString('searchLabel'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
@@ -194,7 +194,7 @@
         }
 
         return {
-          appBarTitle: this.learnCommon$tr('learnLabel'),
+          appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
         };
       },

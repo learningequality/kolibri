@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('editUserDetailsHeader')"
-    :submitText="coreCommon$tr('saveAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="isBusy"
     @submit="submitForm"
     @cancel="$emit('cancel')"
@@ -12,7 +12,7 @@
       ref="name"
       v-model="newName"
       type="text"
-      :label="coreCommon$tr('fullNameLabel')"
+      :label="coreString('fullNameLabel')"
       :autofocus="true"
       :maxlength="120"
       :invalid="nameIsInvalid"
@@ -24,7 +24,7 @@
       ref="username"
       v-model="newUsername"
       type="text"
-      :label="coreCommon$tr('usernameLabel')"
+      :label="coreString('usernameLabel')"
       :maxlength="30"
       :invalid="usernameIsInvalid"
       :invalidText="usernameIsInvalidText"
@@ -34,7 +34,7 @@
 
     <template v-if="editingSuperAdmin">
       <h2 class="user-type header">
-        {{ coreCommon$tr('userTypeLabel') }}
+        {{ coreString('userTypeLabel') }}
       </h2>
 
       <UserTypeDisplay
@@ -54,7 +54,7 @@
     <template v-else>
       <KSelect
         v-model="typeSelected"
-        :label="coreCommon$tr('userTypeLabel')"
+        :label="coreString('userTypeLabel')"
         :options="userTypeOptions"
       />
 
@@ -67,7 +67,7 @@
         />
         <KRadioButton
           v-model="classCoachIsSelected"
-          :label="coreCommon$tr('facilityCoachLabel')"
+          :label="coreString('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -142,15 +142,15 @@
       userTypeOptions() {
         return [
           {
-            label: this.coreCommon$tr('learnerLabel'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.coreCommon$tr('coachLabel'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.coreCommon$tr('adminLabel'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -158,7 +158,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred) {
           if (this.newName === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -185,13 +185,13 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred) {
           if (this.newUsername === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.usernameAlreadyExists) {
             return this.$tr('usernameAlreadyExists');
           }
           if (!validateUsername(this.newUsername)) {
-            return this.coreCommon$tr('usernameNotAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
         }
         return '';

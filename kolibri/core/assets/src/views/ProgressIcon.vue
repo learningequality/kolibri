@@ -12,7 +12,7 @@
       </UiIcon>
       <UiIcon
         v-else-if="isCompleted"
-        :ariaLabel="coreCommon$tr('completedLabel')"
+        :ariaLabel="coreString('completedLabel')"
         class="icon"
         :style="iconStyle($themeTokens.mastered)"
       >
@@ -23,7 +23,7 @@
       reference="icon"
       :refs="$refs"
     >
-      {{ isInProgress ? $tr('inProgress') : coreCommon$tr('completedLabel') }}
+      {{ isInProgress ? $tr('inProgress') : coreString('completedLabel') }}
     </KTooltip>
   </span>
 

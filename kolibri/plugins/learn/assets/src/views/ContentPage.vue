@@ -108,7 +108,7 @@
         />
       </template>
       <template v-if="showRecommended">
-        <h2>{{ learnCommon$tr('recommendedLabel') }}</h2>
+        <h2>{{ learnString('recommendedLabel') }}</h2>
         <ContentCardGroupCarousel
           :genContentLink="genContentLink"
           :header="recommendedText"
@@ -218,7 +218,7 @@
         return '';
       },
       recommendedText() {
-        return this.learnCommon$tr('recommendedLabel');
+        return this.learnString('recommendedLabel');
       },
       progress() {
         if (this.isUserLoggedIn) {

@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="learnCommon$tr('learnLabel')"
+    :label="learnString('learnLabel')"
     :link="url"
   >
     <mat-svg

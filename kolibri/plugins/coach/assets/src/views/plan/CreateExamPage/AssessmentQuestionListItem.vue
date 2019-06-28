@@ -83,7 +83,7 @@
         if (this.questionNumberOfExercise === undefined) {
           return this.exerciseName;
         }
-        return this.coachCommon$tr('nthExerciseName', {
+        return this.coachString('nthExerciseName', {
           name: this.exerciseName,
           number: this.questionNumberOfExercise,
         });

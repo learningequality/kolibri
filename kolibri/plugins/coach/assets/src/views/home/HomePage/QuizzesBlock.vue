@@ -1,16 +1,16 @@
 <template>
 
   <Block
-    :allLinkText="coachCommon$tr('viewAllAction')"
+    :allLinkText="coachString('viewAllAction')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <KLabeledIcon slot="title">
       <KIcon slot="icon" quiz />
-      {{ coreCommon$tr('quizzesLabel') }}
+      {{ coreString('quizzesLabel') }}
     </KLabeledIcon>
 
     <p v-if="table.length === 0">
-      {{ coachCommon$tr('quizListEmptyState') }}
+      {{ coachString('quizListEmptyState') }}
     </p>
 
     <BlockItem

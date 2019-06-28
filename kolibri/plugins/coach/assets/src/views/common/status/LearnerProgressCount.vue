@@ -55,7 +55,7 @@
       },
       text() {
         if (!this.verbosityNumber) {
-          return this.coachCommon$tr('integer', { value: this.count });
+          return this.coachString('integer', { value: this.count });
         }
         return this.strings.$tr(this.shorten('count', this.verbosityNumber), { count: this.count });
       },

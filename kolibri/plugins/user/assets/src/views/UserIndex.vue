@@ -43,7 +43,7 @@
         } else if (this.pageName === PageNames.SIGN_UP) {
           return this.$tr('createAccountHeading');
         }
-        return this.coreCommon$tr('signInLabel');
+        return this.coreString('signInLabel');
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;

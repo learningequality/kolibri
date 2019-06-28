@@ -13,12 +13,12 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
+      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('nameLabel') }}</th>
-            <th>{{ coreCommon$tr('progressLabel') }}</th>
-            <th>{{ coachCommon$tr('scoreLabel') }}</th>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('scoreLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -70,15 +70,15 @@
       filterOptions() {
         return [
           {
-            label: this.coachCommon$tr('allQuizzesLabel'),
+            label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
           {
-            label: this.coachCommon$tr('activeQuizzesLabel'),
+            label: this.coachString('activeQuizzesLabel'),
             value: 'activeQuizzes',
           },
           {
-            label: this.coachCommon$tr('inactiveQuizzesLabel'),
+            label: this.coachString('inactiveQuizzesLabel'),
             value: 'inactiveQuizzes',
           },
         ];

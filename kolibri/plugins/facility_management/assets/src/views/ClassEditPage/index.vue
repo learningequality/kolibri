@@ -36,7 +36,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ coreCommon$tr('coachesLabel') }}</h2>
+        <h2>{{ coreString('coachesLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -55,7 +55,7 @@
       <!-- Don't need template in Vue 2.5+ -->
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="coreCommon$tr('removeAction')"
+          :text="coreString('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassCoach)"
         />
@@ -64,7 +64,7 @@
 
     <KGrid class="top-margin">
       <KGridItem sizes="100, 50, 50" percentage>
-        <h2>{{ coreCommon$tr('learnersLabel') }}</h2>
+        <h2>{{ coreString('learnersLabel') }}</h2>
       </KGridItem>
       <KGridItem sizes="100, 50, 50" alignment="right" percentage>
         <KRouterLink
@@ -82,7 +82,7 @@
     >
       <template slot="action" slot-scope="userRow">
         <KButton
-          :text="coreCommon$tr('removeAction')"
+          :text="coreString('removeAction')"
           appearance="flat-button"
           @click="confirmRemoval(userRow.user, removeClassLearner)"
         />

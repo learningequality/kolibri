@@ -4,7 +4,7 @@
 
     <KGrid>
       <KGridItem sizes="100, 75, 75" percentage>
-        <h1>{{ coreCommon$tr('classesLabel') }}</h1>
+        <h1>{{ coreString('classesLabel') }}</h1>
         <p>{{ $tr('adminClassPageSubheader') }}</p>
       </KGridItem>
       <KGridItem sizes="100, 25, 25" percentage alignment="right">
@@ -23,9 +23,9 @@
       </caption>
       <thead slot="thead">
         <tr>
-          <th>{{ coreCommon$tr('classNameLabel') }}</th>
-          <th>{{ coreCommon$tr('coachesLabel') }}</th>
-          <th>{{ coreCommon$tr('learnersLabel') }}</th>
+          <th>{{ coreString('classNameLabel') }}</th>
+          <th>{{ coreString('coachesLabel') }}</th>
+          <th>{{ coreString('learnersLabel') }}</th>
           <th>
             <span class="visuallyhidden">
               {{ $tr('actions') }}
@@ -126,7 +126,7 @@
     name: 'ManageClassPage',
     metaInfo() {
       return {
-        title: this.coreCommon$tr('classesLabel'),
+        title: this.coreString('classesLabel'),
       };
     },
     components: {

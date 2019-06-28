@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="coreCommon$tr('signInLabel')"
+    :label="coreString('signInLabel')"
     :link="url"
   >
     <mat-svg

@@ -14,7 +14,7 @@
 
     <template v-if="settings!==null">
       <div class="mb">
-        <h2>{{ coreCommon$tr('facilityLabel') }}</h2>
+        <h2>{{ coreString('facilityLabel') }}</h2>
         <p class="current-facility-name">
           {{ facilityName }}
         </p>
@@ -44,7 +44,7 @@
           <KButton
             :primary="true"
             appearance="raised-button"
-            :text="coreCommon$tr('saveChangesAction')"
+            :text="coreString('saveChangesAction')"
             name="save-settings"
             :disabled="!settingsHaveChanged"
             @click="saveConfig()"

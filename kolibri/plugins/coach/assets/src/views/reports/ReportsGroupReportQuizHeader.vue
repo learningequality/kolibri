@@ -15,31 +15,31 @@
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('statusLabel') }}
+          {{ coachString('statusLabel') }}
         </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachCommon$tr('avgScoreLabel') }}
+          {{ coachString('avgScoreLabel') }}
         </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>
-        <template slot="key">{{ coachCommon$tr('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachCommon$tr('orderRandomLabel') }}</template>
+        <template slot="key">{{ coachString('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachString('orderRandomLabel') }}</template>
       </HeaderTableRow>
        -->
     </HeaderTable>
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachCommon$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsGroupReportQuizLearnerListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('difficultQuestionsLabel')"
+        :text="coachString('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportQuizQuestionListPage')"
       />
     </HeaderTabs>

@@ -15,7 +15,7 @@
         v-model="name"
         type="text"
         autocomplete="name"
-        :label="coreCommon$tr('fullNameLabel')"
+        :label="coreString('fullNameLabel')"
         :maxlength="120"
         :autofocus="true"
         :invalid="nameIsInvalid"
@@ -29,7 +29,7 @@
         v-model="username"
         type="text"
         autocomplete="username"
-        :label="coreCommon$tr('usernameLabel')"
+        :label="coreString('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -43,7 +43,7 @@
         v-model="password"
         type="password"
         autocomplete="new-password"
-        :label="coreCommon$tr('passwordLabel')"
+        :label="coreString('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -63,7 +63,7 @@
 
       <KSelect
         v-model="selectedFacility"
-        :label="coreCommon$tr('facilityLabel')"
+        :label="coreString('facilityLabel')"
         :options="facilityList"
         :invalid="facilityIsInvalid"
         :invalidText="facilityIsInvalidText"
@@ -83,7 +83,7 @@
         <KButton
           :disabled="busy"
           :primary="true"
-          :text="coreCommon$tr('finishAction')"
+          :text="coreString('finishAction')"
           type="submit"
           class="submit"
         />
@@ -159,7 +159,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -176,10 +176,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username) || this.errors.includes(ERROR_CONSTANTS.INVALID)) {
-            return this.coreCommon$tr('usernameNotAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (!this.usernameDoesNotExistYet) {
             return this.$tr('usernameAlreadyExistsError');
@@ -193,7 +193,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -204,10 +204,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.coreCommon$tr('passwordsMismatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';
@@ -221,7 +221,7 @@
       facilityIsInvalidText() {
         if (this.facilityBlurred || this.formSubmitted) {
           if (this.noFacilitySelected) {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';

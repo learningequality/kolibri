@@ -181,7 +181,7 @@
           return '';
         }
         const questionNumber = questionIndex + 1;
-        return this.coreCommon$tr('questionNumberLabel', { questionNumber });
+        return this.coreString('questionNumberLabel', { questionNumber });
       },
     },
     $trs: {

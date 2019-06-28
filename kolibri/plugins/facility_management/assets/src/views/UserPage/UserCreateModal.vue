@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('createNewUserHeader')"
-    :submitText="coreCommon$tr('saveAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="createNewUser"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
         ref="name"
         v-model.trim="fullName"
         type="text"
-        :label="coreCommon$tr('fullNameLabel')"
+        :label="coreString('fullNameLabel')"
         :autofocus="true"
         :maxlength="120"
         :invalid="nameIsInvalid"
@@ -24,7 +24,7 @@
         ref="username"
         v-model="username"
         type="text"
-        :label="coreCommon$tr('usernameLabel')"
+        :label="coreString('usernameLabel')"
         :maxlength="30"
         :invalid="usernameIsInvalid"
         :invalidText="usernameIsInvalidText"
@@ -34,7 +34,7 @@
         ref="password"
         v-model="password"
         type="password"
-        :label="coreCommon$tr('passwordLabel')"
+        :label="coreString('passwordLabel')"
         :invalid="passwordIsInvalid"
         :invalidText="passwordIsInvalidText"
         @blur="passwordBlurred = true"
@@ -51,7 +51,7 @@
 
       <KSelect
         v-model="kind"
-        :label="coreCommon$tr('userTypeLabel')"
+        :label="coreString('userTypeLabel')"
         :options="userKindDropdownOptions"
       />
 
@@ -64,7 +64,7 @@
         />
         <KRadioButton
           v-model="classCoach"
-          :label="coreCommon$tr('facilityCoachLabel')"
+          :label="coreString('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -103,7 +103,7 @@
         password: '',
         confirmedPassword: '',
         kind: {
-          label: this.coreCommon$tr('learnerLabel'),
+          label: this.coreString('learnerLabel'),
           value: UserKinds.LEARNER,
         },
         classCoach: true,
@@ -135,7 +135,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.fullName === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -151,10 +151,10 @@
       usernameIsInvalidText() {
         if (this.usernameBlurred || this.formSubmitted) {
           if (this.username === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (!validateUsername(this.username)) {
-            return this.coreCommon$tr('usernameNotAlphaNumError');
+            return this.coreString('usernameNotAlphaNumError');
           }
           if (this.usernameAlreadyExists || this.usernameAlreadyExistsError) {
             return this.$tr('usernameAlreadyExists');
@@ -168,7 +168,7 @@
       passwordIsInvalidText() {
         if (this.passwordBlurred || this.formSubmitted) {
           if (this.password === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
         }
         return '';
@@ -179,10 +179,10 @@
       confirmedPasswordIsInvalidText() {
         if (this.confirmedPasswordBlurred || this.formSubmitted) {
           if (this.confirmedPassword === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.confirmedPassword !== this.password) {
-            return this.coreCommon$tr('passwordsMismatchError');
+            return this.coreString('passwordsMismatchError');
           }
         }
         return '';
@@ -201,15 +201,15 @@
       userKindDropdownOptions() {
         return [
           {
-            label: this.coreCommon$tr('learnerLabel'),
+            label: this.coreString('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
-            label: this.coreCommon$tr('coachLabel'),
+            label: this.coreString('coachLabel'),
             value: UserKinds.COACH,
           },
           {
-            label: this.coreCommon$tr('adminLabel'),
+            label: this.coreString('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];

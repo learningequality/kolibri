@@ -9,7 +9,7 @@
     <h1 v-if="status === ''" class="spec-ref-title">
       <span v-if="inExportMode">{{ $tr('yourChannels') }}</span>
       <span v-else-if="inLocalImportMode">{{ selectedDrive.name }}</span>
-      <span v-else>{{ coreCommon$tr('channelsLabel') }}</span>
+      <span v-else>{{ coreString('channelsLabel') }}</span>
     </h1>
 
     <KGrid v-if="channelsAreAvailable" class="top-matter">
@@ -65,7 +65,7 @@
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
       <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
-        {{ coreCommon$tr('channelsLabel') }}
+        {{ coreString('channelsLabel') }}
       </div>
 
       <div class="channels-list">

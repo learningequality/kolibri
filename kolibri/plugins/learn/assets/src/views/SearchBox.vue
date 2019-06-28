@@ -13,7 +13,7 @@
         fontSize: '16px',
       }"
     >
-      <label class="visuallyhidden" for="searchfield">{{ coreCommon$tr('searchLabel') }}</label>
+      <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
         id="searchfield"
         ref="searchInput"
@@ -22,7 +22,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreCommon$tr('searchLabel')"
+        :placeholder="coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <UiIconButton
@@ -99,7 +99,7 @@
         />
         <KSelect
           ref="channelFilter"
-          :label="coreCommon$tr('channelsLabel')"
+          :label="coreString('channelsLabel')"
           :options="channelFilterOptions"
           :inline="true"
           :disabled="!channelFilterOptions.length"
@@ -186,7 +186,7 @@
         };
       },
       allFilter() {
-        return { label: this.coreCommon$tr('allLabel'), value: ALL_FILTER };
+        return { label: this.coreString('allLabel'), value: ALL_FILTER };
       },
       contentKindFilterOptions() {
         if (this.content_kinds.length) {

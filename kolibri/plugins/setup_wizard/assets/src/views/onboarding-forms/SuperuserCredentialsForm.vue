@@ -10,7 +10,7 @@
     <KTextbox
       ref="name"
       v-model="name"
-      :label="coreCommon$tr('fullNameLabel')"
+      :label="coreString('fullNameLabel')"
       :autofocus="true"
       autocomplete="name"
       :maxlength="120"
@@ -21,7 +21,7 @@
     <KTextbox
       ref="username"
       v-model="username"
-      :label="coreCommon$tr('usernameLabel')"
+      :label="coreString('usernameLabel')"
       type="username"
       autocomplete="username"
       :maxlength="30"
@@ -32,7 +32,7 @@
     <KTextbox
       ref="password"
       v-model="password"
-      :label="coreCommon$tr('passwordLabel')"
+      :label="coreString('passwordLabel')"
       type="password"
       autocomplete="new-password"
       :invalid="passwordIsInvalid"
@@ -109,7 +109,7 @@
           return this.$tr('usernameFieldEmptyErrorMessage');
         }
         if (!validateUsername(this.username)) {
-          return this.coreCommon$tr('usernameNotAlphaNumError');
+          return this.coreString('usernameNotAlphaNumError');
         }
         return '';
       },
@@ -124,7 +124,7 @@
           return this.$tr('passwordFieldEmptyErrorMessage');
         }
         if (this.passwordConfirm !== this.password) {
-          return this.coreCommon$tr('passwordsMismatchError');
+          return this.coreString('passwordsMismatchError');
         }
         return '';
       },

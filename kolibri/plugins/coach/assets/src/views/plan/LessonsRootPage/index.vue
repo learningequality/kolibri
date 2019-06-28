@@ -14,13 +14,13 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coreCommon$tr('showAction')"
+          :label="coreString('showAction')"
           :options="filterOptions"
           :inline="true"
         />
         <KButton
           :primary="true"
-          :text="coachCommon$tr('newLessonAction')"
+          :text="coachString('newLessonAction')"
           @click="showModal=true"
         />
       </div>
@@ -28,10 +28,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachString('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
-            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
-            <th>{{ coachCommon$tr('statusLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -48,7 +48,7 @@
                 />
               </KLabeledIcon>
             </td>
-            <td>{{ coachCommon$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
+            <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
             <td>
               <Recipients
                 :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
@@ -75,8 +75,8 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
-        :submitText="coreCommon$tr('continueAction')"
-        :cancelText="coreCommon$tr('cancelAction')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"

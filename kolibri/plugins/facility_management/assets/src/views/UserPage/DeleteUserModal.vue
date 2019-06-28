@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('deleteUser')"
-    :submitText="coreCommon$tr('deleteAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('deleteAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
     @cancel="$emit('cancel')"

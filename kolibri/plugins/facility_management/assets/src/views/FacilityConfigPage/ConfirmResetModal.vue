@@ -3,7 +3,7 @@
   <KModal
     :title="$tr('title')"
     :submitText="$tr('reset')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :cancelText="coreString('cancelAction')"
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >

@@ -2,7 +2,7 @@
 
   <div>
     <PageHeader
-      :title="coreCommon$tr('channelsLabel')"
+      :title="coreString('channelsLabel')"
       class="visuallyhidden"
     />
     <ContentCardGroupGrid

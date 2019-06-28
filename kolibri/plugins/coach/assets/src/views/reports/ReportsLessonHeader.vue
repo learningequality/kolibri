@@ -5,7 +5,7 @@
       <BackLink
         slot="backlink"
         :to="classRoute('ReportsLessonListPage')"
-        :text="coreCommon$tr('allLessonsLabel')"
+        :text="coreString('allLessonsLabel')"
       />
       <LessonOptionsDropdownMenu
         slot="options"
@@ -19,13 +19,13 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachString('statusLabel')">
         <LessonActive
           slot="value"
           :active="lesson.active"
         />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <Recipients
           slot="value"
           :groupNames="getGroupNames(lesson.groups)"
@@ -33,19 +33,19 @@
         />
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachCommon$tr('descriptionLabel')"
-        :valueText="lesson.description || coachCommon$tr('descriptionMissingLabel')"
+        :keyText="coachString('descriptionLabel')"
+        :valueText="lesson.description || coachString('descriptionMissingLabel')"
       />
     </HeaderTable>
 
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachCommon$tr('reportLabel')"
+        :text="coachString('reportLabel')"
         :to="classRoute('ReportsLessonReportPage', {})"
       />
       <HeaderTab
-        :text="coreCommon$tr('learnersLabel')"
+        :text="coreString('learnersLabel')"
         :to="classRoute('ReportsLessonLearnerListPage', {})"
       />
     </HeaderTabs>

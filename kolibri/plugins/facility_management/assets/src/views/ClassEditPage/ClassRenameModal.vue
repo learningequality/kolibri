@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('modalTitle')"
     size="small"
-    :submitText="coreCommon$tr('saveAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="updateName"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="coreCommon$tr('classNameLabel')"
+      :label="coreString('classNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -78,7 +78,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');

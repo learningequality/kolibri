@@ -3,8 +3,8 @@
   <KModal
     :title="title"
     size="medium"
-    :submitText="coreCommon$tr('continueAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="selectedDriveId===''"
     @submit="goForward"
     @cancel="resetContentWizardState"

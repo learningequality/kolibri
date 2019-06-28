@@ -5,7 +5,7 @@
     @sort="handleDrag"
   >
     <p v-if="resources.length === 0">
-      {{ coachCommon$tr('noResourcesInLessonLabel') }}
+      {{ coachString('noResourcesInLessonLabel') }}
     </p>
     <transition-group
       v-else
@@ -52,7 +52,7 @@
             </KGridItem>
             <KGridItem size="3" alignment="right">
               <KButton
-                :text="coreCommon$tr('removeAction')"
+                :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resource)"
               />

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('enterChannelToken')"
-    :submitText="coreCommon$tr('continueAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="formIsDisabled"
     :cancelDisabled="formIsDisabled"
     @submit="submitForm"

@@ -3,8 +3,8 @@
   <KModal
     :title="$tr('renameLearnerGroup')"
     size="small"
-    :submitText="coreCommon$tr('saveAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="callRenameGroup"
     @cancel="$emit('cancel')"
@@ -13,7 +13,7 @@
       ref="name"
       v-model.trim="name"
       type="text"
-      :label="coachCommon$tr('groupNameLabel')"
+      :label="coachString('groupNameLabel')"
       :autofocus="true"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
@@ -79,7 +79,7 @@
       nameIsInvalidText() {
         if (this.nameBlurred || this.formSubmitted) {
           if (this.name === '') {
-            return this.coreCommon$tr('requiredFieldLabel');
+            return this.coreString('requiredFieldLabel');
           }
           if (this.duplicateName) {
             return this.$tr('duplicateName');

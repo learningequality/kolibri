@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('header')"
-    :submitText="coreCommon$tr('continueAction')"
-    :cancelText="coreCommon$tr('cancelAction')"
+    :submitText="coreString('continueAction')"
+    :cancelText="coreString('cancelAction')"
     size="medium"
     :submitDisabled="submitDisabled"
     @submit="handleSubmit"
