@@ -7,11 +7,25 @@
       :class="{'expanded-header': !hidden}"
       @click="hidden = !hidden"
     >
-      <PageHeader :title="child.title" style="display: inline-block; padding-left: 16px" />
-      <UiIconButton 
-        type="secondary" 
+
+      <div
+        class="topic-thumbnail"
+        style="display: inline-block"
+        :style="thumbnailBackground"
+      >
+        <ContentIcon
+          v-if="!child.thumbnail"
+          :kind="ContentNodeKinds.TOPIC"
+          class="type-icon"
+          :style="{ color: $coreTextAnnotation }"
+        >
+          />
+      </contenticon></div>
+      <PageHeader :title="child.title" style="display: inline-block; vertical-align: middle;" />
+      <UiIconButton
+        type="secondary"
         size="large"
-        style="float: right; margin: 8px 8px 0 0" 
+        style="float: right; margin: 24px 24px 0 0"
         disabled
       >
         <mat-svg v-if="!hidden" name="expand_less" category="navigation" />
@@ -50,6 +64,7 @@
 
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import { PageNames } from '../constants';
   import PageHeader from '../../../../learn/assets/src/views/PageHeader';
@@ -61,6 +76,8 @@
       PageHeader,
       ContentCardGroupGrid,
       UiIconButton,
+      ContentIcon,
+      ContentNodeKinds,
     },
     mixins: [themeMixin],
     props: { child: Object },
@@ -70,11 +87,20 @@
       };
     },
     computed: {
+      ContentNodeKinds() {
+        return ContentNodeKinds;
+      },
       isMastered() {
         return this.child.progress === 1;
       },
       isInProgress() {
         return this.child.progress > 0 && this.child.progress < 1;
+      },
+      thumbnailBackground() {
+        return {
+          backgroundColor: this.$coreBgLight,
+          backgroundImage: `url('${this.child.thumbnail}')`,
+        };
       },
     },
     methods: {
@@ -97,6 +123,8 @@
 
 
 <style lang="scss">
+
+  @import '../../../../learn/assets/src/views/ContentCard/card';
 
   .collapsible-grid {
     margin-bottom: 8px;
@@ -127,6 +155,25 @@
 
   .progress-bar {
     height: 100%;
+  }
+
+  .topic-thumbnail {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin: 16px;
+    vertical-align: middle;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border-radius: 50%;
+  }
+
+  .type-icon {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(3);
   }
 
 </style>
