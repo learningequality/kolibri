@@ -32,7 +32,7 @@
           type="warning"
           class="alert"
         >
-          {{ $tr('signIn') }}
+          {{ coreCommon$tr('signInLabel') }}
         </UiAlert>
       </Snackbar>
 
@@ -90,6 +90,7 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import UiAlert from 'keen-ui/src/UiAlert';
   import Snackbar from './Snackbar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
 
@@ -103,7 +104,7 @@
       Snackbar,
       UiAlert,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, commonCoreStrings],
     props: {
       nextContent: {
         type: Object,

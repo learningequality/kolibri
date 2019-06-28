@@ -37,7 +37,7 @@
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
-          >{{ $tr('kolibri') }}</span>
+          >{{ coreCommon$tr('kolibriLabel') }}</span>
         </div>
 
         <div
@@ -237,9 +237,8 @@
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation menu',
-      closeNav: 'Close navigation menu',
+      navigationLabel: 'Main user navigation',
+      closeNav: 'Close navigation',
       poweredBy: 'Kolibri {version}',
     },
   };

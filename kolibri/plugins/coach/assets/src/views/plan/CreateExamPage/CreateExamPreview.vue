@@ -108,7 +108,7 @@
       <KBottomAppBar>
         <KRouterLink
           appearance="flat-button"
-          :text="coachCommon$tr('goBackAction')"
+          :text="coreCommon$tr('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton

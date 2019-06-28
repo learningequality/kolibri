@@ -51,7 +51,7 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <KCheckbox
-            :label="coachCommon$tr('showCorrectAnswerLabel')"
+            :label="coreCommon$tr('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />
@@ -93,6 +93,7 @@
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoach from '../common';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'LearnerExerciseReport',
@@ -104,7 +105,7 @@
       MultiPaneLayout,
       CoachContentLabel,
     },
-    mixins: [commonCoach, themeMixin],
+    mixins: [commonCoach, commonCoreStrings, themeMixin],
     data() {
       return {
         showCorrectAnswer: false,

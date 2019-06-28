@@ -3,8 +3,6 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   copyAction: 'Copy',
-  editDetailsAction: 'Edit details',
-  goBackAction: 'Go back',
   manageResourcesAction: 'Manage resources',
   newLessonAction: 'New lesson',
   newQuizAction: 'New quiz',
@@ -36,7 +34,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   lastActivityLabel: 'Last activity',
   inactiveLabel: 'Inactive',
   learnersLabel: 'Learners', // Kept here for use in common.js
-  lessonsLabel: 'Lessons',
+  lessonsLabel: 'Lessons', // Kept here for use in common.js
   lessonsAssignedLabel: 'Lessons assigned',
   masteryModelLabel: 'Completion requirement',
   membersLabel: 'Members',
@@ -50,7 +48,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   previewLabel: 'Preview',
   questionLabel: 'Question',
   questionOrderLabel: 'Question order',
-  quizzesLabel: 'Quizzes',
+  quizzesLabel: 'Quizzes', // Kept here for use in common.js
   quizzesAssignedLabel: 'Quizzes assigned',
   recipientsLabel: 'Recipients',
   reportLabel: 'Report',
@@ -77,20 +75,14 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   quizListEmptyState: 'There are no quizzes',
 
   // toggles
-  showCorrectAnswerLabel: 'Show correct answer',
   viewByGroupsLabel: 'View by groups',
 
   // formatted values
   integer: '{value, number, integer}',
   nthExerciseName: '{name} ({number, number, integer})',
-  number: '{value, number}',
-  numberOfClasses: '{value, number, integer} {value, plural, one {class} other {classes}}',
-  numberOfCoaches: '{value, number, integer} {value, plural, one {coach} other {coaches}}',
-  numberOfGroups: '{value, number, integer} {value, plural, one {group} other {groups}}',
   numberOfLearners: '{value, number, integer} {value, plural, one {learner} other {learners}}',
   numberOfQuestions: '{value, number, integer} {value, plural, one {question} other {questions}}',
   numberOfResources: '{value, number, integer} {value, plural, one {resource} other {resources}}',
-  numberOfViews: '{value, number, integer} {value, plural, one {view} other {views}}',
   percentage: '{value, number, percent}',
   ratioShort: '{value, number, integer} of {total, number, integer}',
 

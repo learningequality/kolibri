@@ -76,12 +76,12 @@
             value: 'all',
           },
           {
-            label: this.coachCommon$tr('lessonsLabel'),
+            label: this.coreCommon$tr('lessonsLabel'),
             value: ContentNodeKinds.LESSON,
             disabled: this.resourceIsDisabled(NotificationObjects.LESSON),
           },
           {
-            label: this.coachCommon$tr('quizzesLabel'),
+            label: this.coreCommon$tr('quizzesLabel'),
             value: 'quiz',
             disabled: this.resourceIsDisabled(NotificationObjects.QUIZ),
           },

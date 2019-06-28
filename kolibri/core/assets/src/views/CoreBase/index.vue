@@ -133,6 +133,7 @@
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import CoreBanner from '../CoreBanner';
   import ScrollingHeader from './ScrollingHeader';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const scrollPositions = {
     _scrollPositions: {},
@@ -166,7 +167,7 @@
           }
           if (!title) {
             // If no child component sets title, it reads 'Kolibri'
-            return this.$tr('kolibriMessage');
+            return this.coreCommon$tr('kolibriLabel');
           }
           // If child component sets title, it reads 'Child Title - Kolibri'
           return this.$tr('kolibriTitleMessage', { title });
@@ -188,7 +189,7 @@
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [responsiveWindow, themeMixin],
+    mixins: [responsiveWindow, themeMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,
@@ -433,7 +434,6 @@
       },
     },
     $trs: {
-      kolibriMessage: 'Kolibri',
       kolibriTitleMessage: '{ title } - Kolibri',
       errorPageTitle: 'Error',
     },

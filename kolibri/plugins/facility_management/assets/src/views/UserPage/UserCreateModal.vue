@@ -64,7 +64,7 @@
         />
         <KRadioButton
           v-model="classCoach"
-          :label="$tr('facilityCoachLabel')"
+          :label="coreCommon$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -103,7 +103,7 @@
         password: '',
         confirmedPassword: '',
         kind: {
-          label: this.$tr('learner'),
+          label: this.coreCommon$tr('learnerLabel'),
           value: UserKinds.LEARNER,
         },
         classCoach: true,
@@ -201,7 +201,7 @@
       userKindDropdownOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreCommon$tr('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
@@ -209,7 +209,7 @@
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreCommon$tr('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -266,8 +266,6 @@
     $trs: {
       createNewUserHeader: 'Create new user',
       reEnterPassword: 'Re-enter password',
-      learner: 'Learner',
-      admin: 'Admin',
       classCoachLabel: 'Class coach',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachLabel: 'Facility coach',

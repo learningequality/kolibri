@@ -13,11 +13,11 @@
     <HeaderTabs>
 
       <HeaderTab
-        :text="coachCommon$tr('lessonsLabel')"
+        :text="coreCommon$tr('lessonsLabel')"
         :to="classRoute('ReportsLessonListPage')"
       />
       <HeaderTab
-        :text="coachCommon$tr('quizzesLabel')"
+        :text="coreCommon$tr('quizzesLabel')"
         :to="classRoute('ReportsQuizListPage')"
       />
       <HeaderTab

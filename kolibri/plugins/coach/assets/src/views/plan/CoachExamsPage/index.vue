@@ -104,7 +104,7 @@
     name: 'CoachExamsPage',
     metaInfo() {
       return {
-        title: this.coachCommon$tr('quizzesLabel'),
+        title: this.coreCommon$tr('quizzesLabel'),
       };
     },
     components: {

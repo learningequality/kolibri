@@ -7,7 +7,7 @@
       class="signup-form"
       @submit.prevent="signUp"
     >
-      <h1>{{ $tr('createAccount') }}</h1>
+      <h1>{{ $tr('createAccountAction') }}</h1>
 
       <KTextbox
         id="name"
@@ -276,11 +276,9 @@
       },
     },
     $trs: {
-      createAccount: 'Create an account',
+      createAccountAction: 'Create an account',
       reEnterPassword: 'Re-enter password',
       usernameAlreadyExistsError: 'An account with that username already exists',
-      logIn: 'Sign in',
-      kolibri: 'Kolibri',
       documentTitle: 'User Sign Up',
       privacyLink: 'Usage and privacy in Kolibri',
     },

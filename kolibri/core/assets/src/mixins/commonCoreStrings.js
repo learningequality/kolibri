@@ -7,12 +7,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   confirmAction: 'Confirm',
   continueAction: 'Continue',
   deleteAction: 'Delete',
+  editDetailsAction: 'Edit details',
+  goBackAction: 'Go back',
   removeAction: 'Remove',
   saveAction: 'Save',
   saveChangesAction: 'Save changes',
   showAction: 'Show',
 
   // labels, phrases, titles, headers...
+  adminLabel: 'Admin',
   allLabel: 'All',
   allLessonsLabel: 'All lessons',
   channelsLabel: 'Channels',
@@ -22,16 +25,23 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   coachLabel: 'Coach',
   completedLabel: 'Completed',
   devicePermissionsLabel: 'Device permissions',
+  facilityCoachLabel: 'Facility coach',
   facilityLabel: 'Facility',
   fullNameLabel: 'Full name',
+  kolibriLabel: 'Kolibri',
+  learnerLabel: 'Learner',
   learnersLabel: 'Learners',
+  lessonsLabel: 'Lessons',
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',
   progressLabel: 'Progress',
   questionNumberLabel: 'Question { questionNumber, number }',
+  quizzesLabel: 'Quizzes',
   resourcesLabel: 'Resources',
   searchLabel: 'Search',
+  showCorrectAnswerLabel: 'Show correct answer',
+  signInLabel: 'Sign in',
   usageAndPrivacyLabel: 'Usage and privacy',
   usernameLabel: 'Username',
   usersLabel: 'Users',
@@ -46,6 +56,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // empty states
 
   // toggles
+
 
   // formatted values
 

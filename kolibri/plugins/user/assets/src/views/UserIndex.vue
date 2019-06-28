@@ -21,6 +21,7 @@
   import SignInPage from './SignInPage';
   import SignUpPage from './SignUpPage';
   import ProfilePage from './ProfilePage';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const pageNameComponentMap = {
     [PageNames.SIGN_IN]: SignInPage,
@@ -33,15 +34,16 @@
     components: {
       CoreBase,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState(['pageName']),
       appBarTitle() {
         if (this.pageName === PageNames.PROFILE) {
           return this.$tr('userProfileTitle');
         } else if (this.pageName === PageNames.SIGN_UP) {
-          return this.$tr('createAccount');
+          return this.$tr('createAccountHeading');
         }
-        return this.$tr('userSignInTitle');
+        return this.coreCommon$tr('signInLabel');
       },
       currentPage() {
         return pageNameComponentMap[this.pageName] || null;
@@ -52,8 +54,7 @@
     },
     $trs: {
       userProfileTitle: 'Profile',
-      userSignInTitle: 'Sign in',
-      createAccount: 'Create an account',
+      createAccountHeading: 'Create an account',
     },
   };
 

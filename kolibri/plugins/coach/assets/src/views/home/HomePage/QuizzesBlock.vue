@@ -4,7 +4,10 @@
     :allLinkText="coachCommon$tr('viewAllAction')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
-    <KLabeledIcon slot="title" icon="quiz" :label="coachCommon$tr('quizzesLabel')" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" quiz />
+      {{ coreCommon$tr('quizzesLabel') }}
+    </KLabeledIcon>
 
     <p v-if="table.length === 0">
       {{ coachCommon$tr('quizListEmptyState') }}
@@ -34,6 +37,7 @@
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const MAX_QUIZZES = 3;
 
@@ -44,7 +48,7 @@
       Block,
       BlockItem,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);

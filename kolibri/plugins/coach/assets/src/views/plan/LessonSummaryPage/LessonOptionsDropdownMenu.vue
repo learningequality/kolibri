@@ -33,7 +33,7 @@
     computed: {
       options() {
         const editDetails = {
-          label: this.coachCommon$tr('editDetailsAction'),
+          label: this.coreCommon$tr('editDetailsAction'),
           value: 'EDIT_DETAILS',
         };
 

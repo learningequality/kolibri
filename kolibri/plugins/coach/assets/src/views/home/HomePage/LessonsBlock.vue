@@ -4,7 +4,10 @@
     :allLinkText="coachCommon$tr('viewAllAction')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
-    <KLabeledIcon slot="title" icon="lesson" :label="coachCommon$tr('lessonsLabel')" />
+    <KLabeledIcon slot="title">
+      <KIcon slot="icon" lesson />
+      {{ coreCommon$tr('lessonsLabel') }}
+    </KLabeledIcon>
 
     <p v-if="table.length === 0">
       {{ coachCommon$tr('lessonListEmptyState') }}
@@ -35,6 +38,7 @@
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const MAX_LESSONS = 3;
 
@@ -45,7 +49,7 @@
       Block,
       BlockItem,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);

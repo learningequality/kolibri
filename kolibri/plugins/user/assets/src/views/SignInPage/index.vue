@@ -88,7 +88,7 @@
                 <KButton
                   class="login-btn"
                   type="submit"
-                  :text="$tr('signIn')"
+                  :text="coreCommon$tr('signInLabel')"
                   :primary="true"
                   :disabled="busy"
                 />
@@ -98,7 +98,7 @@
             <p class="create">
               <KRouterLink
                 v-if="canSignUp"
-                :text="$tr('createAccount')"
+                :text="$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="true"
                 appearance="flat-button"
@@ -287,7 +287,7 @@
         return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
-        return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
+        return this.$theme.signIn.title ? this.$theme.signIn.title : this.coreCommon$tr('kolibriLabel');
       },
       guestURL() {
         return urls['kolibri:core:guest']();
@@ -457,9 +457,7 @@
       },
     },
     $trs: {
-      kolibri: 'Kolibri',
-      signIn: 'Sign in',
-      createAccount: 'Create an account',
+      createAccountAction: 'Create an account',
       accessAsGuest: 'Explore without account',
       signInError: 'Incorrect username or password',
       poweredBy: 'Kolibri {version}',

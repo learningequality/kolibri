@@ -38,12 +38,12 @@
       typeDisplayMap() {
         return {
           [UserKinds.SUPERUSER]: this.$tr('superUserLabel'),
-          [UserKinds.ADMIN]: this.$tr('adminLabel'),
+          [UserKinds.ADMIN]: this.coreCommon$tr('adminLabel'),
           [UserKinds.COACH]: this.distinguishCoachTypes
-            ? this.$tr('facilityCoachLabel')
+            ? this.coreCommon$tr('facilityCoachLabel')
             : this.coreCommon$tr('coachLabel'),
           [UserKinds.ASSIGNABLE_COACH]: this.coreCommon$tr('coachLabel'),
-          [UserKinds.LEARNER]: this.omitLearner ? '' : this.$tr('learnerLabel'),
+          [UserKinds.LEARNER]: this.omitLearner ? '' : this.coreCommon$tr('learnerLabel'),
         };
       },
       typeDisplay() {
@@ -55,9 +55,7 @@
     },
     $trs: {
       superUserLabel: 'Super admin',
-      adminLabel: 'Admin',
       facilityCoachLabel: 'Facility coach',
-      learnerLabel: 'Learner',
     },
   };
 

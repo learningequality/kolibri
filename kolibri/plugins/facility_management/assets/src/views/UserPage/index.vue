@@ -232,7 +232,7 @@
       },
       manageUserOptions(userId) {
         return [
-          { label: this.$tr('editDetailsAction'), value: Modals.EDIT_USER },
+          { label: this.coreCommon$tr('editDetailsAction'), value: Modals.EDIT_USER },
           { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
           {
             label: this.coreCommon$tr('deleteAction'),
@@ -259,7 +259,6 @@
       admins: 'Admins',
       newUserButtonLabel: 'New User',
       allUsersFilteredOut: 'No users match the filter',
-      editDetailsAction: 'Edit details',
       resetUserPassword: 'Reset password',
       userActions: 'User management actions',
       userPageTitle: 'Users',

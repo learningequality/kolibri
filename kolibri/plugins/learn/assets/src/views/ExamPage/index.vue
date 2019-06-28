@@ -100,7 +100,7 @@
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
       :submitText="$tr('submitExam')"
-      :cancelText="$tr('goBackAction')"
+      :cancelText="coreCommon$tr('goBackAction')"
       @submit="finishExam"
       @cancel="toggleModal"
     >
@@ -133,6 +133,7 @@
   import UiAlert from 'kolibri.coreVue.components.UiAlert';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import { ClassesPageNames } from '../../constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -154,7 +155,7 @@
       KGridItem,
       KBottomAppBar,
     },
-    mixins: [themeMixin, responsiveWindow],
+    mixins: [themeMixin, responsiveWindow, commonCoreStrings],
     data() {
       return {
         submitModalOpen: false,
@@ -295,7 +296,6 @@
         '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
       previousQuestion: 'Previous',
       nextQuestion: 'Next',
-      goBackAction: 'Go back',
       areYouSure: 'You cannot change your answers after you submit',
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',

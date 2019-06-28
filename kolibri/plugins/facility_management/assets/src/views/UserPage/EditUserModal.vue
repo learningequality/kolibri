@@ -67,7 +67,7 @@
         />
         <KRadioButton
           v-model="classCoachIsSelected"
-          :label="$tr('facilityCoachLabel')"
+          :label="coreCommon$tr('facilityCoachLabel')"
           :description="$tr('facilityCoachDescription')"
           :value="false"
         />
@@ -142,7 +142,7 @@
       userTypeOptions() {
         return [
           {
-            label: this.$tr('learner'),
+            label: this.coreCommon$tr('learnerLabel'),
             value: UserKinds.LEARNER,
           },
           {
@@ -150,7 +150,7 @@
             value: UserKinds.COACH,
           },
           {
-            label: this.$tr('admin'),
+            label: this.coreCommon$tr('adminLabel'),
             value: UserKinds.ADMIN,
           },
         ];
@@ -284,8 +284,6 @@
     },
     $trs: {
       editUserDetailsHeader: 'Edit user details',
-      admin: 'Admin',
-      learner: 'Learner',
       usernameAlreadyExists: 'Username already exists',
       changeInDeviceTabPrompt: 'Go to Device permissions to change this',
       viewInDeviceTabPrompt: 'View details in Device permissions',

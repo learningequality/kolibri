@@ -15,8 +15,8 @@
         <thead slot="thead">
           <tr>
             <th>{{ coachCommon$tr('groupNameLabel') }}</th>
-            <th>{{ coachCommon$tr('lessonsLabel') }}</th>
-            <th>{{ coachCommon$tr('quizzesLabel') }}</th>
+            <th>{{ coreCommon$tr('lessonsLabel') }}</th>
+            <th>{{ coreCommon$tr('quizzesLabel') }}</th>
             <th>{{ coreCommon$tr('learnersLabel') }}</th>
             <th>{{ coachCommon$tr('avgQuizScoreLabel') }}</th>
             <th>{{ coachCommon$tr('lastActivityLabel') }}</th>

@@ -26,7 +26,7 @@
       <h3>{{ coreCommon$tr('questionNumberLabel', {questionNumber: questionNumber + 1}) }}</h3>
 
       <KCheckbox
-        :label="$tr('showCorrectAnswerLabel')"
+        :label="coreCommon$tr('showCorrectAnswerLabel')"
         :checked="showCorrectAnswer"
         @change="toggleShowCorrectAnswer"
       />
@@ -189,7 +189,6 @@
     },
     $trs: {
       yourAnswer: 'Your answer',
-      showCorrectAnswerLabel: 'Show correct answer',
       noItemId: 'This question has an error, please move on to the next question',
     },
   };
