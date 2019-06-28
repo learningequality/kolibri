@@ -24,19 +24,14 @@ Give feedback
 
 You can ask questions, make suggestions, and report issues in the `community forums <https://community.learningequality.org/>`__.
 
-If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported, and make sure to use the template.
-
-If you are reporting an issue, please include:
-
-* Your operating system name and version
-* Any details about your local setup that might be helpful in troubleshooting
-* Detailed steps to reproduce the bug
-
 If you are proposing a new feature or giving feedback on an existing feature:
 
 * Explain in detail what you're trying to do and why the existing system isn't working for you
 * Keep the scope as narrow as possible, to make it easier to understand the specific problem you're trying to address
 
+If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__. Please search the existing issues first to see if it's already been reported.
+
+Please make sure to use the template. Replace the HTML comments (the ``<!-- ... -->``) with the information requested.
 
 Write code
 ----------
