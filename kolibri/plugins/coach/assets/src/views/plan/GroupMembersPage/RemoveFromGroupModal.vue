@@ -39,7 +39,6 @@
     },
     $trs: {
       modalTitle: 'Remove user',
-      remove: 'Remove',
       confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
     },
   };

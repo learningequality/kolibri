@@ -309,7 +309,6 @@
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
-      facility: 'Facility',
     },
   };
 

@@ -176,10 +176,8 @@
       },
     },
     $trs: {
-      coachTableTitle: 'Coaches',
       role: 'Role',
       userActionsColumnHeader: 'Actions',
-      remove: 'Remove',
     },
   };
 

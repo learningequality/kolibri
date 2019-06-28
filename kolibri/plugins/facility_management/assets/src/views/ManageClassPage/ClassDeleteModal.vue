@@ -45,7 +45,6 @@
     },
     $trs: {
       modalTitle: 'Delete class',
-      deleteClassButtonLabel: 'Delete',
       confirmation: "Are you sure you want to delete '{ classname }'?",
       description:
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",

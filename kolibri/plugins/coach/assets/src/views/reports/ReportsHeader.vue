@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="this.$tr('home')"
+        :text="$tr('home')"
       />
     </p>
     <h1>{{ coachCommon$tr('reportsLabel') }}</h1>

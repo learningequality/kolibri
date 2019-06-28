@@ -152,17 +152,13 @@
     },
     $trs: {
       searchForUser: 'Search for a user',
-      name: 'Full name',
-      username: 'Username',
       userTableLabel: 'User List',
       // TODO clarify empty state messages after string freeze
-      noUsersSelected: 'No users are selected',
       noUsersMatch: 'No users match',
       previousResults: 'Previous results',
       nextResults: 'Next results',
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
-      search: 'Search',
       selectUser: 'Select user',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',

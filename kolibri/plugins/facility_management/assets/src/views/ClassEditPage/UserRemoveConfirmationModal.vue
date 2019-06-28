@@ -38,7 +38,6 @@
     },
     $trs: {
       modalTitle: 'Remove user',
-      remove: 'Remove',
       confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
       description: "You can still access this account from the 'Users' tab.",
     },

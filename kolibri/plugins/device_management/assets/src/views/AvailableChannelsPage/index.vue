@@ -266,8 +266,6 @@
       allLanguages: 'All languages',
       channelsAvailable:
         '{channels, number, integer} {channels, plural, one {channel} other {channels} } available',
-      channelHeader: 'Channels',
-      channels: 'Channels',
       exportToDisk: 'Export to {driveName}',
       importFromDisk: 'Import from {driveName}',
       importFromPeer: 'Import from {deviceName} ({address})',

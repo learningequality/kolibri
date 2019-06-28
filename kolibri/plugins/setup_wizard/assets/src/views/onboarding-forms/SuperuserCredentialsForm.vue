@@ -188,7 +188,6 @@
       nameFieldEmptyErrorMessage: 'Full name cannot be empty',
       usernameFieldEmptyErrorMessage: 'Username cannot be empty',
       passwordFieldEmptyErrorMessage: 'Password cannot be empty',
-      facilityFieldEmptyErrorMessage: 'Facility cannot be empty',
     },
   };
 
