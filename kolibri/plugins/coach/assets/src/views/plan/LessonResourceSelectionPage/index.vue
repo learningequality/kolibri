@@ -94,6 +94,7 @@
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
@@ -119,7 +120,7 @@
       ResourceSelectionBreadcrumbs,
       KBottomAppBar,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         // null corresponds to 'All' filter value
