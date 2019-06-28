@@ -18,9 +18,8 @@
           :kind="ContentNodeKinds.TOPIC"
           class="type-icon"
           :style="{ color: $coreTextAnnotation }"
-        >
-          />
-      </contenticon></div>
+        />
+      </div>
       <PageHeader :title="child.title" style="display: inline-block; vertical-align: middle;" />
       <UiIconButton
         type="secondary"
