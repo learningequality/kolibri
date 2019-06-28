@@ -32,7 +32,7 @@
           type="warning"
           class="alert"
         >
-          {{ coreCommon$tr('signInLabel') }}
+          {{ $tr('signIn') }}
         </UiAlert>
       </Snackbar>
 
