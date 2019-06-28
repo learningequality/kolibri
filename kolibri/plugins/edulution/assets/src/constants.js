@@ -9,6 +9,7 @@ import {
 export const PageNames = {
   ...LearnPageNames,
   KNOWLEDGE_MAP: 'KNOWLEDGE_MAP',
+  EDULUTION_TOPICS_ROOT: 'EDULUTION_TOPICS_ROOT',
 };
 
 export const PageModes = LearnPageModes;
@@ -20,6 +21,7 @@ export const ClassesPageNames = LearnClassesPageNames;
 export const pageNameToModuleMap = {
   ...learnPageNameToModuleMap,
   [PageNames.KNOWLEDGE_MAP]: 'topicsTree',
+  [PageNames.EDULUTION_TOPICS_ROOT]: 'topicsRoot',
 };
 
 export const prefixToColourMap = {

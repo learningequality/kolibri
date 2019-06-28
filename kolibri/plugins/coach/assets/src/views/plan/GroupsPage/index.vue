@@ -39,6 +39,7 @@
             :group="group"
             @rename="openRenameGroupModal"
             @delete="openDeleteGroupModal"
+            @subscribe="openSubscribeGroupModal"
           />
         </tbody>
       </CoreTable>
@@ -67,6 +68,13 @@
         @success="handleSuccessDeleteGroup"
       />
 
+      <SubscribeGroupModal
+        v-if="showSubscriptionGroupModal"
+        :groupName="selectedGroup.name"
+        :groupId="selectedGroup.id"
+        :classId="thisClassId.join('')"
+      />
+
     </KPageContainer>
   </CoreBase>
 
@@ -87,6 +95,7 @@
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
   import DeleteGroupModal from './DeleteGroupModal';
+  import SubscribeGroupModal from './SubscribeGroupModal';
 
   export default {
     name: 'GroupsPage',
@@ -104,6 +113,7 @@
       CreateGroupModal,
       RenameGroupModal,
       DeleteGroupModal,
+      SubscribeGroupModal,
     },
     mixins: [commonCoach],
     data() {
@@ -116,6 +126,11 @@
     },
     computed: {
       ...mapState('groups', ['groupModalShown', 'groups']),
+      ...mapState('subscriptions', [
+        'subscriptionModalShown',
+        'selectedSubscriptions',
+        'selectedGroupSubscriptions',
+      ]),
       showCreateGroupModal() {
         return this.groupModalShown === GroupModals.CREATE_GROUP;
       },
@@ -125,15 +140,29 @@
       showDeleteGroupModal() {
         return this.groupModalShown === GroupModals.DELETE_GROUP;
       },
+      showSubscriptionGroupModal() {
+        return this.groupModalShown === GroupModals.CHOOSE_GROUP_SUBSCRIPTIONS;
+      },
       sortedGroups() {
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
+      },
+      thisClassId() {
+        return this.getClassId;
       },
     },
     methods: {
       ...mapActions('groups', ['displayModal']),
+
       ...mapActions(['createSnackbar']),
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
+      },
+      openSubscribeGroupModal(groupName, groupId) {
+        this.selectedGroup = {
+          name: groupName,
+          id: groupId,
+        };
+        this.displayModal(GroupModals.CHOOSE_GROUP_SUBSCRIPTIONS);
       },
       openRenameGroupModal(groupName, groupId) {
         this.selectedGroup = {
