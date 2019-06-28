@@ -18,9 +18,10 @@ through the main Kolibri interface.
     We should aim for a configuration style in which data can be pre-seeded,
     dumped and exported easily.
 
-From a developer's perspective, plugins are Django applications listed
-in ``INSTALLED_APPS`` and are initialized once when the server starts, mean at
-the load time of the django project, i.e. Kolibri.
+From a developer's perspective, plugins are wrappers around Django applications,
+listed in ``ACTIVE_PLUGINS`` on the kolibri config object.
+They are initialized before Django's app registry is initialized and then their
+relevant Django apps are added to the ``INSTALLED_APPS`` of kolibri.
 
 Loading a plugin
 ~~~~~~~~~~~~~~~~
@@ -30,8 +31,8 @@ plugins without using the hooks API or normal conventional Django scenarios.
 
 .. note::
 
-    Each app in ``INSTALLED_APPS`` is searched for the special
-    ``kolibri_plugin`` module.
+    Each app in ``ACTIVE_PLUGINS`` in the kolibri conf is searched for the
+    special ``kolibri_plugin`` module.
 
 Everything that a plugin does is expected to be defined through
 ``<myapp>/kolibri_plugin.py``.
@@ -45,35 +46,18 @@ from __future__ import unicode_literals
 import importlib
 import logging
 
-from django.conf.urls import include
-from django.conf.urls import url
+from django.utils.functional import SimpleLazyObject
 
 from .base import KolibriPluginBase
-from kolibri.core.device.translation import i18n_patterns
+from kolibri.utils.conf import config
 
 logger = logging.getLogger(__name__)
 
-# : Main registry is private for now, as we figure out if there is any external
-# : module that has a legitimate business
-__registry = []
 
-__initialized = False
+class Registry(list):
+    apps = set()
 
-
-def initialize(apps=None):
-    """
-    Called once at load time to register hook callbacks.
-    """
-    global __initialized, __registry
-
-    if not apps:
-        from django.conf import settings
-
-        apps = settings.INSTALLED_APPS
-
-    if not __initialized:
-        logger.debug("Loading kolibri plugin registry...")
-
+    def register(self, apps):
         for app in apps:
             try:
 
@@ -84,64 +68,53 @@ def initialize(apps=None):
                 else:
                     import_string = app
 
-                import_string += ".kolibri_plugin"
-                plugin_module = importlib.import_module(import_string)
+                if import_string not in self.apps:
 
-                logger.debug("Loaded kolibri plugin: {}".format(app))
-                # Load a list of all class types in module
-                all_classes = [
-                    cls
-                    for cls in plugin_module.__dict__.values()
-                    if isinstance(cls, type)
-                ]
-                # Filter the list to only match the ones that belong to the module
-                # and not the ones that have been imported
-                plugin_package = (
-                    plugin_module.__package__
-                    if plugin_module.__package__
-                    else plugin_module.__name__.rpartition(".")[0]
-                )
-                all_classes = filter(
-                    lambda x: plugin_package + ".kolibri_plugin" == x.__module__,
-                    all_classes,
-                )
-                plugin_classes = []
-                for Klass in all_classes:
-                    if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
-                        plugin_classes.append(Klass)
-                for PluginClass in plugin_classes:
-                    # Initialize the class, nothing more happens for now.
-                    logger.debug("Initializing plugin: {}".format(PluginClass.__name__))
-                    __registry.append(PluginClass())
+                    plugin_module_string = import_string + ".kolibri_plugin"
+                    plugin_module = importlib.import_module(plugin_module_string)
+
+                    logger.debug("Loaded kolibri plugin: {}".format(app))
+                    # Load a list of all class types in module
+                    all_classes = [
+                        cls
+                        for cls in plugin_module.__dict__.values()
+                        if isinstance(cls, type)
+                    ]
+                    # Filter the list to only match the ones that belong to the module
+                    # and not the ones that have been imported
+                    plugin_package = (
+                        plugin_module.__package__
+                        if plugin_module.__package__
+                        else plugin_module.__name__.rpartition(".")[0]
+                    )
+                    all_classes = filter(
+                        lambda x: plugin_package + ".kolibri_plugin" == x.__module__,
+                        all_classes,
+                    )
+                    plugin_classes = []
+                    for Klass in all_classes:
+                        if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
+                            plugin_classes.append(Klass)
+                    for PluginClass in plugin_classes:
+                        # Initialize the class, nothing more happens for now.
+                        logger.debug(
+                            "Initializing plugin: {}".format(PluginClass.__name__)
+                        )
+                        self.append(PluginClass())
+                    self.apps.add(import_string)
             except ImportError:
                 pass
 
-        __initialized = True
+
+def __initialize():
+    """
+    Called once to register hook callbacks.
+    """
+    registry = Registry()
+    logger.debug("Loading kolibri plugin registry...")
+
+    registry.register(config.ACTIVE_PLUGINS)
+    return registry
 
 
-def get_urls():
-    global __initialized, __registry
-    assert __initialized, "Registry not initialized"
-
-    urlpatterns = []
-    for plugin_instance in __registry:
-        url_module = plugin_instance.url_module()
-        api_url_module = plugin_instance.api_url_module()
-        instance_patterns = []
-        # Normalize slug
-        slug = plugin_instance.url_slug().lstrip("^").rstrip("/") + "/"
-        if url_module:
-            instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
-        if api_url_module:
-            instance_patterns.append(url(slug + "api/", include(api_url_module)))
-        if instance_patterns:
-            urlpatterns.append(
-                url(
-                    "",
-                    include(
-                        instance_patterns, namespace=plugin_instance.url_namespace()
-                    ),
-                )
-            )
-
-    return urlpatterns
+registered_plugins = SimpleLazyObject(__initialize)

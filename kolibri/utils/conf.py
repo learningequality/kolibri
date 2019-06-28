@@ -23,8 +23,9 @@ import json
 import logging
 import os
 
+from django.utils.functional import SimpleLazyObject
+
 from .compat import module_exists
-from .options import read_options_file
 
 logger = logging.getLogger(__name__)
 
@@ -201,5 +202,12 @@ class ConfigDict(dict):
 #: Set defaults before updating the dict
 config = ConfigDict()
 
-# read the config file options in here so they can be accessed from a standard location
-OPTIONS = read_options_file(KOLIBRI_HOME)
+
+def __initialize_options():
+    # read the config file options in here so they can be accessed from a standard location
+    from .options import read_options_file
+
+    return read_options_file(KOLIBRI_HOME)
+
+
+OPTIONS = SimpleLazyObject(__initialize_options)
