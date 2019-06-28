@@ -32,23 +32,25 @@
   import { mapState, mapGetters } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { PageNames, RecommendedPages, ClassesPageNames } from '../constants';
+  import store from 'kolibri.coreVue.vuex.store';
+  import ContentPage from '../../../../learn/assets/src/views/ContentPage';
+  import { PageNames, RecommendedPages, ClassesPageNames, pageNameToModuleMap } from '../constants';
+  import LessonResourceViewer from '../../../../learn/assets/src/views/classes/LessonResourceViewer';
+  import RecommendedPage from '../../../../learn/assets/src/views/RecommendedPage';
+  import TotalPoints from '../../../../learn/assets/src/views/TotalPoints';
+  import TopicsPage from '../../../../learn/assets/src/views/TopicsPage';
+  import SearchPage from '../../../../learn/assets/src/views/SearchPage';
+  import ActionBarSearchBox from '../../../../learn/assets/src/views/ActionBarSearchBox';
+  import RecommendedSubpage from '../../../../learn/assets/src/views/RecommendedSubpage';
+  import ExamReportViewer from '../../../../learn/assets/src/views/LearnExamReportViewer';
+  import ExamPage from '../../../../learn/assets/src/views/ExamPage';
+  import AllClassesPage from '../../../../learn/assets/src/views/classes/AllClassesPage';
+  import ClassAssignmentsPage from '../../../../learn/assets/src/views/classes/ClassAssignmentsPage';
+  import LessonPlaylistPage from '../../../../learn/assets/src/views/classes/LessonPlaylistPage';
+  import ContentUnavailablePage from '../../../../learn/assets/src/views/ContentUnavailablePage';
+  import { THEME_MODULE_NAMESPACE } from '../../../../../core/assets/src/state/modules/theme';
   import ChannelsPage from './ChannelsPage';
-  import TopicsPage from './TopicsPage';
-  import ContentPage from './ContentPage';
-  import RecommendedPage from './RecommendedPage';
-  import RecommendedSubpage from './RecommendedSubpage';
-  import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
-  import SearchPage from './SearchPage';
-  import ExamPage from './ExamPage';
-  import ExamReportViewer from './LearnExamReportViewer';
-  import TotalPoints from './TotalPoints';
-  import AllClassesPage from './classes/AllClassesPage';
-  import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
-  import LessonPlaylistPage from './classes/LessonPlaylistPage';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
-  import ActionBarSearchBox from './ActionBarSearchBox';
   import EdulutionTopNav from './EdulutionTopNav';
   import KnowledgeMap from './KnowledgeMap';
 
@@ -81,7 +83,7 @@
   export default {
     name: 'EdulutionIndex',
     $trs: {
-      edulutionTitle: 'Edulution',
+      edulutionTitle: 'Learn',
       examReportTitle: '{examTitle} report',
     },
     components: {
@@ -177,15 +179,21 @@
         return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
       },
     },
+    watch: {
+      $route(to, _) {
+        if (pageNameToModuleMap[to.name] !== 'topicsTree') {
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-action-light');
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-action-dark');
+          store.commit(`${THEME_MODULE_NAMESPACE}/RESET_THEME_VALUE`, '$core-accent-color');
+        }
+      },
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
-
-  @import './learn';
-  @import '~kolibri.styles.definitions';
 
   .content {
     margin: auto;

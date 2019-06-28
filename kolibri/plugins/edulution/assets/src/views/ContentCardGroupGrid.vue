@@ -1,7 +1,7 @@
 <template>
 
   <div class="content-grid">
-    <ContentCard
+    <EdulutionContentCard
       v-for="content in contents"
       :key="content.id"
       class="grid-item"
@@ -32,13 +32,13 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import ContentCard from './ContentCard';
-  import CopiesModal from './CopiesModal';
+  import CopiesModal from '../../../../learn/assets/src/views/CopiesModal';
+  import EdulutionContentCard from './EdulutionContentCard';
 
   export default {
     name: 'ContentCardGroupGrid',
     components: {
-      ContentCard,
+      EdulutionContentCard,
       CopiesModal,
     },
     mixins: [responsiveWindow],
@@ -75,7 +75,7 @@
 
 <style lang="scss" scoped>
 
-  $gutters: 16px;
+  $gutters: 48px;
 
   .grid-item {
     margin-right: $gutters;

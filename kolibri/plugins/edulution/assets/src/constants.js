@@ -1,60 +1,46 @@
-// a name for every URL pattern
+import {
+  PageNames as LearnPageNames,
+  PageModes as LearnPageModes,
+  RecommendedPages as LearnRecommendedPage,
+  ClassesPageNames as LearnClassesPageNames,
+  pageNameToModuleMap as learnPageNameToModuleMap,
+} from '../../../learn/assets/src/constants';
+
 export const PageNames = {
-  ROOT: 'ROOT',
-  TOPICS_ROOT: 'TOPICS_ROOT',
-  TOPICS_CHANNEL: 'TOPICS_CHANNEL',
-  TOPICS_TOPIC: 'TOPICS_TOPIC',
-  TOPICS_CONTENT: 'TOPICS_CONTENT',
+  ...LearnPageNames,
   KNOWLEDGE_MAP: 'KNOWLEDGE_MAP',
-  RECOMMENDED: 'RECOMMENDED',
-  RECOMMENDED_POPULAR: 'RECOMMENDED_POPULAR',
-  RECOMMENDED_RESUME: 'RECOMMENDED_RESUME',
-  RECOMMENDED_NEXT_STEPS: 'RECOMMENDED_NEXT_STEPS',
-  CONTENT_UNAVAILABLE: 'CONTENT_UNAVAILABLE',
-  SEARCH: 'SEARCH',
-  EXAM_LIST: 'EXAM_LIST',
-  EXAM: 'EXAM',
-  EXAM_ROOT: 'EXAM_ROOT',
 };
 
-// switch between modes
-export const PageModes = {
-  TOPICS: 'topic',
-  RECOMMENDED: 'RECOMMENDED',
-  SEARCH: 'SEARCH',
-  EXAM: 'EXAM',
-};
+export const PageModes = LearnPageModes;
 
-export const RecommendedPages = [
-  PageNames.RECOMMENDED_POPULAR,
-  PageNames.RECOMMENDED_RESUME,
-  PageNames.RECOMMENDED_NEXT_STEPS,
-];
+export const RecommendedPages = LearnRecommendedPage;
 
-export const ClassesPageNames = {
-  ALL_CLASSES: 'ALL_CLASSES',
-  CLASS_ASSIGNMENTS: 'CLASS_ASSIGNMENTS',
-  LESSON_PLAYLIST: 'LESSON_PLAYLIST',
-  EXAM_VIEWER: 'EXAM_VIEWER',
-  EXAM_REPORT_VIEWER: 'EXAM_REPORT_VIEWER',
-  LESSON_RESOURCE_VIEWER: 'LESSON_RESOURCE_VIEWER',
-};
+export const ClassesPageNames = LearnClassesPageNames;
 
 export const pageNameToModuleMap = {
-  [ClassesPageNames.ALL_CLASSES]: 'classes',
-  [ClassesPageNames.CLASS_ASSIGNMENTS]: 'classAssignments',
-  [ClassesPageNames.EXAM_VIEWER]: 'examViewer',
-  [ClassesPageNames.EXAM_REPORT_VIEWER]: 'examReportViewer',
-  [ClassesPageNames.LESSON_PLAYLIST]: 'lessonPlaylist',
-  [ClassesPageNames.LESSON_RESOURCE_VIEWER]: 'lessonPlaylist/resource',
-  [PageNames.TOPICS_ROOT]: 'topicsRoot',
-  [PageNames.RECOMMENDED]: 'recommended',
-  [PageNames.RECOMMENDED_POPULAR]: 'recommended/subpage',
-  [PageNames.RECOMMENDED_RESUME]: 'recommended/subpage',
-  [PageNames.RECOMMENDED_NEXT_STEPS]: 'recommended/subpage',
-  [PageNames.TOPICS_CHANNEL]: 'topicsTree',
-  [PageNames.TOPICS_CONTENT]: 'topicsTree',
-  [PageNames.TOPICS_TOPIC]: 'topicsTree',
-  [PageNames.RECOMMENDED_CONTENT]: 'topicsTree',
+  ...learnPageNameToModuleMap,
   [PageNames.KNOWLEDGE_MAP]: 'topicsTree',
+};
+
+export const prefixToColourMap = {
+  'pre-': {
+    light: '#D7CCC8',
+    dark: '#5D4037',
+    accent: '#795548',
+  },
+  alpha: {
+    light: '#C8E6C9',
+    dark: '#388E3C',
+    accent: '#4CAF50',
+  },
+  bravo: {
+    light: '#C5CAE9',
+    dark: '#303F9F',
+    accent: '#3F51B5',
+  },
+  charlie: {
+    light: '#F8BBD0',
+    dark: '#C2185B',
+    accent: '#E91E63',
+  },
 };

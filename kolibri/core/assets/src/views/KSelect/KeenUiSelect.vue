@@ -955,6 +955,7 @@
 
   .ui-select-display-value {
     flex-grow: 1;
+    height: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
 

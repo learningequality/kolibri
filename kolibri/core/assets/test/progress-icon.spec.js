@@ -36,7 +36,7 @@ describe('ProgressIcon Component', () => {
       store,
     });
     await wrapper.vm.$nextTick();
-    testIcon(wrapper, 'In progress');
+    testIcon(wrapper, 'In progress: 10%');
   });
 
   it('it should show a completed icon when progress is exactly 1', async () => {

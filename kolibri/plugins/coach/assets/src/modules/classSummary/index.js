@@ -78,6 +78,8 @@ function defaultState() {
          * }
          */
     lessonMap: {},
+    activeLearnersArray: [],
+    learnersInfoArray: [],
   };
 }
 
@@ -179,6 +181,12 @@ export default {
          */
     learners(state) {
       return Object.values(state.learnerMap);
+    },
+    activeLearners(state) {
+      return Object.values(state.activeLearnersArray);
+    },
+    learnersInfo(state) {
+      return Object.values(state.learnersInfoArray);
     },
     /*
          * groups := [
@@ -289,6 +297,8 @@ export default {
     // whenever this module's state changes.
     notificationModuleData(state) {
       return {
+        activeLearners: state.activeLearnersArray,
+        learnersInfo: state.learnersInfo,
         learners: state.learnerMap,
         learnerGroups: state.groupMap,
         lessons: state.lessonMap,
@@ -323,6 +333,8 @@ export default {
         contentNodeMap: _itemMap(summary.content, 'node_id'),
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap: _itemMap(summary.lessons, 'id'),
+        activeLearnersArray: summary.active_learners,
+        learnersInfoArray: summary.learners_info,
       });
     },
     CREATE_ITEM(state, { map, id, object }) {
