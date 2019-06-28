@@ -32,7 +32,7 @@
       modalTitle: "{ collectionName }'s subscriptions",
       saveSelectionsButtonName: 'Save',
       cancel: 'Cancel',
-      description: 'Chosen channels will be available to all members of the class',
+      description: "Only the chosen channels will be visible to the group's members",
     },
     components: {
       KModal,
