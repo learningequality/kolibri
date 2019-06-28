@@ -402,8 +402,6 @@
       },
     },
     $trs: {
-      // TODO semantic string names
-      save: 'Save',
       // TODO: Handle singular/plural
       selectionInformation:
         '{count, number, integer} of {total, number, integer} resources selected',

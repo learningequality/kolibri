@@ -10,7 +10,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   newQuizAction: 'New quiz',
   previewAction: 'Preview',
   renameAction: 'Rename',
-  showMoreAction: 'Show more',
   viewAllAction: 'View all',
 
   // labels, phrases, titles, headers...
@@ -50,7 +49,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   overallLabel: 'Overall',
   previewLabel: 'Preview',
   questionLabel: 'Question',
-  questionsLabel: 'Questions',
   questionOrderLabel: 'Question order',
   quizzesLabel: 'Quizzes',
   quizzesAssignedLabel: 'Quizzes assigned',
@@ -94,7 +92,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   numberOfResources: '{value, number, integer} {value, plural, one {resource} other {resources}}',
   numberOfViews: '{value, number, integer} {value, plural, one {view} other {views}}',
   percentage: '{value, number, percent}',
-  ratio: '{value, number, integer} out of {total, number, integer}',
   ratioShort: '{value, number, integer} of {total, number, integer}',
 
   // Errors

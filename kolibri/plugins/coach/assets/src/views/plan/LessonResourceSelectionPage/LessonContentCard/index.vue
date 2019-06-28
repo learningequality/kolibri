@@ -112,8 +112,9 @@
     $trs: {
       // These strings are not used yet
       viewLabel: 'View',
-      topic: 'Topic:',
-      channel: 'Channel:',
+      // Commented because unused above and not deleted for a reason - topic unused.
+      // topic: 'Topic:',
+      // channel: 'Channel:',
     },
   };
 

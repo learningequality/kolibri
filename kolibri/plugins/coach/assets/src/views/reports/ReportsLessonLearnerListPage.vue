@@ -80,9 +80,7 @@
         });
       },
     },
-    $trs: {
-      allQuizzes: 'All quizzes',
-    },
+    $trs: {},
   };
 
 </script>

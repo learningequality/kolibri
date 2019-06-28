@@ -223,7 +223,6 @@
     $trs: {
       resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
-      lessonTitleColumnHeaderForTable: 'Title',
       singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
       multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',

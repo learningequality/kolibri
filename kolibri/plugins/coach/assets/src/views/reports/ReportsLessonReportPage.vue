@@ -101,9 +101,7 @@
         });
       },
     },
-    $trs: {
-      back: 'All lessons',
-    },
+    $trs: {},
   };
 
 </script>
