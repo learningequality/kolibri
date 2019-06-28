@@ -8,6 +8,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   continueAction: 'Continue',
   deleteAction: 'Delete',
   editDetailsAction: 'Edit details',
+  finishAction: 'Finish',
   goBackAction: 'Go back',
   removeAction: 'Remove',
   saveAction: 'Save',
@@ -56,7 +57,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // empty states
 
   // toggles
-
 
   // formatted values
 
