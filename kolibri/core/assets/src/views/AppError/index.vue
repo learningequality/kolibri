@@ -22,11 +22,11 @@
         :primary="true"
         @click="reloadPage"
       />
-      <KRouterLink
+      <KButton
+        :primary="false"
         appearance="raised-button"
-        :to="{path: '/'}"
         :text="$tr('defaultErrorExitPrompt')"
-        @click.native="clearErrorState"
+        @click="handleClickBackToHome"
       />
     </p>
     <p>
@@ -53,14 +53,12 @@
 
   import { mapActions } from 'vuex';
   import KButton from 'kolibri.coreVue.components.KButton';
-  import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {
     name: 'AppError',
     components: {
       KButton,
-      KRouterLink,
       ReportErrorModal,
     },
     data() {
@@ -80,8 +78,9 @@
         // reloads without cache
         global.location.reload();
       },
-      clearErrorState() {
+      handleClickBackToHome() {
         this.handleError('');
+        this.$router.push({ path: '/' });
       },
     },
     $trs: {
