@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div style="direction: inherit;">
     <div class="pure-g" :style="style">
       <slot></slot>
     </div>
@@ -123,7 +123,7 @@
       });
       Object.defineProperty(gridMetrics, 'direction', {
         enumerable: true,
-        get: () => (this.$el ? getComputedStyle(this.$el).direction : 'ltr'),
+        get: () => (this.$el ? getComputedStyle(this.$el).direction : undefined),
       });
       Object.defineProperty(gridMetrics, 'debug', {
         enumerable: true,

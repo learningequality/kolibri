@@ -4,7 +4,7 @@
     <div class="icon">
       <slot name="icon"></slot>
     </div>
-    <div class="label" dir="auto">
+    <div class="label">
       <slot></slot>
     </div>
   </span>
