@@ -19,7 +19,11 @@
               :alt="$theme.signIn.topLogo.alt"
               :style="$theme.signIn.topLogo.style"
             />
-            <h1 class="kolibri-title" :style="{color: $themeTokens.logoText}">
+            <h1
+              class="kolibri-title"
+              :class="$computedClass({color: $themeTokens.logoText})"
+              :style="$theme.signIn.titleStyle"
+            >
               {{ logoText }}
             </h1>
             <form ref="form" class="login-form" @submit.prevent="signIn">

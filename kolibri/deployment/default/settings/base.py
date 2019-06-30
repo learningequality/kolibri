@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     "django_js_reverse",
     "jsonfield",
     "morango",
-] + conf.config["INSTALLED_APPS"]
+] + conf.config.ACTIVE_PLUGINS
 
 # Add in the external plugins' locale paths. Our frontend messages depends
 # specifically on the value of LOCALE_PATHS to find its catalog files.

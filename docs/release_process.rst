@@ -250,3 +250,68 @@ Wrap-up
 * Publish relevant updates to the `Toolkit <https://learningequality.org/r/toolkit>`__ and `User documentation <https://kolibri.readthedocs.io/en/latest/>`__
 * `Close the milestone <https://github.com/learningequality/kolibri/milestones>`__ on Github
 * For issues on this milestone that have been reported by the community, try to report in appropriate forum threads that the new release addresses the issues
+
+
+Send upgrade notifications
+--------------------------
+
+Wait about 3 business days after communications are published to see if any issues are reported. Afterwards, we can send upgrade notifications through the Nutrition Facts telemetry server.
+
+* `Log in to the telemetry server <https://telemetry.learningequality.org/account/login/google-oauth2/?next=/admin/>`__ using your Learning Equality Google Apps account
+* Create a new Message object by clicking the "+ Add" button
+* In the "Status" dropdown, select the "Staged" option
+* Set the link URL to ``https://learningequality.org/r/upgrade_kolibri``
+* In the "Version range" field, enter a valid semver range (e.g. >=0.12.0)
+* Generate and add a new internationalized ``i18n`` JSON blob using the ``nutritionfacts_i18n.py`` script as shown below:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py
+
+You can also specify specific string IDs for the ``title``, ``msg``, and ``link_text``, e.g.:
+
+.. code-block:: bash
+
+  python build_tools/i18n/nutritionfacts_i18n.py --message UpdateNotification.upgradeMessage0124
+
+This will output a JSON blob like:
+
+.. code-block:: text
+
+  {
+    "ar": {
+      "link_text": "تعلم المزيد وقم بتحميله هنا",
+      "msg": "هناك إصدار جديد متاح من كوليبري.",
+      "title": "التحديث للنسخة الجديدة أصبح متاحاً"
+    },
+    "bg-bg": {
+      "link_text": "Научи повече и изтегли оттук",
+      "msg": "Налична е нова версия на Колибри.",
+      "title": "Има налични подобрения"
+    },
+    "bn-bd": {
+      "link_text": "আরও জানুন এবং সেটি এখানে ডাউনলোড করুন",
+      "msg": "কলিব্রির একটি নতুন সংস্করণ পাওয়া যাচ্ছে।",
+      "title": "আপগ্রেড উপলব্ধ"
+    },
+    "en": {
+      "link_text": "Learn more and download it here",
+      "msg": "A new version of Kolibri is available.",
+      "title": "Upgrade available"
+    },
+    "es-es": {
+      "link_text": "Descubre más y descarga aquí",
+      "msg": "Una nueva versión de Kolibri está disponible.",
+      "title": "Actualización disponible"
+    },
+    //...
+  }
+
+
+You can `redirect this output to a file <https://askubuntu.com/questions/420981/how-do-i-save-terminal-output-to-a-file>`_ (Bash) or `pipe it to the clipboard <https://stackoverflow.com/questions/1753110/>`_ (Mac)
+
+Set Kolibri's ``KOLIBRI_RUN_MODE`` to ``staged-msgs-ver-0.0.1`` to receive staged messages, as described in :ref:`EnvVars`. Test that all languages are displayed correctly.
+
+Next, emulate different versions and ensure that the semver conditional logic is being processed correctly. Set ``KOLIBRI_RUN_MODE`` to something like ``staged-msgs-ver-0.12.3`` to emulate version 0.12.3, for example. For more information, take a look at `the function for parsing these strings <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L129-L149>`_.
+
+Once testing has confirmed that the message works as expected, set the message to active to enable it.

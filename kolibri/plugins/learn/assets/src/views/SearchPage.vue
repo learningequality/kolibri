@@ -76,23 +76,11 @@
     },
     methods: {
       genContentLink(contentId, contentKind) {
+        const params = { id: contentId };
         if (contentKind === ContentNodeKinds.TOPIC || contentKind === ContentNodeKinds.CHANNEL) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: {
-              id: contentId,
-            },
-          };
+          return this.$router.getRoute(PageNames.TOPICS_TOPIC, params);
         }
-        return {
-          name: PageNames.TOPICS_CONTENT,
-          params: {
-            id: contentId,
-          },
-          query: {
-            searchTerm: this.searchTerm,
-          },
-        };
+        return this.$router.getRoute(PageNames.TOPICS_CONTENT, params, this.$route.query);
       },
       loadMore() {
         if (!this.loading) {

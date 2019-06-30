@@ -52,8 +52,6 @@ LOG_ROOT = os.path.join(KOLIBRI_HOME, "logs")
 if not os.path.exists(LOG_ROOT):
     os.mkdir(LOG_ROOT)
 
-#: Set defaults before updating the dict
-config = {}
 
 try:
     # The default list for this is populated from build_tools/default_plugins.txt
@@ -80,92 +78,128 @@ except ImportError:
         "kolibri.plugins.default_theme",
     ]
 
-#: Everything in this list is added to django.conf.settings.INSTALLED_APPS
-config["INSTALLED_APPS"] = DEFAULT_PLUGINS
-
-#: Well-known plugin names that are automatically searched for and enabled on
-#: first-run.
-config["AUTO_SEARCH_PLUGINS"] = []
-
-#: If a config file does not exist, we assume it's the first run
-config["FIRST_RUN"] = True
-
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
 
 
-def update(new_values):
-    """
-    Updates current configuration with ``new_values``. Does not save to file.
-    """
-    config.update(new_values)
+# These values are encoded on the config dict as sets
+# so they need to be treated specially for serialization
+# and deserialization to/from JSON
+SET_KEYS = ["INSTALLED_APPS", "DISABLED_APPS"]
 
 
-def save(first_run=False):
-    """Saves the current state of the configuration"""
-    config["FIRST_RUN"] = first_run
-    # use default OS encoding
-    with open(conf_file, "w") as kolibri_conf_file:
-        json.dump(config, kolibri_conf_file, indent=2, sort_keys=True)
+class ConfigDict(dict):
+    def __init__(self):
+        # If the settings file does not exist or does not contain
+        # valid JSON then create it
+        self.update(
+            {
+                #: Everything in this list is added to django.conf.settings.INSTALLED_APPS
+                # except disabled ones below
+                "INSTALLED_APPS": DEFAULT_PLUGINS,
+                #: Everything in this list is removed from the list above
+                "DISABLED_APPS": [],
+            }
+        )
+        if os.path.isfile(conf_file):
+            try:
+                # Open up the config file and load settings
+                # use default OS encoding
+                with open(conf_file, "r") as kolibri_conf_file:
+                    self.update(json.load(kolibri_conf_file))
+                return
+            except json.JSONDecodeError:
+                logger.warn(
+                    "Attempted to load kolibri_settings.json but encountered a file that could not be decoded as valid JSON."
+                )
+        logger.info("Initialize kolibri_settings.json..")
+        self.save()
+
+    @property
+    def ACTIVE_PLUGINS(self):
+        return list(self["INSTALLED_APPS"] - self["DISABLED_APPS"])
+
+    def update(self, new_values):
+        """
+        Updates current configuration with ``new_values``. Does not save to file.
+        """
+        values_copy = new_values.copy()
+        for key in SET_KEYS:
+            if key in values_copy:
+                values_copy[key] = set(values_copy[key])
+        super(ConfigDict, self).update(values_copy)
+
+    def save(self):
+        # use default OS encoding
+        config_copy = self.copy()
+        for key in SET_KEYS:
+            if key in config_copy:
+                config_copy[key] = list(config_copy[key])
+        with open(conf_file, "w") as kolibri_conf_file:
+            json.dump(config_copy, kolibri_conf_file, indent=2, sort_keys=True)
+
+    def autoremove_unavailable_plugins(self):
+        """
+        Sanitize INSTALLED_APPS - something that should be done separately for all
+        build in plugins, but we should not auto-remove plugins that are actually
+        configured by the user or some other kind of hard dependency that should
+        make execution stop if not loadable.
+        """
+        changed = False
+        # Iterate over a copy of the set so that it is not modified during the loop
+        for module_path in self["INSTALLED_APPS"].copy():
+            if not module_exists(module_path):
+                self["INSTALLED_APPS"].remove(module_path)
+                logger.error(
+                    (
+                        "Plugin {mod} not found and disabled. To re-enable it, run:\n"
+                        "   $ kolibri plugin {mod} enable"
+                    ).format(mod=module_path)
+                )
+                changed = True
+        if changed:
+            self.save()
+
+    def enable_default_plugins(self):
+        """
+        Enable new plugins that have been added between versions
+        This will have the undesired side effect of reactivating
+        default plugins that have been explicitly disabled by a user,
+        in versions prior to the implementation of a plugin blacklist.
+        """
+        changed = False
+        for module_path in DEFAULT_PLUGINS:
+            if module_path not in self["INSTALLED_APPS"]:
+                self["INSTALLED_APPS"].add(module_path)
+                # Can be migrated to upgrade only logic
+                if module_path not in self["DISABLED_APPS"]:
+                    logger.warning(
+                        (
+                            "Default plugin {mod} not found in configuration. To re-disable it, run:\n"
+                            "   $ kolibri plugin {mod} disable"
+                        ).format(mod=module_path)
+                    )
+                changed = True
+
+        if changed:
+            self.save()
+
+    def enable_plugin(self, module_path):
+        self["INSTALLED_APPS"].add(module_path)
+        try:
+            self["DISABLED_APPS"].remove(module_path)
+        except KeyError:
+            pass
+
+    def disable_plugin(self, module_path):
+        self["DISABLED_APPS"].add(module_path)
+        try:
+            self["INSTALLED_APPS"].remove(module_path)
+        except KeyError:
+            pass
 
 
-if not os.path.isfile(conf_file):
-    logger.info("Initialize kolibri_settings.json..")
-    save(True)
-else:
-    # Open up the config file and overwrite defaults
-    # use default OS encoding
-    with open(conf_file, "r") as kolibri_conf_file:
-        config.update(json.load(kolibri_conf_file))
-
-
-def autoremove_unavailable_plugins():
-    """
-    Sanitize INSTALLED_APPS - something that should be done separately for all
-    build in plugins, but we should not auto-remove plugins that are actually
-    configured by the user or some other kind of hard dependency that should
-    make execution stop if not loadable.
-    """
-    global config
-    changed = False
-    # Iterate over a copy of the list so that it is not modified during the loop
-    for module_path in config["INSTALLED_APPS"][:]:
-        if not module_exists(module_path):
-            config["INSTALLED_APPS"].remove(module_path)
-            logger.error(
-                (
-                    "Plugin {mod} not found and disabled. To re-enable it, run:\n"
-                    "   $ kolibri plugin {mod} enable"
-                ).format(mod=module_path)
-            )
-            changed = True
-    if changed:
-        save()
-
-
-def enable_default_plugins():
-    """
-    Enable new plugins that have been added between versions
-    This will have the undesired side effect of reactivating
-    default plugins that have been explicitly disabled by a user.
-    However, until we add disabled plugins to a blacklist, this is
-    unavoidable.
-    """
-    global config
-    changed = False
-    for module_path in DEFAULT_PLUGINS:
-        if module_path not in config["INSTALLED_APPS"]:
-            config["INSTALLED_APPS"].append(module_path)
-            logger.warning(
-                (
-                    "Default plugin {mod} not found in configuration. To re-disable it, run:\n"
-                    "   $ kolibri plugin {mod} disable"
-                ).format(mod=module_path)
-            )
-            changed = True
-
-    if changed:
-        save()
-
+#: Set defaults before updating the dict
+config = ConfigDict()
 
 # read the config file options in here so they can be accessed from a standard location
 OPTIONS = read_options_file(KOLIBRI_HOME)
