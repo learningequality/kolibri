@@ -302,6 +302,7 @@
       epubRendererStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
+          borderColor: this.$themeColors.palette.grey.v_300,
         };
       },
       navigationButtonColor() {
@@ -723,13 +724,12 @@
   $navigation-button-normal: 52px;
 
   .epub-renderer {
-    @extend %dropshadow-1dp;
-
     position: relative;
     max-height: 100%;
     padding-top: calc(100% * 8.5 / 11);
     overflow: hidden;
     font-size: smaller;
+    border: solid 1px;
     border-radius: $radius;
   }
 
