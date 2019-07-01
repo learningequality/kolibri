@@ -39,16 +39,14 @@
           @click="handleTocToggle"
         />
 
-        <transition name="fade">
-          <TableOfContentsSideBar
-            v-show="tocSideBarIsOpen"
-            ref="tocSideBar"
-            :toc="toc"
-            :currentSection="currentSection"
-            class="side-bar side-bar-left"
-            @tocNavigation="handleTocNavigation"
-          />
-        </transition>
+        <TableOfContentsSideBar
+          v-show="tocSideBarIsOpen"
+          ref="tocSideBar"
+          :toc="toc"
+          :currentSection="currentSection"
+          class="side-bar side-bar-left"
+          @tocNavigation="handleTocNavigation"
+        />
       </FocusLock>
 
       <FocusLock
@@ -61,19 +59,17 @@
           @click="handleSettingToggle"
         />
 
-        <transition name="fade">
-          <SettingsSideBar
-            v-show="settingsSideBarIsOpen"
-            ref="settingsSideBar"
-            class="side-bar side-bar-right"
-            :theme="theme"
-            :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
-            :increaseFontSizeDisabled="increaseFontSizeDisabled"
-            @decreaseFontSize="handleChangeFontSize(-1)"
-            @increaseFontSize="handleChangeFontSize(+1)"
-            @setTheme="setTheme"
-          />
-        </transition>
+        <SettingsSideBar
+          v-show="settingsSideBarIsOpen"
+          ref="settingsSideBar"
+          class="side-bar side-bar-right"
+          :theme="theme"
+          :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
+          :increaseFontSizeDisabled="increaseFontSizeDisabled"
+          @decreaseFontSize="handleChangeFontSize(-1)"
+          @increaseFontSize="handleChangeFontSize(+1)"
+          @setTheme="setTheme"
+        />
       </FocusLock>
 
       <FocusLock
@@ -86,16 +82,14 @@
           @click="handleSearchToggle"
         />
 
-        <transition name="fade">
-          <SearchSideBar
-            v-show="searchSideBarIsOpen"
-            ref="searchSideBar"
-            class="side-bar side-bar-right"
-            :book="book"
-            @newSearchQuery="handleNewSearchQuery"
-            @navigateToSearchResult="handleNavigateToSearchResult"
-          />
-        </transition>
+        <SearchSideBar
+          v-show="searchSideBarIsOpen"
+          ref="searchSideBar"
+          class="side-bar side-bar-right"
+          :book="book"
+          @newSearchQuery="handleNewSearchQuery"
+          @navigateToSearchResult="handleNavigateToSearchResult"
+        />
       </FocusLock>
 
       <div
@@ -727,7 +721,7 @@
     padding-top: calc(100% * 8.5 / 11);
     overflow: hidden;
     font-size: smaller;
-    border-radius: 4px;
+    border-radius: $radius;
   }
 
   .epub-renderer.small {
@@ -767,17 +761,6 @@
 
   .side-bar-right {
     right: 0;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: all 0.1s ease;
-  }
-
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-    transform: scale3d(0.3, 0.3, 0.3);
   }
 
   .toc-button,
