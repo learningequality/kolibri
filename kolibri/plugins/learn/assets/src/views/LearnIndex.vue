@@ -90,6 +90,9 @@
         lessonContent: 'content',
         currentLesson: 'currentLesson',
       }),
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
+      }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
         topicsTreeChannel: 'channel',
@@ -108,11 +111,11 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return {
-            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -120,8 +123,8 @@
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -139,12 +142,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('searchTitle'),
+            appBarTitle: this.$tr('learnTitle'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
 
@@ -183,7 +186,7 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: false,
+            immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
         }

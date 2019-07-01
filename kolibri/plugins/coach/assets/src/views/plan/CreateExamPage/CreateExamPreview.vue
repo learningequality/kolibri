@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('preview')"
+    :appBarTitle="$tr('appBarLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :marginBottom="72"
@@ -264,6 +264,7 @@
     $trs: {
       title: 'Select questions',
       backLabel: 'Select topics or exercises',
+      appBarLabel: 'Select quiz content',
       exercise: 'Exercise { num }',
       randomize: 'Choose a different set of questions',
       questionOrder: 'Question order',

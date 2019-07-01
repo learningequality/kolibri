@@ -4,10 +4,14 @@ export default {
   namespaced: true,
   state: {
     appBarTitle: '',
+    query: {},
   },
   getters: {
     immersivePageIcon(state, getters, rootState) {
-      if (rootState.pageName === PageNames.USER_PERMISSIONS_PAGE) {
+      if (
+        rootState.pageName === PageNames.USER_PERMISSIONS_PAGE ||
+        rootState.pageName === ContentWizardPages.SELECT_CONTENT
+      ) {
         return 'arrow_back';
       }
       return 'close';
@@ -31,9 +35,18 @@ export default {
     immersivePageRoute(state, getters, rootState, rootGetters) {
       // In all Import/Export pages, go back to ManageContentPage
       if (getters.inContentManagementPage) {
-        return {
-          name: PageNames.MANAGE_CONTENT_PAGE,
-        };
+        // If a user is selecting content, they should return to the content
+        // source that they're importing from using the query string.
+        if (rootState.pageName === ContentWizardPages.SELECT_CONTENT) {
+          return {
+            name: ContentWizardPages.AVAILABLE_CHANNELS,
+            query: state.query,
+          };
+        } else {
+          return {
+            name: PageNames.MANAGE_CONTENT_PAGE,
+          };
+        }
       } else if (rootState.pageName === PageNames.USER_PERMISSIONS_PAGE) {
         // If Admin, goes back to ManagePermissionsPage
         if (rootGetters.isSuperuser) {
@@ -50,6 +63,9 @@ export default {
   mutations: {
     SET_APP_BAR_TITLE(state, appBarTitle) {
       state.appBarTitle = appBarTitle;
+    },
+    SET_QUERY(state, query) {
+      state.query = query;
     },
   },
 };

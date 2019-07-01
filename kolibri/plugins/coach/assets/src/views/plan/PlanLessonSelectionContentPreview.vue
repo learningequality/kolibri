@@ -4,7 +4,8 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachCommon$tr('manageResourcesAction')"
+    :immersivePagePrimary="true"
+    :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -69,6 +70,11 @@
         }
         return false;
       },
+      lessonNameLabel() {
+        const lessonId = this.$route.params.lessonId;
+        const lesson = this.lessons.find(l => l.id === lessonId);
+        return lesson ? lesson.title : this.$tr('lessonLabel');
+      },
     },
     beforeDestroy() {
       this.clearSnackbar();
@@ -87,6 +93,7 @@
       },
     },
     $trs: {
+      lessonLabel: 'Lesson',
       resourcesAddedSnackbarText:
         'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
       resourcesRemovedSnackbarText:

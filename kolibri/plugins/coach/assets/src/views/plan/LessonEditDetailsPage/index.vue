@@ -6,8 +6,8 @@
     :immersivePagePrimary="false"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle', { title: lesson.title })"
-    :pageTitle="$tr('appBarTitle', { title: lesson.title })"
+    :appBarTitle="$tr('appBarTitle')"
+    :pageTitle="$tr('pageTitle', { title: lesson.title })"
     :showSubNav="false"
     :immersivePageRoute="previousPageRoute"
   >
@@ -171,7 +171,8 @@
       },
     },
     $trs: {
-      appBarTitle: `Edit lesson details for '{title}'`,
+      pageTitle: `Edit lesson details for '{title}'`,
+      appBarTitle: 'Edit lesson details',
       submitErrorMessage: 'There was a problem saving your changes',
       resourceTableHeader: 'Resources',
     },
