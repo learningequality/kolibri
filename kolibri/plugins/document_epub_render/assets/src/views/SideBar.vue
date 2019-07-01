@@ -21,15 +21,17 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .side-bar {
+    @extend %dropshadow-1dp;
+
     z-index: 3;
     width: 250px;
     padding: 16px;
     overflow-y: auto;
     word-wrap: break-word;
-    box-shadow: $epub-box-shadow;
   }
 
 </style>

@@ -21,7 +21,7 @@
 
       <TopBar
         ref="topBar"
-        class="top-bar"
+        class="top-bar-component"
         :isInFullscreen="isInFullscreen"
         @tableOfContentsButtonClicked="handleTocToggle"
         @settingsButtonClicked="handleSettingToggle"
@@ -711,6 +711,7 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   $top-bar-height: 36px;
@@ -719,10 +720,14 @@
   $navigation-button-normal: 52px;
 
   .epub-renderer {
+    @extend %dropshadow-1dp;
+
     position: relative;
     max-height: 100%;
     padding-top: calc(100% * 8.5 / 11);
+    overflow: hidden;
     font-size: smaller;
+    border-radius: 4px;
   }
 
   .epub-renderer.small {
@@ -742,7 +747,7 @@
     left: 0;
   }
 
-  .top-bar {
+  .top-bar-component {
     position: absolute;
     top: 0;
     right: 0;
