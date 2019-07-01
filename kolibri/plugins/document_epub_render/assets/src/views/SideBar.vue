@@ -21,12 +21,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   .side-bar {
-    @extend %dropshadow-1dp;
-
     z-index: 3;
     width: 250px;
     padding: 16px;
