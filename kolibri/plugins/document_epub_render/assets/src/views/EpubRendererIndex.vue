@@ -100,6 +100,7 @@
           class="column epubjs-navigation"
         >
           <PreviousButton
+            v-show="!isAtStart"
             :color="navigationButtonColor"
             :style="{backgroundColor}"
             :isRtl="isRtl"
@@ -116,6 +117,7 @@
           class="column epubjs-navigation"
         >
           <NextButton
+            v-show="!isAtEnd"
             :color="navigationButtonColor"
             :style="{backgroundColor}"
             :isRtl="isRtl"
@@ -144,6 +146,7 @@
   import { EVENTS } from 'epubjs/src/utils/constants';
   import Mark from 'mark.js';
   import isEqual from 'lodash/isEqual';
+  import get from 'lodash/get';
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
@@ -226,6 +229,12 @@
     },
     computed: {
       ...mapGetters(['sessionTimeSpent']),
+      isAtStart() {
+        return get(this.rendition, 'location.atStart', false);
+      },
+      isAtEnd() {
+        return get(this.rendition, 'location.atEnd', false);
+      },
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;
