@@ -259,11 +259,14 @@ class Command(AsyncCommand):
                 # files using gzip.
                 overall_progress_update(f.file_size - filetransfer.total_size)
 
-                # If size of the destination file is smaller than the size
-                # indicated in the database, it's very likely that the source
-                # file is corrupted. Skip importing this file.
-                dest_file_size_on_disk = os.path.getsize(filetransfer.dest)
-                if dest_file_size_on_disk < f.file_size:
+                # If checksum of the destination file is different from the localfile
+                # id indicated in the database, it means that the destination file
+                # is corrupted, either from origin or during import. Skip importing
+                # this file.
+                checksum_correctness = import_export_content.compare_checksums(
+                    filetransfer.dest, f.id
+                )
+                if not checksum_correctness:
                     e = "File {} is corrupted.".format(filetransfer.source)
                     logger.error(
                         "An error occurred during content import: {}".format(e)

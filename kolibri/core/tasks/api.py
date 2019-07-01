@@ -1,5 +1,4 @@
 import os
-import time
 
 from django.apps.registry import AppRegistryNotReady
 from django.core.management import call_command
@@ -15,7 +14,9 @@ from rest_framework.response import Response
 from six import string_types
 
 from .queue import get_queue
+from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.utils import conf
@@ -38,7 +39,17 @@ CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
 class TasksViewSet(viewsets.ViewSet):
-    permission_classes = (CanManageContent,)
+    def get_permissions(self):
+        # task permissions shared between facility management and device management
+        if self.action in ["list", "deletefinishedtasks"]:
+            permission_classes = [CanManageContent | CanExportLogs]
+        # exclusive permission for facility management
+        elif self.action == "startexportlogcsv":
+            permission_classes = [CanExportLogs]
+        # this was the default before, so leave as is for any other endpoints
+        else:
+            permission_classes = [CanManageContent]
+        return [permission() for permission in permission_classes]
 
     def list(self, request):
         jobs_response = [_job_to_response(j) for j in get_queue().jobs]
@@ -142,8 +153,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The drive_id field is required.")
 
         try:
-            drives = get_mounted_drives_with_channel_info()
-            drive = drives[drive_id]
+            drive = get_mounted_drive_by_id(drive_id)
         except KeyError:
             raise serializers.ValidationError(
                 "That drive_id was not found in the list of drives."
@@ -178,8 +188,7 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The drive_id field is required.")
 
         try:
-            drives = get_mounted_drives_with_channel_info()
-            drive = drives[drive_id]
+            drive = get_mounted_drive_by_id(drive_id)
         except KeyError:
             raise serializers.ValidationError(
                 "That drive_id was not found in the list of drives."
@@ -298,16 +307,6 @@ class TasksViewSet(viewsets.ViewSet):
             raise serializers.ValidationError("The 'task_id' should be a string.")
         try:
             get_queue().cancel(request.data["task_id"])
-            waiting_time = 0
-            job = get_queue().fetch_job(request.data["task_id"])
-            interval = 0.1
-            while job.state != State.CANCELED or waiting_time < 5.0:
-                time.sleep(interval)
-                waiting_time += interval
-                job = get_queue().fetch_job(request.data["task_id"])
-            if job.state != State.CANCELED:
-                return Response(status=408)
-            get_queue().clear_job(request.data["task_id"])
         except JobNotFound:
             pass
 
@@ -395,8 +394,7 @@ def _localexport(
     exclude_node_ids=None,
     extra_metadata=None,
 ):
-    drives = get_mounted_drives_with_channel_info()
-    drive = drives[drive_id]
+    drive = get_mounted_drive_by_id(drive_id)
 
     call_command(
         "exportchannel",

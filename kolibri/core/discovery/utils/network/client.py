@@ -22,7 +22,7 @@ class NetworkClient(object):
         else:
             # normalize the URL and try a number of variations until we find one that's able to connect
             logger.info(
-                "Attempting connections to variations of the URL: {}".format(base_url)
+                "Attempting connections to variations of the URL: {}".format(address)
             )
             self.base_url = self._attempt_connections(
                 get_normalized_url_variations(address)

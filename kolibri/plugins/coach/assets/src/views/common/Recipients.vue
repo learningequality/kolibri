@@ -1,11 +1,14 @@
 <template>
 
   <span>
-    <template v-if="!groupNames.length">
+    <template v-if="groupNames.length">
+      <TruncatedItemList :items="groupNames" />
+    </template>
+    <template v-else-if="hasAssignments">
       {{ $tr('assignmentClass') }}
     </template>
     <template v-else>
-      <TruncatedItemList :items="groupNames" />
+      {{ $tr('noOne') }}
     </template>
   </span>
 
@@ -15,22 +18,25 @@
 <script>
 
   import TruncatedItemList from './TruncatedItemList';
-  import { coachStringsMixin } from './commonCoachStrings.js';
 
   export default {
     name: 'Recipients',
     components: {
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin],
     props: {
       groupNames: {
         type: Array,
         required: true,
       },
+      hasAssignments: {
+        type: Boolean,
+        required: true,
+      },
     },
     $trs: {
       assignmentClass: 'Entire class',
+      noOne: 'No one',
     },
   };
 

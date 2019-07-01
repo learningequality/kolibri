@@ -1,16 +1,6 @@
 from rest_framework.permissions import BasePermission
-from rest_framework.permissions import SAFE_METHODS
 
-
-class OnlyCanManageContentCanDelete(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
-
-        if request.method == "DELETE":
-            return request.user.can_manage_content
-
-        return False
+from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 
 
 class CanManageContent(BasePermission):
@@ -19,3 +9,11 @@ class CanManageContent(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user.can_manage_content
+
+
+class CanExportLogs(BasePermission):
+    def has_permission(self, request, view):
+        return _user_is_admin_for_own_facility(request.user)
+
+    def has_object_permission(self, request, view, obj):
+        return _user_is_admin_for_own_facility(request.user)

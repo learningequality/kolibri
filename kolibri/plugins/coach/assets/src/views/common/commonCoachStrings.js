@@ -131,6 +131,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // formatted values
   integer: '{value, number, integer}',
   combinedLabel: '{firstItem} / {secondItem}',
+  nthExerciseName: '{name} ({number, number, integer})',
   number: '{value, number}',
   numberOfClasses: '{value, number, integer} {value, plural, one {class} other {classes}}',
   numberOfCoaches: '{value, number, integer} {value, plural, one {coach} other {coaches}}',
@@ -149,9 +150,9 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 });
 
 const coachStringsMixin = {
-  computed: {
-    coachStrings() {
-      return coachStrings;
+  methods: {
+    coachCommon$tr(key, args) {
+      return coachStrings.$tr(key, args);
     },
   },
 };

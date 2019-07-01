@@ -2,8 +2,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
-import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
+import { coachStrings } from '../../views/common/commonCoachStrings';
 
 export function questionRootRedirectHandler(params, name, next) {
   return showQuestionDetailView(params).then(learnerId => {
@@ -20,15 +19,12 @@ export function questionRootRedirectHandler(params, name, next) {
 
 export function generateQuestionDetailHandler(paramsToCheck) {
   return function questionDetailHandler(to, from) {
-    const { params } = to;
-    const fromParams = from.params;
-    const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
-    if (setLoading) {
+    if (paramsToCheck.some(param => to.params[param] !== from.params[param])) {
       // Only set loading state if we are not switching between
       // different views of the same question's learner report.
       store.dispatch('loading');
     }
-    showQuestionDetailView(params).then(() => {
+    showQuestionDetailView(to.params).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
       store.dispatch('notLoading');
@@ -37,8 +33,7 @@ export function generateQuestionDetailHandler(paramsToCheck) {
 }
 
 function showQuestionDetailView(params) {
-  let { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
-  interactionIndex = Number(interactionIndex);
+  const { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   let promise;
   let exerciseNodeId;
   if (quizId) {
@@ -65,23 +60,23 @@ function showQuestionDetailView(params) {
           const question = exam.question_sources.find(
             source => source.question_id === questionId && source.exercise_id === exerciseNodeId
           );
-          title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+          title = coachStrings.$tr('nthExerciseName', {
             name: question.title,
-            number: question.counterInExercise,
+            number: question.counter_in_exercise,
           });
         } else {
           const questionNumber = Math.max(
             1,
             exercise.assessmentmetadata.assessmentIds.indexOf(questionId)
           );
-          title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+          title = coachStrings.$tr('nthExerciseName', {
             name: exercise.title,
             number: questionNumber,
           });
         }
         store.commit('questionDetail/SET_STATE', {
           learnerId,
-          interactionIndex,
+          interactionIndex: Number(interactionIndex),
           questionId,
           title,
           exercise,

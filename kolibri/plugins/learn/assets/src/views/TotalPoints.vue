@@ -2,7 +2,7 @@
 
   <div v-if="isUserLoggedIn">
     <div ref="icon" class="points">
-      <div class="points-icon-border">
+      <div class="points-icon-background" :style="{ backgroundColor: $themeTokens.surface }">
         <PointsIcon class="icon" />
       </div>
       <div v-show="!windowIsSmall" class="description">
@@ -26,6 +26,7 @@
 
   import { mapGetters, mapActions } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
 
@@ -35,7 +36,7 @@
       PointsIcon,
       KTooltip,
     },
-    mixins: [responsiveWindow],
+    mixins: [responsiveWindow, themeMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
     },
@@ -74,13 +75,11 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
-    font-weight: bold;
   }
 
-  .points-icon-border {
+  .points-icon-background {
     display: inline;
     padding: 4px 8px;
-    background: white;
     border-radius: 100%;
   }
 

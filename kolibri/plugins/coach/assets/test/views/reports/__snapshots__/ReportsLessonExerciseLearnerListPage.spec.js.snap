@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders a correct summary tally 1`] = `
+exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipients only when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line" data-test="summary-tally">
   <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
     Completed by 1 of 1
@@ -10,19 +10,19 @@ exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some gr
 </div>
 `;
 
-exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 1`] = `
+exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipients only when displaying learners by groups renders a correct group tally 1`] = `
 <div class="single-line">
   <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div dir="auto" class="label">
     1
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
@@ -35,7 +35,7 @@ exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some gr
 </div>
 `;
 
-exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 2`] = `
+exports[`ReportsLessonExerciseLearnerListPage for a lesson restricted to some groups recipients only when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
   <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="brightness_1" category="image" style="fill: #e0e0e0;"></mat-svg></div> <div dir="auto" class="label">
     0 of 0
@@ -52,7 +52,7 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1 started
   </div></span>
     <!---->
@@ -69,12 +69,12 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
@@ -94,12 +94,12 @@ exports[`ReportsLessonExerciseLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #df4d4f;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some needing help" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="error" category="alert" style="fill: #c62828;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->

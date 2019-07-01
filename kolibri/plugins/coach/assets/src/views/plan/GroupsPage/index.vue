@@ -23,10 +23,10 @@
         <thead slot="thead">
           <tr>
             <th>
-              {{ coachStrings.$tr('nameLabel') }}
+              {{ coachCommon$tr('nameLabel') }}
             </th>
             <th>
-              {{ coachStrings.$tr('learnersLabel') }}
+              {{ coachCommon$tr('learnersLabel') }}
             </th>
             <th></th>
           </tr>
@@ -50,7 +50,8 @@
       <CreateGroupModal
         v-if="showCreateGroupModal"
         :groups="sortedGroups"
-        @success="handleSuccessCreateGroup"
+        @submit="handleSuccessCreateGroup"
+        @cancel="closeModal"
       />
 
       <RenameGroupModal
@@ -58,13 +59,15 @@
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
         :groups="sortedGroups"
+        @cancel="closeModal"
       />
 
       <DeleteGroupModal
         v-if="showDeleteGroupModal"
         :groupName="selectedGroup.name"
         :groupId="selectedGroup.id"
-        @success="handleSuccessDeleteGroup"
+        @submit="handleSuccessDeleteGroup"
+        @cancel="closeModal"
       />
 
     </KPageContainer>
@@ -125,6 +128,9 @@
     methods: {
       ...mapActions('groups', ['displayModal']),
       ...mapActions(['createSnackbar']),
+      closeModal() {
+        this.displayModal(false);
+      },
       openCreateGroupModal() {
         this.displayModal(GroupModals.CREATE_GROUP);
       },
@@ -143,11 +149,11 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar(this.coachStrings.$tr('createdNotification'));
+        this.createSnackbar(this.coachCommon$tr('createdNotification'));
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar(this.coachStrings.$tr('deletedNotification'));
+        this.createSnackbar(this.coachCommon$tr('deletedNotification'));
         this.displayModal(false);
       },
     },

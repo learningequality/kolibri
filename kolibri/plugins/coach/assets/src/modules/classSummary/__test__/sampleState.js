@@ -343,7 +343,7 @@ export default {
         exam_id: '4018bcea43cee3d05811b641fca0b152',
         learner_id: '905a13b28ce7e33a46dcdc94f9d7ac46',
         status: 'Completed',
-        last_activity: new Date('2019-01-24T23:03:17.930Z'),
+        last_activity: null, // verify null doesn't get converted to Date
         num_correct: 1,
         score: 0.3333333333333333,
       },
@@ -849,7 +849,7 @@ export default {
         learner_id: 'edd265c283d730c293f30210316756bf',
         content_id: '2f38b99b355a5cd79b3d8a8a7348f824',
         status: 'Completed',
-        last_activity: new Date('2019-01-24T23:12:29.257Z'),
+        last_activity: null, // verify null doesn't get converted to date
         time_spent: 123.34,
       },
     },

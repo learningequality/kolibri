@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+from sqlalchemy.exc import DatabaseError
 
 from ...utils.annotation import annotate_content
 from ...utils.channel_import import FutureSchemaError
@@ -38,6 +39,12 @@ class Command(BaseCommand):
                 except (InvalidSchemaVersionError, FutureSchemaError):
                     logger.warning(
                         "Tried to import channel {channel_id}, but database file was incompatible".format(
+                            channel_id=channel_id
+                        )
+                    )
+                except DatabaseError:
+                    logger.warning(
+                        "Tried to import channel {channel_id}, but database file was corrupted.".format(
                             channel_id=channel_id
                         )
                     )

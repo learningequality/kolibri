@@ -83,7 +83,7 @@
       noImportableDrives: 'No drives with Kolibri content are connected to the server',
       noDriveWithSelectedChannelError:
         'No drives with the selected channel are connected to the server',
-      noExportableDrives: 'No drives that can be written to are connected to the server',
+      noExportableDrives: 'Could not find a writable drive connected to the server',
     },
   };
 

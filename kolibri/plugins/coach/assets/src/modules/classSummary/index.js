@@ -317,12 +317,12 @@ export default {
       const examMap = _itemMap(summary.exams, 'id');
       summary.exam_learner_status.forEach(status => {
         // convert dates
-        status.last_activity = new Date(status.last_activity);
+        status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
         status.score = _score(status.num_correct, examMap[status.exam_id].question_count);
       });
       summary.content_learner_status.forEach(status => {
         // convert dates
-        status.last_activity = new Date(status.last_activity);
+        status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
       });
       Object.assign(state, {
         id: summary.id,

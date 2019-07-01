@@ -2,10 +2,10 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
-    immersivePagePrimary
+    immersivePageIcon="close"
+    :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('createNewExam')"
+    :appBarTitle="$tr('newExam')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="$tr('documentTitle')"
@@ -24,7 +24,7 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachStrings.$tr('detailsLabel') }}</h2>
+      <h2>{{ coachCommon$tr('detailsLabel') }}</h2>
 
       <KGrid>
         <KGridItem sizes="100, 100, 50" percentage>
@@ -109,26 +109,26 @@
         @moreresults="handleMoreResults"
       />
 
-      <Bottom v-if="inSearchMode">
+      <KBottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
           :to="toolbarRoute"
         />
-      </Bottom>
-      <Bottom v-else>
+      </KBottomAppBar>
+      <KBottomAppBar v-else>
         <KRouterLink
           appearance="flat-button"
-          :text="coachStrings.$tr('goBackAction')"
+          :text="coachCommon$tr('goBackAction')"
           :to="toolbarRoute"
         />
         <KButton
-          :text="coachStrings.$tr('continueAction')"
+          :text="coachCommon$tr('continueAction')"
           primary
           @click="continueProcess"
         />
-      </Bottom>
+      </KBottomAppBar>
 
     </KPageContainer>
 
@@ -151,6 +151,7 @@
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -158,7 +159,6 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
-  import Bottom from './Bottom';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -175,7 +175,7 @@
       KGrid,
       KGridItem,
       UiIconButton,
-      Bottom,
+      KBottomAppBar,
     },
     mixins: [responsiveWindow, commonCoach],
     data() {
@@ -492,6 +492,7 @@
       },
     },
     $trs: {
+      newExam: 'New quiz',
       createNewExam: 'Create new quiz',
       chooseExercises: 'Select topics or exercises',
       title: 'Title',

@@ -28,7 +28,7 @@
         <KTextbox
           v-if="showDescriptionField"
           v-model="description"
-          :label="coachStrings.$tr('descriptionLabel')"
+          :label="coachCommon$tr('descriptionLabel')"
           :maxlength="200"
           :disabled="disabled || formIsSubmitted"
           :textArea="true"
@@ -37,7 +37,7 @@
 
       <fieldset v-if="assignmentType !== 'new_lesson'">
         <legend>
-          {{ coachStrings.$tr('statusLabel') }}
+          {{ coachCommon$tr('statusLabel') }}
         </legend>
         <p>
           {{ assignmentStrings.statusExplanation }}
@@ -58,7 +58,7 @@
 
       <fieldset>
         <legend>
-          {{ coachStrings.$tr('recipientsLabel') }}
+          {{ coachCommon$tr('recipientsLabel') }}
         </legend>
         <RecipientSelector
           v-model="selectedCollectionIds"
@@ -71,21 +71,21 @@
       <slot name="resourceTable"></slot>
     </form>
 
-    <Bottom v-if="assignmentType !== 'new_lesson'">
+    <KBottomAppBar v-if="assignmentType !== 'new_lesson'">
       <KButton
-        :text="coachStrings.$tr('cancelAction')"
+        :text="coachCommon$tr('cancelAction')"
         appearance="flat-button"
         :primary="false"
         :disabled="disabled"
         @click="$emit('cancel')"
       />
       <KButton
-        :text="coachStrings.$tr('saveChangesAction')"
+        :text="coachCommon$tr('saveChangesAction')"
         :primary="true"
         :disabled="disabled"
         @click="submitData"
       />
-    </Bottom>
+    </KBottomAppBar>
   </div>
 
 </template>
@@ -98,14 +98,14 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
   import UiAlert from 'keen-ui/src/UiAlert';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import Bottom from '../CreateExamPage/Bottom';
   import RecipientSelector from './RecipientSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
     components: {
-      Bottom,
+      KBottomAppBar,
       KButton,
       KRadioButton,
       KTextbox,
@@ -193,7 +193,7 @@
                 excludeId: this.$route.params.quizId,
               })
             ) {
-              return this.coachStrings.$tr('quizDuplicateTitleError');
+              return this.coachCommon$tr('quizDuplicateTitleError');
             }
           } else {
             if (
@@ -202,7 +202,7 @@
                 excludeId: this.$route.params.lessonId,
               })
             ) {
-              return this.coachStrings.$tr('lessonDuplicateTitleError');
+              return this.coachCommon$tr('lessonDuplicateTitleError');
             }
           }
           if (this.showTitleError) {
@@ -217,14 +217,14 @@
       assignmentStrings() {
         if (this.assignmentIsQuiz) {
           return {
-            activeStatus: this.coachStrings.$tr('quizActiveLabel'),
-            inactiveStatus: this.coachStrings.$tr('quizInactiveLabel'),
+            activeStatus: this.coachCommon$tr('quizActiveLabel'),
+            inactiveStatus: this.coachCommon$tr('quizInactiveLabel'),
             statusExplanation: this.$tr('activeQuizzesExplanation'),
           };
         }
         return {
-          activeStatus: this.coachStrings.$tr('lessonActiveLabel'),
-          inactiveStatus: this.coachStrings.$tr('lessonInactiveLabel'),
+          activeStatus: this.coachCommon$tr('lessonActiveLabel'),
+          inactiveStatus: this.coachCommon$tr('lessonInactiveLabel'),
           statusExplanation: this.$tr('activeLessonsExplanation'),
         };
       },

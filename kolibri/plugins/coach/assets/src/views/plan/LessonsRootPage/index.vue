@@ -14,13 +14,13 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coachStrings.$tr('showAction')"
+          :label="coachCommon$tr('showAction')"
           :options="filterOptions"
           :inline="true"
         />
         <KButton
           :primary="true"
-          :text="coachStrings.$tr('newLessonAction')"
+          :text="coachCommon$tr('newLessonAction')"
           @click="showModal=true"
         />
       </div>
@@ -28,10 +28,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachCommon$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -49,8 +49,13 @@
                 />
               </KLabeledIcon>
             </td>
-            <td>{{ coachStrings.$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
-            <td>{{ getLessonVisibility(lesson.lesson_assignments) }}</td>
+            <td>{{ coachCommon$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
+            <td>
+              <Recipients
+                :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
+                :hasAssignments="lesson.lesson_assignments.length > 0"
+              />
+            </td>
             <td>
               <LessonActive :active="lesson.is_active" />
             </td>
@@ -71,8 +76,8 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
-        :submitText="coachStrings.$tr('continueAction')"
-        :cancelText="coachStrings.$tr('cancelAction')"
+        :submitText="coachCommon$tr('continueAction')"
+        :cancelText="coachCommon$tr('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"
@@ -171,17 +176,10 @@
         }
       },
       lessonSummaryLink,
-      getLessonVisibility(assignedGroups) {
-        const numOfAssignments = assignedGroups.length;
-        if (numOfAssignments === 0) {
-          return this.$tr('noOne');
-        } else if (
-          numOfAssignments === 1 &&
-          assignedGroups[0].collection_kind === CollectionKinds.CLASSROOM
-        ) {
-          return this.coachStrings.$tr('entireClassLabel');
-        }
-        return this.coachStrings.$tr('numberOfGroups', { value: numOfAssignments });
+      getGroupIds(assignments) {
+        return assignments
+          .filter(assignment => assignment.collection_kind === CollectionKinds.LEARNERGROUP)
+          .map(assignment => assignment.collection);
       },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;

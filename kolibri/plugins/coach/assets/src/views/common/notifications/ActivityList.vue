@@ -20,6 +20,7 @@
         class="notification-card"
         v-bind="cardPropsForNotification(notification)"
         :linkText="cardTextForNotification(notification)"
+        :style="{ borderBottomColor: $themeTokens.fineLine }"
       />
     </div>
 
@@ -35,7 +36,7 @@
         <template v-else>
           <KButton
             v-if="moreResults"
-            :text="coachStrings.$tr('showMoreAction')"
+            :text="coachCommon$tr('showMoreAction')"
             @click="fetchNotifications"
           />
         </template>
@@ -57,13 +58,14 @@
   import KLinearLoader from 'kolibri.coreVue.components.KLinearLoader';
   import KButton from 'kolibri.coreVue.components.KButton';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { cardTextForNotification } from '../notifications/notificationStrings';
   import notificationsResource from '../../../apiResources/notifications';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { LastPages } from '../../../constants/lastPagesConstants';
   import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
-  import { coachStrings } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import NotificationCard from './NotificationCard';
   import NotificationsFilter from './NotificationsFilter';
 
@@ -77,6 +79,7 @@
       NotificationsFilter,
       NotificationCard,
     },
+    mixins: [coachStringsMixin, themeMixin],
     props: {
       // getParams for NotificationsResource.fetchCollection
       notificationParams: {
@@ -115,7 +118,6 @@
           LESSON: 'lesson',
           QUIZ: 'quiz',
         },
-        coachStrings,
       };
     },
     computed: {
@@ -388,9 +390,12 @@
   // Copied from BlockItem.vue
   .notification-card {
     padding-bottom: 16px;
+    border-bottom-style: none;
+    border-bottom-width: 0;
 
     &:not(:last-child) {
-      border-bottom: 1px solid #dedede;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
     }
   }
 

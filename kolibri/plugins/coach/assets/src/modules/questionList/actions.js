@@ -1,41 +1,41 @@
+import pickBy from 'lodash/pickBy';
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
-import AssessmentQuestionListItem from './../../views/plan/CreateExamPage/AssessmentQuestionListItem';
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
-  let resource = ExerciseDifficulties;
-  const getParams = {
-    classroom_id: classId,
-  };
-  const promises = [];
-  const pk = exerciseId || quizId;
+  let itemPromise;
+  let resource;
+  let pk;
+
   if (quizId) {
+    pk = quizId;
     resource = QuizDifficulties;
-    promises.push(
-      ExamResource.fetchModel({
-        id: quizId,
-      }).then(fetchNodeDataAndConvertExam)
-    );
+    itemPromise = ExamResource.fetchModel({
+      id: quizId,
+    }).then(fetchNodeDataAndConvertExam);
   } else {
-    promises.push(
-      ContentNodeResource.fetchModel({
-        id: store.rootState.classSummary.contentMap[exerciseId].node_id,
-      })
-    );
-  }
-  if (lessonId) {
-    getParams.lesson_id = lessonId;
-  }
-  if (groupId) {
-    getParams.group_id = groupId;
+    pk = exerciseId;
+    resource = ExerciseDifficulties;
+    itemPromise = ContentNodeResource.fetchModel({
+      id: store.rootState.classSummary.contentMap[exerciseId].node_id,
+    });
   }
 
-  promises.push(resource.fetchDetailCollection('detail', pk, getParams, true));
-  return Promise.all(promises).then(([item, stats]) => {
+  const difficultiesPromise = resource.fetchDetailCollection(
+    'detail',
+    pk,
+    pickBy({
+      classroom_id: classId,
+      lesson_id: lessonId,
+      group_id: groupId,
+    }),
+    true
+  );
+  return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
     if (quizId) {
       store.commit('SET_STATE', { exam: item });
       // If no one attempted one of the questions, it could get missed out of the list
@@ -47,7 +47,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
-        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+        const title = coachStrings.$tr('nthExerciseName', {
           name: source.title,
           number: source.counterInExercise,
         });
@@ -65,7 +65,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
           1,
           item.assessmentmetadata.assessmentIds.indexOf(stat.item)
         );
-        const title = crossComponentTranslator(AssessmentQuestionListItem).$tr('nthExerciseName', {
+        const title = coachStrings.$tr('nthExerciseName', {
           name: item.title,
           number: questionNumber,
         });

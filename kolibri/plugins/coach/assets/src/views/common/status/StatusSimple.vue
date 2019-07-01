@@ -60,7 +60,7 @@
       },
       style() {
         if (this.status === STATUSES.notStarted) {
-          return { color: this.$coreGrey300 };
+          return { color: this.$themeTokens.textDisabled };
         }
         return '';
       },
@@ -85,10 +85,6 @@
     &:not(:last-child) {
       margin-right: 16px;
     }
-  }
-
-  .lighten {
-    color: #b3b3b3;
   }
 
 </style>

@@ -31,6 +31,7 @@ from six import iteritems
 import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
+from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -121,6 +122,20 @@ def kolibri_navigation_actions():
     return webpack_asset_render(NavigationHook)
 
 
+@register.simple_tag()
+def kolibri_theme():
+    """
+    A tag to include a theme configuration object to add custom theming to Kolibri.
+    :return: An html string
+    """
+    template = """
+    <script>
+      var kolibriTheme = JSON.parse('{theme}');
+    </script>
+    """
+    return mark_safe(template.format(theme=json.dumps(ThemeHook().theme)))
+
+
 @register.simple_tag(takes_context=True)
 def kolibri_set_urls(context):
     # Modified from:
@@ -144,19 +159,19 @@ def kolibri_set_urls(context):
         },
     )
 
-    js = jsmin(js)
-
-    js = (
+    return mark_safe(
         """<script type="text/javascript">"""
-        + js
+        + jsmin(js)
         + """
         {global_object}.staticUrl = '{static_url}';
+        {global_object}.mediaUrl = '{media_url}';
         </script>
         """.format(
-            global_object=js_global_object_name, static_url=settings.STATIC_URL
+            global_object=js_global_object_name,
+            static_url=settings.STATIC_URL,
+            media_url=settings.MEDIA_URL,
         )
     )
-    return mark_safe(js)
 
 
 @register.simple_tag(takes_context=True)

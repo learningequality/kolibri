@@ -15,6 +15,7 @@
       :kind="kind"
       :showTooltip="true"
       class="icon"
+      :style="{ color: $themeTokens.textInverted }"
     />
 
   </div>
@@ -26,21 +27,15 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
-
-  const kindToBackgroundColorMap = {
-    audio: '#E65997',
-    document: '#ED2828',
-    exercise: '#0eafaf',
-    html5: '#FF8B41',
-    topic: '#262626',
-    video: '#3938A5',
-  };
+  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'CornerIcon',
     components: {
       ContentIcon,
     },
+    mixins: [themeMixin],
     props: {
       kind: {
         type: String,
@@ -53,7 +48,20 @@
         return this.isRtl ? '0,0 48,0 48,48' : '0,0 48,0 0,48';
       },
       backgroundStyle() {
-        return { fill: kindToBackgroundColorMap[this.kind] };
+        switch (this.kind) {
+          case ContentNodeKinds.EXERCISE:
+            return { fill: this.$themeTokens.exercise };
+          case ContentNodeKinds.VIDEO:
+            return { fill: this.$themeTokens.video };
+          case ContentNodeKinds.AUDIO:
+            return { fill: this.$themeTokens.audio };
+          case ContentNodeKinds.DOCUMENT:
+            return { fill: this.$themeTokens.document };
+          case ContentNodeKinds.HTML5:
+            return { fill: this.$themeTokens.html5 };
+          default:
+            return { fill: this.$themeTokens.topic };
+        }
       },
     },
   };
@@ -72,7 +80,6 @@
   .icon {
     position: absolute;
     font-size: 18px;
-    color: white;
     transform: translate(25%, 0);
   }
 

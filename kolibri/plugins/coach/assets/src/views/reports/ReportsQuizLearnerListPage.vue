@@ -13,13 +13,13 @@
 
       <ReportsQuizHeader />
 
-      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('scoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
+            <th>{{ coachCommon$tr('nameLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('scoreLabel') }}</th>
+            <th>{{ coachCommon$tr('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -92,12 +92,12 @@
         return this.examMap[this.$route.params.quizId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.exam.groups);
+        return this.getLearnersForExam(this.exam);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
@@ -105,7 +105,6 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
-        return mapped;
       },
     },
     beforeMount() {

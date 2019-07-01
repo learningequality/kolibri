@@ -280,7 +280,7 @@
       password: 'Password',
       reEnterPassword: 'Re-enter password',
       passwordMatchError: 'Passwords do not match',
-      genericError: 'Something went wrong during sign up',
+      genericError: 'Something went wrong during account creation',
       usernameAlphaNumError: 'Username can only contain letters, numbers, and underscores',
       usernameAlreadyExistsError: 'An account with that username already exists',
       logIn: 'Sign in',
@@ -288,7 +288,7 @@
       finish: 'Finish',
       facility: 'Facility',
       required: 'This field is required',
-      documentTitle: 'User Sign Up',
+      documentTitle: 'Create account',
       privacyLink: 'Usage and privacy in Kolibri',
     },
   };

@@ -15,12 +15,12 @@
 
       <KGrid>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('lessonsAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachStrings.$tr('lessonListEmptyState')">
+          <h2>{{ coachCommon$tr('lessonsAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachCommon$tr('lessonListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachStrings.$tr('titleLabel') }}</th>
-                <th>{{ coachStrings.$tr('progressLabel') }}</th>
+                <th>{{ coachCommon$tr('titleLabel') }}</th>
+                <th>{{ coachCommon$tr('progressLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -42,13 +42,13 @@
           </CoreTable>
         </KGridItem>
         <KGridItem :sizes="[100, 100, 50]" percentage>
-          <h2>{{ coachStrings.$tr('quizzesAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachStrings.$tr('quizListEmptyState')">
+          <h2>{{ coachCommon$tr('quizzesAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachCommon$tr('quizListEmptyState')">
             <thead slot="thead">
               <tr>
-                <th>{{ coachStrings.$tr('titleLabel') }}</th>
-                <th>{{ coachStrings.$tr('progressLabel') }}</th>
-                <th>{{ coachStrings.$tr('scoreLabel') }}</th>
+                <th>{{ coachCommon$tr('titleLabel') }}</th>
+                <th>{{ coachCommon$tr('progressLabel') }}</th>
+                <th>{{ coachCommon$tr('scoreLabel') }}</th>
               </tr>
             </thead>
             <transition-group slot="tbody" tag="tbody" name="list">
@@ -97,26 +97,24 @@
       lessonsTable() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(lesson => {
+        return sorted.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
           };
           Object.assign(tableRow, lesson);
           return tableRow;
         });
-        return mapped;
       },
       examsTable() {
         const filtered = this.exams.filter(exam => this.isAssigned(exam.groups));
         const sorted = this._.sortBy(filtered, ['title', 'active']);
-        const mapped = sorted.map(exam => {
+        return sorted.map(exam => {
           const tableRow = {
             statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
           };
           Object.assign(tableRow, exam);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {

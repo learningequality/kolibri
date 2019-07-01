@@ -25,7 +25,7 @@
       UiIconButton,
     },
     $trs: {
-      toggleSettingsSideBar: 'Toggle settings side bar',
+      toggleSettingsSideBar: 'Toggle settings',
     },
   };
 

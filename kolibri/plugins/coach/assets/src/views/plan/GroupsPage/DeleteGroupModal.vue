@@ -5,7 +5,7 @@
     :submitText="$tr('deleteGroup')"
     :cancelText="$tr('cancel')"
     @submit="handleSubmit"
-    @cancel="close"
+    @cancel="$emit('cancel')"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
   </KModal>
@@ -34,14 +34,11 @@
       },
     },
     methods: {
-      ...mapActions('groups', ['displayModal', 'deleteGroup']),
+      ...mapActions('groups', ['deleteGroup']),
       handleSubmit() {
         this.deleteGroup(this.groupId).then(() => {
-          this.$emit('success');
+          this.$emit('submit');
         });
-      },
-      close() {
-        this.displayModal(false);
       },
     },
     $trs: {

@@ -1,16 +1,16 @@
 <template>
 
   <Block
-    :allLinkText="viewAllString"
+    :allLinkText="$tr('viewAll')"
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
   >
     <KLabeledIcon slot="title">
       <KIcon slot="icon" lesson />
-      {{ coachStrings.$tr('lessonsLabel') }}
+      {{ coachCommon$tr('lessonsLabel') }}
     </KLabeledIcon>
 
     <p v-if="table.length === 0">
-      {{ coachStrings.$tr('lessonListEmptyState') }}
+      {{ coachCommon$tr('lessonListEmptyState') }}
     </p>
 
     <BlockItem
@@ -22,6 +22,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :hasAssignments="tableRow.hasAssignments"
         :to="classRoute('ReportsLessonLearnerListPage', { lessonId: tableRow.key })"
       />
     </BlockItem>
@@ -33,16 +34,12 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import ActivityBlock from './ActivityBlock';
 
   const MAX_LESSONS = 3;
-
-  const translator = crossComponentTranslator(ActivityBlock);
 
   export default {
     name: 'LessonsBlock',
@@ -56,17 +53,15 @@
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
-          const assigned = this.getLearnersForGroups(lesson.groups);
+          const assigned = this.getLearnersForLesson(lesson);
           return {
             key: lesson.id,
             name: lesson.title,
             tally: this.getLessonStatusTally(lesson.id, assigned),
             groups: lesson.groups.map(groupId => this.groupMap[groupId].name),
+            hasAssignments: assigned.length > 0,
           };
         });
-      },
-      viewAllString() {
-        return translator.$tr('viewAll');
       },
     },
     methods: {
@@ -86,7 +81,8 @@
       },
     },
     $trs: {
-      viewAll: 'All lessons',
+      viewAllLessons: 'All lessons',
+      viewAll: 'View all',
     },
   };
 

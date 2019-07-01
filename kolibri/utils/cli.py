@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import importlib
 import logging
 import os
 import signal
@@ -10,7 +9,6 @@ import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
-from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.db.utils import DatabaseError
 from docopt import docopt
@@ -26,9 +24,14 @@ from . import server  # noqa
 from .conf import OPTIONS  # noqa
 from .sanity_checks import check_content_directory_exists_and_writable  # noqa
 from .sanity_checks import check_other_kolibri_running  # noqa
+from .sanity_checks import check_log_file_location  # noqa
 from .system import become_daemon  # noqa
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase  # noqa
-from kolibri.utils import conf  # noqa
+from kolibri.plugins.utils import disable_plugin  # noqa
+from kolibri.plugins.utils import enable_plugin  # noqa
+from kolibri.utils.conf import config  # noqa
+from kolibri.utils.conf import KOLIBRI_HOME  # noqa
+from kolibri.utils.conf import OPTIONS  # noqa
 
 
 USAGE = """
@@ -107,30 +110,16 @@ Auto-generated usage instructions from ``kolibri -h``::
 logger = logging.getLogger(__name__)
 
 
-class PluginDoesNotExist(Exception):
-    """
-    This exception is local to the CLI environment in case actions are performed
-    on a plugin that cannot be loaded.
-    """
-
-
-class PluginBaseLoadsApp(Exception):
-    """
-    An exception raised in case a kolibri_plugin.py results in loading of the
-    Django app stack.
-    """
-
-    pass
-
-
 def version_file():
     """
     During test runtime, this path may differ because KOLIBRI_HOME is
     regenerated
     """
-    from .conf import KOLIBRI_HOME
-
     return os.path.join(KOLIBRI_HOME, ".data_version")
+
+
+def should_reset_plugins(kolibri_version, version_file_contents):
+    return kolibri_version != version_file_contents
 
 
 def should_back_up(kolibri_version, version_file_contents):
@@ -159,17 +148,19 @@ def initialize(debug=False, skip_update=False):
     else:
         # Do this here so that we can fix any issues with our configuration file before
         # we attempt to set up django.
-        from .conf import autoremove_unavailable_plugins, enable_default_plugins
 
-        autoremove_unavailable_plugins()
+        config.autoremove_unavailable_plugins()
 
         version = open(version_file(), "r").read()
         version = version.strip() if version else ""
 
+        if should_reset_plugins(kolibri.__version__, version):
+            # Reset the enabled plugins to the defaults
+            # This needs to be run before dbbackup because
+            # dbbackup relies on settings.INSTALLED_APPS
+            config.enable_default_plugins()
+
         if should_back_up(kolibri.__version__, version):
-            # dbbackup will load settings.INSTALLED_APPS.
-            # we need to ensure plugins are correct in conf.config before
-            enable_default_plugins()
             # Version changed, make a backup no matter what.
             from kolibri.core.deviceadmin.utils import dbbackup
 
@@ -223,18 +214,14 @@ def _first_run():
         "to wait a bit while we create a blank database...\n\n"
     )
 
-    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION, DEFAULT_PLUGINS
+    from kolibri.core.settings import SKIP_AUTO_DATABASE_MIGRATION
 
     # We need to migrate the database before enabling plugins, because they
     # might depend on database readiness.
     if not SKIP_AUTO_DATABASE_MIGRATION:
         _migrate_databases()
 
-    for plugin_module in DEFAULT_PLUGINS:
-        try:
-            plugin(plugin_module, enable=True)
-        except PluginDoesNotExist:
-            continue
+    config.enable_default_plugins()
 
     logger.info("Automatically enabling applications.")
 
@@ -282,7 +269,7 @@ def start(port=None, daemon=True):
     :param: port: Port number (default: 8080)
     :param: daemon: Fork to background process (default: True)
     """
-    run_cherrypy = conf.OPTIONS["Server"]["CHERRYPY_START"]
+    run_cherrypy = OPTIONS["Server"]["CHERRYPY_START"]
 
     # In case some tests run start() function only
     if not isinstance(port, int):
@@ -315,11 +302,15 @@ def start(port=None, daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+
         kwargs = {}
         # Truncate the file
         if os.path.isfile(server.DAEMON_LOG):
             open(server.DAEMON_LOG, "w").truncate()
-        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
         kwargs["out_log"] = server.DAEMON_LOG
         kwargs["err_log"] = server.DAEMON_LOG
 
@@ -336,7 +327,7 @@ def stop():
         pid, __, __ = server.get_status()
         server.stop(pid=pid)
         stopped = True
-        if conf.OPTIONS["Server"]["CHERRYPY_START"]:
+        if OPTIONS["Server"]["CHERRYPY_START"]:
             logger.info("Kolibri server has successfully been stopped.")
         else:
             logger.info("Kolibri background services have successfully been stopped.")
@@ -422,11 +413,15 @@ def services(daemon=True):
     # Daemonize at this point, no more user output is needed
     if daemon:
 
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        logger.info("Going to daemon mode, logging to {0}".format(kolibri_log))
+
         kwargs = {}
         # Truncate the file
         if os.path.isfile(server.DAEMON_LOG):
             open(server.DAEMON_LOG, "w").truncate()
-        logger.info("Going to daemon mode, logging to {0}".format(server.DAEMON_LOG))
         kwargs["out_log"] = server.DAEMON_LOG
         kwargs["err_log"] = server.DAEMON_LOG
 
@@ -444,7 +439,7 @@ def setup_logging(debug=False):
     fail when debug=False, but if it's true it can fail?
     """
     try:
-        from django.conf.settings import LOGGING
+        from django.settings import LOGGING
     except ImportError:
         from kolibri.deployment.default.settings.base import LOGGING
     if debug:
@@ -470,58 +465,8 @@ def manage(cmd, args=[]):
     from django.core.management import execute_from_command_line
 
     argv = ["kolibri manage", cmd] + args
+    logger.info("Invoking command '{}'.".format(" ".join(argv)))
     execute_from_command_line(argv=argv)
-
-
-def _is_plugin(obj):
-    from kolibri.plugins.base import KolibriPluginBase  # NOQA
-
-    return (
-        isinstance(obj, type)
-        and obj is not KolibriPluginBase
-        and issubclass(obj, KolibriPluginBase)
-    )
-
-
-def get_kolibri_plugin(plugin_name):
-    """
-    Try to load kolibri_plugin from given plugin module identifier
-
-    :returns: A list of classes inheriting from KolibriPluginBase
-    """
-
-    plugin_classes = []
-
-    try:
-        plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
-        for obj in plugin_module.__dict__.values():
-            if _is_plugin(obj):
-                plugin_classes.append(obj)
-    except ImportError as e:
-        # Python 2: message, Python 3: msg
-        exc_message = getattr(e, "message", getattr(e, "msg", None))
-        if exc_message.startswith("No module named"):
-            msg = (
-                "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
-            ).format(plugin_name)
-            raise PluginDoesNotExist(msg)
-        else:
-            raise
-    except AppRegistryNotReady:
-        msg = (
-            "Plugin '{}' loads the Django app registry, which it isn't "
-            "allowed to do while enabling or disabling itself."
-        ).format(plugin_name)
-        raise PluginBaseLoadsApp(msg)
-
-    if not plugin_classes:
-        # There's no clear use case for a plugin without a KolibriPluginBase
-        # inheritor, for now just throw a warning
-        logger.warning(
-            "Plugin '{}' has no KolibriPluginBase defined".format(plugin_name)
-        )
-
-    return plugin_classes
 
 
 def plugin(plugin_name, **kwargs):
@@ -529,36 +474,15 @@ def plugin(plugin_name, **kwargs):
     Receives a plugin identifier and tries to load its main class. Calls class
     functions.
     """
-    from kolibri.utils import conf
-
     if kwargs.get("enable", False):
-        plugin_classes = get_kolibri_plugin(plugin_name)
-        for klass in plugin_classes:
-            klass.enable()
+        logger.info("Enabling Kolibri plugin {}.".format(plugin_name))
+        enable_plugin(plugin_name)
 
     if kwargs.get("disable", False):
-        try:
-            plugin_classes = get_kolibri_plugin(plugin_name)
-            for klass in plugin_classes:
-                klass.disable()
-        except PluginDoesNotExist as e:
-            logger.error(str(e))
-            logger.warning(
-                "Removing '{}' from configuration in a naive way.".format(plugin_name)
-            )
-            if plugin_name in conf.config["INSTALLED_APPS"]:
-                conf.config["INSTALLED_APPS"].remove(plugin_name)
-                logger.info("Removed '{}' from INSTALLED_APPS".format(plugin_name))
-            else:
-                logger.warning(
-                    (
-                        "Could not find any matches for {} in INSTALLED_APPS".format(
-                            plugin_name
-                        )
-                    )
-                )
+        logger.info("Disabling Kolibri plugin {}.".format(plugin_name))
+        disable_plugin(plugin_name)
 
-    conf.save()
+    config.save()
 
 
 def set_default_language(lang):
@@ -567,20 +491,24 @@ def set_default_language(lang):
     instance of Kolibri needs to be restarted in order for this change to work.
     """
 
-    from kolibri.utils import conf
     from django.conf import settings
 
     valid_languages = [l[0] for l in settings.LANGUAGES]
 
     if lang in valid_languages:
-        conf.config["LANGUAGE_CODE"] = lang
-        conf.save()
+        logger.info(
+            "Setting the default language code to {} for this installation of Kolibri.".format(
+                lang
+            )
+        )
+        config["LANGUAGE_CODE"] = lang
+        config.save()
     else:
         msg = "Invalid language code {langcode}. Must be one of: {validlangs}".format(
             langcode=lang, validlangs=valid_languages
         )
 
-        logging.warning(msg)
+        logger.warning(msg)
 
 
 def parse_args(args=None):
@@ -629,7 +557,10 @@ def main(args=None):  # noqa: max-complexity=13
     to use main() for integration tests in order to test the argument API.
     """
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+    except ValueError:
+        logger.warn("Error adding signal handler for SIGINT...")
 
     arguments, django_args = parse_args(args)
 
@@ -639,6 +570,8 @@ def main(args=None):  # noqa: max-complexity=13
         port = _get_port(arguments["--port"])
         if OPTIONS["Server"]["CHERRYPY_START"]:
             check_other_kolibri_running(port)
+
+    check_log_file_location()
 
     try:
         initialize(debug=debug, skip_update=arguments["--skipupdate"])

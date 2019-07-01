@@ -1,100 +1,112 @@
 import Vue from 'vue';
-import { lighten, darken } from 'kolibri.utils.colour';
+import logger from 'kolibri.lib.logging';
 
-const initialState = {
-  '$core-action-light': '#e2d1e0',
-  '$core-action-dark': '#72486f',
+import materialColors from './materialColors.js';
 
-  '$core-accent-color': '#996189',
+const logging = logger.getLogger(__filename);
 
-  '$core-bg-canvas': '#f9f9f9',
-
-  '$core-text-default': '#3a3a3a',
-
-  '$core-bg-warning': '#fff3e1',
-
-  '$core-text-error': '#b93329',
-  '$core-bg-error': '#eeeeee',
-
-  /* Status colors */
-  '$core-status-progress': '#2196f3',
-  '$core-status-mastered': '#ffc107',
-  '$core-status-correct': '#4caf50',
-  '$core-status-wrong': '#df4d4f',
-
-  '$core-grey': '#e0e0e0',
-
-  '$core-loading': '#03a9f4',
+const staticState = {
   modality: null,
+  colors: {
+    palette: materialColors,
+    brand: global.kolibriTheme.brandColors,
+  },
+  tokenMapping: Object.assign(
+    {
+      // brand shortcuts
+      primary: 'brand.primary.v_400',
+      primaryLight: 'brand.primary.v_100',
+      primaryDark: 'brand.primary.v_700',
+      secondary: 'brand.secondary.v_400',
+      secondaryLight: 'brand.secondary.v_100',
+      secondaryDark: 'brand.secondary.v_700',
+      logoText: 'brand.primary.v_300',
+
+      // UI colors
+      text: 'palette.grey.v_900',
+      textDisabled: 'palette.grey.v_300',
+      annotation: 'palette.grey.v_700',
+      textInverted: 'white',
+      loading: 'brand.secondary.v_200',
+      focusOutline: 'brand.secondary.v_200',
+      surface: 'white',
+      fineLine: '#dedede',
+
+      // general semantic colors
+      error: 'palette.red.v_700',
+      success: 'palette.green.v_700',
+
+      // Kolibri-specific semantic colors
+      progress: 'palette.lightblue.v_500',
+      mastered: 'palette.amber.v_500',
+      correct: 'palette.green.v_600',
+      incorrect: 'palette.red.v_800',
+      coachContent: 'palette.lightblue.v_800',
+      superAdmin: 'palette.amber.v_600',
+
+      // content colors
+      exercise: 'palette.cyan.v_600',
+      video: 'palette.indigo.v_700',
+      audio: 'palette.pink.v_400',
+      document: 'palette.deeporange.v_600',
+      html5: 'palette.yellow.v_800',
+      topic: 'palette.grey.v_800',
+    },
+    global.kolibriTheme.tokenMapping
+  ),
 };
 
-export const dynamicState = Vue.observable(initialState);
-
-export function resetThemeValue(value) {
-  dynamicState[value] = initialState[value];
+function throwThemeError(tokenName, mapString) {
+  throw `Theme issue: '${tokenName}' has invalid mapping '${mapString}'`;
 }
 
+const hexcolor = RegExp('#[0-9a-fA-F]{6}');
+
+function getTokens() {
+  const tokens = {};
+  // look at each token map
+  Object.keys(staticState.tokenMapping).forEach(function(tokenName) {
+    const mapString = staticState.tokenMapping[tokenName];
+    // if it doesn't look like a path, interpret value as a CSS color value
+    if (mapString.indexOf('.') === -1) {
+      tokens[tokenName] = mapString;
+      return;
+    }
+    // otherwise try to use the dot notation to navigate down the color tree
+    const refs = mapString.split('.');
+    let obj = staticState.colors;
+    while (refs.length) {
+      const key = refs.shift();
+      if (!obj[key]) {
+        throwThemeError(tokenName, mapString);
+      }
+      obj = obj[key];
+    }
+    if (typeof obj !== 'string') {
+      throwThemeError(tokenName, mapString);
+    }
+    if (!hexcolor.test(obj)) {
+      logging.warn(`Theme issue: Unexpected value '${obj}' for token '${tokenName}'`);
+    }
+    // if we end up at a valid string, use it
+    tokens[tokenName] = obj;
+  });
+  return tokens;
+}
+
+const tokens = getTokens();
+
+export const dynamicState = Vue.observable({ modality: null });
+
 export default {
-  $coreActionNormal() {
-    return dynamicState['$core-accent-color'];
+  $themeTokens() {
+    return tokens;
   },
-  $coreActionLight() {
-    return dynamicState['$core-action-light'];
+  $themeColors() {
+    return staticState.colors;
   },
-  $coreActionDark() {
-    return dynamicState['$core-action-dark'];
-  },
-  $coreAccentColor() {
-    return dynamicState['$core-accent-color'];
-  },
-  $coreBgLight() {
-    return lighten(dynamicState['$core-bg-canvas'], 0.025);
-  },
-  $coreBgCanvas() {
-    return dynamicState['$core-bg-canvas'];
-  },
-  $coreTextDefault() {
-    return dynamicState['$core-text-default'];
-  },
-  $coreTextAnnotation() {
-    return lighten(dynamicState['$core-text-default'], 0.68);
-  },
-  $coreTextDisabled() {
-    return lighten(dynamicState['$core-text-default'], 2.85);
-  },
-  $coreBgWarning() {
-    return dynamicState['$core-bg-warning'];
-  },
-  $coreTextError() {
-    return dynamicState['$core-text-error'];
-  },
-  $coreBgError() {
-    return dynamicState['$core-bg-error'];
-  },
-  /* Status colors */
-  $coreStatusProgress() {
-    return dynamicState['$core-status-progress'];
-  },
-  $coreStatusMastered() {
-    return dynamicState['$core-status-mastered'];
-  },
-  $coreStatusCorrect() {
-    return dynamicState['$core-status-correct'];
-  },
-  $coreStatusWrong() {
-    return dynamicState['$core-status-wrong'];
-  },
-  $coreGrey() {
-    return dynamicState['$core-grey'];
-  },
-  $coreGrey200() {
-    return lighten(dynamicState['$core-grey'], 0.063);
-  },
-  $coreGrey300() {
-    return dynamicState['$core-grey'];
-  },
-  $coreLoading() {
-    return dynamicState['$core-loading'];
+  $theme() {
+    return global.kolibriTheme;
   },
   // Should only use these styles to outline stuff that will be focused
   // on keyboard-tab-focus
@@ -104,9 +116,8 @@ export default {
         outline: 'none',
       };
     }
-
     return {
-      outlineColor: darken(dynamicState['$core-action-light'], 0.1),
+      outlineColor: getTokens().focusOutline,
       outlineStyle: 'solid',
       outlineWidth: '3px',
       outlineOffset: '4px',
@@ -116,7 +127,7 @@ export default {
   // of modality
   $coreOutlineAnyModality() {
     return {
-      outlineColor: darken(dynamicState['$core-action-light'], 0.1),
+      outlineColor: getTokens().focusOutline,
       outlineStyle: 'solid',
       outlineWidth: '3px',
       outlineOffset: '4px',

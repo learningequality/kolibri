@@ -1,16 +1,16 @@
 <template>
 
   <Block
-    :allLinkText="viewAllString"
+    :allLinkText="$tr('viewAll')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <KLabeledIcon slot="title">
       <KIcon slot="icon" quiz />
-      {{ coachStrings.$tr('quizzesLabel') }}
+      {{ coachCommon$tr('quizzesLabel') }}
     </KLabeledIcon>
 
     <p v-if="table.length === 0">
-      {{ coachStrings.$tr('quizListEmptyState') }}
+      {{ coachCommon$tr('quizListEmptyState') }}
     </p>
 
     <BlockItem
@@ -21,6 +21,7 @@
         :name="tableRow.name"
         :tally="tableRow.tally"
         :groupNames="tableRow.groups"
+        :hasAssignments="tableRow.hasAssignments"
         :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.key })"
       />
     </BlockItem>
@@ -31,15 +32,12 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import ActivityBlock from './ActivityBlock';
 
-  const translator = crossComponentTranslator(ActivityBlock);
   const MAX_QUIZZES = 3;
 
   export default {
@@ -54,17 +52,15 @@
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
         return recent.map(exam => {
-          const assigned = this.getLearnersForGroups(exam.groups);
+          const assigned = this.getLearnersForExam(exam);
           return {
             key: exam.id,
             name: exam.title,
             tally: this.getExamStatusTally(exam.id, assigned),
             groups: exam.groups.map(groupId => this.groupMap[groupId].name),
+            hasAssignments: assigned.length > 0,
           };
         });
-      },
-      viewAllString() {
-        return translator.$tr('viewAll');
       },
     },
     methods: {
@@ -84,7 +80,8 @@
       },
     },
     $trs: {
-      viewAll: 'All quizzes',
+      viewAllQuizzes: 'All quizzes',
+      viewAll: 'View all',
     },
   };
 

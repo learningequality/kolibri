@@ -1,6 +1,6 @@
 <template>
 
-  <section class="question-list">
+  <section :style="{ backgroundColor: $themeTokens.surface }">
 
     <h2 class="header">
       {{ $tr('questionListHeader', {numOfQuestions:questions.length}) }}
@@ -15,7 +15,7 @@
       >
         <KButton
           :class="{selected: index === selectedIndex}"
-          :style="{ backgroundColor: index === selectedIndex ? $coreGrey300 : '' }"
+          :style="buttonStyle(index)"
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"
@@ -56,6 +56,13 @@
         validator: value => typeof value(0) === 'string',
       },
     },
+    methods: {
+      buttonStyle(index) {
+        return {
+          backgroundColor: index === this.selectedIndex ? this.$themeColors.palette.grey.v_300 : '',
+        };
+      },
+    },
     $trs: {
       questionListHeader: '{numOfQuestions, number} Questions',
       questionLabel: 'Question { questionNumber, number }',
@@ -66,10 +73,6 @@
 
 
 <style lang="scss" scoped>
-
-  .question-list {
-    background-color: white;
-  }
 
   .header,
   .list,

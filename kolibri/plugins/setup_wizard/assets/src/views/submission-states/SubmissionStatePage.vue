@@ -6,7 +6,7 @@
       :delay="false"
     />
 
-    <h1 class="submission-state-page-header" :style="{ color: $coreAccentColor }">
+    <h1 class="submission-state-page-header" :style="{ color: $themeTokens.primary }">
       {{ header }}
     </h1>
 

@@ -448,6 +448,23 @@ tester.run('vue-no-unused-vuex-properties', rule, {
       `,
     },
 
+    // does not report nested arrays items
+    {
+      filename: 'test.vue',
+      code: `
+        <script>
+          export default {
+            computed: mapState({
+              channelRootId: state => get(state, ['channel', 'root_id'], '')
+            }),
+            mounted() {
+              alert(this.channelRootId)
+            }
+          };
+        </script>
+      `,
+    },
+
     {
       filename: 'test.vue',
       code: `

@@ -5,7 +5,7 @@
     <section>
       <h2>{{ $tr('points') }}</h2>
       <PointsIcon class="points-icon" />
-      <span class="points-num" :style="{ color: $coreStatusCorrect }">
+      <span class="points-num" :style="{ color: $themeTokens.correct }">
         {{ $formatNumber(totalPoints) }}
       </span>
     </section>
@@ -16,7 +16,7 @@
     </section>
 
     <section v-if="facilityName">
-      <h2>{{ facilityString }}</h2>
+      <h2>{{ $tr('facility') }}</h2>
       <p>{{ facilityName }}</p>
     </section>
 
@@ -119,7 +119,6 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import find from 'lodash/find';
@@ -135,10 +134,7 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiAlert from 'keen-ui/src/UiAlert';
   import { PermissionTypes, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import SignUpPage from '../SignUpPage';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
-
-  const SignUpPageStrings = crossComponentTranslator(SignUpPage);
 
   export default {
     name: 'ProfilePage',
@@ -189,9 +185,6 @@
       }),
       userPermissions() {
         return pickBy(this.getUserPermissions);
-      },
-      facilityString() {
-        return SignUpPageStrings.$tr('facility');
       },
       facilityName() {
         const match = find(this.$store.getters.facilities, {
@@ -322,6 +315,7 @@
       changePasswordPrompt: 'Change password',
       usernameAlreadyExists: 'An account with that username already exists',
       documentTitle: 'User Profile',
+      facility: 'Facility',
     },
   };
 

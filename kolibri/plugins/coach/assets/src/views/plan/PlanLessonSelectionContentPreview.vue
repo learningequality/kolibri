@@ -4,7 +4,8 @@
     :immersivePage="true"
     immersivePageIcon="arrow_back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="coachStrings.$tr('manageResourcesAction')"
+    :immersivePagePrimary="true"
+    :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
@@ -27,12 +28,8 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
-  import Index from '../CoachIndex';
   import commonCoach from '../common';
-
-  const indexStrings = crossComponentTranslator(Index);
 
   export default {
     name: 'PlanLessonSelectionContentPreview',
@@ -73,6 +70,11 @@
         }
         return false;
       },
+      lessonNameLabel() {
+        const lessonId = this.$route.params.lessonId;
+        const lesson = this.lessons.find(l => l.id === lessonId);
+        return lesson ? lesson.title : this.$tr('lessonLabel');
+      },
     },
     beforeDestroy() {
       this.clearSnackbar();
@@ -83,14 +85,20 @@
       handleAddResource(content) {
         this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
         this.addToResourceCache({ node: content });
-        this.createSnackbar(indexStrings.$tr('resourcesAddedSnackbarText', { count: 1 }));
+        this.createSnackbar(this.$tr('resourcesAddedSnackbarText', { count: 1 }));
       },
       handleRemoveResource(content) {
         this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
-        this.createSnackbar(indexStrings.$tr('resourcesRemovedSnackbarText', { count: 1 }));
+        this.createSnackbar(this.$tr('resourcesRemovedSnackbarText', { count: 1 }));
       },
     },
-    $trs: {},
+    $trs: {
+      lessonLabel: 'Lesson',
+      resourcesAddedSnackbarText:
+        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
+      resourcesRemovedSnackbarText:
+        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
+    },
   };
 
 </script>

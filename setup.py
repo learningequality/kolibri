@@ -4,71 +4,19 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import io
 import logging
 import os
 import sys
 
-try:  # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError:  # for pip <= 9.0.3
-    from pip.req import parse_requirements
 from setuptools import setup
 from setuptools.command.install_scripts import install_scripts
 
 import kolibri
-from kolibri import dist as kolibri_dist
 
-
-dist_name = "kolibri"
-
-readme = io.open("README.md", mode="r", encoding="utf-8").read()
-
-# Default description of the distributed package
-description = """Kolibri - the offline app for universal education"""
-
-# Decide if the invoked command is a request to do building
-is_building_dist = any(
-    [x in sys.argv for x in ("bdist", "sdist", "bdist_wheel", "bdist_deb", "sdist_dsc")]
-)
-
-static_dir = os.path.dirname(os.path.realpath(kolibri_dist.__file__))
-
-dependency_links, install_requires, static_requirements = [], [], []
-
-# Check if user supplied the special '--static' option
-# !! Currently, we just bundle no matter what
-if is_building_dist or "--static" in sys.argv:
-    sys.argv.remove("--static")
-    static_build = True
-
-# TODO:
-# `pip -e .` should work in a source dir, however since it doesn't
-# anyways (because of http sources in requirements.txt), we can
-# just skip this part
-# Either the installation is a .whl or sdist or it's done from source
-# dir and this requires `pip install -r requirements.txt`
-# anyways!
-# We don't currently have a release that has dependencies, everything
-# is bundled.
-elif False:
-    req_file = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "requirements.txt"
-    )
-    reqs = parse_requirements(req_file, session=False)
-    install_requires = [str(ir.req) for ir in reqs]
-    static_requirements = []
-    dependency_links = []
-
-################
-# Windows code #
-################
-#
-# Close your eyes
-
-BAT_TEMPLATE = r"""@echo off
+# Windows-specific .bat script template
+WINDOWS_BATCH_TEMPLATE = r"""@echo off
 set mypath=%~dp0
-set pyscript="%mypath%{FNAME}"
+set pyscript="%mypath%{file_name}"
 set /p line1=<%pyscript%
 if "%line1:~0,2%" == "#!" (goto :goodstart)
 echo First line of %pyscript% does not start with "#!"
@@ -78,66 +26,53 @@ set py_exe=%line1:~2%
 call %py_exe% %pyscript% %*
 """
 
-
-class bat_install_scripts(install_scripts):
-    """
-    Automatically creates .bat scripts for each executable distributed
-    """
-
+# Generate Windows-specific .bat files
+class gen_windows_batch_files(install_scripts):
     def run(self):
+        # default behaviors
         install_scripts.run(self)
+
+        # Nothing more to do if this is not Windows
         if not os.name == "nt":
             return
-        for filepath in self.get_outputs():
-            # If we can find an executable name in the #! top line of the script
-            # file, make .bat wrapper for script.
-            with open(filepath, "rt") as fobj:
-                first_line = fobj.readline()
+
+        # For Windows, write batch scripts for all executable python files
+        for output_path in self.get_outputs():
+            # look for #! at the top
+            with open(output_path, "rt") as f:
+                first_line = f.readline()
+            # skip non-executbale python files
             if not (first_line.startswith("#!") and "python" in first_line.lower()):
                 continue
-            pth, fname = os.path.split(filepath)
-            froot, ___ = os.path.splitext(fname)
-            bat_file = os.path.join(pth, froot + ".bat")
-            bat_contents = BAT_TEMPLATE.replace("{FNAME}", fname)
+            path_name, file_name = os.path.split(output_path)
             if self.dry_run:
                 continue
-            with open(bat_file, "wt") as fobj:
-                fobj.write(bat_contents)
+            bat_file = os.path.join(path_name, os.path.splitext(file_name)[0] + ".bat")
+            with open(bat_file, "wt") as f:
+                f.write(WINDOWS_BATCH_TEMPLATE.format(file_name=file_name))
 
 
-# You can open your eyes again
-#
-#####################
-# END: Windows code #
-#####################
+long_description = """
+`Kolibri <https://learningequality.org/kolibri/>`_ is the offline learning platform
+from `Learning Equality <https://learningequality.org/>`_.
 
-######################################
-# STATIC AND DYNAMIC BUILD SPECIFICS #
-######################################
+This package can be installed by running ``pip install kolibri``. `See the download
+page <https://learningequality.org/download/>`_ for other methods of installation.
 
-
-def enable_log_to_stdout(logname):
-    """Given a log name, outputs > INFO to stdout."""
-    log = logging.getLogger(logname)
-    log.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    # create formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    # add formatter to ch
-    ch.setFormatter(formatter)
-    # add ch to logger
-    log.addHandler(ch)
+- `View the documentation <https://kolibri.readthedocs.io/>`_ and the `community
+  forums <https://community.learningequality.org/>`_ for more guidance on setting up
+  and using Kolibri
+- Visit the `Github project <https://github.com/learningequality/kolibri>`_ and the
+  `developer documentation <https://kolibri-dev.readthedocs.io/>`_ if you would like
+  to contribute to development
+"""
 
 
 setup(
-    name=dist_name,
+    name="kolibri",
     version=kolibri.__version__,
-    description=description,
-    long_description=readme,
-    long_description_content_type="text/markdown",
+    description="Kolibri - the offline app for universal education",
+    long_description=long_description,
     author="Learning Equality",
     author_email="info@learningequality.org",
     url="https://github.com/learningequality/kolibri",
@@ -145,8 +80,8 @@ setup(
     entry_points={"console_scripts": ["kolibri = kolibri.utils.cli:main"]},
     package_dir={"kolibri": "kolibri"},
     include_package_data=True,
-    install_requires=install_requires,
-    dependency_links=dependency_links,
+    install_requires=[],
+    dependency_links=[],
     tests_require=["pytest", "tox", "flake8"],
     license="MIT",
     zip_safe=False,
@@ -165,5 +100,5 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    cmdclass={"install_scripts": bat_install_scripts},  # Windows bat wrapper
+    cmdclass={"install_scripts": gen_windows_batch_files},
 )

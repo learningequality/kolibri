@@ -3,7 +3,6 @@ import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 
 ProfilePage.methods.fetchPoints = () => {};
-ProfilePage.mixins = [];
 
 function makeWrapper() {
   const store = makeStore();

@@ -16,3 +16,4 @@ Feature: Coach changes user interface language
 Examples:
   | language  |
   | Kiswahili |
+  

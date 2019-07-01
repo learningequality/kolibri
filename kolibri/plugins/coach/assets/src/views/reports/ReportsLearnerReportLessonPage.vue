@@ -25,7 +25,7 @@
       <HeaderTable>
         <HeaderTableRow>
           <template slot="key">
-            {{ coachStrings.$tr('statusLabel') }}
+            {{ coachCommon$tr('statusLabel') }}
           </template>
           <template slot="value">
             <LessonActive :active="lesson.active" />
@@ -33,7 +33,7 @@
         </HeaderTableRow>
         <!-- TODO COACH
         <HeaderTableRow>
-          <template slot="key">{{ coachStrings.$tr('descriptionLabel') }}</template>
+          <template slot="key">{{ coachCommon$tr('descriptionLabel') }}</template>
           <template slot="value">Ipsum lorem</template>
         </HeaderTableRow>
          -->
@@ -42,9 +42,9 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -84,18 +84,14 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
-  import LessonSummaryPage from '../plan/LessonSummaryPage';
-
-  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
     mixins: [commonCoach],
     computed: {
       emptyMessage() {
-        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+        return this.$tr('noResourcesInLesson');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -106,14 +102,13 @@
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
         const sorted = this._.sortBy(contentArray, ['title']);
-        const mapped = sorted.map(content => {
+        return sorted.map(content => {
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };
           Object.assign(tableRow, content);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {
@@ -132,6 +127,7 @@
     },
     $trs: {
       lessonProgressLabel: "'{lesson}' progress",
+      noResourcesInLesson: 'No resources in this lesson',
     },
   };
 

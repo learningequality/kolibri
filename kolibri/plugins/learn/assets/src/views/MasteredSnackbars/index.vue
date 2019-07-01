@@ -18,7 +18,7 @@
           <PointsIcon class="points-icon" />
           <div
             class="points-amount"
-            :style="{ color: $coreStatusCorrect }"
+            :style="{ color: $themeTokens.correct }"
           >
             {{ $tr('plusPoints', { maxPoints }) }}
           </div>
@@ -46,19 +46,19 @@
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
-            :style="{backgroundColor: iconBackgroundColor }"
+            :style="{backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
           />
         </template>
 
         <template slot="content">
           <router-link
             class="rm-link-style"
-            :style="{ color: $coreTextDefault }"
+            :style="{ color: $themeTokens.text }"
             :to="nextContentLink"
           >
             <h2
               class="next-content-heading"
-              :style="{ color: $coreTextAnnotation }"
+              :style="{ color: $themeTokens.annotation }"
             >
               {{ $tr('next') }}
             </h2>
@@ -131,17 +131,17 @@
       iconBackgroundColor() {
         switch (this.nextContent.kind) {
           case ContentNodeKinds.EXERCISE:
-            return '#0eafaf';
+            return this.$themeTokens.exercise;
           case ContentNodeKinds.VIDEO:
-            return '#3938A5';
+            return this.$themeTokens.video;
           case ContentNodeKinds.AUDIO:
-            return '#E65997';
+            return this.$themeTokens.audio;
           case ContentNodeKinds.DOCUMENT:
-            return '#ED2828';
+            return this.$themeTokens.document;
           case ContentNodeKinds.HTML5:
-            return '#FF8B41';
+            return this.$themeTokens.html5;
           default:
-            return '#262626';
+            return this.$themeTokens.topic;
         }
       },
     },
@@ -206,7 +206,6 @@
     width: 24px;
     height: 24px;
     font-size: 18px;
-    color: white;
     text-align: center;
     border-radius: 50%;
   }

@@ -13,14 +13,14 @@
 
       <ReportsLessonHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
+      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
 
-      <CoreTable :emptyMessage="coachStrings.$tr('learnerListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('learnerListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('nameLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('groupsLabel') }}</th>
+            <th>{{ coachCommon$tr('nameLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('groupsLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -65,12 +65,12 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       recipients() {
-        return this.getLearnersForGroups(this.lesson.groups);
+        return this.getLearnersForLesson(this.lesson);
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = this._.sortBy(learners, ['name']);
-        const mapped = sorted.map(learner => {
+        return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
@@ -78,7 +78,6 @@
           Object.assign(tableRow, learner);
           return tableRow;
         });
-        return mapped;
       },
     },
     $trs: {

@@ -17,6 +17,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.serializers import DateTimeTzField
+from kolibri.core.serializers import KolibriModelSerializer
 
 
 # Intended to match  NotificationEventType
@@ -128,11 +130,11 @@ def content_status_serializer(lesson_data, learners_data, classroom):
     return map(map_content_logs, content_log_values)
 
 
-class ExamStatusSerializer(serializers.ModelSerializer):
+class ExamStatusSerializer(KolibriModelSerializer):
     status = serializers.SerializerMethodField()
     exam_id = serializers.PrimaryKeyRelatedField(source="exam", read_only=True)
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
-    last_activity = serializers.CharField()
+    last_activity = DateTimeTzField()
     num_correct = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
@@ -155,7 +157,7 @@ class ExamStatusSerializer(serializers.ModelSerializer):
         fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class GroupSerializer(KolibriModelSerializer):
     member_ids = serializers.SerializerMethodField()
 
     def get_member_ids(self, group):
@@ -166,7 +168,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "member_ids")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(KolibriModelSerializer):
     name = serializers.CharField(source="full_name")
 
     class Meta:
@@ -179,18 +181,28 @@ class LessonAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class LessonSerializer(serializers.ModelSerializer):
+class LessonSerializer(KolibriModelSerializer):
     active = serializers.BooleanField(source="is_active")
     node_ids = serializers.SerializerMethodField()
 
-    # classrooms are in here, and filtered out later
-    groups = LessonAssignmentsField(
+    # classrooms are in here, and filtered out later to create `groups`
+    assignments = LessonAssignmentsField(
         many=True, read_only=True, source="lesson_assignments"
     )
 
+    groups = serializers.ListField(default=[])
+
     class Meta:
         model = Lesson
-        fields = ("id", "title", "active", "node_ids", "groups", "description")
+        fields = (
+            "id",
+            "title",
+            "active",
+            "node_ids",
+            "assignments",
+            "groups",
+            "description",
+        )
 
     def get_node_ids(self, obj):
         return [resource["contentnode_id"] for resource in obj.resources]
@@ -206,12 +218,14 @@ class ExamAssignmentsField(serializers.RelatedField):
         return assignment.collection.id
 
 
-class ExamSerializer(serializers.ModelSerializer):
+class ExamSerializer(KolibriModelSerializer):
 
     question_sources = ExamQuestionSourcesField(default=[])
 
-    # classes are in here, and filtered out later
-    groups = ExamAssignmentsField(many=True, read_only=True, source="assignments")
+    # classes are in here, and filtered out later to create `groups`
+    assignments = ExamAssignmentsField(many=True, read_only=True)
+
+    groups = serializers.ListField(default=[])
 
     class Meta:
         model = Exam
@@ -220,14 +234,16 @@ class ExamSerializer(serializers.ModelSerializer):
             "title",
             "active",
             "question_sources",
+            "assignments",
             "groups",
             "data_model_version",
             "question_count",
             "learners_see_fixed_order",
+            "seed",
         )
 
 
-class ContentSerializer(serializers.ModelSerializer):
+class ContentSerializer(KolibriModelSerializer):
     node_id = serializers.CharField(source="id")
 
     class Meta:
@@ -273,11 +289,11 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [g for g in exam["groups"] if g != pk]
+            exam["groups"] = [g for g in exam["assignments"] if g != pk]
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [g for g in lesson["groups"] if g != pk]
+            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
 
         all_node_ids = set()
         for lesson in lesson_data:

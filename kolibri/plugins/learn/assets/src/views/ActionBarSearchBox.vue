@@ -15,7 +15,7 @@
       <div
         v-show="searchBoxIsVisible"
         :class="{ 'search-box-dropdown': searchBoxIsDropdown }"
-        :style="{ backgroundColor: searchBoxIsDropdown ? $coreActionNormal : '' }"
+        :style="{ backgroundColor: searchBoxIsDropdown ? $themeTokens.primary : '' }"
       >
         <SearchBox
           ref="searchBox"

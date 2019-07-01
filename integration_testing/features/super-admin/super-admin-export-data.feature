@@ -2,7 +2,7 @@ Feature: Super admin exports usage data
     Super admin needs to be able to export session and summary logs for the facility
 
   Background:
-    Given I am signed in to Kolibri as Super admin
+    Given I am signed in to Kolibri as super admin
       And I am on *Facility > Data* page
       And the learners have had interactions with the content on the device
 
@@ -12,10 +12,7 @@ Feature: Super admin exports usage data
       And the *Download* button is enabled
       And the text change to "Generate a new log file" 
     When I click on *Download* button     
-    Then I see *Save as* window
-    When I enter the name and location for the CSV file
-      And I click the *Save* button
-    Then I see the session logs file saved on my local drive
+    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
 
   Scenario: Export summary logs
     When I click on "Generate log file" link under *Summary logs* heading
@@ -23,7 +20,4 @@ Feature: Super admin exports usage data
       And the *Download* button is enabled
       And the text change to "Generate a new log file"
     When I click on *Download* button 
-    Then I see *Save as* window
-    When I enter the name and location for the CSV file
-      And I click the *Save* button
-    Then I see the summary logs file saved on my local drive
+    Then I see the *Open/Save as* window, or the file 'content_summary_logs.csv' is automatically saved on my local drive, depending on the browser defaults

@@ -13,7 +13,7 @@ Feature: Guest finds content item
     Then I see the *Results for '<search_term>'* page
 
   Scenario: Clear the previous search
-    Given that I've writen something in the search field
+    Given that I've written something in the search field
       When I use the TAB key to focus the *Clear* button 
         And I press ENTER
           Or I click/tap the *Clear* button directly

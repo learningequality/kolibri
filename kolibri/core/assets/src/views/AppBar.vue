@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ backgroundColor: $coreActionNormal }">
+  <div :style="{ backgroundColor: $themeTokens.primary }">
     <UiToolbar
       :title="title"
       type="clear"
@@ -8,6 +8,7 @@
       class="app-bar"
       :style="{ height: height + 'px' }"
       :raised="false"
+      :removeBrandDivider="true"
     >
       <UiIconButton
         slot="icon"
@@ -16,11 +17,20 @@
         @click="$emit('toggleSideNav')"
       >
         <mat-svg
-          class="icon"
           name="menu"
           category="navigation"
+          :style="{fill: $themeTokens.textInverted}"
         />
       </UiIconButton>
+
+      <img
+        v-if="$theme.appBar.topLogo"
+        slot="brand"
+        :src="$theme.appBar.topLogo.src"
+        :alt="$theme.appBar.topLogo.alt"
+        :style="$theme.appBar.topLogo.style"
+        class="brand-logo"
+      >
 
       <div slot="actions">
         <slot name="app-bar-actions"></slot>
@@ -40,9 +50,14 @@
             slot="icon"
             name="person"
             category="social"
+            :style="{fill: $themeTokens.textInverted}"
           />
           <span v-if="isUserLoggedIn" class="username">{{ username }}</span>
-          <mat-svg name="arrow_drop_down" category="navigation" />
+          <mat-svg
+            name="arrow_drop_down"
+            category="navigation"
+            :style="{fill: $themeTokens.textInverted}"
+          />
         </UiButton>
 
         <CoreMenu
@@ -52,6 +67,7 @@
           :raised="true"
           :containFocus="true"
           :showActive="false"
+          :style="{backgroundColor: $themeTokens.surface}"
           @close="userMenuDropdownIsOpen = false"
         >
           <template v-if="isUserLoggedIn" slot="header">
@@ -169,7 +185,7 @@
       },
     },
     $trs: {
-      openNav: 'Open site navigation',
+      openNav: 'Open site navigation menu',
       userTypeLabel: 'User type',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
@@ -181,17 +197,18 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
-    svg {
-      fill: white;
-    }
   }
 
   .username {
     max-width: 200px;
-    overflow: hidden;
+    // overflow-x hidden seems to affect overflow-y also, so include a fixed height
+    height: 16px;
+    overflow-x: hidden;
     text-overflow: ellipsis;
   }
 
@@ -199,7 +216,6 @@
     position: fixed;
     right: 0;
     z-index: 8;
-    background-color: white;
   }
 
   .role {
@@ -208,13 +224,20 @@
     font-weight: bold;
   }
 
-  .icon {
-    fill: white;
-  }
-
   .total-points {
     display: inline-block;
     margin-left: 16px;
+  }
+
+  /deep/ .ui-toolbar__brand {
+    min-width: inherit;
+  }
+
+  .brand-logo {
+    max-width: 48px;
+    max-height: 48px;
+    margin-right: 8px;
+    vertical-align: middle;
   }
 
 </style>

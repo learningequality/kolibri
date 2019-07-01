@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <KGrid>
       <KGridItem sizes="100, 50, 50" percentage>
         <h1>{{ $tr('users') }}</h1>
@@ -32,11 +31,7 @@
       </KGridItem>
     </KGrid>
 
-    <UserTable
-      class="user-roster move-down"
-      :users="visibleUsers"
-      :emptyMessage="emptyMessage"
-    >
+    <UserTable class="user-roster move-down" :users="visibleUsers" :emptyMessage="emptyMessage">
       <template slot="action" slot-scope="userRow">
         <KDropdownMenu
           :text="$tr('optionsButtonLabel')"
@@ -48,8 +43,34 @@
       </template>
     </UserTable>
 
+    <nav>
+      <span dir="auto">
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredUsers }) }}
+      </span>
+      <UiIconButton
+        type="primary"
+        :ariaLabel="$tr('previousResults')"
+        :disabled="pageNum === 1"
+        size="small"
+        class="pagination-button"
+        @click="goToPage(pageNum - 1)"
+      >
+        <KIcon back style="position: relative; top: -1px;" />
+      </UiIconButton>
+      <UiIconButton
+        type="primary"
+        :ariaLabel="$tr('nextResults')"
+        :disabled="pageNum === 0 || pageNum === numPages"
+        size="small"
+        class="pagination-button"
+        @click="goToPage(pageNum + 1)"
+      >
+        <KIcon forward style="position: relative; top: -1px;" />
+      </UiIconButton>
+    </nav>
+
     <!-- Modals -->
-    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" />
+    <UserCreateModal v-if="modalShown===Modals.CREATE_USER" @cancel="closeModal" />
 
     <EditUserModal
       v-if="modalShown===Modals.EDIT_USER"
@@ -57,20 +78,22 @@
       :name="selectedUser.full_name"
       :username="selectedUser.username"
       :kind="selectedUser.kind"
+      @cancel="closeModal"
     />
 
     <ResetUserPasswordModal
       v-if="modalShown===Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :username="selectedUser.username"
+      @cancel="closeModal"
     />
 
     <DeleteUserModal
       v-if="modalShown===Modals.DELETE_USER"
       :id="selectedUser.id"
       :username="selectedUser.username"
+      @cancel="closeModal"
     />
-
   </div>
 
 </template>
@@ -86,6 +109,8 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
@@ -111,16 +136,20 @@
       KButton,
       KFilterTextbox,
       KDropdownMenu,
+      KIcon,
       KSelect,
       KGrid,
       KGridItem,
       UserTable,
+      UiIconButton,
     },
     data() {
       return {
         searchFilter: '',
         roleFilter: null,
         selectedUser: null,
+        perPage: 10,
+        pageNum: 1,
       };
     },
     computed: {
@@ -135,11 +164,14 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
         ];
       },
-      visibleUsers() {
+      sortedFilteredUsers() {
         return filterAndSortUsers(
           this.facilityUsers,
           user => userMatchesFilter(user, this.searchFilter) && this.userMatchesRole(user)
         );
+      },
+      visibleUsers() {
+        return this.sortedFilteredUsers.slice(this.startRange, this.endRange);
       },
       emptyMessage() {
         if (this.facilityUsers.length === 0) {
@@ -149,12 +181,40 @@
         }
         return '';
       },
+      numPages() {
+        return Math.ceil(this.numFilteredUsers / this.perPage);
+      },
+      startRange() {
+        return (this.pageNum - 1) * this.perPage;
+      },
+      visibleStartRange() {
+        return Math.min(this.startRange + 1, this.numFilteredUsers);
+      },
+      endRange() {
+        return this.pageNum * this.perPage;
+      },
+      visibleEndRange() {
+        return Math.min(this.endRange, this.numFilteredUsers);
+      },
+      numFilteredUsers() {
+        return this.sortedFilteredUsers.length;
+      },
+    },
+    watch: {
+      searchFilter() {
+        // Reset the pageNum to the first page when searchFilter changes
+        // to avoid showing an empty page.
+        this.pageNum = 1;
+      },
     },
     beforeMount() {
       this.roleFilter = this.userKinds[0];
     },
     methods: {
       ...mapActions('userManagement', ['displayModal']),
+      closeModal() {
+        this.displayModal(false);
+      },
       userMatchesRole(user) {
         const { value: filterKind } = this.roleFilter;
         if (filterKind === ALL_FILTER) {
@@ -178,6 +238,9 @@
             disabled: userId === this.currentUserId,
           },
         ];
+      },
+      goToPage(page) {
+        this.pageNum = page;
       },
       handleManageUserSelection(selection, user) {
         this.selectedUser = user;
@@ -211,6 +274,10 @@
       deleteUser: 'Delete',
       userActions: 'User management actions',
       userPageTitle: 'Users',
+      pagination:
+        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+      previousResults: 'Previous results',
+      nextResults: 'Next results',
     },
   };
 
@@ -235,6 +302,14 @@
 
   .user-roster {
     overflow-x: auto;
+  }
+  .actions-header,
+  .footer,
+  nav {
+    text-align: end;
+  }
+  .pagination-button {
+    margin-left: 8px;
   }
 
 </style>

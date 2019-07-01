@@ -29,7 +29,7 @@ Implications and real-world consequences for learners, coaches, admins, and othe
 <!--
 Relevant logs from:
  * the command line
- * ~/.kolibri/kolibri.log
+ * ~/.kolibri/logs/kolibri.txt
  * the browser console
 
 Please wrap errors in triple backticks for clean formatting like this:

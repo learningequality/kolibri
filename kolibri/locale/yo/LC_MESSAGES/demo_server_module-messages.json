@@ -1,11 +1,11 @@
 {
-  "DemoServerIndex.demoServerA1": "Ka àwọn àkọsílẹ̀",
-  "DemoServerIndex.demoServerA2": "Gbígbà ẹ̀dà fáìlì ati siṣàgbékalẹ̀ àwọn àgbéjáde tó jáde kẹ́yìn",
-  "DemoServerIndex.demoServerHeader": "Ẹ Káàbọ̀ Sí ojú-òpó-wẹ́ẹ̀bù aṣàfihàn Kolibri!",
-  "DemoServerIndex.demoServerL1": "Akẹ́kọ̀ọ́ (orúkọ aṣàmúlò: '{user}', ọ̀rọ̀ aṣínà: '{pass}') tabi ráyè sí bí àlejò",
-  "DemoServerIndex.demoServerL2": "Kóòṣì (orúkọ aṣàmúlò: '{user}', ọ̀rọ̀ aṣínà: '{pass}')",
-  "DemoServerIndex.demoServerL3": "Alábòójútó (orúkọ aṣàmúlò: '{user}', ọ̀rọ̀ aṣínà: '{pass}')",
-  "DemoServerIndex.demoServerP1": "A kí yín káàbọ̀ si siṣàwárí pẹ̀lú èyíkéyìí nínú àwọn irú aṣàmúlò mẹ́tẹ̀ẹ̀ta:",
-  "DemoServerIndex.demoServerP2": "Ojú-òpó-wẹ́ẹ̀bù aṣàfihàn yii ni i se pelu àwọn ohun tó wà lákọọ́lẹ̀ ati awon àbájáde tó sese jáde kẹ́yìn, sugbon die lara awon àpéjúwèé àkóónú ti a ti pese sile fun lilo ni ipo aládàáṣẹ́ Kolibri nikan lo wa. A ni lokan pe ki a lo fun sisapejuwe ati pe a le pa awon kikojo dátà aṣàmúlò re láàárín àkókò náà.",
-  "DemoServerIndex.demoServerP3": "Lati ko si nipa Kolibri ni ipo aládàáṣẹ́ ati lati ni oye si nipa orí pèpéle naa:"
+  "DemoServerBannerContent.demoServerA1": "Ka àwọn àkọsílẹ̀",
+  "DemoServerBannerContent.demoServerA2": "Gbígbà ẹ̀dà fáìlì ati siṣàgbékalẹ̀ àwọn àgbéjáde tó jáde kẹ́yìn",
+  "DemoServerBannerContent.demoServerHeader": "Ẹ Káàbọ̀ Sí ojú-òpó-wẹ́ẹ̀bù aṣàfihàn Kolibri",
+  "DemoServerBannerContent.demoServerL1": "Akẹ́kọ̀ọ́ ({user}/{pass} tabi wole bi alejo)",
+  "DemoServerBannerContent.demoServerL2": "Olùdánilẹ́kọ̀ọ́ ({user}/{pass})",
+  "DemoServerBannerContent.demoServerL3": "Alábòójútó ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Ṣàyẹ̀wò eyikeyi ninu awọn aṣàmúlò mẹta tó pilẹ̀:",
+  "DemoServerBannerContent.demoServerP2": "Ẹ̀yà àṣẹ̀ṣẹ̀jáde ayelujara ti Kolibri yii je eyi ti a ni pinnu fun lati jefun ifihan nikan. Awọn olumulo ati data yoo maa paarẹ loorekore. Awọn ẹya ara asafihan yii fi awon ohun ini ti ikede Kolibri titun han, gbogbo awọn ohun elo ti a ri ni wọn je fun ayẹwo.",
+  "DemoServerBannerContent.demoServerP3": "Lati ko si nipa Kolibri ni ipo aládàáṣẹ́ ati lati ni oye si nipa orí pèpéle naa:"
 }

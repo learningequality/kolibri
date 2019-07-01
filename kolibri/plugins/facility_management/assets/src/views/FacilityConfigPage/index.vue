@@ -56,8 +56,8 @@
     <ConfirmResetModal
       v-if="showModal"
       id="confirm-reset"
-      @click-confirm="resetToDefaultSettings"
-      @click-cancel="showModal=false"
+      @submit="resetToDefaultSettings"
+      @cancel="showModal=false"
     />
   </div>
 

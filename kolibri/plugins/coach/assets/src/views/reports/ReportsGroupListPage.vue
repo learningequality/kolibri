@@ -11,15 +11,15 @@
 
     <KPageContainer>
       <ReportsHeader />
-      <CoreTable :emptyMessage="coachStrings.$tr('groupListEmptyState')">
+      <CoreTable :emptyMessage="coachCommon$tr('groupListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('groupNameLabel') }}</th>
-            <th>{{ coachStrings.$tr('lessonsLabel') }}</th>
-            <th>{{ coachStrings.$tr('quizzesLabel') }}</th>
-            <th>{{ coachStrings.$tr('learnersLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgQuizScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+            <th>{{ coachCommon$tr('groupNameLabel') }}</th>
+            <th>{{ coachCommon$tr('lessonsLabel') }}</th>
+            <th>{{ coachCommon$tr('quizzesLabel') }}</th>
+            <th>{{ coachCommon$tr('learnersLabel') }}</th>
+            <th>{{ coachCommon$tr('avgQuizScoreLabel') }}</th>
+            <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -34,13 +34,13 @@
               </KLabeledIcon>
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numLessons}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numLessons}) }}
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numQuizzes}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numQuizzes}) }}
             </td>
             <td>
-              {{ coachStrings.$tr('integer', {value: tableRow.numLearners}) }}
+              {{ coachCommon$tr('integer', {value: tableRow.numLearners}) }}
             </td>
             <td><Score :value="tableRow.avgScore" /></td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
@@ -69,7 +69,7 @@
     computed: {
       table() {
         const sorted = this._.sortBy(this.groups, ['name']);
-        const mapped = sorted.map(group => {
+        return sorted.map(group => {
           const groupLessons = this.lessons.filter(
             lesson => lesson.groups.includes(group.id) || !lesson.groups.length
           );
@@ -87,7 +87,6 @@
           Object.assign(tableRow, group);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {
@@ -109,10 +108,8 @@
               status.status !== this.STATUSES.notStarted && learnerIds.includes(status.learner_id)
           ),
         ];
-        if (!statuses.length) {
-          return null;
-        }
-        return this._.maxBy(statuses, 'last_activity').last_activity;
+
+        return statuses.length ? this.maxLastActivity(statuses) : null;
       },
     },
   };

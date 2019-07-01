@@ -24,9 +24,13 @@
           :selectedLearnerNumber="learnerIndex"
           @select="navigateToNewAttempt($event)"
         />
-        <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
+        <div
+          slot="main"
+          class="exercise-section"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
           <KCheckbox
-            :label="coachStrings.$tr('showCorrectAnswerLabel')"
+            :label="coachCommon$tr('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />

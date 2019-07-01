@@ -13,7 +13,6 @@ Feature: Admin changes user interface language
     Then the modal closes
       And I see Kolibri UI in <language> language
 
-
 Examples:
   | language  |
   | Kiswahili |

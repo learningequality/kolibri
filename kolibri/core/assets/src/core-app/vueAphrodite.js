@@ -1,7 +1,4 @@
 import { css, StyleSheet, setStyleTagSuffix } from 'aphrodite';
-import logger from 'kolibri.lib.logging';
-
-const logging = logger.getLogger(__filename);
 
 /**
  * Plugin install function.
@@ -18,20 +15,6 @@ export default function VueAphrodite(Vue) {
     if (!__classNameCache[cacheKey]) {
       if (!Array.isArray(value)) {
         value = [value || {}];
-      }
-      if (process.env.NODE_ENV !== 'production') {
-        // Add a warning if we are using Aphrodite for non-pseudo classes
-        value.forEach(val => {
-          if (typeof Object.keys(val).find(key => key.indexOf(':') === 0) === 'undefined') {
-            logging.warn(
-              `
-              Used the $computedClass method for a class definition without any pseudo selectors:
-              Found in component: ${componentName}
-              Please use a v-bind:style directive instead.
-            `
-            );
-          }
-        });
       }
       const styleObj = {};
       const ids = [];

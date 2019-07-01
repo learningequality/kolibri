@@ -1,10 +1,7 @@
 <template>
 
   <div>
-    <div
-      class="pure-g"
-      :style="{ marginLeft: marginOffset, marginRight: marginOffset }"
-    >
+    <div class="pure-g" :style="style">
       <slot></slot>
     </div>
     <Overlay
@@ -71,6 +68,16 @@
           return true;
         },
       },
+      /**
+       * Extra styles to attach to the grid DOM node
+       */
+      gridStyle: {
+        type: Object,
+        default: () => ({}),
+      },
+      /**
+       * Show gridlines
+       */
       debug: {
         type: Boolean,
         default: false,
@@ -95,6 +102,11 @@
         // Inner grid items use padding to define gutters, but then we need
         // to bring them back flush with the outer edges.
         return `${(-1 * this.actualGutterSize) / 2}px`;
+      },
+      style() {
+        const style = { marginLeft: this.marginOffset, marginRight: this.marginOffset };
+        Object.assign(style, this.gridStyle);
+        return style;
       },
     },
     provide() {

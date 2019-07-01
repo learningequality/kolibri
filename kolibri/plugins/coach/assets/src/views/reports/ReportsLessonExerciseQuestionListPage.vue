@@ -11,18 +11,18 @@
 
     <KPageContainer>
 
-      <ReportsLessonExerciseHeader />
+      <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
 
       <!-- TODO COACH
-        <KCheckbox :label="coachStrings.$tr('viewByGroupsLabel')" />
+        <KCheckbox :label="coachCommon$tr('viewByGroupsLabel')" />
       -->
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
+      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachCommon$tr('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('questionLabel') }}</th>
-            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
+            <th>{{ coachCommon$tr('questionLabel') }}</th>
+            <th>{{ coachCommon$tr('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -56,6 +56,7 @@
   import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
+  import { LastPages } from '../../constants/lastPagesConstants';
   import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
   import { PageNames } from './../../constants';
 
@@ -68,13 +69,15 @@
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      exercise() {
+        return this.contentMap[this.$route.params.exerciseId];
+      },
       table() {
-        const mapped = this.difficultQuestions.map(question => {
+        return this.difficultQuestions.map(question => {
           const tableRow = {};
           Object.assign(tableRow, question);
           return tableRow;
         });
-        return mapped;
       },
     },
     methods: {
@@ -83,6 +86,20 @@
           questionId,
           exerciseId: this.$route.params.exerciseId,
         });
+      },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.exercise.node_id,
+            },
+            {
+              last: LastPages.EXERCISE_QUESTION_LIST,
+              exerciseId: this.exercise.content_id,
+            }
+          )
+        );
       },
     },
   };

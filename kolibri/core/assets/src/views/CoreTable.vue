@@ -19,22 +19,22 @@
     computed: {
       tHeadStyle() {
         return {
-          borderBottom: `solid 1px ${this.$coreGrey}`,
+          borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
           fontSize: '12px',
-          color: this.$coreTextAnnotation,
+          color: this.$themeTokens.annotation,
         };
       },
       tbodyTrStyle() {
         const selectable = {
           cursor: 'pointer',
           ':hover': {
-            backgroundColor: this.$coreGrey,
+            backgroundColor: this.$themeTokens.fineLine,
           },
         };
         return Object.assign(
           {
             ':not(:last-child)': {
-              borderBottom: `solid 1px ${this.$coreGrey}`,
+              borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
             },
           },
           this.selectable ? selectable : {}

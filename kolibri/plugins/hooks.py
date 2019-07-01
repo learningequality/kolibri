@@ -203,6 +203,25 @@ def registered_method(func):
     return inner
 
 
+def only_one_registered(func):
+    """
+    Ensures that only one hook of this type is registered at a time
+    """
+
+    @functools.wraps(func)
+    def inner(instance, *args, **kwargs):
+        hooks = list(instance.registered_hooks)
+        if not hooks:
+            logger.error("Should have exactly one hook registered.")
+        if len(hooks) > 1:
+            logger.error("Too many hooks registered:")
+            for hook in hooks:
+                logger.error(hook)
+        return func(instance, *args, **kwargs)
+
+    return inner
+
+
 class Options(object):
     """
     Stores instance of options for Hook.Meta classes

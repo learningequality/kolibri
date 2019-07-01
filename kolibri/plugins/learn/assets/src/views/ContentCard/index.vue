@@ -4,13 +4,13 @@
     :to="link"
     class="card"
     :class="{ 'mobile-card': isMobile }"
-    :style="{ backgroundColor: $coreBgLight }"
+    :style="{ backgroundColor: $themeTokens.surface }"
   >
     <CardThumbnail
       class="thumbnail"
       v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
     />
-    <div class="text" :style="{ color: $coreTextDefault }">
+    <div class="text" :style="{ color: $themeTokens.text }">
       <h3 class="title" dir="auto">
         <TextTruncator
           :text="title"
@@ -27,6 +27,7 @@
       </p>
       <div class="footer">
         <CoachContentLabel
+          v-if="isUserLoggedIn && !isLearner"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
@@ -47,6 +48,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -120,6 +122,7 @@
       },
     },
     computed: {
+      ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
@@ -160,8 +163,6 @@
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
-    word-break: break-all; // fallback
-    word-break: break-word;
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;

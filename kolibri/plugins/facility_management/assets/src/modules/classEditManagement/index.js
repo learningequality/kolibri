@@ -32,6 +32,9 @@ export default {
           arr[index] = updatedClass;
         }
       });
+      if (state.currentClass && state.currentClass.id === id) {
+        state.currentClass = updatedClass;
+      }
     },
     DELETE_CLASS_LEARNER(state, id) {
       state.classLearners = state.classLearners.filter(user => user.id !== id);

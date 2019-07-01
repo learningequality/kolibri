@@ -15,5 +15,6 @@ Feature: Class coach view
     # Run the rest of the coach scenarios
 
 Examples:
-| class     |
-| Buffoons  |
+| class    |
+| Buffoons |
+| Jugglers |

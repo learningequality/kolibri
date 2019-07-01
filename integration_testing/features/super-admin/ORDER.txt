@@ -1,15 +1,16 @@
 super-admin-setup-wizard.feature
 super-admin-sign-in.feature
 super-admin-change-language.feature
-super-admin-profile-command.feature
 super-admin-change-profile-information.feature
+super-admin-upgrade-notification.feature
+super-admin-profile-command.feature
+super-admin-benchmark-command.feature
 super-admin-select-import-content-location.feature
 super-admin-import-new-content-channel-from-studio.feature
-super-admin-benchmark-command.feature
+super-admin-import-new-content-channel-from-studio-token-id.feature
 super-admin-import-new-content-channel-from-local-drive.feature
 super-admin-manage-import-network-addresses.feature
 super-admin-cancel-import-channel.feature
-super-admin-import-new-content-channel-from-studio-token-id.feature
 super-admin-import-more-from-content-channel.feature
 super-admin-update-channel-import-more.feature
 super-admin-export-content-to-local-drive.feature
@@ -17,6 +18,7 @@ super-admin-delete-channel.feature
 super-admin-create-users.feature
 super-admin-edit-user.feature
 super-admin-delete-user.feature
+super-admin-hard-delete-user.feature
 super-admin-create-class.feature
 super-admin-find-user.feature
 super-admin-enroll-assign-users.feature
@@ -26,4 +28,5 @@ super-admin-grant-super-admin-permissions.feature
 super-admin-downgrade-from-super-content-import-permission.feature
 super-admin-revoke-super-admin-permissions.feature
 super-admin-export-data.feature
+super-admin-change-facility-settings.feature
 super-admin-sign-out.feature

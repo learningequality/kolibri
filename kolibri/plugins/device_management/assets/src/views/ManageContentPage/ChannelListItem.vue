@@ -3,12 +3,20 @@
   <component
     :is="componentTemplate"
     class="channel-list-item"
-    :style="[verticalPadding, { borderTop: `1px solid ${$coreGrey}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">
-      <div class="spec-ref-thumbnail">
-        <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
-        <div v-else class="default-icon" :style="{ backgroundColor: $coreGrey }">
+      <div class="thumbnail-container" data-test="thumbnail">
+        <img
+          v-if="thumbnailImg"
+          :src="thumbnailImg"
+          class="thumbnail"
+        >
+        <div
+          v-else
+          class="default-icon"
+          :style="{ backgroundColor: $themeColors.palette.grey.v_200 }"
+        >
           <mat-svg category="navigation" name="apps" />
         </div>
       </div>
@@ -23,7 +31,7 @@
           <mat-svg name="lock_open" category="action" />
         </UiIcon>
       </div>
-      <div class="version" :style="{ color: $coreTextAnnotation }">
+      <div class="version" :style="{ color: $themeTokens.annotation }">
         {{ $tr('version', { version: versionNumber }) }}
       </div>
     </template>
@@ -34,7 +42,7 @@
           <mat-svg
             category="action"
             name="check_circle"
-            :style="{ fill: $coreStatusCorrect }"
+            :style="{ fill: $themeTokens.success }"
           />
         </UiIcon>
         <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
@@ -77,7 +85,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
@@ -127,8 +135,7 @@
       },
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsInstalled']),
-      ...mapState('manageContent', ['taskList']),
+      ...mapGetters('manageContent', ['channelIsInstalled', 'activeTaskList']),
       manageChannelActions() {
         return [
           {
@@ -162,7 +169,7 @@
         return this.channel.thumbnail;
       },
       tasksInQueue() {
-        return this.taskList.length > 0;
+        return this.activeTaskList.length > 0;
       },
       versionNumber() {
         const installed = this.channelIsInstalled(this.channel.id);
@@ -217,6 +224,8 @@
 
 <style lang="scss" scoped>
 
+  $thumbnail-side-length: 128px;
+
   .title {
     display: inline;
   }
@@ -225,16 +234,24 @@
     font-size: 0.85em;
   }
 
+  .thumbnail-container {
+    width: $thumbnail-side-length;
+    height: $thumbnail-side-length;
+  }
+
   .thumbnail {
     width: 100%;
   }
 
   .default-icon {
+    width: 100%;
+    height: 100%;
     text-align: center;
     svg {
-      width: 30%;
-      height: 30%;
-      margin: 20px;
+      width: 50%;
+      height: 50%;
+      // Icon scaled to 0.5 of 128px = 64px, so midpoint need to be moved to 128 / 4 = 32 px
+      margin: ($thumbnail-side-length / 2 / 2) 0;
     }
   }
 

@@ -2,7 +2,8 @@
 
   <li
     class="item-wrapper"
-    :class="{selected: isSelected, draggable}"
+    :class="{ draggable }"
+    :style="bgStyle"
   >
     <a
       tabindex="0"
@@ -38,6 +39,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KDragSortWidget from 'kolibri.coreVue.components.KDragSortWidget';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
     name: 'AssessmentQuestionListItem',
@@ -45,7 +47,7 @@
       CoachContentLabel,
       KDragSortWidget,
     },
-    mixins: [themeMixin],
+    mixins: [themeMixin, coachStringsMixin],
     props: {
       draggable: {
         type: Boolean,
@@ -89,6 +91,12 @@
       focusRing() {
         return this.$computedClass({ ':focus': this.$coreOutline });
       },
+      bgStyle() {
+        const color = this.isSelected
+          ? this.$themeColors.palette.grey.v_300
+          : this.$themeTokens.surface;
+        return { backgroundColor: color };
+      },
     },
     methods: {
       handleSelect() {
@@ -100,7 +108,6 @@
       questionNumShort: '{number, number, integer}.',
       preview: 'Preview',
       view: 'View',
-      nthExerciseName: '{ name } ({number, number, integer})',
       moveExerciseUp: 'Move this exercise up by one position',
       moveExerciseDown: 'Move this exercise down by one position',
     },
@@ -121,7 +128,6 @@
     text-align: left;
     white-space: nowrap;
     user-select: none;
-    background-color: white;
     border-radius: 4px;
   }
 
@@ -129,10 +135,6 @@
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .selected {
-    background-color: #e8e8e8;
   }
 
   .draggable {

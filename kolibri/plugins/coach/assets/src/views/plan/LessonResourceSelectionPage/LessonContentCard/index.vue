@@ -1,6 +1,6 @@
 <template>
 
-  <router-link :to="link" class="content-card" :style="{ backgroundColor: $coreBgLight }">
+  <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeTokens.surface }">
 
     <CardThumbnail
       class="thumbnail"
@@ -9,7 +9,7 @@
       :isMobile="true"
     />
 
-    <div class="text" :style="{ color: $coreTextDefault }">
+    <div class="text" :style="{ color: $themeTokens.text }">
       <h3
         class="title"
         :class="{'has-message': Boolean(message)}"
@@ -17,7 +17,7 @@
       >
         {{ title }}
       </h3>
-      <div v-if="message" class="message" :style="{ color: $coreTextDefault }">
+      <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
         {{ message }}
       </div>
       <!--

@@ -28,7 +28,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->
@@ -72,7 +72,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1 started
   </div></span>
     <!---->
@@ -100,7 +100,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     1
   </div></span>
     <!---->
@@ -121,7 +121,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
   </div></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #2196f3;"></mat-svg></div> <div dir="auto" class="label">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div dir="auto" class="label">
     0
   </div></span>
     <!---->

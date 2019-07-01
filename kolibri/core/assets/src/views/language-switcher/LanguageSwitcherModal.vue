@@ -4,8 +4,8 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="$tr('confirmButtonText')"
     :cancelText="$tr('cancelButtonText')"
+    @cancel="$emit('cancel')"
     @submit="setLang"
-    @cancel="closeModal"
   >
     <KGrid>
       <KGridItem
@@ -66,9 +66,6 @@
       },
     },
     methods: {
-      closeModal() {
-        this.$emit('close');
-      },
       setLang() {
         this.switchLanguage(this.selectedLanguage);
       },

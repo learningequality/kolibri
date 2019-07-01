@@ -59,6 +59,7 @@
     computed: {
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState(['pageName']),
+      ...mapState('classAssignMembers', ['class']),
       isEnrollmentPage() {
         return classEnrollmentPages.includes(this.pageName);
       },
@@ -70,7 +71,9 @@
       },
       appBarTitle() {
         if (this.isEnrollmentPage) {
-          return this.$tr('detailPageReturnPrompt');
+          if (this.class) {
+            return this.class.name || '';
+          }
         }
         return this.$tr('facilityTitle');
       },

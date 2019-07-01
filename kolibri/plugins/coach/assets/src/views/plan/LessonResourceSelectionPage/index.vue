@@ -3,9 +3,9 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="close"
-    immersivePagePrimary
+    :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
-    :appBarTitle="coachStrings.$tr('manageResourcesAction')"
+    :appBarTitle="$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="pageTitle"
@@ -67,14 +67,14 @@
 
     </KPageContainer>
 
-    <Bottom>
+    <KBottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachStrings.$tr('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coachCommon$tr('finishAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
       />
-    </Bottom>
+    </KBottomAppBar>
 
   </CoreBase>
 
@@ -93,9 +93,9 @@
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import KBottomAppBar from 'kolibri.coreVue.components.KBottomAppBar';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import Bottom from '../../plan/CreateExamPage/Bottom';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -117,7 +117,7 @@
       LessonsSearchFilters,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      Bottom,
+      KBottomAppBar,
     },
     mixins: [commonCoach],
     data() {
@@ -419,6 +419,7 @@
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page
       exitSearchButtonLabel: 'Exit search',
+      manageResourcesAction: 'Manage lesson resources',
     },
   };
 

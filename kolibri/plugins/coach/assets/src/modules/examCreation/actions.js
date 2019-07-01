@@ -66,7 +66,6 @@ export function fetchAdditionalSearchResults(store, params) {
         exclude_content_ids: store.state.searchResults.contentIdsFetched,
       }),
       kind_in: kinds,
-      include_fields: ['num_coach_contents'],
     },
   }).then(results => {
     return filterAndAnnotateContentList(results.results).then(contentList => {

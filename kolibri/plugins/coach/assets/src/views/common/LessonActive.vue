@@ -1,8 +1,12 @@
 <template>
 
   <span>
-    <KLabeledIcon :style="active ? null : { color: $coreGrey300 }">
-      <KIcon slot="icon" dot :color="active ? $coreStatusCorrect : $coreGrey300" />
+    <KLabeledIcon :style="active ? null : { color: $themeTokens.textDisabled }">
+      <KIcon
+        slot="icon"
+        dot
+        :color="active ? $themeTokens.success : $themeTokens.textDisabled"
+      />
       {{ label }}
     </KLabeledIcon>
   </span>
@@ -33,8 +37,8 @@
     computed: {
       label() {
         return this.active
-          ? this.coachStrings.$tr('lessonActiveLabel')
-          : this.coachStrings.$tr('lessonInactiveLabel');
+          ? this.coachCommon$tr('lessonActiveLabel')
+          : this.coachCommon$tr('lessonInactiveLabel');
       },
     },
   };

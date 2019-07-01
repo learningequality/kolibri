@@ -9,20 +9,20 @@
     </h1>
 
     <HeaderTable>
-      <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
-      <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+      <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
         <template slot="value">
-          <template v-if="!recipients.length">
-            {{ this.$tr('noOne') }}
-          </template>
-          <Recipients v-else :groupNames="groupNames" />
+          <Recipients
+            :groupNames="groupNames"
+            :hasAssignments="recipients.length > 0"
+          />
         </template>
       </HeaderTableRow>
       <HeaderTableRow
-        :keyText="coachStrings.$tr('descriptionLabel')"
-        :valueText="description || coachStrings.$tr('descriptionMissingLabel')"
+        :keyText="coachCommon$tr('descriptionLabel')"
+        :valueText="description || coachCommon$tr('descriptionMissingLabel')"
       />
     </HeaderTable>
 

@@ -6,63 +6,54 @@ Feature: Quiz notifications for multiple groups
   # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into five as learner users, and as a coach in the other
  
   Background:
-    Given I have all sessions visible in four browser windows/tabs (signed into three as <learner>, and in the other as <coach>)
-      And I am signed in to Kolibri as a <class coach> or <coach>
-      And there three <learner> users enrolled in class <class> I am assigned to
-      And two learners <learners> are assigned to Group 1
-      And one learner <learner> is assigned to Group 2
-      And I have Quiz A <quiz> assigned to Group 1
-      And I have Quiz B <quiz> assigned to Group 2
+    Given I have all sessions visible in four browser windows/tabs (signed into three as learners, and in the other as <coach>)
+      And I am signed in to Kolibri as a facility or class <coach>
+      And there are three learners enrolled in class <class> I am assigned to
+      And <learner1> and <learner2> are assigned to <group1>
+      And <learner3> is assigned to <group2>
+      And I have assigned <quiz1> to <group1>
+      And I have assigned <quiz2> to <group2>
 
-   Scenario: Group 1 starts Quiz A
-   	 When as a learner in Group 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz> 
-  	  And I start the <quiz>
-  	 Then as learner 2 in Group 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz>
-  	  And I start the <quiz>
-  	 Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	 Then I see a *Everyone started '<quiz>'* group notification
-  	 When I click the notification
-  	 Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 2 learners who started the quiz
+    Scenario: <group1> starts <quiz1>
+   	  When as <learner1> and <learner2> in one window I go to *Learn > '<class>' > '<quiz1>'* page
+  	    And I start the <quiz1>
+        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+  	  When as <coach> I look at *Class activity* block
+  	  Then I see the *Everyone started '<quiz1>'* group notification
+  	  When I click the notification
+  	  Then I see the report for <quiz1>
+  	    And I see the quiz details 
+  	    And I see the table with <learner1> and <learner2> who started the quiz
 
-   Scenario: Group 2 Starts Quiz B
-   	 When as a learner in Group 2 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz> 
-  	  And I start the <quiz>
-  	 Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	 Then I see one *'<learner>' started '<quiz>'* group notification
-  	 When I click the notification
-  	 Then I should be directed to the quiz report for that learner
-  	  And I should see the learner's attempts on the quiz questions
+    Scenario: <group2> starts <quiz2>
+   	  When as <learner3> in one window I go to *Learn > Class* page for <class>
+  	    And I start the <quiz2>
+  	    And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+      When as <coach> I look at *Class activity* block
+  	  Then I see one *'<learner3>' started '<quiz2>'* group notification
+  	  When I click the notification
+      Then I see the report for <quiz2>
+        And I see the quiz details 
+        And I see the table with <learner3> who started the quiz
 
-   Scenario: Group 1 completes Quiz A
-     When as a learner in Group 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz> 
-  	  And I start and finish the <quiz>
-  	 Then as learner 2 in Group 1 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz>
-  	  And I start and finish the <quiz>
-  	 Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	 Then I see a *Everyone finished '<quiz>'* group notification
-  	 When I click the notification
-  	 Then I should be directed to the report for that quiz
-  	  And I should see the quiz details 
-  	  And I should see a list of 2 learners who completed the quiz
+    Scenario: <group1> completes <quiz1>
+      When as <learner1> and <learner2> in one window I go to *Learn > '<class>' > '<quiz1>'* page
+        And I complete the <quiz1>
+        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+      When as <coach> I look at *Class activity* block
+      Then I see the *Everyone completed '<quiz1>'* group notification
+      When I click the notification
+      Then I see the report for <quiz1>
+        And I see the quiz details 
+        And I see the table with <learner1> and <learner2> who completed the quiz
 
-   Scenario: Group 2 completes Quiz B
-   	 When as a learner in Group 2 <learner> in one window I go to *Learn > Class* page for <class>
-  	 Then I click into the assigned <quiz> 
-  	  And I start and finish the <quiz>
-  	 Then as <coach> in another window I navigate to *Coach > Class Home* page
-  	  And I look into the recent activity area
-  	 Then I see one *'<learner>' completed '<quiz>'* group notification
-  	 When I click the notification
-  	 Then I should be directed to the quiz report for that learner
-  	  And I should see the learner's attempts on the quiz questions
-  	  And I should see a quiz score
+    Scenario: <group2> completes <quiz2>
+      When as <learner3> in one window I go to *Learn > Class* page for <class>
+        And I complete the <quiz2>
+        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
+      When as <coach> I look at *Class activity* block
+      Then I see one *'<learner3>' completed '<quiz2>'* group notification
+      When I click the notification
+      Then I see the report for <quiz2>
+        And I see the quiz details 
+        And I see the table with <learner3> who completed the quiz

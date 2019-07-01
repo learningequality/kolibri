@@ -43,8 +43,8 @@
     >
       <ChannelTokenModal
         v-if="showTokenModal"
-        @closemodal="showTokenModal=false"
-        @channelfound="goToSelectContentPageForChannel"
+        @cancel="showTokenModal=false"
+        @submit="goToSelectContentPageForChannel"
       />
       <span>{{ $tr('channelNotListedExplanation') }}&nbsp;</span>
 
@@ -64,7 +64,7 @@
 
     <!-- Similar code in channels-grid -->
     <div v-if="channelsAreAvailable">
-      <div class="channel-list-header" :style="{ color: $coreTextAnnotation }">
+      <div class="channel-list-header" :style="{ color: $themeTokens.annotation }">
         {{ $tr('channelHeader') }}
       </div>
 
@@ -202,6 +202,7 @@
     },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
+      this.setQuery(this.$route.query);
       if (this.status) {
         this.setAppBarTitle(this.$tr('pageLoadError'));
       } else {
@@ -211,6 +212,7 @@
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
+        setQuery: 'SET_QUERY',
       }),
       toolbarTitle(transferType) {
         switch (transferType) {

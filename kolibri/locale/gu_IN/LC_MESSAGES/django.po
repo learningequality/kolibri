@@ -4,13 +4,13 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Language: gu-IN\n"
-"X-Crowdin-File: /release-v0.12.2/django.po\n"
+"X-Crowdin-File: /release-v0.12.y/django.po\n"
 "Project-Id-Version: kolibri\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Last-Translator: learningequality <accounts@learningequality.org>\n"
+"Last-Translator: learningequality\n"
 "Language-Team: Gujarati\n"
 "Language: gu_IN\n"
-"PO-Revision-Date: 2019-03-25 17:15\n"
+"PO-Revision-Date: 2019-06-05 03:45\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:14
 msgid "Facility"
@@ -24,54 +24,56 @@ msgstr "વર્ગખંડ"
 msgid "Learner group"
 msgstr "શીખનારાઓ સમૂહ"
 
-#: kolibri/core/content/api.py:130
+#: kolibri/core/content/api.py:138
 msgid "Content"
 msgstr "સામગ્રી"
 
-#: kolibri/core/content/api.py:702
+#: kolibri/core/content/api.py:836
 msgid "The requested channel does not exist on the content server"
 msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સર્વર પર અસ્તિત્વમાં નથી"
 
-#: kolibri/core/content/models.py:283
+#: kolibri/core/content/models.py:296
 msgid "Unknown format"
 msgstr "અજ્ઞાત ફોર્મેટ"
 
-#: kolibri/core/device/serializers.py:53
+#: kolibri/core/device/serializers.py:50
 msgid "Language is not supported by Kolibri"
 msgstr "કોલિબ્રી દ્વારા ભાષાને સમર્થન નથી"
 
-#: kolibri/core/tasks/api.py:32
+#: kolibri/core/tasks/api.py:33
 msgid "There was a network error."
 msgstr "નેટવર્કમાં ભૂલ આવી હતી."
 
-#: kolibri/core/tasks/api.py:34
+#: kolibri/core/tasks/api.py:35
 msgid "There was a disk access error."
 msgstr "ડિસ્ક સુધી પહોંચવામાં ભૂલ હતી."
 
-#: kolibri/core/tasks/api.py:36
+#: kolibri/core/tasks/api.py:37
 msgid "There was an unknown error."
 msgstr "કોઈ અજ્ઞાત ભૂલ આવી હતી."
 
 #: kolibri/core/templates/kolibri/base.html:13
+#: kolibri/core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "કોલિબ્રી"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:28
+#: kolibri/core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
 msgstr "અસમર્થિત બ્રાઉઝર"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:29
+#: kolibri/core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
 msgstr "માફ કરશો, તમારું બ્રાઉઝર સંસ્કરણ સમર્થિત નથી."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:30
+#: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
 msgstr "કોલિબ્રી ઉપયોગ કરવા માટે, અમે Firefox અથવા Chrome ના ઉપયોગ ની સલાહ આપીયે છે."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:31
+#: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
 msgstr "તમે તમારા વર્તમાન બ્રાઉઝરને અપડેટ કરવાનો પણ પ્રયાસ કરી શકો છો."
 
-#: kolibri/core/views.py:131
+#: kolibri/core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "કોઈ યોગ્ય રીડાયરેક્ટ પૃષ્ઠ મળ્યું નથી. શક્યતા એ છે કે કોલિબ્રીની ગોઠવણ યોગ્ય રીતે કરવામાં આવી નથી"
+

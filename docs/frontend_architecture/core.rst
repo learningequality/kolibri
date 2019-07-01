@@ -73,7 +73,7 @@ In order to apply a style using a computed class, define a style object as a com
       pseudoStyle() {
         return {
           ':hover': {
-            backgroundColor: this.$coreBgCanvas,
+            backgroundColor: this.$themeTokens.primaryDark,
           },
         };
       },

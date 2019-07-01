@@ -19,7 +19,7 @@ function getElements(wrapper) {
     confirmResetButton: () => wrapper.find('button[name="submit"]'),
     resetButton: () => wrapper.find('button[name="reset-settings"]'),
     saveButton: () => wrapper.find('button[name="save-settings"]'),
-    confirmResetModal: () => wrapper.find({ name: 'KModal' }),
+    confirmResetModal: () => wrapper.find({ name: 'ConfirmResetModal' }),
     form: () => wrapper.find('form'),
   };
 }

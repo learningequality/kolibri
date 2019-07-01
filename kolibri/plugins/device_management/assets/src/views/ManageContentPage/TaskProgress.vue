@@ -7,13 +7,13 @@
           v-if="taskHasFailed"
           category="alert"
           name="error"
-          :style="{ fill: $coreTextError }"
+          :style="{ fill: $themeTokens.error }"
         />
         <mat-svg
           v-else-if="taskHasCompleted"
           category="action"
           name="check_circle"
-          :style="{ fill: $coreStatusCorrect }"
+          :style="{ fill: $themeTokens.success }"
         />
         <KCircularLoader
           v-else
@@ -24,17 +24,18 @@
     </div>
 
     <div class="progress-bar dtc">
-      <div class="task-stage">
+      <div :class="{'task-stage': !taskHasCompleted}">
         {{ stageText }}
       </div>
       <KLinearLoader
+        v-if="!taskHasCompleted"
         :type="taskIsPreparing ? 'indeterminate' : 'determinate'"
         :progress="formattedPercentage"
         :delay="false"
       />
     </div>
 
-    <div class="progress-messages dtc">
+    <div v-if="!taskHasCompleted" class="progress-messages dtc">
       <span class="percentage">{{ progressMessage }}</span>
     </div>
 
@@ -42,7 +43,7 @@
       <KButton
         v-if="taskHasCompleted || taskHasFailed || cancellable"
         class="btn"
-        :text="taskHasCompleted ? $tr('close') : $tr('cancel')"
+        :text="taskHasCompleted || taskHasFailed ? $tr('close') : $tr('cancel')"
         :primary="true"
         :disabled="uiBlocked"
         @click="endTask()"
@@ -158,6 +159,20 @@
         return '';
       },
     },
+    watch: {
+      taskHasCompleted(newValue, oldValue) {
+        // Once it becomes complete, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+      taskHasFailed(newValue, oldValue) {
+        // Once it becomes failed, always set to false
+        if (!oldValue && newValue) {
+          this.uiBlocked = false;
+        }
+      },
+    },
     methods: {
       endTask() {
         this.uiBlocked = true;
@@ -166,9 +181,7 @@
             this.uiBlocked = false;
           });
         } else if (this.cancellable) {
-          this.$emit('canceltask', () => {
-            this.uiBlocked = false;
-          });
+          this.$emit('canceltask');
         } else {
           this.uiBlocked = false;
         }
@@ -195,6 +208,8 @@
 <style lang="scss" scoped>
 
   .progress-icon {
+    position: relative;
+    top: -2px;
     width: 5%;
     text-align: center;
     .inprogress {

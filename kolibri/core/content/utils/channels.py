@@ -2,6 +2,9 @@ import fnmatch
 import logging
 import os
 
+from django.core.cache import cache
+from sqlalchemy.exc import DatabaseError
+
 from .paths import get_content_database_dir_path
 from .sqlalchemybridge import Bridge
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
@@ -33,21 +36,25 @@ def get_channel_ids_for_content_database_dir(content_database_dir):
             )
         )
 
+    # nonexistent database files are created if we delete the files that have broken symbolic links;
     # empty database files are created if we delete a database file while the server is running and connected to it;
     # here, we delete and exclude such databases to avoid errors when we try to connect to them
-    empty_db_files = set({})
+    db_files_to_remove = set({})
     for db_name in valid_db_names:
         filename = os.path.join(content_database_dir, "{}.sqlite3".format(db_name))
-        if os.path.getsize(filename) == 0:
-            empty_db_files.add(db_name)
+        if not os.path.exists(filename) or os.path.getsize(filename) == 0:
+            db_files_to_remove.add(db_name)
             os.remove(filename)
-    if empty_db_files:
-        logger.warning(
-            "Removing empty databases in content database directory '{directory}' with IDs: {names}".format(
-                directory=content_database_dir, names=empty_db_files
-            )
+
+    if db_files_to_remove:
+        err_msg = (
+            "Removing nonexistent or empty databases in content database directory "
+            "'{directory}' with IDs: {names}.\nPlease import the channels again."
         )
-    valid_dbs = list(set(valid_db_names) - set(empty_db_files))
+        logger.warning(
+            err_msg.format(directory=content_database_dir, names=db_files_to_remove)
+        )
+    valid_dbs = list(set(valid_db_names) - set(db_files_to_remove))
 
     return valid_dbs
 
@@ -92,7 +99,15 @@ def get_channels_for_data_folder(datafolder):
     for path in enumerate_content_database_file_paths(
         get_content_database_dir_path(datafolder)
     ):
-        channel = read_channel_metadata_from_db_file(path)
+        try:
+            channel = read_channel_metadata_from_db_file(path)
+        except DatabaseError:
+            logger.warning(
+                "Tried to import channel from database file {}, but the file was corrupted.".format(
+                    path
+                )
+            )
+            continue
         channel_data = {
             "path": path,
             "id": channel.id,
@@ -110,10 +125,23 @@ def get_channels_for_data_folder(datafolder):
     return channels
 
 
+# Use this to cache mounted drive information when
+# it has already been fetched for querying by drive id
+MOUNTED_DRIVES_CACHE_KEY = "mounted_drives_cache_key"
+
+
 def get_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
         drive.metadata["channels"] = (
             get_channels_for_data_folder(drive.datafolder) if drive.datafolder else []
         )
+    cache.set(MOUNTED_DRIVES_CACHE_KEY, drives, 3600)
     return drives
+
+
+def get_mounted_drive_by_id(drive_id):
+    drives = cache.get(MOUNTED_DRIVES_CACHE_KEY)
+    if drives is None or drives.get(drive_id, None) is None:
+        drives = get_mounted_drives_with_channel_info()
+    return drives[drive_id]

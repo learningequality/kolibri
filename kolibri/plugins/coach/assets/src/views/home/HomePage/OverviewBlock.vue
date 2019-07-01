@@ -8,7 +8,13 @@
         :text="$tr('back')"
       />
     </p>
-    <h1>{{ $store.state.classSummary.name }}</h1>
+
+    <h1>
+      <KLabeledIcon>
+        <KIcon slot="icon" classroom />
+        {{ $store.state.classSummary.name }}
+      </KLabeledIcon>
+    </h1>
     <HeaderTable>
       <HeaderTableRow>
         <KLabeledIcon slot="key">
@@ -25,7 +31,7 @@
           {{ $tr('learner', {count: learnerNames.length}) }}
         </KLabeledIcon>
         <template slot="value">
-          {{ coachStrings.$tr('integer', {value: learnerNames.length}) }}
+          {{ coachCommon$tr('integer', {value: learnerNames.length}) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

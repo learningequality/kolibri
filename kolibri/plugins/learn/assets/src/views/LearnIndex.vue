@@ -3,6 +3,8 @@
   <CoreBase
     :marginBottom="bottomSpaceReserved"
     :showSubNav="topNavIsVisible"
+    :authorized="userIsAuthorized"
+    authorizedRole="registeredUser"
     v-bind="immersivePageProps"
   >
     <template slot="app-bar-actions">
@@ -25,9 +27,8 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import lastItem from 'lodash/last';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
@@ -49,12 +50,7 @@
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
-
-  const RecommendedSubpageStrings = crossComponentTranslator(RecommendedSubpage);
-
-  // Bottom toolbar is 111px high on mobile, 113px normally.
-  // We reserve the smaller number so there is no gap on either screen size.
-  const BOTTOM_SPACED_RESERVED = 111;
+  import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -89,9 +85,13 @@
       };
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
+      }),
+      ...mapState('classAssignments', {
+        classroomName: state => state.currentClassroom.name,
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
@@ -99,6 +99,9 @@
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
+      userIsAuthorized() {
+        return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
+      },
       currentPage() {
         if (RecommendedPages.includes(this.pageName)) {
           return RecommendedSubpage;
@@ -108,11 +111,11 @@
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return {
-            appBarTitle: this.$store.state.examViewer.exam.title || '',
+            appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -120,8 +123,8 @@
             appBarTitle: this.currentLesson.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -139,12 +142,12 @@
         }
         if (this.pageName === PageNames.SEARCH) {
           return {
-            appBarTitle: this.$tr('searchTitle'),
+            appBarTitle: this.$tr('learnTitle'),
             immersivePage: true,
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePagePrimary: true,
+            immersivePageIcon: 'arrow_back',
           };
         }
 
@@ -153,13 +156,8 @@
           let appBarTitle;
           const { searchTerm, last } = this.$route.query;
           if (searchTerm) {
-            immersivePageRoute = this.$router.getRoute(
-              PageNames.SEARCH,
-              {},
-              {
-                searchTerm: searchTerm,
-              }
-            );
+            appBarTitle = this.$tr('searchTitle');
+            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
@@ -169,7 +167,7 @@
               [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
               [PageNames.RECOMMENDED]: 'recommended',
             }[last];
-            appBarTitle = RecommendedSubpageStrings.$tr(trString);
+            appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
@@ -188,7 +186,7 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: false,
+            immersivePagePrimary: true,
             immersivePageIcon: 'arrow_back',
           };
         }
@@ -209,6 +207,9 @@
         );
       },
       bottomSpaceReserved() {
+        if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
+          return QUIZ_FOOTER;
+        }
         let content;
         if (
           this.pageName === PageNames.TOPICS_CONTENT ||
@@ -220,14 +221,15 @@
         }
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
-        return isAssessment ? BOTTOM_SPACED_RESERVED : 0;
+        return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
     },
     watch: {
       $route: function(newRoute, oldRoute) {
-        // Return if the user is searching another query on the same search results
-        // page. Otherwise, the back arrow will infinitely redirect.
-        if (newRoute.name === 'SEARCH' && oldRoute.name === 'SEARCH') {
+        // Return if the user is leaving or entering the Search page.
+        // This ensures we never set this.lastRoute to be any kind of
+        // SEARCH route and avoids infinite loops.
+        if (newRoute.name === 'SEARCH' || oldRoute.name === 'SEARCH') {
           return;
         }
 
@@ -244,6 +246,10 @@
       learnTitle: 'Learn',
       examReportTitle: '{examTitle} report',
       searchTitle: 'Search',
+      recommended: 'Recommended',
+      documentTitleForPopular: 'Popular',
+      documentTitleForResume: 'Resume',
+      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

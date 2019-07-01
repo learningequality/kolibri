@@ -6,10 +6,10 @@
 
       <div>
         <TaskProgress
-          v-if="firstTask"
-          v-bind="firstTask"
+          v-if="activeTaskList[0]"
+          v-bind="activeTaskList[0]"
           @cleartask="clearCompletedTasks"
-          @canceltask="cb => cancelRunningTask(firstTask.id, cb)"
+          @canceltask="cancelRunningTask(activeTaskList[0].id)"
         />
 
         <KGrid>
@@ -17,7 +17,7 @@
             <h1>{{ $tr('title') }}</h1>
           </KGridItem>
           <KGridItem
-            v-if="!tasksInQueue"
+            v-if="!activeTaskList.length"
             sizes="100, 50, 50"
             alignments="left, right, right"
             percentage
@@ -81,10 +81,9 @@
     },
     computed: {
       ...mapGetters(['canManageContent']),
+      ...mapGetters('manageContent', ['activeTaskList']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', {
-        firstTask: state => state.taskList[0],
-        tasksInQueue: state => state.taskList.length > 0,
         deviceHasChannels: state => state.channelList.length > 0,
       }),
     },
@@ -104,13 +103,10 @@
         'startImportWorkflow',
         'startExportWorkflow',
       ]),
-      cancelRunningTask(taskId, unblockCb) {
+      cancelRunningTask(taskId) {
         this.cancelTask(taskId)
           // Handle failures silently in case of near-simultaneous cancels.
-          .catch(() => {})
-          .then(() => {
-            unblockCb();
-          });
+          .catch(() => {});
       },
       clearCompletedTasks() {
         return TaskResource.deleteFinishedTasks();

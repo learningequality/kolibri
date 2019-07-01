@@ -22,7 +22,7 @@
         <HeaderTable>
           <HeaderTableRow>
             <template slot="key">
-              {{ coachStrings.$tr('masteryModelLabel') }}
+              {{ coachCommon$tr('masteryModelLabel') }}
             </template>
             <template slot="value">
               <MasteryModel />
@@ -30,7 +30,7 @@
           </HeaderTableRow>
           <HeaderTableRow>
             <template slot="key">
-              {{ coachStrings.$tr('statusLabel') }}
+              {{ coachCommon$tr('statusLabel') }}
             </template>
             <template slot="value">
               <StatusSimple :status="status" />
@@ -45,9 +45,13 @@
           :selectedQuestionNumber="attemptLogIndex"
           @select="navigateToNewAttempt($event)"
         />
-        <div slot="main" class="exercise-section" :style="{ backgroundColor: $coreBgLight }">
+        <div
+          slot="main"
+          class="exercise-section"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
           <KCheckbox
-            :label="coachStrings.$tr('showCorrectAnswerLabel')"
+            :label="coachCommon$tr('showCorrectAnswerLabel')"
             :checked="showCorrectAnswer"
             @change="toggleShowCorrectAnswer"
           />

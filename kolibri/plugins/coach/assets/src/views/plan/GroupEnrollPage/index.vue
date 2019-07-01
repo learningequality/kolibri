@@ -3,10 +3,10 @@
   <CoreBase
     :immersivePage="true"
     immersivePageIcon="arrow_back"
-    :immersivePagePrimary="false"
+    :immersivePagePrimary="true"
     :primary="true"
-    :toolbarTitle="groupsPageStrings.$tr('classGroups')"
-    :appBarTitle="groupsPageStrings.$tr('classGroups')"
+    :toolbarTitle="currentGroup.name"
+    :appBarTitle="currentGroup.name"
     :immersivePageRoute="$router.getRoute('GroupMembersPage')"
     :pageTitle="pageTitle"
   >
@@ -32,7 +32,12 @@
           :selectAllLabel="$tr('selectAllOnPage')"
           :userCheckboxLabel="$tr('selectUser')"
           :emptyMessage="emptyMessage"
-        />
+          :infoDescriptor="$tr('learnerGroups')"
+        >
+          <template slot="info" slot-scope="userRow">
+            <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
+          </template>
+        </UserTable>
 
         <nav>
           <span>
@@ -99,22 +104,18 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import KButton from 'kolibri.coreVue.components.KButton';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import {
     userMatchesFilter,
     filterAndSortUsers,
   } from '../../../../../../facility_management/assets/src/userSearchUtils';
   import UserTable from '../../../../../../facility_management/assets/src/views/UserTable';
-  import GroupsPage from '../GroupsPage';
-
-  const groupsPageStrings = crossComponentTranslator(GroupsPage);
 
   export default {
     name: 'GroupEnrollPage',
@@ -131,11 +132,11 @@
         perPage: 10,
         pageNum: 1,
         selectedUsers: [],
-        groupsPageStrings,
       };
     },
     computed: {
       ...mapState('groups', ['groups', 'classUsers']),
+      ...mapGetters('classSummary', ['getGroupNamesForLearner']),
       pageTitle() {
         return this.$tr('pageHeader', { className: this.currentGroup.name });
       },
@@ -201,12 +202,15 @@
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachStrings.$tr('updatedNotification'));
+            this.createSnackbar(this.coachCommon$tr('updatedNotification'));
           });
         });
       },
       goToPage(page) {
         this.pageNum = page;
+      },
+      getGroupsForLearner(learnerId) {
+        return this.getGroupNamesForLearner(learnerId);
       },
     },
     $trs: {
@@ -221,8 +225,10 @@
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
       selectUser: 'Select user',
+      classGroups: 'Groups',
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+      learnerGroups: 'Current groups',
     },
   };
 

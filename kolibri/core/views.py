@@ -19,9 +19,9 @@ from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
 
 from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import Role
 from kolibri.core.decorators import cache_no_user_data
-from kolibri.core.decorators import signin_redirect_exempt
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.device.translation import get_accept_headers_language
 from kolibri.core.device.translation import get_device_language
@@ -31,7 +31,6 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 
 
 # Modified from django.views.i18n
-@signin_redirect_exempt
 @require_POST
 def set_language(request):
     """
@@ -134,7 +133,10 @@ class GuestRedirectView(View):
         """
         Redirects a guest user to a learner accessible page.
         """
-        return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER, False))
+        dataset = getattr(Facility.get_default_facility(), "dataset", None)
+        if dataset and dataset.allow_guest_access:
+            return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER, False))
+        return RootURLRedirectView.as_view()(request)
 
 
 device_is_provisioned = False
@@ -147,7 +149,6 @@ def is_provisioned():
     return device_is_provisioned
 
 
-@method_decorator(signin_redirect_exempt, name="dispatch")
 class RootURLRedirectView(View):
     def get(self, request):
         """
