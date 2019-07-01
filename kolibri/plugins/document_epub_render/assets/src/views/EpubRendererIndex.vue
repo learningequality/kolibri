@@ -177,7 +177,7 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
-  import { THEMES } from './EpubConstants';
+  import { THEMES, darkThemeNames } from './EpubConstants';
 
   const FONT_SIZE_MIN = 8;
   const FONT_SIZE_MAX = 32;
@@ -309,7 +309,7 @@
         };
       },
       navigationButtonColor() {
-        return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
+        return darkThemeNames.some(themeName => isEqual(this.theme.name, themeName))
           ? 'white'
           : 'black';
       },
