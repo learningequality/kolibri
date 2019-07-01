@@ -69,8 +69,8 @@
             :theme="theme"
             :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
             :increaseFontSizeDisabled="increaseFontSizeDisabled"
-            @decreaseFontSize="decreaseFontSize"
-            @increaseFontSize="increaseFontSize"
+            @decreaseFontSize="handleChangeFontSize(-1)"
+            @increaseFontSize="handleChangeFontSize(+1)"
             @setTheme="setTheme"
           />
         </transition>
@@ -100,14 +100,14 @@
 
       <div
         class="navigation-and-epubjs"
-        :style="backgroundColorStyle"
+        :style="{backgroundColor}"
       >
         <div
           class="column epubjs-navigation"
         >
           <PreviousButton
             :color="navigationButtonColor"
-            :style="backgroundColorStyle"
+            :style="{backgroundColor}"
             :isRtl="isRtl"
             @goToPreviousPage="goToPreviousPage"
           />
@@ -115,7 +115,7 @@
         <div
           ref="epubjsContainer"
           class="column epubjs-parent"
-          :style="backgroundColorStyle"
+          :style="{backgroundColor}"
         >
         </div>
         <div
@@ -123,7 +123,7 @@
         >
           <NextButton
             :color="navigationButtonColor"
-            :style="backgroundColorStyle"
+            :style="{backgroundColor}"
             :isRtl="isRtl"
             @goToNextPage="goToNextPage"
           />
@@ -148,13 +148,11 @@
 
   import Epub from 'epubjs/src/epub';
   import { EVENTS } from 'epubjs/src/utils/constants';
-
   import Mark from 'mark.js';
   import isEqual from 'lodash/isEqual';
+  import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
-
   import FocusLock from 'vue-focus-lock';
-
   import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -162,7 +160,6 @@
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
   import { getContentLangDir } from 'kolibri.utils.i18n';
-
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -212,26 +209,27 @@
       LoadingError,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin, themeMixin],
-    data: () => ({
-      book: null,
-      rendition: null,
-      toc: [],
-      locations: [],
-      loaded: false,
-      errorLoading: false,
-      sideBarOpen: null,
-      theme: THEMES.WHITE,
-      fontSize: null,
-      isInFullscreen: false,
-      markInstance: null,
-      currentSection: null,
-      searchQuery: null,
-      sliderValue: 0,
-      scrolled: false,
-
-      currentLocation: null,
-      updateContentStateInterval: null,
-    }),
+    data() {
+      return {
+        book: null,
+        rendition: null,
+        toc: [],
+        locations: [],
+        loaded: false,
+        errorLoading: false,
+        sideBarOpen: null,
+        theme: THEMES.WHITE,
+        fontSize: null,
+        isInFullscreen: false,
+        markInstance: null,
+        currentSection: null,
+        searchQuery: null,
+        sliderValue: 0,
+        scrolled: false,
+        currentLocation: null,
+        updateContentStateInterval: null,
+      };
+    },
     computed: {
       ...mapGetters(['sessionTimeSpent']),
       savedLocation() {
@@ -245,11 +243,6 @@
       },
       backgroundColor() {
         return this.theme.backgroundColor;
-      },
-      backgroundColorStyle() {
-        return {
-          backgroundColor: this.backgroundColor,
-        };
       },
       textColor() {
         return this.theme.textColor;
@@ -560,20 +553,21 @@
       jumpToLocation(locationToJumpTo) {
         return this.rendition.display(locationToJumpTo);
       },
+      toggleMenu(sideBarName) {
+        if (this.sideBarOpen === sideBarName) {
+          this.closeSideBar();
+        } else {
+          this.sideBarOpen = sideBarName;
+        }
+      },
       handleTocToggle() {
-        this.sideBarOpen === SIDE_BARS.TOC
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.TOC);
+        this.toggleMenu(SIDE_BARS.TOC);
       },
       handleSearchToggle() {
-        this.sideBarOpen === SIDE_BARS.SEARCH
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.SEARCH);
+        this.toggleMenu(SIDE_BARS.SEARCH);
       },
       handleSettingToggle() {
-        this.sideBarOpen === SIDE_BARS.SETTINGS
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.SETTINGS);
+        this.toggleMenu(SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
         this.jumpToLocation(item.href)
@@ -592,21 +586,12 @@
         // Use epub Contents class which will get computed font-size
         return view ? view.getContents().css('font-size', null) : null;
       },
-      increaseFontSize() {
-        const currentFontSize = this.getCurrentFontSize();
-        const fontSizeNumericValue = parseFloat(currentFontSize);
-        const newFontSizeNumericValue = Math.min(
-          fontSizeNumericValue + FONT_SIZE_STEP,
+      handleChangeFontSize(difference) {
+        const fontSizeNumericValue = parseFloat(this.getCurrentFontSize());
+        const newFontSizeNumericValue = clamp(
+          fontSizeNumericValue + difference * FONT_SIZE_STEP,
+          FONT_SIZE_MIN,
           FONT_SIZE_MAX
-        );
-        this.setFontSize(`${newFontSizeNumericValue}px`);
-      },
-      decreaseFontSize() {
-        const currentFontSize = this.getCurrentFontSize();
-        const fontSizeNumericValue = parseFloat(currentFontSize);
-        const newFontSizeNumericValue = Math.max(
-          fontSizeNumericValue - FONT_SIZE_STEP,
-          FONT_SIZE_MIN
         );
         this.setFontSize(`${newFontSizeNumericValue}px`);
       },
