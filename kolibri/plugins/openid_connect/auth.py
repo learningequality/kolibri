@@ -66,7 +66,7 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         username = self.get_username(claims)
         full_name = claims.get("name", "")
         if not full_name:
-            full_name = '{} {}'.format(claims.get('given_name'), claims.get('family_name'))
+            full_name = '{} {}'.format(claims.get('given_name', ""), claims.get('family_name', ""))
         # not needed in Kolibri, email is not mandatory:
         email = username
         # Kolibri doesn't allow an empty password. This isn't going to be used:
