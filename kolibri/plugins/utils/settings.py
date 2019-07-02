@@ -6,14 +6,14 @@ from kolibri.plugins.registry import registered_plugins
 
 
 def _validate_settings_module(settings_module):
-    if type(settings_module) is str:
+    if isinstance(settings_module, str):
         try:
             return importlib.import_module(settings_module)
         except ImportError:
             raise ValueError(
                 "Invalid settings module path {path}".format(path=settings_module)
             )
-    elif type(settings_module) is not ModuleType:
+    elif not isinstance(settings_module, ModuleType):
         raise TypeError(
             "Invalid argument for apply_settings - requires module or module path"
         )

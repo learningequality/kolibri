@@ -92,9 +92,11 @@ class Registry(list):
                         all_classes,
                     )
                     plugin_classes = []
-                    for Klass in all_classes:
-                        if type(Klass) == type and issubclass(Klass, KolibriPluginBase):
-                            plugin_classes.append(Klass)
+                    for class_definition in all_classes:
+                        if isinstance(class_definition, type) and issubclass(
+                            class_definition, KolibriPluginBase
+                        ):
+                            plugin_classes.append(class_definition)
                     for PluginClass in plugin_classes:
                         # Initialize the class, nothing more happens for now.
                         logger.debug(

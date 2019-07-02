@@ -37,29 +37,34 @@ class KolibriPluginBase(object):
     This is the base class that all Kolibri plugins need to implement.
     """
 
+    #: Comment
     # Name of a local module that contains url_patterns that define
     # URLs for views that do not contain any
     # translated content, and hence will not be prefixed
     # with a language prefix
     untranslated_view_urls = None
 
+    #: Comment
     # Name of a local module that contains url_patterns that define
     # URLs for views that contain
     # translated content, and hence will be prefixed
     # with a language prefixs
     translated_view_urls = None
 
+    #: Comment
     # Name of a local module that contains url_patterns that define
     # URLs for views that should be attached to the domain root.
     # Use with caution! The lack of namespacing is dangerous.
     root_view_urls = None
 
+    #: Comment
     # Name of a local module that contains additional settings to augment
     # Django settings.
     # For settings that take a tuple or list, these will be appended to the value from
     # the base settings module set through conventional Django means.
     django_settings = None
 
+    #: Comment
     # Name of a local module, containing a config spec as the 'option_spec' value.
     # These options should not override the core config spec, but may specify a new
     # default value for a core config spec option.
