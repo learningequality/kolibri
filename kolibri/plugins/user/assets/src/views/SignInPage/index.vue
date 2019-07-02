@@ -168,6 +168,14 @@
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import FacilityModal from './FacilityModal';
 
+  // https://davidwalsh.name/query-string-javascript
+  function getUrlParameter(name) {
+    name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
   export default {
     name: 'SignInPage',
     metaInfo() {
@@ -295,7 +303,15 @@
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };
       },
       oidcProviderFlow() {
-        return global.oidcProviderEnabled && this.$route.query.next;
+        return global.oidcProviderEnabled && this.nextParam;
+      },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
       },
     },
     watch: {
@@ -416,7 +432,7 @@
             facility: this.facilityId,
           };
           if (global.oidcProviderEnabled) {
-            sessionPayload['next'] = this.$route.query.next;
+            sessionPayload['next'] = this.nextParam;
           }
           this.kolibriLogin(sessionPayload).catch();
         } else {
