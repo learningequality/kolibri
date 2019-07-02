@@ -46,6 +46,16 @@
         lessons: state => state.currentClassroom.assignments.lessons,
       }),
     },
+    mounted() {
+      this.pollForUpdates();
+    },
+    methods: {
+      pollForUpdates() {
+        this.$store.dispatch('classAssignments/updateWithChanges').then(() => {
+          setTimeout(this.pollForUpdates, 30000);
+        });
+      },
+    },
     $trs: {
       documentTitle: 'Class assignments',
     },
