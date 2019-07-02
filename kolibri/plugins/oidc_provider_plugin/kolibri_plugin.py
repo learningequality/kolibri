@@ -4,9 +4,13 @@ from kolibri.plugins.base import KolibriPluginBase
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 
 
-class OIDCProviderPlugin(KolibriPluginBase):
+class OIDCProvider(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
+    root_view_urls = "root_urls"
     django_settings = "settings"
+
+    def url_slug(self):
+        return "^oidc_provider/"
 
     # IMPORTANT: This should be added in case we want to have this feature:
     # https://django-oidc-provider.readthedocs.io/en/latest/sections/sessionmanagement.html#sessionmanagement
