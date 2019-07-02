@@ -10,7 +10,7 @@ export default {
       const defaultCrumbs = [
         // Link to All Classes Page
         {
-          text: learnStrings.$tr('allClassesBreadcrumb'),
+          text: learnStrings.$tr('classesLabel'),
           link: {
             name: ClassesPageNames.ALL_CLASSES,
           },
