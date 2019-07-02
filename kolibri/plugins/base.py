@@ -49,6 +49,11 @@ class KolibriPluginBase(object):
     # with a language prefixs
     translated_view_urls = None
 
+    # Name of a local module that contains url_patterns that define
+    # URLs for views that should be attached to the domain root.
+    # Use with caution! The lack of namespacing is dangerous.
+    root_view_urls = None
+
     # Name of a local module that contains additional settings to augment
     # Django settings.
     # For settings that take a tuple or list, these will be appended to the value from
@@ -177,6 +182,31 @@ class KolibriPluginBase(object):
                 logging.warn(
                     "{plugin} defined {urls} untranslated view urls but the module was not found".format(
                         plugin=self._module_path(), urls=self.untranslated_view_urls
+                    )
+                )
+            return module
+
+    def root_url_module(self):
+        """
+        Return a url module, containing ``urlpatterns = [...]``, a conventional
+        Django application url module.
+
+        Do this separately for endpoints that need to be attached at the root.
+
+        URLs are by default accessed through Django's reverse lookups like
+        this::
+
+            reverse('kolibri:url_name')
+
+        By default this will be discovered based on the root_view_urls
+        property.
+        """
+        if self.root_view_urls:
+            module = self._return_module(self.root_view_urls)
+            if module is None:
+                logging.warn(
+                    "{plugin} defined {urls} root view urls but the module was not found".format(
+                        plugin=self._module_path(), urls=self.root_view_urls
                     )
                 )
             return module
