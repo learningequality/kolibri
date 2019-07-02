@@ -1,3 +1,4 @@
+import oidc_provider.lib.utils.token
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.views.generic import View
@@ -8,6 +9,32 @@ from oidc_provider.models import ResponseType
 
 def gen_url(base, key):
     return base + reverse(key)
+
+
+def monkeypatch_method(cls):
+    """ Generic decorator to monkey patch any needed function"""
+
+    def decorator(func):
+        setattr(cls, func.__name__, func)
+        return func
+
+    return decorator
+
+
+# This is needed to ensure that `kolibri:oidcprovider` is added to the reverse url search:
+@monkeypatch_method(oidc_provider.lib.utils.token)
+def get_issuer(site_url=None, request=None):
+    """
+    Construct the issuer full url. Basically is the site url with some path
+    appended.
+    """
+    site_url = get_site_url(site_url=site_url, request=request)
+    path = reverse("kolibri:oidcprovider:provider-info").split(
+        "/.well-known/openid-configuration"
+    )[0]
+    issuer = site_url + path
+
+    return str(issuer)
 
 
 class ProviderInfoView(View):
