@@ -104,9 +104,11 @@
                 appearance="flat-button"
               />
             </p>
-            <p class="guest small-text">
+            <p
+              v-if="showGuestAccess"
+              class="guest small-text"
+            >
               <KExternalLink
-                v-if="allowGuestAccess"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
                 :primary="true"
@@ -272,8 +274,8 @@
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
       },
-      allowGuestAccess() {
-        return this.facilityConfig.allow_guest_access;
+      showGuestAccess() {
+        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
         return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
@@ -291,6 +293,9 @@
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };
+      },
+      oidcProviderFlow() {
+        return global.oidcProviderEnabled && this.$route.query.next;
       },
     },
     watch: {
@@ -405,11 +410,15 @@
       signIn() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          this.kolibriLogin({
+          const sessionPayload = {
             username: this.username,
             password: this.password,
             facility: this.facilityId,
-          }).catch();
+          };
+          if (global.oidcProviderEnabled) {
+            sessionPayload['next'] = this.$route.query.next;
+          }
+          this.kolibriLogin(sessionPayload).catch();
         } else {
           this.focusOnInvalidField();
         }

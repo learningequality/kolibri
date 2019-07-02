@@ -130,7 +130,7 @@ def enable_oidc_provider():
     """
     template = """
     <script>
-      var oidcProvider = {};
+      var oidcProviderEnabled = {};
     </script>
     """
     return mark_safe(
