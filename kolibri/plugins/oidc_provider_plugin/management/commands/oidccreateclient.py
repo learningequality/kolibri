@@ -15,9 +15,7 @@ kolibri manage oidccreateclient  --name="hooooo" --redirect-uri="http://otro/cal
 
 
 class Command(BaseCommand):
-    help = (
-        "Command to add new clients applications that will use kolibri as an OpenID Connect provider"
-    )
+    help = "Command to add new clients applications that will use kolibri as an OpenID Connect provider"
 
     def add_arguments(self, parser):
         parser.add_argument(
