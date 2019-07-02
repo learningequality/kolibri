@@ -77,7 +77,6 @@ except ImportError:
         "kolibri.plugins.style_guide",
         "kolibri.plugins.document_epub_render",
         "kolibri.plugins.default_theme",
-        "kolibri.plugins.oidc_provider_plugin",
     ]
 
 conf_file = os.path.join(KOLIBRI_HOME, "kolibri_settings.json")
