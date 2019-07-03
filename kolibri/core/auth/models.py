@@ -182,7 +182,10 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
         dataset_id = cache.get(key)
         if dataset_id is None:
-            dataset_id = getattr(self, related_obj_name).dataset_id
+            try:
+                dataset_id = getattr(self, related_obj_name).dataset_id
+            except ObjectDoesNotExist as e:
+                raise ValidationError(e)
             cache.set(key, dataset_id, 60 * 10)
         return dataset_id
 

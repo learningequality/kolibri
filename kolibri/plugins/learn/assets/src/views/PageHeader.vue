@@ -1,14 +1,12 @@
 <template>
 
-  <div dir="auto">
-    <h1 class="title">
-      <KLabeledIcon>
-        <KIcon v-if="contentType" slot="icon" :[iconType]="true" />
-        {{ title }}
-      </KLabeledIcon>
-      <ProgressIcon class="progress-icon" :progress="progress" />
-    </h1>
-  </div>
+  <h1 dir="auto" class="title">
+    <KLabeledIcon>
+      <KIcon v-if="contentType" slot="icon" :[iconType]="true" />
+      {{ title }}
+    </KLabeledIcon>
+    <ProgressIcon class="progress-icon" :progress="progress" />
+  </h1>
 
 </template>
 
@@ -58,9 +56,9 @@
   }
 
   .progress-icon {
-    position: relative;
-    top: -2px;
     display: inline-block;
+    float: right;
+    margin-top: -2px;
     margin-left: 16px;
   }
 

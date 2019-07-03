@@ -155,7 +155,7 @@ describe('selectDriveModal component', () => {
     });
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.find(UiAlert);
-    const expectedMessage = 'No drives that can be written to are connected to the server';
+    const expectedMessage = 'Could not find a writable drive connected to the server';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
 

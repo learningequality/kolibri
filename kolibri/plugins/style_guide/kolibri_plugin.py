@@ -8,6 +8,8 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class StyleGuide(KolibriPluginBase):
+    translated_view_urls = "urls"
+
     def url_slug(self):
         return "^style_guide"
 

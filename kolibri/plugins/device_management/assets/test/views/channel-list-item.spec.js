@@ -40,7 +40,7 @@ function getElements(wrapper) {
     title: () => wrapper.find('.title').text().trim(),
     version: () => wrapper.find('.version').text().trim(),
     description: () => wrapper.find('.spec-ref-description').text().trim(),
-    thumbnail: () => wrapper.find('.spec-ref-thumbnail'),
+    thumbnail: () => wrapper.find('[data-test="thumbnail"]'),
     addTaskMutation: (task) => wrapper.vm.$store.commit('manageContent/SET_TASK_LIST', [task]),
     dropdownMenu: () => wrapper.find({ name: 'KDropdownMenu' }),
   };

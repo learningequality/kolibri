@@ -11,7 +11,8 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class Coach(KolibriPluginBase):
-    pass
+    untranslated_view_urls = "api_urls"
+    translated_view_urls = "urls"
 
 
 class CoachRedirect(RoleBasedRedirectHook):

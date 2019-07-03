@@ -13,6 +13,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import sys
 
 import pytz
 from django.conf import locale
@@ -21,6 +22,7 @@ from tzlocal import get_localzone
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
+from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
 
@@ -74,7 +76,7 @@ INSTALLED_APPS = [
     "django_js_reverse",
     "jsonfield",
     "morango",
-] + conf.config["INSTALLED_APPS"]
+] + conf.config.ACTIVE_PLUGINS
 
 # Add in the external plugins' locale paths. Our frontend messages depends
 # specifically on the value of LOCALE_PATHS to find its catalog files.
@@ -424,3 +426,6 @@ if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
         scope.set_tag("installer", installation_type())
 
     print("Sentry backend error logging is enabled")
+
+
+apply_settings(sys.modules[__name__])

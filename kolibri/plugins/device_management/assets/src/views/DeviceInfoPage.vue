@@ -9,16 +9,15 @@
             {{ $tr('url', { count: deviceInfo.urls.length }) }}
           </th>
           <td>
-            <a
+            <KExternalLink
               v-for="(url, index) in deviceInfo.urls"
               :key="index"
-              dir="auto"
+              :text="url"
               :href="url"
+              :primary="true"
               target="_blank"
-              class="link"
-            >
-              {{ url }}
-            </a>
+              appearance="basic-link"
+            />
           </td>
         </tr>
         <tr>
@@ -61,6 +60,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import KButton from 'kolibri.coreVue.components.KButton';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
+  import KExternalLink from 'kolibri.coreVue.components.KExternalLink';
 
   export default {
     name: 'DeviceInfoPage',
@@ -72,6 +72,7 @@
     components: {
       AuthMessage,
       KButton,
+      KExternalLink,
       TechnicalTextBlock,
     },
     data() {

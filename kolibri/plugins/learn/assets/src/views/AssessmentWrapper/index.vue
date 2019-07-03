@@ -50,16 +50,16 @@ oriented data synchronization.
           category="action"
           :style="{
             fill: success ? $themeTokens.mastered : $themeColors.palette.grey.v_200,
-            verticalAlign: 0,
+            marginBottom: '-6px',
           }"
         />
         <div class="overall-status-text">
-          <div v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+          <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
             {{ $tr('completed') }}
-          </div>
-          <div>
+          </span>
+          <span>
             {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-          </div>
+          </span>
         </div>
       </div>
       <div class="table">
