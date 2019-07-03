@@ -5,7 +5,10 @@
       <slot name="icon"></slot>
     </div>
     <div class="label">
-      <slot></slot>
+      <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
+      <span dir="auto">
+        <slot></slot>
+      </span>
     </div>
   </span>
 
