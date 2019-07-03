@@ -74,6 +74,10 @@
     computed: {
       ...mapState('search', ['contents', 'searchTerm', 'total_results']),
     },
+    beforeDestroy() {
+      // TODO do this clean up in a beforeRouteLeave once SearchPage is rendered in router-link
+      this.$store.commit('search/RESET_STATE');
+    },
     methods: {
       genContentLink(contentId, contentKind) {
         const params = { id: contentId };
