@@ -10,13 +10,9 @@ What is Kolibri?
 ----------------
 
 `Kolibri <https://learningequality.org/kolibri/>`__ is the offline learning platform
-from `Learning Equality <https://learningequality.org/>`__. It is `available for download <https://learningequality.org/download/>`__ from our website.
+from `Learning Equality <https://learningequality.org/>`__. It is `available for download <https://learningequality.org/download/>`__ from our website. The code is `hosted on Github <https://github.com/learningequality/kolibri/>`__ and MIT-licensed.
 
-The code is `hosted on Github <https://github.com/learningequality/kolibri/>`__ and MIT-licensed.
-
-You can ask questions, make suggestions, and report issues in the `community forums <https://community.learningequality.org/>`__.
-
-If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__ following the instructions in the issue template.
+You can ask questions, make suggestions, and report issues in the `community forums <https://community.learningequality.org/>`__. If you have found a bug and are comfortable using Github and Markdown, you can create a `Github issue <https://github.com/learningequality/kolibri/issues>`__ following the instructions in the issue template.
 
 
 Table of contents
