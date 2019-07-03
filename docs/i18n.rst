@@ -176,6 +176,29 @@ If ``KIcon`` does not have the icon you need or is not usable for some reason, w
   <img src="forward.png" :class="{ 'is-rtl': isRtl }" alt="" />
 
 
+Content rendererers
+~~~~~~~~~~~~~~~~~~~
+
+User interfaces that are tightly coupled to embedded content, such as the 'next page' and 'previous page' buttons in a book, need to be flipped to match the language direction of that content. UIs that are not tightly integrated with the content should match the overall application language, not the content.
+
+Information about content language direction is available in the computed props ``contentDirection`` and ``contentIsRtl`` from ``kolibri.coreVue.mixins.contentRendererMixin``. These can be used to change styling and directionality dynamically, similar to the application-wide ``isRtl`` value.
+
+In situations where we are using third-party libraries it might be necessary to flip the entire content renderer UI automatically using the RTLCSS framework rather than make targeted changes to the DOM. To handle these cases, it's possible to dynamically load the correct CSS webpack bundle using a promise:
+
+.. code-block:: javascript
+
+  export default {
+    name: 'SomeContentRenderer',
+    created() {
+      // load alternate CSS
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
+    },
+    mounted() {
+      this.cssPromise.then(() => {
+        // initialize third-party library when the vue is mounted AND the CSS is loaded
+      });
+    },
+  };
 
 
 .. _crowdin:
