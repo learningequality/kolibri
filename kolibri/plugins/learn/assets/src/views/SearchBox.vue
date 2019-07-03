@@ -5,7 +5,13 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey"
   >
-    <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
+    <div
+      class="search-box-row"
+      :style="{
+        backgroundColor: $themeTokens.surface,
+        borderColor: $themeColors.palette.grey.v_300
+      }"
+    >
       <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
       <input
         id="searchfield"
@@ -276,6 +282,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .search-box {
     margin-right: 8px;
   }
@@ -288,6 +296,9 @@
     display: table;
     width: 100%;
     max-width: 450px;
+    overflow: hidden;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .search-input {
