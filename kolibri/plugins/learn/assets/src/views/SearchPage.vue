@@ -79,6 +79,8 @@
       this.$store.commit('search/RESET_STATE');
     },
     mounted() {
+      // TODO when beforeRouteEnter is available, focus on filter or text input depending on what
+      // was changed (e.g. if type filter was changed, focus on it after refresh)
       if (this.$refs.searchBox.$refs.searchInput) {
         this.$refs.searchBox.$refs.searchInput.focus();
         // If there are no contents, then select the whole input, so user can try something else

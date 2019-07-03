@@ -105,6 +105,7 @@
           :disabled="!channelFilterOptions.length"
           :value="channelFilterSelection"
           class="filter"
+          :style="channelFilterStyle"
           @change="updateFilter"
         />
       </div>
@@ -116,6 +117,7 @@
 
 <script>
 
+  import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -173,6 +175,16 @@
         'kindFilter',
         'channelFilter',
       ]),
+      channelFilterStyle() {
+        const longestChannelName = maxBy(
+          this.channelFilterOptions,
+          channel => channel.label.length
+        );
+        // Adjust the width based on the longest channel name
+        return {
+          width: `${longestChannelName.label.length * 10}px`,
+        };
+      },
       allFilter() {
         return { label: this.$tr('all'), value: ALL_FILTER };
       },
