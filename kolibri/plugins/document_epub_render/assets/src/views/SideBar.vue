@@ -29,7 +29,6 @@
     padding: 16px;
     overflow-y: auto;
     word-wrap: break-word;
-    box-shadow: $epub-box-shadow;
   }
 
 </style>
