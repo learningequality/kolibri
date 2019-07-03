@@ -32,6 +32,7 @@ import kolibri
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.theme_hook import ThemeHook
+from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack.utils import webpack_asset_render
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -120,6 +121,21 @@ def kolibri_navigation_actions():
     :return: An html string
     """
     return webpack_asset_render(NavigationHook)
+
+
+@register.simple_tag()
+def enable_oidc_provider():
+    """
+    Specify whether or not the oidc_provider plugin is enabled
+    """
+    template = """
+    <script>
+      var oidcProviderEnabled = {};
+    </script>
+    """
+    return mark_safe(
+        template.format("true" if OIDCProviderHook().is_enabled else "false")
+    )
 
 
 @register.simple_tag()

@@ -26,6 +26,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from morango import urls as morango_urls
 
+from kolibri.plugins.utils.urls import get_root_urls
 from kolibri.utils.conf import OPTIONS
 
 path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
@@ -38,6 +39,7 @@ url_patterns_prefixed = [
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     url(r"", include(morango_urls)),
     url(r"", include("kolibri.core.urls")),
+    url(r"", include(get_root_urls())),
 ]
 
 urlpatterns = [url(path_prefix, include(url_patterns_prefixed))]

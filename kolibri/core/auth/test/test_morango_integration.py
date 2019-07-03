@@ -203,6 +203,23 @@ class EcosystemTestCase(TestCase):
             FacilityUser.objects.using(s1_alias).filter(username="user").exists()
         )
 
+        # missing foreign key lookup should be handled gracefully (https://github.com/learningequality/kolibri/pull/5734)
+        user = FacilityUser.objects.using(s1_alias).get(username="user")
+        fac = Facility.objects.using(s1_alias).get()
+        self.request_server(
+            servers[1],
+            "role",
+            data=self._data(collection=fac.id, user=user.id, kind="admin"),
+        )
+        self.request_server(servers[0], "facilityuser", method="DELETE", lookup=user.id)
+        # role object that is synced will try to do FK lookup on deleted user
+        servers[0].manage(
+            "fullfacilitysync",
+            base_url=s1_url,
+            username="superuser",
+            password="password",
+        )
+
         # create user with same username on two servers and check they both exist
         FacilityUser(
             username="copycat",

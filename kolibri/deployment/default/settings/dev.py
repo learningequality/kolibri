@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from .base import *  # noqa isort:skip @UnusedWildImport
 
-INSTALLED_APPS += ["rest_framework_swagger"]  # noqa
+INSTALLED_APPS = list(INSTALLED_APPS) + ["rest_framework_swagger"]  # noqa F405
 
 INTERNAL_IPS = ["127.0.0.1"]
 

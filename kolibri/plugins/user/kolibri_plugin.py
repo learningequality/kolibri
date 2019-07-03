@@ -11,7 +11,7 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class User(KolibriPluginBase):
-    pass
+    translated_view_urls = "urls"
 
 
 class UserAsset(webpack_hooks.WebpackBundleHook):

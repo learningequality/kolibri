@@ -14,7 +14,8 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class Learn(KolibriPluginBase):
-    pass
+    untranslated_view_urls = "api_urls"
+    translated_view_urls = "urls"
 
 
 class LearnRedirect(RoleBasedRedirectHook):

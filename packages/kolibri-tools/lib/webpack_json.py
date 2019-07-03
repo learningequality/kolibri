@@ -51,7 +51,7 @@ except ImportError:
     from kolibri.core.webpack.hooks import WebpackBundleHook
 
 logger = logging.getLogger("webpack_json")
-logger.setLevel(level=logging.WARN)
+logger.setLevel(level=logging.INFO)
 
 
 def load_plugins_from_file(file_path):

@@ -23,6 +23,7 @@
     <script src="{% url 'api-docs:schema-js' %}"></script>
   {% endif %}
   {% kolibri_language_globals %}
+  {% enable_oidc_provider %}
   {% kolibri_theme %}
   {% kolibri_set_urls %}
   {% webpack_asset 'user_agent' %}
