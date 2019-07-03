@@ -13,6 +13,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import sys
 
 import pytz
 from django.conf import locale
@@ -21,6 +22,7 @@ from tzlocal import get_localzone
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
+from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
 
@@ -424,3 +426,6 @@ if conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"]:
         scope.set_tag("installer", installation_type())
 
     print("Sentry backend error logging is enabled")
+
+
+apply_settings(sys.modules[__name__])

@@ -104,9 +104,11 @@
                 appearance="flat-button"
               />
             </p>
-            <p class="guest small-text">
+            <p
+              v-if="showGuestAccess"
+              class="guest small-text"
+            >
               <KExternalLink
-                v-if="allowGuestAccess"
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
                 :primary="true"
@@ -165,6 +167,14 @@
   import { PageNames } from '../../constants';
   import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
   import FacilityModal from './FacilityModal';
+
+  // https://davidwalsh.name/query-string-javascript
+  function getUrlParameter(name) {
+    name = name.replace(/[[]/, '[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
 
   export default {
     name: 'SignInPage',
@@ -272,8 +282,8 @@
       needPasswordField() {
         return !this.simpleSignIn || this.hasServerError;
       },
-      allowGuestAccess() {
-        return this.facilityConfig.allow_guest_access;
+      showGuestAccess() {
+        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
       },
       logoText() {
         return this.$theme.signIn.title ? this.$theme.signIn.title : this.$tr('kolibri');
@@ -291,6 +301,17 @@
           };
         }
         return { backgroundColor: this.$themeColors.brand.primary.v_900 };
+      },
+      oidcProviderFlow() {
+        return global.oidcProviderEnabled && this.nextParam;
+      },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
       },
     },
     watch: {
@@ -405,11 +426,15 @@
       signIn() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          this.kolibriLogin({
+          const sessionPayload = {
             username: this.username,
             password: this.password,
             facility: this.facilityId,
-          }).catch();
+          };
+          if (global.oidcProviderEnabled) {
+            sessionPayload['next'] = this.nextParam;
+          }
+          this.kolibriLogin(sessionPayload).catch();
         } else {
           this.focusOnInvalidField();
         }
