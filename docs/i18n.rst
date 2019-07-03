@@ -10,8 +10,6 @@ As a platform intended for use around the world, Kolibri has a strong mandate fo
 Writing localized strings
 -------------------------
 
-For strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
-
 For strings in the frontend, we are using `Vue-Intl <https://www.npmjs.com/package/vue-intl>`__, an in house port of `React-intl <https://www.npmjs.com/package/react-intl>`__. Strings are collected during the build process, and bundled into exported JSON files.
 
 Messages will be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the frontend are based off the current Django language for the HTTP request.
@@ -107,6 +105,11 @@ Dynamic values are passed into translation strings as named arguments in an obje
       msg: '{name} read {count} {count, plural, one {story} other {stories}}',
     },
   };
+
+.py files
+~~~~~~~~~
+
+For any user-facing strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
 
 
 RTL language support
