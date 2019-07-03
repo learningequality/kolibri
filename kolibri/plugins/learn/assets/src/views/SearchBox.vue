@@ -31,7 +31,7 @@
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
           :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
-          @click="searchQuery = ''"
+          @click="handleClickClear"
         >
           <mat-svg
             name="clear"
@@ -239,6 +239,10 @@
         } else {
           this.searchQuery = '';
         }
+      },
+      handleClickClear() {
+        this.searchQuery = '';
+        this.$refs.searchInput.focus();
       },
       updateFilter() {
         this.search(true);
