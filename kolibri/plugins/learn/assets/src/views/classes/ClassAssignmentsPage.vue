@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1 dir="auto" class="classroom-name">
+    <h1 class="classroom-name">
       <KLabeledIcon>
         <KIcon slot="icon" classroom />
         {{ classroomName }}

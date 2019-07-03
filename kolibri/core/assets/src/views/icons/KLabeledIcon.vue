@@ -4,8 +4,11 @@
     <div class="icon">
       <slot name="icon"></slot>
     </div>
-    <div class="label" dir="auto">
-      <slot></slot>
+    <div class="label">
+      <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
+      <span dir="auto">
+        <slot></slot>
+      </span>
     </div>
   </span>
 
