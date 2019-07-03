@@ -224,7 +224,7 @@
 
   .role-badge {
     display: inline-block;
-    padding: 2px;
+    padding: 0;
     padding-right: 8px;
     padding-left: 8px;
     margin-left: 16px;
