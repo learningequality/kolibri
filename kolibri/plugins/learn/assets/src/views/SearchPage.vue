@@ -4,7 +4,7 @@
 
     <h3>{{ $tr('searchPageHeader') }}</h3>
 
-    <SearchBox :filters="true" />
+    <SearchBox ref="searchBox" :filters="contents.length > 0" />
 
     <p v-if="!searchTerm">
       {{ $tr('noSearch') }}
@@ -77,6 +77,15 @@
     beforeDestroy() {
       // TODO do this clean up in a beforeRouteLeave once SearchPage is rendered in router-link
       this.$store.commit('search/RESET_STATE');
+    },
+    mounted() {
+      if (this.$refs.searchBox.$refs.searchInput) {
+        this.$refs.searchBox.$refs.searchInput.focus();
+        // If there are no contents, then select the whole input, so user can try something else
+        if (this.contents.length === 0) {
+          this.$refs.searchBox.$refs.searchInput.select();
+        }
+      }
     },
     methods: {
       genContentLink(contentId, contentKind) {
