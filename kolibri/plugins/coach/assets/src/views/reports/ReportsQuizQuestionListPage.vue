@@ -24,8 +24,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="question" />
+              <KLabeledIcon icon="question">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"

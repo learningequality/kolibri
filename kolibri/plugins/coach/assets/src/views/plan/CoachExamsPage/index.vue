@@ -41,8 +41,7 @@
             :key="exam.id"
           >
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="quiz" />
+              <KLabeledIcon icon="quiz">
                 <KRouterLink
                   :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
                   appearance="basic-link"
@@ -88,7 +87,6 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -108,7 +106,6 @@
       KSelect,
       QuizActive,
       KLabeledIcon,
-      KIcon,
     },
     mixins: [commonCoach],
     data() {

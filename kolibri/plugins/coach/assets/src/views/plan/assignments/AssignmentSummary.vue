@@ -2,10 +2,7 @@
 
   <div>
     <h1 dir="auto">
-      <KLabeledIcon>
-        <KIcon slot="icon" icon="lesson" />
-        {{ title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="lesson" :label="title" />
     </h1>
 
     <HeaderTable>
@@ -33,7 +30,6 @@
 
 <script>
 
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
@@ -47,7 +43,6 @@
     name: 'AssignmentSummary',
     components: {
       LessonActive,
-      KIcon,
       KLabeledIcon,
       HeaderTable,
       HeaderTableRow,

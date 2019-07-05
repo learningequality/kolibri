@@ -39,8 +39,7 @@
           :key="classroom.id"
         >
           <td>
-            <KLabeledIcon>
-              <KIcon slot="icon" icon="classroom" />
+            <KLabeledIcon icon="classroom">
               <KRouterLink
                 :text="classroom.name"
                 :to="classEditLink(classroom.id)"
@@ -110,7 +109,6 @@
   import KTooltip from 'kolibri.coreVue.components.KTooltip';
   import KEmptyPlaceholder from 'kolibri.coreVue.components.KEmptyPlaceholder';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { Modals, PageNames } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -138,7 +136,6 @@
       KGrid,
       KGridItem,
       KLabeledIcon,
-      KIcon,
       KTooltip,
       KEmptyPlaceholder,
     },

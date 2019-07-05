@@ -55,12 +55,7 @@
             />
           </td>
           <td>
-            <span dir="auto">
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="isCoach ? 'coach' : 'person'" />
-                {{ user.full_name }}
-              </KLabeledIcon>
-            </span>
+            <KLabeledIcon :icon="isCoach ? 'coach' : 'person'" :label="user.full_name" />
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
@@ -109,7 +104,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import difference from 'lodash/difference';
 
   export default {
@@ -119,7 +113,6 @@
       KCheckbox,
       UserTypeDisplay,
       KLabeledIcon,
-      KIcon,
     },
     mixins: [themeMixin],
     props: {

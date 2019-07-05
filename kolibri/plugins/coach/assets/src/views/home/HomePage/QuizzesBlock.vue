@@ -4,10 +4,7 @@
     :allLinkText="$tr('viewAll')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
-    <KLabeledIcon slot="title">
-      <KIcon slot="icon" icon="quiz" />
-      {{ coachCommon$tr('quizzesLabel') }}
-    </KLabeledIcon>
+    <KLabeledIcon slot="title" icon="quiz" :label="coachCommon$tr('quizzesLabel')" />
 
     <p v-if="table.length === 0">
       {{ coachCommon$tr('quizListEmptyState') }}

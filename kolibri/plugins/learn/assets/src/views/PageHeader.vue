@@ -3,10 +3,7 @@
   <KGrid>
     <KGridItem sizes="3, 7, 11">
       <h1>
-        <KLabeledIcon>
-          <KIcon v-if="contentType" slot="icon" icon="iconType" />
-          {{ title }}
-        </KLabeledIcon>
+        <KLabeledIcon :icon="contentType" :label="title" />
       </h1>
     </KGridItem>
     <KGridItem sizes="1, 1, 1" alignment="right">
@@ -20,7 +17,6 @@
 <script>
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -30,7 +26,6 @@
     components: {
       KGridItem,
       KGrid,
-      KIcon,
       KLabeledIcon,
       ProgressIcon,
     },

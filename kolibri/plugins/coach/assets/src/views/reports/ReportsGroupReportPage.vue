@@ -18,8 +18,7 @@
           <h2>{{ coachCommon$tr('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="lesson" />
+              <KLabeledIcon icon="lesson">
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
                   :text="lesson.title"
@@ -35,8 +34,7 @@
           <h2>{{ coachCommon$tr('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="quiz" />
+              <KLabeledIcon icon="quiz">
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
                   :text="exam.title"

@@ -9,10 +9,7 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" icon="quiz" />
-        {{ exam.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="quiz" :label="exam.title" />
     </h1>
 
     <HeaderTable>

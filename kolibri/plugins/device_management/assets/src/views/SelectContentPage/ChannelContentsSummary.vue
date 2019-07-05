@@ -9,10 +9,7 @@
       >
       <div class="channel-name">
         <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" icon="channel" />
-            {{ channel.name }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="channel" :label="channel.name" />
         </h1>
         <UiIcon
           v-if="channel.public === false"
@@ -55,14 +52,12 @@
 
   import UiIcon from 'keen-ui/src/UiIcon';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
 
   export default {
     name: 'ChannelContentsSummary',
     components: {
       UiIcon,
-      KIcon,
       KLabeledIcon,
     },
     props: {

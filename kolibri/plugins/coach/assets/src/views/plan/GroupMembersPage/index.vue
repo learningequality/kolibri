@@ -23,10 +23,7 @@
 
       <div v-else>
         <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" icon="group" />
-            {{ currentGroup.name }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="group" :label="currentGroup.name" />
         </h1>
 
         <KGrid>
@@ -70,10 +67,7 @@
               :key="user.id"
             >
               <td>
-                <KLabeledIcon>
-                  <KIcon slot="icon" icon="person" />
-                  {{ user.full_name }}
-                </KLabeledIcon>
+                <KLabeledIcon icon="person" :label="user.full_name" />
               </td>
               <td>
                 {{ user.username }}

@@ -8,10 +8,7 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" icon="group" />
-        {{ group.name }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="group" :label="group.name" />
     </h1>
 
     <!-- TODO COACH

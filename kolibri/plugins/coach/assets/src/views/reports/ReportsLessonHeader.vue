@@ -15,10 +15,7 @@
     </BackLinkWithOptions>
 
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" icon="lesson" />
-        {{ lesson.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="lesson" :label="lesson.title" />
     </h1>
 
     <HeaderTable>

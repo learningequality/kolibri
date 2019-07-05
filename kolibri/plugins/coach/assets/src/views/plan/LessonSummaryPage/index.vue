@@ -27,10 +27,7 @@
 
         <div>
           <h1 dir="auto">
-            <KLabeledIcon>
-              <KIcon slot="icon" icon="lesson" />
-              {{ currentLesson.title }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="lesson" :label="currentLesson.title" />
           </h1>
 
           <HeaderTable>
@@ -96,7 +93,6 @@
 
   import { mapState } from 'vuex';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
@@ -117,7 +113,6 @@
       };
     },
     components: {
-      KIcon,
       KLabeledIcon,
       HeaderTable,
       HeaderTableRow,

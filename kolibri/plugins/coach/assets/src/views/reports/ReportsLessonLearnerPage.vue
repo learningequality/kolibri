@@ -17,10 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" icon="person" />
-          {{ learner.name }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
       <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">

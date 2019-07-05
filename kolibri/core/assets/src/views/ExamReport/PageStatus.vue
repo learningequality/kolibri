@@ -4,15 +4,9 @@
     <KGridItem size="75" percentage>
       <div>
         <h1 class="title">
-          <KLabeledIcon>
-            <KIcon slot="icon" icon="person" />
-            {{ userName }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="person" :label="userName" />
         </h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" icon="quiz" />
-          {{ $tr('title', { name: contentName }) }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="quiz" :label="$tr('title', { name: contentName })" />
       </div>
 
       <table class="scores">

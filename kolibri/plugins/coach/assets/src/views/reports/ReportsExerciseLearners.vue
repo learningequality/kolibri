@@ -15,8 +15,7 @@
     <transition-group slot="tbody" tag="tbody" name="list">
       <tr v-for="entry in entries" :key="entry.id" data-test="entry">
         <td>
-          <KLabeledIcon>
-            <KIcon slot="icon" icon="person" />
+          <KLabeledIcon icon="person">
             <KRouterLink
               v-if="showLink(entry)"
               :text="entry.name"

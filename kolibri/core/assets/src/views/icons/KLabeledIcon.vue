@@ -9,7 +9,9 @@
     <div class="label">
       <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
       <span dir="auto">
-        <slot></slot>
+        <slot>
+          {{ label }}
+        </slot>
       </span>
     </div>
   </span>
@@ -29,6 +31,11 @@
     props: {
       // If provided, will render a KIcon with the same 'icon' prop
       icon: {
+        type: String,
+        required: false,
+      },
+      // If provided, will place this text in the default slot
+      label: {
         type: String,
         required: false,
       },

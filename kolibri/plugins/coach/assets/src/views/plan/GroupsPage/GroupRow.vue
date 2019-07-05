@@ -2,8 +2,7 @@
 
   <tr>
     <td>
-      <KLabeledIcon>
-        <KIcon slot="icon" icon="group" />
+      <KLabeledIcon icon="group">
         <KRouterLink
           :text="group.name"
           :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
@@ -32,7 +31,6 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoach from '../../common';
 
   export default {
@@ -41,7 +39,6 @@
       KDropdownMenu,
       KRouterLink,
       KLabeledIcon,
-      KIcon,
     },
     mixins: [commonCoach, responsiveWindow],
     props: {

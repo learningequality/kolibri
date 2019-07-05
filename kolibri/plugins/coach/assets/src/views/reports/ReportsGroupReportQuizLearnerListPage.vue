@@ -24,8 +24,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="person" />
+              <KLabeledIcon icon="person">
                 <KRouterLink
                   v-if="tableRow.statusObj.status !== STATUSES.notStarted"
                   :text="tableRow.name"

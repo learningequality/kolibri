@@ -4,10 +4,7 @@
 
     <div>
       <h1 class="title-header" dir="auto">
-        <KLabeledIcon>
-          <KIcon slot="icon" icon="classroom" />
-          {{ currentClass.name }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="classroom" :label="currentClass.name" />
       </h1>
       <KButton
         :text="$tr('renameButtonLabel')"
@@ -103,7 +100,6 @@
   import KButton from 'kolibri.coreVue.components.KButton';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import UserTable from '../UserTable';
   import { PageNames, Modals } from '../../constants';
@@ -125,7 +121,6 @@
       KGridItem,
       KRouterLink,
       KButton,
-      KIcon,
       KLabeledIcon,
     },
     data() {

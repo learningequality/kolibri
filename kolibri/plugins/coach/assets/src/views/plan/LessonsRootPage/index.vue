@@ -41,8 +41,7 @@
             :key="lesson.id"
           >
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="lesson" />
+              <KLabeledIcon icon="lesson">
                 <KRouterLink
                   :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
                   :text="lesson.title"
@@ -114,7 +113,6 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -133,7 +131,6 @@
       KRouterLink,
       KSelect,
       KLabeledIcon,
-      KIcon,
       KModal,
       LessonActive,
       AssignmentDetailsModal,

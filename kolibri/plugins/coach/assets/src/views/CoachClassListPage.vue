@@ -36,8 +36,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="classObj in classList" :key="classObj.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" icon="classroom" />
+              <KLabeledIcon icon="classroom">
                 <KRouterLink
                   :text="classObj.name"
                   :to="$router.getRoute('HomePage', { classId: classObj.id })"
