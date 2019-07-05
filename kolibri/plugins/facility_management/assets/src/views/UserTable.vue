@@ -57,11 +57,7 @@
           <td>
             <span dir="auto">
               <KLabeledIcon>
-                <KIcon
-                  slot="icon"
-                  :coach="isCoach"
-                  :person="!isCoach"
-                />
+                <KIcon slot="icon" icon="isCoach ? 'coach' : 'person'" />
                 {{ user.full_name }}
               </KLabeledIcon>
             </span>

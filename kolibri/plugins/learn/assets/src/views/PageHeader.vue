@@ -4,7 +4,7 @@
     <KGridItem sizes="3, 7, 11">
       <h1>
         <KLabeledIcon>
-          <KIcon v-if="contentType" slot="icon" :[iconType]="true" />
+          <KIcon v-if="contentType" slot="icon" icon="iconType" />
           {{ title }}
         </KLabeledIcon>
       </h1>
@@ -44,14 +44,6 @@
       },
       contentType: {
         type: String,
-      },
-    },
-    computed: {
-      iconType() {
-        if (this.contentType === 'document') {
-          return 'doc';
-        }
-        return this.contentType;
       },
     },
   };
