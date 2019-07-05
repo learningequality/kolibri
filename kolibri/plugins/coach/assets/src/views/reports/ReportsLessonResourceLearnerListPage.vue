@@ -140,7 +140,7 @@
     },
     methods: {
       active(learner) {
-        return this.activeLearners.includes(learner.username);
+        return this.activeLearners.includes(learner.id);
       },
       filterByActive(learners) {
         const sortByKey = 'username';
