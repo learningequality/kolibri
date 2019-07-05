@@ -26,7 +26,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" group />
+                <KIcon slot="icon" icon="group" />
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"

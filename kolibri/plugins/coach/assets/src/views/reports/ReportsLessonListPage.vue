@@ -29,7 +29,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+                <KIcon slot="icon" icon="lesson" />
                 <KRouterLink
                   :text="tableRow.title"
                   :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"

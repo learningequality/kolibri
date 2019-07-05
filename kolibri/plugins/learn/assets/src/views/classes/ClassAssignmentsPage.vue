@@ -3,7 +3,7 @@
   <div>
     <h1 class="classroom-name">
       <KLabeledIcon>
-        <KIcon slot="icon" classroom />
+        <KIcon slot="icon" icon="classroom" />
         {{ classroomName }}
       </KLabeledIcon>
     </h1>

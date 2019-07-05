@@ -5,12 +5,12 @@
       <div>
         <h1 class="title">
           <KLabeledIcon>
-            <KIcon slot="icon" person />
+            <KIcon slot="icon" icon="person" />
             {{ userName }}
           </KLabeledIcon>
         </h1>
         <KLabeledIcon>
-          <KIcon slot="icon" quiz />
+          <KIcon slot="icon" icon="quiz" />
           {{ $tr('title', { name: contentName }) }}
         </KLabeledIcon>
       </div>

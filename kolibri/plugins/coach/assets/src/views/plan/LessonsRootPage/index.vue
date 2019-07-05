@@ -42,7 +42,7 @@
           >
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+                <KIcon slot="icon" icon="lesson" />
                 <KRouterLink
                   :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
                   :text="lesson.title"

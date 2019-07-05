@@ -9,7 +9,7 @@
     </p>
     <h1>
       <KLabeledIcon>
-        <KIcon slot="icon" group />
+        <KIcon slot="icon" icon="group" />
         {{ group.name }}
       </KLabeledIcon>
     </h1>

@@ -12,7 +12,7 @@
       <div class="section user-info">
         <h1 dir="auto">
           <KLabeledIcon>
-            <KIcon slot="icon" person />
+            <KIcon slot="icon" icon="person" />
             {{ user.full_name }}
             <span v-if="isCurrentUser">
               ({{ $tr('you') }})

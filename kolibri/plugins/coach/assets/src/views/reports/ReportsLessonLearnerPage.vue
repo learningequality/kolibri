@@ -18,7 +18,7 @@
       </p>
       <h1>
         <KLabeledIcon>
-          <KIcon slot="icon" person />
+          <KIcon slot="icon" icon="person" />
           {{ learner.name }}
         </KLabeledIcon>
       </h1>

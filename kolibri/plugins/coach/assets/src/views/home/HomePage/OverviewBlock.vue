@@ -11,14 +11,14 @@
 
     <h1>
       <KLabeledIcon>
-        <KIcon slot="icon" classroom />
+        <KIcon slot="icon" icon="classroom" />
         {{ $store.state.classSummary.name }}
       </KLabeledIcon>
     </h1>
     <HeaderTable>
       <HeaderTableRow>
         <KLabeledIcon slot="key">
-          <KIcon slot="icon" coach />
+          <KIcon slot="icon" icon="coach" />
           {{ $tr('coach', {count: coachNames.length}) }}
         </KLabeledIcon>
         <template slot="value">
@@ -27,7 +27,7 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <KLabeledIcon slot="key">
-          <KIcon slot="icon" people />
+          <KIcon slot="icon" icon="people" />
           {{ $tr('learner', {count: learnerNames.length}) }}
         </KLabeledIcon>
         <template slot="value">

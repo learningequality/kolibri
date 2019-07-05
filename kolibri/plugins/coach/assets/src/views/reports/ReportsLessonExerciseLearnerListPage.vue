@@ -31,7 +31,7 @@
             data-test="group-title"
           >
             <KLabeledIcon>
-              <KIcon slot="icon" group />
+              <KIcon slot="icon" icon="group" />
               {{ group.name }}
             </KLabeledIcon>
           </h2>

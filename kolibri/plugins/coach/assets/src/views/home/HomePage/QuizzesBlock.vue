@@ -5,7 +5,7 @@
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
     <KLabeledIcon slot="title">
-      <KIcon slot="icon" quiz />
+      <KIcon slot="icon" icon="quiz" />
       {{ coachCommon$tr('quizzesLabel') }}
     </KLabeledIcon>
 

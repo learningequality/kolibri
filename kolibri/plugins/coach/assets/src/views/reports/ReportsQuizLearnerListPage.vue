@@ -26,7 +26,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" person />
+                <KIcon slot="icon" icon="person" />
                 <KRouterLink
                   v-if="tableRow.statusObj.status !== STATUSES.notStarted"
                   :text="tableRow.name"

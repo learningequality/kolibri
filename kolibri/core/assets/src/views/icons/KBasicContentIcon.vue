@@ -1,13 +1,6 @@
 <template>
 
-  <KIcon
-    slot="icon"
-    :exercise="kind === 'exercise'"
-    :video="kind === 'video'"
-    :app="kind === 'html5'"
-    :audio="kind === 'audio'"
-    :doc="kind === 'document'"
-  />
+  <KIcon slot="icon" :icon="kind" />
 
 </template>
 

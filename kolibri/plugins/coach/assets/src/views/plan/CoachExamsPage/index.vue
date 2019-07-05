@@ -42,7 +42,7 @@
           >
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+                <KIcon slot="icon" icon="quiz" />
                 <KRouterLink
                   :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
                   appearance="basic-link"

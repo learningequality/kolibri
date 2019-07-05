@@ -25,7 +25,7 @@
           <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" question />
+                <KIcon slot="icon" icon="question" />
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"

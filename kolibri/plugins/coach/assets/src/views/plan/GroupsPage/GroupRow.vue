@@ -3,7 +3,7 @@
   <tr>
     <td>
       <KLabeledIcon>
-        <KIcon slot="icon" group />
+        <KIcon slot="icon" icon="group" />
         <KRouterLink
           :text="group.name"
           :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"

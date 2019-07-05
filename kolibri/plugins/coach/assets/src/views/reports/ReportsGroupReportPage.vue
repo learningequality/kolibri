@@ -19,7 +19,7 @@
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
               <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+                <KIcon slot="icon" icon="lesson" />
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
                   :text="lesson.title"
@@ -36,7 +36,7 @@
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
               <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+                <KIcon slot="icon" icon="quiz" />
                 <KRouterLink
                   :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
                   :text="exam.title"

@@ -16,7 +16,7 @@
       <tr v-for="entry in entries" :key="entry.id">
         <td>
           <KLabeledIcon>
-            <KIcon slot="icon" person />
+            <KIcon slot="icon" icon="person" />
             {{ entry.name }}
           </KLabeledIcon>
         </td>

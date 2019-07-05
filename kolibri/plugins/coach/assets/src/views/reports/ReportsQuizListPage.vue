@@ -31,7 +31,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+                <KIcon slot="icon" icon="quiz" />
                 <KRouterLink
                   :text="tableRow.title"
                   :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"

@@ -28,7 +28,7 @@
         <div>
           <h1 dir="auto">
             <KLabeledIcon>
-              <KIcon slot="icon" lesson />
+              <KIcon slot="icon" icon="lesson" />
               {{ currentLesson.title }}
             </KLabeledIcon>
           </h1>

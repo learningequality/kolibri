@@ -40,7 +40,7 @@
         >
           <td>
             <KLabeledIcon>
-              <KIcon slot="icon" classroom />
+              <KIcon slot="icon" icon="classroom" />
               <KRouterLink
                 :text="classroom.name"
                 :to="classEditLink(classroom.id)"

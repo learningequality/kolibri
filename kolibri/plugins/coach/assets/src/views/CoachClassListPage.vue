@@ -37,7 +37,7 @@
           <tr v-for="classObj in classList" :key="classObj.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" classroom />
+                <KIcon slot="icon" icon="classroom" />
                 <KRouterLink
                   :text="classObj.name"
                   :to="$router.getRoute('HomePage', { classId: classObj.id })"

@@ -9,7 +9,7 @@
     <KPageContainer v-if="!loading">
       <h1>
         <KLabeledIcon>
-          <KIcon slot="icon" quiz />
+          <KIcon slot="icon" icon="quiz" />
           {{ quiz.title }}
         </KLabeledIcon>
       </h1>

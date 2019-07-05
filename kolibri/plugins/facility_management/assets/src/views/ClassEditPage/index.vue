@@ -5,7 +5,7 @@
     <div>
       <h1 class="title-header" dir="auto">
         <KLabeledIcon>
-          <KIcon slot="icon" classroom />
+          <KIcon slot="icon" icon="classroom" />
           {{ currentClass.name }}
         </KLabeledIcon>
       </h1>

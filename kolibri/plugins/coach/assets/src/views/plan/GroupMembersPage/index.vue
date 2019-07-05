@@ -24,7 +24,7 @@
       <div v-else>
         <h1>
           <KLabeledIcon>
-            <KIcon slot="icon" group />
+            <KIcon slot="icon" icon="group" />
             {{ currentGroup.name }}
           </KLabeledIcon>
         </h1>
@@ -71,7 +71,7 @@
             >
               <td>
                 <KLabeledIcon>
-                  <KIcon slot="icon" person />
+                  <KIcon slot="icon" icon="person" />
                   {{ user.full_name }}
                 </KLabeledIcon>
               </td>

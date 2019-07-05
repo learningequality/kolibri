@@ -10,7 +10,7 @@
       <div class="channel-name">
         <h1>
           <KLabeledIcon>
-            <KIcon slot="icon" channel />
+            <KIcon slot="icon" icon="channel" />
             {{ channel.name }}
           </KLabeledIcon>
         </h1>

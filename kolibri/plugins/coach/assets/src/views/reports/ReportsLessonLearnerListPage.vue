@@ -27,7 +27,7 @@
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
               <KLabeledIcon>
-                <KIcon slot="icon" person />
+                <KIcon slot="icon" icon="person" />
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
