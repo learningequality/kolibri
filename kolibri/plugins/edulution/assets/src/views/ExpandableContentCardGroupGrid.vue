@@ -97,6 +97,7 @@
       },
       thumbnailBackground() {
         return {
+          backgroundSize: 'cover',
           backgroundColor: this.$coreBgLight,
           backgroundImage: `url('${this.child.thumbnail}')`,
         };
