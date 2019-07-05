@@ -15,14 +15,17 @@
     <transition-group slot="tbody" tag="tbody" name="list">
       <tr v-for="entry in entries" :key="entry.id" data-test="entry">
         <td>
-          <KRouterLink
-            v-if="showLink(entry)"
-            :text="entry.name"
-            :to="entry.exerciseLearnerLink"
-          />
-          <template v-else>
-            {{ entry.name }}
-          </template>
+          <KLabeledIcon>
+            <KIcon slot="icon" icon="person" />
+            <KRouterLink
+              v-if="showLink(entry)"
+              :text="entry.name"
+              :to="entry.exerciseLearnerLink"
+            />
+            <template v-else>
+              {{ entry.name }}
+            </template>
+          </KLabeledIcon>
         </td>
         <td>
           <StatusSimple :status="entry.statusObj.status" />
@@ -52,6 +55,8 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
+  import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
 
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
@@ -65,6 +70,8 @@
       CoreTable,
       ElapsedTime,
       KRouterLink,
+      KIcon,
+      KLabeledIcon,
       StatusSimple,
       TimeDuration,
       TruncatedItemList,
