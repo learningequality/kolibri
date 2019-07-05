@@ -33,7 +33,7 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
@@ -52,6 +52,9 @@
       BlockItem,
     },
     mixins: [commonCoach],
+    props: {
+      showOnlyActive: Boolean,
+    },
     $trs: {
       viewAll: 'All lessons',
     },
@@ -59,7 +62,10 @@
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);
         return recent.map(lesson => {
-          const assigned = this.getLearnersForGroups(lesson.groups);
+          let assigned = this.getLearnersForGroups(lesson.groups);
+          if (this.showOnlyActive) {
+            assigned = this.filterByActive(assigned);
+          }
           return {
             key: lesson.id,
             name: lesson.title,
@@ -86,6 +92,16 @@
           }
         });
         return last;
+      },
+      active(learner) {
+        return this.activeLearners.includes(learner);
+      },
+      filterByActive(learners) {
+        const sortByKey = 'username';
+        const predicate = learner => this.active(learner);
+        return learners.filter(predicate).sort((a, b) => {
+          return localeCompare(a[sortByKey], b[sortByKey]);
+        });
       },
     },
   };

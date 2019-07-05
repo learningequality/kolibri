@@ -232,7 +232,7 @@ def get_active_learners(classroom):
         active_learners_in_class = \
             filter(lambda session: session.user.is_member_of(Classroom.objects.get(name=classroom)),
                    session_objects)
-        active_learners = set(map(lambda user_session: user_session.user.username, active_learners_in_class))
+        active_learners = set(map(lambda user_session: user_session.user.id, active_learners_in_class))
     except OperationalError:
         print('Database unavailable, impossible to retrieve users and sessions info')
 

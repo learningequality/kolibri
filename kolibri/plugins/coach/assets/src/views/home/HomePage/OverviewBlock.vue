@@ -51,6 +51,7 @@
 <script>
 
   import { mapActions, mapState, mapGetters } from 'vuex';
+  import { localeCompare } from 'kolibri.utils.i18n';
   import commonCoach from '../../common';
   import { Modals } from '../../../constants';
   import CoachUserCreateModal from './CoachUserCreateModal';
@@ -66,6 +67,9 @@
       CoachUserCreateModal,
     },
     mixins: [commonCoach],
+    props: {
+      showOnlyActive: Boolean,
+    },
     $trs: {
       back: 'All classes',
       changeClass: 'Change class',
@@ -81,7 +85,11 @@
         return this.coaches.map(coach => coach.name);
       },
       learnerNames() {
-        return this.learners.map(learner => learner.name);
+        let learners = this.learners;
+        if (this.showOnlyActive) {
+          learners = this.filterByActive(learners);
+        }
+        return learners.map(learner => learner.name);
       },
       thisClassName() {
         return this.className;
@@ -92,6 +100,16 @@
     },
     methods: {
       ...mapActions('userManagement', ['displayModal']),
+      active(learner) {
+        return this.activeLearners.includes(learner.id);
+      },
+      filterByActive(learners) {
+        const sortByKey = 'username';
+        const predicate = learner => this.active(learner);
+        return learners.filter(predicate).sort((a, b) => {
+          return localeCompare(a[sortByKey], b[sortByKey]);
+        });
+      },
     },
   };
 
