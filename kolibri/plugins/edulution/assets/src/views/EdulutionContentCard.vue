@@ -147,12 +147,6 @@
         return this.numCoachContents > 0 || this.copiesCount > 1;
       },
     },
-    methods: {
-      showModal() {
-        this.$store.commit('topicsTree/SET_PREREQUISITES', [this.link, this.pendingPrerequisites]);
-        this.$store.commit('topicsTree/SET_PREREQUISITES_MODAL', true);
-      },
-    },
   };
 
 </script>
