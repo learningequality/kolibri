@@ -75,7 +75,7 @@
 
 <style lang="scss" scoped>
 
-  $gutters: 16px;
+  $gutters: 48px;
 
   .grid-item {
     margin-right: $gutters;

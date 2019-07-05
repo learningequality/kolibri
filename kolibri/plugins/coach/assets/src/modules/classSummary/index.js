@@ -10,73 +10,73 @@ import { updateWithNotifications } from './actions';
 
 function defaultState() {
   return {
-    id: null,
+    id: '',
     name: '',
     /*
-     * coachMap := {
-     *   [id]: { id, name, username }
-     * }
-     */
+         * coachMap := {
+         *   [id]: { id, name, username }
+         * }
+         */
     coachMap: {},
     /*
-     * learnerMap := {
-     *   [id]: { id, name, username }
-     * }
-     */
+         * learnerMap := {
+         *   [id]: { id, name, username }
+         * }
+         */
     learnerMap: {},
     /*
-     * groupMap := {
-     *   [id]: { id, name, member_ids: [id, ...] }
-     * }
-     */
+         * groupMap := {
+         *   [id]: { id, name, member_ids: [id, ...] }
+         * }
+         */
     groupMap: {},
     /*
-     * examMap := {
-     *   [id]: {
-     *     id,
-     *     active,
-     *     title,
-     *     question_sources: [{exercise_id, question_id}, ...],
-     *     groups: [id, ...],
-     *     data_model_version,
-     *     question_count,
-     *   }
-     * }
-     */
+         * examMap := {
+         *   [id]: {
+         *     id,
+         *     active,
+         *     title,
+         *     question_sources: [{exercise_id, question_id}, ...],
+         *     groups: [id, ...],
+         *     data_model_version,
+         *     question_count,
+         *   }
+         * }
+         */
     examMap: {},
     /*
-     * examLearnerStatusMap := {
-     *   [exam_id]: {
-     *     [learner_id]: { exam_id, learner_id, status, last_activity, num_correct, score }
-     *   }
-     * }
-     */
+         * examLearnerStatusMap := {
+         *   [exam_id]: {
+         *     [learner_id]: { exam_id, learner_id, status, last_activity, num_correct, score }
+         *   }
+         * }
+         */
     examLearnerStatusMap: {},
     /*
-     * contentMap := {
-     *   [content_id]: { content_id, node_id, kind, title }
-     * }
-     */
+         * contentMap := {
+         *   [content_id]: { content_id, node_id, kind, title }
+         * }
+         */
     contentMap: {},
     /*
-     * contentNodeMap := {
-     *   [node_id]: { content_id, node_id, kind, title }
-     * }
-     */
+         * contentNodeMap := {
+         *   [node_id]: { content_id, node_id, kind, title }
+         * }
+         */
     contentNodeMap: {},
     /*
-     * contentLearnerStatusMap := {
-     *   [content_id]: {
-     *     [learner_id]: { content_id, learner_id, status, last_activity }
-     *   }
-     * }
-     */
+         * contentLearnerStatusMap := {
+         *   [content_id]: {
+         *     [learner_id]: { content_id, learner_id, status, last_activity }
+         *   }
+         * }
+         */
     contentLearnerStatusMap: {},
     /*
-     * lessonMap := {
-     *   [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
-     * }
-     */
+         * lessonMap := {
+         *   [id]: { id, active, title, node_ids: [id, ...], groups: [id, ...] }
+         * }
+         */
     lessonMap: {},
     activeLearnersArray: [],
     learnersInfoArray: [],
@@ -167,18 +167,18 @@ export default {
       return Object.values(state.name);
     },
     /*
-     * coaches := [
-     *   { id, name, username }, ...
-     * ]
-     */
+         * coaches := [
+         *   { id, name, username }, ...
+         * ]
+         */
     coaches(state) {
       return Object.values(state.coachMap);
     },
     /*
-     * learners := [
-     *   { id, name, username }, ...
-     * ]
-     */
+         * learners := [
+         *   { id, name, username }, ...
+         * ]
+         */
     learners(state) {
       return Object.values(state.learnerMap);
     },
@@ -189,81 +189,81 @@ export default {
       return Object.values(state.learnersInfoArray);
     },
     /*
-     * groups := [
-     *   { id, name, member_ids: [id, ...] }, ...
-     * ]
-     */
+         * groups := [
+         *   { id, name, member_ids: [id, ...] }, ...
+         * ]
+         */
     groups(state) {
       return Object.values(state.groupMap);
     },
     /*
-     * exams := [
-     *   {
-     *     id,
-     *     active,
-     *     title,
-     *     question_sources: [{exercise_id, question_id}, ...],
-     *     groups: [id, ...],
-     *   },
-     *   ...
-     * ]
-     */
+         * exams := [
+         *   {
+         *     id,
+         *     active,
+         *     title,
+         *     question_sources: [{exercise_id, question_id}, ...],
+         *     groups: [id, ...],
+         *   },
+         *   ...
+         * ]
+         */
     exams(state) {
       return Object.values(state.examMap);
     },
     /*
-     * examStatuses := [
-     *   { exam_id, learner_id, status, last_activity }, ...
-     * ]
-     */
+         * examStatuses := [
+         *   { exam_id, learner_id, status, last_activity }, ...
+         * ]
+         */
     examStatuses(state) {
       return flatten(
         Object.values(state.examLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
     /*
-     * content := [
-     *   { content_id, node_id, kind, title }, ...
-     * ]
-     */
+         * content := [
+         *   { content_id, node_id, kind, title }, ...
+         * ]
+         */
     content(state) {
       return Object.values(state.contentMap);
     },
     /*
-     * contentStatuses := [
-     *   { content_id, learner_id, status, last_activity }, ...
-     * ]
-     */
+         * contentStatuses := [
+         *   { content_id, learner_id, status, last_activity }, ...
+         * ]
+         */
     contentStatuses(state) {
       return flatten(
         Object.values(state.contentLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
     /*
-     * lessons := [
-     *   { id, active, title, node_ids: [id, ...], groups: [id, ...] }, ...
-     * ]
-     */
+         * lessons := [
+         *   { id, active, title, node_ids: [id, ...], groups: [id, ...] }, ...
+         * ]
+         */
     lessons(state) {
       return Object.values(state.lessonMap);
     },
     /*
-     * lessonStatuses := [
-     *   { lesson_id, learner_id, status, last_activity }, ...
-     * ]
-     */
+         * lessonStatuses := [
+         *   { lesson_id, learner_id, status, last_activity }, ...
+         * ]
+         */
     lessonStatuses(state, getters) {
       return flatten(
         Object.values(getters.lessonLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
       );
     },
     /*
-     * lessonLearnerStatusMap := {
-     *   [lesson_id]: {
-     *     [learner_id]: { lesson_id, learner_id, status, last_activity }
-     *   }
-     * }
-     */
+         * lessonLearnerStatusMap := {
+         *   [lesson_id]: {
+         *     [learner_id]: { lesson_id, learner_id, status, last_activity }
+         *   }
+         * }
+         */
     lessonLearnerStatusMap(state) {
       const map = {};
       Object.values(state.lessonMap).forEach(lesson => {

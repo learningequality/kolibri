@@ -14,7 +14,7 @@ export function showKnowledgeMap(store, id) {
     store.commit('SET_PAGE_NAME', PageNames.KNOWLEDGE_MAP);
     const promises = [
       ContentNodeResource.fetchModel({ id }), // the topic
-      KnowledgeMapResource.fetchKnowdledgeMap(id), // the topic's children
+      KnowledgeMapResource.fetchKnowledgeMap(id), // the topic's children
       ContentNodeSlimResource.fetchAncestors(id), // the topic's ancestors
       store.dispatch('setChannelInfo'),
     ];

@@ -55,7 +55,7 @@
           name: ClassesPageNames.ALL_CLASSES,
         },
         channelsLink: {
-          name: PageNames.TOPICS_ROOT,
+          name: PageNames.EDULUTION_TOPICS_ROOT,
         },
         recommendedLink: {
           name: PageNames.RECOMMENDED,
