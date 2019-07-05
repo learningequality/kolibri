@@ -8,18 +8,22 @@
   >
 
     <TopNavbar slot="sub-nav" />
-
+    <KCheckbox
+      :label="coachStrings.$tr('onlyActiveLearnersLabel')"
+      :checked="showOnlyActive"
+      @change="showOnlyActive = !showOnlyActive"
+    />
     <KGrid :gutter="16">
       <KGridItem size="100" percentage>
-        <OverviewBlock />
+        <OverviewBlock :showOnlyActive="showOnlyActive" />
       </KGridItem>
       <KGridItem sizes="100, 100, 50" percentage>
         <KGrid :gutter="16">
           <KGridItem size="100" percentage>
-            <QuizzesBlock />
+            <QuizzesBlock :showOnlyActive="showOnlyActive" />
           </KGridItem>
           <KGridItem size="100" percentage>
-            <LessonsBlock />
+            <LessonsBlock :showOnlyActive="showOnlyActive" />
           </KGridItem>
         </KGrid>
       </KGridItem>
@@ -53,6 +57,11 @@
       LiveAttendanceBlock,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        showOnlyActive: true,
+      };
+    },
     $trs: {},
   };
 

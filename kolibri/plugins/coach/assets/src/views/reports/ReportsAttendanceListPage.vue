@@ -121,7 +121,7 @@
     },
     methods: {
       active(learner) {
-        return this.activeLearners.includes(learner.username);
+        return this.activeLearners.includes(learner.id);
       },
       lastLoggedIn(learner) {
         if (!this.active(learner)) {
