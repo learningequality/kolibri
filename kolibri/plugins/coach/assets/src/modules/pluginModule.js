@@ -10,6 +10,7 @@ import examReportDetail from './examReportDetail';
 import examsRoot from './examsRoot';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
+import subscriptions from './subscriptions';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import classSummary from './classSummary';
@@ -58,10 +59,10 @@ export default {
         .catch(error => store.dispatch('handleApiError', error));
     },
     /**
-      * Handle coach page errors.
-      * The status code errors that's related to the authentication issue, most not show
-        in coach page beacuse there's an `auth-message` that explain the error.
-      **/
+          * Handle coach page errors.
+          * The status code errors that's related to the authentication issue, most not show
+            in coach page beacuse there's an `auth-message` that explain the error.
+          **/
     handleCoachPageError(store, errorObject) {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);
@@ -128,5 +129,6 @@ export default {
     questionList,
     userManagement,
     classAssignMembers,
+    subscriptions,
   },
 };

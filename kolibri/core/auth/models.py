@@ -36,6 +36,7 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
+from jsonfield import JSONField
 from morango.certificates import Certificate
 from morango.manager import SyncableModelManager
 from morango.models import SyncableModel
@@ -751,7 +752,8 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True)
+        AllowCoach()
+        | IsFromSameFacility(read_only=True)
         | CollectionSpecificRoleBasedPermissions()
         | AnonUserCanReadFacilities()
         | CoachesCanManageGroupsForTheirClasses()
@@ -759,6 +761,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
 
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
+    subscriptions = JSONField(default='[]')
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
