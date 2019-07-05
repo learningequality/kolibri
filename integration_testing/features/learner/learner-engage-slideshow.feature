@@ -29,19 +29,16 @@ Feature: Learner engages with content of the slideshow kind
         And the left arrow button is disabled
         And tapping the left key on my keyboard does nothing
         And swiping the image to the right does nothing
-        And clicking and dragging the image to the right does nothing
       When I am viewing the last slide
       Then I the right-most pagination dot is filled in with color and the rest of them are white
         And the right arrow button is disabled
         And tapping the right key on my keyboard does nothing
         And swiping the image to the left does nothing
-        And clicking and dragging the image to the left does nothing
       When I am viewing a slide that neither the first nor the last slide
       Then the pagination dot associated with my position in the slideshow is filled with color while the rest are white
         And I can navigate in either direction using the keyboard left and right arrow keys
         And I can use the left and right arrow buttons on the slideshow renderer to navigate the slideshow
         And I can navigate by swiping left or right
-        And I can navigate by clicking and dragging left or right
       When I click a specific pagination dot
       Then the slideshow presents the slide that is associated with the dot's positional order
 
@@ -51,7 +48,7 @@ Feature: Learner engages with content of the slideshow kind
         And I maintain my position in the slideshow
         And I see left and right arrow buttons on the left and right sides of the screen
         And I see the exit full screen button in the top right corner of the screen
-        And I can navigate the content by keyboard, clicking and dragging, swiping or clicking the left and right arrow buttons
+        And I can navigate the content by keyboard, swiping or clicking the left and right arrow buttons
       When I am viewing in full screen mode and click the exit full screen button or hit ESC
       Then I am returned to the normal content renderer in the browser
         And I maintain my position in the slideshow
