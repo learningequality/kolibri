@@ -17,8 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" icon="lesson" />
+        <KLabeledIcon icon="lesson">
           {{ lesson.title }}
         </KLabeledIcon>
       </h1>
@@ -31,12 +30,16 @@
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
-        <!-- TODO COACH
         <HeaderTableRow>
-          <template slot="key">{{ coachCommon$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
+          <template slot="key">
+            {{ coachCommon$tr('descriptionLabel') }}
+          </template>
+          <template slot="value">
+            <span dir="auto">
+              {{ lesson.description || coachCommon$tr('descriptionMissingLabel') }}
+            </span>
+          </template>
         </HeaderTableRow>
-         -->
       </HeaderTable>
 
       <CoreTable :emptyMessage="emptyMessage">
