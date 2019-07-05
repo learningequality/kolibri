@@ -12,6 +12,7 @@
         v-if="linkUrl"
         :href="linkUrl"
         :text="linkText || linkUrl"
+        target="_blank"
       />
     </p>
     <p v-if="!isSuperuser">
