@@ -11,7 +11,7 @@
           :placeholder="filterPlaceholder"
           @input="pageNum = 1"
         />
-      </kgriditem>
+      </KGridItem>
     </KGrid>
 
     <div>

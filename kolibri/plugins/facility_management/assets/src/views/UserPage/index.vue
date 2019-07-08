@@ -89,10 +89,10 @@
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
-  import PaginatedListContainer from '../PaginatedListContainer';
   import UserCreateModal from './UserCreateModal';
   import EditUserModal from './EditUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';

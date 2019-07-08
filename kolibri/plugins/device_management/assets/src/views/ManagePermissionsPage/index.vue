@@ -35,7 +35,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import PaginatedListContainer from '../../../../../facility_management/assets/src/views/PaginatedListContainer';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserGrid from './UserGrid';
 
