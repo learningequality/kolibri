@@ -41,7 +41,11 @@
               </KLabeledIcon>
             </td>
             <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
+              <StatusSimple 
+                :status="tableRow.statusObj.status" 
+                :answeredQuestionsCount="numAnswered(tableRow.statusObj)" 
+                :totalQuestionsCount="exam.question_count" 
+              />
             </td>
             <td><Score :value="score(tableRow.statusObj)" /></td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
@@ -115,6 +119,9 @@
         return statusObj.status === this.STATUSES.completed
           ? statusObj.score || 0.0 // Ensures score will show 0% when null
           : null;
+      },
+      numAnswered(statusObj) {
+        return statusObj.status === this.STATUSES.started ? statusObj.num_answered : null;
       },
     },
     $trs: {},

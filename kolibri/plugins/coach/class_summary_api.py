@@ -1,4 +1,6 @@
 from django.db.models import Count
+from django.db.models import Case
+from django.db.models import When
 from django.db.models import Max
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -136,6 +138,7 @@ class ExamStatusSerializer(KolibriModelSerializer):
     learner_id = serializers.PrimaryKeyRelatedField(source="user", read_only=True)
     last_activity = DateTimeTzField()
     num_correct = serializers.SerializerMethodField()
+    num_answered = serializers.SerializerMethodField()
 
     def get_status(self, exam_log):
         if exam_log.closed:
@@ -151,10 +154,27 @@ class ExamStatusSerializer(KolibriModelSerializer):
             .aggregate(Sum("correct"))
             .get("correct__sum")
         )
+    
+    def get_num_answered(self, exam_log):
+        #import pdb; pdb.set_trace()
+        return (
+            exam_log.attemptlogs.values_list("item")
+                .order_by("completion_timestamp")
+                .distinct()
+                .aggregate(
+                    complete__sum=Count(
+                        Case(
+                            When(complete=True, then=1),
+                            default=0
+                        )
+                    )
+                )
+                .get("complete__sum")
+        )
 
     class Meta:
         model = logger_models.ExamLog
-        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct")
+        fields = ("exam_id", "learner_id", "status", "last_activity", "num_correct", "num_answered")
 
 
 class GroupSerializer(KolibriModelSerializer):

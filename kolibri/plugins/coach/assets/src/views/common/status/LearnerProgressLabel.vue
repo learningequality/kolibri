@@ -40,6 +40,16 @@
         type: String,
         required: true,
       },
+      answeredQuestionsCount: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      totalQuestionsCount: {
+        type: Number,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       strings() {
@@ -48,6 +58,12 @@
       text() {
         if (!this.verbosityNumber) {
           return '';
+        }
+        if (this.totalQuestionsCount !== null && this.answeredQuestionsCount !== null) {
+          return this.strings.$tr('questionsStarted', {
+            answeredQuestionsCount: `${this.answeredQuestionsCount}`,
+            totalQuestionsCount: this.totalQuestionsCount,
+          });
         }
         return this.strings.$tr(this.shorten('label', this.verbosityNumber), { count: this.count });
       },

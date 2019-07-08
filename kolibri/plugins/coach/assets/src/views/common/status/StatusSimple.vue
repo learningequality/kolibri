@@ -6,6 +6,8 @@
     :verbosity="verbosity"
     :style="style"
     :count="1"
+    :answeredQuestionsCount="this.answeredQuestionsCount"
+    :totalQuestionsCount="this.totalQuestionsCount"
   />
 
 </template>
@@ -44,6 +46,16 @@
       status: {
         type: String,
         required: true,
+      },
+      answeredQuestionsCount: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      totalQuestionsCount: {
+        type: Number,
+        required: false,
+        default: null,
       },
     },
     computed: {
