@@ -28,7 +28,7 @@
         :disabled="pageNum === 1"
         size="small"
         class="pagination-button"
-        @click="goToPage(pageNum - 1)"
+        @click="changePage(-1)"
       >
         <KIcon icon="back" style="position: relative; top: -1px;" />
       </UiIconButton>
@@ -38,7 +38,7 @@
         :disabled="pageNum === 0 || pageNum === numPages"
         size="small"
         class="pagination-button"
-        @click="goToPage(pageNum + 1)"
+        @click="changePage(+1)"
       >
         <KIcon icon="forward" style="position: relative; top: -1px;" />
       </UiIconButton>
@@ -78,6 +78,10 @@
         type: String,
         required: true,
       },
+      otherFilters: {
+        type: Object,
+        required: false,
+      },
     },
     data() {
       return {
@@ -89,7 +93,7 @@
     computed: {
       filteredItems() {
         if (this.filterFunction) {
-          return this.filterFunction(this.items, this.filterInput);
+          return this.filterFunction(this.items, this.filterInput, this.otherFilters);
         }
         return this.items;
       },
@@ -115,9 +119,17 @@
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
     },
+    watch: {
+      otherFilters: {
+        handler() {
+          this.pageNum = 1;
+        },
+        deep: true,
+      },
+    },
     methods: {
-      goToPage(page) {
-        this.pageNum = page;
+      changePage(change) {
+        this.pageNum += change;
       },
     },
     $trs: {

@@ -18,6 +18,7 @@
     <PaginatedListContainer
       :items="facilityUsers"
       :filterFunction="filterUsers"
+      :otherFilters="{roleFilter}"
       :filterPlaceholder="$tr('searchText')"
     >
       <template v-slot:otherFilter>
@@ -151,17 +152,17 @@
         }
         return '';
       },
-      filterUsers(users, filterText) {
+      filterUsers(users, filterText, { roleFilter }) {
         return filterAndSortUsers(
           users,
-          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user)
+          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user, roleFilter)
         );
       },
       closeModal() {
         this.displayModal(false);
       },
-      userMatchesRole(user) {
-        const { value: filterKind } = this.roleFilter;
+      userMatchesRole(user, roleFilter) {
+        const { value: filterKind } = roleFilter;
         if (filterKind === ALL_FILTER) {
           return true;
         }
