@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title>authorizing...</title>
+</head>
 
 <body style="display:none">
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+    <div>
+        <div>
         <form method="post" action="{% url 'oidc_provider:authorize' %}" id="auth_form">
             {% csrf_token %}
             {{ hidden_inputs }}
