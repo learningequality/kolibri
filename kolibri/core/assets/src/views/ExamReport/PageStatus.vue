@@ -56,7 +56,6 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
 
   export default {
     name: 'PageStatus',
@@ -65,7 +64,6 @@
       KGridItem,
       ProgressIcon,
       ElapsedTime,
-      KIcon,
       KLabeledIcon,
     },
     mixins: [themeMixin],

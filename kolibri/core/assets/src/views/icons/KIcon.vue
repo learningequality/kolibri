@@ -53,6 +53,7 @@
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
 
   const iconTypes = [
+    // tracking
     'correct',
     'helpNeeded',
     'hint',
@@ -114,7 +115,6 @@
         type: String,
         required: false,
       },
-      // tracking
     },
     computed: {
       style() {

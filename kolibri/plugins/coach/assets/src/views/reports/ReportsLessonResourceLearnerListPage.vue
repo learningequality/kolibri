@@ -24,10 +24,7 @@
           />
         </BackLinkWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KBasicContentIcon slot="icon" :kind="resource.kind" />
-            {{ resource.title }}
-          </KLabeledIcon>
+          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
         </h1>
       </section>
 
