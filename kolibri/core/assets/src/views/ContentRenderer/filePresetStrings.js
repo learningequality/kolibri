@@ -21,6 +21,7 @@ const filePresetStrings = {
   exercise: 'Exercise ({fileSize})',
   html5Zip: 'HTML5 Zip ({fileSize})',
   html5Thumbnail: 'HTML5 Thumbnail ({fileSize})',
+  epub: 'ePub Document ({fileSize})',
 };
 
 const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);
