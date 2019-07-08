@@ -82,8 +82,7 @@
           return this.$tr('allUsersAlready');
         }
         if (items.length === 0 && filterInput !== '') {
-          // TODO internationalize this
-          return `${this.$tr('noUsersMatch')}: '${filterInput}'`;
+          return this.$tr('noUsersExist', { filterText: filterInput });
         }
 
         return '';
@@ -100,7 +99,7 @@
       // TODO clarify empty state messages after string freeze
       noUsersExist: 'No users exist',
       noUsersSelected: 'No users are selected',
-      noUsersMatch: 'No users match',
+      noUsersMatch: 'No users match the filter: "{filterText}"',
       selectAllOnPage: 'Select all on page',
       allUsersAlready: 'All users are already enrolled in this class',
       search: 'Search',
@@ -113,14 +112,8 @@
 
 <style lang="scss" scoped>
 
-  .actions-header,
-  .footer,
-  nav {
+  .footer {
     text-align: end;
-  }
-
-  .pagination-button {
-    margin-left: 8px;
   }
 
 </style>

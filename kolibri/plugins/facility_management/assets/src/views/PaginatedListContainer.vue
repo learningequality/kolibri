@@ -1,13 +1,18 @@
 <template>
 
   <div>
-    <div class="actions-header">
-      <KFilterTextbox
-        v-model.trim="filterInput"
-        :placeholder="filterPlaceholder"
-        @input="pageNum = 1"
-      />
-    </div>
+    <KGrid>
+      <KGridItem sizes="3, 3, 3">
+        <slot name="otherFilter"></slot>
+      </KGridItem>
+      <KGridItem sizes="9, 9, 9" align="right" class="text-filter">
+        <KFilterTextbox
+          v-model.trim="filterInput"
+          :placeholder="filterPlaceholder"
+          @input="pageNum = 1"
+        />
+      </kgriditem>
+    </KGrid>
 
     <div>
       <slot v-bind="{items: visibleFilteredItems, filterInput}"></slot>
@@ -48,6 +53,8 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import KFilterTextbox from 'kolibri.coreVue.components.KFilterTextbox';
   import KIcon from 'kolibri.coreVue.components.KIcon';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
   export default {
     name: 'PaginatedListContainer',
@@ -55,6 +62,8 @@
       KIcon,
       UiIconButton,
       KFilterTextbox,
+      KGrid,
+      KGridItem,
     },
     props: {
       // The entire list of items
@@ -125,13 +134,16 @@
 <style lang="scss" scoped>
 
   .actions-header,
-  .footer,
   nav {
     text-align: end;
   }
 
   .pagination-button {
     margin-left: 8px;
+  }
+
+  .text-filter {
+    margin-top: 14px;
   }
 
 </style>
