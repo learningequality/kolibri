@@ -17,10 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KBasicContentIcon slot="icon" :kind="resource.kind" />
-          {{ resource.title }}
-        </KLabeledIcon>
+        <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
 
       <!-- TODO COACH
@@ -54,10 +51,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
-                {{ tableRow.name }}
-              </KLabeledIcon>
+              <KLabeledIcon icon="person" :label="tableRow.name" />
             </td>
             <td>
               <StatusSimple :status="tableRow.statusObj.status" />

@@ -24,10 +24,7 @@
           />
         </BackLinkWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KBasicContentIcon slot="icon" :kind="resource.kind" />
-            {{ resource.title }}
-          </KLabeledIcon>
+          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
         </h1>
       </section>
 
@@ -48,10 +45,7 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon>
-              <KIcon slot="icon" group />
-              {{ group.name }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
           <KGrid cols="2">

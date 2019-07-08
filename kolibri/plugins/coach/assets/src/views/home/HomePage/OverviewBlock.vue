@@ -10,26 +10,21 @@
     </p>
 
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" classroom />
-        {{ $store.state.classSummary.name }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="classroom" :label="$store.state.classSummary.name" />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <KLabeledIcon slot="key">
-          <KIcon slot="icon" coach />
-          {{ $tr('coach', {count: coachNames.length}) }}
-        </KLabeledIcon>
+        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', {count: coachNames.length})" />
         <template slot="value">
           <TruncatedItemList :items="coachNames" />
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <KLabeledIcon slot="key">
-          <KIcon slot="icon" people />
-          {{ $tr('learner', {count: learnerNames.length}) }}
-        </KLabeledIcon>
+        <KLabeledIcon
+          slot="key"
+          icon="people"
+          :label="$tr('learner', {count: learnerNames.length})"
+        />
         <template slot="value">
           {{ coachCommon$tr('integer', {value: learnerNames.length}) }}
         </template>

@@ -25,8 +25,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" group />
+              <KLabeledIcon icon="group">
                 <KRouterLink
                   :text="tableRow.name"
                   :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"

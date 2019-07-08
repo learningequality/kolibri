@@ -55,7 +55,7 @@
         class="pagination-button"
         @click="goToPage(pageNum - 1)"
       >
-        <KIcon back style="position: relative; top: -1px;" />
+        <KIcon icon="back" style="position: relative; top: -1px;" />
       </UiIconButton>
       <UiIconButton
         type="primary"
@@ -65,7 +65,7 @@
         class="pagination-button"
         @click="goToPage(pageNum + 1)"
       >
-        <KIcon forward style="position: relative; top: -1px;" />
+        <KIcon icon="forward" style="position: relative; top: -1px;" />
       </UiIconButton>
     </nav>
 

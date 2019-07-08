@@ -15,10 +15,7 @@
     <transition-group slot="tbody" tag="tbody" name="list">
       <tr v-for="entry in entries" :key="entry.id">
         <td>
-          <KLabeledIcon>
-            <KIcon slot="icon" person />
-            {{ entry.name }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="person" :label="entry.name" />
         </td>
         <td>
           <StatusSimple :status="entry.statusObj.status" />
@@ -43,9 +40,7 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -56,7 +51,6 @@
     components: {
       CoreTable,
       ElapsedTime,
-      KIcon,
       KLabeledIcon,
       StatusSimple,
       TimeDuration,
