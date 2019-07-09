@@ -75,7 +75,7 @@ class Lesson(AbstractFacilityDataModel):
     morango_model_name = "lesson"
 
     def infer_dataset(self, *args, **kwargs):
-        return self.created_by.dataset_id
+        return self.cached_related_dataset_lookup("created_by")
 
     def calculate_partition(self):
         return self.dataset_id
@@ -113,7 +113,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     morango_model_name = "lessonassignment"
 
     def infer_dataset(self, *args, **kwargs):
-        return self.assigned_by.dataset_id
+        return self.cached_related_dataset_lookup("assigned_by")
 
     def calculate_source_id(self):
         return "{lesson_id}:{collection_id}".format(
