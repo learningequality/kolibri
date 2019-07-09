@@ -27,7 +27,7 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
       Object.assign(
         {
           propsData: {
-            label: this.localize(this.options_.label),
+            label: this.getLabel(),
             selected: this.getTrack().isEnabled(),
           },
         },
@@ -68,6 +68,13 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
    */
   getTrack() {
     return this.options_.track;
+  }
+
+  /**
+   * @return {String}
+   */
+  getLabel() {
+    return this.localize(this.options_.label);
   }
 
   /**

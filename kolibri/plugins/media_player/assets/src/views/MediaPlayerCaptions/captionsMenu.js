@@ -15,6 +15,7 @@ class CaptionsMenu extends BaseCaptionsMenu {
         {
           propsData: {
             settings: this.getSettings(),
+            activeLanguage: '',
           },
         },
         options
@@ -41,6 +42,18 @@ class CaptionsMenu extends BaseCaptionsMenu {
    */
   addItem(item) {
     this.addChild(item);
+
+    item.on('change', () => this.onChange());
+    this.onChange();
+  }
+
+  /**
+   * Handle language change
+   */
+  onChange() {
+    const activeItem = this.getCaptionItems().find(item => item.isSelected());
+
+    this.getVueComponent().$props.activeLanguage = activeItem ? activeItem.getLabel() : '';
   }
 
   /**

@@ -30,7 +30,7 @@
         <CaptionsMenuSetting
           v-show="!isKindOpen"
           :title="$tr('language')"
-          :currentValue="activeLanguageName"
+          :currentValue="activeLanguage"
           :open="isLanguageOpen"
           @toggle="isLanguageOpen = $event"
         >
@@ -64,6 +64,10 @@
         type: Settings,
         required: true,
       },
+      activeLanguage: {
+        type: String,
+        required: false,
+      },
     },
 
     data: function() {
@@ -88,7 +92,6 @@
           [constants.KIND_SUBTITLES]: false,
           [constants.KIND_TRANSCRIPT]: false,
         },
-        // activeLanguage: null,
       };
     },
 
@@ -99,10 +102,6 @@
           .map(kind => kind.name);
 
         return kindNames.length ? kindNames.join(', ') : 'None';
-      },
-
-      activeLanguageName() {
-        return 'Todo';
       },
     },
 
