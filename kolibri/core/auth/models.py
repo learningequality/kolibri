@@ -36,11 +36,11 @@ from django.db import models
 from django.db.models.query import F
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
-from morango.certificates import Certificate
-from morango.manager import SyncableModelManager
+from morango.models import Certificate
+from morango.models import MorangoMPTTModel
+from morango.models import MorangoMPTTTreeManager
 from morango.models import SyncableModel
-from morango.utils.morango_mptt import MorangoMPTTModel
-from morango.utils.morango_mptt import MorangoMPTTTreeManager
+from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds

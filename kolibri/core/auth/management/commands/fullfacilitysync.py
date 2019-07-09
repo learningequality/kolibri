@@ -7,11 +7,11 @@ from django.core.management.base import CommandError
 from django.core.validators import URLValidator
 from django.urls import reverse
 from django.utils.six.moves import input
-from morango.certificates import Certificate
-from morango.certificates import Filter
-from morango.certificates import ScopeDefinition
-from morango.controller import MorangoProfileController
+from morango.models import Certificate
+from morango.models import Filter
 from morango.models import InstanceIDModel
+from morango.models import ScopeDefinition
+from morango.sync.controller import MorangoProfileController
 from requests.exceptions import ConnectionError
 from six.moves.urllib.parse import urljoin
 
