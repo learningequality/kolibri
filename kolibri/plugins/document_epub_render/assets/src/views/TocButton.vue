@@ -25,7 +25,7 @@
       UiIconButton,
     },
     $trs: {
-      toggleTocSideBar: 'Toggle table of contents side bar',
+      toggleTocSideBar: 'Toggle table of contents',
     },
   };
 

@@ -1,11 +1,8 @@
 <template>
 
   <div>
-    <h1 dir="auto" class="classroom-name">
-      <KLabeledIcon>
-        <KIcon slot="icon" classroom />
-        {{ classroomName }}
-      </KLabeledIcon>
+    <h1 class="classroom-name">
+      <KLabeledIcon icon="classroom" :label="classroomName" />
     </h1>
 
     <AssignedExamsCards
@@ -25,9 +22,7 @@
 
   import { mapState } from 'vuex';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-
   import AssignedExamsCards from './AssignedExamsCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 
@@ -41,7 +36,6 @@
     components: {
       AssignedExamsCards,
       AssignedLessonsCards,
-      KIcon,
       KLabeledIcon,
     },
     mixins: [responsiveWindow],

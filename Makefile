@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-clean docker-whl docker-deb docker-deb-test docker-windows docker-demoserver docker-devserver
 
 help:
 	@echo "Usage:"
@@ -20,7 +20,8 @@ help:
 	@echo "clean-assets: removes JavaScript build assets"
 	@echo "writeversion: updates the kolibri/VERSION file"
 	@echo "release: package and upload a release"
-	@echo "buildconfig: [unsupported] runs a special script for building a source package with special requirements.txt"
+	@echo "setrequirements: creates a customized requirements.txt"
+	@echo "buildconfig: customizes the default plugins and Django settings module"
 	@echo ""
 	@echo "Development"
 	@echo "-----------"
@@ -152,17 +153,19 @@ writeversion:
 	@echo ""
 	@echo "Current version is now `cat kolibri/VERSION`"
 
-buildconfig:
+setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
 	git checkout -- requirements.txt # restore requirements.txt
 	python build_tools/customize_requirements.py
+
+buildconfig:
 	rm -r kolibri/utils/build_config/* || true # remove everything
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
-	python setup.py sdist --format=gztar --static > /dev/null # silence the sdist output! Too noisy!
-	python setup.py bdist_wheel --static
+dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
+	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
+	python setup.py bdist_wheel
 	ls -l dist
 
 pex: writeversion

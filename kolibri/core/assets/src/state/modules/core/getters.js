@@ -30,6 +30,6 @@ export function pageSessionId(state) {
   return state.pageSessionId;
 }
 
-export function demoBannerVisible(state) {
-  return state.demoBannerVisible;
+export function demoBannerVisible(state, getters, rootState) {
+  return state.demoBannerVisible && rootState.pageName === 'SIGN_IN';
 }

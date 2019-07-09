@@ -7,6 +7,7 @@ from mock import patch
 from kolibri.utils import cli
 from kolibri.utils.server import NotRunning
 from kolibri.utils.tests.helpers import override_option
+from kolibri.utils.tests.test_cli import version_file_restore
 
 
 class SanityCheckTestCase(TestCase):
@@ -27,11 +28,14 @@ class SanityCheckTestCase(TestCase):
             cli.main(["start"])
             logging_mock.assert_called()
 
+    @version_file_restore
     @patch("kolibri.utils.sanity_checks.logging.error")
     @override_option("Paths", "CONTENT_DIR", "/dir_dne")
-    def test_content_dir_dne(self, logging_mock):
+    def test_content_dir_dne(self, logging_mock, version_file=None, orig_version=None):
+        version_file = cli.version_file()
+        open(version_file, "w").write(orig_version)
         with self.assertRaises(SystemExit):
-            cli.main({"start": True})
+            cli.main(["start"])
             logging_mock.assert_called()
 
     @patch("kolibri.utils.sanity_checks.logging.error")

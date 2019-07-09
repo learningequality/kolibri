@@ -6,8 +6,12 @@
     :style="[verticalPadding, { borderTop: `1px solid ${$themeColors.palette.grey.v_200}` } ]"
   >
     <template slot="thumbnail">
-      <div class="spec-ref-thumbnail">
-        <img v-if="thumbnailImg" :src="thumbnailImg" class="thumbnail">
+      <div class="thumbnail-container" data-test="thumbnail">
+        <img
+          v-if="thumbnailImg"
+          :src="thumbnailImg"
+          class="thumbnail"
+        >
         <div
           v-else
           class="default-icon"
@@ -220,6 +224,8 @@
 
 <style lang="scss" scoped>
 
+  $thumbnail-side-length: 128px;
+
   .title {
     display: inline;
   }
@@ -228,16 +234,24 @@
     font-size: 0.85em;
   }
 
+  .thumbnail-container {
+    width: $thumbnail-side-length;
+    height: $thumbnail-side-length;
+  }
+
   .thumbnail {
     width: 100%;
   }
 
   .default-icon {
+    width: 100%;
+    height: 100%;
     text-align: center;
     svg {
-      width: 30%;
-      height: 30%;
-      margin: 20px;
+      width: 50%;
+      height: 50%;
+      // Icon scaled to 0.5 of 128px = 64px, so midpoint need to be moved to 128 / 4 = 32 px
+      margin: ($thumbnail-side-length / 2 / 2) 0;
     }
   }
 

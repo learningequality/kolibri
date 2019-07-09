@@ -86,7 +86,6 @@ import KEmptyPlaceholder from '../views/KEmptyPlaceholder';
 import KPageContainer from '../views/KPageContainer';
 import KIcon from '../views/icons/KIcon';
 import KLabeledIcon from '../views/icons/KLabeledIcon';
-import KBasicContentIcon from '../views/icons/KBasicContentIcon';
 import KBottomAppBar from '../views/KBottomAppBar';
 
 // webpack optimization
@@ -191,7 +190,6 @@ export default {
       KPageContainer,
       KIcon,
       KLabeledIcon,
-      KBasicContentIcon,
       KBottomAppBar,
     },
     router,

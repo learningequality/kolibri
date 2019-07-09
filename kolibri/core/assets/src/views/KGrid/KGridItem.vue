@@ -169,7 +169,10 @@
           paddingLeft: padding,
           paddingRight: padding,
         };
-        const isRtl = this.gridMetrics && this.gridMetrics.direction === 'rtl';
+        let isRtl = this.isRtl;
+        if (this.gridMetrics && this.gridMetrics.direction) {
+          isRtl = this.gridMetrics.direction === 'rtl';
+        }
         if (this.currentAlignment) {
           // TODO: rename the alignment inputs to 'start' and 'end'
           if (isRtl && this.currentAlignment === 'left') {

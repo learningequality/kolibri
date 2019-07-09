@@ -13,7 +13,7 @@ function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData);
 
   pluginBundle.output.path = os.tmpdir();
-  pluginBundle.plugins.push(new ProfileStrings(data.locale_data_folder, data.name));
+  pluginBundle.plugins.push(new ProfileStrings(pluginData.locale_data_folder, pluginData.name));
 
   return pluginBundle;
 }

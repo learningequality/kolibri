@@ -24,10 +24,7 @@
           />
         </BackLinkWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" quiz />
-            {{ quiz.title }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="quiz" :label="quiz.title" />
         </h1>
       </section>
 
@@ -87,7 +84,6 @@
   import find from 'lodash/find';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { CoachCoreBase } from '../../common';
@@ -117,7 +113,6 @@
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
-      KIcon,
       KLabeledIcon,
       KPageContainer,
       ManageExamModals,
