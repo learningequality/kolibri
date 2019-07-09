@@ -53,6 +53,7 @@ app_name = "kolibri"
 # Patterns that we want to prefix because they need access to the current language
 lang_prefixed_patterns = [
     url(r"^i18n/setlang/$", set_language, name="set_language"),
+    url(r"^logout/$", logout_view, name="logout"),
     url(r"^redirectuser/$", RootURLRedirectView.as_view(), name="redirect_user"),
     url(r"^guestaccess/$", GuestRedirectView.as_view(), name="guest"),
     url(r"^unsupported/$", UnsupportedBrowserView.as_view(), name="unsupported"),
@@ -60,7 +61,6 @@ lang_prefixed_patterns = [
 
 core_urlpatterns = [
     url(r"^$", RootURLRedirectView.as_view(), name="root_redirect"),
-    url(r"^logout/$", logout_view, name="logout"),
     url(r"^api/", include("kolibri.core.api_urls")),
     url(r"", include(i18n_patterns(lang_prefixed_patterns))),
     url(r"", include("kolibri.core.content.urls")),
