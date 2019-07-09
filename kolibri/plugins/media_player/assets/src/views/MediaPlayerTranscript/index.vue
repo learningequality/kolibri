@@ -48,7 +48,7 @@
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { throttle } from 'frame-throttle';
 
-  import Settings from '../settings';
+  import Settings from '../../utils/settings';
   import TrackHandler from './trackHandler';
   import TranscriptCue from './TranscriptCue';
 

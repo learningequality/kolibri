@@ -31,6 +31,22 @@ class Settings {
     return this.get().playerVolume;
   }
 
+  set captionKinds(captionKinds) {
+    return this.save({ captionKinds });
+  }
+
+  get captionKinds() {
+    return this.get().captionKinds;
+  }
+
+  set captionLanguage(captionLanguage) {
+    return this.save({ captionLanguage });
+  }
+
+  get captionLanguage() {
+    return this.get().captionLanguage;
+  }
+
   set transcriptShowing(transcriptShowing) {
     return this.save({ transcriptShowing });
   }

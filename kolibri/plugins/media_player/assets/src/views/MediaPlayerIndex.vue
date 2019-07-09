@@ -40,19 +40,12 @@
         </template>
         <template v-for="track in trackSources">
           <track
-            :key="track.storage_url"
-            kind="captions"
+            :key="track.key"
+            :kind="track.kind"
             :src="track.storage_url"
             :srclang="track.lang.id"
             :label="track.lang.lang_name"
-            :default="isDefaultTrack(track.lang.id)"
-          >
-          <track
-            :key="track.storage_url + '.metadata'"
-            kind="metadata"
-            :src="track.storage_url"
-            :srclang="track.lang.id"
-            :label="track.lang.lang_name"
+            :default="track.is_default"
           >
         </template>
       </video>
@@ -91,51 +84,25 @@
   import ResponsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
-  import Settings from './settings';
+  import Settings from '../utils/settings';
+  import constants from '../constants.json';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
   import MimicFullscreenToggle from './MediaPlayerFullscreen/mimicFullscreenToggle';
   import MediaPlayerTranscript from './MediaPlayerTranscript';
   import TranscriptButton from './MediaPlayerTranscript/transcriptButton';
+  import CaptionsButton from './MediaPlayerCaptions/captionsButton';
 
   import audioIconPoster from './audio-icon-poster.svg';
 
   const GlobalLangCode = vue.locale;
-  const PLAYER_CONFIG = {
-    fluid: false,
-    fill: true,
-    controls: true,
-    textTrackDisplay: true,
-    bigPlayButton: true,
-    preload: 'metadata',
-    playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
-    controlBar: {
-      children: [
-        { name: 'PlayToggle' },
-        { name: 'ReplayButton' },
-        { name: 'ForwardButton' },
-        { name: 'CurrentTimeDisplay' },
-        { name: 'ProgressControl' },
-        { name: 'TimeDivider' },
-        { name: 'DurationDisplay' },
-        {
-          name: 'VolumePanel',
-          inline: false,
-        },
-        { name: 'PlaybackRateMenuButton' },
-        { name: 'CaptionsButton' },
-        { name: 'MimicFullscreenToggle' },
-        { name: 'TranscriptButton' },
-      ],
-    },
-    language: GlobalLangCode,
-  };
 
   const componentsToRegister = {
     MimicFullscreenToggle,
     ReplayButton,
     ForwardButton,
     TranscriptButton,
+    CaptionsButton,
   };
 
   Object.entries(componentsToRegister).forEach(([name, component]) =>
@@ -158,7 +125,6 @@
       playerMuted: false,
       playerRate: 1.0,
       defaultLangCode: GlobalLangCode,
-      videoLangCode: GlobalLangCode,
       updateContentStateInterval: null,
       isFullscreen: false,
       isShowingTranscript: false,
@@ -187,9 +153,28 @@
       },
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        return this.supplementaryFiles.filter(file =>
+        const trackSources = this.supplementaryFiles.filter(file =>
           trackFileExtensions.some(ext => ext === file.extension)
         );
+
+        // Create duplicates so subtitles and transcript can be enabled/disabled separately.
+        return [
+          ...trackSources.map(track => {
+            return Object.assign({}, track, {
+              key: track.storage_url + constants.KIND_SUBTITLES,
+              kind: constants.KIND_SUBTITLES,
+              is_default: this.isDefaultTrack(track.lang.id),
+            });
+          }),
+          ...trackSources.map(track => {
+            // for transcript
+            return Object.assign({}, track, {
+              key: track.storage_url + constants.KIND_TRANSCRIPT,
+              kind: constants.KIND_TRANSCRIPT,
+              is_default: false,
+            });
+          }),
+        ];
       },
       isVideo() {
         return this.videoSources.length;
@@ -216,10 +201,9 @@
         playerVolume: this.playerVolume,
         playerMuted: this.playerMuted,
         playerRate: this.playerRate,
-        videoLangCode: this.videoLangCode,
+        captionLanguage: this.defaultLangCode,
+        captionKinds: [],
       });
-
-      this.videoLangCode = this.settings.videoLangCode;
     },
     mounted() {
       this.initPlayer();
@@ -236,9 +220,13 @@
     methods: {
       isDefaultTrack(langCode) {
         const shortLangCode = languageIdToCode(langCode);
-        const shortGlobalLangCode = languageIdToCode(this.videoLangCode);
+        const shortGlobalLangCode = languageIdToCode(this.settings.captionLanguage);
 
-        return shortLangCode === shortGlobalLangCode;
+        const captionsEnabled = this.settings.captionKinds.find(
+          captionKind => captionKind === constants.KIND_SUBTITLES
+        );
+
+        return shortLangCode === shortGlobalLangCode && captionsEnabled;
       },
       initPlayer() {
         this.$nextTick(() => {
@@ -248,7 +236,37 @@
         });
       },
       getPlayerConfig() {
-        const videojsConfig = Object.assign({}, PLAYER_CONFIG, {
+        const videojsConfig = {
+          fluid: false,
+          fill: true,
+          controls: true,
+          textTrackDisplay: true,
+          bigPlayButton: true,
+          preload: 'metadata',
+          playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
+          controlBar: {
+            children: [
+              { name: 'PlayToggle' },
+              { name: 'ReplayButton' },
+              { name: 'ForwardButton' },
+              { name: 'CurrentTimeDisplay' },
+              { name: 'ProgressControl' },
+              { name: 'TimeDivider' },
+              { name: 'DurationDisplay' },
+              {
+                name: 'VolumePanel',
+                inline: false,
+              },
+              { name: 'PlaybackRateMenuButton' },
+              {
+                name: 'CaptionsButton',
+                settings: this.settings,
+              },
+              { name: 'MimicFullscreenToggle' },
+              // { name: 'TranscriptButton' },
+            ],
+          },
+          language: GlobalLangCode,
           languages: {
             [GlobalLangCode]: {
               Play: this.$tr('play'),
@@ -285,7 +303,7 @@
               ),
             },
           },
-        });
+        };
 
         if (!this.isVideo) {
           videojsConfig.poster = this.audioPoster;
@@ -311,7 +329,6 @@
         this.player.on('seeking', this.handleSeek);
         this.player.on('volumechange', this.throttledUpdateVolume);
         this.player.on('ratechange', this.updateRate);
-        this.player.on('texttrackchange', this.updateLang);
         this.player.on('ended', () => this.setPlayState(false));
 
         this.$watch('elementWidth', this.updatePlayerSizeClass);
@@ -350,17 +367,6 @@
 
       updateRate() {
         this.settings.playerRate = this.player.playbackRate();
-      },
-
-      getTextTracks() {
-        return Array.from(this.player.textTracks());
-      },
-
-      updateLang() {
-        const currentTrack = this.getTextTracks().find(track => track.mode === 'showing');
-        if (currentTrack) {
-          this.settings.videoLangCode = currentTrack.language;
-        }
       },
 
       useSavedSettings() {
@@ -571,14 +577,7 @@
 
   /* !!rtl:begin:ignore */
 
-  /** COLOR PALLETTE **/
-  $video-player-color: #212121;
-  // tint if $video-player-color = black-ish, shade if $video-player-color = white-ish
-  $video-player-color-2: tint($video-player-color, 7%);
-  $video-player-color-3: tint($video-player-color, 15%);
-  $video-player-font-color: white;
-
-  $video-player-font-size: 12px;
+  @import './videojs-style/variables';
 
   .video-js.vjs-fill {
     z-index: 1;
@@ -594,6 +593,11 @@
     .vjs-control-bar {
       visibility: hidden;
     }
+  }
+
+  /* Mimics glow video.js adds on fullscreen button when focused */
+  /deep/ .vjs-captions-button.active .vjs-icon-placeholder {
+    text-shadow: 0 0 1em #ffffff;
   }
 
   /*** CUSTOM VIDEOJS SKIN ***/

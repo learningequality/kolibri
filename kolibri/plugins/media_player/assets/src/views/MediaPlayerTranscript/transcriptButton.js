@@ -88,7 +88,7 @@ class TranscriptButton extends TextTrackButton {
    * @returns {TranscriptMenuItem|null}
    */
   getActiveItem() {
-    return this.items.find(item => item.isActive());
+    return this.items.find(item => item.isEnabled());
   }
 
   /**

@@ -1,0 +1,13 @@
+{
+  "KINDS": ["captions", "metadata"],
+  "KIND_SUBTITLES": "captions",
+  "KIND_TRANSCRIPT": "metadata",
+  "KIND_ENABLED_MODE": {
+    "captions": "showing",
+    "metadata": "hidden"
+  },
+  "KIND_DISABLED_MODE": {
+    "captions": "disabled",
+    "metadata": "disabled"
+  }
+}
