@@ -1,12 +1,12 @@
-Feature: Super admin Windows installer setup failed show the error logs
+Feature: Super admin can see error logs during a failed Windows installer setup
     Super admin needs to be able to see the error logs when the Kolibri Windows installation failed
 
     Background:
         Given that I have the Kolibri Windows installer
           And I am using a Windows environment
+          And I double click the Kolibri Windows installer
 
     Scenario: Install the kolibri Windows installer with the error
-        And I double click the Kolibri Windows installer
         And I see and select a kolibri <language>
         And I see the setup message box that Python is required to install
         And I click "yes" to install Python
@@ -19,4 +19,5 @@ Feature: Super admin Windows installer setup failed show the error logs
        Then I see all the installation error logs
 
 Examples:
-| Spanish | language |
+| language |
+| Spanish  |
