@@ -34,6 +34,13 @@
     "english_name": "Spanish",
     "default_font": "NotoSans"
   },
+    {
+    "crowdin_code": "la",
+    "intl_code": "es-419",
+    "language_name": "Español América Látina",
+    "english_name": "Spanish (Latin America)",
+    "default_font": "NotoSans"
+  },
   {
     "crowdin_code": "fa",
     "intl_code": "fa",
