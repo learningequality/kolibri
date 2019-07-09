@@ -5,7 +5,14 @@
     @submit.prevent="search"
     @keydown.esc.prevent="handleEscKey"
   >
-    <div class="search-box-row" :style="{ backgroundColor: $themeTokens.surface }">
+    <div
+      class="search-box-row"
+      :style="{
+        backgroundColor: $themeTokens.surface,
+        borderColor: $themeColors.palette.grey.v_300,
+        fontSize: '16px',
+      }"
+    >
       <label class="visuallyhidden" for="searchfield">{{ coachCommon$tr('searchLabel') }}</label>
       <input
         id="searchfield"
@@ -25,7 +32,7 @@
           :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
           :style="{ color: $themeTokens.text }"
           :ariaLabel="$tr('clearButtonLabel')"
-          @click="searchQuery = ''"
+          @click="handleClickClear"
         >
           <mat-svg
             name="clear"
@@ -98,6 +105,7 @@
           :disabled="!channelFilterOptions.length"
           :value="channelFilterSelection"
           class="filter"
+          :style="channelFilterStyle"
           @change="updateFilter"
         />
       </div>
@@ -109,6 +117,7 @@
 
 <script>
 
+  import maxBy from 'lodash/maxBy';
   import { mapGetters, mapState } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
@@ -166,6 +175,16 @@
         'kindFilter',
         'channelFilter',
       ]),
+      channelFilterStyle() {
+        const longestChannelName = maxBy(
+          this.channelFilterOptions,
+          channel => channel.label.length
+        );
+        // Adjust the width based on the longest channel name
+        return {
+          width: `${longestChannelName.label.length * 10}px`,
+        };
+      },
       allFilter() {
         return { label: this.$tr('all'), value: ALL_FILTER };
       },
@@ -234,6 +253,10 @@
           this.searchQuery = '';
         }
       },
+      handleClickClear() {
+        this.searchQuery = '';
+        this.$refs.searchInput.focus();
+      },
       updateFilter() {
         this.search(true);
       },
@@ -276,6 +299,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
+
   .search-box {
     margin-right: 8px;
   }
@@ -288,6 +313,9 @@
     display: table;
     width: 100%;
     max-width: 450px;
+    overflow: hidden;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .search-input {
