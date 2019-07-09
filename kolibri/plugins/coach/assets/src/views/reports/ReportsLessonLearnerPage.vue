@@ -17,10 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" person />
-          {{ learner.name }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="person" :label="learner.name" />
       </h1>
 
       <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
@@ -34,8 +31,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="showLink(tableRow)"
                   :text="tableRow.title"

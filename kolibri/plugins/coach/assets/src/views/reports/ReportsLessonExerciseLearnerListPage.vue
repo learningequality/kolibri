@@ -30,10 +30,7 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon>
-              <KIcon slot="icon" group />
-              {{ group.name }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
           <p>

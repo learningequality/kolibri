@@ -2,12 +2,16 @@
 
   <span class="labeled-icon-wrapper">
     <div class="icon">
-      <slot name="icon"></slot>
+      <slot name="icon">
+        <KIcon v-if="icon" :icon="icon" />
+      </slot>
     </div>
     <div class="label">
       <!-- nest slot inside span to get alignment and flow correct for mixed RLT/LTR -->
       <span dir="auto">
-        <slot></slot>
+        <slot>
+          {{ label }}
+        </slot>
       </span>
     </div>
   </span>
@@ -17,9 +21,25 @@
 
 <script>
 
+  import KIcon from './KIcon';
+
   export default {
     name: 'KLabeledIcon',
-    components: {},
+    components: {
+      KIcon,
+    },
+    props: {
+      // If provided, will render a KIcon with the same 'icon' prop
+      icon: {
+        type: String,
+        required: false,
+      },
+      // If provided, will place this text in the default slot
+      label: {
+        type: String,
+        required: false,
+      },
+    },
   };
 
 </script>

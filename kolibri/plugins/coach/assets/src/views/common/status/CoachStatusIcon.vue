@@ -1,12 +1,6 @@
 <template>
 
-  <KIcon
-    :inProgress="icon === ICONS.clock"
-    :mastered="icon === ICONS.star"
-    :helpNeeded="icon === ICONS.help"
-    :notStarted="icon === ICONS.nothing"
-    :color="color"
-  />
+  <KIcon :icon="iconType" :color="color" />
 
 </template>
 
@@ -33,8 +27,13 @@
       },
     },
     computed: {
-      ICONS() {
-        return ICONS;
+      iconType() {
+        return {
+          [ICONS.clock]: 'inProgress',
+          [ICONS.star]: 'mastered',
+          [ICONS.help]: 'helpNeeded',
+          [ICONS.nothing]: 'notStarted',
+        }[this.icon];
       },
       color() {
         if (this.icon === ICONS.clock) {

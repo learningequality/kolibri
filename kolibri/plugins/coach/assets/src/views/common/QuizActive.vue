@@ -4,7 +4,7 @@
     <KLabeledIcon :style="active ? {} : { color: $themeTokens.textDisabled }">
       <KIcon
         slot="icon"
-        dot
+        icon="dot"
         :color="active ? $themeTokens.success : $themeTokens.textDisabled"
       />
       {{ label }}

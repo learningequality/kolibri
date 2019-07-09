@@ -17,10 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" lesson />
-          {{ lesson.title }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="lesson" :label="lesson.title" />
       </h1>
       <p>{{ $tr('lessonProgressLabel', {lesson: lesson.title}) }}</p>
       <HeaderTable>
@@ -44,8 +41,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="tableRow.kind === 'exercise'"
                   :text="tableRow.title"

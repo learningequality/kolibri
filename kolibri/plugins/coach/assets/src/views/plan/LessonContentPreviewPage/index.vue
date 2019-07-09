@@ -5,10 +5,7 @@
       <KGrid>
         <KGridItem sizes="100, 50, 50" percentage>
           <h1>
-            <KLabeledIcon>
-              <KBasicContentIcon slot="icon" :kind="content.kind" />
-              {{ content.title }}
-            </KLabeledIcon>
+            <KLabeledIcon :icon="content.kind" :label="content.title" />
           </h1>
         </KGridItem>
         <KGridItem sizes="100, 50, 50" percentage alignment="right">
@@ -75,7 +72,6 @@
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import KGrid from 'kolibri.coreVue.components.KGrid';
   import KGridItem from 'kolibri.coreVue.components.KGridItem';
@@ -93,7 +89,6 @@
       };
     },
     components: {
-      KBasicContentIcon,
       KLabeledIcon,
       QuestionList,
       ContentArea,

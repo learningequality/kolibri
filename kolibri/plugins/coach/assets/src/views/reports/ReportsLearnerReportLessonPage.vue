@@ -17,8 +17,7 @@
         />
       </p>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" lesson />
+        <KLabeledIcon icon="lesson">
           {{ lesson.title }}
         </KLabeledIcon>
       </h1>
@@ -31,12 +30,16 @@
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
-        <!-- TODO COACH
         <HeaderTableRow>
-          <template slot="key">{{ coachCommon$tr('descriptionLabel') }}</template>
-          <template slot="value">Ipsum lorem</template>
+          <template slot="key">
+            {{ coachCommon$tr('descriptionLabel') }}
+          </template>
+          <template slot="value">
+            <span dir="auto">
+              {{ lesson.description || coachCommon$tr('descriptionMissingLabel') }}
+            </span>
+          </template>
         </HeaderTableRow>
-         -->
       </HeaderTable>
 
       <CoreTable :emptyMessage="emptyMessage">
@@ -50,8 +53,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="showLink(tableRow)"
                   :text="tableRow.title"

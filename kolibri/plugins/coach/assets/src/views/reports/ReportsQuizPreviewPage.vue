@@ -8,10 +8,7 @@
   >
     <KPageContainer v-if="!loading">
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" quiz />
-          {{ quiz.title }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="quiz" :label="quiz.title" />
       </h1>
       <p>
         {{ orderDescriptionString }}
