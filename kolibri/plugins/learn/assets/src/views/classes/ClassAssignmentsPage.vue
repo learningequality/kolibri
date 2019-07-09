@@ -39,6 +39,11 @@
       KLabeledIcon,
     },
     mixins: [responsiveWindow],
+    data() {
+      return {
+        pollTimeoutId: null,
+      };
+    },
     computed: {
       ...mapState('classAssignments', {
         classroomName: state => state.currentClassroom.name,
@@ -47,12 +52,18 @@
       }),
     },
     mounted() {
-      this.pollForUpdates();
+      this.schedulePoll();
+    },
+    beforeDestroy() {
+      clearTimeout(this.pollTimeoutId);
     },
     methods: {
+      schedulePoll() {
+        this.pollTimeoutId = setTimeout(this.pollForUpdates, 30000);
+      },
       pollForUpdates() {
         this.$store.dispatch('classAssignments/updateWithChanges').then(() => {
-          setTimeout(this.pollForUpdates, 30000);
+          this.schedulePoll();
         });
       },
     },
