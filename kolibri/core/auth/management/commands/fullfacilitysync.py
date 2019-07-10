@@ -1,9 +1,9 @@
 import getpass
-import sys
 
 import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.core.validators import URLValidator
 from django.urls import reverse
 from django.utils.six.moves import input
@@ -44,7 +44,7 @@ class Command(AsyncCommand):
             for idx, f in enumerate(facilities):
                 message += "{}. {}\n".format(idx + 1, f["name"])
             idx = input(message)
-            dataset_id = facilities[int(idx - 1)]["dataset"]
+            dataset_id = facilities[int(idx) - 1]["dataset"]
         elif not dataset_id:
             dataset_id = facilities[0]["dataset"]
         return dataset_id
@@ -55,12 +55,11 @@ class Command(AsyncCommand):
             dataset_id, scope_def_id=FULL_FACILITY
         )
         if not server_certs:
-            print(
+            raise CommandError(
                 "Server does not have any certificates for dataset_id: {}".format(
                     dataset_id
                 )
             )
-            sys.exit(1)
         server_cert = server_certs[0]
 
         # check for the certs we own for the specific facility
@@ -99,7 +98,9 @@ class Command(AsyncCommand):
                     "Please enter username of account that will become the superuser on this device: "
                 )
             if not FacilityUser.objects.filter(username=username).exists():
-                print("User with username {} does not exist".format(username))
+                self.stderr.write(
+                    "User with username {} does not exist".format(username)
+                )
                 username = None
                 continue
 
@@ -122,8 +123,9 @@ class Command(AsyncCommand):
         try:
             URLValidator()((options["base_url"]))
         except ValidationError:
-            print("Base-url is not valid. Please retry command and enter a valid url.")
-            sys.exit(1)
+            raise CommandError(
+                "Base URL is not valid. Please retry command and enter a valid URL."
+            )
 
         # call this in case user directly syncs without migrating database
         if not ScopeDefinition.objects.filter():
@@ -136,22 +138,20 @@ class Command(AsyncCommand):
                     options["base_url"]
                 )
             except ConnectionError:
-                print(
-                    "Can not connect to server with base-url: {}".format(
+                raise CommandError(
+                    "Can not connect to server with base URL: {}".format(
                         options["base_url"]
                     )
                 )
-                sys.exit(1)
 
             # if instance_ids are equal, this means device is trying to sync with itself, which we don't allow
             if (
                 InstanceIDModel.get_or_create_current_instance()[0].id
                 == network_connection.server_info["instance_id"]
             ):
-                print(
-                    "Device can not sync with itself. Please re-check base-url and try again."
+                raise CommandError(
+                    "Device can not sync with itself. Please recheck base URL and try again."
                 )
-                sys.exit(1)
 
             progress_update(1)
 

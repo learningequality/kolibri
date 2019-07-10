@@ -12,7 +12,6 @@ import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constant
 import KSelect from 'kolibri.coreVue.components.KSelect';
 import KIcon from 'kolibri.coreVue.components.KIcon';
 import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-import KBasicContentIcon from 'kolibri.coreVue.components.KBasicContentIcon';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
@@ -88,11 +87,14 @@ function formatPageTitle() {
 
 export const CoachCoreBase = {
   extends: CoreBase,
+  mixins: [coachStringsMixin],
   props: {
     // Gives each Coach page a default title of 'Coach – [Class Name]'
     appBarTitle: {
       type: String,
       default() {
+        // Using coachStrings.$tr() here because mixins are not applied
+        // prior to props being processed.
         const coachLabel = coachStrings.$tr('coachLabel');
         const classroomName = this.$store.state.classSummary.name;
         if (!classroomName) {
@@ -129,7 +131,6 @@ export default {
     KSelect,
     KIcon,
     KLabeledIcon,
-    KBasicContentIcon,
     Answer,
     BackLink,
     TruncatedItemList,

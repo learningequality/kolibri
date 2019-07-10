@@ -1,4 +1,4 @@
-import { defaultLanguage, languageValidator } from 'kolibri.utils.i18n';
+import { defaultLanguage, languageValidator, getContentLangDir } from 'kolibri.utils.i18n';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -106,6 +106,14 @@ export default {
     showCorrectAnswer: {
       type: Boolean,
       default: false,
+    },
+  },
+  computed: {
+    contentDirection() {
+      return getContentLangDir(this.lang);
+    },
+    contentIsRtl() {
+      return this.contentDirection === 'rtl';
     },
   },
 };

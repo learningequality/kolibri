@@ -14,14 +14,14 @@
 
     <div
       class="epub-renderer-content"
-      :dir="dir"
+      :dir="contentDirection"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
 
       <TopBar
         ref="topBar"
-        class="top-bar"
+        class="top-bar-component"
         :isInFullscreen="isInFullscreen"
         @tableOfContentsButtonClicked="handleTocToggle"
         @settingsButtonClicked="handleSettingToggle"
@@ -39,16 +39,14 @@
           @click="handleTocToggle"
         />
 
-        <transition name="fade">
-          <TableOfContentsSideBar
-            v-show="tocSideBarIsOpen"
-            ref="tocSideBar"
-            :toc="toc"
-            :currentSection="currentSection"
-            class="side-bar side-bar-left"
-            @tocNavigation="handleTocNavigation"
-          />
-        </transition>
+        <TableOfContentsSideBar
+          v-show="tocSideBarIsOpen"
+          ref="tocSideBar"
+          :toc="toc"
+          :currentSection="currentSection"
+          class="side-bar side-bar-left"
+          @tocNavigation="handleTocNavigation"
+        />
       </FocusLock>
 
       <FocusLock
@@ -61,19 +59,17 @@
           @click="handleSettingToggle"
         />
 
-        <transition name="fade">
-          <SettingsSideBar
-            v-show="settingsSideBarIsOpen"
-            ref="settingsSideBar"
-            class="side-bar side-bar-right"
-            :theme="theme"
-            :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
-            :increaseFontSizeDisabled="increaseFontSizeDisabled"
-            @decreaseFontSize="decreaseFontSize"
-            @increaseFontSize="increaseFontSize"
-            @setTheme="setTheme"
-          />
-        </transition>
+        <SettingsSideBar
+          v-show="settingsSideBarIsOpen"
+          ref="settingsSideBar"
+          class="side-bar side-bar-right"
+          :theme="theme"
+          :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
+          :increaseFontSizeDisabled="increaseFontSizeDisabled"
+          @decreaseFontSize="handleChangeFontSize(-1)"
+          @increaseFontSize="handleChangeFontSize(+1)"
+          @setTheme="setTheme"
+        />
       </FocusLock>
 
       <FocusLock
@@ -86,45 +82,45 @@
           @click="handleSearchToggle"
         />
 
-        <transition name="fade">
-          <SearchSideBar
-            v-show="searchSideBarIsOpen"
-            ref="searchSideBar"
-            class="side-bar side-bar-right"
-            :book="book"
-            @newSearchQuery="handleNewSearchQuery"
-            @navigateToSearchResult="handleNavigateToSearchResult"
-          />
-        </transition>
+        <SearchSideBar
+          v-show="searchSideBarIsOpen"
+          ref="searchSideBar"
+          class="side-bar side-bar-right"
+          :book="book"
+          @newSearchQuery="handleNewSearchQuery"
+          @navigateToSearchResult="handleNavigateToSearchResult"
+        />
       </FocusLock>
 
       <div
         class="navigation-and-epubjs"
-        :style="backgroundColorStyle"
+        :style="{backgroundColor}"
       >
         <div
           class="column epubjs-navigation"
         >
           <PreviousButton
+            v-show="!isAtStart"
             :color="navigationButtonColor"
-            :style="backgroundColorStyle"
-            :isRtl="isRtl"
+            :isRtl="contentIsRtl"
+            :style="{backgroundColor}"
             @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
           ref="epubjsContainer"
           class="column epubjs-parent"
-          :style="backgroundColorStyle"
+          :style="{backgroundColor}"
         >
         </div>
         <div
           class="column epubjs-navigation"
         >
           <NextButton
+            v-show="!isAtEnd"
             :color="navigationButtonColor"
-            :style="backgroundColorStyle"
-            :isRtl="isRtl"
+            :isRtl="contentIsRtl"
+            :style="{backgroundColor}"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -148,21 +144,18 @@
 
   import Epub from 'epubjs/src/epub';
   import { EVENTS } from 'epubjs/src/utils/constants';
-
   import Mark from 'mark.js';
   import isEqual from 'lodash/isEqual';
+  import get from 'lodash/get';
+  import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
-
   import FocusLock from 'vue-focus-lock';
-
   import { mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElement from 'kolibri.coreVue.mixins.responsiveElement';
   import responsiveWindow from 'kolibri.coreVue.mixins.responsiveWindow';
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
-  import { getContentLangDir } from 'kolibri.utils.i18n';
-
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -177,7 +170,7 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
-  import { THEMES } from './EpubConstants';
+  import { THEMES, darkThemeNames } from './EpubConstants';
 
   const FONT_SIZE_MIN = 8;
   const FONT_SIZE_MAX = 32;
@@ -212,28 +205,35 @@
       LoadingError,
     },
     mixins: [responsiveWindow, responsiveElement, contentRendererMixin, themeMixin],
-    data: () => ({
-      book: null,
-      rendition: null,
-      toc: [],
-      locations: [],
-      loaded: false,
-      errorLoading: false,
-      sideBarOpen: null,
-      theme: THEMES.WHITE,
-      fontSize: null,
-      isInFullscreen: false,
-      markInstance: null,
-      currentSection: null,
-      searchQuery: null,
-      sliderValue: 0,
-      scrolled: false,
-
-      currentLocation: null,
-      updateContentStateInterval: null,
-    }),
+    data() {
+      return {
+        book: null,
+        rendition: null,
+        toc: [],
+        locations: [],
+        loaded: false,
+        errorLoading: false,
+        sideBarOpen: null,
+        theme: THEMES.WHITE,
+        fontSize: null,
+        isInFullscreen: false,
+        markInstance: null,
+        currentSection: null,
+        searchQuery: null,
+        sliderValue: 0,
+        scrolled: false,
+        currentLocation: null,
+        updateContentStateInterval: null,
+      };
+    },
     computed: {
       ...mapGetters(['sessionTimeSpent']),
+      isAtStart() {
+        return get(this.rendition, 'location.atStart', false);
+      },
+      isAtEnd() {
+        return get(this.rendition, 'location.atEnd', false);
+      },
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;
@@ -245,11 +245,6 @@
       },
       backgroundColor() {
         return this.theme.backgroundColor;
-      },
-      backgroundColorStyle() {
-        return {
-          backgroundColor: this.backgroundColor,
-        };
       },
       textColor() {
         return this.theme.textColor;
@@ -306,10 +301,11 @@
       epubRendererStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
+          borderColor: this.$themeColors.palette.grey.v_300,
         };
       },
       navigationButtonColor() {
-        return [THEMES.BLACK, THEMES.GREY].some(theme => isEqual(this.theme, theme))
+        return darkThemeNames.some(themeName => isEqual(this.theme.name, themeName))
           ? 'white'
           : 'black';
       },
@@ -337,12 +333,6 @@
         const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
-      },
-      dir() {
-        return getContentLangDir(this.lang);
-      },
-      isRtl() {
-        return this.dir === 'rtl';
       },
     },
     watch: {
@@ -377,7 +367,7 @@
     },
     created() {
       // Try to load the appropriate directional CSS for the particular content
-      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.dir);
+      this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
     },
     beforeMount() {
       global.ePub = Epub;
@@ -560,20 +550,21 @@
       jumpToLocation(locationToJumpTo) {
         return this.rendition.display(locationToJumpTo);
       },
+      toggleMenu(sideBarName) {
+        if (this.sideBarOpen === sideBarName) {
+          this.closeSideBar();
+        } else {
+          this.sideBarOpen = sideBarName;
+        }
+      },
       handleTocToggle() {
-        this.sideBarOpen === SIDE_BARS.TOC
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.TOC);
+        this.toggleMenu(SIDE_BARS.TOC);
       },
       handleSearchToggle() {
-        this.sideBarOpen === SIDE_BARS.SEARCH
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.SEARCH);
+        this.toggleMenu(SIDE_BARS.SEARCH);
       },
       handleSettingToggle() {
-        this.sideBarOpen === SIDE_BARS.SETTINGS
-          ? this.closeSideBar()
-          : (this.sideBarOpen = SIDE_BARS.SETTINGS);
+        this.toggleMenu(SIDE_BARS.SETTINGS);
       },
       handleTocNavigation(item) {
         this.jumpToLocation(item.href)
@@ -592,21 +583,12 @@
         // Use epub Contents class which will get computed font-size
         return view ? view.getContents().css('font-size', null) : null;
       },
-      increaseFontSize() {
-        const currentFontSize = this.getCurrentFontSize();
-        const fontSizeNumericValue = parseFloat(currentFontSize);
-        const newFontSizeNumericValue = Math.min(
-          fontSizeNumericValue + FONT_SIZE_STEP,
+      handleChangeFontSize(difference) {
+        const fontSizeNumericValue = parseFloat(this.getCurrentFontSize());
+        const newFontSizeNumericValue = clamp(
+          fontSizeNumericValue + difference * FONT_SIZE_STEP,
+          FONT_SIZE_MIN,
           FONT_SIZE_MAX
-        );
-        this.setFontSize(`${newFontSizeNumericValue}px`);
-      },
-      decreaseFontSize() {
-        const currentFontSize = this.getCurrentFontSize();
-        const fontSizeNumericValue = parseFloat(currentFontSize);
-        const newFontSizeNumericValue = Math.max(
-          fontSizeNumericValue - FONT_SIZE_STEP,
-          FONT_SIZE_MIN
         );
         this.setFontSize(`${newFontSizeNumericValue}px`);
       },
@@ -726,6 +708,7 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri.styles.definitions';
   @import './EpubStyles';
 
   $top-bar-height: 36px;
@@ -737,7 +720,10 @@
     position: relative;
     max-height: 100%;
     padding-top: calc(100% * 8.5 / 11);
+    overflow: hidden;
     font-size: smaller;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .epub-renderer.small {
@@ -757,7 +743,7 @@
     left: 0;
   }
 
-  .top-bar {
+  .top-bar-component {
     position: absolute;
     top: 0;
     right: 0;
@@ -777,17 +763,6 @@
 
   .side-bar-right {
     right: 0;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: all 0.1s ease;
-  }
-
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-    transform: scale3d(0.3, 0.3, 0.3);
   }
 
   .toc-button,

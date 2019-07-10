@@ -2,8 +2,7 @@
 
   <tr>
     <td>
-      <KLabeledIcon>
-        <KIcon slot="icon" group />
+      <KLabeledIcon icon="group">
         <KRouterLink
           :text="group.name"
           :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
@@ -16,7 +15,7 @@
     <td class="core-table-button-col">
       <KDropdownMenu
         appearance="flat-button"
-        :text="coachStrings.$tr('optionsLabel')"
+        :text="coachCommon$tr('optionsLabel')"
         :options="menuOptions"
         @select="handleSelection"
       />
@@ -32,7 +31,6 @@
   import KDropdownMenu from 'kolibri.coreVue.components.KDropdownMenu';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import commonCoach from '../../common';
 
   export default {
@@ -41,7 +39,6 @@
       KDropdownMenu,
       KRouterLink,
       KLabeledIcon,
-      KIcon,
     },
     mixins: [commonCoach, responsiveWindow],
     props: {
@@ -55,15 +52,15 @@
     },
     computed: {
       menuOptions() {
-        return [this.coachStrings.$tr('renameAction'), this.coachStrings.$tr('deleteAction')];
+        return [this.coachCommon$tr('renameAction'), this.coachCommon$tr('deleteAction')];
       },
     },
     methods: {
       handleSelection(selectedOption) {
         let emitted;
-        if (selectedOption === this.coachStrings.$tr('renameAction')) {
+        if (selectedOption === this.coachCommon$tr('renameAction')) {
           emitted = 'rename';
-        } else if (selectedOption === this.coachStrings.$tr('deleteAction')) {
+        } else if (selectedOption === this.coachCommon$tr('deleteAction')) {
           emitted = 'delete';
         }
         this.$emit(emitted, this.group.name, this.group.id);

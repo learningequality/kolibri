@@ -19,20 +19,17 @@
           />
           <KButton
             slot="options"
-            :text="coachStrings.$tr('previewAction')"
+            :text="coachCommon$tr('previewAction')"
             @click="onPreviewClick"
           />
         </BackLinkWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KBasicContentIcon slot="icon" :kind="resource.kind" />
-            {{ resource.title }}
-          </KLabeledIcon>
+          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
         </h1>
       </section>
 
       <KCheckbox
-        :label="coachStrings.$tr('viewByGroupsLabel')"
+        :label="coachCommon$tr('viewByGroupsLabel')"
         :checked="viewByGroups"
         @change="toggleGroupsView"
       />
@@ -48,10 +45,7 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon>
-              <KIcon slot="icon" group />
-              {{ group.name }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="group" :label="group.name" />
           </h2>
 
           <KGrid cols="2">
@@ -81,7 +75,7 @@
             class="group-title"
             data-test="group-title"
           >
-            {{ coachStrings.$tr('ungroupedLearnersLabel') }}
+            {{ coachCommon$tr('ungroupedLearnersLabel') }}
           </h2>
 
           <ReportsResourceLearners

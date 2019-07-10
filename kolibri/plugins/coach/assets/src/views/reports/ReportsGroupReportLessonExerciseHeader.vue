@@ -9,10 +9,7 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" exercise />
-        {{ exercise.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="exercise" :label="exercise.title" />
     </h1>
 
     <!--
@@ -21,16 +18,16 @@
       <MasteryModel model="num_correct_in_a_row_5" />
     </p>
 
-    <KButton :text="coachStrings.$tr('previewAction')" />
+    <KButton :text="coachCommon$tr('previewAction')" />
     -->
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseLearnerListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="coachCommon$tr('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportLessonExerciseQuestionListPage')"
       />
     </HeaderTabs>

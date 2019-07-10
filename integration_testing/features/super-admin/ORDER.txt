@@ -5,6 +5,7 @@ super-admin-change-profile-information.feature
 super-admin-upgrade-notification.feature
 super-admin-profile-command.feature
 super-admin-benchmark-command.feature
+super-admin-set-kolibri-port.feature
 super-admin-select-import-content-location.feature
 super-admin-import-new-content-channel-from-studio.feature
 super-admin-import-new-content-channel-from-studio-token-id.feature

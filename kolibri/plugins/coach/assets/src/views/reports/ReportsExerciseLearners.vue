@@ -1,28 +1,30 @@
 <template>
 
-  <CoreTable :emptyMessage="coachStrings.$tr('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachCommon$tr('activityListEmptyState')">
     <thead slot="thead">
       <tr>
-        <th>{{ coachStrings.$tr('nameLabel') }}</th>
-        <th>{{ coachStrings.$tr('progressLabel') }}</th>
-        <th>{{ coachStrings.$tr('timeSpentLabel') }}</th>
+        <th>{{ coachCommon$tr('nameLabel') }}</th>
+        <th>{{ coachCommon$tr('progressLabel') }}</th>
+        <th>{{ coachCommon$tr('timeSpentLabel') }}</th>
         <th v-if="showGroupsColumn">
-          {{ coachStrings.$tr('groupsLabel') }}
+          {{ coachCommon$tr('groupsLabel') }}
         </th>
-        <th>{{ coachStrings.$tr('lastActivityLabel') }}</th>
+        <th>{{ coachCommon$tr('lastActivityLabel') }}</th>
       </tr>
     </thead>
     <transition-group slot="tbody" tag="tbody" name="list">
       <tr v-for="entry in entries" :key="entry.id" data-test="entry">
         <td>
-          <KRouterLink
-            v-if="showLink(entry)"
-            :text="entry.name"
-            :to="entry.exerciseLearnerLink"
-          />
-          <template v-else>
-            {{ entry.name }}
-          </template>
+          <KLabeledIcon icon="person">
+            <KRouterLink
+              v-if="showLink(entry)"
+              :text="entry.name"
+              :to="entry.exerciseLearnerLink"
+            />
+            <template v-else>
+              {{ entry.name }}
+            </template>
+          </KLabeledIcon>
         </td>
         <td>
           <StatusSimple :status="entry.statusObj.status" />
@@ -52,7 +54,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-
+  import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TimeDuration from '../common/TimeDuration';
@@ -65,6 +67,7 @@
       CoreTable,
       ElapsedTime,
       KRouterLink,
+      KLabeledIcon,
       StatusSimple,
       TimeDuration,
       TruncatedItemList,

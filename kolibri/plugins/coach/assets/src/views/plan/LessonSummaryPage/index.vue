@@ -14,7 +14,7 @@
         <BackLink
           slot="backlink"
           :to="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-          :text="backLinkString"
+          :text="$tr('back')"
         />
         <LessonOptionsDropdownMenu
           slot="options"
@@ -27,17 +27,14 @@
 
         <div>
           <h1 dir="auto">
-            <KLabeledIcon>
-              <KIcon slot="icon" lesson />
-              {{ currentLesson.title }}
-            </KLabeledIcon>
+            <KLabeledIcon icon="lesson" :label="currentLesson.title" />
           </h1>
 
           <HeaderTable>
-            <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+            <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
               <LessonActive slot="value" :active="currentLesson.is_active" />
             </HeaderTableRow>
-            <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+            <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
               <template slot="value">
                 <Recipients
                   :groupNames="groupNames"
@@ -46,8 +43,8 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="coachStrings.$tr('descriptionLabel')"
-              :valueText="currentLesson.description || coachStrings.$tr('descriptionMissingLabel')"
+              :keyText="coachCommon$tr('descriptionLabel')"
+              :valueText="currentLesson.description || coachCommon$tr('descriptionMissingLabel')"
             />
           </HeaderTable>
         </div>
@@ -95,9 +92,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
@@ -105,13 +100,10 @@
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
   import LessonActive from '../../common/LessonActive';
-  import ReportsLessonHeader from '../../reports/ReportsLessonHeader';
   import BackLinkWithOptions from '../../common/BackLinkWithOptions';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
-
-  const ReportsLessonHeaderStrings = crossComponentTranslator(ReportsLessonHeader);
 
   export default {
     name: 'LessonSummaryPage',
@@ -121,7 +113,6 @@
       };
     },
     components: {
-      KIcon,
       KLabeledIcon,
       HeaderTable,
       HeaderTableRow,
@@ -140,9 +131,6 @@
       };
     },
     computed: {
-      backLinkString() {
-        return ReportsLessonHeaderStrings.$tr('back');
-      },
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       loading() {
@@ -179,6 +167,7 @@
       resources: 'Resources',
       manageResourcesButton: 'Manage resources',
       noOne: 'No one',
+      back: 'All lessons',
     },
   };
 

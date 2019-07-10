@@ -26,13 +26,16 @@ def get_installed_app_locale_path(appname):
 
     Note that the module is imported to determine its location.
     """
+    try:
+        m = importlib.import_module(appname)
+        module_path = os.path.dirname(m.__file__)
+        module_locale_path = os.path.join(module_path, "locale")
 
-    m = importlib.import_module(appname)
-    module_path = os.path.dirname(m.__file__)
-    module_locale_path = os.path.join(module_path, "locale")
-
-    if os.path.isdir(module_locale_path):
-        return module_locale_path
+        if os.path.isdir(module_locale_path):
+            return module_locale_path
+    except ImportError:
+        pass
+    return None
 
 
 def _get_supported_language_info():

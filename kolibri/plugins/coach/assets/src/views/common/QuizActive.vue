@@ -4,7 +4,7 @@
     <KLabeledIcon :style="active ? {} : { color: $themeTokens.textDisabled }">
       <KIcon
         slot="icon"
-        dot
+        icon="dot"
         :color="active ? $themeTokens.success : $themeTokens.textDisabled"
       />
       {{ label }}
@@ -37,8 +37,8 @@
     computed: {
       label() {
         return this.active
-          ? this.coachStrings.$tr('quizActiveLabel')
-          : this.coachStrings.$tr('quizInactiveLabel');
+          ? this.coachCommon$tr('quizActiveLabel')
+          : this.coachCommon$tr('quizInactiveLabel');
       },
     },
   };

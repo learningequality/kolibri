@@ -100,7 +100,6 @@
     padding: 8px 8px 0;
     overflow: hidden;
     text-align: center;
-    box-shadow: $epub-box-shadow;
   }
 
   .bottom-bar-heading {

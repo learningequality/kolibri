@@ -18,9 +18,9 @@ porter2stemmer==1.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.1.15
-kolibri_exercise_perseus_plugin==1.1.8
+kolibri_exercise_perseus_plugin==1.2.0
 jsonfield==2.0.2
-morango==0.4.5
+morango==0.4.6
 requests-toolbelt==0.8.0
 clint==0.5.1
 tzlocal==1.5.1
@@ -33,3 +33,4 @@ sentry-sdk==0.7.9
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
+django-oidc-provider==0.7.0

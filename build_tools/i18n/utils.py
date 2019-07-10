@@ -23,29 +23,6 @@ PERSEUS_LOCALE_PATH = os.path.join(
 )
 PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
 
-PERSEUS_NOT_INSTALLED_FOR_DEV = """
-Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
-and ensure that it has been checked out the the correct commit.
-
-Install it in Kolibri in development mode:
-
-    pip install -e [local_path_to_perseus_repo]
-
-For more information see:
-https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plugin
-"""
-
-
-if not (os.path.exists(PERSEUS_LOCALE_PATH)):
-    logging.error("Cannot find Perseus locale directory.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
-elif "/site-packages/" in PERSEUS_LOCALE_PATH:
-    logging.error("It appears that Perseus is not installed for development.")
-    logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-    sys.exit(1)
-
-
 # Keys used in supported_languages.json
 KEY_CROWDIN_CODE = "crowdin_code"
 KEY_INTL_CODE = "intl_code"

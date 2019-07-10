@@ -20,18 +20,17 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgScoreLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('avgScoreLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachCommon$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" quiz />
+              <KLabeledIcon icon="quiz">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
@@ -67,12 +66,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
-  import CoachExamsPage from '../plan/CoachExamsPage';
   import ReportsHeader from './ReportsHeader';
-
-  const CoachExamsPageStrings = crossComponentTranslator(CoachExamsPage);
 
   export default {
     name: 'ReportsQuizListPage',
@@ -88,13 +83,13 @@
     computed: {
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
-          return this.coachStrings.$tr('quizListEmptyState');
+          return this.coachCommon$tr('quizListEmptyState');
         }
         if (this.filter.value === 'activeQuizzes') {
-          return CoachExamsPageStrings.$tr('noActiveExams');
+          return this.$tr('noActiveExams');
         }
         if (this.filter.value === 'inactiveQuizzes') {
-          return CoachExamsPageStrings.$tr('noInactiveExams');
+          return this.$tr('noInactiveExams');
         }
 
         return '';
@@ -104,6 +99,8 @@
           {
             label: this.$tr('allQuizzes'),
             value: 'allQuizzes',
+            noActiveExams: 'No active quizzes',
+            noInactiveExams: 'No inactive quizzes',
           },
           {
             label: this.$tr('activeQuizzes'),
@@ -148,6 +145,8 @@
       allQuizzes: 'All quizzes',
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: 'No inactive quizzes',
     },
   };
 

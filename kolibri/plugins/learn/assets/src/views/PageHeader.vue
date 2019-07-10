@@ -1,14 +1,15 @@
 <template>
 
-  <div dir="auto">
-    <h1 class="title">
-      <KLabeledIcon>
-        <KIcon v-if="contentType" slot="icon" :[iconType]="true" />
-        {{ title }}
-      </KLabeledIcon>
+  <KGrid>
+    <KGridItem sizes="3, 7, 11">
+      <h1>
+        <KLabeledIcon :icon="contentType" :label="title" />
+      </h1>
+    </KGridItem>
+    <KGridItem sizes="1, 1, 1" alignment="right">
       <ProgressIcon class="progress-icon" :progress="progress" />
-    </h1>
-  </div>
+    </KGridItem>
+  </KGrid>
 
 </template>
 
@@ -16,13 +17,15 @@
 <script>
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
+  import KGrid from 'kolibri.coreVue.components.KGrid';
+  import KGridItem from 'kolibri.coreVue.components.KGridItem';
 
   export default {
     name: 'PageHeader',
     components: {
-      KIcon,
+      KGridItem,
+      KGrid,
       KLabeledIcon,
       ProgressIcon,
     },
@@ -38,14 +41,6 @@
         type: String,
       },
     },
-    computed: {
-      iconType() {
-        if (this.contentType === 'document') {
-          return 'doc';
-        }
-        return this.contentType;
-      },
-    },
   };
 
 </script>
@@ -53,15 +48,9 @@
 
 <style lang="scss" scoped>
 
-  .title {
-    display: inline-block;
-  }
-
   .progress-icon {
     position: relative;
-    top: -2px;
-    display: inline-block;
-    margin-left: 16px;
+    top: 20px;
   }
 
 </style>

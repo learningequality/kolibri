@@ -11,26 +11,23 @@
         />
         <KButton
           slot="options"
-          :text="coachStrings.$tr('previewAction')"
+          :text="coachCommon$tr('previewAction')"
           @click="$emit('previewClick')"
         />
       </BackLinkWithOptions>
       <h1>
-        <KLabeledIcon>
-          <KIcon slot="icon" exercise />
-          {{ exercise.title }}
-        </KLabeledIcon>
+        <KLabeledIcon icon="exercise" :label="exercise.title" />
       </h1>
     </section>
 
     <HeaderTabs>
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseLearnerListPage')"
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
       />
       <HeaderTab
         :to="classRoute('ReportsLessonExerciseQuestionListPage')"
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="coachCommon$tr('difficultQuestionsLabel')"
       />
     </HeaderTabs>
 

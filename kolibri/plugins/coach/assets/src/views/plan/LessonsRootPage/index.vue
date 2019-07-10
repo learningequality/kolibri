@@ -14,13 +14,13 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coachStrings.$tr('showAction')"
+          :label="coachCommon$tr('showAction')"
           :options="filterOptions"
           :inline="true"
         />
         <KButton
           :primary="true"
-          :text="coachStrings.$tr('newLessonAction')"
+          :text="coachCommon$tr('newLessonAction')"
           @click="showModal=true"
         />
       </div>
@@ -28,10 +28,10 @@
       <CoreTable>
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
-            <th>{{ coachStrings.$tr('recipientsLabel') }}</th>
-            <th>{{ coachStrings.$tr('statusLabel') }}</th>
+            <th>{{ coachCommon$tr('recipientsLabel') }}</th>
+            <th>{{ coachCommon$tr('statusLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
@@ -41,15 +41,14 @@
             :key="lesson.id"
           >
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" lesson />
+              <KLabeledIcon icon="lesson">
                 <KRouterLink
                   :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
                   :text="lesson.title"
                 />
               </KLabeledIcon>
             </td>
-            <td>{{ coachStrings.$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
+            <td>{{ coachCommon$tr('numberOfResources', { value: lesson.resources.length }) }}</td>
             <td>
               <Recipients
                 :groupNames="getGroupNames(getGroupIds(lesson.lesson_assignments))"
@@ -76,8 +75,8 @@
       <KModal
         v-if="showModal"
         :title="$tr('newLessonModalTitle')"
-        :submitText="coachStrings.$tr('continueAction')"
-        :cancelText="coachStrings.$tr('cancelAction')"
+        :submitText="coachCommon$tr('continueAction')"
+        :cancelText="coachCommon$tr('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
         :cancelDisabled="detailsModalIsDisabled"
         @cancel="showModal=false"
@@ -114,7 +113,6 @@
   import KRouterLink from 'kolibri.coreVue.components.KRouterLink';
   import KSelect from 'kolibri.coreVue.components.KSelect';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import KModal from 'kolibri.coreVue.components.KModal';
   import { CollectionKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -133,7 +131,6 @@
       KRouterLink,
       KSelect,
       KLabeledIcon,
-      KIcon,
       KModal,
       LessonActive,
       AssignmentDetailsModal,

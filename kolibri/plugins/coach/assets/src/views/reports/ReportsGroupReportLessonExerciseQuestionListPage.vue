@@ -13,19 +13,18 @@
 
       <ReportsGroupReportLessonExerciseHeader />
 
-      <h2>{{ coachStrings.$tr('overallLabel') }}</h2>
-      <CoreTable :emptyMessage="coachStrings.$tr('questionListEmptyState')">
+      <h2>{{ coachCommon$tr('overallLabel') }}</h2>
+      <CoreTable :emptyMessage="coachCommon$tr('questionListEmptyState')">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('questionLabel') }}</th>
-            <th>{{ coachStrings.$tr('helpNeededLabel') }}</th>
+            <th>{{ coachCommon$tr('questionLabel') }}</th>
+            <th>{{ coachCommon$tr('helpNeededLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.question_id">
             <td>
-              <KLabeledIcon>
-                <KIcon slot="icon" person />
+              <KLabeledIcon icon="person">
                 <KRouterLink
                   :text="tableRow.title"
                   :to="questionLink(tableRow.question_id)"

@@ -70,9 +70,9 @@ export default {
         errorObject.status.code &&
         authErrorCodes.includes(errorObject.status.code)
       ) {
-        store.dispatch('handleError', '');
+        store.dispatch('handleApiError', '');
       } else {
-        store.dispatch('handleError', errorObject);
+        store.dispatch('handleApiError', errorObject);
       }
     },
     resetModuleState(store, { toRoute, fromRoute }) {

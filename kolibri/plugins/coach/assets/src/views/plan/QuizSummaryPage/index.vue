@@ -24,19 +24,16 @@
           />
         </BackLinkWithOptions>
         <h1>
-          <KLabeledIcon>
-            <KIcon slot="icon" quiz />
-            {{ quiz.title }}
-          </KLabeledIcon>
+          <KLabeledIcon icon="quiz" :label="quiz.title" />
         </h1>
       </section>
 
       <section>
         <HeaderTable>
-          <HeaderTableRow :keyText="coachStrings.$tr('statusLabel')">
+          <HeaderTableRow :keyText="coachCommon$tr('statusLabel')">
             <QuizActive slot="value" :active="quiz.active" />
           </HeaderTableRow>
-          <HeaderTableRow :keyText="coachStrings.$tr('recipientsLabel')">
+          <HeaderTableRow :keyText="coachCommon$tr('recipientsLabel')">
             <Recipients
               slot="value"
               :groupNames="learnerGroupNames"
@@ -44,7 +41,7 @@
             />
           </HeaderTableRow>
           <HeaderTableRow
-            :keyText="coachStrings.$tr('questionOrderLabel')"
+            :keyText="coachCommon$tr('questionOrderLabel')"
             :valueText="questionOrderValueString"
           />
         </HeaderTable>
@@ -52,7 +49,7 @@
 
       <section v-if="selectedQuestions">
         <h2>
-          {{ coachStrings.$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
+          {{ coachCommon$tr('numberOfQuestions', { value: selectedQuestions.length }) }}
         </h2>
 
         <p>
@@ -87,7 +84,6 @@
   import find from 'lodash/find';
   import KPageContainer from 'kolibri.coreVue.components.KPageContainer';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { CoachCoreBase } from '../../common';
@@ -117,7 +113,6 @@
       CoreBase: CoachCoreBase,
       HeaderTable,
       HeaderTableRow,
-      KIcon,
       KLabeledIcon,
       KPageContainer,
       ManageExamModals,
@@ -153,13 +148,13 @@
       },
       questionOrderValueString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomLabel')
-          : this.coachStrings.$tr('orderFixedLabel');
+          ? this.coachCommon$tr('orderRandomLabel')
+          : this.coachCommon$tr('orderFixedLabel');
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachStrings.$tr('orderRandomDescription')
-          : this.coachStrings.$tr('orderFixedDescription');
+          ? this.coachCommon$tr('orderRandomDescription')
+          : this.coachCommon$tr('orderFixedDescription');
       },
       classId() {
         return this.$route.params.classId;
@@ -255,7 +250,7 @@
                   className,
                 }),
                 autoDismiss: false,
-                actionText: this.coachStrings.$tr('closeAction'),
+                actionText: this.coachCommon$tr('closeAction'),
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {

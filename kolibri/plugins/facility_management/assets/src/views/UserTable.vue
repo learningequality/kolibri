@@ -55,16 +55,7 @@
             />
           </td>
           <td>
-            <span dir="auto">
-              <KLabeledIcon>
-                <KIcon
-                  slot="icon"
-                  :coach="isCoach"
-                  :person="!isCoach"
-                />
-                {{ user.full_name }}
-              </KLabeledIcon>
-            </span>
+            <KLabeledIcon :icon="isCoach ? 'coach' : 'person'" :label="user.full_name" />
             <UserTypeDisplay
               aria-hidden="true"
               :userType="user.kind"
@@ -113,7 +104,6 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
   import KLabeledIcon from 'kolibri.coreVue.components.KLabeledIcon';
-  import KIcon from 'kolibri.coreVue.components.KIcon';
   import difference from 'lodash/difference';
 
   export default {
@@ -123,7 +113,6 @@
       KCheckbox,
       UserTypeDisplay,
       KLabeledIcon,
-      KIcon,
     },
     mixins: [themeMixin],
     props: {
@@ -224,7 +213,7 @@
 
   .role-badge {
     display: inline-block;
-    padding: 2px;
+    padding: 0;
     padding-right: 8px;
     padding-left: 8px;
     margin-left: 16px;

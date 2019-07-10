@@ -9,6 +9,8 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class SetupWizardPlugin(KolibriPluginBase):
+    translated_view_urls = "urls"
+
     def url_slug(self):
         return "^setup_wizard/"
 

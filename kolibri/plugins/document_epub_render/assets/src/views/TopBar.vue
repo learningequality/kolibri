@@ -129,7 +129,6 @@
 
   .top-bar {
     z-index: 1;
-    box-shadow: $epub-box-shadow;
   }
 
   .top-bar-title {

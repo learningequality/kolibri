@@ -50,16 +50,16 @@ oriented data synchronization.
           category="action"
           :style="{
             fill: success ? $themeTokens.mastered : $themeColors.palette.grey.v_200,
-            verticalAlign: 0,
+            marginBottom: '-6px',
           }"
         />
         <div class="overall-status-text">
-          <div v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+          <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
             {{ $tr('completed') }}
-          </div>
-          <div>
+          </span>
+          <span>
             {{ $tr('goal', {count: totalCorrectRequiredM}) }}
-          </div>
+          </span>
         </div>
       </div>
       <div class="table">
@@ -522,7 +522,6 @@ oriented data synchronization.
 
   @import '~kolibri.styles.definitions';
 
-  // BOTTOM_SPACED_RESERVED in LearnIndex.vue depends on the height of this container
   .attempts-container {
     height: 111px;
     text-align: left;

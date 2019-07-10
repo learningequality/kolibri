@@ -77,8 +77,8 @@ def conf():
 
     old_config = copy.deepcopy(conf.config)
     yield conf
-    conf.update(old_config)
-    conf.save()
+    conf.config.update(old_config)
+    conf.config.save()
 
 
 def test_bogus_plugin_autoremove(conf):
@@ -86,9 +86,9 @@ def test_bogus_plugin_autoremove(conf):
     Checks that a plugin is auto-removed when it cannot be imported
     """
     plugin_name = "giraffe.horse"
-    conf.config["INSTALLED_APPS"].append(plugin_name)
-    conf.save()
-    conf.autoremove_unavailable_plugins()
+    conf.config["INSTALLED_APPS"].add(plugin_name)
+    conf.config.save()
+    conf.config.autoremove_unavailable_plugins()
     assert plugin_name not in conf.config["INSTALLED_APPS"]
 
 
@@ -97,16 +97,18 @@ def test_bogus_plugin_autoremove_no_path(conf):
     Checks that a plugin without a dotted path is also auto-removed
     """
     plugin_name = "giraffehorse"
-    conf.config["INSTALLED_APPS"].append(plugin_name)
-    conf.save()
-    conf.autoremove_unavailable_plugins()
+    conf.config["INSTALLED_APPS"].add(plugin_name)
+    conf.config.save()
+    conf.config.autoremove_unavailable_plugins()
     assert plugin_name not in conf.config["INSTALLED_APPS"]
 
 
 def test_bogus_plugin_disable(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"][:]
+    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
+    disabled_apps_before = conf.config["DISABLED_APPS"].copy()
     cli.plugin("i_do_not_exist", disable=True)
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
+    assert disabled_apps_before == conf.config["DISABLED_APPS"]
 
 
 def test_plugin_cannot_be_imported_disable(conf):
@@ -114,31 +116,38 @@ def test_plugin_cannot_be_imported_disable(conf):
     A plugin may be in conf.config['INSTALLED_APPS'] but broken or uninstalled
     """
     plugin_name = "giraffe.horse"
-    conf.config["INSTALLED_APPS"].append(plugin_name)
-    conf.save()
+    conf.config["INSTALLED_APPS"].add(plugin_name)
+    conf.config.save()
     cli.plugin(plugin_name, disable=True)
     assert plugin_name not in conf.config["INSTALLED_APPS"]
+    # We also don't want to endlessly add cruft to the disabled apps
+    assert plugin_name not in conf.config["DISABLED_APPS"]
 
 
 def test_real_plugin_disable(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"][:]
+    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
     # Because RIP example plugin
     cli.plugin(test_plugin, disable=True)
+    assert test_plugin not in conf.config.ACTIVE_PLUGINS
     assert test_plugin not in conf.config["INSTALLED_APPS"]
+    assert test_plugin in conf.config["DISABLED_APPS"]
 
 
 def test_real_plugin_disable_twice(conf):
-    installed_apps_before = conf.config["INSTALLED_APPS"][:]
+    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     test_plugin = "kolibri.plugins.media_player"
     assert test_plugin in installed_apps_before
-    # Because RIP example plugin
     cli.plugin(test_plugin, disable=True)
+    assert test_plugin not in conf.config.ACTIVE_PLUGINS
     assert test_plugin not in conf.config["INSTALLED_APPS"]
-    installed_apps_before = conf.config["INSTALLED_APPS"][:]
+    assert test_plugin in conf.config["DISABLED_APPS"]
+    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     cli.plugin(test_plugin, disable=True)
+    assert test_plugin not in conf.config.ACTIVE_PLUGINS
     assert test_plugin not in conf.config["INSTALLED_APPS"]
+    assert test_plugin in conf.config["DISABLED_APPS"]
 
 
 def test_plugin_with_no_plugin_class(conf):
@@ -147,7 +156,7 @@ def test_plugin_with_no_plugin_class(conf):
     a warning and nothing is enabled or changed in the configuration.
     """
     # For fun, we pass in a system library
-    installed_apps_before = conf.config["INSTALLED_APPS"][:]
+    installed_apps_before = conf.config["INSTALLED_APPS"].copy()
     cli.plugin("os.path")
     assert installed_apps_before == conf.config["INSTALLED_APPS"]
 

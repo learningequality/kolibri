@@ -15,12 +15,13 @@ const filePresetStrings = {
   vectorizedVideo: 'Vectorized ({fileSize})',
   // Same 'thumbnail' string is used for video, audio, document, exercise, and topic
   thumbnail: 'Thumbnail ({fileSize})',
-  videoSubtitle: 'Subtitle ({fileSize})',
+  videoSubtitle: 'Subtitles - {langCode} ({fileSize})',
   audio: 'Audio ({fileSize})',
   document: 'Document ({fileSize})',
   exercise: 'Exercise ({fileSize})',
   html5Zip: 'HTML5 Zip ({fileSize})',
   html5Thumbnail: 'HTML5 Thumbnail ({fileSize})',
+  epub: 'ePub Document ({fileSize})',
 };
 
 const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);
@@ -30,6 +31,12 @@ const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStr
 // translator to return the localized string.
 export function getFilePresetString(file) {
   const { preset, file_size } = file;
+  if (preset === 'Subtitle') {
+    return filePresetTranslator.$tr('videoSubtitle', {
+      langCode: file.lang.lang_code,
+      fileSize: bytesForHumans(file_size),
+    });
+  }
   const trKey = findKey(filePresetStrings, x => x.startsWith(preset));
   if (trKey) {
     return filePresetTranslator.$tr(trKey, { fileSize: bytesForHumans(file_size) });

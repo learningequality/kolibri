@@ -1,16 +1,13 @@
 <template>
 
   <Block
-    :allLinkText="viewAllString"
+    :allLinkText="$tr('viewAll')"
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
   >
-    <KLabeledIcon slot="title">
-      <KIcon slot="icon" quiz />
-      {{ coachStrings.$tr('quizzesLabel') }}
-    </KLabeledIcon>
+    <KLabeledIcon slot="title" icon="quiz" :label="coachCommon$tr('quizzesLabel')" />
 
     <p v-if="table.length === 0">
-      {{ coachStrings.$tr('quizListEmptyState') }}
+      {{ coachCommon$tr('quizListEmptyState') }}
     </p>
 
     <BlockItem
@@ -32,15 +29,12 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import orderBy from 'lodash/orderBy';
   import commonCoach from '../../common';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
-  import ActivityBlock from './ActivityBlock';
 
-  const translator = crossComponentTranslator(ActivityBlock);
   const MAX_QUIZZES = 3;
 
   export default {
@@ -65,9 +59,6 @@
           };
         });
       },
-      viewAllString() {
-        return translator.$tr('viewAll');
-      },
     },
     methods: {
       // return the last activity among all users for a particular exam
@@ -86,7 +77,8 @@
       },
     },
     $trs: {
-      viewAll: 'All quizzes',
+      viewAllQuizzes: 'All quizzes',
+      viewAll: 'View all',
     },
   };
 

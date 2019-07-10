@@ -231,8 +231,8 @@
     },
     $trs: {
       kolibri: 'Kolibri',
-      navigationLabel: 'Main user navigation',
-      closeNav: 'Close navigation',
+      navigationLabel: 'Main user navigation menu',
+      closeNav: 'Close navigation menu',
       poweredBy: 'Kolibri {version}',
       privacyLink: 'Usage and privacy',
     },

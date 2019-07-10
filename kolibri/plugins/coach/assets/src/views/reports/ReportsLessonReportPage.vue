@@ -16,16 +16,15 @@
       <CoreTable :emptyMessage="emptyMessage">
         <thead slot="thead">
           <tr>
-            <th>{{ coachStrings.$tr('titleLabel') }}</th>
-            <th>{{ coachStrings.$tr('progressLabel') }}</th>
-            <th>{{ coachStrings.$tr('avgTimeSpentLabel') }}</th>
+            <th>{{ coachCommon$tr('titleLabel') }}</th>
+            <th>{{ coachCommon$tr('progressLabel') }}</th>
+            <th>{{ coachCommon$tr('avgTimeSpentLabel') }}</th>
           </tr>
         </thead>
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="tableRow in table" :key="tableRow.node_id">
             <td>
-              <KLabeledIcon>
-                <KBasicContentIcon slot="icon" :kind="tableRow.kind" />
+              <KLabeledIcon :icon="tableRow.kind">
                 <KRouterLink
                   v-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
                   :text="tableRow.title"
@@ -67,12 +66,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoach from '../common';
-  import LessonSummaryPage from '../plan/LessonSummaryPage';
   import ReportsLessonHeader from './ReportsLessonHeader';
-
-  const LessonSummaryPageStrings = crossComponentTranslator(LessonSummaryPage);
 
   export default {
     name: 'ReportsLessonReportPage',
@@ -82,7 +77,7 @@
     mixins: [commonCoach],
     computed: {
       emptyMessage() {
-        return LessonSummaryPageStrings.$tr('noResourcesInLesson');
+        return this.$tr('noResourcesInLesson');
       },
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -107,6 +102,7 @@
     },
     $trs: {
       back: 'All lessons',
+      noResourcesInLesson: 'No resources in this lesson',
     },
   };
 

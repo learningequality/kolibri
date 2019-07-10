@@ -9,40 +9,37 @@
       />
     </p>
     <h1>
-      <KLabeledIcon>
-        <KIcon slot="icon" quiz />
-        {{ exam.title }}
-      </KLabeledIcon>
+      <KLabeledIcon icon="quiz" :label="exam.title" />
     </h1>
 
     <HeaderTable>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachStrings.$tr('statusLabel') }}
+          {{ coachCommon$tr('statusLabel') }}
         </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
         <template slot="key">
-          {{ coachStrings.$tr('avgScoreLabel') }}
+          {{ coachCommon$tr('avgScoreLabel') }}
         </template>
         <Score slot="value" :value="avgScore" />
       </HeaderTableRow>
       <!-- TODO COACH
       <HeaderTableRow>
-        <template slot="key">{{ coachStrings.$tr('questionOrderLabel') }}</template>
-        <template slot="value">{{ coachStrings.$tr('orderRandomLabel') }}</template>
+        <template slot="key">{{ coachCommon$tr('questionOrderLabel') }}</template>
+        <template slot="value">{{ coachCommon$tr('orderRandomLabel') }}</template>
       </HeaderTableRow>
        -->
     </HeaderTable>
 
     <HeaderTabs>
       <HeaderTab
-        :text="coachStrings.$tr('reportLabel')"
+        :text="coachCommon$tr('reportLabel')"
         :to="classRoute('ReportsGroupReportQuizLearnerListPage')"
       />
       <HeaderTab
-        :text="coachStrings.$tr('difficultQuestionsLabel')"
+        :text="coachCommon$tr('difficultQuestionsLabel')"
         :to="classRoute('ReportsGroupReportQuizQuestionListPage')"
       />
     </HeaderTabs>
