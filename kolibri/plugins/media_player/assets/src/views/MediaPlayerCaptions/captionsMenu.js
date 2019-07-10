@@ -5,25 +5,6 @@ const BaseCaptionsMenu = connector('Menu', captionsMenu);
 
 class CaptionsMenu extends BaseCaptionsMenu {
   /**
-   * @param {Object} [options]
-   * @return {VueComponent}
-   */
-  createVueComponent(options) {
-    const component = super.createVueComponent(
-      Object.assign(
-        {
-          propsData: {
-            activeLanguage: '',
-          },
-        },
-        options
-      )
-    );
-    component.$on('changeKind', (kind, isActive) => this.handleKindChange(kind, isActive));
-    return component;
-  }
-
-  /**
    * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
    * options (the languages) in the right spot
    *

@@ -7,7 +7,7 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
   /**
    * @param {Player} player
    * @param {Object} options
-   * @param {TextTrackLanguageGroup} options.track
+   * @param {TextTrack} options.track
    */
   constructor(player, options = {}) {
     const track = options.track;
@@ -23,7 +23,7 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
    * @return {VueComponent}
    */
   createVueComponent(options = {}) {
-    const component = super.createVueComponent(
+    return super.createVueComponent(
       Object.assign(
         {
           propsData: {
@@ -34,12 +34,6 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
         options
       )
     );
-
-    component.$on('change', () => {
-      this.selected(true);
-      this.trigger('change');
-    });
-    return component;
   }
 
   /**
