@@ -63,7 +63,7 @@
         );
       },
       ...mapState('lessonSummary', ['workingResources']),
-      ...mapState('lessonSummary/resources', ['currentContentNode', 'preview']),
+      ...mapState('lessonSummary/resources', ['currentContentNode', 'preview', 'ancestors']),
       isSelected() {
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
           return this.workingResources.includes(this.currentContentNode.id);
@@ -71,9 +71,10 @@
         return false;
       },
       lessonNameLabel() {
-        const lessonId = this.$route.params.lessonId;
-        const lesson = this.lessons.find(l => l.id === lessonId);
-        return lesson ? lesson.title : this.$tr('lessonLabel');
+        const ancestorLength = this.ancestors ? this.ancestors.length : 0;
+        const label =
+          ancestorLength > 0 ? this.ancestors[ancestorLength - 1].title : this.$tr('lessonLabel');
+        return label;
       },
     },
     beforeDestroy() {
