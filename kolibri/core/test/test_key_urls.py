@@ -20,7 +20,7 @@ from kolibri.core.device.translation import get_settings_language
 class KolibriTagNavigationTestCase(APITestCase):
     def test_redirect_to_setup_wizard(self):
         with patch("kolibri.core.views.is_provisioned", return_value=False):
-            response = self.client.get("/")
+            response = self.client.get(reverse("kolibri:core:root_redirect"))
             self.assertEqual(response.status_code, 302)
             self.assertEqual(
                 response.get("location"),
@@ -29,7 +29,7 @@ class KolibriTagNavigationTestCase(APITestCase):
 
     def test_redirect_root_to_user_if_not_logged_in(self):
         provision_device()
-        response = self.client.get("/")
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.get("location"), reverse("kolibri:user:user"))
 
@@ -38,7 +38,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         do = create_superuser(facility)
         provision_device()
         self.client.login(username=do.username, password=DUMMY_PASSWORD)
-        response = self.client.get("/")
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.get("location"), reverse("kolibri:learn:learn"))
 
