@@ -76,7 +76,7 @@
         return this.windowBreakpoint;
       },
       buttonLanguages() {
-        const prioritized_languages = ['en', 'ar', 'es-es', 'hi-in', 'fr-fr', 'sw-tz'];
+        const prioritized_languages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
         return prioritized_languages
           .filter(lang => availableLanguages[lang] !== undefined)
           .filter(lang => lang !== currentLanguage)
