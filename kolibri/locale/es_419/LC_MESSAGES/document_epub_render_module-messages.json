@@ -6,7 +6,7 @@
   "LoadingScreen.loadingBook": "Cargando el libro",
   "NextButton.goToNextPage": "Ir a página siguiente",
   "PreviousButton.goToPreviousPage": "Ir a página anterior",
-  "SearchButton.toggleSearchSideBar": "Abre\/Cierra la barra lateral de búsqueda",
+  "SearchButton.toggleSearchSideBar": "Abre/Cierra la barra lateral de búsqueda",
   "SearchSideBar.enterSearchQuery": "Escribe palabra a buscar",
   "SearchSideBar.loadingResults": "Cargando resultados",
   "SearchSideBar.noSearchResults": "No hay resultados",
@@ -14,7 +14,7 @@
   "SearchSideBar.overCertainNumberOfSearchResults": "Más de {num, number, integer} {num, plural, one {resultado} other {resultados}}",
   "SearchSideBar.searchThroughBook": "Buscar en el libro",
   "SearchSideBar.submitSearchQuery": "Iniciar búsqueda",
-  "SettingsButton.toggleSettingsSideBar": "Abre\/Cierra la barra lateral de configuración",
+  "SettingsButton.toggleSettingsSideBar": "Abre/Cierra la barra lateral de configuración",
   "SettingsSideBar.decrease": "Reducir",
   "SettingsSideBar.increase": "Aumentar",
   "SettingsSideBar.setBeigeTheme": "Activar tema beige",
@@ -23,6 +23,6 @@
   "SettingsSideBar.setWhiteTheme": "Activar tema blanco",
   "SettingsSideBar.textSize": "Tamaño del texto",
   "SettingsSideBar.theme": "Tema",
-  "TocButton.toggleTocSideBar": "Abre\/Cierra la barra lateral de contenido",
-  "TopBar.toggleFullscreen": "Activar\/Desactivar pantalla completa"
+  "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral de contenido",
+  "TopBar.toggleFullscreen": "Activar/Desactivar pantalla completa"
 }
