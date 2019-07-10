@@ -185,10 +185,10 @@ EXTRA_LANG_INFO = {
         "name": "Fulfulde (Cameroon)",
         "name_local": "Fulfulde Mbororoore",
     },
-    "la": {
+    "es-419": {
         "bidi": False,
-        "code": "la",
-        "name": "Spanish",
+        "code": "es-419",
+        "name": "Spanish (Latin America)",
         "name_local": "Español",
     },
     "es-es": {
