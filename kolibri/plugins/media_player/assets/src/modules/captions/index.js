@@ -120,13 +120,18 @@ export default {
       settings.captionLanguage = language;
       store.dispatch('synchronizeTrackList');
 
+      const track = store.getters.activeTrack;
+      if (!track) {
+        return;
+      }
+
       // Retain video.js behavior on language change,
       // see TextTrackMenuItem.handleSelectedLanguageChange
       store.dispatch(
         'mediaPlayer/withPlayer',
         player_ => {
           handleSelectedLanguageChange.call({
-            track: store.getters.activeTrack,
+            track,
             player_,
           });
         },

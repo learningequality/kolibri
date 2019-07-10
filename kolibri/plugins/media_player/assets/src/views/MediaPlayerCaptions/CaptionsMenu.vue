@@ -80,8 +80,7 @@
       ...mapGetters('mediaPlayer/captions', ['languageLabel']),
       activeKindNames() {
         const kindNames = KINDS.filter(kind => this[kind]).map(kind => this.$tr(kind));
-
-        return kindNames.length ? kindNames.join(', ') : 'None';
+        return kindNames.length ? kindNames.join(', ') : this.$tr('none');
       },
     },
 
@@ -133,6 +132,7 @@
       languages: 'Languages',
       subtitles: 'Subtitles',
       transcript: 'Transcript',
+      none: 'None',
     },
   };
 
