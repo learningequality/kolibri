@@ -40,12 +40,12 @@
         </template>
         <template v-for="track in trackSources">
           <track
-            :key="track.key"
-            :kind="track.kind"
+            :key="track.storage_url"
+            kind="captions"
             :src="track.storage_url"
             :srclang="track.lang.id"
             :label="track.lang.lang_name"
-            :default="track.is_default"
+            :default="isDefaultTrack(track.lang.id)"
           >
         </template>
       </video>
@@ -150,14 +150,9 @@
       },
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        return this.supplementaryFiles
-          .filter(file => trackFileExtensions.some(ext => ext === file.extension))
-          .map(track => {
-            return Object.assign({}, track, {
-              key: track.storage_url,
-              is_default: this.isDefaultTrack(track.lang.id),
-            });
-          });
+        return this.supplementaryFiles.filter(file =>
+          trackFileExtensions.some(ext => ext === file.extension)
+        );
       },
       isVideo() {
         return this.videoSources.length;
