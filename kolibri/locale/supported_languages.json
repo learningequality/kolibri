@@ -30,15 +30,15 @@
   {
     "crowdin_code": "es-ES",
     "intl_code": "es-es",
-    "language_name": "Español",
-    "english_name": "Spanish",
+    "language_name": "Español (España)",
+    "english_name": "Spanish (Spain)",
     "default_font": "NotoSans"
   },
     {
     "crowdin_code": "la",
     "intl_code": "es-419",
-    "language_name": "Español (América Latina)",
-    "english_name": "Spanish (Latin America)",
+    "language_name": "Español",
+    "english_name": "Spanish",
     "default_font": "NotoSans"
   },
   {

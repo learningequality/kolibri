@@ -188,8 +188,14 @@ EXTRA_LANG_INFO = {
     "la": {
         "bidi": False,
         "code": "la",
-        "name": "Spanish (Latin America)",
-        "name_local": "Español América Latina",
+        "name": "Spanish",
+        "name_local": "Español",
+    },
+    "es-es": {
+        "bidi": False,
+        "code": "es-es",
+        "name": "Spanish (Spain)",
+        "name_local": "Español (España)",
     },
     "fr-ht": {
         "bidi": False,
