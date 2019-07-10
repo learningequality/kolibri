@@ -1,4 +1,5 @@
 import Vue from 'kolibri.lib.vue';
+import store from 'kolibri.coreVue.vuex.store';
 import videojs from 'video.js';
 
 /**
@@ -27,7 +28,7 @@ export default function videojsVueConnector(videojsComponent, vueComponent) {
      */
     createVueComponent(options) {
       this.clearVueComponent();
-      this._vueComponent = new VueComponent(options).$mount();
+      this._vueComponent = new VueComponent(Object.assign({ store }, options)).$mount();
       return this.getVueComponent();
     }
 
@@ -46,13 +47,6 @@ export default function videojsVueConnector(videojsComponent, vueComponent) {
         this._vueComponent.$destroy();
         this._vueComponent = null;
       }
-    }
-
-    /**
-     * @return {Settings}
-     */
-    getSettings() {
-      return this.options_.settings;
     }
 
     /**

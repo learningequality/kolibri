@@ -28,7 +28,7 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
         {
           propsData: {
             label: this.getLabel(),
-            selected: this.getTrack().isEnabled(),
+            value: this.getTrack().language,
           },
         },
         options
@@ -43,34 +43,6 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
   }
 
   /**
-   * @override
-   * @param selected
-   */
-  selected(selected) {
-    this.getVueComponent().$props.selected = selected;
-
-    if (selected) {
-      this.getTrack().enable();
-    } else {
-      this.getTrack().disable();
-    }
-  }
-
-  /**
-   * @return {boolean}
-   */
-  isSelected() {
-    return this.getTrack().isEnabled();
-  }
-
-  /**
-   * @return {TextTrackLanguageGroup}
-   */
-  getTrack() {
-    return this.options_.track;
-  }
-
-  /**
    * @return {String}
    */
   getLabel() {
@@ -78,7 +50,20 @@ class CaptionsMenuItem extends BaseCaptionsMenuItem {
   }
 
   /**
+   * @return {TextTrack}
+   */
+  getTrack() {
+    return this.options_.track;
+  }
+
+  /**
+   * @override
+   */
+  selected() {}
+
+  /**
    * We don't need to handle clicks
+   * @override
    */
   handleClick() {}
 }

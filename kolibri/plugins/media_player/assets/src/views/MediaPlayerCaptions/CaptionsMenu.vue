@@ -15,22 +15,28 @@
           @toggle="isKindOpen = $event"
         >
           <ul role="menu">
-            <template v-for="kind in kinds">
-              <li :key="kind.id" class="vjs-menu-item" role="menuitem">
-                <KCheckbox
-                  :label="kind.name"
-                  :checked="activeKinds[kind.id]"
-                  role="menuitem"
-                  @change="handleKindChange(kind.id, $event)"
-                />
-              </li>
-            </template>
+            <li class="vjs-menu-item" role="menuitem">
+              <KCheckbox
+                :label="$tr('subtitles')"
+                :checked="subtitles"
+                role="menuitem"
+                @change="toggleSubtitles"
+              />
+            </li>
+            <li class="vjs-menu-item" role="menuitem">
+              <KCheckbox
+                :label="$tr('transcript')"
+                :checked="transcript"
+                role="menuitem"
+                @change="toggleTranscript"
+              />
+            </li>
           </ul>
         </CaptionsMenuSetting>
         <CaptionsMenuSetting
           v-show="!isKindOpen"
           :title="$tr('language')"
-          :currentValue="activeLanguage"
+          :currentValue="languageLabel"
           :open="isLanguageOpen"
           @toggle="isLanguageOpen = $event"
         >
@@ -47,11 +53,12 @@
 
 <script>
 
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCheckbox from 'kolibri.coreVue.components.KCheckbox';
-  import constants from '../../constants.json';
-  import Settings from '../../utils/settings';
   import CaptionsMenuSetting from './CaptionsMenuSetting';
+
+  const KINDS = ['subtitles', 'transcript'];
 
   export default {
     name: 'CaptionsMenu',
@@ -59,47 +66,20 @@
     components: { KCheckbox, CaptionsMenuSetting },
     mixins: [themeMixin],
 
-    props: {
-      settings: {
-        type: Settings,
-        required: true,
-      },
-      activeLanguage: {
-        type: String,
-        required: false,
-      },
-    },
-
     data: function() {
       return {
         open: false,
 
-        kinds: [
-          {
-            id: constants.KIND_SUBTITLES,
-            name: this.$tr('subtitles'),
-          },
-          {
-            id: constants.KIND_TRANSCRIPT,
-            name: this.$tr('transcript'),
-          },
-        ],
-
         isKindOpen: false,
         isLanguageOpen: false,
-
-        activeKinds: {
-          [constants.KIND_SUBTITLES]: false,
-          [constants.KIND_TRANSCRIPT]: false,
-        },
       };
     },
 
     computed: {
+      ...mapState('mediaPlayer/captions', ['subtitles', 'transcript']),
+      ...mapGetters('mediaPlayer/captions', ['languageLabel']),
       activeKindNames() {
-        const kindNames = this.kinds
-          .filter(kind => this.activeKinds[kind.id])
-          .map(kind => kind.name);
+        const kindNames = KINDS.filter(kind => this[kind]).map(kind => this.$tr(kind));
 
         return kindNames.length ? kindNames.join(', ') : 'None';
       },
@@ -114,20 +94,8 @@
       },
     },
 
-    created() {
-      this.settings.captionKinds.forEach(kind => {
-        this.activeKinds[kind] = true;
-      });
-    },
-
     methods: {
-      /**
-       * @param {String} kind
-       * @param {Boolean} isActive
-       */
-      handleKindChange(kind, isActive) {
-        this.$emit('changeKind', kind, isActive);
-      },
+      ...mapActions('mediaPlayer/captions', ['toggleSubtitles', 'toggleTranscript']),
 
       /**
        * @public

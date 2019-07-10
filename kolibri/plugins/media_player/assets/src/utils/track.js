@@ -1,4 +1,6 @@
-import constants from '../constants.json';
+export const MODE_SHOWING = 'showing';
+export const MODE_HIDDEN = 'hidden';
+export const MODE_DISABLED = 'disabled';
 
 export default {
   /**
@@ -6,31 +8,27 @@ export default {
    * @return {boolean}
    */
   isEnabledMode(mode) {
-    return Object.values(constants.KIND_ENABLED_MODE).indexOf(mode) >= 0;
+    return mode === MODE_SHOWING || mode === MODE_HIDDEN;
   },
 
   /**
+   * Setting mode can cause events, which could cause loop if we don't make sure that the mode
+   * isn't already the mode we're going to set
+   *
    * @param {TextTrack} track
-   * @return {String}
+   * @param {Boolean} enabled
+   * @param {Boolean} [hidden]
    */
-  getEnabledMode(track) {
-    if (!(track.kind in constants.KIND_ENABLED_MODE)) {
-      throw new Error('Unknown track kind');
+  setMode(track, enabled, hidden = false) {
+    let mode = MODE_DISABLED;
+
+    if (enabled) {
+      mode = hidden ? MODE_HIDDEN : MODE_SHOWING;
     }
 
-    return constants.KIND_ENABLED_MODE[track.kind];
-  },
-
-  /**
-   * @param {TextTrack} track
-   * @return {String}
-   */
-  getDisabledMode(track) {
-    if (!(track.kind in constants.KIND_DISABLED_MODE)) {
-      throw new Error('Unknown track kind');
+    if (track.mode !== mode) {
+      track.mode = mode;
     }
-
-    return constants.KIND_DISABLED_MODE[track.kind];
   },
 
   /**
@@ -38,7 +36,7 @@ export default {
    * @return {boolean}
    */
   isEnabled(track) {
-    return track.mode === this.getEnabledMode(track);
+    return this.isEnabledMode(track.mode);
   },
 
   /**

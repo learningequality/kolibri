@@ -5,6 +5,12 @@ const MEDIA_PLAYER_SETTINGS_KEY = 'kolibriMediaPlayerSettings';
 class Settings {
   constructor(defaults = {}) {
     this._defaults = defaults;
+
+    // `videoLangCode` predates `captionLanguage` code, so migrate it
+    if (this.videoLangCode && this.videoLangCode !== this.captionLanguage) {
+      this.captionLanguage = this.videoLangCode;
+      this.videoLangCode = null;
+    }
   }
 
   set playerMuted(playerMuted) {
@@ -31,14 +37,6 @@ class Settings {
     return this.get().playerVolume;
   }
 
-  set captionKinds(captionKinds) {
-    return this.save({ captionKinds });
-  }
-
-  get captionKinds() {
-    return this.get().captionKinds;
-  }
-
   set captionLanguage(captionLanguage) {
     return this.save({ captionLanguage });
   }
@@ -47,20 +45,20 @@ class Settings {
     return this.get().captionLanguage;
   }
 
-  set transcriptShowing(transcriptShowing) {
-    return this.save({ transcriptShowing });
+  set captionSubtitles(captionSubtitles) {
+    return this.save({ captionSubtitles });
   }
 
-  get transcriptShowing() {
-    return this.get().transcriptShowing;
+  get captionSubtitles() {
+    return this.get().captionSubtitles;
   }
 
-  set transcriptLangCode(transcriptLangCode) {
-    return this.save({ transcriptLangCode });
+  set captionTranscript(captionTranscript) {
+    return this.save({ captionTranscript });
   }
 
-  get transcriptLangCode() {
-    return this.get().transcriptLangCode;
+  get captionTranscript() {
+    return this.get().captionTranscript;
   }
 
   set videoLangCode(videoLangCode) {

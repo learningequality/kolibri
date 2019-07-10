@@ -1,18 +1,16 @@
 import videojs from 'video.js';
-import constants from '../../constants.json';
 import trackUtils from '../../utils/track';
-import TextTrackLanguageGroup from '../../track/textTrackLanguageGroup';
 import CaptionsMenu from './captionsMenu';
 import CaptionsMenuItem from './captionsMenuItem';
 
 const TextTrackButton = videojs.getComponent('TextTrackButton');
-const { handleSelectedLanguageChange } = videojs.getComponent('TextTrackMenuItem').prototype;
 
 /**
  * The Component for the Button that will open the CaptionsMenu
  */
 class CaptionsButton extends TextTrackButton {
   /**
+   * @override
    * @return {CaptionsMenu}
    */
   createMenu() {
@@ -23,7 +21,6 @@ class CaptionsButton extends TextTrackButton {
 
     const menu = new CaptionsMenu(this.player(), {
       menuButton: this,
-      settings: this.getSettings(),
     });
 
     this.hideThreshold_ = 0;
@@ -95,6 +92,7 @@ class CaptionsButton extends TextTrackButton {
   }
 
   /**
+   * @override
    * @return {string}
    */
   buildCSSClass() {
@@ -102,6 +100,7 @@ class CaptionsButton extends TextTrackButton {
   }
 
   /**
+   * @override
    * @return {string}
    */
   buildWrapperCSSClass() {
@@ -110,6 +109,7 @@ class CaptionsButton extends TextTrackButton {
 
   /**
    * @see https://github.com/videojs/video.js/blob/v7.4.1/src/js/control-bar/text-track-controls/text-track-button.js#L40
+   * @override
    * @returns {CaptionsMenuItem[]}
    */
   createItems() {
@@ -120,114 +120,14 @@ class CaptionsButton extends TextTrackButton {
       return [];
     }
 
-    // Filter tracks to the kinds we care about, and group by language
-    const trackGroups = tracks
-      .filter(track => constants.KINDS.find(kind => kind === track.kind))
-      .reduce((trackGroups, track) => {
-        if (!(track.language in trackGroups)) {
-          trackGroups[track.language] = [];
-        }
-
-        trackGroups[track.language].push(track);
-        return trackGroups;
-      }, {});
-
-    return Object.entries(trackGroups).map(([language, tracks]) =>
-      this.createItem(language, tracks)
-    );
-  }
-
-  /**
-   * @param {String} language
-   * @param {TextTrack[]} tracks
-   * @return {CaptionsMenuItem}
-   */
-  createItem(language, tracks) {
-    const trackList = this.player().textTracks();
-    const settings = this.getSettings();
-
-    const track = new TextTrackLanguageGroup(language, tracks);
-
-    if (settings.captionLanguage === language) {
-      track.enable();
-    } else {
-      track.disable();
-    }
-
-    constants.KINDS.forEach(kind => {
-      if (!settings.captionKinds.find(captionKind => kind === captionKind)) {
-        track.disableKind(kind);
-      }
-    });
-
-    track
-      .on('enable', () => {
-        settings.captionLanguage = language;
-      })
-      .on('enableKind', kind => {
-        settings.captionKinds = settings.captionKinds.concat([kind]);
-      })
-      .on('disableKind', kind => {
-        settings.captionKinds = settings.captionKinds.filter(captionKind => captionKind !== kind);
+    return tracks.map(track => {
+      return new CaptionsMenuItem(this.player(), {
+        track,
+        selectable: true,
+        multiSelectable: false,
+        selected: trackUtils.isEnabled(track),
       });
-
-    const item = new CaptionsMenuItem(this.player(), {
-      track,
-      selectable: true,
-      multiSelectable: false,
-      selected: track.isEnabled(),
     });
-
-    const changeHandler = () => {
-      if (!track.isEnabled() || !this.menu) {
-        return;
-      }
-
-      this.menu.getCaptionItems().forEach(otherItem => {
-        if (otherItem.getTrack().id !== track.id) {
-          otherItem.selected(false);
-        }
-      });
-    };
-
-    const selectedLanguageChangeHandler = handleSelectedLanguageChange.bind({
-      track,
-      player_: this.player(),
-    });
-
-    item.on('change', changeHandler);
-    trackList.addEventListener('selectedlanguagechange', selectedLanguageChangeHandler);
-
-    item.on('dispose', () => {
-      item.off('change', changeHandler);
-      trackList.removeEventListener('selectedlanguagechange', selectedLanguageChangeHandler);
-    });
-
-    return item;
-  }
-
-  /**
-   * @return {TextTrackLanguageGroup[]}
-   */
-  getTracks() {
-    return this.items ? this.items.map(item => item.getTrack()) : [];
-  }
-
-  /**
-   * @return {TextTrack}
-   */
-  getActiveTrack() {
-    return this.items
-      .filter(item => item instanceof CaptionsMenuItem && item.isSelected())
-      .map(item => item.getTrack())
-      .shift();
-  }
-
-  /**
-   * @return {Settings}
-   */
-  getSettings() {
-    return this.options_.settings;
   }
 }
 

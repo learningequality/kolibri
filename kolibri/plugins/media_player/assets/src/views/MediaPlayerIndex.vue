@@ -13,7 +13,7 @@
       :class="[
         'wrapper',
         {
-          'transcript-visible': isShowingTranscript,
+          'transcript-visible': transcript,
           'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
         },
         $computedClass(progressStyle)
@@ -60,11 +60,7 @@
         </template>
       </audio>
 
-      <MediaPlayerTranscript
-        ref="transcript"
-        :defaultLangCode="defaultLangCode"
-        @toggleTranscript="isShowingTranscript = $event"
-      />
+      <MediaPlayerTranscript ref="transcript" />
     </div>
   </MediaPlayerFullscreen>
 
@@ -74,6 +70,7 @@
 <script>
 
   import vue from 'kolibri.lib.vue';
+  import { mapActions, mapState } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
 
@@ -85,12 +82,10 @@
   import contentRendererMixin from 'kolibri.coreVue.mixins.contentRendererMixin';
 
   import Settings from '../utils/settings';
-  import constants from '../constants.json';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
   import MimicFullscreenToggle from './MediaPlayerFullscreen/mimicFullscreenToggle';
   import MediaPlayerTranscript from './MediaPlayerTranscript';
-  import TranscriptButton from './MediaPlayerTranscript/transcriptButton';
   import CaptionsButton from './MediaPlayerCaptions/captionsButton';
 
   import audioIconPoster from './audio-icon-poster.svg';
@@ -101,7 +96,6 @@
     MimicFullscreenToggle,
     ReplayButton,
     ForwardButton,
-    TranscriptButton,
     CaptionsButton,
   };
 
@@ -127,10 +121,13 @@
       defaultLangCode: GlobalLangCode,
       updateContentStateInterval: null,
       isFullscreen: false,
-      isShowingTranscript: false,
     }),
 
     computed: {
+      ...mapState('mediaPlayer/captions', {
+        transcript: state => state.transcript,
+        captionLanguage: state => state.language,
+      }),
       posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
         return this.thumbnailFiles.filter(file =>
@@ -153,28 +150,14 @@
       },
       trackSources() {
         const trackFileExtensions = ['vtt'];
-        const trackSources = this.supplementaryFiles.filter(file =>
-          trackFileExtensions.some(ext => ext === file.extension)
-        );
-
-        // Create duplicates so subtitles and transcript can be enabled/disabled separately.
-        return [
-          ...trackSources.map(track => {
+        return this.supplementaryFiles
+          .filter(file => trackFileExtensions.some(ext => ext === file.extension))
+          .map(track => {
             return Object.assign({}, track, {
-              key: track.storage_url + constants.KIND_SUBTITLES,
-              kind: constants.KIND_SUBTITLES,
+              key: track.storage_url,
               is_default: this.isDefaultTrack(track.lang.id),
             });
-          }),
-          ...trackSources.map(track => {
-            // for transcript
-            return Object.assign({}, track, {
-              key: track.storage_url + constants.KIND_TRANSCRIPT,
-              kind: constants.KIND_TRANSCRIPT,
-              is_default: false,
-            });
-          }),
-        ];
+          });
       },
       isVideo() {
         return this.videoSources.length;
@@ -201,8 +184,6 @@
         playerVolume: this.playerVolume,
         playerMuted: this.playerMuted,
         playerRate: this.playerRate,
-        captionLanguage: this.defaultLangCode,
-        captionKinds: [],
       });
     },
     mounted() {
@@ -218,21 +199,21 @@
       this.player.dispose();
     },
     methods: {
+      ...mapActions('mediaPlayer', ['setPlayer']),
       isDefaultTrack(langCode) {
+        if (!this.captionLanguage) {
+          return false;
+        }
+
         const shortLangCode = languageIdToCode(langCode);
-        const shortGlobalLangCode = languageIdToCode(this.settings.captionLanguage);
+        const shortGlobalLangCode = languageIdToCode(this.captionLanguage);
 
-        const captionsEnabled = this.settings.captionKinds.find(
-          captionKind => captionKind === constants.KIND_SUBTITLES
-        );
-
-        return shortLangCode === shortGlobalLangCode && captionsEnabled;
+        return shortLangCode === shortGlobalLangCode;
       },
       initPlayer() {
         this.$nextTick(() => {
           this.player = videojs(this.$refs.player, this.getPlayerConfig(), this.handleReadyPlayer);
-          this.$refs.fullscreen.setPlayer(this.player);
-          this.$refs.transcript.setPlayer(this.player);
+          this.setPlayer(this.player);
         });
       },
       getPlayerConfig() {
@@ -263,7 +244,6 @@
                 settings: this.settings,
               },
               { name: 'MimicFullscreenToggle' },
-              // { name: 'TranscriptButton' },
             ],
           },
           language: GlobalLangCode,

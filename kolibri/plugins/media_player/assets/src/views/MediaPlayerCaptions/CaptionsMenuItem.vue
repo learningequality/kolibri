@@ -11,7 +11,7 @@
       :label="label"
       :value="1"
       :currentValue="selected ? 1 : 0"
-      @change="$emit('change', $event)"
+      @change="setLanguage(value)"
     />
   </li>
 
@@ -20,6 +20,7 @@
 
 <script>
 
+  import { mapActions, mapState } from 'vuex';
   import KRadioButton from 'kolibri.coreVue.components.KRadioButton';
 
   export default {
@@ -32,10 +33,21 @@
         type: String,
         required: true,
       },
-      selected: {
-        type: Boolean,
+      value: {
+        type: String,
         required: true,
       },
+    },
+
+    computed: {
+      ...mapState('mediaPlayer/captions', ['language']),
+      selected() {
+        return this.language === this.value;
+      },
+    },
+
+    methods: {
+      ...mapActions('mediaPlayer/captions', ['setLanguage']),
     },
   };
 

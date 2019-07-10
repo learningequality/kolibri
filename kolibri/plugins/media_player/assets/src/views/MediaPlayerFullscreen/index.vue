@@ -9,6 +9,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
 
   export default {
@@ -16,13 +17,20 @@
 
     components: { CoreFullscreen },
 
-    data: () => ({}),
+    data: () => ({
+      registered: false,
+    }),
 
-    methods: {
-      /**
-       * @public
-       */
-      setPlayer(player) {
+    computed: {
+      ...mapState('mediaPlayer', ['player']),
+    },
+
+    watch: {
+      player(player) {
+        if (!player || this.registered) {
+          return;
+        }
+
         const toggle = player.getChild('ControlBar').getChild('MimicFullscreenToggle');
 
         if (!toggle) {
@@ -31,8 +39,11 @@
 
         toggle.on('changeFullscreen', () => this.$refs.core.toggleFullscreen());
         this.$on('changeFullscreen', isFullscreen => toggle.handleChangeFullscreen(isFullscreen));
+        this.registered = true;
       },
+    },
 
+    methods: {
       handleChangeFullscreen(isFullscreen) {
         this.$emit('changeFullscreen', isFullscreen);
       },

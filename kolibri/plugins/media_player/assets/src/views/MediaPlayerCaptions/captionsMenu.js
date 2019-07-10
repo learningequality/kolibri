@@ -1,6 +1,5 @@
 import connector from '../../utils/videojsVueConnector';
 import captionsMenu from './CaptionsMenu.vue';
-import CaptionsMenuItem from './captionsMenuItem';
 
 const BaseCaptionsMenu = connector('Menu', captionsMenu);
 
@@ -14,7 +13,6 @@ class CaptionsMenu extends BaseCaptionsMenu {
       Object.assign(
         {
           propsData: {
-            settings: this.getSettings(),
             activeLanguage: '',
           },
         },
@@ -29,6 +27,7 @@ class CaptionsMenu extends BaseCaptionsMenu {
    * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
    * options (the languages) in the right spot
    *
+   * @override
    * @return {*|Element}
    */
   contentEl() {
@@ -38,47 +37,26 @@ class CaptionsMenu extends BaseCaptionsMenu {
   /**
    * Override parent's method, which adds event handlers we don't want
    *
+   * @override
    * @param {CaptionsMenuItem|Component|String} item The name or instance of the item to add
    */
   addItem(item) {
     this.addChild(item);
-
-    item.on('change', () => this.onChange());
-    this.onChange();
-  }
-
-  /**
-   * Handle language change
-   */
-  onChange() {
-    const activeItem = this.getCaptionItems().find(item => item.isSelected());
-
-    this.getVueComponent().$props.activeLanguage = activeItem ? activeItem.getLabel() : '';
-  }
-
-  /**
-   * @param {String} kind
-   * @param {Boolean} isActive
-   */
-  handleKindChange(kind, isActive) {
-    this.getCaptionItems().forEach(item => {
-      if (isActive) {
-        item.getTrack().enableKind(kind);
-      } else {
-        item.getTrack().disableKind(kind);
-      }
-    });
   }
 
   /**
    * Disables default show/hide functionality, which is triggered on hover. `lockShowing()` gets
    * called instead on click.
+   *
+   * @override
    */
   show() {}
   hide() {}
 
   /**
    * Triggered on click in ancestor
+   *
+   * @override
    */
   lockShowing() {
     const component = this.getVueComponent();
@@ -93,6 +71,8 @@ class CaptionsMenu extends BaseCaptionsMenu {
 
   /**
    * Triggered on blur in ancestor
+   *
+   * @override
    */
   unlockShowing() {
     const component = this.getVueComponent();
@@ -103,13 +83,6 @@ class CaptionsMenu extends BaseCaptionsMenu {
 
     component.hide();
     this.trigger('hide');
-  }
-
-  /**
-   * @return {CaptionsMenuItem[]}
-   */
-  getCaptionItems() {
-    return this.children().filter(item => item instanceof CaptionsMenuItem);
   }
 }
 

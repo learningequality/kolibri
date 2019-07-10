@@ -25,7 +25,7 @@
         :key="cue.id"
         :ref="cue.id"
         :cue="cue"
-        :langCode="langCode"
+        :langCode="language"
         :active="activeCueIds.indexOf(cue.id) >= 0"
         :mediaDuration="mediaDuration"
         @seek="handleSeekEvent"
@@ -44,12 +44,11 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
   import KCircularLoader from 'kolibri.coreVue.components.KCircularLoader';
   import { throttle } from 'frame-throttle';
 
-  import Settings from '../../utils/settings';
-  import TrackHandler from './trackHandler';
   import TranscriptCue from './TranscriptCue';
 
   export default {
@@ -59,24 +58,22 @@
 
     mixins: [themeMixin],
 
-    props: {
-      defaultLangCode: {
-        type: String,
-        required: true,
-      },
-    },
-
     data: () => ({
       langCode: null,
-      showing: false,
       hovering: false,
       nextScroll: null,
       scrollThrottle: null,
-      cues: [],
-      activeCueIds: [],
     }),
 
     computed: {
+      ...mapState('mediaPlayer', ['player']),
+      ...mapState('mediaPlayer/captions', ['transcript', 'language']),
+      ...mapGetters('mediaPlayer/captions', ['cues', 'activeCueIds']),
+
+      showing() {
+        return this.player && this.transcript && this.cues.length;
+      },
+
       mediaDuration() {
         return this.player ? this.player.duration() : 0;
       },
@@ -88,26 +85,31 @@
 
     watch: {
       activeCueIds(newActiveCueIds) {
-        if (!newActiveCueIds || !newActiveCueIds.length) {
+        if (!newActiveCueIds || !newActiveCueIds.length || !Object.keys(this.$refs).length) {
           return;
         }
 
-        const offsetTop = newActiveCueIds.reduce((offsetTop, cueId) => {
-          const [cue] = this.$refs[cueId];
-          return Math.min(offsetTop, cue.offsetTop());
-        }, this.$el.scrollHeight);
+        const offsetTop = newActiveCueIds.reduce(
+          this.cueReduce((offsetTop, cue) => {
+            return Math.min(offsetTop, cue.offsetTop());
+          }),
+          this.$el.scrollHeight
+        );
 
-        const offsetBottom = newActiveCueIds.reduce((offsetBottom, cueId) => {
-          const [cue] = this.$refs[cueId];
-          return Math.max(offsetBottom, cue.offsetTop() + cue.height());
-        }, 0);
+        const offsetBottom = newActiveCueIds.reduce(
+          this.cueReduce((offsetBottom, cue) => {
+            return Math.max(offsetBottom, cue.offsetTop() + cue.height());
+          }),
+          0
+        );
 
-        const duration = newActiveCueIds.reduce((duration, cueId) => {
-          const [cue] = this.$refs[cueId];
-
-          // Multiply duration by 1000 to get milliseconds
-          return duration + cue.duration() * 1000;
-        }, 0);
+        const duration = newActiveCueIds.reduce(
+          this.cueReduce((duration, cue) => {
+            // Multiply duration by 1000 to get milliseconds
+            return duration + cue.duration() * 1000;
+          }),
+          0
+        );
 
         this.scrollTo(offsetTop, offsetBottom, duration);
       },
@@ -123,104 +125,9 @@
       },
     },
 
-    created() {
-      this.settings = new Settings({
-        transcriptLangCode: this.defaultLangCode,
-        transcriptShowing: false,
-      });
-    },
-
     methods: {
-      /**
-       * @public
-       */
-      setPlayer(player) {
-        /** @var {TranscriptButton} */
-        const button = player.getChild('ControlBar').getChild('TranscriptButton');
-
-        if (!button) {
-          return;
-        }
-
-        this.player = player;
-        this.button = button;
-
-        this.button.on('toggleTranscript', () => this.toggle());
-        this.button.on('trackChange', () => this.loadTrack(this.button.getActiveTrack()));
-
-        this.player.on('texttrackchange', () => this.handleTrackChange());
-        this.player.one('loadstart', () => this.loadTracks(this.button.getTracks()));
-      },
-
-      toggle(showing = !this.showing) {
-        if (showing === this.showing) {
-          return;
-        }
-
-        this.showing = showing;
-        this.settings.transcriptShowing = this.showing;
-        this.$emit('toggleTranscript', this.showing);
-      },
-
       handleSeekEvent(cueTime) {
         this.player.currentTime(cueTime);
-      },
-
-      handleTrackChange() {
-        // Protect against video.js disabling our track on a trackchange event
-        if (this.handler && this.showing) {
-          this.handler.activate();
-        }
-      },
-
-      loadTracks(textTracks) {
-        this.tracks = textTracks.map(track => {
-          // Hack :: override addCue since there is no event for when cues are added or ready
-          const addCue = track.addCue.bind(track);
-          track.addCue = function(cue) {
-            this.trigger('addcue', cue);
-            return addCue(cue);
-          };
-
-          return track;
-        });
-
-        const track = this.tracks.find(t => t.language === this.settings.transcriptLangCode);
-        if (track) {
-          this.button.selectTrack(track);
-          this.loadTrack(track, false);
-          this.toggle(this.settings.transcriptShowing);
-        }
-      },
-
-      loadTrack(track, doToggle = true) {
-        if (this.handler) {
-          this.handler.deactivate();
-          this.handler = null;
-        }
-
-        if (!track) {
-          if (doToggle) {
-            this.toggle(false);
-          }
-          return;
-        }
-
-        this.langCode = track.language;
-
-        this.handler = new TrackHandler(track);
-        this.cues = this.handler.getCues();
-        this.activeCueIds = this.handler.getActiveCueIds();
-        this.handler.on('addcue', () => {
-          this.cues = this.handler.getCues();
-        });
-        this.handler.on('cuechange', () => {
-          this.activeCueIds = this.handler.getActiveCueIds();
-        });
-
-        if (doToggle) {
-          this.toggle(true);
-        }
       },
 
       scrollTo(offsetTop, offsetBottom, duration) {
@@ -276,6 +183,26 @@
         });
 
         this.$nextTick(this.scrollThrottle);
+      },
+
+      /**
+       * @param {Function} callback
+       * @return {Function}
+       */
+      cueReduce(callback) {
+        return (reduced, cueId) => {
+          if (!(cueId in this.$refs) || !this.$refs[cueId]) {
+            return reduced;
+          }
+
+          const [cue] = this.$refs[cueId];
+
+          try {
+            return callback(reduced, cue);
+          } catch (e) {
+            return reduced;
+          }
+        };
       },
     },
     $trs: {
