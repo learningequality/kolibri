@@ -12,7 +12,7 @@ class Router {
    * Create a Router instance.
    */
   constructor() {
-    this._vueRouter = new VueRouter();
+    this._vueRouter = null;
     this._actions = {};
     this._routes = {};
   }
@@ -24,7 +24,15 @@ class Router {
     next();
   }
 
-  init(routes) {
+  initRouter(options = {}) {
+    this._vueRouter = new VueRouter(options);
+  }
+
+  initRoutes(routes) {
+    if (this._vueRouter === null) {
+      this.initRouter();
+    }
+
     routes.forEach(route => {
       // if no name was passed but a component was, use the component's name
       if (!route.name && route.component) {

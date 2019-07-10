@@ -8,10 +8,8 @@ from kolibri.plugins.base import KolibriPluginBase
 
 
 class StyleGuide(KolibriPluginBase):
-    translated_view_urls = "urls"
+    root_view_urls = "root_urls"
 
-    def url_slug(self):
-        return "^style_guide/"
 
 class StyleGuideAsset(webpack_hooks.WebpackBundleHook):
     unique_slug = "style_guide_module"

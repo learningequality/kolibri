@@ -147,7 +147,7 @@ export default class KolibriApp extends KolibriModule {
             {
               el: 'rootvue',
               store: store,
-              router: router.init(this.routes),
+              router: router.initRoutes(this.routes),
             },
             this.RootVue
           )

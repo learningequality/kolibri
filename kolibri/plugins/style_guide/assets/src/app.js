@@ -1,5 +1,6 @@
 import router from 'kolibri.coreVue.router';
 import store from 'kolibri.coreVue.vuex.store';
+import urls from 'kolibri.urls';
 import RootVue from './views/StyleGuideIndex';
 import { navMenuRoutes } from './routes';
 import pluginModule from './modules/pluginModule';
@@ -19,6 +20,7 @@ class StyleGuideModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
+    router.initRouter({ mode: 'history', base: urls['style_guide']() });
     router.afterEach(() => {
       store.dispatch('notLoading');
     });
